@@ -1,0 +1,11 @@
+# Editor-specific
+.idea
+*.sublime-project
+*.sublime-workspace
+.settings
+
+# Installed libs
+node_modules
+
+# Misc
+ignore

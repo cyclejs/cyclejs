@@ -1,0 +1,22 @@
+{
+  "strict": true,
+  "indent": 2,
+  "maxlen": 90,
+  "maxparams": 3,
+  "maxdepth": 4,
+  "maxstatements": 40,
+  "curly": true,
+  "eqeqeq": true,
+  "immed": true,
+  "noempty": true,
+  "latedef": true,
+  "newcap": true,
+  "noarg": true,
+  "sub": true,
+  "undef": true,
+  "unused": true,
+  "boss": true,
+  "eqnull": true,
+  "node": true,
+  "browser": true
+}
