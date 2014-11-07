@@ -13,14 +13,13 @@
   "keywords": ["mvi", "virtual-dom"],
   "main": "src/cycle.js",
   "dependencies": {
-    "rx": "2.3.12",
-    "virtual-dom": "0.0.19",
-    "virtual-hyperscript": "4.4.0",
-    "dom-delegator": "9.0.1",
-    "vdom-virtualize": "0.0.4"
+    "rx": "2.3.14",
+    "virtual-dom": "0.0.21",
+    "virtual-hyperscript": "4.5.0",
+    "dom-delegator": "11.0.0"
   },
   "devDependencies": {
-    "browserify": "~2.36.0",
+    "browserify": "6.2.0",
     "jshint": "^2.5.6",
     "jscs": "^1.6.2"
   },
