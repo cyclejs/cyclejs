@@ -1,220 +1,4 @@
-;(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-
-
-//
-// The shims in this file are not fully implemented shims for the ES5
-// features, but do work for the particular usecases there is in
-// the other modules.
-//
-
-var toString = Object.prototype.toString;
-var hasOwnProperty = Object.prototype.hasOwnProperty;
-
-// Array.isArray is supported in IE9
-function isArray(xs) {
-  return toString.call(xs) === '[object Array]';
-}
-exports.isArray = typeof Array.isArray === 'function' ? Array.isArray : isArray;
-
-// Array.prototype.indexOf is supported in IE9
-exports.indexOf = function indexOf(xs, x) {
-  if (xs.indexOf) return xs.indexOf(x);
-  for (var i = 0; i < xs.length; i++) {
-    if (x === xs[i]) return i;
-  }
-  return -1;
-};
-
-// Array.prototype.filter is supported in IE9
-exports.filter = function filter(xs, fn) {
-  if (xs.filter) return xs.filter(fn);
-  var res = [];
-  for (var i = 0; i < xs.length; i++) {
-    if (fn(xs[i], i, xs)) res.push(xs[i]);
-  }
-  return res;
-};
-
-// Array.prototype.forEach is supported in IE9
-exports.forEach = function forEach(xs, fn, self) {
-  if (xs.forEach) return xs.forEach(fn, self);
-  for (var i = 0; i < xs.length; i++) {
-    fn.call(self, xs[i], i, xs);
-  }
-};
-
-// Array.prototype.map is supported in IE9
-exports.map = function map(xs, fn) {
-  if (xs.map) return xs.map(fn);
-  var out = new Array(xs.length);
-  for (var i = 0; i < xs.length; i++) {
-    out[i] = fn(xs[i], i, xs);
-  }
-  return out;
-};
-
-// Array.prototype.reduce is supported in IE9
-exports.reduce = function reduce(array, callback, opt_initialValue) {
-  if (array.reduce) return array.reduce(callback, opt_initialValue);
-  var value, isValueSet = false;
-
-  if (2 < arguments.length) {
-    value = opt_initialValue;
-    isValueSet = true;
-  }
-  for (var i = 0, l = array.length; l > i; ++i) {
-    if (array.hasOwnProperty(i)) {
-      if (isValueSet) {
-        value = callback(value, array[i], i, array);
-      }
-      else {
-        value = array[i];
-        isValueSet = true;
-      }
-    }
-  }
-
-  return value;
-};
-
-// String.prototype.substr - negative index don't work in IE8
-if ('ab'.substr(-1) !== 'b') {
-  exports.substr = function (str, start, length) {
-    // did we get a negative start, calculate how much it is from the beginning of the string
-    if (start < 0) start = str.length + start;
-
-    // call the original function
-    return str.substr(start, length);
-  };
-} else {
-  exports.substr = function (str, start, length) {
-    return str.substr(start, length);
-  };
-}
-
-// String.prototype.trim is supported in IE9
-exports.trim = function (str) {
-  if (str.trim) return str.trim();
-  return str.replace(/^\s+|\s+$/g, '');
-};
-
-// Function.prototype.bind is supported in IE9
-exports.bind = function () {
-  var args = Array.prototype.slice.call(arguments);
-  var fn = args.shift();
-  if (fn.bind) return fn.bind.apply(fn, args);
-  var self = args.shift();
-  return function () {
-    fn.apply(self, args.concat([Array.prototype.slice.call(arguments)]));
-  };
-};
-
-// Object.create is supported in IE9
-function create(prototype, properties) {
-  var object;
-  if (prototype === null) {
-    object = { '__proto__' : null };
-  }
-  else {
-    if (typeof prototype !== 'object') {
-      throw new TypeError(
-        'typeof prototype[' + (typeof prototype) + '] != \'object\''
-      );
-    }
-    var Type = function () {};
-    Type.prototype = prototype;
-    object = new Type();
-    object.__proto__ = prototype;
-  }
-  if (typeof properties !== 'undefined' && Object.defineProperties) {
-    Object.defineProperties(object, properties);
-  }
-  return object;
-}
-exports.create = typeof Object.create === 'function' ? Object.create : create;
-
-// Object.keys and Object.getOwnPropertyNames is supported in IE9 however
-// they do show a description and number property on Error objects
-function notObject(object) {
-  return ((typeof object != "object" && typeof object != "function") || object === null);
-}
-
-function keysShim(object) {
-  if (notObject(object)) {
-    throw new TypeError("Object.keys called on a non-object");
-  }
-
-  var result = [];
-  for (var name in object) {
-    if (hasOwnProperty.call(object, name)) {
-      result.push(name);
-    }
-  }
-  return result;
-}
-
-// getOwnPropertyNames is almost the same as Object.keys one key feature
-//  is that it returns hidden properties, since that can't be implemented,
-//  this feature gets reduced so it just shows the length property on arrays
-function propertyShim(object) {
-  if (notObject(object)) {
-    throw new TypeError("Object.getOwnPropertyNames called on a non-object");
-  }
-
-  var result = keysShim(object);
-  if (exports.isArray(object) && exports.indexOf(object, 'length') === -1) {
-    result.push('length');
-  }
-  return result;
-}
-
-var keys = typeof Object.keys === 'function' ? Object.keys : keysShim;
-var getOwnPropertyNames = typeof Object.getOwnPropertyNames === 'function' ?
-  Object.getOwnPropertyNames : propertyShim;
-
-if (new Error().hasOwnProperty('description')) {
-  var ERROR_PROPERTY_FILTER = function (obj, array) {
-    if (toString.call(obj) === '[object Error]') {
-      array = exports.filter(array, function (name) {
-        return name !== 'description' && name !== 'number' && name !== 'message';
-      });
-    }
-    return array;
-  };
-
-  exports.keys = function (object) {
-    return ERROR_PROPERTY_FILTER(object, keys(object));
-  };
-  exports.getOwnPropertyNames = function (object) {
-    return ERROR_PROPERTY_FILTER(object, getOwnPropertyNames(object));
-  };
-} else {
-  exports.keys = keys;
-  exports.getOwnPropertyNames = getOwnPropertyNames;
-}
-
-// Object.getOwnPropertyDescriptor - supported in IE8 but only on dom elements
-function valueObject(value, key) {
-  return { value: value[key] };
-}
-
-if (typeof Object.getOwnPropertyDescriptor === 'function') {
-  try {
-    Object.getOwnPropertyDescriptor({'a': 1}, 'a');
-    exports.getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-  } catch (e) {
-    // IE8 dom element issue - use a try catch and default to valueObject
-    exports.getOwnPropertyDescriptor = function (value, key) {
-      try {
-        return Object.getOwnPropertyDescriptor(value, key);
-      } catch (e) {
-        return valueObject(value, key);
-      }
-    };
-  }
-} else {
-  exports.getOwnPropertyDescriptor = valueObject;
-}
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 
 },{}],2:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
@@ -238,8 +22,6 @@ if (typeof Object.getOwnPropertyDescriptor === 'function') {
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var util = require('util');
-
 function EventEmitter() {
   this._events = this._events || {};
   this._maxListeners = this._maxListeners || undefined;
@@ -259,7 +41,7 @@ EventEmitter.defaultMaxListeners = 10;
 // Obviously not all Emitters should be limited to 10. This function allows
 // that to be increased. Set to zero for unlimited.
 EventEmitter.prototype.setMaxListeners = function(n) {
-  if (!util.isNumber(n) || n < 0)
+  if (!isNumber(n) || n < 0 || isNaN(n))
     throw TypeError('n must be a positive number');
   this._maxListeners = n;
   return this;
@@ -274,23 +56,21 @@ EventEmitter.prototype.emit = function(type) {
   // If there is no 'error' event listener then throw.
   if (type === 'error') {
     if (!this._events.error ||
-        (util.isObject(this._events.error) && !this._events.error.length)) {
+        (isObject(this._events.error) && !this._events.error.length)) {
       er = arguments[1];
       if (er instanceof Error) {
         throw er; // Unhandled 'error' event
-      } else {
-        throw TypeError('Uncaught, unspecified "error" event.');
       }
-      return false;
+      throw TypeError('Uncaught, unspecified "error" event.');
     }
   }
 
   handler = this._events[type];
 
-  if (util.isUndefined(handler))
+  if (isUndefined(handler))
     return false;
 
-  if (util.isFunction(handler)) {
+  if (isFunction(handler)) {
     switch (arguments.length) {
       // fast cases
       case 1:
@@ -310,7 +90,7 @@ EventEmitter.prototype.emit = function(type) {
           args[i - 1] = arguments[i];
         handler.apply(this, args);
     }
-  } else if (util.isObject(handler)) {
+  } else if (isObject(handler)) {
     len = arguments.length;
     args = new Array(len - 1);
     for (i = 1; i < len; i++)
@@ -328,7 +108,7 @@ EventEmitter.prototype.emit = function(type) {
 EventEmitter.prototype.addListener = function(type, listener) {
   var m;
 
-  if (!util.isFunction(listener))
+  if (!isFunction(listener))
     throw TypeError('listener must be a function');
 
   if (!this._events)
@@ -338,13 +118,13 @@ EventEmitter.prototype.addListener = function(type, listener) {
   // adding it to the listeners, first emit "newListener".
   if (this._events.newListener)
     this.emit('newListener', type,
-              util.isFunction(listener.listener) ?
+              isFunction(listener.listener) ?
               listener.listener : listener);
 
   if (!this._events[type])
     // Optimize the case of one listener. Don't need the extra array object.
     this._events[type] = listener;
-  else if (util.isObject(this._events[type]))
+  else if (isObject(this._events[type]))
     // If we've already got an array, just append.
     this._events[type].push(listener);
   else
@@ -352,9 +132,9 @@ EventEmitter.prototype.addListener = function(type, listener) {
     this._events[type] = [this._events[type], listener];
 
   // Check for listener leak
-  if (util.isObject(this._events[type]) && !this._events[type].warned) {
+  if (isObject(this._events[type]) && !this._events[type].warned) {
     var m;
-    if (!util.isUndefined(this._maxListeners)) {
+    if (!isUndefined(this._maxListeners)) {
       m = this._maxListeners;
     } else {
       m = EventEmitter.defaultMaxListeners;
@@ -366,7 +146,10 @@ EventEmitter.prototype.addListener = function(type, listener) {
                     'leak detected. %d listeners added. ' +
                     'Use emitter.setMaxListeners() to increase limit.',
                     this._events[type].length);
-      console.trace();
+      if (typeof console.trace === 'function') {
+        // not supported in IE 10
+        console.trace();
+      }
     }
   }
 
@@ -376,12 +159,18 @@ EventEmitter.prototype.addListener = function(type, listener) {
 EventEmitter.prototype.on = EventEmitter.prototype.addListener;
 
 EventEmitter.prototype.once = function(type, listener) {
-  if (!util.isFunction(listener))
+  if (!isFunction(listener))
     throw TypeError('listener must be a function');
+
+  var fired = false;
 
   function g() {
     this.removeListener(type, g);
-    listener.apply(this, arguments);
+
+    if (!fired) {
+      fired = true;
+      listener.apply(this, arguments);
+    }
   }
 
   g.listener = listener;
@@ -394,7 +183,7 @@ EventEmitter.prototype.once = function(type, listener) {
 EventEmitter.prototype.removeListener = function(type, listener) {
   var list, position, length, i;
 
-  if (!util.isFunction(listener))
+  if (!isFunction(listener))
     throw TypeError('listener must be a function');
 
   if (!this._events || !this._events[type])
@@ -405,12 +194,12 @@ EventEmitter.prototype.removeListener = function(type, listener) {
   position = -1;
 
   if (list === listener ||
-      (util.isFunction(list.listener) && list.listener === listener)) {
+      (isFunction(list.listener) && list.listener === listener)) {
     delete this._events[type];
     if (this._events.removeListener)
       this.emit('removeListener', type, listener);
 
-  } else if (util.isObject(list)) {
+  } else if (isObject(list)) {
     for (i = length; i-- > 0;) {
       if (list[i] === listener ||
           (list[i].listener && list[i].listener === listener)) {
@@ -464,7 +253,7 @@ EventEmitter.prototype.removeAllListeners = function(type) {
 
   listeners = this._events[type];
 
-  if (util.isFunction(listeners)) {
+  if (isFunction(listeners)) {
     this.removeListener(type, listeners);
   } else {
     // LIFO order
@@ -480,7 +269,7 @@ EventEmitter.prototype.listeners = function(type) {
   var ret;
   if (!this._events || !this._events[type])
     ret = [];
-  else if (util.isFunction(this._events[type]))
+  else if (isFunction(this._events[type]))
     ret = [this._events[type]];
   else
     ret = this._events[type].slice();
@@ -491,560 +280,30 @@ EventEmitter.listenerCount = function(emitter, type) {
   var ret;
   if (!emitter._events || !emitter._events[type])
     ret = 0;
-  else if (util.isFunction(emitter._events[type]))
+  else if (isFunction(emitter._events[type]))
     ret = 1;
   else
     ret = emitter._events[type].length;
   return ret;
 };
-},{"util":3}],3:[function(require,module,exports){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-var shims = require('_shims');
-
-var formatRegExp = /%[sdj%]/g;
-exports.format = function(f) {
-  if (!isString(f)) {
-    var objects = [];
-    for (var i = 0; i < arguments.length; i++) {
-      objects.push(inspect(arguments[i]));
-    }
-    return objects.join(' ');
-  }
-
-  var i = 1;
-  var args = arguments;
-  var len = args.length;
-  var str = String(f).replace(formatRegExp, function(x) {
-    if (x === '%%') return '%';
-    if (i >= len) return x;
-    switch (x) {
-      case '%s': return String(args[i++]);
-      case '%d': return Number(args[i++]);
-      case '%j':
-        try {
-          return JSON.stringify(args[i++]);
-        } catch (_) {
-          return '[Circular]';
-        }
-      default:
-        return x;
-    }
-  });
-  for (var x = args[i]; i < len; x = args[++i]) {
-    if (isNull(x) || !isObject(x)) {
-      str += ' ' + x;
-    } else {
-      str += ' ' + inspect(x);
-    }
-  }
-  return str;
-};
-
-/**
- * Echos the value of a value. Trys to print the value out
- * in the best way possible given the different types.
- *
- * @param {Object} obj The object to print out.
- * @param {Object} opts Optional options object that alters the output.
- */
-/* legacy: obj, showHidden, depth, colors*/
-function inspect(obj, opts) {
-  // default options
-  var ctx = {
-    seen: [],
-    stylize: stylizeNoColor
-  };
-  // legacy...
-  if (arguments.length >= 3) ctx.depth = arguments[2];
-  if (arguments.length >= 4) ctx.colors = arguments[3];
-  if (isBoolean(opts)) {
-    // legacy...
-    ctx.showHidden = opts;
-  } else if (opts) {
-    // got an "options" object
-    exports._extend(ctx, opts);
-  }
-  // set default options
-  if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
-  if (isUndefined(ctx.depth)) ctx.depth = 2;
-  if (isUndefined(ctx.colors)) ctx.colors = false;
-  if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
-  if (ctx.colors) ctx.stylize = stylizeWithColor;
-  return formatValue(ctx, obj, ctx.depth);
-}
-exports.inspect = inspect;
-
-
-// http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
-inspect.colors = {
-  'bold' : [1, 22],
-  'italic' : [3, 23],
-  'underline' : [4, 24],
-  'inverse' : [7, 27],
-  'white' : [37, 39],
-  'grey' : [90, 39],
-  'black' : [30, 39],
-  'blue' : [34, 39],
-  'cyan' : [36, 39],
-  'green' : [32, 39],
-  'magenta' : [35, 39],
-  'red' : [31, 39],
-  'yellow' : [33, 39]
-};
-
-// Don't use 'blue' not visible on cmd.exe
-inspect.styles = {
-  'special': 'cyan',
-  'number': 'yellow',
-  'boolean': 'yellow',
-  'undefined': 'grey',
-  'null': 'bold',
-  'string': 'green',
-  'date': 'magenta',
-  // "name": intentionally not styling
-  'regexp': 'red'
-};
-
-
-function stylizeWithColor(str, styleType) {
-  var style = inspect.styles[styleType];
-
-  if (style) {
-    return '\u001b[' + inspect.colors[style][0] + 'm' + str +
-           '\u001b[' + inspect.colors[style][1] + 'm';
-  } else {
-    return str;
-  }
-}
-
-
-function stylizeNoColor(str, styleType) {
-  return str;
-}
-
-
-function arrayToHash(array) {
-  var hash = {};
-
-  shims.forEach(array, function(val, idx) {
-    hash[val] = true;
-  });
-
-  return hash;
-}
-
-
-function formatValue(ctx, value, recurseTimes) {
-  // Provide a hook for user-specified inspect functions.
-  // Check that value is an object with an inspect function on it
-  if (ctx.customInspect &&
-      value &&
-      isFunction(value.inspect) &&
-      // Filter out the util module, it's inspect function is special
-      value.inspect !== exports.inspect &&
-      // Also filter out any prototype objects using the circular check.
-      !(value.constructor && value.constructor.prototype === value)) {
-    var ret = value.inspect(recurseTimes);
-    if (!isString(ret)) {
-      ret = formatValue(ctx, ret, recurseTimes);
-    }
-    return ret;
-  }
-
-  // Primitive types cannot have properties
-  var primitive = formatPrimitive(ctx, value);
-  if (primitive) {
-    return primitive;
-  }
-
-  // Look up the keys of the object.
-  var keys = shims.keys(value);
-  var visibleKeys = arrayToHash(keys);
-
-  if (ctx.showHidden) {
-    keys = shims.getOwnPropertyNames(value);
-  }
-
-  // Some type of object without properties can be shortcutted.
-  if (keys.length === 0) {
-    if (isFunction(value)) {
-      var name = value.name ? ': ' + value.name : '';
-      return ctx.stylize('[Function' + name + ']', 'special');
-    }
-    if (isRegExp(value)) {
-      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
-    }
-    if (isDate(value)) {
-      return ctx.stylize(Date.prototype.toString.call(value), 'date');
-    }
-    if (isError(value)) {
-      return formatError(value);
-    }
-  }
-
-  var base = '', array = false, braces = ['{', '}'];
-
-  // Make Array say that they are Array
-  if (isArray(value)) {
-    array = true;
-    braces = ['[', ']'];
-  }
-
-  // Make functions say that they are functions
-  if (isFunction(value)) {
-    var n = value.name ? ': ' + value.name : '';
-    base = ' [Function' + n + ']';
-  }
-
-  // Make RegExps say that they are RegExps
-  if (isRegExp(value)) {
-    base = ' ' + RegExp.prototype.toString.call(value);
-  }
-
-  // Make dates with properties first say the date
-  if (isDate(value)) {
-    base = ' ' + Date.prototype.toUTCString.call(value);
-  }
-
-  // Make error with message first say the error
-  if (isError(value)) {
-    base = ' ' + formatError(value);
-  }
-
-  if (keys.length === 0 && (!array || value.length == 0)) {
-    return braces[0] + base + braces[1];
-  }
-
-  if (recurseTimes < 0) {
-    if (isRegExp(value)) {
-      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
-    } else {
-      return ctx.stylize('[Object]', 'special');
-    }
-  }
-
-  ctx.seen.push(value);
-
-  var output;
-  if (array) {
-    output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
-  } else {
-    output = keys.map(function(key) {
-      return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
-    });
-  }
-
-  ctx.seen.pop();
-
-  return reduceToSingleString(output, base, braces);
-}
-
-
-function formatPrimitive(ctx, value) {
-  if (isUndefined(value))
-    return ctx.stylize('undefined', 'undefined');
-  if (isString(value)) {
-    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
-                                             .replace(/'/g, "\\'")
-                                             .replace(/\\"/g, '"') + '\'';
-    return ctx.stylize(simple, 'string');
-  }
-  if (isNumber(value))
-    return ctx.stylize('' + value, 'number');
-  if (isBoolean(value))
-    return ctx.stylize('' + value, 'boolean');
-  // For some reason typeof null is "object", so special case here.
-  if (isNull(value))
-    return ctx.stylize('null', 'null');
-}
-
-
-function formatError(value) {
-  return '[' + Error.prototype.toString.call(value) + ']';
-}
-
-
-function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
-  var output = [];
-  for (var i = 0, l = value.length; i < l; ++i) {
-    if (hasOwnProperty(value, String(i))) {
-      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
-          String(i), true));
-    } else {
-      output.push('');
-    }
-  }
-
-  shims.forEach(keys, function(key) {
-    if (!key.match(/^\d+$/)) {
-      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
-          key, true));
-    }
-  });
-  return output;
-}
-
-
-function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
-  var name, str, desc;
-  desc = shims.getOwnPropertyDescriptor(value, key) || { value: value[key] };
-  if (desc.get) {
-    if (desc.set) {
-      str = ctx.stylize('[Getter/Setter]', 'special');
-    } else {
-      str = ctx.stylize('[Getter]', 'special');
-    }
-  } else {
-    if (desc.set) {
-      str = ctx.stylize('[Setter]', 'special');
-    }
-  }
-
-  if (!hasOwnProperty(visibleKeys, key)) {
-    name = '[' + key + ']';
-  }
-  if (!str) {
-    if (shims.indexOf(ctx.seen, desc.value) < 0) {
-      if (isNull(recurseTimes)) {
-        str = formatValue(ctx, desc.value, null);
-      } else {
-        str = formatValue(ctx, desc.value, recurseTimes - 1);
-      }
-      if (str.indexOf('\n') > -1) {
-        if (array) {
-          str = str.split('\n').map(function(line) {
-            return '  ' + line;
-          }).join('\n').substr(2);
-        } else {
-          str = '\n' + str.split('\n').map(function(line) {
-            return '   ' + line;
-          }).join('\n');
-        }
-      }
-    } else {
-      str = ctx.stylize('[Circular]', 'special');
-    }
-  }
-  if (isUndefined(name)) {
-    if (array && key.match(/^\d+$/)) {
-      return str;
-    }
-    name = JSON.stringify('' + key);
-    if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
-      name = name.substr(1, name.length - 2);
-      name = ctx.stylize(name, 'name');
-    } else {
-      name = name.replace(/'/g, "\\'")
-                 .replace(/\\"/g, '"')
-                 .replace(/(^"|"$)/g, "'");
-      name = ctx.stylize(name, 'string');
-    }
-  }
-
-  return name + ': ' + str;
-}
-
-
-function reduceToSingleString(output, base, braces) {
-  var numLinesEst = 0;
-  var length = shims.reduce(output, function(prev, cur) {
-    numLinesEst++;
-    if (cur.indexOf('\n') >= 0) numLinesEst++;
-    return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
-  }, 0);
-
-  if (length > 60) {
-    return braces[0] +
-           (base === '' ? '' : base + '\n ') +
-           ' ' +
-           output.join(',\n  ') +
-           ' ' +
-           braces[1];
-  }
-
-  return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
-}
-
-
-// NOTE: These type checking functions intentionally don't use `instanceof`
-// because it is fragile and can be easily faked with `Object.create()`.
-function isArray(ar) {
-  return shims.isArray(ar);
-}
-exports.isArray = isArray;
-
-function isBoolean(arg) {
-  return typeof arg === 'boolean';
-}
-exports.isBoolean = isBoolean;
-
-function isNull(arg) {
-  return arg === null;
-}
-exports.isNull = isNull;
-
-function isNullOrUndefined(arg) {
-  return arg == null;
-}
-exports.isNullOrUndefined = isNullOrUndefined;
-
-function isNumber(arg) {
-  return typeof arg === 'number';
-}
-exports.isNumber = isNumber;
-
-function isString(arg) {
-  return typeof arg === 'string';
-}
-exports.isString = isString;
-
-function isSymbol(arg) {
-  return typeof arg === 'symbol';
-}
-exports.isSymbol = isSymbol;
-
-function isUndefined(arg) {
-  return arg === void 0;
-}
-exports.isUndefined = isUndefined;
-
-function isRegExp(re) {
-  return isObject(re) && objectToString(re) === '[object RegExp]';
-}
-exports.isRegExp = isRegExp;
-
-function isObject(arg) {
-  return typeof arg === 'object' && arg;
-}
-exports.isObject = isObject;
-
-function isDate(d) {
-  return isObject(d) && objectToString(d) === '[object Date]';
-}
-exports.isDate = isDate;
-
-function isError(e) {
-  return isObject(e) && objectToString(e) === '[object Error]';
-}
-exports.isError = isError;
 
 function isFunction(arg) {
   return typeof arg === 'function';
 }
-exports.isFunction = isFunction;
 
-function isPrimitive(arg) {
-  return arg === null ||
-         typeof arg === 'boolean' ||
-         typeof arg === 'number' ||
-         typeof arg === 'string' ||
-         typeof arg === 'symbol' ||  // ES6 symbol
-         typeof arg === 'undefined';
-}
-exports.isPrimitive = isPrimitive;
-
-function isBuffer(arg) {
-  return arg && typeof arg === 'object'
-    && typeof arg.copy === 'function'
-    && typeof arg.fill === 'function'
-    && typeof arg.binarySlice === 'function'
-  ;
-}
-exports.isBuffer = isBuffer;
-
-function objectToString(o) {
-  return Object.prototype.toString.call(o);
+function isNumber(arg) {
+  return typeof arg === 'number';
 }
 
-
-function pad(n) {
-  return n < 10 ? '0' + n.toString(10) : n.toString(10);
+function isObject(arg) {
+  return typeof arg === 'object' && arg !== null;
 }
 
-
-var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
-              'Oct', 'Nov', 'Dec'];
-
-// 26 Feb 16:19:34
-function timestamp() {
-  var d = new Date();
-  var time = [pad(d.getHours()),
-              pad(d.getMinutes()),
-              pad(d.getSeconds())].join(':');
-  return [d.getDate(), months[d.getMonth()], time].join(' ');
+function isUndefined(arg) {
+  return arg === void 0;
 }
 
-
-// log is just a thin wrapper to console.log that prepends a timestamp
-exports.log = function() {
-  console.log('%s - %s', timestamp(), exports.format.apply(exports, arguments));
-};
-
-
-/**
- * Inherit the prototype methods from one constructor into another.
- *
- * The Function.prototype.inherits from lang.js rewritten as a standalone
- * function (not on Function.prototype). NOTE: If this file is to be loaded
- * during bootstrapping this function needs to be rewritten using some native
- * functions as prototype setup using normal JavaScript does not work as
- * expected during bootstrapping (see mirror.js in r114903).
- *
- * @param {function} ctor Constructor function which needs to inherit the
- *     prototype.
- * @param {function} superCtor Constructor function to inherit prototype from.
- */
-exports.inherits = function(ctor, superCtor) {
-  ctor.super_ = superCtor;
-  ctor.prototype = shims.create(superCtor.prototype, {
-    constructor: {
-      value: ctor,
-      enumerable: false,
-      writable: true,
-      configurable: true
-    }
-  });
-};
-
-exports._extend = function(origin, add) {
-  // Don't do anything if add isn't an object
-  if (!add || !isObject(add)) return origin;
-
-  var keys = shims.keys(add);
-  var i = keys.length;
-  while (i--) {
-    origin[keys[i]] = add[keys[i]];
-  }
-  return origin;
-};
-
-function hasOwnProperty(obj, prop) {
-  return Object.prototype.hasOwnProperty.call(obj, prop);
-}
-
-},{"_shims":1}],4:[function(require,module,exports){
-
-},{}],5:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -1052,6 +311,8 @@ var process = module.exports = {};
 process.nextTick = (function () {
     var canSetImmediate = typeof window !== 'undefined'
     && window.setImmediate;
+    var canMutationObserver = typeof window !== 'undefined'
+    && window.MutationObserver;
     var canPost = typeof window !== 'undefined'
     && window.postMessage && window.addEventListener
     ;
@@ -1060,8 +321,29 @@ process.nextTick = (function () {
         return function (f) { return window.setImmediate(f) };
     }
 
+    var queue = [];
+
+    if (canMutationObserver) {
+        var hiddenDiv = document.createElement("div");
+        var observer = new MutationObserver(function () {
+            var queueList = queue.slice();
+            queue.length = 0;
+            queueList.forEach(function (fn) {
+                fn();
+            });
+        });
+
+        observer.observe(hiddenDiv, { attributes: true });
+
+        return function nextTick(fn) {
+            if (!queue.length) {
+                hiddenDiv.setAttribute('yes', 'no');
+            }
+            queue.push(fn);
+        };
+    }
+
     if (canPost) {
-        var queue = [];
         window.addEventListener('message', function (ev) {
             var source = ev.source;
             if ((source === window || source === null) && ev.data === 'process-tick') {
@@ -1089,9 +371,19 @@ process.browser = true;
 process.env = {};
 process.argv = [];
 
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
 process.binding = function (name) {
     throw new Error('process.binding is not supported');
-}
+};
 
 // TODO(shtylman)
 process.cwd = function () { return '/' };
@@ -1099,7 +391,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],6:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var DataSet = require("data-set")
 
 module.exports = addEvent
@@ -1119,13 +411,16 @@ function addEvent(target, type, handler) {
     }
 }
 
-},{"data-set":11}],7:[function(require,module,exports){
+},{"data-set":9}],5:[function(require,module,exports){
 var globalDocument = require("global/document")
 var DataSet = require("data-set")
+var createStore = require("weakmap-shim/create-store")
 
 var addEvent = require("./add-event.js")
 var removeEvent = require("./remove-event.js")
 var ProxyEvent = require("./proxy-event.js")
+
+var HANDLER_STORE = createStore()
 
 module.exports = DOMDelegator
 
@@ -1141,24 +436,40 @@ function DOMDelegator(document) {
 DOMDelegator.prototype.addEventListener = addEvent
 DOMDelegator.prototype.removeEventListener = removeEvent
 
+DOMDelegator.allocateHandle =
+    function allocateHandle(func) {
+        var handle = new Handle()
+
+        HANDLER_STORE(handle).func = func;
+
+        return handle
+    }
+
+DOMDelegator.transformHandle =
+    function transformHandle(handle, lambda) {
+        var func = HANDLER_STORE(handle).func
+
+        return this.allocateHandle(function (ev) {
+            var result = lambda(ev)
+            if (result) {
+                func(result)
+            }
+        })
+    }
+
 DOMDelegator.prototype.addGlobalEventListener =
     function addGlobalEventListener(eventName, fn) {
-        var listeners = this.globalListeners[eventName]
-        if (!listeners) {
-            listeners = this.globalListeners[eventName] = []
-        }
-
+        var listeners = this.globalListeners[eventName] || [];
         if (listeners.indexOf(fn) === -1) {
             listeners.push(fn)
         }
+
+        this.globalListeners[eventName] = listeners;
     }
 
 DOMDelegator.prototype.removeGlobalEventListener =
     function removeGlobalEventListener(eventName, fn) {
-        var listeners = this.globalListeners[eventName]
-        if (!listeners) {
-            return
-        }
+        var listeners = this.globalListeners[eventName] || [];
 
         var index = listeners.indexOf(fn)
         if (index !== -1) {
@@ -1172,7 +483,14 @@ DOMDelegator.prototype.listenTo = function listenTo(eventName) {
     }
 
     this.events[eventName] = true
-    listen(this, eventName)
+
+    var listener = this.rawEventListeners[eventName]
+    if (!listener) {
+        listener = this.rawEventListeners[eventName] =
+            createHandler(eventName, this)
+    }
+
+    this.target.addEventListener(eventName, listener, true)
 }
 
 DOMDelegator.prototype.unlistenTo = function unlistenTo(eventName) {
@@ -1181,50 +499,47 @@ DOMDelegator.prototype.unlistenTo = function unlistenTo(eventName) {
     }
 
     this.events[eventName] = false
-    unlisten(this, eventName)
-}
-
-function listen(delegator, eventName) {
-    var listener = delegator.rawEventListeners[eventName]
-
-    if (!listener) {
-        listener = delegator.rawEventListeners[eventName] =
-            createHandler(eventName, delegator.globalListeners)
-    }
-
-    delegator.target.addEventListener(eventName, listener, true)
-}
-
-function unlisten(delegator, eventName) {
-    var listener = delegator.rawEventListeners[eventName]
+    var listener = this.rawEventListeners[eventName]
 
     if (!listener) {
         throw new Error("dom-delegator#unlistenTo: cannot " +
             "unlisten to " + eventName)
     }
 
-    delegator.target.removeEventListener(eventName, listener, true)
+    this.target.removeEventListener(eventName, listener, true)
 }
 
-function createHandler(eventName, globalListeners) {
+function createHandler(eventName, delegator) {
+    var globalListeners = delegator.globalListeners;
+    var delegatorTarget = delegator.target;
+
     return handler
 
     function handler(ev) {
         var globalHandlers = globalListeners[eventName] || []
-        var listener = getListener(ev.target, eventName)
 
-        var handlers = globalHandlers
-            .concat(listener ? listener.handlers : [])
-        if (handlers.length === 0) {
-            return
+        if (globalHandlers.length > 0) {
+            var globalEvent = new ProxyEvent(ev);
+            globalEvent.currentTarget = delegatorTarget;
+            callListeners(globalHandlers, globalEvent)
         }
 
-        var arg = new ProxyEvent(ev, listener)
+        findAndInvokeListeners(ev.target, ev, eventName)
+    }
+}
 
-        handlers.forEach(function (handler) {
-            typeof handler === "function" ?
-                handler(arg) : handler.handleEvent(arg)
-        })
+function findAndInvokeListeners(elem, ev, eventName) {
+    var listener = getListener(elem, eventName)
+
+    if (listener && listener.handlers.length > 0) {
+        var listenerEvent = new ProxyEvent(ev);
+        listenerEvent.currentTarget = listener.currentTarget
+        callListeners(listener.handlers, listenerEvent)
+
+        if (listenerEvent._bubbles) {
+            var nextTarget = listener.currentTarget.parentNode
+            findAndInvokeListeners(nextTarget, ev, eventName)
+        }
     }
 }
 
@@ -1247,26 +562,48 @@ function getListener(target, type) {
     return new Listener(target, handlers)
 }
 
+function callListeners(handlers, ev) {
+    handlers.forEach(function (handler) {
+        if (typeof handler === "function") {
+            handler(ev)
+        } else if (typeof handler.handleEvent === "function") {
+            handler.handleEvent(ev)
+        } else if (handler.type === "dom-delegator-handle") {
+            HANDLER_STORE(handler).func(ev)
+        } else {
+            throw new Error("dom-delegator: unknown handler " +
+                "found: " + JSON.stringify(handlers));
+        }
+    })
+}
+
 function Listener(target, handlers) {
     this.currentTarget = target
     this.handlers = handlers
 }
 
-},{"./add-event.js":6,"./proxy-event.js":17,"./remove-event.js":18,"data-set":11,"global/document":14}],8:[function(require,module,exports){
+function Handle() {
+    this.type = "dom-delegator-handle"
+}
+
+},{"./add-event.js":4,"./proxy-event.js":15,"./remove-event.js":16,"data-set":9,"global/document":10,"weakmap-shim/create-store":13}],6:[function(require,module,exports){
 var Individual = require("individual")
 var cuid = require("cuid")
 var globalDocument = require("global/document")
 
 var DOMDelegator = require("./dom-delegator.js")
 
-var delegatorCache = Individual("__DOM_DELEGATOR_CACHE@9", {
+var versionKey = "11"
+var cacheKey = "__DOM_DELEGATOR_CACHE@" + versionKey
+var cacheTokenKey = "__DOM_DELEGATOR_CACHE_TOKEN@" + versionKey
+var delegatorCache = Individual(cacheKey, {
     delegators: {}
 })
 var commonEvents = [
     "blur", "change", "click",  "contextmenu", "dblclick",
     "error","focus", "focusin", "focusout", "input", "keydown",
     "keypress", "keyup", "load", "mousedown", "mouseup",
-    "resize", "scroll", "select", "submit", "touchcancel",
+    "resize", "select", "submit", "touchcancel",
     "touchend", "touchstart", "unload"
 ]
 
@@ -1276,7 +613,7 @@ var commonEvents = [
     Only one DOMDelegator should exist because we do not want
         duplicate event listeners bound to the DOM.
 
-    `Delegator` will also `listenTo()` all events unless 
+    `Delegator` will also `listenTo()` all events unless
         every caller opts out of it
 */
 module.exports = Delegator
@@ -1285,11 +622,11 @@ function Delegator(opts) {
     opts = opts || {}
     var document = opts.document || globalDocument
 
-    var cacheKey = document["__DOM_DELEGATOR_CACHE_TOKEN@9"]
+    var cacheKey = document[cacheTokenKey]
 
     if (!cacheKey) {
         cacheKey =
-            document["__DOM_DELEGATOR_CACHE_TOKEN@9"] = cuid()
+            document[cacheTokenKey] = cuid()
     }
 
     var delegator = delegatorCache.delegators[cacheKey]
@@ -1308,9 +645,10 @@ function Delegator(opts) {
     return delegator
 }
 
+Delegator.allocateHandle = DOMDelegator.allocateHandle;
+Delegator.transformHandle = DOMDelegator.transformHandle;
 
-
-},{"./dom-delegator.js":7,"cuid":9,"global/document":14,"individual":15}],9:[function(require,module,exports){
+},{"./dom-delegator.js":5,"cuid":7,"global/document":10,"individual":11}],7:[function(require,module,exports){
 /**
  * cuid.js
  * Collision-resistant UID generator for browsers and node.
@@ -1422,7 +760,7 @@ function Delegator(opts) {
 
 }(this.applitude || this));
 
-},{}],10:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 module.exports = createHash
 
 function createHash(elem) {
@@ -1446,7 +784,7 @@ function createHash(elem) {
     return hash
 }
 
-},{}],11:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var createStore = require("weakmap-shim/create-store")
 var Individual = require("individual")
 
@@ -1466,45 +804,9 @@ function DataSet(elem) {
     return store.hash
 }
 
-},{"./create-hash.js":10,"individual":15,"weakmap-shim/create-store":12}],12:[function(require,module,exports){
-var hiddenStore = require('./hidden-store.js');
-
-module.exports = createStore;
-
-function createStore() {
-    var key = {};
-
-    return function (obj) {
-        if (typeof obj !== 'object' || obj === null) {
-            throw new Error('Weakmap-shim: Key must be object')
-        }
-
-        var store = obj.valueOf(key);
-        return store && store.identity === key ?
-            store : hiddenStore(obj, key);
-    };
-}
-
-},{"./hidden-store.js":13}],13:[function(require,module,exports){
-module.exports = hiddenStore;
-
-function hiddenStore(obj, key) {
-    var store = { identity: key };
-    var valueOf = obj.valueOf;
-
-    Object.defineProperty(obj, "valueOf", {
-        value: function (value) {
-            return value !== key ?
-                valueOf.apply(this, arguments) : store;
-        },
-        writable: true
-    });
-
-    return store;
-}
-
-},{}],14:[function(require,module,exports){
-var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};var topLevel = typeof global !== 'undefined' ? global :
+},{"./create-hash.js":8,"individual":11,"weakmap-shim/create-store":13}],10:[function(require,module,exports){
+(function (global){
+var topLevel = typeof global !== 'undefined' ? global :
     typeof window !== 'undefined' ? window : {}
 var minDoc = require('min-document');
 
@@ -1520,8 +822,10 @@ if (typeof document !== 'undefined') {
     module.exports = doccy;
 }
 
-},{"min-document":4}],15:[function(require,module,exports){
-var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};var root = typeof window !== 'undefined' ?
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"min-document":1}],11:[function(require,module,exports){
+(function (global){
+var root = typeof window !== 'undefined' ?
     window : typeof global !== 'undefined' ?
     global : {};
 
@@ -1540,7 +844,8 @@ function Individual(key, value) {
     return value
 }
 
-},{}],16:[function(require,module,exports){
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],12:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -1565,7 +870,44 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],17:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
+var hiddenStore = require('./hidden-store.js');
+
+module.exports = createStore;
+
+function createStore() {
+    var key = {};
+
+    return function (obj) {
+        if (typeof obj !== 'object' || obj === null) {
+            throw new Error('Weakmap-shim: Key must be object')
+        }
+
+        var store = obj.valueOf(key);
+        return store && store.identity === key ?
+            store : hiddenStore(obj, key);
+    };
+}
+
+},{"./hidden-store.js":14}],14:[function(require,module,exports){
+module.exports = hiddenStore;
+
+function hiddenStore(obj, key) {
+    var store = { identity: key };
+    var valueOf = obj.valueOf;
+
+    Object.defineProperty(obj, "valueOf", {
+        value: function (value) {
+            return value !== key ?
+                valueOf.apply(this, arguments) : store;
+        },
+        writable: true
+    });
+
+    return store;
+}
+
+},{}],15:[function(require,module,exports){
 var inherits = require("inherits")
 
 var ALL_PROPS = [
@@ -1585,15 +927,15 @@ var rmouseEvent = /^(?:mouse|pointer|contextmenu)|click/
 
 module.exports = ProxyEvent
 
-function ProxyEvent(ev, listener) {
+function ProxyEvent(ev) {
     if (!(this instanceof ProxyEvent)) {
-        return new ProxyEvent(ev, listener)
+        return new ProxyEvent(ev)
     }
 
     if (rkeyEvent.test(ev.type)) {
-        return new KeyEvent(ev, listener)
+        return new KeyEvent(ev)
     } else if (rmouseEvent.test(ev.type)) {
-        return new MouseEvent(ev, listener)
+        return new MouseEvent(ev)
     }
 
     for (var i = 0; i < ALL_PROPS.length; i++) {
@@ -1602,14 +944,18 @@ function ProxyEvent(ev, listener) {
     }
 
     this._rawEvent = ev
-    this.currentTarget = listener ? listener.currentTarget : null
+    this._bubbles = false;
 }
 
 ProxyEvent.prototype.preventDefault = function () {
     this._rawEvent.preventDefault()
 }
 
-function MouseEvent(ev, listener) {
+ProxyEvent.prototype.startPropagation = function () {
+    this._bubbles = true;
+}
+
+function MouseEvent(ev) {
     for (var i = 0; i < ALL_PROPS.length; i++) {
         var propKey = ALL_PROPS[i]
         this[propKey] = ev[propKey]
@@ -1621,12 +967,11 @@ function MouseEvent(ev, listener) {
     }
 
     this._rawEvent = ev
-    this.currentTarget = listener ? listener.currentTarget : null
 }
 
 inherits(MouseEvent, ProxyEvent)
 
-function KeyEvent(ev, listener) {
+function KeyEvent(ev) {
     for (var i = 0; i < ALL_PROPS.length; i++) {
         var propKey = ALL_PROPS[i]
         this[propKey] = ev[propKey]
@@ -1638,12 +983,11 @@ function KeyEvent(ev, listener) {
     }
 
     this._rawEvent = ev
-    this.currentTarget = listener ? listener.currentTarget : null
 }
 
 inherits(KeyEvent, ProxyEvent)
 
-},{"inherits":16}],18:[function(require,module,exports){
+},{"inherits":12}],16:[function(require,module,exports){
 var DataSet = require("data-set")
 
 module.exports = removeEvent
@@ -1664,8 +1008,9 @@ function removeEvent(target, type, handler) {
     }
 }
 
-},{"data-set":11}],19:[function(require,module,exports){
-var process=require("__browserify_process"),global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+},{"data-set":9}],17:[function(require,module,exports){
+(function (process,global){
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 ;(function (undefined) {
 
@@ -1974,7 +1319,7 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
       }
     }
     var size = 0;
-    result = true;
+    var result = true;
 
     // add `a` and `b` to the stack of traversed objects
     stackA.push(a);
@@ -2376,30 +1721,30 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
         });
     };
 
-    var ScheduledItem = Rx.internals.ScheduledItem = function (scheduler, state, action, dueTime, comparer) {
-        this.scheduler = scheduler;
-        this.state = state;
-        this.action = action;
-        this.dueTime = dueTime;
-        this.comparer = comparer || defaultSubComparer;
-        this.disposable = new SingleAssignmentDisposable();
-    }
+  var ScheduledItem = Rx.internals.ScheduledItem = function (scheduler, state, action, dueTime, comparer) {
+    this.scheduler = scheduler;
+    this.state = state;
+    this.action = action;
+    this.dueTime = dueTime;
+    this.comparer = comparer || defaultSubComparer;
+    this.disposable = new SingleAssignmentDisposable();
+  }
 
-    ScheduledItem.prototype.invoke = function () {
-        this.disposable.setDisposable(this.invokeCore());
-    };
+  ScheduledItem.prototype.invoke = function () {
+    this.disposable.setDisposable(this.invokeCore());
+  };
 
-    ScheduledItem.prototype.compareTo = function (other) {
-        return this.comparer(this.dueTime, other.dueTime);
-    };
+  ScheduledItem.prototype.compareTo = function (other) {
+    return this.comparer(this.dueTime, other.dueTime);
+  };
 
-    ScheduledItem.prototype.isCancelled = function () {
-        return this.disposable.isDisposed;
-    };
+  ScheduledItem.prototype.isCancelled = function () {
+    return this.disposable.isDisposed;
+  };
 
-    ScheduledItem.prototype.invokeCore = function () {
-        return this.action(this.scheduler, this.state);
-    };
+  ScheduledItem.prototype.invokeCore = function () {
+    return this.action(this.scheduler, this.state);
+  };
 
   /** Provides a set of static properties to access commonly used schedulers. */
   var Scheduler = Rx.Scheduler = (function () {
@@ -2409,54 +1754,6 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
       this._schedule = schedule;
       this._scheduleRelative = scheduleRelative;
       this._scheduleAbsolute = scheduleAbsolute;
-    }
-
-    function invokeRecImmediate(scheduler, pair) {
-      var state = pair.first, action = pair.second, group = new CompositeDisposable(),
-      recursiveAction = function (state1) {
-        action(state1, function (state2) {
-          var isAdded = false, isDone = false,
-          d = scheduler.scheduleWithState(state2, function (scheduler1, state3) {
-            if (isAdded) {
-              group.remove(d);
-            } else {
-              isDone = true;
-            }
-            recursiveAction(state3);
-            return disposableEmpty;
-          });
-          if (!isDone) {
-            group.add(d);
-            isAdded = true;
-          }
-        });
-      };
-      recursiveAction(state);
-      return group;
-    }
-
-    function invokeRecDate(scheduler, pair, method) {
-      var state = pair.first, action = pair.second, group = new CompositeDisposable(),
-      recursiveAction = function (state1) {
-        action(state1, function (state2, dueTime1) {
-          var isAdded = false, isDone = false,
-          d = scheduler[method].call(scheduler, state2, dueTime1, function (scheduler1, state3) {
-            if (isAdded) {
-              group.remove(d);
-            } else {
-              isDone = true;
-            }
-            recursiveAction(state3);
-            return disposableEmpty;
-          });
-          if (!isDone) {
-            group.add(d);
-            isAdded = true;
-          }
-        });
-      };
-      recursiveAction(state);
-      return group;
     }
 
     function invokeAction(scheduler, action) {
@@ -2710,34 +2007,34 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
     };
   }(Scheduler.prototype));
 
-    var SchedulePeriodicRecursive = Rx.internals.SchedulePeriodicRecursive = (function () {
-        function tick(command, recurse) {
-            recurse(0, this._period);
-            try {
-                this._state = this._action(this._state);
-            } catch (e) {
-                this._cancel.dispose();
-                throw e;
-            }
-        }
+  var SchedulePeriodicRecursive = Rx.internals.SchedulePeriodicRecursive = (function () {
+    function tick(command, recurse) {
+      recurse(0, this._period);
+      try {
+        this._state = this._action(this._state);
+      } catch (e) {
+        this._cancel.dispose();
+        throw e;
+      }
+    }
 
-        function SchedulePeriodicRecursive(scheduler, state, period, action) {
-            this._scheduler = scheduler;
-            this._state = state;
-            this._period = period;
-            this._action = action;
-        }
+    function SchedulePeriodicRecursive(scheduler, state, period, action) {
+      this._scheduler = scheduler;
+      this._state = state;
+      this._period = period;
+      this._action = action;
+    }
 
-        SchedulePeriodicRecursive.prototype.start = function () {
-            var d = new SingleAssignmentDisposable();
-            this._cancel = d;
-            d.setDisposable(this._scheduler.scheduleRecursiveWithRelativeAndState(0, this._period, tick.bind(this)));
+    SchedulePeriodicRecursive.prototype.start = function () {
+      var d = new SingleAssignmentDisposable();
+      this._cancel = d;
+      d.setDisposable(this._scheduler.scheduleRecursiveWithRelativeAndState(0, this._period, tick.bind(this)));
 
-            return d;
-        };
+      return d;
+    };
 
-        return SchedulePeriodicRecursive;
-    }());
+    return SchedulePeriodicRecursive;
+  }());
 
   /**
    * Gets a scheduler that schedules work immediately on the current thread.
@@ -2977,87 +2274,77 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
     return new Scheduler(defaultNow, scheduleNow, scheduleRelative, scheduleAbsolute);
   })();
 
-    /** @private */
-    var CatchScheduler = (function (_super) {
+  var CatchScheduler = (function (__super__) {
 
-        function localNow() {
-            return this._scheduler.now();
+    function scheduleNow(state, action) {
+      return this._scheduler.scheduleWithState(state, this._wrap(action));
+    }
+
+    function scheduleRelative(state, dueTime, action) {
+      return this._scheduler.scheduleWithRelativeAndState(state, dueTime, this._wrap(action));
+    }
+
+    function scheduleAbsolute(state, dueTime, action) {
+      return this._scheduler.scheduleWithAbsoluteAndState(state, dueTime, this._wrap(action));
+    }
+
+    inherits(CatchScheduler, __super__);
+
+    function CatchScheduler(scheduler, handler) {
+      this._scheduler = scheduler;
+      this._handler = handler;
+      this._recursiveOriginal = null;
+      this._recursiveWrapper = null;
+      __super__.call(this, this._scheduler.now.bind(this._scheduler), scheduleNow, scheduleRelative, scheduleAbsolute);
+    }
+
+    CatchScheduler.prototype._clone = function (scheduler) {
+        return new CatchScheduler(scheduler, this._handler);
+    };
+
+    CatchScheduler.prototype._wrap = function (action) {
+      var parent = this;
+      return function (self, state) {
+        try {
+          return action(parent._getRecursiveWrapper(self), state);
+        } catch (e) {
+          if (!parent._handler(e)) { throw e; }
+          return disposableEmpty;
         }
+      };
+    };
 
-        function scheduleNow(state, action) {
-            return this._scheduler.scheduleWithState(state, this._wrap(action));
+    CatchScheduler.prototype._getRecursiveWrapper = function (scheduler) {
+      if (this._recursiveOriginal !== scheduler) {
+        this._recursiveOriginal = scheduler;
+        var wrapper = this._clone(scheduler);
+        wrapper._recursiveOriginal = scheduler;
+        wrapper._recursiveWrapper = wrapper;
+        this._recursiveWrapper = wrapper;
+      }
+      return this._recursiveWrapper;
+    };
+
+    CatchScheduler.prototype.schedulePeriodicWithState = function (state, period, action) {
+      var self = this, failed = false, d = new SingleAssignmentDisposable();
+
+      d.setDisposable(this._scheduler.schedulePeriodicWithState(state, period, function (state1) {
+        if (failed) { return null; }
+        try {
+          return action(state1);
+        } catch (e) {
+          failed = true;
+          if (!self._handler(e)) { throw e; }
+          d.dispose();
+          return null;
         }
+      }));
 
-        function scheduleRelative(state, dueTime, action) {
-            return this._scheduler.scheduleWithRelativeAndState(state, dueTime, this._wrap(action));
-        }
+      return d;
+    };
 
-        function scheduleAbsolute(state, dueTime, action) {
-            return this._scheduler.scheduleWithAbsoluteAndState(state, dueTime, this._wrap(action));
-        }
-
-        inherits(CatchScheduler, _super);
-
-        /** @private */
-        function CatchScheduler(scheduler, handler) {
-            this._scheduler = scheduler;
-            this._handler = handler;
-            this._recursiveOriginal = null;
-            this._recursiveWrapper = null;
-            _super.call(this, localNow, scheduleNow, scheduleRelative, scheduleAbsolute);
-        }
-
-        /** @private */
-        CatchScheduler.prototype._clone = function (scheduler) {
-            return new CatchScheduler(scheduler, this._handler);
-        };
-
-        /** @private */
-        CatchScheduler.prototype._wrap = function (action) {
-            var parent = this;
-            return function (self, state) {
-                try {
-                    return action(parent._getRecursiveWrapper(self), state);
-                } catch (e) {
-                    if (!parent._handler(e)) { throw e; }
-                    return disposableEmpty;
-                }
-            };
-        };
-
-        /** @private */
-        CatchScheduler.prototype._getRecursiveWrapper = function (scheduler) {
-            if (this._recursiveOriginal !== scheduler) {
-                this._recursiveOriginal = scheduler;
-                var wrapper = this._clone(scheduler);
-                wrapper._recursiveOriginal = scheduler;
-                wrapper._recursiveWrapper = wrapper;
-                this._recursiveWrapper = wrapper;
-            }
-            return this._recursiveWrapper;
-        };
-
-        /** @private */
-        CatchScheduler.prototype.schedulePeriodicWithState = function (state, period, action) {
-            var self = this, failed = false, d = new SingleAssignmentDisposable();
-
-            d.setDisposable(this._scheduler.schedulePeriodicWithState(state, period, function (state1) {
-                if (failed) { return null; }
-                try {
-                    return action(state1);
-                } catch (e) {
-                    failed = true;
-                    if (!self._handler(e)) { throw e; }
-                    d.dispose();
-                    return null;
-                }
-            }));
-
-            return d;
-        };
-
-        return CatchScheduler;
-    }(Scheduler));
+    return CatchScheduler;
+  }(Scheduler));
 
   /**
    *  Represents a notification to an observer.
@@ -3136,14 +2423,14 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
     function _acceptObservable(observer) { return observer.onError(this.exception); }
     function toString () { return 'OnError(' + this.exception + ')'; }
 
-    return function (exception) {
+    return function (e) {
       var notification = new Notification('E');
-      notification.exception = exception;
+      notification.exception = e;
       notification._accept = _accept;
       notification._acceptObservable = _acceptObservable;
       notification.toString = toString;
       return notification;
-      };
+    };
   }());
 
   /**
@@ -3152,17 +2439,17 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
    */
   var notificationCreateOnCompleted = Notification.createOnCompleted = (function () {
 
-      function _accept (onNext, onError, onCompleted) { return onCompleted(); }
-      function _acceptObservable(observer) { return observer.onCompleted(); }
-      function toString () { return 'OnCompleted()'; }
+    function _accept (onNext, onError, onCompleted) { return onCompleted(); }
+    function _acceptObservable(observer) { return observer.onCompleted(); }
+    function toString () { return 'OnCompleted()'; }
 
-      return function () {
-        var notification = new Notification('C');
-        notification._accept = _accept;
-        notification._acceptObservable = _acceptObservable;
-        notification.toString = toString;
-        return notification;
-      };
+    return function () {
+      var notification = new Notification('C');
+      notification._accept = _accept;
+      notification._acceptObservable = _acceptObservable;
+      notification.toString = toString;
+      return notification;
+    };
   }());
 
   var Enumerator = Rx.internals.Enumerator = function (next) {
@@ -3896,7 +3183,7 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
    * @param {Any} [thisArg] The context to use calling the mapFn if provided.
    * @param {Scheduler} [scheduler] Optional scheduler to use for scheduling.  If not provided, defaults to Scheduler.currentThread.
    */
-  Observable.from = function (iterable, mapFn, thisArg, scheduler) {
+  var observableFrom = Observable.from = function (iterable, mapFn, thisArg, scheduler) {
     if (iterable == null) {
       throw new Error('iterable cannot be null.')
     }
@@ -3914,7 +3201,13 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
         if (i < len || objIsIterable) {
           var result;
           if (objIsIterable) {
-            var next = it.next();
+            var next;
+            try {
+              next = it.next();
+            } catch (e) {
+              observer.onError(e);
+              return;
+            }
             if (next.done) {
               observer.onCompleted();
               return;
@@ -3922,7 +3215,7 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
 
             result = next.value;
           } else {
-            result = list[i];
+            result = !!list.charAt ? list.charAt(i) : list[i];
           }
 
           if (mapFn && isCallable(mapFn)) {
@@ -5204,47 +4497,50 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
     });
   };
 
-    function concatMap(source, selector, thisArg) {
-      return source.map(function (x, i) {
-        var result = selector.call(thisArg, x, i);
-        return isPromise(result) ? observableFromPromise(result) : result;
-      }).concatAll();
+  function concatMap(source, selector, thisArg) {
+    return source.map(function (x, i) {
+      var result = selector.call(thisArg, x, i, source);
+      isPromise(result) && (result = observableFromPromise(result));
+      (Array.isArray(result) || isIterable(result)) && (result = observableFrom(result));
+      return result;
+    }).concatAll();
+  }
+
+  /**
+   *  One of the Following:
+   *  Projects each element of an observable sequence to an observable sequence and merges the resulting observable sequences into one observable sequence.
+   *
+   * @example
+   *  var res = source.concatMap(function (x) { return Rx.Observable.range(0, x); });
+   *  Or:
+   *  Projects each element of an observable sequence to an observable sequence, invokes the result selector for the source element and each of the corresponding inner sequence's elements, and merges the results into one observable sequence.
+   *
+   *  var res = source.concatMap(function (x) { return Rx.Observable.range(0, x); }, function (x, y) { return x + y; });
+   *  Or:
+   *  Projects each element of the source observable sequence to the other observable sequence and merges the resulting observable sequences into one observable sequence.
+   *
+   *  var res = source.concatMap(Rx.Observable.fromArray([1,2,3]));
+   * @param {Function} selector A transform function to apply to each element or an observable sequence to project each element from the
+   * source sequence onto which could be either an observable or Promise.
+   * @param {Function} [resultSelector]  A transform function to apply to each element of the intermediate sequence.
+   * @returns {Observable} An observable sequence whose elements are the result of invoking the one-to-many transform function collectionSelector on each element of the input sequence and then mapping each of those sequence elements and their corresponding source element to a result element.
+   */
+  observableProto.selectConcat = observableProto.concatMap = function (selector, resultSelector, thisArg) {
+    if (typeof selector === 'function' && typeof resultSelector === 'function') {
+      return this.concatMap(function (x, i) {
+        var selectorResult = selector(x, i);
+        isPromise(selectorResult) && (selectorResult = observableFromPromise(selectorResult));
+        (Array.isArray(selectorResult) || isIterable(selectorResult)) && (selectorResult = observableFrom(selectorResult));
+
+        return selectorResult.map(function (y, i2) {
+          return resultSelector(x, y, i, i2);
+        });
+      });
     }
-
-    /**
-     *  One of the Following:
-     *  Projects each element of an observable sequence to an observable sequence and merges the resulting observable sequences into one observable sequence.
-     *
-     * @example
-     *  var res = source.concatMap(function (x) { return Rx.Observable.range(0, x); });
-     *  Or:
-     *  Projects each element of an observable sequence to an observable sequence, invokes the result selector for the source element and each of the corresponding inner sequence's elements, and merges the results into one observable sequence.
-     *
-     *  var res = source.concatMap(function (x) { return Rx.Observable.range(0, x); }, function (x, y) { return x + y; });
-     *  Or:
-     *  Projects each element of the source observable sequence to the other observable sequence and merges the resulting observable sequences into one observable sequence.
-     *
-     *  var res = source.concatMap(Rx.Observable.fromArray([1,2,3]));
-     * @param selector A transform function to apply to each element or an observable sequence to project each element from the
-     * source sequence onto which could be either an observable or Promise.
-     * @param {Function} [resultSelector]  A transform function to apply to each element of the intermediate sequence.
-     * @returns {Observable} An observable sequence whose elements are the result of invoking the one-to-many transform function collectionSelector on each element of the input sequence and then mapping each of those sequence elements and their corresponding source element to a result element.
-     */
-    observableProto.selectConcat = observableProto.concatMap = function (selector, resultSelector, thisArg) {
-      if (resultSelector) {
-          return this.concatMap(function (x, i) {
-            var selectorResult = selector(x, i),
-              result = isPromise(selectorResult) ? observableFromPromise(selectorResult) : selectorResult;
-
-            return result.map(function (y) {
-              return resultSelector(x, y, i);
-            });
-          });
-      }
-      return typeof selector === 'function' ?
-        concatMap(this, selector, thisArg) :
-        concatMap(this, function () { return selector; });
-    };
+    return typeof selector === 'function' ?
+      concatMap(this, selector, thisArg) :
+      concatMap(this, function () { return selector; });
+  };
 
   /**
    * Projects each notification of an observable sequence to an observable sequence and concats the resulting observable sequences into one observable sequence.
@@ -5526,48 +4822,50 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
     return this.map(function (x) { return x[prop]; });
   };
 
-    function flatMap(source, selector, thisArg) {
-      return source.map(function (x, i) {
-        var result = selector.call(thisArg, x, i);
-        return isPromise(result) ? observableFromPromise(result) : result;
-      }).mergeObservable();
+  function flatMap(source, selector, thisArg) {
+    return source.map(function (x, i) {
+      var result = selector.call(thisArg, x, i, source);
+      isPromise(result) && (result = observableFromPromise(result));
+      (Array.isArray(result) || isIterable(result)) && (result = observableFrom(result));
+      return result;
+    }).mergeObservable();
+  }
+
+  /**
+   *  One of the Following:
+   *  Projects each element of an observable sequence to an observable sequence and merges the resulting observable sequences into one observable sequence.
+   *
+   * @example
+   *  var res = source.selectMany(function (x) { return Rx.Observable.range(0, x); });
+   *  Or:
+   *  Projects each element of an observable sequence to an observable sequence, invokes the result selector for the source element and each of the corresponding inner sequence's elements, and merges the results into one observable sequence.
+   *
+   *  var res = source.selectMany(function (x) { return Rx.Observable.range(0, x); }, function (x, y) { return x + y; });
+   *  Or:
+   *  Projects each element of the source observable sequence to the other observable sequence and merges the resulting observable sequences into one observable sequence.
+   *
+   *  var res = source.selectMany(Rx.Observable.fromArray([1,2,3]));
+   * @param {Function} selector A transform function to apply to each element or an observable sequence to project each element from the source sequence onto which could be either an observable or Promise.
+   * @param {Function} [resultSelector]  A transform function to apply to each element of the intermediate sequence.
+   * @param {Any} [thisArg] Object to use as this when executing callback.
+   * @returns {Observable} An observable sequence whose elements are the result of invoking the one-to-many transform function collectionSelector on each element of the input sequence and then mapping each of those sequence elements and their corresponding source element to a result element.
+   */
+  observableProto.selectMany = observableProto.flatMap = function (selector, resultSelector, thisArg) {
+    if (typeof selector === 'function' && typeof resultSelector === 'function') {
+      return this.flatMap(function (x, i) {
+        var selectorResult = selector(x, i);
+        isPromise(selectorResult) && (selectorResult = observableFromPromise(selectorResult));
+        (Array.isArray(selectorResult) || isIterable(selectorResult)) && (selectorResult = observableFrom(selectorResult));
+
+        return selectorResult.map(function (y, i2) {
+          return resultSelector(x, y, i, i2);
+        });
+      }, thisArg);
     }
-
-    /**
-     *  One of the Following:
-     *  Projects each element of an observable sequence to an observable sequence and merges the resulting observable sequences into one observable sequence.
-     *
-     * @example
-     *  var res = source.selectMany(function (x) { return Rx.Observable.range(0, x); });
-     *  Or:
-     *  Projects each element of an observable sequence to an observable sequence, invokes the result selector for the source element and each of the corresponding inner sequence's elements, and merges the results into one observable sequence.
-     *
-     *  var res = source.selectMany(function (x) { return Rx.Observable.range(0, x); }, function (x, y) { return x + y; });
-     *  Or:
-     *  Projects each element of the source observable sequence to the other observable sequence and merges the resulting observable sequences into one observable sequence.
-     *
-     *  var res = source.selectMany(Rx.Observable.fromArray([1,2,3]));
-     * @param selector A transform function to apply to each element or an observable sequence to project each element from the
-     * source sequence onto which could be either an observable or Promise.
-     * @param {Function} [resultSelector]  A transform function to apply to each element of the intermediate sequence.
-     * @param {Any} [thisArg] Object to use as this when executing callback.
-     * @returns {Observable} An observable sequence whose elements are the result of invoking the one-to-many transform function collectionSelector on each element of the input sequence and then mapping each of those sequence elements and their corresponding source element to a result element.
-     */
-    observableProto.selectMany = observableProto.flatMap = function (selector, resultSelector, thisArg) {
-      if (resultSelector) {
-          return this.flatMap(function (x, i) {
-            var selectorResult = selector(x, i),
-              result = isPromise(selectorResult) ? observableFromPromise(selectorResult) : selectorResult;
-
-            return result.map(function (y) {
-              return resultSelector(x, y, i);
-            });
-          }, thisArg);
-      }
-      return typeof selector === 'function' ?
-        flatMap(this, selector, thisArg) :
-        flatMap(this, function () { return selector; });
-    };
+    return typeof selector === 'function' ?
+      flatMap(this, selector, thisArg) :
+      flatMap(this, function () { return selector; });
+  };
 
   /**
    * Projects each notification of an observable sequence to an observable sequence and merges the resulting observable sequences into one observable sequence.
@@ -5821,46 +5119,40 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
         return x[0];
     }
 
-    /**
-     * Applies an accumulator function over an observable sequence, returning the result of the aggregation as a single element in the result sequence. The specified seed value is used as the initial accumulator value.
-     * For aggregation behavior with incremental intermediate results, see Observable.scan.
-     * @example
-     * 1 - res = source.aggregate(function (acc, x) { return acc + x; });
-     * 2 - res = source.aggregate(0, function (acc, x) { return acc + x; });
-     * @param {Mixed} [seed] The initial accumulator value.
-     * @param {Function} accumulator An accumulator function to be invoked on each element.
-     * @returns {Observable} An observable sequence containing a single element with the final accumulator value.
-     */
-    observableProto.aggregate = function () {
-        var seed, hasSeed, accumulator;
-        if (arguments.length === 2) {
-            seed = arguments[0];
-            hasSeed = true;
-            accumulator = arguments[1];
-        } else {
-            accumulator = arguments[0];
-        }
-        return hasSeed ? this.scan(seed, accumulator).startWith(seed).finalValue() : this.scan(accumulator).finalValue();
-    };
+  /**
+   * Applies an accumulator function over an observable sequence, returning the result of the aggregation as a single element in the result sequence. The specified seed value is used as the initial accumulator value.
+   * For aggregation behavior with incremental intermediate results, see Observable.scan.
+   * @param {Mixed} [seed] The initial accumulator value.
+   * @param {Function} accumulator An accumulator function to be invoked on each element.
+   * @returns {Observable} An observable sequence containing a single element with the final accumulator value.
+   */
+  observableProto.aggregate = function () {
+    var seed, hasSeed, accumulator;
+    if (arguments.length === 2) {
+      seed = arguments[0];
+      hasSeed = true;
+      accumulator = arguments[1];
+    } else {
+      accumulator = arguments[0];
+    }
+    return hasSeed ? this.scan(seed, accumulator).startWith(seed).finalValue() : this.scan(accumulator).finalValue();
+  };
 
-    /**
-     * Applies an accumulator function over an observable sequence, returning the result of the aggregation as a single element in the result sequence. The specified seed value is used as the initial accumulator value.
-     * For aggregation behavior with incremental intermediate results, see Observable.scan.
-     * @example
-     * 1 - res = source.reduce(function (acc, x) { return acc + x; });
-     * 2 - res = source.reduce(function (acc, x) { return acc + x; }, 0);
-     * @param {Function} accumulator An accumulator function to be invoked on each element.
-     * @param {Any} [seed] The initial accumulator value.
-     * @returns {Observable} An observable sequence containing a single element with the final accumulator value.
-     */
-    observableProto.reduce = function (accumulator) {
-        var seed, hasSeed;
-        if (arguments.length === 2) {
-            hasSeed = true;
-            seed = arguments[1];
-        }
-        return hasSeed ? this.scan(seed, accumulator).startWith(seed).finalValue() : this.scan(accumulator).finalValue();
-    };
+  /**
+   * Applies an accumulator function over an observable sequence, returning the result of the aggregation as a single element in the result sequence. The specified seed value is used as the initial accumulator value.
+   * For aggregation behavior with incremental intermediate results, see Observable.scan.
+   * @param {Function} accumulator An accumulator function to be invoked on each element.
+   * @param {Any} [seed] The initial accumulator value.
+   * @returns {Observable} An observable sequence containing a single element with the final accumulator value.
+   */
+  observableProto.reduce = function (accumulator) {
+    var seed, hasSeed;
+    if (arguments.length === 2) {
+      hasSeed = true;
+      seed = arguments[1];
+    }
+    return hasSeed ? this.scan(seed, accumulator).startWith(seed).finalValue() : this.scan(accumulator).finalValue();
+  };
 
     /**
      * Determines whether any element of an observable sequence satisfies a condition if present, else if any items are in the sequence.
@@ -6067,33 +5359,27 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
         });
     };
 
-    /**
-     * Computes the average of an observable sequence of values that are in the sequence or obtained by invoking a transform function on each element of the input sequence if present.
-     * @example
-     * var res = res = source.average();
-     * var res = res = source.average(function (x) { return x.value; });
-     * @param {Function} [selector] A transform function to apply to each element.
-     * @param {Any} [thisArg] Object to use as this when executing callback.
-     * @returns {Observable} An observable sequence containing a single element with the average of the sequence of values.
-     */
-    observableProto.average = function (keySelector, thisArg) {
-        return keySelector ?
-            this.select(keySelector, thisArg).average() :
-            this.scan({
-                sum: 0,
-                count: 0
-            }, function (prev, cur) {
-                return {
-                    sum: prev.sum + cur,
-                    count: prev.count + 1
-                };
-            }).finalValue().select(function (s) {
-                if (s.count === 0) {
-                    throw new Error('The input sequence was empty');
-                }
-                return s.sum / s.count;
-            });
-    };
+  /**
+   * Computes the average of an observable sequence of values that are in the sequence or obtained by invoking a transform function on each element of the input sequence if present.
+   * @param {Function} [selector] A transform function to apply to each element.
+   * @param {Any} [thisArg] Object to use as this when executing callback.
+   * @returns {Observable} An observable sequence containing a single element with the average of the sequence of values.
+   */
+  observableProto.average = function (keySelector, thisArg) {
+    return keySelector && isFunction(keySelector) ?
+      this.select(keySelector, thisArg).average() :
+      this.scan({sum: 0, count: 0 }, function (prev, cur) {
+        return {
+          sum: prev.sum + cur,
+          count: prev.count + 1
+        };
+      }).finalValue().map(function (s) {
+        if (s.count === 0) {
+          throw new Error('The input sequence was empty');
+        }
+        return s.sum / s.count;
+      });
+  };
 
   function sequenceEqualArray(first, second, comparer) {
     return new AnonymousObservable(function (observer) {
@@ -6515,36 +5801,17 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
     };
   }
 
-  var fnString = 'function';
+  var fnString = 'function',
+      throwString = 'throw';
 
   function toThunk(obj, ctx) {
-    if (Array.isArray(obj)) {
-      return objectToThunk.call(ctx, obj);
-    }
-
-    if (isGeneratorFunction(obj)) {
-      return observableSpawn(obj.call(ctx));
-    }
-
-    if (isGenerator(obj)) {
-      return observableSpawn(obj);
-    }
-
-    if (isObservable(obj)) {
-      return observableToThunk(obj);
-    }
-
-    if (isPromise(obj)) {
-      return promiseToThunk(obj);
-    }
-
-    if (typeof obj === fnString) {
-      return obj;
-    }
-
-    if (isObject(obj) || Array.isArray(obj)) {
-      return objectToThunk.call(ctx, obj);
-    }
+    if (Array.isArray(obj)) {  return objectToThunk.call(ctx, obj); }
+    if (isGeneratorFunction(obj)) { return observableSpawn(obj.call(ctx)); }
+    if (isGenerator(obj)) {  return observableSpawn(obj); }
+    if (isObservable(obj)) { return observableToThunk(obj); }
+    if (isPromise(obj)) { return promiseToThunk(obj); }
+    if (typeof obj === fnString) { return obj; }
+    if (isObject(obj) || Array.isArray(obj)) { return objectToThunk.call(ctx, obj); }
 
     return obj;
   }
@@ -6596,7 +5863,7 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
     }
   }
 
-  function observableToThink(observable) {
+  function observableToThunk(observable) {
     return function (fn) {
       var value, hasValue = false;
       observable.subscribe(
@@ -6620,7 +5887,7 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
   }
 
   function isObservable(obj) {
-    return obj && obj.prototype.subscribe === fnString;
+    return obj && typeof obj.subscribe === fnString;
   }
 
   function isGeneratorFunction(obj) {
@@ -6628,7 +5895,7 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
   }
 
   function isGenerator(obj) {
-    return obj && typeof obj.next === fnString && typeof obj.throw === fnString;
+    return obj && typeof obj.next === fnString && typeof obj[throwString] === fnString;
   }
 
   function isObject(val) {
@@ -6645,7 +5912,7 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
 
     return function (done) {
       var ctx = this,
-        gen = fan;
+        gen = fn;
 
       if (isGenFun) {
         var args = slice.call(arguments),
@@ -6672,7 +5939,7 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
 
         if (err) {
           try {
-            ret = gen.throw(err);
+            ret = gen[throwString](err);
           } catch (e) {
             return exit(e);
           }
@@ -6755,6 +6022,13 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
       }
     }
   };
+
+  function error(err) {
+    if (!err) { return; }
+    timeoutScheduler.schedule(function(){
+      throw err;
+    });
+  }
 
   /**
    * Invokes the specified function asynchronously on the specified scheduler, surfacing the result through an observable sequence.
@@ -9608,7 +8882,7 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
    * @returns {Observable} The source sequence switching to the other sequence in case of a timeout.
    */
   observableProto.timeout = function (dueTime, other, scheduler) {
-    other || (other = observableThrow(new Error('Timeout')));
+    (other == null || typeof other === 'string') && (other = observableThrow(new Error(other || 'Timeout')));
     isScheduler(scheduler) || (scheduler = timeoutScheduler);
 
     var source = this, schedulerMethod = dueTime instanceof Date ?
@@ -10157,6 +9431,44 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
       return new CompositeDisposable(
         scheduler[schedulerMethod](endTime, observer.onCompleted.bind(observer)),
         source.subscribe(observer));
+    });
+  };
+
+  /**
+   * Executes a transducer to transform the observable sequence 
+   * @param {Transducer} transducer A transducer to execute
+   * @returns {Observable} An Observable sequence containing the results from the transducer.
+   */
+  observableProto.transduce = function(transducer) {
+    var source = this;
+
+    function transformForObserver(observer) {
+      return {
+        init: function() {
+          return observer;
+        },
+        step: function(obs, input) {
+          return obs.onNext(input);
+        },
+        result: function(obs) {
+          return obs.onCompleted();
+        }
+      };
+    }
+
+    return new AnonymousObservable(function(observer) {
+      var xform = transducer(transformForObserver(observer));
+      return source.subscribe(
+        function(v) { 
+          try {
+            xform.step(observer, v);
+          } catch (e) {
+            observer.onError(e);
+          }
+        }, 
+        observer.onError.bind(observer), 
+        function() { xform.result(observer); }
+      );
     });
   };
 
@@ -10949,8 +10261,10 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
 
 }.call(this));
 
-},{"__browserify_process":5}],20:[function(require,module,exports){
-var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"_process":3}],18:[function(require,module,exports){
+(function (global){
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 ;(function (factory) {
     var objectTypes = {
@@ -11005,88 +10319,86 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
             slice.call(args);
     }
 
-  function OnNextPredicate(predicate) {
-      this.predicate = predicate;
-  };
+function OnNextPredicate(predicate) {
+    this.predicate = predicate;
+};
 
-  OnNextPredicate.prototype.equals = function (other) {
-    if (other === this) { return true; }
-    if (other == null) { return false; }
-    if (other.kind !== 'N') { return false; }
-    return this.predicate(other.value);
-  };
+OnNextPredicate.prototype.equals = function (other) {
+  if (other === this) { return true; }
+  if (other == null) { return false; }
+  if (other.kind !== 'N') { return false; }
+  return this.predicate(other.value);
+};
 
-  function OnErrorPredicate(predicate) {
-      this.predicate = predicate;
-  };
+function OnErrorPredicate(predicate) {
+  this.predicate = predicate;
+};
 
-  OnErrorPredicate.prototype.equals = function (other) {
-    if (other === this) { return true; }
-    if (other == null) { return false; }
-    if (other.kind !== 'E') { return false; }
-    return this.predicate(other.exception);
-  };
+OnErrorPredicate.prototype.equals = function (other) {
+  if (other === this) { return true; }
+  if (other == null) { return false; }
+  if (other.kind !== 'E') { return false; }
+  return this.predicate(other.exception);
+};
 
-  var ReactiveTest = Rx.ReactiveTest = {
-    /** Default virtual time used for creation of observable sequences in unit tests. */
-    created: 100,
-    /** Default virtual time used to subscribe to observable sequences in unit tests. */
-    subscribed: 200,
-    /** Default virtual time used to dispose subscriptions in unit tests. */
-    disposed: 1000,
+var ReactiveTest = Rx.ReactiveTest = {
+  /** Default virtual time used for creation of observable sequences in unit tests. */
+  created: 100,
+  /** Default virtual time used to subscribe to observable sequences in unit tests. */
+  subscribed: 200,
+  /** Default virtual time used to dispose subscriptions in unit tests. */
+  disposed: 1000,
 
-    /**
-     * Factory method for an OnNext notification record at a given time with a given value or a predicate function.
-     *
-     * 1 - ReactiveTest.onNext(200, 42);
-     * 2 - ReactiveTest.onNext(200, function (x) { return x.length == 2; });
-     *
-     * @param ticks Recorded virtual time the OnNext notification occurs.
-     * @param value Recorded value stored in the OnNext notification or a predicate.
-     * @return Recorded OnNext notification.
-     */
-    onNext: function (ticks, value) {
-        if (typeof value === 'function') {
-            return new Recorded(ticks, new OnNextPredicate(value));
-        }
-        return new Recorded(ticks, Notification.createOnNext(value));
-    },
-    /**
-     * Factory method for an OnError notification record at a given time with a given error.
-     *
-     * 1 - ReactiveTest.onNext(200, new Error('error'));
-     * 2 - ReactiveTest.onNext(200, function (e) { return e.message === 'error'; });
-     *
-     * @param ticks Recorded virtual time the OnError notification occurs.
-     * @param exception Recorded exception stored in the OnError notification.
-     * @return Recorded OnError notification.
-     */
-    onError: function (ticks, exception) {
-        if (typeof exception === 'function') {
-            return new Recorded(ticks, new OnErrorPredicate(exception));
-        }
-        return new Recorded(ticks, Notification.createOnError(exception));
-    },
-    /**
-     * Factory method for an OnCompleted notification record at a given time.
-     *
-     * @param ticks Recorded virtual time the OnCompleted notification occurs.
-     * @return Recorded OnCompleted notification.
-     */
-    onCompleted: function (ticks) {
-        return new Recorded(ticks, Notification.createOnCompleted());
-    },
-    /**
-     * Factory method for a subscription record based on a given subscription and disposal time.
-     *
-     * @param start Virtual time indicating when the subscription was created.
-     * @param end Virtual time indicating when the subscription was disposed.
-     * @return Subscription object.
-     */
-    subscribe: function (start, end) {
-        return new Subscription(start, end);
-    }
-  };
+  /**
+   * Factory method for an OnNext notification record at a given time with a given value or a predicate function.
+   *
+   * 1 - ReactiveTest.onNext(200, 42);
+   * 2 - ReactiveTest.onNext(200, function (x) { return x.length == 2; });
+   *
+   * @param ticks Recorded virtual time the OnNext notification occurs.
+   * @param value Recorded value stored in the OnNext notification or a predicate.
+   * @return Recorded OnNext notification.
+   */
+  onNext: function (ticks, value) {
+    return typeof value === 'function' ?
+      new Recorded(ticks, new OnNextPredicate(value)) :
+      new Recorded(ticks, Notification.createOnNext(value));
+  },
+  /**
+   * Factory method for an OnError notification record at a given time with a given error.
+   *
+   * 1 - ReactiveTest.onNext(200, new Error('error'));
+   * 2 - ReactiveTest.onNext(200, function (e) { return e.message === 'error'; });
+   *
+   * @param ticks Recorded virtual time the OnError notification occurs.
+   * @param exception Recorded exception stored in the OnError notification.
+   * @return Recorded OnError notification.
+   */
+  onError: function (ticks, error) {
+    return typeof error === 'function' ?
+      new Recorded(ticks, new OnErrorPredicate(error)) :
+      new Recorded(ticks, Notification.createOnError(error));
+  },
+  /**
+   * Factory method for an OnCompleted notification record at a given time.
+   *
+   * @param ticks Recorded virtual time the OnCompleted notification occurs.
+   * @return Recorded OnCompleted notification.
+   */
+  onCompleted: function (ticks) {
+    return new Recorded(ticks, Notification.createOnCompleted());
+  },
+  /**
+   * Factory method for a subscription record based on a given subscription and disposal time.
+   *
+   * @param start Virtual time indicating when the subscription was created.
+   * @param end Virtual time indicating when the subscription was disposed.
+   * @return Subscription object.
+   */
+  subscribe: function (start, end) {
+    return new Subscription(start, end);
+  }
+};
 
   /**
    * Creates a new object recording the production of the specified value at the given virtual time.
@@ -11208,52 +10520,47 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
         return MockObserver;
     })(Observer);
 
-    /** @private */
-    var HotObservable = (function (_super) {
+  var HotObservable = (function (__super__) {
 
-        function subscribe(observer) {
-            var observable = this;
-            this.observers.push(observer);
-            this.subscriptions.push(new Subscription(this.scheduler.clock));
-            var index = this.subscriptions.length - 1;
-            return disposableCreate(function () {
-                var idx = observable.observers.indexOf(observer);
-                observable.observers.splice(idx, 1);
-                observable.subscriptions[index] = new Subscription(observable.subscriptions[index].subscribe, observable.scheduler.clock);
-            });
-        }
+    function subscribe(observer) {
+      var observable = this;
+      this.observers.push(observer);
+      this.subscriptions.push(new Subscription(this.scheduler.clock));
+      var index = this.subscriptions.length - 1;
+      return disposableCreate(function () {
+        var idx = observable.observers.indexOf(observer);
+        observable.observers.splice(idx, 1);
+        observable.subscriptions[index] = new Subscription(observable.subscriptions[index].subscribe, observable.scheduler.clock);
+      });
+    }
 
-        inherits(HotObservable, _super);
+    inherits(HotObservable, __super__);
 
-        /**
-         * @private
-         * @constructor
-         */
-        function HotObservable(scheduler, messages) {
-            _super.call(this, subscribe);
-            var message, notification, observable = this;
-            this.scheduler = scheduler;
-            this.messages = messages;
-            this.subscriptions = [];
-            this.observers = [];
-            for (var i = 0, len = this.messages.length; i < len; i++) {
-                message = this.messages[i];
-                notification = message.value;
-                (function (innerNotification) {
-                    scheduler.scheduleAbsoluteWithState(null, message.time, function () {
-                        var obs = observable.observers.slice(0);
+    function HotObservable(scheduler, messages) {
+      __super__.call(this, subscribe);
+      var message, notification, observable = this;
+      this.scheduler = scheduler;
+      this.messages = messages;
+      this.subscriptions = [];
+      this.observers = [];
+      for (var i = 0, len = this.messages.length; i < len; i++) {
+        message = this.messages[i];
+        notification = message.value;
+        (function (innerNotification) {
+          scheduler.scheduleAbsoluteWithState(null, message.time, function () {
+            var obs = observable.observers.slice(0);
 
-                        for (var j = 0, jLen = obs.length; j < jLen; j++) {
-                            innerNotification.accept(obs[j]);
-                        }
-                        return disposableEmpty;
-                    });
-                })(notification);
+            for (var j = 0, jLen = obs.length; j < jLen; j++) {
+              innerNotification.accept(obs[j]);
             }
-        }
+            return disposableEmpty;
+          });
+        })(notification);
+      }
+    }
 
-        return HotObservable;
-    })(Observable);
+    return HotObservable;
+  })(Observable);
 
     /** @private */
     var ColdObservable = (function (_super) {
@@ -11295,143 +10602,168 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
         return ColdObservable;
     })(Observable);
 
-    /** Virtual time scheduler used for testing applications and libraries built using Reactive Extensions. */
-    Rx.TestScheduler = (function (_super) {
-        inherits(TestScheduler, _super);
+  /** Virtual time scheduler used for testing applications and libraries built using Reactive Extensions. */
+  Rx.TestScheduler = (function (__super__) {
+    inherits(TestScheduler, __super__);
 
-        function baseComparer(x, y) {
-            return x > y ? 1 : (x < y ? -1 : 0);
-        }
+    function baseComparer(x, y) {
+      return x > y ? 1 : (x < y ? -1 : 0);
+    }
 
-        /** @constructor */
-        function TestScheduler() {
-            _super.call(this, 0, baseComparer);
-        }
+    function TestScheduler() {
+      __super__.call(this, 0, baseComparer);
+    }
 
-        /**
-         * Schedules an action to be executed at the specified virtual time.
-         *
-         * @param state State passed to the action to be executed.
-         * @param dueTime Absolute virtual time at which to execute the action.
-         * @param action Action to be executed.
-         * @return Disposable object used to cancel the scheduled action (best effort).
-         */
-        TestScheduler.prototype.scheduleAbsoluteWithState = function (state, dueTime, action) {
-            if (dueTime <= this.clock) {
-                dueTime = this.clock + 1;
-            }
-            return _super.prototype.scheduleAbsoluteWithState.call(this, state, dueTime, action);
-        };
-        /**
-         * Adds a relative virtual time to an absolute virtual time value.
-         *
-         * @param absolute Absolute virtual time value.
-         * @param relative Relative virtual time value to add.
-         * @return Resulting absolute virtual time sum value.
-         */
-        TestScheduler.prototype.add = function (absolute, relative) {
-            return absolute + relative;
-        };
-        /**
-         * Converts the absolute virtual time value to a DateTimeOffset value.
-         *
-         * @param absolute Absolute virtual time value to convert.
-         * @return Corresponding DateTimeOffset value.
-         */
-        TestScheduler.prototype.toDateTimeOffset = function (absolute) {
-            return new Date(absolute).getTime();
-        };
-        /**
-         * Converts the TimeSpan value to a relative virtual time value.
-         *
-         * @param timeSpan TimeSpan value to convert.
-         * @return Corresponding relative virtual time value.
-         */
-        TestScheduler.prototype.toRelative = function (timeSpan) {
-            return timeSpan;
-        };
-        /**
-         * Starts the test scheduler and uses the specified virtual times to invoke the factory function, subscribe to the resulting sequence, and dispose the subscription.
-         *
-         * @param create Factory method to create an observable sequence.
-         * @param created Virtual time at which to invoke the factory to create an observable sequence.
-         * @param subscribed Virtual time at which to subscribe to the created observable sequence.
-         * @param disposed Virtual time at which to dispose the subscription.
-         * @return Observer with timestamped recordings of notification messages that were received during the virtual time window when the subscription to the source sequence was active.
-         */
-        TestScheduler.prototype.startWithTiming = function (create, created, subscribed, disposed) {
-            var observer = this.createObserver(), source, subscription;
-            this.scheduleAbsoluteWithState(null, created, function () {
-                source = create();
-                return disposableEmpty;
-            });
-            this.scheduleAbsoluteWithState(null, subscribed, function () {
-                subscription = source.subscribe(observer);
-                return disposableEmpty;
-            });
-            this.scheduleAbsoluteWithState(null, disposed, function () {
-                subscription.dispose();
-                return disposableEmpty;
-            });
-            this.start();
-            return observer;
-        };
-        /**
-         * Starts the test scheduler and uses the specified virtual time to dispose the subscription to the sequence obtained through the factory function.
-         * Default virtual times are used for factory invocation and sequence subscription.
-         *
-         * @param create Factory method to create an observable sequence.
-         * @param disposed Virtual time at which to dispose the subscription.
-         * @return Observer with timestamped recordings of notification messages that were received during the virtual time window when the subscription to the source sequence was active.
-         */
-        TestScheduler.prototype.startWithDispose = function (create, disposed) {
-            return this.startWithTiming(create, ReactiveTest.created, ReactiveTest.subscribed, disposed);
-        };
-        /**
-         * Starts the test scheduler and uses default virtual times to invoke the factory function, to subscribe to the resulting sequence, and to dispose the subscription.
-         *
-         * @param create Factory method to create an observable sequence.
-         * @return Observer with timestamped recordings of notification messages that were received during the virtual time window when the subscription to the source sequence was active.
-         */
-        TestScheduler.prototype.startWithCreate = function (create) {
-            return this.startWithTiming(create, ReactiveTest.created, ReactiveTest.subscribed, ReactiveTest.disposed);
-        };
-        /**
-         * Creates a hot observable using the specified timestamped notification messages either as an array or arguments.
-         *
-         * @param messages Notifications to surface through the created sequence at their specified absolute virtual times.
-         * @return Hot observable sequence that can be used to assert the timing of subscriptions and notifications.
-         */
-        TestScheduler.prototype.createHotObservable = function () {
-            var messages = argsOrArray(arguments, 0);
-            return new HotObservable(this, messages);
-        };
-        /**
-         * Creates a cold observable using the specified timestamped notification messages either as an array or arguments.
-         *
-         * @param messages Notifications to surface through the created sequence at their specified virtual time offsets from the sequence subscription time.
-         * @return Cold observable sequence that can be used to assert the timing of subscriptions and notifications.
-         */
-        TestScheduler.prototype.createColdObservable = function () {
-            var messages = argsOrArray(arguments, 0);
-            return new ColdObservable(this, messages);
-        };
-        /**
-         * Creates an observer that records received notification messages and timestamps those.
-         *
-         * @return Observer that can be used to assert the timing of received notifications.
-         */
-        TestScheduler.prototype.createObserver = function () {
-            return new MockObserver(this);
-        };
+    /**
+     * Schedules an action to be executed at the specified virtual time.
+     *
+     * @param state State passed to the action to be executed.
+     * @param dueTime Absolute virtual time at which to execute the action.
+     * @param action Action to be executed.
+     * @return Disposable object used to cancel the scheduled action (best effort).
+     */
+    TestScheduler.prototype.scheduleAbsoluteWithState = function (state, dueTime, action) {
+      dueTime <= this.clock && (dueTime = this.clock + 1);
+        return __super__.prototype.scheduleAbsoluteWithState.call(this, state, dueTime, action);
+    };
+    /**
+     * Adds a relative virtual time to an absolute virtual time value.
+     *
+     * @param absolute Absolute virtual time value.
+     * @param relative Relative virtual time value to add.
+     * @return Resulting absolute virtual time sum value.
+     */
+    TestScheduler.prototype.add = function (absolute, relative) {
+      return absolute + relative;
+    };
+    /**
+     * Converts the absolute virtual time value to a DateTimeOffset value.
+     *
+     * @param absolute Absolute virtual time value to convert.
+     * @return Corresponding DateTimeOffset value.
+     */
+    TestScheduler.prototype.toDateTimeOffset = function (absolute) {
+      return new Date(absolute).getTime();
+    };
+    /**
+     * Converts the TimeSpan value to a relative virtual time value.
+     *
+     * @param timeSpan TimeSpan value to convert.
+     * @return Corresponding relative virtual time value.
+     */
+    TestScheduler.prototype.toRelative = function (timeSpan) {
+      return timeSpan;
+    };
+    /**
+     * Starts the test scheduler and uses the specified virtual times to invoke the factory function, subscribe to the resulting sequence, and dispose the subscription.
+     *
+     * @param create Factory method to create an observable sequence.
+     * @param created Virtual time at which to invoke the factory to create an observable sequence.
+     * @param subscribed Virtual time at which to subscribe to the created observable sequence.
+     * @param disposed Virtual time at which to dispose the subscription.
+     * @return Observer with timestamped recordings of notification messages that were received during the virtual time window when the subscription to the source sequence was active.
+     */
+    TestScheduler.prototype.startWithTiming = function (create, created, subscribed, disposed) {
+      var observer = this.createObserver(), source, subscription;
 
-        return TestScheduler;
-    })(VirtualTimeScheduler);
+      this.scheduleAbsoluteWithState(null, created, function () {
+        source = create();
+        return disposableEmpty;
+      });
+      
+      this.scheduleAbsoluteWithState(null, subscribed, function () {
+        subscription = source.subscribe(observer);
+        return disposableEmpty;
+      });
+      
+      this.scheduleAbsoluteWithState(null, disposed, function () {
+        subscription.dispose();
+        return disposableEmpty;
+      });
+      
+      this.start();
+      
+      return observer;
+    };
+
+    /**
+     * Starts the test scheduler and uses the specified virtual time to dispose the subscription to the sequence obtained through the factory function.
+     * Default virtual times are used for factory invocation and sequence subscription.
+     *
+     * @param create Factory method to create an observable sequence.
+     * @param disposed Virtual time at which to dispose the subscription.
+     * @return Observer with timestamped recordings of notification messages that were received during the virtual time window when the subscription to the source sequence was active.
+     */
+    TestScheduler.prototype.startWithDispose = function (create, disposed) {
+        return this.startWithTiming(create, ReactiveTest.created, ReactiveTest.subscribed, disposed);
+    };
+
+    /**
+     * Starts the test scheduler and uses default virtual times to invoke the factory function, to subscribe to the resulting sequence, and to dispose the subscription.
+     *
+     * @param create Factory method to create an observable sequence.
+     * @return Observer with timestamped recordings of notification messages that were received during the virtual time window when the subscription to the source sequence was active.
+     */
+    TestScheduler.prototype.startWithCreate = function (create) {
+        return this.startWithTiming(create, ReactiveTest.created, ReactiveTest.subscribed, ReactiveTest.disposed);
+    };
+
+    /**
+     * Creates a hot observable using the specified timestamped notification messages either as an array or arguments.
+     * @param messages Notifications to surface through the created sequence at their specified absolute virtual times.
+     * @return Hot observable sequence that can be used to assert the timing of subscriptions and notifications.
+     */
+    TestScheduler.prototype.createHotObservable = function () {
+        var messages = argsOrArray(arguments, 0);
+        return new HotObservable(this, messages);
+    };
+
+    /**
+     * Creates a cold observable using the specified timestamped notification messages either as an array or arguments.
+     * @param messages Notifications to surface through the created sequence at their specified virtual time offsets from the sequence subscription time.
+     * @return Cold observable sequence that can be used to assert the timing of subscriptions and notifications.
+     */
+    TestScheduler.prototype.createColdObservable = function () {
+        var messages = argsOrArray(arguments, 0);
+        return new ColdObservable(this, messages);
+    };
+
+    /**
+     * Creates a resolved promise with the given value and ticks 
+     * @param {Number} ticks The absolute time of the resolution.
+     * @param {Any} value The value to yield at the given tick.
+     * @returns {MockPromise} A mock Promise which fulfills with the given value.
+     */
+    TestScheduler.prototype.createResolvedPromise = function (ticks, value) {
+      return new MockPromise(this, [Rx.ReactiveTest.onNext(ticks, value), Rx.ReactiveTest.onCompleted(ticks)]);
+    };
+
+    /**
+     * Creates a rejected promise with the given reason and ticks 
+     * @param {Number} ticks The absolute time of the resolution.
+     * @param {Any} reason The reason for rejection to yield at the given tick.
+     * @returns {MockPromise} A mock Promise which rejects with the given reason.
+     */
+    TestScheduler.prototype.createRejectedPromise = function (ticks, reason) {
+      return new MockPromise(this, [Rx.ReactiveTest.onError(ticks, reason)]);
+    };
+
+    /**
+     * Creates an observer that records received notification messages and timestamps those.
+     * @return Observer that can be used to assert the timing of received notifications.
+     */
+    TestScheduler.prototype.createObserver = function () {
+      return new MockObserver(this);
+    };
+
+    return TestScheduler;
+  })(VirtualTimeScheduler);
 
     return Rx;
 }));
 
-},{"./rx.all":19}],21:[function(require,module,exports){
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./rx.all":17}],19:[function(require,module,exports){
 var Rx = require('./dist/rx.all');
 require('./dist/rx.testing');
 
@@ -11606,24 +10938,24 @@ Rx.Node = {
 
 module.exports = Rx;
 
-},{"./dist/rx.all":19,"./dist/rx.testing":20,"events":2}],22:[function(require,module,exports){
+},{"./dist/rx.all":17,"./dist/rx.testing":18,"events":2}],20:[function(require,module,exports){
 var createElement = require("vdom/create-element")
 
 module.exports = createElement
 
-},{"vdom/create-element":26}],23:[function(require,module,exports){
+},{"vdom/create-element":24}],21:[function(require,module,exports){
 var diff = require("vtree/diff")
 
 module.exports = diff
 
-},{"vtree/diff":32}],24:[function(require,module,exports){
+},{"vtree/diff":30}],22:[function(require,module,exports){
 module.exports = isObject
 
 function isObject(x) {
     return typeof x === "object" && x !== null
 }
 
-},{}],25:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 var isObject = require("is-object")
 var isHook = require("vtree/is-vhook")
 
@@ -11717,7 +11049,7 @@ function getPrototype(value) {
     }
 }
 
-},{"is-object":24,"vtree/is-vhook":35}],26:[function(require,module,exports){
+},{"is-object":22,"vtree/is-vhook":33}],24:[function(require,module,exports){
 var document = require("global/document")
 
 var applyProperties = require("./apply-properties")
@@ -11765,7 +11097,7 @@ function createElement(vnode, opts) {
     return node
 }
 
-},{"./apply-properties":25,"global/document":28,"vtree/handle-thunk":33,"vtree/is-vnode":36,"vtree/is-vtext":37,"vtree/is-widget":38}],27:[function(require,module,exports){
+},{"./apply-properties":23,"global/document":26,"vtree/handle-thunk":31,"vtree/is-vnode":34,"vtree/is-vtext":35,"vtree/is-widget":36}],25:[function(require,module,exports){
 // Maps a virtual DOM tree onto a real DOM tree in an efficient manner.
 // We don't want to read all of the DOM nodes in the tree so we use
 // the in-order tree indexing to eliminate recursion down certain branches.
@@ -11852,9 +11184,9 @@ function ascending(a, b) {
     return a > b ? 1 : -1
 }
 
-},{}],28:[function(require,module,exports){
-module.exports=require(14)
-},{"min-document":4}],29:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
+module.exports=require(10)
+},{"/Users/amed/Hobby/cycle/node_modules/dom-delegator/node_modules/global/document.js":10,"min-document":1}],27:[function(require,module,exports){
 var applyProperties = require("./apply-properties")
 
 var isWidget = require("vtree/is-widget")
@@ -11997,7 +11329,7 @@ function reorderChildren(domNode, bIndex) {
             }
 
             node = children[move]
-            insertNode = childNodes[i + insertOffset]
+            insertNode = childNodes[i + insertOffset] || null
             if (node !== insertNode) {
                 domNode.insertBefore(node, insertNode)
             }
@@ -12024,7 +11356,7 @@ function replaceRoot(oldRoot, newRoot) {
     return newRoot;
 }
 
-},{"./apply-properties":25,"./create-element":26,"./update-widget":31,"vtree/is-widget":38,"vtree/vpatch":40}],30:[function(require,module,exports){
+},{"./apply-properties":23,"./create-element":24,"./update-widget":29,"vtree/is-widget":36,"vtree/vpatch":38}],28:[function(require,module,exports){
 var document = require("global/document")
 var isArray = require("x-is-array")
 
@@ -12102,7 +11434,7 @@ function patchIndices(patches) {
     return indices
 }
 
-},{"./dom-index":27,"./patch-op":29,"global/document":28,"x-is-array":41}],31:[function(require,module,exports){
+},{"./dom-index":25,"./patch-op":27,"global/document":26,"x-is-array":39}],29:[function(require,module,exports){
 var isWidget = require("vtree/is-widget")
 
 module.exports = updateWidget
@@ -12119,7 +11451,7 @@ function updateWidget(a, b) {
     return false
 }
 
-},{"vtree/is-widget":38}],32:[function(require,module,exports){
+},{"vtree/is-widget":36}],30:[function(require,module,exports){
 var isArray = require("x-is-array")
 var isObject = require("is-object")
 
@@ -12165,12 +11497,11 @@ function walk(a, b, patch, index) {
                     apply = appendPatch(apply,
                         new VPatch(VPatch.PROPS, a, propsPatch))
                 }
+                apply = diffChildren(a, b, patch, apply, index)
             } else {
                 apply = appendPatch(apply, new VPatch(VPatch.VNODE, a, b))
                 destroyWidgets(a, patch, index)
             }
-
-            apply = diffChildren(a, b, patch, apply, index)
         } else {
             apply = appendPatch(apply, new VPatch(VPatch.VNODE, a, b))
             destroyWidgets(a, patch, index)
@@ -12466,7 +11797,7 @@ function appendPatch(apply, patch) {
     }
 }
 
-},{"./handle-thunk":33,"./is-thunk":34,"./is-vnode":36,"./is-vtext":37,"./is-widget":38,"./vpatch":40,"is-object":24,"x-is-array":41}],33:[function(require,module,exports){
+},{"./handle-thunk":31,"./is-thunk":32,"./is-vnode":34,"./is-vtext":35,"./is-widget":36,"./vpatch":38,"is-object":22,"x-is-array":39}],31:[function(require,module,exports){
 var isVNode = require("./is-vnode")
 var isVText = require("./is-vtext")
 var isWidget = require("./is-widget")
@@ -12508,14 +11839,14 @@ function renderThunk(thunk, previous) {
     return renderedThunk
 }
 
-},{"./is-thunk":34,"./is-vnode":36,"./is-vtext":37,"./is-widget":38}],34:[function(require,module,exports){
+},{"./is-thunk":32,"./is-vnode":34,"./is-vtext":35,"./is-widget":36}],32:[function(require,module,exports){
 module.exports = isThunk
 
 function isThunk(t) {
     return t && t.type === "Thunk"
 }
 
-},{}],35:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 module.exports = isHook
 
 function isHook(hook) {
@@ -12523,7 +11854,7 @@ function isHook(hook) {
         !hook.hasOwnProperty("hook")
 }
 
-},{}],36:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualNode
@@ -12532,7 +11863,7 @@ function isVirtualNode(x) {
     return x && x.type === "VirtualNode" && x.version === version
 }
 
-},{"./version":39}],37:[function(require,module,exports){
+},{"./version":37}],35:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualText
@@ -12541,17 +11872,17 @@ function isVirtualText(x) {
     return x && x.type === "VirtualText" && x.version === version
 }
 
-},{"./version":39}],38:[function(require,module,exports){
+},{"./version":37}],36:[function(require,module,exports){
 module.exports = isWidget
 
 function isWidget(w) {
     return w && w.type === "Widget"
 }
 
-},{}],39:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 module.exports = "1"
 
-},{}],40:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 var version = require("./version")
 
 VirtualPatch.NONE = 0
@@ -12575,7 +11906,7 @@ function VirtualPatch(type, vNode, patch) {
 VirtualPatch.prototype.version = version
 VirtualPatch.prototype.type = "VirtualPatch"
 
-},{"./version":39}],41:[function(require,module,exports){
+},{"./version":37}],39:[function(require,module,exports){
 var nativeIsArray = Array.isArray
 var toString = Object.prototype.toString
 
@@ -12585,12 +11916,12 @@ function isArray(obj) {
     return toString.call(obj) === "[object Array]"
 }
 
-},{}],42:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 var patch = require("vdom/patch")
 
 module.exports = patch
 
-},{"vdom/patch":30}],43:[function(require,module,exports){
+},{"vdom/patch":28}],41:[function(require,module,exports){
 var DataSet = require("data-set")
 
 module.exports = DataSetHook;
@@ -12610,7 +11941,7 @@ DataSetHook.prototype.hook = function (node, propertyName) {
     ds[propName] = this.value;
 };
 
-},{"data-set":48}],44:[function(require,module,exports){
+},{"data-set":46}],42:[function(require,module,exports){
 var DataSet = require("data-set")
 
 module.exports = DataSetHook;
@@ -12630,7 +11961,7 @@ DataSetHook.prototype.hook = function (node, propertyName) {
     ds[propName] = this.value;
 };
 
-},{"data-set":48}],45:[function(require,module,exports){
+},{"data-set":46}],43:[function(require,module,exports){
 module.exports = SoftSetHook;
 
 function SoftSetHook(value) {
@@ -12647,7 +11978,7 @@ SoftSetHook.prototype.hook = function (node, propertyName) {
     }
 };
 
-},{}],46:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 var VNode = require("vtree/vnode.js")
 var VText = require("vtree/vtext.js")
 var isVNode = require("vtree/is-vnode")
@@ -12775,17 +12106,17 @@ function isChildren(x) {
     return typeof x === "string" || Array.isArray(x) || isChild(x)
 }
 
-},{"./hooks/data-set-hook.js":43,"./hooks/ev-hook.js":44,"./hooks/soft-set-hook.js":45,"./parse-tag.js":64,"error/typed":55,"vtree/is-thunk":56,"vtree/is-vhook":57,"vtree/is-vnode":58,"vtree/is-vtext":59,"vtree/is-widget":60,"vtree/vnode.js":62,"vtree/vtext.js":63}],47:[function(require,module,exports){
-module.exports=require(10)
-},{}],48:[function(require,module,exports){
-arguments[4][11][0].apply(exports,arguments)
-},{"./create-hash.js":47,"individual":49,"weakmap-shim/create-store":50}],49:[function(require,module,exports){
-module.exports=require(15)
-},{}],50:[function(require,module,exports){
-module.exports=require(12)
-},{"./hidden-store.js":51}],51:[function(require,module,exports){
+},{"./hooks/data-set-hook.js":41,"./hooks/ev-hook.js":42,"./hooks/soft-set-hook.js":43,"./parse-tag.js":62,"error/typed":53,"vtree/is-thunk":54,"vtree/is-vhook":55,"vtree/is-vnode":56,"vtree/is-vtext":57,"vtree/is-widget":58,"vtree/vnode.js":60,"vtree/vtext.js":61}],45:[function(require,module,exports){
+module.exports=require(8)
+},{"/Users/amed/Hobby/cycle/node_modules/dom-delegator/node_modules/data-set/create-hash.js":8}],46:[function(require,module,exports){
+module.exports=require(9)
+},{"./create-hash.js":45,"/Users/amed/Hobby/cycle/node_modules/dom-delegator/node_modules/data-set/index.js":9,"individual":47,"weakmap-shim/create-store":48}],47:[function(require,module,exports){
+module.exports=require(11)
+},{"/Users/amed/Hobby/cycle/node_modules/dom-delegator/node_modules/individual/index.js":11}],48:[function(require,module,exports){
 module.exports=require(13)
-},{}],52:[function(require,module,exports){
+},{"./hidden-store.js":49,"/Users/amed/Hobby/cycle/node_modules/dom-delegator/node_modules/weakmap-shim/create-store.js":13}],49:[function(require,module,exports){
+module.exports=require(14)
+},{"/Users/amed/Hobby/cycle/node_modules/dom-delegator/node_modules/weakmap-shim/hidden-store.js":14}],50:[function(require,module,exports){
 module.exports = function(obj) {
     if (typeof obj === 'string') return camelCase(obj);
     return walk(obj);
@@ -12846,7 +12177,7 @@ function reduce (xs, f, acc) {
     return acc;
 }
 
-},{}],53:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 var nargs = /\{([0-9a-zA-Z]+)\}/g
 var slice = Array.prototype.slice
 
@@ -12882,7 +12213,7 @@ function template(string) {
     })
 }
 
-},{}],54:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 module.exports = extend
 
 function extend(target) {
@@ -12899,7 +12230,7 @@ function extend(target) {
     return target
 }
 
-},{}],55:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 var camelize = require("camelize")
 var template = require("string-template")
 var extend = require("xtend/mutable")
@@ -12949,19 +12280,19 @@ function TypedError(args) {
 }
 
 
-},{"camelize":52,"string-template":53,"xtend/mutable":54}],56:[function(require,module,exports){
+},{"camelize":50,"string-template":51,"xtend/mutable":52}],54:[function(require,module,exports){
+module.exports=require(32)
+},{"/Users/amed/Hobby/cycle/node_modules/virtual-dom/node_modules/vtree/is-thunk.js":32}],55:[function(require,module,exports){
+module.exports=require(33)
+},{"/Users/amed/Hobby/cycle/node_modules/virtual-dom/node_modules/vtree/is-vhook.js":33}],56:[function(require,module,exports){
 module.exports=require(34)
-},{}],57:[function(require,module,exports){
+},{"./version":59,"/Users/amed/Hobby/cycle/node_modules/virtual-dom/node_modules/vtree/is-vnode.js":34}],57:[function(require,module,exports){
 module.exports=require(35)
-},{}],58:[function(require,module,exports){
+},{"./version":59,"/Users/amed/Hobby/cycle/node_modules/virtual-dom/node_modules/vtree/is-vtext.js":35}],58:[function(require,module,exports){
 module.exports=require(36)
-},{"./version":61}],59:[function(require,module,exports){
+},{"/Users/amed/Hobby/cycle/node_modules/virtual-dom/node_modules/vtree/is-widget.js":36}],59:[function(require,module,exports){
 module.exports=require(37)
-},{"./version":61}],60:[function(require,module,exports){
-module.exports=require(38)
-},{}],61:[function(require,module,exports){
-module.exports=require(39)
-},{}],62:[function(require,module,exports){
+},{"/Users/amed/Hobby/cycle/node_modules/virtual-dom/node_modules/vtree/version.js":37}],60:[function(require,module,exports){
 var version = require("./version")
 var isVNode = require("./is-vnode")
 var isWidget = require("./is-widget")
@@ -13026,7 +12357,7 @@ function VirtualNode(tagName, properties, children, key, namespace) {
 VirtualNode.prototype.version = version
 VirtualNode.prototype.type = "VirtualNode"
 
-},{"./is-vhook":57,"./is-vnode":58,"./is-widget":60,"./version":61}],63:[function(require,module,exports){
+},{"./is-vhook":55,"./is-vnode":56,"./is-widget":58,"./version":59}],61:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = VirtualText
@@ -13038,7 +12369,7 @@ function VirtualText(text) {
 VirtualText.prototype.version = version
 VirtualText.prototype.type = "VirtualText"
 
-},{"./version":61}],64:[function(require,module,exports){
+},{"./version":59}],62:[function(require,module,exports){
 var classIdSplit = /([\.#]?[a-zA-Z0-9_:-]+)/
 var notClassId = /^\.|#/
 
@@ -13089,7 +12420,7 @@ function parseTag(tag, props) {
     return tagName ? tagName.toLowerCase() : "div"
 }
 
-},{}],65:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
 var h = require('virtual-hyperscript');
@@ -13228,10 +12559,11 @@ var Cycle = {
 
 module.exports = Cycle;
 
-},{"dom-delegator":8,"rx":21,"virtual-dom/create-element":22,"virtual-dom/diff":23,"virtual-dom/patch":42,"virtual-hyperscript":46}],66:[function(require,module,exports){
-var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};'use strict';
+},{"dom-delegator":6,"rx":19,"virtual-dom/create-element":20,"virtual-dom/diff":21,"virtual-dom/patch":40,"virtual-hyperscript":44}],64:[function(require,module,exports){
+(function (global){
+'use strict';
 var Cycle = require('./cycle');
 global.Cycle = Cycle;
 
-},{"./cycle":65}]},{},[66])
-;
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./cycle":63}]},{},[64]);
