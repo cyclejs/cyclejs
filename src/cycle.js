@@ -8,6 +8,8 @@ var VDOM = {
 };
 var DOMDelegator = require('dom-delegator');
 
+function noop () {}
+
 function replicate(source, subject) {
   if (typeof source === 'undefined') {
     throw new Error('Cannot replicate() if source is undefined.');
@@ -20,6 +22,46 @@ function replicate(source, subject) {
       console.error(err);
     }
   );
+}
+
+function getFunctionForwardIntoStream(stream) {
+  return function forwardIntoStream(ev) { stream.onNext(ev); };
+}
+
+function replaceStreamNameWithForwardFunction(vtree, view) {
+  for (var key in vtree.hooks) {
+    if (vtree.hooks.hasOwnProperty(key)) {
+      var streamName = vtree.hooks[key].value;
+      if (view[streamName]) {
+        vtree.hooks[key].value = getFunctionForwardIntoStream(view[streamName]);
+      } else {
+        vtree.hooks[key].value = noop;
+      }
+    }
+  }
+}
+
+function CycleInterfaceError(message, missingMember) {
+  this.name = 'CycleInterfaceError';
+  this.message = (message || '');
+  this.missingMember = (missingMember || '');
+}
+CycleInterfaceError.prototype = Error.prototype;
+
+function customInterfaceErrorMessageInLIFFeed(lateInputFn, message) {
+  var originalFeed = lateInputFn.feed;
+  lateInputFn.feed = function (input) {
+    try {
+      originalFeed(input);
+    } catch (err) {
+      if (err instanceof CycleInterfaceError) {
+        throw new CycleInterfaceError(message + err.missingMember, err.missingMember);
+      } else {
+        throw err;
+      }
+    }
+  };
+  return lateInputFn;
 }
 
 var Cycle = {
@@ -47,56 +89,62 @@ var Cycle = {
     return true;
   },
 
-  defineModel: function (intentType, definitionFn) {
-    var intentStub = {};
-    for (var i = intentType.length - 1; i >= 0; i--) {
-      intentStub[intentType[i]] = new Rx.Subject();
+  defineLateInputFunction: function (inputInterface, definitionFn) {
+    var i;
+    if (!Array.isArray(inputInterface)) {
+      throw new Error('Expected an array as the interface of the input for \n' +
+        'the reactive component.'
+      );
     }
-    var model = definitionFn(intentStub);
-    model.observe = function (intent) {
-      for (var key in intentStub) {
-        if (intentStub.hasOwnProperty(key)) {
-          if (!intent.hasOwnProperty(key)) {
-            throw new Error('Intent should have the required property ' + key);
+    for (i = inputInterface.length - 1; i >= 0; i--) {
+      if (typeof inputInterface[i] !== 'string') {
+        throw new Error('Expected a string as the name for a member of \n' +
+          'the input interface.'
+        );
+      }
+    }
+    var inputStub = {};
+    for (i = inputInterface.length - 1; i >= 0; i--) {
+      inputStub[inputInterface[i]] = new Rx.Subject();
+    }
+    var lateInputFunction = definitionFn(inputStub);
+    lateInputFunction.feed = function (input) {
+      for (var key in inputStub) {
+        if (inputStub.hasOwnProperty(key)) {
+          if (!input.hasOwnProperty(key)) {
+            throw new CycleInterfaceError('Input should have the required property ' +
+              key, String(key)
+            );
           }
-          replicate(intent[key], intentStub[key]);
+          replicate(input[key], inputStub[key]);
         }
       }
     };
+    return lateInputFunction;
+  },
+
+  defineModel: function (intentInterface, definitionFn) {
+    var model = Cycle.defineLateInputFunction(intentInterface, definitionFn);
+    model = customInterfaceErrorMessageInLIFFeed(model,
+      'Model expects Intent to have the required property '
+    );
     return model;
   },
 
-  defineView: function (modelType, definitionFn) {
-    var i;
-    var modelStub = {};
-    for (i = modelType.length - 1; i >= 0; i--) {
-      modelStub[modelType[i]] = new Rx.Subject();
-    }
-    var view = definitionFn(modelStub);
-    view.observe = function (model) {
-      for (var key in modelStub) {
-        if (modelStub.hasOwnProperty(key)) {
-          if (!model.hasOwnProperty(key)) {
-            throw new TypeError('Model should have the required property ' + key);
-          }
-          replicate(model[key], modelStub[key]);
-        }
+  defineView: function (modelInterface, definitionFn) {
+    var view = Cycle.defineLateInputFunction(modelInterface, definitionFn);
+    view = customInterfaceErrorMessageInLIFFeed(view,
+      'View expects Model to have the required property '
+    );
+    if (view.events) {
+      for (var i = view.events.length - 1; i >= 0; i--) {
+        view[view.events[i]] = new Rx.Subject();
       }
-    };
-    for (i = view.events.length - 1; i >= 0; i--) {
-      view[view.events[i]] = new Rx.Subject();
+      delete view.events;
     }
-    delete view.events;
     view.vtree$ = view.vtree$.map(function (vtree) {
-      // replace stream name with event replicator
-      for (var key in vtree.hooks) {
-        if (vtree.hooks.hasOwnProperty(key)) {
-          var streamName = vtree.hooks[key].value;
-          vtree.hooks[key].value = function (ev) { view[streamName].onNext(ev); };
-        }
-      }
+      replaceStreamNameWithForwardFunction(vtree, view);
       // TODO also the same, recursively in the vtree.children
-      // TODO
       // traverse the vtree, replacing the value of 'ev-*' fields with
       // `function (ev) { view[$PREVIOUS_VALUE].onNext(ev); }`
       return vtree;
@@ -104,29 +152,19 @@ var Cycle = {
     return view;
   },
 
-  defineIntent: function (viewType, definitionFn) {
-    var viewStub = {};
-    for (var i = viewType.length - 1; i >= 0; i--) {
-      viewStub[viewType[i]] = new Rx.Subject();
-    }
-    var intent = definitionFn(viewStub);
-    intent.observe = function (view) {
-      for (var key in viewStub) {
-        if (viewStub.hasOwnProperty(key)) {
-          if (!view.hasOwnProperty(key)) {
-            throw new Error('View should have the required property ' + key);
-          }
-          replicate(view[key], viewStub[key]);
-        }
-      }
-    };
+  defineIntent: function (viewInterface, definitionFn) {
+    var intent = Cycle.defineLateInputFunction(viewInterface, definitionFn);
+    intent = customInterfaceErrorMessageInLIFFeed(intent,
+      'Intent expects View to have the required property '
+    );
     return intent;
   },
 
   connect: function (model, view, intent) {
-    if (intent) { intent.observe(view); }
-    if (view) { view.observe(model); }
-    if (model) { model.observe(intent); }
+    // TODO generalize this `arguments` array
+    if (intent) { intent.feed(view); }
+    if (view) { view.feed(model); }
+    if (model) { model.feed(intent); }
   },
 
   // Submodules
