@@ -30,4 +30,4 @@ var HelloIntent = Cycle.defineIntent(['inputText$'], function (view) {
 });
 
 Cycle.renderEvery(HelloView.vtree$, '.js-container');
-Cycle.connect(HelloModel, HelloView, HelloIntent);
+Cycle.link(HelloModel, HelloView, HelloIntent);

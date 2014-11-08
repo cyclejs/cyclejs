@@ -30,4 +30,4 @@ var FooIntent = Cycle.defineIntent(['fooClicks$'], function (view) {
 });
 
 Cycle.renderEvery(FooView.vtree$, '.js-container');
-Cycle.connect(FooModel, FooView, FooIntent);
+Cycle.link(FooModel, FooView, FooIntent);
