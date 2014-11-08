@@ -26,7 +26,7 @@ var HelloIntent = Cycle.defineIntent(['inputText$'], function (view) {
   return {
     changeName$: view.inputText$
       .map(function (ev) { return ev.target.value; })
-  }
+  };
 });
 
 Cycle.renderEvery(HelloView.vtree$, '.js-container');
