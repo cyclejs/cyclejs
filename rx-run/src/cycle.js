@@ -7,22 +7,11 @@ var VDOM = {
   patch: require('virtual-dom/patch')
 };
 var DOMDelegator = require('dom-delegator');
+var BackwardFunction = require('./backward-function');
+var errors = require('./errors');
+var CycleInterfaceError = errors.CycleInterfaceError;
 
-function noop () {}
-
-function replicate(source, subject) {
-  if (typeof source === 'undefined') {
-    throw new Error('Cannot replicate() if source is undefined.');
-  }
-  return source.subscribe(
-    function replicationOnNext(x) {
-      subject.onNext(x);
-    },
-    function replicationOnError(err) {
-      console.error(err);
-    }
-  );
-}
+function noop() {}
 
 function getFunctionForwardIntoStream(stream) {
   return function forwardIntoStream(ev) { stream.onNext(ev); };
@@ -50,16 +39,9 @@ function replaceStreamNameWithForwardFunction(vtree, view) {
   }
 }
 
-function CycleInterfaceError(message, missingMember) {
-  this.name = 'CycleInterfaceError';
-  this.message = (message || '');
-  this.missingMember = (missingMember || '');
-}
-CycleInterfaceError.prototype = Error.prototype;
-
-function customInterfaceErrorMessageInBackwardFeed(lateInputFn, message) {
-  var originalFeed = lateInputFn.feed;
-  lateInputFn.feed = function (input) {
+function customInterfaceErrorMessageInBackwardFeed(backwardFn, message) {
+  var originalFeed = backwardFn.feed;
+  backwardFn.feed = function (input) {
     try {
       originalFeed(input);
     } catch (err) {
@@ -70,7 +52,7 @@ function customInterfaceErrorMessageInBackwardFeed(lateInputFn, message) {
       }
     }
   };
-  return lateInputFn;
+  return backwardFn;
 }
 
 var Cycle = {
@@ -98,35 +80,7 @@ var Cycle = {
   },
 
   defineBackwardFunction: function (inputInterface, definitionFn) {
-    var i;
-    if (!Array.isArray(inputInterface)) {
-      throw new Error('Expected an array as the interface of the input for \n' +
-        'the Backward Function.'
-      );
-    }
-    for (i = inputInterface.length - 1; i >= 0; i--) {
-      if (typeof inputInterface[i] !== 'string') {
-        throw new Error('Expected strings as names of properties in the input interface');
-      }
-    }
-    var inputStub = {};
-    for (i = inputInterface.length - 1; i >= 0; i--) {
-      inputStub[inputInterface[i]] = new Rx.Subject();
-    }
-    var lateInputFunction = definitionFn(inputStub);
-    lateInputFunction.feed = function (input) {
-      for (var key in inputStub) {
-        if (inputStub.hasOwnProperty(key)) {
-          if (!input.hasOwnProperty(key)) {
-            throw new CycleInterfaceError('Input should have the required property ' +
-              key, String(key)
-            );
-          }
-          replicate(input[key], inputStub[key]);
-        }
-      }
-    };
-    return lateInputFunction;
+    return new BackwardFunction(inputInterface, definitionFn);
   },
 
   defineModel: function (intentInterface, definitionFn) {

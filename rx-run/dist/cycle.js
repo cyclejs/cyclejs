@@ -12423,15 +12423,8 @@ function parseTag(tag, props) {
 },{}],63:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
-var h = require('virtual-hyperscript');
-var VDOM = {
-  createElement: require('virtual-dom/create-element'),
-  diff: require('virtual-dom/diff'),
-  patch: require('virtual-dom/patch')
-};
-var DOMDelegator = require('dom-delegator');
-
-function noop () {}
+var errors = require('./errors');
+var CycleInterfaceError = errors.CycleInterfaceError;
 
 function replicate(source, subject) {
   if (typeof source === 'undefined') {
@@ -12446,6 +12439,93 @@ function replicate(source, subject) {
     }
   );
 }
+
+function checkInputInterfaceArray(inputInterface) {
+  if (!Array.isArray(inputInterface)) {
+    throw new Error('Expected an array as the interface of the input for \n' +
+      'the Backward Function.'
+    );
+  }
+}
+
+function checkInputInterfaceOnlyStrings(inputInterface) {
+  for (var i = inputInterface.length - 1; i >= 0; i--) {
+    if (typeof inputInterface[i] !== 'string') {
+      throw new Error('Expected strings as names of properties in the input interface');
+    }
+  }
+}
+
+function makeStubPropertiesFromInterface(inputStub, inputInterface) {
+  for (var i = inputInterface.length - 1; i >= 0; i--) {
+    inputStub[inputInterface[i]] = new Rx.Subject();
+  }
+}
+
+function checkOutputObject(output) {
+  if (typeof output !== 'object') {
+    throw new Error('Backward Functions should always return an object.');
+  }
+}
+
+function copyProperties(orig, dest) {
+  for (var key in orig) {
+    if (orig.hasOwnProperty(key)) {
+      dest[key] = orig[key];
+    }
+  }
+}
+
+function replicateAll(input, stub) {
+  for (var key in stub) {
+    if (stub.hasOwnProperty(key)) {
+      if (!input.hasOwnProperty(key)) {
+        throw new CycleInterfaceError('Input should have the required property ' +
+          key, String(key)
+        );
+      }
+      replicate(input[key], stub[key]);
+    }
+  }
+}
+
+function BackwardFunction(inputInterface, definitionFn) {
+  var inputStub = {};
+  var wasFed = false;
+  if (typeof inputInterface !== 'undefined') {
+    checkInputInterfaceArray(inputInterface);
+    checkInputInterfaceOnlyStrings(inputInterface);
+    makeStubPropertiesFromInterface(inputStub, inputInterface);
+  }
+  var output = definitionFn(inputStub);
+  checkOutputObject(output);
+  copyProperties(output, this);
+  this.feed = function (input) {
+    if (wasFed) {
+      console.warn('Backward Function has already been fed an input.');
+    }
+    replicateAll(input, inputStub);
+    wasFed = true;
+  };
+}
+
+module.exports = BackwardFunction;
+
+},{"./errors":65,"rx":19}],64:[function(require,module,exports){
+'use strict';
+var Rx = require('rx');
+var h = require('virtual-hyperscript');
+var VDOM = {
+  createElement: require('virtual-dom/create-element'),
+  diff: require('virtual-dom/diff'),
+  patch: require('virtual-dom/patch')
+};
+var DOMDelegator = require('dom-delegator');
+var BackwardFunction = require('./backward-function');
+var errors = require('./errors');
+var CycleInterfaceError = errors.CycleInterfaceError;
+
+function noop() {}
 
 function getFunctionForwardIntoStream(stream) {
   return function forwardIntoStream(ev) { stream.onNext(ev); };
@@ -12473,16 +12553,9 @@ function replaceStreamNameWithForwardFunction(vtree, view) {
   }
 }
 
-function CycleInterfaceError(message, missingMember) {
-  this.name = 'CycleInterfaceError';
-  this.message = (message || '');
-  this.missingMember = (missingMember || '');
-}
-CycleInterfaceError.prototype = Error.prototype;
-
-function customInterfaceErrorMessageInBackwardFeed(lateInputFn, message) {
-  var originalFeed = lateInputFn.feed;
-  lateInputFn.feed = function (input) {
+function customInterfaceErrorMessageInBackwardFeed(backwardFn, message) {
+  var originalFeed = backwardFn.feed;
+  backwardFn.feed = function (input) {
     try {
       originalFeed(input);
     } catch (err) {
@@ -12493,7 +12566,7 @@ function customInterfaceErrorMessageInBackwardFeed(lateInputFn, message) {
       }
     }
   };
-  return lateInputFn;
+  return backwardFn;
 }
 
 var Cycle = {
@@ -12521,35 +12594,7 @@ var Cycle = {
   },
 
   defineBackwardFunction: function (inputInterface, definitionFn) {
-    var i;
-    if (!Array.isArray(inputInterface)) {
-      throw new Error('Expected an array as the interface of the input for \n' +
-        'the Backward Function.'
-      );
-    }
-    for (i = inputInterface.length - 1; i >= 0; i--) {
-      if (typeof inputInterface[i] !== 'string') {
-        throw new Error('Expected strings as names of properties in the input interface');
-      }
-    }
-    var inputStub = {};
-    for (i = inputInterface.length - 1; i >= 0; i--) {
-      inputStub[inputInterface[i]] = new Rx.Subject();
-    }
-    var lateInputFunction = definitionFn(inputStub);
-    lateInputFunction.feed = function (input) {
-      for (var key in inputStub) {
-        if (inputStub.hasOwnProperty(key)) {
-          if (!input.hasOwnProperty(key)) {
-            throw new CycleInterfaceError('Input should have the required property ' +
-              key, String(key)
-            );
-          }
-          replicate(input[key], inputStub[key]);
-        }
-      }
-    };
-    return lateInputFunction;
+    return new BackwardFunction(inputInterface, definitionFn);
   },
 
   defineModel: function (intentInterface, definitionFn) {
@@ -12600,11 +12645,25 @@ var Cycle = {
 
 module.exports = Cycle;
 
-},{"dom-delegator":6,"rx":19,"virtual-dom/create-element":20,"virtual-dom/diff":21,"virtual-dom/patch":40,"virtual-hyperscript":44}],64:[function(require,module,exports){
+},{"./backward-function":63,"./errors":65,"dom-delegator":6,"rx":19,"virtual-dom/create-element":20,"virtual-dom/diff":21,"virtual-dom/patch":40,"virtual-hyperscript":44}],65:[function(require,module,exports){
+'use strict';
+
+function CycleInterfaceError(message, missingMember) {
+  this.name = 'CycleInterfaceError';
+  this.message = (message || '');
+  this.missingMember = (missingMember || '');
+}
+CycleInterfaceError.prototype = Error.prototype;
+
+module.exports = {
+  CycleInterfaceError: CycleInterfaceError
+};
+
+},{}],66:[function(require,module,exports){
 (function (global){
 'use strict';
 var Cycle = require('./cycle');
 global.Cycle = Cycle;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./cycle":63}]},{},[64]);
+},{"./cycle":64}]},{},[66]);
