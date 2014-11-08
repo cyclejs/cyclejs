@@ -4,7 +4,7 @@ A web application framework using the Reactive Model-View-Intent architecture an
 DOM Rendering.
 
 * **Unidirectional Dataflow**: based on the Model-View-Intent architecture, data moves
-  from Model to View, events move from View to Intent, and Intent sends "user intentions
+  from Model to View, events move from View to Intent, and Intent sends "user intentions"
   to the Model. They are tied together as a cycle.
 * **Purely Reactive**: all components are event-driven and [RxJS](https://github.com/Reactive-Extensions/RxJS)
   is a hard dependency, which simplifies all code related to events, asynchronicity, and
