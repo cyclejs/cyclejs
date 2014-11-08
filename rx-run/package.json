@@ -10,7 +10,10 @@
     "type": "git",
     "url": "https://github.com/staltz/cycle"
   },
-  "keywords": ["mvi", "virtual-dom"],
+  "keywords": [
+    "mvi",
+    "virtual-dom"
+  ],
   "main": "src/cycle.js",
   "dependencies": {
     "rx": "2.3.14",
@@ -21,7 +24,8 @@
   "devDependencies": {
     "browserify": "6.2.0",
     "jshint": "^2.5.6",
-    "jscs": "^1.6.2"
+    "jscs": "^1.6.2",
+    "uglify-js": "^2.4.15"
   },
   "engines": {
     "node": ">=0.10.0"
@@ -30,6 +34,8 @@
     "lint": "./node_modules/.bin/jshint src/ ",
     "jscs": "./node_modules/.bin/jscs src/",
     "check": "npm run lint && npm run jscs",
-    "build": "./node_modules/.bin/browserify src/for-browserify.js --igv=Cycle -o dist/cycle.js"
+    "browserify": "./node_modules/.bin/browserify src/for-browserify.js --igv=Cycle -o dist/cycle.js",
+    "uglify": "./node_modules/.bin/uglifyjs dist/cycle.js -o dist/cycle.min.js",
+    "build": "npm run browserify && npm run uglify"
   }
 }
