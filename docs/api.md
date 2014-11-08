@@ -18,7 +18,7 @@ should not have any parameter either.
 
 #### Arguments
 
-- `[inputInterface]` *(Array<String>)*: property names that are expected to exist as
+- `[inputInterface]` *(Array&lt;String&gt;)*: property names that are expected to exist as
   RxJS Observables in the input parameter for `definitionFn`.
 - `definitionFn` *(Function)*: a function expecting an object as parameter, satisfying the
   type requirement given by `inputInterface`. Should return an object containing RxJS
@@ -35,7 +35,7 @@ specialized case of `defineBackwardFunction()`.
 
 #### Arguments
 
-- `[intentInterface]` *(Array<String>)*: property names that are expected to exist as
+- `[intentInterface]` *(Array&lt;String&gt;)*: property names that are expected to exist as
   RxJS Observables in the input Intent.
 - `definitionFn` *(Function)*: a function expecting an Intent object as parameter. Should
   return an object containing RxJS Observables as properties.
@@ -52,7 +52,7 @@ specialized case of `defineBackwardFunction()`.
 
 #### Arguments
 
-- `[modelInterface]` *(Array<String>)*: property names that are expected to exist as
+- `[modelInterface]` *(Array&lt;String&gt;)*: property names that are expected to exist as
   RxJS Observables in the input Model.
 - `definitionFn` *(Function)*: a function expecting a Model object as parameter. Should
   return an object containing RxJS Observables as properties. The object must also contain
@@ -71,7 +71,7 @@ specialized case of `defineBackwardFunction()`.
 
 #### Arguments
 
-- `[viewInterface]` *(Array<String>)*: property names that are expected to exist as
+- `[viewInterface]` *(Array&lt;String&gt;)*: property names that are expected to exist as
   RxJS Observables in the input View.
 - `definitionFn` *(Function)*: a function expecting a View object as parameter. Should
   return an object containing RxJS Observables as properties.
@@ -108,7 +108,8 @@ matched by `containerSelector`.
 
 #### Arguments
 
-- `vtree$` *(Rx.Observable<VTree>)*: an Observable of VTree instances (virtual DOM elements).
+- `vtree$` *(Rx.Observable&lt;VTree&gt;)*: an Observable of VTree instances (virtual DOM
+  elements).
 - `containerSelector` *(String)*: the DOM selector for the element to contain the rendering.
 
 #### Returns
