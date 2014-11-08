@@ -47,7 +47,7 @@ var HelloIntent = Cycle.defineIntent(['inputText$'], function (view) {
   return {
     changeName$: view.inputText$
       .map(function (ev) { return ev.target.value; })
-  }
+  };
 });
 
 Cycle.renderEvery(HelloView.vtree$, '.js-container');
@@ -64,7 +64,7 @@ them that they depend on each other circularly.
 
 `npm install cyclejs`
 
-## Installing through bower
+## Installing through Bower
 
 `bower install cycle`
 
