@@ -31,11 +31,11 @@
     "node": ">=0.10.0"
   },
   "scripts": {
-    "lint": "./node_modules/.bin/jshint src/ ",
-    "jscs": "./node_modules/.bin/jscs src/",
+    "lint": "jshint src/ ",
+    "jscs": "jscs src/",
     "check": "npm run lint && npm run jscs",
-    "browserify": "./node_modules/.bin/browserify src/for-browserify.js --igv=Cycle -o dist/cycle.js",
-    "uglify": "./node_modules/.bin/uglifyjs dist/cycle.js -o dist/cycle.min.js",
+    "browserify": "browserify src/for-browserify.js --igv=Cycle -o dist/cycle.js",
+    "uglify": "uglifyjs dist/cycle.js -o dist/cycle.min.js",
     "build": "npm run browserify && npm run uglify"
   }
 }
