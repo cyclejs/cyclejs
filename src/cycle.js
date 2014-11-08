@@ -166,7 +166,7 @@ var Cycle = {
     return intent;
   },
 
-  connect: function (model, view, intent) {
+  link: function (model, view, intent) {
     // TODO generalize this `arguments` array
     if (intent) { intent.feed(view); }
     if (view) { view.feed(model); }
