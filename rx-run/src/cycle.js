@@ -57,7 +57,7 @@ function CycleInterfaceError(message, missingMember) {
 }
 CycleInterfaceError.prototype = Error.prototype;
 
-function customInterfaceErrorMessageInLIFFeed(lateInputFn, message) {
+function customInterfaceErrorMessageInBackwardFeed(lateInputFn, message) {
   var originalFeed = lateInputFn.feed;
   lateInputFn.feed = function (input) {
     try {
@@ -97,18 +97,16 @@ var Cycle = {
       });
   },
 
-  defineLateInputFunction: function (inputInterface, definitionFn) {
+  defineBackwardFunction: function (inputInterface, definitionFn) {
     var i;
     if (!Array.isArray(inputInterface)) {
       throw new Error('Expected an array as the interface of the input for \n' +
-        'the reactive component.'
+        'the Backward Function.'
       );
     }
     for (i = inputInterface.length - 1; i >= 0; i--) {
       if (typeof inputInterface[i] !== 'string') {
-        throw new Error('Expected a string as the name for a member of \n' +
-          'the input interface.'
-        );
+        throw new Error('Expected strings as names of properties in the input interface');
       }
     }
     var inputStub = {};
@@ -132,16 +130,16 @@ var Cycle = {
   },
 
   defineModel: function (intentInterface, definitionFn) {
-    var model = Cycle.defineLateInputFunction(intentInterface, definitionFn);
-    model = customInterfaceErrorMessageInLIFFeed(model,
+    var model = Cycle.defineBackwardFunction(intentInterface, definitionFn);
+    model = customInterfaceErrorMessageInBackwardFeed(model,
       'Model expects Intent to have the required property '
     );
     return model;
   },
 
   defineView: function (modelInterface, definitionFn) {
-    var view = Cycle.defineLateInputFunction(modelInterface, definitionFn);
-    view = customInterfaceErrorMessageInLIFFeed(view,
+    var view = Cycle.defineBackwardFunction(modelInterface, definitionFn);
+    view = customInterfaceErrorMessageInBackwardFeed(view,
       'View expects Model to have the required property '
     );
     if (view.events) {
@@ -158,8 +156,8 @@ var Cycle = {
   },
 
   defineIntent: function (viewInterface, definitionFn) {
-    var intent = Cycle.defineLateInputFunction(viewInterface, definitionFn);
-    intent = customInterfaceErrorMessageInLIFFeed(intent,
+    var intent = Cycle.defineBackwardFunction(viewInterface, definitionFn);
+    intent = customInterfaceErrorMessageInBackwardFeed(intent,
       'Intent expects View to have the required property '
     );
     return intent;
