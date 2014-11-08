@@ -84,7 +84,7 @@ var Cycle = {
     // Make the DOM node bound to the VDOM node
     var rootNode = document.createElement('div');
     container.appendChild(rootNode);
-    vtree$.startWith(h())
+    return vtree$.startWith(h())
       .bufferWithCount(2, 1)
       .subscribe(function (buffer) {
         try {
@@ -95,7 +95,6 @@ var Cycle = {
           console.error(err);
         }
       });
-    return true;
   },
 
   defineLateInputFunction: function (inputInterface, definitionFn) {

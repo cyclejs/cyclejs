@@ -12451,6 +12451,8 @@ function getFunctionForwardIntoStream(stream) {
   return function forwardIntoStream(ev) { stream.onNext(ev); };
 }
 
+// traverse the vtree, replacing the value of 'ev-*' fields with
+// `function (ev) { view[$PREVIOUS_VALUE].onNext(ev); }`
 function replaceStreamNameWithForwardFunction(vtree, view) {
   if (typeof vtree.hooks !== 'undefined') {
     for (var key in vtree.hooks) {
@@ -12505,7 +12507,7 @@ var Cycle = {
     // Make the DOM node bound to the VDOM node
     var rootNode = document.createElement('div');
     container.appendChild(rootNode);
-    vtree$.startWith(h())
+    return vtree$.startWith(h())
       .bufferWithCount(2, 1)
       .subscribe(function (buffer) {
         try {
@@ -12516,7 +12518,6 @@ var Cycle = {
           console.error(err);
         }
       });
-    return true;
   },
 
   defineLateInputFunction: function (inputInterface, definitionFn) {
@@ -12574,9 +12575,6 @@ var Cycle = {
     }
     view.vtree$ = view.vtree$.map(function (vtree) {
       replaceStreamNameWithForwardFunction(vtree, view);
-      // TODO also the same, recursively in the vtree.children
-      // traverse the vtree, replacing the value of 'ev-*' fields with
-      // `function (ev) { view[$PREVIOUS_VALUE].onNext(ev); }`
       return vtree;
     });
     return view;
@@ -12590,7 +12588,7 @@ var Cycle = {
     return intent;
   },
 
-  connect: function (model, view, intent) {
+  link: function (model, view, intent) {
     // TODO generalize this `arguments` array
     if (intent) { intent.feed(view); }
     if (view) { view.feed(model); }
