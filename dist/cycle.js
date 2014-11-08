@@ -12452,14 +12452,21 @@ function getFunctionForwardIntoStream(stream) {
 }
 
 function replaceStreamNameWithForwardFunction(vtree, view) {
-  for (var key in vtree.hooks) {
-    if (vtree.hooks.hasOwnProperty(key)) {
-      var streamName = vtree.hooks[key].value;
-      if (view[streamName]) {
-        vtree.hooks[key].value = getFunctionForwardIntoStream(view[streamName]);
-      } else {
-        vtree.hooks[key].value = noop;
+  if (typeof vtree.hooks !== 'undefined') {
+    for (var key in vtree.hooks) {
+      if (vtree.hooks.hasOwnProperty(key)) {
+        var streamName = vtree.hooks[key].value;
+        if (view[streamName]) {
+          vtree.hooks[key].value = getFunctionForwardIntoStream(view[streamName]);
+        } else {
+          vtree.hooks[key].value = noop;
+        }
       }
+    }
+  }
+  if (Array.isArray(vtree.children)) {
+    for (var i = 0; i < vtree.children.length - 1; i++) {
+      replaceStreamNameWithForwardFunction(vtree.children[i], view);
     }
   }
 }
