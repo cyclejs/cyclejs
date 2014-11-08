@@ -28,15 +28,24 @@ function getFunctionForwardIntoStream(stream) {
   return function forwardIntoStream(ev) { stream.onNext(ev); };
 }
 
+// traverse the vtree, replacing the value of 'ev-*' fields with
+// `function (ev) { view[$PREVIOUS_VALUE].onNext(ev); }`
 function replaceStreamNameWithForwardFunction(vtree, view) {
-  for (var key in vtree.hooks) {
-    if (vtree.hooks.hasOwnProperty(key)) {
-      var streamName = vtree.hooks[key].value;
-      if (view[streamName]) {
-        vtree.hooks[key].value = getFunctionForwardIntoStream(view[streamName]);
-      } else {
-        vtree.hooks[key].value = noop;
+  if (typeof vtree.hooks !== 'undefined') {
+    for (var key in vtree.hooks) {
+      if (vtree.hooks.hasOwnProperty(key)) {
+        var streamName = vtree.hooks[key].value;
+        if (view[streamName]) {
+          vtree.hooks[key].value = getFunctionForwardIntoStream(view[streamName]);
+        } else {
+          vtree.hooks[key].value = noop;
+        }
       }
+    }
+  }
+  if (Array.isArray(vtree.children)) {
+    for (var i = 0; i < vtree.children.length - 1; i++) {
+      replaceStreamNameWithForwardFunction(vtree.children[i], view);
     }
   }
 }
@@ -144,9 +153,6 @@ var Cycle = {
     }
     view.vtree$ = view.vtree$.map(function (vtree) {
       replaceStreamNameWithForwardFunction(vtree, view);
-      // TODO also the same, recursively in the vtree.children
-      // traverse the vtree, replacing the value of 'ev-*' fields with
-      // `function (ev) { view[$PREVIOUS_VALUE].onNext(ev); }`
       return vtree;
     });
     return view;
