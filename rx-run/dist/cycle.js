@@ -12550,7 +12550,7 @@ function replaceStreamNameWithForwardFunction(vtree, view) {
     }
   }
   if (Array.isArray(vtree.children)) {
-    for (var i = 0; i < vtree.children.length - 1; i++) {
+    for (var i = 0; i < vtree.children.length; i++) {
       replaceStreamNameWithForwardFunction(vtree.children[i], view);
     }
   }
@@ -12623,6 +12623,7 @@ var Cycle = {
       delete view.events;
     }
     view.vtree$ = view.vtree$.map(function (vtree) {
+      // TODO throw error if vtree is not of type vtree or is undefined
       replaceStreamNameWithForwardFunction(vtree, view);
       return vtree;
     });
