@@ -26,7 +26,7 @@ should not have any parameter either.
 
 #### Returns
 
-*(BackwardFunction)*: a Backward Function, containing a `feed(input)` function.
+*(BackwardFunction)*: a Backward Function, containing a `inject(input)` function.
 
 ## <a id="defineModel"></a> `defineModel([intentInterface], definitionFn)`
 
@@ -43,7 +43,7 @@ specialized case of `defineBackwardFunction()`.
 #### Returns
 
 *(BackwardFunction)*: a Backward Function representing a Model, containing a
-`feed(intent)` function.
+`inject(intent)` function.
 
 ## <a id="defineView"></a> `defineView([modelInterface], definitionFn)`
 
@@ -62,7 +62,7 @@ specialized case of `defineBackwardFunction()`.
 #### Returns
 
 *(BackwardFunction)*: a Backward Function representing a View, containing a
-`feed(model)` function.
+`inject(model)` function.
 
 ## <a id="defineIntent"></a> `defineIntent([viewInterface], definitionFn)`
 
@@ -79,7 +79,7 @@ specialized case of `defineBackwardFunction()`.
 #### Returns
 
 *(BackwardFunction)*: a Backward Function representing an Intent, containing a
-`feed(view)` function.
+`inject(view)` function.
 
 ## <a id="h"></a> `h`
 
@@ -89,7 +89,7 @@ is a helper for creating VTrees in Views.
 ## <a id="link"></a> `link(model, view, intent)`
 
 Ties together the given `model`, `view`, `intent`, making them be circular dependencies to
-each other, calling `feed()` on each of these Backward Functions.
+each other, calling `inject()` on each of these Backward Functions.
 
 #### Arguments
 
