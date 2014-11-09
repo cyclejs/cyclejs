@@ -84,6 +84,9 @@ function BackwardFunction(inputInterface, definitionFn) {
     replicateAll(input, inputStub);
     wasInjected = true;
   };
+  this.clone = function () {
+    return new BackwardFunction(inputInterface, definitionFn);
+  };
 }
 
 module.exports = BackwardFunction;

@@ -16,6 +16,13 @@ var FooView = Cycle.defineView(['foo$'], function (model) {
       .map(function (fooData) {
         return h('div', {
           'attributes': {'data-foo-id': fooData.id},
+          'style': {
+            'margin': '10px',
+            'background': '#ececec',
+            'padding': '5px',
+            'cursor': 'pointer',
+            'display': 'inline-block'
+          },
           'ev-click': 'fooClicks$'
         }, String(fooData.bar));
       }),
@@ -29,5 +36,11 @@ var FooIntent = Cycle.defineIntent(['fooClicks$'], function (view) {
   };
 });
 
-Cycle.renderEvery(FooView.vtree$, '.js-container');
+var BarModel = FooModel.clone();
+var BarView = FooView.clone();
+var BarIntent = FooIntent.clone();
+
+Cycle.renderEvery(FooView.vtree$, '.js-container1');
+Cycle.renderEvery(BarView.vtree$, '.js-container2');
 Cycle.link(FooModel, FooView, FooIntent);
+Cycle.link(BarModel, BarView, BarIntent);
