@@ -45,7 +45,7 @@ function customInterfaceErrorMessageInInject(backwardFn, message) {
     try {
       originalInject(input);
     } catch (err) {
-      if (err instanceof CycleInterfaceError) {
+      if (err.name === 'CycleInterfaceError') {
         throw new CycleInterfaceError(message + err.missingMember, err.missingMember);
       } else {
         throw err;
