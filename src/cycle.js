@@ -39,11 +39,11 @@ function replaceStreamNameWithForwardFunction(vtree, view) {
   }
 }
 
-function customInterfaceErrorMessageInBackwardFeed(backwardFn, message) {
-  var originalFeed = backwardFn.feed;
-  backwardFn.feed = function (input) {
+function customInterfaceErrorMessageInInject(backwardFn, message) {
+  var originalInject = backwardFn.inject;
+  backwardFn.inject = function (input) {
     try {
-      originalFeed(input);
+      originalInject(input);
     } catch (err) {
       if (err instanceof CycleInterfaceError) {
         throw new CycleInterfaceError(message + err.missingMember, err.missingMember);
@@ -85,7 +85,7 @@ var Cycle = {
 
   defineModel: function (intentInterface, definitionFn) {
     var model = Cycle.defineBackwardFunction(intentInterface, definitionFn);
-    model = customInterfaceErrorMessageInBackwardFeed(model,
+    model = customInterfaceErrorMessageInInject(model,
       'Model expects Intent to have the required property '
     );
     return model;
@@ -93,7 +93,7 @@ var Cycle = {
 
   defineView: function (modelInterface, definitionFn) {
     var view = Cycle.defineBackwardFunction(modelInterface, definitionFn);
-    view = customInterfaceErrorMessageInBackwardFeed(view,
+    view = customInterfaceErrorMessageInInject(view,
       'View expects Model to have the required property '
     );
     if (view.events) {
@@ -111,7 +111,7 @@ var Cycle = {
 
   defineIntent: function (viewInterface, definitionFn) {
     var intent = Cycle.defineBackwardFunction(viewInterface, definitionFn);
-    intent = customInterfaceErrorMessageInBackwardFeed(intent,
+    intent = customInterfaceErrorMessageInInject(intent,
       'Intent expects View to have the required property '
     );
     return intent;
@@ -119,9 +119,9 @@ var Cycle = {
 
   link: function (model, view, intent) {
     // TODO generalize this `arguments` array
-    if (intent) { intent.feed(view); }
-    if (view) { view.feed(model); }
-    if (model) { model.feed(intent); }
+    if (intent) { intent.inject(view); }
+    if (view) { view.inject(model); }
+    if (model) { model.inject(intent); }
   },
 
   // Submodules
