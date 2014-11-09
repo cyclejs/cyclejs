@@ -68,7 +68,7 @@ function replicateAll(input, stub) {
 
 function BackwardFunction(inputInterface, definitionFn) {
   var inputStub = {};
-  var wasFed = false;
+  var wasInjected = false;
   if (typeof inputInterface !== 'undefined') {
     checkInputInterfaceArray(inputInterface);
     checkInputInterfaceOnlyStrings(inputInterface);
@@ -77,12 +77,12 @@ function BackwardFunction(inputInterface, definitionFn) {
   var output = definitionFn(inputStub);
   checkOutputObject(output);
   copyProperties(output, this);
-  this.feed = function (input) {
-    if (wasFed) {
-      console.warn('Backward Function has already been fed an input.');
+  this.inject = function (input) {
+    if (wasInjected) {
+      console.warn('Backward Function has already been injected an input.');
     }
     replicateAll(input, inputStub);
-    wasFed = true;
+    wasInjected = true;
   };
 }
 
