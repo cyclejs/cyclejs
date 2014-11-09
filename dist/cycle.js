@@ -12507,6 +12507,9 @@ function BackwardFunction(inputInterface, definitionFn) {
     replicateAll(input, inputStub);
     wasInjected = true;
   };
+  this.clone = function () {
+    return new BackwardFunction(inputInterface, definitionFn);
+  };
 }
 
 module.exports = BackwardFunction;
@@ -12602,6 +12605,9 @@ var Cycle = {
     model = customInterfaceErrorMessageInInject(model,
       'Model expects Intent to have the required property '
     );
+    model.clone = function () {
+      return Cycle.defineModel(intentInterface, definitionFn);
+    };
     return model;
   },
 
@@ -12620,6 +12626,9 @@ var Cycle = {
       replaceStreamNameWithForwardFunction(vtree, view);
       return vtree;
     });
+    view.clone = function () {
+      return Cycle.defineView(modelInterface, definitionFn);
+    };
     return view;
   },
 
@@ -12628,6 +12637,9 @@ var Cycle = {
     intent = customInterfaceErrorMessageInInject(intent,
       'Intent expects View to have the required property '
     );
+    intent.clone = function () {
+      return Cycle.defineIntent(viewInterface, definitionFn);
+    };
     return intent;
   },
 
