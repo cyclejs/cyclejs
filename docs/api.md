@@ -55,9 +55,10 @@ specialized case of `defineBackwardFunction()`.
 - `[modelInterface]` *(Array&lt;String&gt;)*: property names that are expected to exist as
   RxJS Observables in the input Model.
 - `definitionFn` *(Function)*: a function expecting a Model object as parameter. Should
-  return an object containing RxJS Observables as properties. The object must also contain
-  an `events` property, the value being an array of strings with the names of the
-  Observables that carry DOM events.
+  return an object containing RxJS Observables as properties. The object **must contain**
+  two properties: `vtree$` and `events`. The value of `events` must be an array of strings
+  with the names of the Observables that carry DOM events. `vtree$` should be an
+  Observable emitting instances of VTree (Virtual DOM elements).
 
 #### Returns
 
