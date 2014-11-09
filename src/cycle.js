@@ -106,6 +106,7 @@ var Cycle = {
       delete view.events;
     }
     view.vtree$ = view.vtree$.map(function (vtree) {
+      // TODO throw error if vtree is not of type vtree or is undefined
       replaceStreamNameWithForwardFunction(vtree, view);
       return vtree;
     });
