@@ -55,6 +55,13 @@ function customInterfaceErrorMessageInInject(backwardFn, message) {
   return backwardFn;
 }
 
+function PropertyHook(fn) {
+  this.fn = fn;
+}
+PropertyHook.prototype.hook = function () {
+  this.fn.apply(this, arguments);
+};
+
 var Cycle = {
   renderEvery: function (vtree$, containerSelector) {
     // Find and prepare the container
@@ -132,6 +139,10 @@ var Cycle = {
     if (intent) { intent.inject(view); }
     if (view) { view.inject(model); }
     if (model) { model.inject(intent); }
+  },
+
+  vdomPropHook: function (fn) {
+    return new PropertyHook(fn);
   },
 
   // Submodules
