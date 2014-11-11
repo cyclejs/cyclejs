@@ -12484,27 +12484,36 @@ function replicateAll(input, stub) {
   }
 }
 
-function BackwardFunction(inputInterface, definitionFn) {
-  var inputStub = {};
-  var wasInjected = false;
-  if (typeof inputInterface !== 'undefined') {
-    checkInputInterfaceArray(inputInterface);
-    checkInputInterfaceOnlyStrings(inputInterface);
-    makeStubPropertiesFromInterface(inputStub, inputInterface);
+function BackwardFunction() { //inputInterface, definitionFn) {
+  var args = Array.prototype.slice.call(arguments);
+  var definitionFn = args.pop();
+  if (typeof definitionFn !== 'function') {
+    throw new Error('BackwardFunction expects the definitionFn as the last argument.');
   }
-  var output = definitionFn(inputStub);
+  var interfaces = args;
+  var inputStubs = interfaces.map(function () { return {}; });
+  var wasInjected = false;
+  for (var i = interfaces.length - 1; i >= 0; i--) {
+    checkInputInterfaceArray(interfaces[i]);
+    checkInputInterfaceOnlyStrings(interfaces[i]);
+    makeStubPropertiesFromInterface(inputStubs[i], interfaces[i]);
+  }
+  var output = definitionFn.apply(this, inputStubs);
   checkOutputObject(output);
   copyProperties(output, this);
-  this.inject = function (input) {
+  this.inject = function () {
     if (wasInjected) {
       console.warn('Backward Function has already been injected an input.');
     }
-    replicateAll(input, inputStub);
+    for (var i = arguments.length - 1; i >= 0; i--) {
+      replicateAll(arguments[i], inputStubs[i]);
+    }
     wasInjected = true;
   };
   this.clone = function () {
-    return new BackwardFunction(inputInterface, definitionFn);
+    return BackwardFunction.apply({}, interfaces.concat([definitionFn]));
   };
+  return this;
 }
 
 module.exports = BackwardFunction;
