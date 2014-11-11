@@ -25,7 +25,8 @@
     "browserify": "6.2.0",
     "jshint": "^2.5.6",
     "jscs": "^1.6.2",
-    "uglify-js": "^2.4.15"
+    "uglify-js": "^2.4.15",
+    "mocha": "^2.0.1"
   },
   "engines": {
     "node": ">=0.10.0"
@@ -34,6 +35,7 @@
     "lint": "jshint src/ ",
     "jscs": "jscs src/",
     "check": "npm run lint && npm run jscs",
+    "test": "mocha",
     "browserify": "browserify src/for-browserify.js --igv=Cycle -o dist/cycle.js",
     "uglify": "uglifyjs dist/cycle.js -o dist/cycle.min.js",
     "build": "npm run browserify && npm run uglify"
