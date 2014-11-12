@@ -3,10 +3,6 @@
 > A web application framework using the Reactive Model-View-Intent architecture and Virtual
 DOM Rendering.
 
-[![npm version](https://badge.fury.io/js/cyclejs.svg)](http://badge.fury.io/js/cyclejs)
-[![Dependency Status](https://david-dm.org/staltz/cycle.svg)](https://david-dm.org/staltz/cycle)
-[![devDependency Status](https://david-dm.org/staltz/cycle/dev-status.svg)](https://david-dm.org/staltz/cycle#info=devDependencies)
-
 * **Unidirectional Dataflow**: based on the Model-View-Intent architecture, data moves
   from Model to View, events move from View to Intent, and Intent sends "user intentions"
   to the Model. They are tied together as a cycle.
@@ -19,6 +15,11 @@ DOM Rendering.
 * **MVI is functional**: each component in the MVI cycle behaves like a function,
   receiving events as input, and outputting events. No side effects. This makes it
   convenient for composing with other components, or for automating tests.
+
+[![npm version](https://badge.fury.io/js/cyclejs.svg)](http://badge.fury.io/js/cyclejs)
+[![Bower version](https://badge.fury.io/bo/cycle.svg)](http://badge.fury.io/bo/cycle)
+[![Dependency Status](https://david-dm.org/staltz/cycle.svg)](https://david-dm.org/staltz/cycle)
+[![devDependency Status](https://david-dm.org/staltz/cycle/dev-status.svg)](https://david-dm.org/staltz/cycle#info=devDependencies)
 
 ## Example
 
