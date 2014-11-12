@@ -1,7 +1,11 @@
 # Cycle
 
-A web application framework using the Reactive Model-View-Intent architecture and Virtual
+> A web application framework using the Reactive Model-View-Intent architecture and Virtual
 DOM Rendering.
+
+[![npm version](https://badge.fury.io/js/cyclejs.svg)](http://badge.fury.io/js/cyclejs)
+[![Dependency Status](https://david-dm.org/staltz/cycle.svg)](https://david-dm.org/staltz/cycle)
+[![devDependency Status](https://david-dm.org/staltz/cycle/dev-status.svg)](https://david-dm.org/staltz/cycle#info=devDependencies)
 
 * **Unidirectional Dataflow**: based on the Model-View-Intent architecture, data moves
   from Model to View, events move from View to Intent, and Intent sends "user intentions"
