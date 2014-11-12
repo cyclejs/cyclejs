@@ -50,6 +50,19 @@ describe('BackwardFunction', function () {
       backwardFn.inject({foo$: Rx.Observable.just('foo')});
     });
 
+    it('should yield simple output even when injected nothing', function (done) {
+      var backwardFn = new BackwardFunction(function () {
+        return {
+          bar$: Rx.Observable.just(246)
+        };
+      });
+      backwardFn.bar$.subscribe(function (x) {
+        assert.strictEqual(x, 246);
+        done();
+      });
+      backwardFn.inject();
+    });
+
     it('should work also for a clone, in the simple output case', function (done) {
       var backwardFn = new BackwardFunction(['foo$'], function (input) {
         return {
