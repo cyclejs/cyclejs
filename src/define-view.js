@@ -31,8 +31,8 @@ function replaceStreamNameWithForwardFunction(vtree, view) {
   }
 }
 
-function defineView(modelInterface, definitionFn) {
-  var view = new BackwardFunction(modelInterface, definitionFn);
+function defineView() {
+  var view = BackwardFunction.apply({}, arguments);
   view = errors.customInterfaceErrorMessageInInject(view,
     'View expects Model to have the required property '
   );
@@ -48,7 +48,7 @@ function defineView(modelInterface, definitionFn) {
     return vtree;
   });
   view.clone = function () {
-    return defineView(modelInterface, definitionFn);
+    return defineView.apply({}, arguments);
   };
   return view;
 }

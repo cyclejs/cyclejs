@@ -2,13 +2,13 @@
 var BackwardFunction = require('./backward-function');
 var errors = require('./errors');
 
-function defineModel(intentInterface, definitionFn) {
-  var model = new BackwardFunction(intentInterface, definitionFn);
+function defineModel() {
+  var model = BackwardFunction.apply({}, arguments);
   model = errors.customInterfaceErrorMessageInInject(model,
     'Model expects Intent to have the required property '
   );
   model.clone = function () {
-    return defineModel(intentInterface, definitionFn);
+    return defineModel.apply({}, arguments);
   };
   return model;
 }
