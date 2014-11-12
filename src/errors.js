@@ -9,9 +9,9 @@ CycleInterfaceError.prototype = Error.prototype;
 
 function customInterfaceErrorMessageInInject(backwardFn, message) {
   var originalInject = backwardFn.inject;
-  backwardFn.inject = function (input) {
+  backwardFn.inject = function () {
     try {
-      originalInject(input);
+      originalInject.apply({}, arguments);
     } catch (err) {
       if (err.name === 'CycleInterfaceError') {
         throw new CycleInterfaceError(message + err.missingMember, err.missingMember);
