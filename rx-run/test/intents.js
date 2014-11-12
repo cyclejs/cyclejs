@@ -35,4 +35,20 @@ describe('defineIntent', function () {
     });
     intent.inject();
   });
+
+  it('should yield output when injected two inputs', function (done) {
+    var intent = Cycle.defineIntent(['x$'], ['y$'], function (input1, input2) {
+      return {
+        sum$: Rx.Observable
+          .combineLatest(input1.x$, input2.y$, function (x, y) {
+            return x + y;
+          })
+      };
+    });
+    intent.sum$.subscribe(function (x) {
+      assert.strictEqual(x, 15);
+      done();
+    });
+    intent.inject({x$: Rx.Observable.just(9)}, {y$: Rx.Observable.just(6)});
+  });
 });
