@@ -12565,13 +12565,13 @@ module.exports = Cycle;
 var BackwardFunction = require('./backward-function');
 var errors = require('./errors');
 
-function defineIntent(viewInterface, definitionFn) {
-  var intent = new BackwardFunction(viewInterface, definitionFn);
+function defineIntent() {
+  var intent = BackwardFunction.apply({}, arguments);
   intent = errors.customInterfaceErrorMessageInInject(intent,
     'Intent expects View to have the required property '
   );
   intent.clone = function () {
-    return defineIntent(viewInterface, definitionFn);
+    return defineIntent.apply({}, arguments);
   };
   return intent;
 }
@@ -12583,13 +12583,13 @@ module.exports = defineIntent;
 var BackwardFunction = require('./backward-function');
 var errors = require('./errors');
 
-function defineModel(intentInterface, definitionFn) {
-  var model = new BackwardFunction(intentInterface, definitionFn);
+function defineModel() {
+  var model = BackwardFunction.apply({}, arguments);
   model = errors.customInterfaceErrorMessageInInject(model,
     'Model expects Intent to have the required property '
   );
   model.clone = function () {
-    return defineModel(intentInterface, definitionFn);
+    return defineModel.apply({}, arguments);
   };
   return model;
 }
@@ -12630,8 +12630,8 @@ function replaceStreamNameWithForwardFunction(vtree, view) {
   }
 }
 
-function defineView(modelInterface, definitionFn) {
-  var view = new BackwardFunction(modelInterface, definitionFn);
+function defineView() {
+  var view = BackwardFunction.apply({}, arguments);
   view = errors.customInterfaceErrorMessageInInject(view,
     'View expects Model to have the required property '
   );
@@ -12647,7 +12647,7 @@ function defineView(modelInterface, definitionFn) {
     return vtree;
   });
   view.clone = function () {
-    return defineView(modelInterface, definitionFn);
+    return defineView.apply({}, arguments);
   };
   return view;
 }
