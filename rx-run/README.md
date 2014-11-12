@@ -79,6 +79,28 @@ as hard dependencies. Cycle is a "glue" framework providing helpers for building
 Model-View-Intent architecture properly with those technologies. Cycle's code itself is
 still under 300 lines of code only.
 
+## Why?
+
+Why would you use Cycle.js instead of other web frameworks such as Angular and React? Here
+are a couple of strong reasons:
+
+- **Separation of concerns.** The reactive pattern for Models, Views, and Intents makes it
+  possible for no component to have functions such as `updateSomething()` which inherently
+  create coupling. You can write code with single responsibilities throughout. For
+  instance, the View just takes model data and renders virtual elements, it doesn't even
+  have callbacks to handle events.
+- **Superb testability.** Everything is a JavaScript function or a [BackwardFunction](https://github.com/staltz/cycle/blob/master/docs/backward-functions.md),
+  so testing is mostly a matter of feeding input and inspecting the output. You can even
+  test styles if you use functions to output your styles instead of using CSS files.
+- **Rendering separated from View.** Contrary to what you expect, a View in Cycle.js does
+  not directly render anything to the browser. Instead, it just outputs virtual DOM
+  elements. This allows for better testability, and also makes it easier to implement
+  UI skins since it is just a matter of introducing Skin components taking Views as input
+  and doing some post-processing before the actual rendering.
+- **Welcomes immutable and stateless programming.** Cycle.js is built for, in
+  combination with RxJS, a programming style that favors immutability and statelessness.
+  This allows code to be clearer and less prone to bugs.
+
 ## Disclaimer
 
 Cycle is in alpha mode, many changes to the API will likely occur before v1.0 is released.
@@ -89,7 +111,7 @@ forever, either. ;)
 
 The MIT License (MIT)
 
-Copyright (c) 2014 Andre Medeiros
+Copyright (c) 2014 Andre Staltz
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
