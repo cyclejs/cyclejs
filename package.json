@@ -34,8 +34,8 @@
   "scripts": {
     "lint": "jshint src/ ",
     "jscs": "jscs src/",
-    "check": "npm run lint && npm run jscs",
     "test": "mocha",
+    "check": "npm run lint && npm run jscs && npm run test",
     "browserify": "browserify src/for-browserify.js --igv=Cycle -o dist/cycle.js",
     "uglify": "uglifyjs dist/cycle.js -o dist/cycle.min.js",
     "build": "npm run browserify && npm run uglify"
