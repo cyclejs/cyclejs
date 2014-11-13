@@ -26,23 +26,19 @@ DOM Rendering.
 
 ```javascript
 var HelloModel = Cycle.defineModel(['changeName$'], function (intent) {
-  return {
-    name$: intent.changeName$.startWith('')
-  };
+  return {name$: intent.changeName$.startWith('')};
 });
 
 var HelloView = Cycle.defineView(['name$'], function (model) {
+  var h = Cycle.h;
   return {
     vtree$: model.name$
       .map(function (name) {
-        return Cycle.h('div', {}, [
-          Cycle.h('label', 'Name:'),
-          Cycle.h('input', {
-            'attributes': {'type': 'text'},
-            'ev-input': 'inputText$'
-          }),
-          Cycle.h('hr'),
-          Cycle.h('h1', 'Hello ' + name)
+        return h('div', [
+          h('label', 'Name:'),
+          h('input', {attributes: {type: 'text'}, 'ev-input': 'inputText$'}),
+          h('hr'),
+          h('h1', 'Hello ' + name)
         ]);
       }),
     events: ['inputText$']
@@ -51,8 +47,7 @@ var HelloView = Cycle.defineView(['name$'], function (model) {
 
 var HelloIntent = Cycle.defineIntent(['inputText$'], function (view) {
   return {
-    changeName$: view.inputText$
-      .map(function (ev) { return ev.target.value; })
+    changeName$: view.inputText$.map(function (ev) { return ev.target.value; })
   };
 });
 
