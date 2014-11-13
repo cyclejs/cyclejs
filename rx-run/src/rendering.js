@@ -7,11 +7,11 @@ var VDOM = {
 };
 var DOMDelegator = require('dom-delegator');
 
-function renderEvery(vtree$, containerSelector) {
+function renderEvery(vtree$, container) {
   // Find and prepare the container
-  var container = document.querySelector(containerSelector);
+  var container = typeof container === 'string' ? document.querySelector(container) : container;
   if (container === null) {
-    throw new Error('Couldn\'t render into unknown \'' + containerSelector + '\'');
+    throw new Error('Couldn\'t render into unknown \'' + container + '\'');
   }
   container.innerHTML = '';
   // Make the DOM node bound to the VDOM node
