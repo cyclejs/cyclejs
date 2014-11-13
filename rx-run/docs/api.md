@@ -111,8 +111,8 @@ matched by `containerSelector`.
 
 - `vtree$` *(Rx.Observable&lt;VTree&gt;)*: an Observable of VTree instances (virtual DOM
   elements).
-- `containerSelector` *(String|HTMLElement)*: the DOM selector for the element (or the
-  element itself) to contain the rendering of the VTrees.
+- `container` *(String|HTMLElement)*: the DOM selector for the element (or the element
+  itself) to contain the rendering of the VTrees.
 
 #### Returns
 
