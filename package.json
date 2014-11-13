@@ -17,7 +17,7 @@
   "main": "src/cycle.js",
   "dependencies": {
     "rx": "2.3.14",
-    "virtual-dom": "0.0.21",
+    "virtual-dom": "0.0.22",
     "virtual-hyperscript": "4.5.0",
     "dom-delegator": "11.0.0"
   },
