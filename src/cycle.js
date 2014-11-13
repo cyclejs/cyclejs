@@ -2,6 +2,7 @@
 var h = require('virtual-hyperscript');
 var BackwardFunction = require('./backward-function');
 var Rendering = require('./rendering');
+var Rx = require('rx');
 
 function PropertyHook(fn) {
   this.fn = fn;
@@ -33,6 +34,7 @@ var Cycle = {
   },
 
   // Submodules
+  Rx: Rx,
   h: h,
   _delegator: Rendering.delegator
 };

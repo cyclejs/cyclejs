@@ -11477,11 +11477,11 @@ function walk(a, b, patch, index) {
 
     var apply = patch[index]
 
-    if (b == null) {
-        apply = appendPatch(apply, new VPatch(VPatch.REMOVE, a, b))
-        destroyWidgets(a, patch, index)
-    } else if (isThunk(a) || isThunk(b)) {
+    if (isThunk(a) || isThunk(b)) {
         thunks(a, b, patch, index)
+    } else if (b == null) {
+        patch[index] = new VPatch(VPatch.REMOVE, a, b)
+        destroyWidgets(a, patch, index)
     } else if (isVNode(b)) {
         if (isVNode(a)) {
             if (a.tagName === b.tagName &&
@@ -11594,12 +11594,6 @@ function diffChildren(a, b, patch, apply, index) {
                 apply = appendPatch(apply,
                     new VPatch(VPatch.INSERT, null, rightNode))
             }
-        } else if (!rightNode) {
-            if (leftNode) {
-                // Excess nodes in a need to be removed
-                patch[index] = new VPatch(VPatch.REMOVE, leftNode, null)
-                destroyWidgets(leftNode, patch, index)
-            }
         } else {
             walk(leftNode, rightNode, patch, index)
         }
@@ -11624,7 +11618,7 @@ function destroyWidgets(vNode, patch, index) {
         if (typeof vNode.destroy === "function") {
             patch[index] = new VPatch(VPatch.REMOVE, vNode, null)
         }
-    } else if (isVNode(vNode) && vNode.hasWidgets) {
+    } else if (isVNode(vNode) && (vNode.hasWidgets || vNode.hasThunks)) {
         var children = vNode.children
         var len = children.length
         for (var i = 0; i < len; i++) {
@@ -11637,6 +11631,8 @@ function destroyWidgets(vNode, patch, index) {
                 index += child.count
             }
         }
+    } else if (isThunk(vNode)) {
+        thunks(vNode, null, patch, index)
     }
 }
 
@@ -12523,6 +12519,7 @@ module.exports = BackwardFunction;
 var h = require('virtual-hyperscript');
 var BackwardFunction = require('./backward-function');
 var Rendering = require('./rendering');
+var Rx = require('rx');
 
 function PropertyHook(fn) {
   this.fn = fn;
@@ -12554,13 +12551,14 @@ var Cycle = {
   },
 
   // Submodules
+  Rx: Rx,
   h: h,
   _delegator: Rendering.delegator
 };
 
 module.exports = Cycle;
 
-},{"./backward-function":62,"./define-intent":64,"./define-model":65,"./define-view":66,"./rendering":69,"virtual-hyperscript":43}],64:[function(require,module,exports){
+},{"./backward-function":62,"./define-intent":64,"./define-model":65,"./define-view":66,"./rendering":69,"rx":19,"virtual-hyperscript":43}],64:[function(require,module,exports){
 'use strict';
 var BackwardFunction = require('./backward-function');
 var errors = require('./errors');
