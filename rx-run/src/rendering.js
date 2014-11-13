@@ -7,16 +7,29 @@ var VDOM = {
 };
 var DOMDelegator = require('dom-delegator');
 
+function isElement(o) {
+  return (
+    typeof HTMLElement === 'object' ?
+      o instanceof HTMLElement : //DOM2
+      o && typeof o === 'object' && o !== null && o.nodeType === 1 &&
+      typeof o.nodeName === 'string'
+  );
+}
+
 function renderEvery(vtree$, container) {
   // Find and prepare the container
-  var container = typeof container === 'string' ? document.querySelector(container) : container;
-  if (container === null) {
-    throw new Error('Couldn\'t render into unknown \'' + container + '\'');
+  var domContainer = (typeof container === 'string') ?
+    document.querySelector(container) :
+    container;
+  if (typeof container === 'string' && domContainer === null) {
+    throw new Error('Couldn\'t render into unknown \'' + domContainer + '\'');
+  } else if (!isElement(domContainer)) {
+    throw new Error('Given container is not a DOM element neither a selector string.');
   }
-  container.innerHTML = '';
+  domContainer.innerHTML = '';
   // Make the DOM node bound to the VDOM node
   var rootNode = document.createElement('div');
-  container.appendChild(rootNode);
+  domContainer.appendChild(rootNode);
   return vtree$.startWith(h())
     .bufferWithCount(2, 1)
     .subscribe(function (buffer) {
@@ -34,5 +47,6 @@ var delegator = new DOMDelegator();
 
 module.exports = {
   renderEvery: renderEvery,
+  isElement: isElement,
   delegator: delegator
 };
