@@ -62,6 +62,8 @@ to changes of `HelloView.vtree$` and renders those virtual elements into `.js-co
 in the DOM. `Cycle.link` just ties all three Model, View, and Intent together by telling
 them that they depend on each other circularly.
 
+For an advanced example, check out [TodoMVC implemented in Cycle.js](https://github.com/staltz/todomvc-cycle).
+
 ## Installing through npm
 
 `npm install cyclejs`
