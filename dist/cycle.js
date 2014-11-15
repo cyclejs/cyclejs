@@ -12609,7 +12609,7 @@ function getFunctionForwardIntoStream(stream) {
 // traverse the vtree, replacing the value of 'ev-*' fields with
 // `function (ev) { view[$PREVIOUS_VALUE].onNext(ev); }`
 function replaceStreamNameWithForwardFunction(vtree, view) {
-  if (typeof vtree.hooks !== 'undefined') {
+  if (vtree && vtree.type === 'VirtualNode' && typeof vtree.hooks !== 'undefined') {
     for (var key in vtree.hooks) {
       if (vtree.hooks.hasOwnProperty(key)) {
         var streamName = vtree.hooks[key].value;
