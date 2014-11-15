@@ -111,6 +111,10 @@ Cycle is in alpha mode, many changes to the API will likely occur before v1.0 is
 Use this framework only for experiments before that. PS: we don't want to stay as alpha
 forever, either. ;)
 
+Prior to v1.0.0, the versions will follow the convention: improvements that break backwards
+compatibility increment the minor number, any other improvements will increment the patch
+number. After v1.0.0, we will follow [http://semver.org/](semver).
+
 ## LICENSE
 
 The MIT License (MIT)
