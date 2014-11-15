@@ -21,13 +21,12 @@ function vrenderItem(itemData) {
       }}, [
       h('input', {
         type: 'text',
-        //value: Cycle.vdomPropHook(function (el) { el.value = itemData.color; }),
         'attributes': {'data-item-id': itemData.id, value: itemData.color},
         'ev-input': 'itemColorChanged$'
       }),
       h('div', [
         h('input', {
-          type: 'range', min:'200', max:'1000', //value: itemData.width,
+          type: 'range', min:'200', max:'1000',
           'attributes': {'data-item-id': itemData.id, value: itemData.width},
           'ev-input': 'itemWidthChanged$'
         })
