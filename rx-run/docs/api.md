@@ -1,16 +1,25 @@
+
 # `Cycle` object API
 
 - [`defineDataFlowNode`](#defineDataFlowNode)
+
 - [`defineModel`](#defineModel)
+
 - [`defineView`](#defineView)
+
 - [`defineIntent`](#defineIntent)
+
 - [`renderEvery`](#renderEvery)
+
 - [`link`](#link)
+
 - [`vdomPropHook`](#vdomPropHook)
+
 - [`Rx`](#Rx)
+
 - [`h`](#h)
 
-## <a id="defineDataFlowNode"></a> `defineDataFlowNode([inputInterface1], ..., definitionFn)`
+### <a id="defineDataFlowNode"></a> `defineDataFlowNode([inputInterface1], ..., definitionFn)`
 
 Creates a DataFlowNode.
 
@@ -25,7 +34,7 @@ to `definitionFn` are objects that should fulfil the respective interfaces.
 #### Arguments:
 
 - `[inputInterface1] :: Array<String>` property names that are expected to exist as RxJS Observables in the first input parameter for `definitionFn`.
-- `...`
+- `...` 
 - `definitionFn :: Function` a function expecting objects as parameter (as many as there are interfaces), satisfying the type requirement given by `inputInterface1`,
 `inputInterface2`, etc. Should return an object containing RxJS Observables as
 properties.
@@ -34,7 +43,7 @@ properties.
 
 *(DataFlowNode)* a DataFlowNode, containing a `inject(inputs...)` function.
 
-## <a id="defineModel"></a> `defineModel([intentInterface], definitionFn)`
+### <a id="defineModel"></a> `defineModel([intentInterface], definitionFn)`
 
 Returns a DataFlowNode representing a Model, having some Intent as input.
 
@@ -50,7 +59,7 @@ interfaces and multiple inputs in `definitionFn`.
 
 *(DataFlowNode)* a DataFlowNode representing a Model, containing a `inject(intent)` function.
 
-## <a id="defineView"></a> `defineView([modelInterface], definitionFn)`
+### <a id="defineView"></a> `defineView([modelInterface], definitionFn)`
 
 Returns a DataFlowNode representing a View, having some Model as input.
 
@@ -69,7 +78,7 @@ should be an Observable emitting instances of VTree (Virtual DOM elements).
 
 *(DataFlowNode)* a DataFlowNode representing a View, containing a `inject(model)` function.
 
-## <a id="defineIntent"></a> `defineIntent([viewInterface], definitionFn)`
+### <a id="defineIntent"></a> `defineIntent([viewInterface], definitionFn)`
 
 Returns a DataFlowNode representing an Intent, having some View as input.
 
@@ -85,7 +94,7 @@ interfaces and multiple inputs in `definitionFn`.
 
 *(DataFlowNode)* a DataFlowNode representing an Intent, containing a `inject(view)` function.
 
-## <a id="renderEvery"></a> `renderEvery(vtree$, container)`
+### <a id="renderEvery"></a> `renderEvery(vtree$, container)`
 
 Renders every virtual element emitted by `vtree$` into the element `container`.
 
@@ -98,7 +107,7 @@ Renders every virtual element emitted by `vtree$` into the element `container`.
 
 *(Rx.Disposable)* a subscription to the `vtree$` Observable.
 
-## <a id="link"></a> `link(model, view, intent)`
+### <a id="link"></a> `link(model, view, intent)`
 
 Ties together the given Model, View, and Intent, making them be circular dependencies
 to each other, calling `inject()` on each of these DataFlowNodes.
@@ -109,7 +118,7 @@ to each other, calling `inject()` on each of these DataFlowNodes.
 - `view :: DataFlowNode` a View node.
 - `intent :: DataFlowNode` an Intent node.
 
-## <a id="vdomPropHook"></a> `vdomPropHook(fn)`
+### <a id="vdomPropHook"></a> `vdomPropHook(fn)`
 
 Returns a hook for manipulating an element from the real DOM. This is a helper for
 creating VTrees in Views. Useful for calling `focus()` on the DOM element, or doing
@@ -125,11 +134,11 @@ See https://github.com/Raynos/mercury/blob/master/docs/faq.md for more details.
 
 *(PropertyHook)* a hook
 
-## <a id="Rx"></a> `Rx`
+### <a id="Rx"></a> `Rx`
 
 A shortcut to the root object of [RxJS](https://github.com/Reactive-Extensions/RxJS).
 
-## <a id="h"></a> `h`
+### <a id="h"></a> `h`
 
 A shortcut to [virtual-hyperscript](https://github.com/Raynos/virtual-hyperscript).
 This is a helper for creating VTrees in Views.

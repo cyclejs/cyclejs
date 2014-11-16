@@ -13,9 +13,9 @@
     <? if (!comment.ignore) { ?>
       <? if (comment.name) { ?>
         <? if (comment.isMethod || comment.isFunction) { ?>
-          ## <a id="<?= comment.name ?>"></a> `<?= comment.name ?>(<?= comment.paramStr ?>)`
+          ### <a id="<?= comment.name ?>"></a> `<?= comment.name ?>(<?= comment.paramStr ?>)`
         <? } else { ?>
-          ## <a id="<?= comment.name ?>"></a> `<?= comment.name ?>`
+          ### <a id="<?= comment.name ?>"></a> `<?= comment.name ?>`
         <? } ?>
       <? } ?>
 
