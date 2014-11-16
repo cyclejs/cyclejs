@@ -26,7 +26,8 @@
     "jshint": "^2.5.6",
     "jscs": "^1.6.2",
     "uglify-js": "^2.4.15",
-    "mocha": "^2.0.1"
+    "mocha": "^2.0.1",
+    "markdox": "^0.1.7"
   },
   "engines": {
     "node": ">=0.10.0"
@@ -38,6 +39,7 @@
     "check": "npm run lint && npm run jscs && npm run test",
     "browserify": "browserify src/for-browserify.js --igv=Cycle -o dist/cycle.js",
     "uglify": "uglifyjs dist/cycle.js -o dist/cycle.min.js",
+    "docs": "node ./scripts/make-api-docs.js",
     "build": "npm run browserify && npm run uglify"
   }
 }
