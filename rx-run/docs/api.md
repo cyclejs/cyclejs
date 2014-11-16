@@ -2,21 +2,13 @@
 # `Cycle` object API
 
 - [`defineDataFlowNode`](#defineDataFlowNode)
-
 - [`defineModel`](#defineModel)
-
 - [`defineView`](#defineView)
-
 - [`defineIntent`](#defineIntent)
-
 - [`renderEvery`](#renderEvery)
-
 - [`link`](#link)
-
 - [`vdomPropHook`](#vdomPropHook)
-
 - [`Rx`](#Rx)
-
 - [`h`](#h)
 
 ### <a id="defineDataFlowNode"></a> `defineDataFlowNode([inputInterface1], ..., definitionFn)`
@@ -34,7 +26,7 @@ to `definitionFn` are objects that should fulfil the respective interfaces.
 #### Arguments:
 
 - `[inputInterface1] :: Array<String>` property names that are expected to exist as RxJS Observables in the first input parameter for `definitionFn`.
-- `...` 
+- `...`
 - `definitionFn :: Function` a function expecting objects as parameter (as many as there are interfaces), satisfying the type requirement given by `inputInterface1`,
 `inputInterface2`, etc. Should return an object containing RxJS Observables as
 properties.
