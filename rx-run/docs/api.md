@@ -6,7 +6,7 @@
 - [`defineView`](#defineView)
 - [`defineIntent`](#defineIntent)
 - [`renderEvery`](#renderEvery)
-- [`link`](#link)
+- [`circularInject`](#circularInject)
 - [`vdomPropHook`](#vdomPropHook)
 - [`Rx`](#Rx)
 - [`h`](#h)
@@ -99,10 +99,12 @@ Renders every virtual element emitted by `vtree$` into the element `container`.
 
 *(Rx.Disposable)* a subscription to the `vtree$` Observable.
 
-### <a id="link"></a> `link(model, view, intent)`
+### <a id="circularInject"></a> `circularInject(model, view, intent)`
 
-Ties together the given Model, View, and Intent, making them be circular dependencies
-to each other, calling `inject()` on each of these DataFlowNodes.
+Ties together the given input DataFlowNodes, making them be circular dependencies
+to each other. Calls `inject()` on each of the given DataFlowNodes, in reverse order.
+This function can be called with an arbitrary number of inputs, but it is commonly
+used for the Model-View-Intent triple of nodes.
 
 #### Arguments:
 

@@ -53,14 +53,14 @@ var HelloIntent = Cycle.defineIntent(['inputText$'], function (view) {
 });
 
 Cycle.renderEvery(HelloView.vtree$, '.js-container');
-Cycle.link(HelloModel, HelloView, HelloIntent);
+Cycle.circularInject(HelloModel, HelloView, HelloIntent);
 ```
 
 Notice that each of the 3 components has a neighbour component as input, and each outputs
 an object mostly containing Rx Observables. At the bottom, `Cycle.renderEvery` subscribes
 to changes of `HelloView.vtree$` and renders those virtual elements into `.js-container`
-in the DOM. `Cycle.link` just ties all three Model, View, and Intent together by telling
-them that they depend on each other circularly.
+in the DOM. `Cycle.circularInject` just ties all three Model, View, and Intent together by
+telling them that they depend on each other circularly.
 
 For an advanced example, check out [TodoMVC implemented in Cycle.js](https://github.com/staltz/todomvc-cycle).
 
