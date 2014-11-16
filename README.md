@@ -93,7 +93,7 @@ are a couple of strong reasons:
   create coupling. You can write code with single responsibilities throughout. For
   instance, the View just takes model data and renders virtual elements, it doesn't even
   have callbacks to handle events.
-- **Superb testability.** Everything is a JavaScript function or a [BackwardFunction](https://github.com/staltz/cycle/blob/master/docs/backward-functions.md),
+- **Superb testability.** Everything is a JavaScript function or a [DataFlowNode](https://github.com/staltz/cycle/blob/master/docs/data-flow-nodes.md),
   so testing is mostly a matter of feeding input and inspecting the output. You can even
   test styles if you use functions to output your styles instead of using CSS files.
 - **Rendering separated from View.** Contrary to what you expect, a View in Cycle.js does

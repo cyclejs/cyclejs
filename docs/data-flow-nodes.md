@@ -1,9 +1,10 @@
-# Backward Functions
+# Data Flow Nodes
 
-Cycle.js introduces the concept of a "Backward Function", which is very important for the
-framework. It is a solution to the circular dependency problem that arises from the
-cyclic structure between Model, View, Intent. Model depends on Intent, Intent depends on
-View, View depends on Model.
+Cycle.js uses the concept of a "Data Flow Nodes", which is very important for the
+framework. It is a known concept from Data Flow, which also turns out to be a natural
+solution to the circular dependency problem that arises from the cyclic structure between
+Model, View, Intent. The problem consists of implementing the dependencies: Model depends
+on Intent, Intent depends on View, View depends on Model.
 
 ```
   Model <───────┐
@@ -13,8 +14,8 @@ View, View depends on Model.
   View ─────> Intent
 ```
 
-Each of these components is supposed to work like a function, i.e., takes input, releases
-output. However, it is impossible to express this using JavaScript functions. Here is a
+Each of these nodes is supposed to work like a function, i.e., takes input, releases
+output. However, it is impossible to express these using JavaScript functions. Here is a
 naïve attempt:
 
 ```javascript
@@ -43,35 +44,38 @@ Hence, to solve the circular dependency problem in a reactive context, we can ta
 advantage of the fact that our values here are RxJS Observables as
 inputs and outputs.
 
-## What is a Backward Function?
+## What is a Data Flow Node?
 
-A `BackwardFunction` is a JavaScript object that outputs RxJS Observables before it
-receives Observables as inputs. In this sense, it works "backwards": the result is ready
-before the input parameter is given. It is not a JavaScript `Function`, but as a
-computation it has no side effects other than outputting RxJS Observables.
+A `DataFlowNode` is a node that receives RxJS Observables as input and outputs RxJS
+Observables, with no side-effects. It is a JavaScript object that outputs Observables
+before it receives Observables as inputs. The output exists before the input parameter is
+given. It is not a JavaScript `Function`, but behaves like one.
 
-To provide a `BackwardFunction` an input, call the `inject(input)` function:
-`backwardFn.inject(inputObject)`.
-
-Because the output of a Backward Function exists before the input is given, this also
-means that each Backward Function can only yield one output. A Backward Function is
-therefore not reusable for multiple inputs.
-
-## Anatomy of a Backward Function
-
-You create a `BackwardFunction` by calling
+To provide a `DataFlowNode` an input, call the `inject(input)` function:
 
 ```javascript
-var backwardFn = Cycle.defineBackwardFunction(inputInterface, definitionFn);
+dataFlowNode.inject(inputObject);
 ```
 
-The output is an instance of `BackwardFunction`, which contains the actual output RxJS
+Because the output of a DataFlowNode exists before the input is given, this also
+means that each DataFlowNode can only yield one output. A DataFlowNode is therefore not
+reusable for multiple inputs, like normal functions are.
+
+## Anatomy of a Data Flow Node
+
+You create a `DataFlowNode` by calling
+
+```javascript
+var dataFlowNode = Cycle.defineDataFlowNode(inputInterface, definitionFn);
+```
+
+The output is an instance of `DataFlowNode`, which contains the actual output RxJS
 Observables that you expect, plus the `inject` function. `definitionFn` is a normal
 JavaScript function with an input object as parameter, and must return an object whose
 properties are RxJS Observables. `inputInterface` is an array of strings defining which
 properties must exist in the input object given to `definitionFn`.
 
-Internally, `BackwardFunction` works by creating a stub for the input, creating RxJS
+Internally, `DataFlowNode` works by creating a stub for the input, creating RxJS
 Subjects with the names given by `inputInterface`. This stub is then given to the
 `definitionFn` as the input parameter, which returns RxJS Observables depending on the
 stub subjects. When `inject` is called with the real input object, all the events in the
@@ -83,19 +87,18 @@ the input.
 As an example, if we call
 
 ```javascript
-var backwardFn = Cycle.defineBackwardFunction(['foo$', 'bar$'], function(input) {
+var dataFlowNode = Cycle.defineDataFlowNode(['foo$', 'bar$'], function(input) {
   return {
-    quux$: Rx.Observable.merge(input.foo$, input.bar$)
+    baz$: Rx.Observable.merge(input.foo$, input.bar$)
   }
 });
 ```
 
-then `backwardFn` with be an object instance of `BackwardFunction` with the following
-properties:
+then the object `dataFlowNode` will contain the following properties:
 
 ```javascript
 {
-  quux$ // Rx.Observable
+  baz$ // Rx.Observable
   inject // Function
   clone // Function
 }
@@ -103,10 +106,9 @@ properties:
 
 ## Common pitfalls
 
-- **Backward Functions cannot be re-called like normal functions.** A `BackwardFunction`
-  instance is the output, not a reusable computation. In this sense, it cannot be reused
-  or called on other inputs like normal functions are. To reuse a Backward Function,
-  call `clone()` on it to get another `BackwardFunction` (in essence, a different output).
+- **Trying to reuse a DataFlowNode.** A `DataFlowNode` can only represent one instance
+  of its output object. To reuse a DataFlowNode, call `clone()` on it to get another
+  `DataFlowNode` (in essence, a different output).
 - **Calling `inject` twice.** It should be called only once.
 - **Using input properties not defined in `inputInterface`**. If you use `input.foo$`
   inside `definitionFn`, and `'foo$'` is not in the given `inputInterface` array, then
