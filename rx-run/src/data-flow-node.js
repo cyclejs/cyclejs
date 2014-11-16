@@ -20,7 +20,7 @@ function replicate(source, subject) {
 function checkInputInterfaceArray(inputInterface) {
   if (!Array.isArray(inputInterface)) {
     throw new Error('Expected an array as the interface of the input for \n' +
-      'the Backward Function.'
+      'the DataFlowNode.'
     );
   }
 }
@@ -41,7 +41,7 @@ function makeStubPropertiesFromInterface(inputStub, inputInterface) {
 
 function checkOutputObject(output) {
   if (typeof output !== 'object') {
-    throw new Error('Backward Functions should always return an object.');
+    throw new Error('A DataFlowNode should always return an object.');
   }
 }
 
@@ -66,11 +66,11 @@ function replicateAll(input, stub) {
   }
 }
 
-function BackwardFunction() { //inputInterface, definitionFn) {
+function DataFlowNode() {
   var args = Array.prototype.slice.call(arguments);
   var definitionFn = args.pop();
   if (typeof definitionFn !== 'function') {
-    throw new Error('BackwardFunction expects the definitionFn as the last argument.');
+    throw new Error('DataFlowNode expects the definitionFn as the last argument.');
   }
   var interfaces = args;
   var inputStubs = interfaces.map(function () { return {}; });
@@ -85,7 +85,7 @@ function BackwardFunction() { //inputInterface, definitionFn) {
   copyProperties(output, this);
   this.inject = function () {
     if (wasInjected) {
-      console.warn('Backward Function has already been injected an input.');
+      console.warn('DataFlowNode has already been injected an input.');
     }
     for (var i = arguments.length - 1; i >= 0; i--) {
       replicateAll(arguments[i], inputStubs[i]);
@@ -93,9 +93,9 @@ function BackwardFunction() { //inputInterface, definitionFn) {
     wasInjected = true;
   };
   this.clone = function () {
-    return BackwardFunction.apply({}, interfaces.concat([definitionFn]));
+    return DataFlowNode.apply({}, interfaces.concat([definitionFn]));
   };
   return this;
 }
 
-module.exports = BackwardFunction;
+module.exports = DataFlowNode;

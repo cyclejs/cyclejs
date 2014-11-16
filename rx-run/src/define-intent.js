@@ -1,9 +1,9 @@
 'use strict';
-var BackwardFunction = require('./backward-function');
+var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
 
 function defineIntent() {
-  var intent = BackwardFunction.apply({}, arguments);
+  var intent = DataFlowNode.apply({}, arguments);
   intent = errors.customInterfaceErrorMessageInInject(intent,
     'Intent expects View to have the required property '
   );

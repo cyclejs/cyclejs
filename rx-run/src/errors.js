@@ -7,9 +7,9 @@ function CycleInterfaceError(message, missingMember) {
 }
 CycleInterfaceError.prototype = Error.prototype;
 
-function customInterfaceErrorMessageInInject(backwardFn, message) {
-  var originalInject = backwardFn.inject;
-  backwardFn.inject = function () {
+function customInterfaceErrorMessageInInject(dataFlowNode, message) {
+  var originalInject = dataFlowNode.inject;
+  dataFlowNode.inject = function () {
     try {
       originalInject.apply({}, arguments);
     } catch (err) {
@@ -20,7 +20,7 @@ function customInterfaceErrorMessageInInject(backwardFn, message) {
       }
     }
   };
-  return backwardFn;
+  return dataFlowNode;
 }
 
 module.exports = {

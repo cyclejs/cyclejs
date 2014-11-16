@@ -1,6 +1,6 @@
 'use strict';
 var Rx = require('rx');
-var BackwardFunction = require('./backward-function');
+var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
 
 function noop() {}
@@ -32,10 +32,12 @@ function replaceStreamNameWithForwardFunction(vtree, view) {
 }
 
 function defineView() {
-  var view = BackwardFunction.apply({}, arguments);
+  var view = DataFlowNode.apply({}, arguments);
   view = errors.customInterfaceErrorMessageInInject(view,
     'View expects Model to have the required property '
   );
+  // TODO throw error if events is undefined
+  // TODO throw error if vtree$ is undefined
   if (view.events) {
     for (var i = view.events.length - 1; i >= 0; i--) {
       view[view.events[i]] = new Rx.Subject();

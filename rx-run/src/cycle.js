@@ -1,6 +1,6 @@
 'use strict';
 var h = require('virtual-hyperscript');
-var BackwardFunction = require('./backward-function');
+var DataFlowNode = require('./data-flow-node');
 var Rendering = require('./rendering');
 var Rx = require('rx');
 
@@ -12,8 +12,8 @@ PropertyHook.prototype.hook = function () {
 };
 
 var Cycle = {
-  defineBackwardFunction: function (inputInterface, definitionFn) {
-    return new BackwardFunction(inputInterface, definitionFn);
+  defineDataFlowNode: function (inputInterface, definitionFn) {
+    return new DataFlowNode(inputInterface, definitionFn);
   },
 
   defineModel: require('./define-model'),
