@@ -1,9 +1,9 @@
 'use strict';
-var BackwardFunction = require('./backward-function');
+var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
 
 function defineModel() {
-  var model = BackwardFunction.apply({}, arguments);
+  var model = DataFlowNode.apply({}, arguments);
   model = errors.customInterfaceErrorMessageInInject(model,
     'Model expects Intent to have the required property '
   );

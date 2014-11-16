@@ -12413,111 +12413,8 @@ function parseTag(tag, props) {
 
 },{}],62:[function(require,module,exports){
 'use strict';
-var Rx = require('rx');
-var errors = require('./errors');
-var CycleInterfaceError = errors.CycleInterfaceError;
-
-function replicate(source, subject) {
-  if (typeof source === 'undefined') {
-    throw new Error('Cannot replicate() if source is undefined.');
-  }
-  return source.subscribe(
-    function replicationOnNext(x) {
-      subject.onNext(x);
-    },
-    function replicationOnError(err) {
-      console.error(err);
-    }
-  );
-}
-
-function checkInputInterfaceArray(inputInterface) {
-  if (!Array.isArray(inputInterface)) {
-    throw new Error('Expected an array as the interface of the input for \n' +
-      'the Backward Function.'
-    );
-  }
-}
-
-function checkInputInterfaceOnlyStrings(inputInterface) {
-  for (var i = inputInterface.length - 1; i >= 0; i--) {
-    if (typeof inputInterface[i] !== 'string') {
-      throw new Error('Expected strings as names of properties in the input interface');
-    }
-  }
-}
-
-function makeStubPropertiesFromInterface(inputStub, inputInterface) {
-  for (var i = inputInterface.length - 1; i >= 0; i--) {
-    inputStub[inputInterface[i]] = new Rx.Subject();
-  }
-}
-
-function checkOutputObject(output) {
-  if (typeof output !== 'object') {
-    throw new Error('Backward Functions should always return an object.');
-  }
-}
-
-function copyProperties(orig, dest) {
-  for (var key in orig) {
-    if (orig.hasOwnProperty(key)) {
-      dest[key] = orig[key];
-    }
-  }
-}
-
-function replicateAll(input, stub) {
-  for (var key in stub) {
-    if (stub.hasOwnProperty(key)) {
-      if (!input.hasOwnProperty(key)) {
-        throw new CycleInterfaceError('Input should have the required property ' +
-          key, String(key)
-        );
-      }
-      replicate(input[key], stub[key]);
-    }
-  }
-}
-
-function BackwardFunction() { //inputInterface, definitionFn) {
-  var args = Array.prototype.slice.call(arguments);
-  var definitionFn = args.pop();
-  if (typeof definitionFn !== 'function') {
-    throw new Error('BackwardFunction expects the definitionFn as the last argument.');
-  }
-  var interfaces = args;
-  var inputStubs = interfaces.map(function () { return {}; });
-  var wasInjected = false;
-  for (var i = interfaces.length - 1; i >= 0; i--) {
-    checkInputInterfaceArray(interfaces[i]);
-    checkInputInterfaceOnlyStrings(interfaces[i]);
-    makeStubPropertiesFromInterface(inputStubs[i], interfaces[i]);
-  }
-  var output = definitionFn.apply(this, inputStubs);
-  checkOutputObject(output);
-  copyProperties(output, this);
-  this.inject = function () {
-    if (wasInjected) {
-      console.warn('Backward Function has already been injected an input.');
-    }
-    for (var i = arguments.length - 1; i >= 0; i--) {
-      replicateAll(arguments[i], inputStubs[i]);
-    }
-    wasInjected = true;
-  };
-  this.clone = function () {
-    return BackwardFunction.apply({}, interfaces.concat([definitionFn]));
-  };
-  return this;
-}
-
-module.exports = BackwardFunction;
-
-},{"./errors":67,"rx":19}],63:[function(require,module,exports){
-'use strict';
 var h = require('virtual-hyperscript');
-var BackwardFunction = require('./backward-function');
+var DataFlowNode = require('./data-flow-node');
 var Rendering = require('./rendering');
 var Rx = require('rx');
 
@@ -12529,8 +12426,8 @@ PropertyHook.prototype.hook = function () {
 };
 
 var Cycle = {
-  defineBackwardFunction: function (inputInterface, definitionFn) {
-    return new BackwardFunction(inputInterface, definitionFn);
+  defineDataFlowNode: function (inputInterface, definitionFn) {
+    return new DataFlowNode(inputInterface, definitionFn);
   },
 
   defineModel: require('./define-model'),
@@ -12558,13 +12455,116 @@ var Cycle = {
 
 module.exports = Cycle;
 
-},{"./backward-function":62,"./define-intent":64,"./define-model":65,"./define-view":66,"./rendering":69,"rx":19,"virtual-hyperscript":43}],64:[function(require,module,exports){
+},{"./data-flow-node":63,"./define-intent":64,"./define-model":65,"./define-view":66,"./rendering":69,"rx":19,"virtual-hyperscript":43}],63:[function(require,module,exports){
 'use strict';
-var BackwardFunction = require('./backward-function');
+var Rx = require('rx');
+var errors = require('./errors');
+var CycleInterfaceError = errors.CycleInterfaceError;
+
+function replicate(source, subject) {
+  if (typeof source === 'undefined') {
+    throw new Error('Cannot replicate() if source is undefined.');
+  }
+  return source.subscribe(
+    function replicationOnNext(x) {
+      subject.onNext(x);
+    },
+    function replicationOnError(err) {
+      console.error(err);
+    }
+  );
+}
+
+function checkInputInterfaceArray(inputInterface) {
+  if (!Array.isArray(inputInterface)) {
+    throw new Error('Expected an array as the interface of the input for \n' +
+      'the DataFlowNode.'
+    );
+  }
+}
+
+function checkInputInterfaceOnlyStrings(inputInterface) {
+  for (var i = inputInterface.length - 1; i >= 0; i--) {
+    if (typeof inputInterface[i] !== 'string') {
+      throw new Error('Expected strings as names of properties in the input interface');
+    }
+  }
+}
+
+function makeStubPropertiesFromInterface(inputStub, inputInterface) {
+  for (var i = inputInterface.length - 1; i >= 0; i--) {
+    inputStub[inputInterface[i]] = new Rx.Subject();
+  }
+}
+
+function checkOutputObject(output) {
+  if (typeof output !== 'object') {
+    throw new Error('A DataFlowNode should always return an object.');
+  }
+}
+
+function copyProperties(orig, dest) {
+  for (var key in orig) {
+    if (orig.hasOwnProperty(key)) {
+      dest[key] = orig[key];
+    }
+  }
+}
+
+function replicateAll(input, stub) {
+  for (var key in stub) {
+    if (stub.hasOwnProperty(key)) {
+      if (!input.hasOwnProperty(key)) {
+        throw new CycleInterfaceError('Input should have the required property ' +
+          key, String(key)
+        );
+      }
+      replicate(input[key], stub[key]);
+    }
+  }
+}
+
+function DataFlowNode() {
+  var args = Array.prototype.slice.call(arguments);
+  var definitionFn = args.pop();
+  if (typeof definitionFn !== 'function') {
+    throw new Error('DataFlowNode expects the definitionFn as the last argument.');
+  }
+  var interfaces = args;
+  var inputStubs = interfaces.map(function () { return {}; });
+  var wasInjected = false;
+  for (var i = interfaces.length - 1; i >= 0; i--) {
+    checkInputInterfaceArray(interfaces[i]);
+    checkInputInterfaceOnlyStrings(interfaces[i]);
+    makeStubPropertiesFromInterface(inputStubs[i], interfaces[i]);
+  }
+  var output = definitionFn.apply(this, inputStubs);
+  checkOutputObject(output);
+  copyProperties(output, this);
+  this.inject = function () {
+    if (wasInjected) {
+      console.warn('DataFlowNode has already been injected an input.');
+    }
+    for (var i = arguments.length - 1; i >= 0; i--) {
+      replicateAll(arguments[i], inputStubs[i]);
+    }
+    wasInjected = true;
+  };
+  this.clone = function () {
+    return DataFlowNode.apply({}, interfaces.concat([definitionFn]));
+  };
+  return this;
+}
+
+module.exports = DataFlowNode;
+
+},{"./errors":67,"rx":19}],64:[function(require,module,exports){
+'use strict';
+var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
 
 function defineIntent() {
-  var intent = BackwardFunction.apply({}, arguments);
+  var intent = DataFlowNode.apply({}, arguments);
   intent = errors.customInterfaceErrorMessageInInject(intent,
     'Intent expects View to have the required property '
   );
@@ -12576,13 +12576,13 @@ function defineIntent() {
 
 module.exports = defineIntent;
 
-},{"./backward-function":62,"./errors":67}],65:[function(require,module,exports){
+},{"./data-flow-node":63,"./errors":67}],65:[function(require,module,exports){
 'use strict';
-var BackwardFunction = require('./backward-function');
+var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
 
 function defineModel() {
-  var model = BackwardFunction.apply({}, arguments);
+  var model = DataFlowNode.apply({}, arguments);
   model = errors.customInterfaceErrorMessageInInject(model,
     'Model expects Intent to have the required property '
   );
@@ -12594,10 +12594,10 @@ function defineModel() {
 
 module.exports = defineModel;
 
-},{"./backward-function":62,"./errors":67}],66:[function(require,module,exports){
+},{"./data-flow-node":63,"./errors":67}],66:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
-var BackwardFunction = require('./backward-function');
+var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
 
 function noop() {}
@@ -12629,10 +12629,12 @@ function replaceStreamNameWithForwardFunction(vtree, view) {
 }
 
 function defineView() {
-  var view = BackwardFunction.apply({}, arguments);
+  var view = DataFlowNode.apply({}, arguments);
   view = errors.customInterfaceErrorMessageInInject(view,
     'View expects Model to have the required property '
   );
+  // TODO throw error if events is undefined
+  // TODO throw error if vtree$ is undefined
   if (view.events) {
     for (var i = view.events.length - 1; i >= 0; i--) {
       view[view.events[i]] = new Rx.Subject();
@@ -12652,7 +12654,7 @@ function defineView() {
 
 module.exports = defineView;
 
-},{"./backward-function":62,"./errors":67,"rx":19}],67:[function(require,module,exports){
+},{"./data-flow-node":63,"./errors":67,"rx":19}],67:[function(require,module,exports){
 'use strict';
 
 function CycleInterfaceError(message, missingMember) {
@@ -12662,9 +12664,9 @@ function CycleInterfaceError(message, missingMember) {
 }
 CycleInterfaceError.prototype = Error.prototype;
 
-function customInterfaceErrorMessageInInject(backwardFn, message) {
-  var originalInject = backwardFn.inject;
-  backwardFn.inject = function () {
+function customInterfaceErrorMessageInInject(dataFlowNode, message) {
+  var originalInject = dataFlowNode.inject;
+  dataFlowNode.inject = function () {
     try {
       originalInject.apply({}, arguments);
     } catch (err) {
@@ -12675,7 +12677,7 @@ function customInterfaceErrorMessageInInject(backwardFn, message) {
       }
     }
   };
-  return backwardFn;
+  return dataFlowNode;
 }
 
 module.exports = {
@@ -12690,7 +12692,7 @@ var Cycle = require('./cycle');
 global.Cycle = Cycle;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./cycle":63}],69:[function(require,module,exports){
+},{"./cycle":62}],69:[function(require,module,exports){
 'use strict';
 
 var h = require('virtual-hyperscript');
