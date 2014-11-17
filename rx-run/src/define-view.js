@@ -10,12 +10,14 @@ function getFunctionForwardIntoStream(stream) {
 // traverse the vtree, replacing the value of 'ev-*' fields with
 // `function (ev) { view[$PREVIOUS_VALUE].onNext(ev); }`
 function replaceStreamNameWithForwardFunction(vtree, view) {
-  if (vtree && vtree.type === 'VirtualNode' && typeof vtree.hooks !== 'undefined') {
-    for (var key in vtree.hooks) {
-      if (vtree.hooks.hasOwnProperty(key)) {
-        var streamName = vtree.hooks[key].value;
+  if (vtree && vtree.type === 'VirtualNode' && typeof vtree.properties !== 'undefined') {
+    for (var key in vtree.properties) {
+      if (vtree.properties.hasOwnProperty(key) &&
+        typeof key === 'string' && key.search(/^ev\-/) === 0)
+      {
+        var streamName = vtree.properties[key].value;
         if (view[streamName]) {
-          vtree.hooks[key].value = getFunctionForwardIntoStream(view[streamName]);
+          vtree.properties[key].value = getFunctionForwardIntoStream(view[streamName]);
         } else {
           throw new Error('VTree uses event hook `' + streamName + '` which should ' +
             'have been defined in `events` array of the View.'
