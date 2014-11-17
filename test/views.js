@@ -88,7 +88,7 @@ describe('defineView', function () {
     });
     assert.throws(function () {
       view.vtree$.subscribe(function (x) {
-        var noop = function () {};
+        var noop = function noop() {};
         noop(x);
       });
     }, /VTree uses event hook \`[^\`]*\` which should have been defined/);
