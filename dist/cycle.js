@@ -12743,8 +12743,12 @@ function defineView() {
   view = errors.customInterfaceErrorMessageInInject(view,
     'View expects Model to have the required property '
   );
-  // TODO throw error if events is undefined
-  // TODO throw error if vtree$ is undefined
+  if (typeof view.events === 'undefined') {
+    throw new Error('View must define `events` array with names of event streams');
+  }
+  if (typeof view.vtree$ === 'undefined') {
+    throw new Error('View must define `vtree$` Observable emitting virtual DOM elements');
+  }
   if (view.events) {
     for (var i = view.events.length - 1; i >= 0; i--) {
       view[view.events[i]] = new Rx.Subject();
@@ -12752,12 +12756,16 @@ function defineView() {
     delete view.events;
   }
   view.vtree$ = view.vtree$.map(function (vtree) {
-    // TODO throw error if vtree is not of type vtree or is undefined
+    if (vtree.type !== 'VirtualNode' || vtree.tagName === 'undefined') {
+      throw new Error('View `vtree$` must emit only VirtualNode instances. ' +
+        'Hint: create them with Cycle.h()'
+      );
+    }
     replaceStreamNameWithForwardFunction(vtree, view);
     return vtree;
   });
   var originalArgs = arguments;
-  view.clone = function () {
+  view.clone = function cloneView() {
     return defineView.apply({}, originalArgs);
   };
   return view;
