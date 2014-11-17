@@ -36,7 +36,9 @@ function defineView() {
   view = errors.customInterfaceErrorMessageInInject(view,
     'View expects Model to have the required property '
   );
-  // TODO throw error if events is undefined
+  if (typeof view.events === 'undefined') {
+    throw new Error('View should define `events` array with names of event streams');
+  }
   // TODO throw error if vtree$ is undefined
   if (view.events) {
     for (var i = view.events.length - 1; i >= 0; i--) {
