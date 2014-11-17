@@ -12676,8 +12676,9 @@ function defineIntent() {
   intent = errors.customInterfaceErrorMessageInInject(intent,
     'Intent expects View to have the required property '
   );
+  var originalArgs = arguments;
   intent.clone = function () {
-    return defineIntent.apply({}, arguments);
+    return defineIntent.apply({}, originalArgs);
   };
   return intent;
 }
@@ -12694,8 +12695,9 @@ function defineModel() {
   model = errors.customInterfaceErrorMessageInInject(model,
     'Model expects Intent to have the required property '
   );
+  var originalArgs = arguments;
   model.clone = function () {
-    return defineModel.apply({}, arguments);
+    return defineModel.apply({}, originalArgs);
   };
   return model;
 }
@@ -12754,8 +12756,9 @@ function defineView() {
     replaceStreamNameWithForwardFunction(vtree, view);
     return vtree;
   });
+  var originalArgs = arguments;
   view.clone = function () {
-    return defineView.apply({}, arguments);
+    return defineView.apply({}, originalArgs);
   };
   return view;
 }

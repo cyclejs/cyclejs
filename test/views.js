@@ -23,4 +23,22 @@ describe('defineView', function () {
     });
     view.inject();
   });
+
+  it('should be cloneable', function (done) {
+    var view = Cycle.defineIntent(['foo$'], function (input) {
+      return {
+        vtree$: input.foo$.map(function () { return Cycle.h('div', 'bar'); }),
+        events: []
+      };
+    });
+    var clone = view.clone();
+    clone.vtree$.subscribe(function (x) {
+      assert.strictEqual(typeof x, 'object');
+      assert.strictEqual(x.tagName, 'div');
+      assert.strictEqual(x.children[0].text, 'bar');
+      done();
+    });
+    view.inject({foo$: Rx.Observable.just('foo')});
+    clone.inject({foo$: Rx.Observable.just('foo')});
+  });
 });
