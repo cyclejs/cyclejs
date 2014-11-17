@@ -3,8 +3,6 @@ var Rx = require('rx');
 var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
 
-function noop() {}
-
 function getFunctionForwardIntoStream(stream) {
   return function forwardIntoStream(ev) { stream.onNext(ev); };
 }
@@ -19,7 +17,9 @@ function replaceStreamNameWithForwardFunction(vtree, view) {
         if (view[streamName]) {
           vtree.hooks[key].value = getFunctionForwardIntoStream(view[streamName]);
         } else {
-          vtree.hooks[key].value = noop;
+          throw new Error('VTree uses event hook `' + streamName + '` which should ' +
+            'have been defined in `events` array of the View.'
+          );
         }
       }
     }

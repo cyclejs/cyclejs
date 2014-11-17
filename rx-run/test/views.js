@@ -78,4 +78,19 @@ describe('defineView', function () {
       });
     }, /View `vtree\$` must emit only VirtualNode instances/);
   });
+
+  it('should throw error if vtree has event hook name that wasn\'t defined', function () {
+    var view = Cycle.defineView(function () {
+      return {
+        vtree$: Rx.Observable.just(Cycle.h('div', {'ev-click': 'foo'})),
+        events: ['foo$']
+      };
+    });
+    assert.throws(function () {
+      view.vtree$.subscribe(function (x) {
+        var noop = function () {};
+        noop(x);
+      });
+    }, /VTree uses event hook \`[^\`]*\` which should have been defined/);
+  });
 });
