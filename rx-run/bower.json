@@ -1,6 +1,6 @@
 {
   "name": "cycle",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "homepage": "https://github.com/staltz/cycle",
   "authors": [
     "Andre Staltz"
@@ -20,6 +20,11 @@
     "**/.*",
     "node_modules",
     "bower_components",
+    "scripts",
+    "examples",
+    "CONTRIBUTING.md",
+    "src",
+    "package.json",
     "test",
     "tests"
   ]
