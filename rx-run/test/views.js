@@ -53,7 +53,7 @@ describe('defineView', function () {
     }, /View must define `events` array/);
   });
 
-  it('should throw error if `vtree$ is not outputted', function () {
+  it('should throw error if `vtree$` is not outputted', function () {
     assert.throws(function () {
       Cycle.defineView(['foo$'], function (input) {
         return {
@@ -62,5 +62,20 @@ describe('defineView', function () {
         };
       });
     }, /View must define `vtree\$` Observable/);
+  });
+
+  it('should throw error if `vtree$` emits a non-vtree', function () {
+    var view = Cycle.defineView(function () {
+      return {
+        vtree$: Rx.Observable.just('bar'),
+        events: []
+      };
+    });
+    assert.throws(function () {
+      view.vtree$.subscribe(function (x) {
+        var noop = function () {};
+        noop(x);
+      });
+    }, /View `vtree\$` must emit only VirtualNode instances/);
   });
 });
