@@ -37,7 +37,10 @@ function defineView() {
     'View expects Model to have the required property '
   );
   if (typeof view.events === 'undefined') {
-    throw new Error('View should define `events` array with names of event streams');
+    throw new Error('View must define `events` array with names of event streams');
+  }
+  if (typeof view.vtree$ === 'undefined') {
+    throw new Error('View must define `vtree$` Observable emitting virtual DOM elements');
   }
   // TODO throw error if vtree$ is undefined
   if (view.events) {
