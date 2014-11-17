@@ -14,7 +14,8 @@ describe('defineView', function () {
   it('should yield simple output even when injected nothing', function (done) {
     var view = Cycle.defineView(function () {
       return {
-        vtree$: Rx.Observable.just(Cycle.h())
+        vtree$: Rx.Observable.just(Cycle.h()),
+        events: []
       };
     });
     view.vtree$.subscribe(function (x) {
@@ -40,5 +41,15 @@ describe('defineView', function () {
     });
     view.inject({foo$: Rx.Observable.just('foo')});
     clone.inject({foo$: Rx.Observable.just('foo')});
+  });
+
+  it('should throw error if events is not outputted', function () {
+    assert.throws(function () {
+      Cycle.defineView(['foo$'], function (input) {
+        return {
+          vtree$: input.foo$.map(function () { return Cycle.h('div', 'bar'); })
+        };
+      });
+    });
   });
 });
