@@ -43,13 +43,24 @@ describe('defineView', function () {
     clone.inject({foo$: Rx.Observable.just('foo')});
   });
 
-  it('should throw error if events is not outputted', function () {
+  it('should throw error if `events` is not outputted', function () {
     assert.throws(function () {
       Cycle.defineView(['foo$'], function (input) {
         return {
           vtree$: input.foo$.map(function () { return Cycle.h('div', 'bar'); })
         };
       });
-    });
+    }, /View must define `events` array/);
+  });
+
+  it('should throw error if `vtree$ is not outputted', function () {
+    assert.throws(function () {
+      Cycle.defineView(['foo$'], function (input) {
+        return {
+          vtree: input.foo$.map(function () { return Cycle.h('div', 'bar'); }),
+          events: []
+        };
+      });
+    }, /View must define `vtree\$` Observable/);
   });
 });
