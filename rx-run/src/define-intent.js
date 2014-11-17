@@ -7,8 +7,9 @@ function defineIntent() {
   intent = errors.customInterfaceErrorMessageInInject(intent,
     'Intent expects View to have the required property '
   );
+  var originalArgs = arguments;
   intent.clone = function () {
-    return defineIntent.apply({}, arguments);
+    return defineIntent.apply({}, originalArgs);
   };
   return intent;
 }

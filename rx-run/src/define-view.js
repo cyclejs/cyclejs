@@ -49,8 +49,9 @@ function defineView() {
     replaceStreamNameWithForwardFunction(vtree, view);
     return vtree;
   });
+  var originalArgs = arguments;
   view.clone = function () {
-    return defineView.apply({}, arguments);
+    return defineView.apply({}, originalArgs);
   };
   return view;
 }

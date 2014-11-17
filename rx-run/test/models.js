@@ -51,4 +51,19 @@ describe('defineModel', function () {
     });
     model.inject({x$: Rx.Observable.just(9)}, {y$: Rx.Observable.just(6)});
   });
+
+  it('should be cloneable', function (done) {
+    var model = Cycle.defineModel(['foo$'], function (input) {
+      return {
+        bar$: input.foo$.map(function () { return 'bar'; })
+      };
+    });
+    var clone = model.clone();
+    clone.bar$.subscribe(function (x) {
+      assert.strictEqual(x, 'bar');
+      done();
+    });
+    model.inject({foo$: Rx.Observable.just('foo')});
+    clone.inject({foo$: Rx.Observable.just('foo')});
+  });
 });

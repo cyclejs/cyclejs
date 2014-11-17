@@ -51,4 +51,19 @@ describe('defineIntent', function () {
     });
     intent.inject({x$: Rx.Observable.just(9)}, {y$: Rx.Observable.just(6)});
   });
+
+  it('should be cloneable', function (done) {
+    var intent = Cycle.defineIntent(['foo$'], function (input) {
+      return {
+        bar$: input.foo$.map(function () { return 'bar'; })
+      };
+    });
+    var clone = intent.clone();
+    clone.bar$.subscribe(function (x) {
+      assert.strictEqual(x, 'bar');
+      done();
+    });
+    intent.inject({foo$: Rx.Observable.just('foo')});
+    clone.inject({foo$: Rx.Observable.just('foo')});
+  });
 });
