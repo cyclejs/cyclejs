@@ -4,15 +4,15 @@ var assert = require('assert');
 var Rx = require('rx');
 var Cycle = require('../src/cycle');
 
-describe('defineView', function () {
+describe('createView', function () {
   it('should throw error if output object does not have vtree$', function () {
     assert.throws(function () {
-      Cycle.defineView([], function () { return {}; });
+      Cycle.createView([], function () { return {}; });
     });
   });
 
   it('should yield simple output even when injected nothing', function (done) {
-    var view = Cycle.defineView(function () {
+    var view = Cycle.createView(function () {
       return {
         vtree$: Rx.Observable.just(Cycle.h()),
         events: []
@@ -26,7 +26,7 @@ describe('defineView', function () {
   });
 
   it('should be cloneable', function (done) {
-    var view = Cycle.defineIntent(['foo$'], function (input) {
+    var view = Cycle.createIntent(['foo$'], function (input) {
       return {
         vtree$: input.foo$.map(function () { return Cycle.h('div', 'bar'); }),
         events: []
@@ -45,7 +45,7 @@ describe('defineView', function () {
 
   it('should throw error if `events` is not outputted', function () {
     assert.throws(function () {
-      Cycle.defineView(['foo$'], function (input) {
+      Cycle.createView(['foo$'], function (input) {
         return {
           vtree$: input.foo$.map(function () { return Cycle.h('div', 'bar'); })
         };
@@ -55,7 +55,7 @@ describe('defineView', function () {
 
   it('should throw error if `vtree$` is not outputted', function () {
     assert.throws(function () {
-      Cycle.defineView(['foo$'], function (input) {
+      Cycle.createView(['foo$'], function (input) {
         return {
           vtree: input.foo$.map(function () { return Cycle.h('div', 'bar'); }),
           events: []
@@ -65,7 +65,7 @@ describe('defineView', function () {
   });
 
   it('should throw error if `vtree$` emits a non-vtree', function () {
-    var view = Cycle.defineView(function () {
+    var view = Cycle.createView(function () {
       return {
         vtree$: Rx.Observable.just('bar'),
         events: []
@@ -80,7 +80,7 @@ describe('defineView', function () {
   });
 
   it('should throw error if vtree has event hook name that wasn\'t defined', function () {
-    var view = Cycle.defineView(function () {
+    var view = Cycle.createView(function () {
       return {
         vtree$: Rx.Observable.just(Cycle.h('div', {'ev-click': 'foo'})),
         events: ['foo$']

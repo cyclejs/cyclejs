@@ -4,14 +4,14 @@ var assert = require('assert');
 var Rx = require('rx');
 var Cycle = require('../src/cycle');
 
-describe('defineModel', function () {
+describe('createModel', function () {
   it('should return an object when given interface and definitionFn', function () {
-    var model = Cycle.defineModel([], function () { return {}; });
+    var model = Cycle.createModel([], function () { return {}; });
     assert.equal(typeof model, 'object');
   });
 
   it('should yield simple output when injected simple input', function (done) {
-    var model = Cycle.defineModel(['foo$'], function (input) {
+    var model = Cycle.createModel(['foo$'], function (input) {
       return {
         bar$: input.foo$.map(function () { return 'bar'; })
       };
@@ -24,7 +24,7 @@ describe('defineModel', function () {
   });
 
   it('should yield simple output even when injected nothing', function (done) {
-    var model = Cycle.defineModel(function () {
+    var model = Cycle.createModel(function () {
       return {
         bar$: Rx.Observable.just(246)
       };
@@ -37,7 +37,7 @@ describe('defineModel', function () {
   });
 
   it('should yield output when injected two inputs', function (done) {
-    var model = Cycle.defineModel(['x$'], ['y$'], function (input1, input2) {
+    var model = Cycle.createModel(['x$'], ['y$'], function (input1, input2) {
       return {
         sum$: Rx.Observable
           .combineLatest(input1.x$, input2.y$, function (x, y) {
@@ -53,7 +53,7 @@ describe('defineModel', function () {
   });
 
   it('should be cloneable', function (done) {
-    var model = Cycle.defineModel(['foo$'], function (input) {
+    var model = Cycle.createModel(['foo$'], function (input) {
       return {
         bar$: input.foo$.map(function () { return 'bar'; })
       };

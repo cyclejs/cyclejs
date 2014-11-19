@@ -1,10 +1,10 @@
-var HelloModel = Cycle.defineModel(['changeName$'], function (intent) {
+var HelloModel = Cycle.createModel(['changeName$'], function (intent) {
   return {
     name$: intent.changeName$.startWith('')
   };
 });
 
-var HelloView = Cycle.defineView(['name$'], function (model) {
+var HelloView = Cycle.createView(['name$'], function (model) {
   return {
     vtree$: model.name$
       .map(function (name) {
@@ -22,12 +22,12 @@ var HelloView = Cycle.defineView(['name$'], function (model) {
   };
 });
 
-var HelloIntent = Cycle.defineIntent(['inputText$'], function (view) {
+var HelloIntent = Cycle.createIntent(['inputText$'], function (view) {
   return {
     changeName$: view.inputText$
       .map(function (ev) { return ev.target.value; })
   };
 });
 
-Cycle.defineRenderer('.js-container').inject(HelloView);
+Cycle.createRenderer('.js-container').inject(HelloView);
 Cycle.circularInject(HelloModel, HelloView, HelloIntent);

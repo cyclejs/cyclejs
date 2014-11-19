@@ -4,14 +4,14 @@ var assert = require('assert');
 var Rx = require('rx');
 var Cycle = require('../src/cycle');
 
-describe('defineIntent', function () {
+describe('createIntent', function () {
   it('should return an object when given interface and definitionFn', function () {
-    var intent = Cycle.defineIntent([], function () { return {}; });
+    var intent = Cycle.createIntent([], function () { return {}; });
     assert.equal(typeof intent, 'object');
   });
 
   it('should yield simple output when injected simple input', function (done) {
-    var intent = Cycle.defineIntent(['foo$'], function (input) {
+    var intent = Cycle.createIntent(['foo$'], function (input) {
       return {
         bar$: input.foo$.map(function () { return 'bar'; })
       };
@@ -24,7 +24,7 @@ describe('defineIntent', function () {
   });
 
   it('should yield simple output even when injected nothing', function (done) {
-    var intent = Cycle.defineIntent(function () {
+    var intent = Cycle.createIntent(function () {
       return {
         bar$: Rx.Observable.just(246)
       };
@@ -37,7 +37,7 @@ describe('defineIntent', function () {
   });
 
   it('should yield output when injected two inputs', function (done) {
-    var intent = Cycle.defineIntent(['x$'], ['y$'], function (input1, input2) {
+    var intent = Cycle.createIntent(['x$'], ['y$'], function (input1, input2) {
       return {
         sum$: Rx.Observable
           .combineLatest(input1.x$, input2.y$, function (x, y) {
@@ -53,7 +53,7 @@ describe('defineIntent', function () {
   });
 
   it('should be cloneable', function (done) {
-    var intent = Cycle.defineIntent(['foo$'], function (input) {
+    var intent = Cycle.createIntent(['foo$'], function (input) {
       return {
         bar$: input.foo$.map(function () { return 'bar'; })
       };

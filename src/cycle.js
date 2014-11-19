@@ -26,14 +26,14 @@ var Cycle = {
    * properties.
    * @return {DataFlowNode} a DataFlowNode, containing a `inject(inputs...)` function.
    */
-  defineDataFlowNode: function () {
+  createDataFlowNode: function () {
     return DataFlowNode.apply({}, arguments);
   },
 
   /**
    * Returns a DataFlowNode representing a Model, having some Intent as input.
    *
-   * Is a specialized case of `defineDataFlowNode()`, hence can also receive multiple
+   * Is a specialized case of `createDataFlowNode()`, hence can also receive multiple
    * interfaces and multiple inputs in `definitionFn`.
    *
    * @param {Array<String>} [intentInterface] property names that are expected to exist as
@@ -42,14 +42,14 @@ var Cycle = {
    * Should return an object containing RxJS Observables as properties.
    * @return {DataFlowNode} a DataFlowNode representing a Model, containing a
    * `inject(intent)` function.
-   * @function defineModel
+   * @function createModel
    */
-  defineModel: require('./define-model'),
+  createModel: require('./create-model'),
 
   /**
    * Returns a DataFlowNode representing a View, having some Model as input.
    *
-   * Is a specialized case of `defineDataFlowNode()`, hence can also receive multiple
+   * Is a specialized case of `createDataFlowNode()`, hence can also receive multiple
    * interfaces and multiple inputs in `definitionFn`.
    *
    * @param {Array<String>} [modelInterface] property names that are expected to exist as
@@ -61,14 +61,14 @@ var Cycle = {
    * should be an Observable emitting instances of VTree (Virtual DOM elements).
    * @return {DataFlowNode} a DataFlowNode representing a View, containing a
    * `inject(model)` function.
-   * @function defineView
+   * @function createView
    */
-  defineView: require('./define-view'),
+  createView: require('./create-view'),
 
   /**
    * Returns a DataFlowNode representing an Intent, having some View as input.
    *
-   * Is a specialized case of `defineDataFlowNode()`, hence can also receive multiple
+   * Is a specialized case of `createDataFlowNode()`, hence can also receive multiple
    * interfaces and multiple inputs in `definitionFn`.
    *
    * @param {Array<String>} [viewInterface] property names that are expected to exist as
@@ -77,9 +77,9 @@ var Cycle = {
    * Should return an object containing RxJS Observables as properties.
    * @return {DataFlowNode} a DataFlowNode representing an Intent, containing a
    * `inject(view)` function.
-   * @function defineIntent
+   * @function createIntent
    */
-  defineIntent: require('./define-intent'),
+  createIntent: require('./create-intent'),
 
   /**
    * Returns a Renderer (a DataFlowSink) bound to a DOM container element. Contains an
@@ -88,9 +88,9 @@ var Cycle = {
    * @param {(String|HTMLElement)} container the DOM selector for the element (or the
    * element itself) to contain the rendering of the VTrees.
    * @return {Renderer} a Renderer object containing an `inject(view)` function.
-   * @function defineRenderer
+   * @function createRenderer
    */
-  defineRenderer: function defineRenderer(container) {
+  createRenderer: function createRenderer(container) {
     return new Rendering.Renderer(container);
   },
 
