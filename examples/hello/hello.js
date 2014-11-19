@@ -29,5 +29,5 @@ var HelloIntent = Cycle.defineIntent(['inputText$'], function (view) {
   };
 });
 
-Cycle.renderEvery(HelloView.vtree$, '.js-container');
+Cycle.defineRenderer('.js-container').inject(HelloView);
 Cycle.circularInject(HelloModel, HelloView, HelloIntent);

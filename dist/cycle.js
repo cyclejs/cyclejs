@@ -17215,16 +17215,17 @@ var Cycle = {
   defineIntent: require('./define-intent'),
 
   /**
-   * Renders every virtual element emitted by `vtree$` into the element `container`.
+   * Returns a Renderer (a DataFlowSink) bound to a DOM container element. Contains an
+   * `inject` function that should be called with a View as argument.
    *
-   * @param {Rx.Observable<VirtualNode>} vtree$ an Observable of VTree instances (virtual
-   * DOM elements).
    * @param {(String|HTMLElement)} container the DOM selector for the element (or the
    * element itself) to contain the rendering of the VTrees.
-   * @return {Rx.Disposable} a subscription to the `vtree$` Observable.
-   * @function renderEvery
+   * @return {Renderer} a Renderer object containing an `inject(view)` function.
+   * @function defineRenderer
    */
-  renderEvery: Rendering.renderEvery,
+  defineRenderer: function defineRenderer(container) {
+    return new Rendering.Renderer(container);
+  },
 
   /**
    * Ties together the given input DataFlowNodes, making them be circular dependencies
@@ -17282,7 +17283,7 @@ var Cycle = {
 
 module.exports = Cycle;
 
-},{"./data-flow-node":65,"./define-intent":66,"./define-model":67,"./define-view":68,"./property-hook":71,"./rendering":72,"rx":21,"virtual-hyperscript":45}],65:[function(require,module,exports){
+},{"./data-flow-node":65,"./define-intent":67,"./define-model":68,"./define-view":69,"./property-hook":72,"./rendering":73,"rx":21,"virtual-hyperscript":45}],65:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
 var errors = require('./errors');
@@ -17385,7 +17386,25 @@ function DataFlowNode() {
 
 module.exports = DataFlowNode;
 
-},{"./errors":69,"rx":21}],66:[function(require,module,exports){
+},{"./errors":70,"rx":21}],66:[function(require,module,exports){
+'use strict';
+
+function DataFlowSink(definitionFn) {
+  if (arguments.length !== 1) {
+    throw new Error('DataFlowSink expects only one argument: the definition function.');
+  }
+  if (typeof definitionFn !== 'function') {
+    throw new Error('DataFlowSink expects the argument to be the definition function.');
+  }
+  definitionFn.displayName += '(DataFlowSink defFn)';
+  this.inject = function injectIntoDataFlowSink() {
+    return definitionFn.apply({}, arguments);
+  };
+}
+
+module.exports = DataFlowSink;
+
+},{}],67:[function(require,module,exports){
 'use strict';
 var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
@@ -17404,7 +17423,7 @@ function defineIntent() {
 
 module.exports = defineIntent;
 
-},{"./data-flow-node":65,"./errors":69}],67:[function(require,module,exports){
+},{"./data-flow-node":65,"./errors":70}],68:[function(require,module,exports){
 'use strict';
 var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
@@ -17423,7 +17442,7 @@ function defineModel() {
 
 module.exports = defineModel;
 
-},{"./data-flow-node":65,"./errors":69}],68:[function(require,module,exports){
+},{"./data-flow-node":65,"./errors":70}],69:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
 var DataFlowNode = require('./data-flow-node');
@@ -17494,7 +17513,7 @@ function defineView() {
 
 module.exports = defineView;
 
-},{"./data-flow-node":65,"./errors":69,"rx":21}],69:[function(require,module,exports){
+},{"./data-flow-node":65,"./errors":70,"rx":21}],70:[function(require,module,exports){
 'use strict';
 
 function CycleInterfaceError(message, missingMember) {
@@ -17525,14 +17544,14 @@ module.exports = {
   customInterfaceErrorMessageInInject: customInterfaceErrorMessageInInject
 };
 
-},{}],70:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 (function (global){
 'use strict';
 var Cycle = require('./cycle');
 global.Cycle = Cycle;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./cycle":64}],71:[function(require,module,exports){
+},{"./cycle":64}],72:[function(require,module,exports){
 'use strict';
 
 function PropertyHook(fn) {
@@ -17544,7 +17563,7 @@ PropertyHook.prototype.hook = function () {
 
 module.exports = PropertyHook;
 
-},{}],72:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 'use strict';
 
 var h = require('virtual-hyperscript');
@@ -17553,6 +17572,9 @@ var VDOM = {
   patch: require('virtual-dom/patch')
 };
 var DOMDelegator = require('dom-delegator');
+var DataFlowSink = require('./data-flow-sink');
+
+var delegator = new DOMDelegator();
 
 function isElement(o) {
   return (
@@ -17590,12 +17612,20 @@ function renderEvery(vtree$, container) {
     });
 }
 
-var delegator = new DOMDelegator();
+function Renderer(container) {
+  DataFlowSink.call(this, function injectIntoRenderer(view) {
+    return renderEvery(view.vtree$, container);
+  });
+  this.delegator = delegator;
+}
+
+Renderer.prototype = Object.create(DataFlowSink.prototype);
 
 module.exports = {
+  Renderer: Renderer,
   renderEvery: renderEvery,
   isElement: isElement,
   delegator: delegator
 };
 
-},{"dom-delegator":6,"virtual-dom/diff":22,"virtual-dom/patch":41,"virtual-hyperscript":45}]},{},[70]);
+},{"./data-flow-sink":66,"dom-delegator":6,"virtual-dom/diff":22,"virtual-dom/patch":41,"virtual-hyperscript":45}]},{},[71]);
