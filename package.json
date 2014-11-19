@@ -18,7 +18,7 @@
   "dependencies": {
     "rx": "2.3.18",
     "virtual-dom": "0.0.22",
-    "virtual-hyperscript": "4.6.0",
+    "virtual-hyperscript": "4.5.0",
     "dom-delegator": "11.0.0"
   },
   "devDependencies": {

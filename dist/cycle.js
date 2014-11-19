@@ -16671,13 +16671,6 @@ DataSetHook.prototype.hook = function (node, propertyName) {
     ds[propName] = this.value;
 };
 
-DataSetHook.prototype.unhook = function(node, propertyName) {
-    var ds = DataSet(node);
-    var propName = propertyName.substr(3);
-
-    ds[propName] = undefined;
-}
-
 },{"data-set":47}],44:[function(require,module,exports){
 module.exports = SoftSetHook;
 
@@ -16696,8 +16689,6 @@ SoftSetHook.prototype.hook = function (node, propertyName) {
 };
 
 },{}],45:[function(require,module,exports){
-var TypedError = require("error/typed")
-
 var VNode = require("vtree/vnode.js")
 var VText = require("vtree/vtext.js")
 var isVNode = require("vtree/is-vnode")
@@ -16705,6 +16696,7 @@ var isVText = require("vtree/is-vtext")
 var isWidget = require("vtree/is-widget")
 var isHook = require("vtree/is-vhook")
 var isVThunk = require("vtree/is-thunk")
+var TypedError = require("error/typed")
 
 var parseTag = require("./parse-tag.js")
 var softSetHook = require("./hooks/soft-set-hook.js")
@@ -17031,6 +17023,21 @@ function VirtualNode(tagName, properties, children, key, namespace) {
     var count = (children && children.length) || 0
     var descendants = 0
     var hasWidgets = false
+    var descendantHooks = false
+    var hooks
+
+    for (var propName in properties) {
+        if (properties.hasOwnProperty(propName)) {
+            var property = properties[propName]
+            if (isVHook(property)) {
+                if (!hooks) {
+                    hooks = {}
+                }
+
+                hooks[propName] = property
+            }
+        }
+    }
 
     for (var i = 0; i < count; i++) {
         var child = children[i]
@@ -17039,6 +17046,10 @@ function VirtualNode(tagName, properties, children, key, namespace) {
 
             if (!hasWidgets && child.hasWidgets) {
                 hasWidgets = true
+            }
+
+            if (!descendantHooks && (child.hooks || child.descendantHooks)) {
+                descendantHooks = true
             }
         } else if (!hasWidgets && isWidget(child)) {
             if (typeof child.destroy === "function") {
@@ -17049,6 +17060,8 @@ function VirtualNode(tagName, properties, children, key, namespace) {
 
     this.count = count + descendants
     this.hasWidgets = hasWidgets
+    this.hooks = hooks
+    this.descendantHooks = descendantHooks
 }
 
 VirtualNode.prototype.version = version
