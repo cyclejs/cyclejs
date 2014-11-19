@@ -1,6 +1,6 @@
 var h = Cycle.h;
 
-var FooModel = Cycle.defineModel(['requestNewBar$'], function (intent) {
+var FooModel = Cycle.createModel(['requestNewBar$'], function (intent) {
   return {
     foo$: intent.requestNewBar$
       .map(function () {
@@ -10,7 +10,7 @@ var FooModel = Cycle.defineModel(['requestNewBar$'], function (intent) {
   };
 });
 
-var FooView = Cycle.defineView(['foo$'], function (model) {
+var FooView = Cycle.createView(['foo$'], function (model) {
   return {
     vtree$: model.foo$
       .map(function (fooData) {
@@ -30,7 +30,7 @@ var FooView = Cycle.defineView(['foo$'], function (model) {
   };
 });
 
-var FooIntent = Cycle.defineIntent(['fooClicks$'], function (view) {
+var FooIntent = Cycle.createIntent(['fooClicks$'], function (view) {
   return {
     requestNewBar$: view.fooClicks$.map(function () { return 'x'; })
   };
@@ -40,7 +40,7 @@ var BarModel = FooModel.clone();
 var BarView = FooView.clone();
 var BarIntent = FooIntent.clone();
 
-Cycle.defineRenderer('.js-container1').inject(FooView);
-Cycle.defineRenderer('.js-container2').inject(BarView);
+Cycle.createRenderer('.js-container1').inject(FooView);
+Cycle.createRenderer('.js-container2').inject(BarView);
 Cycle.circularInject(FooModel, FooView, FooIntent);
 Cycle.circularInject(BarModel, BarView, BarIntent);

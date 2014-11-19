@@ -26,41 +26,43 @@ DOM Rendering.
 ## Example
 
 ```javascript
-var HelloModel = Cycle.defineModel(['changeName$'], function (intent) {
+var HelloModel = Cycle.createModel(['changeName$'], function (intent) {
   return {name$: intent.changeName$.startWith('')};
 });
 
-var HelloView = Cycle.defineView(['name$'], function (model) {
-  var h = Cycle.h;
+var HelloView = Cycle.createView(['name$'], function (model) {
   return {
     vtree$: model.name$
       .map(function (name) {
-        return h('div', [
-          h('label', 'Name:'),
-          h('input', {attributes: {type: 'text'}, 'ev-input': 'inputText$'}),
-          h('hr'),
-          h('h1', 'Hello ' + name)
+        return Cycle.h('div', {}, [
+          Cycle.h('label', 'Name:'),
+          Cycle.h('input', {
+            'attributes': {'type': 'text'},
+            'ev-input': 'inputText$'
+          }),
+          Cycle.h('hr'),
+          Cycle.h('h1', 'Hello ' + name)
         ]);
       }),
     events: ['inputText$']
   };
 });
 
-var HelloIntent = Cycle.defineIntent(['inputText$'], function (view) {
+var HelloIntent = Cycle.createIntent(['inputText$'], function (view) {
   return {
     changeName$: view.inputText$.map(function (ev) { return ev.target.value; })
   };
 });
 
-Cycle.renderEvery(HelloView.vtree$, '.js-container');
+Cycle.createRenderer('.js-container').inject(HelloView);
 Cycle.circularInject(HelloModel, HelloView, HelloIntent);
 ```
 
 Notice that each of the 3 components has a neighbour component as input, and each outputs
-an object mostly containing Rx Observables. At the bottom, `Cycle.renderEvery` subscribes
-to changes of `HelloView.vtree$` and renders those virtual elements into `.js-container`
-in the DOM. `Cycle.circularInject` just ties all three Model, View, and Intent together by
-telling them that they depend on each other circularly.
+an object mostly containing Rx Observables. At the bottom, the Renderer we created
+subscribes to changes of `HelloView.vtree$` and renders those virtual elements into
+`.js-container` in the DOM. `Cycle.circularInject` just ties all three Model, View, and
+Intent together by telling them that they depend on each other circularly.
 
 For an advanced example, check out [TodoMVC implemented in Cycle.js](https://github.com/staltz/todomvc-cycle).
 

@@ -6,7 +6,7 @@ var ViewInterface = ['addOneClicks$', 'addManyClicks$', 'removeClicks$',
   'itemColorChanged$', 'itemWidthChanged$'
 ];
 
-var ManyIntent = Cycle.defineIntent(ViewInterface, function (view) {
+var ManyIntent = Cycle.createIntent(ViewInterface, function (view) {
   return {
     addItem$: Cycle.Rx.Observable.merge(
       view.addOneClicks$.map(function () { return 1; }),

@@ -33,7 +33,7 @@ function replaceStreamNameWithForwardFunction(vtree, view) {
   }
 }
 
-function defineView() {
+function createView() {
   var view = DataFlowNode.apply({}, arguments);
   view = errors.customInterfaceErrorMessageInInject(view,
     'View expects Model to have the required property '
@@ -61,9 +61,9 @@ function defineView() {
   });
   var originalArgs = arguments;
   view.clone = function cloneView() {
-    return defineView.apply({}, originalArgs);
+    return createView.apply({}, originalArgs);
   };
   return view;
 }
 
-module.exports = defineView;
+module.exports = createView;

@@ -15,7 +15,7 @@ function reassignId(item, index) {
 
 var IntentInterface = ['addItem$', 'removeItem$', 'changeWidth$', 'changeColor$'];
 
-var ManyModel = Cycle.defineModel(IntentInterface, function (intent) {
+var ManyModel = Cycle.createModel(IntentInterface, function (intent) {
   var addItemMod$ = intent.addItem$.map(function (amount) {
     var newItems = [];
     for (var i = 0; i < amount; i++) {

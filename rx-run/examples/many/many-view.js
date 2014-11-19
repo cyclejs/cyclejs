@@ -40,7 +40,7 @@ function vrenderItem(itemData) {
   );
 }
 
-var ManyView = Cycle.defineView(['items$'], function (model) {
+var ManyView = Cycle.createView(['items$'], function (model) {
   return {
     events: ['itemWidthChanged$', 'itemColorChanged$', 'removeClicks$',
       'addOneClicks$', 'addManyClicks$'
