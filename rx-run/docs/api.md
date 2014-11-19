@@ -2,6 +2,7 @@
 # `Cycle` object API
 
 - [`createDataFlowNode`](#createDataFlowNode)
+- [`createDataFlowSink`](#createDataFlowSink)
 - [`createModel`](#createModel)
 - [`createView`](#createView)
 - [`createIntent`](#createIntent)
@@ -27,13 +28,26 @@ to `definitionFn` are objects that should fulfil the respective interfaces.
 
 - `[inputInterface1] :: Array<String>` property names that are expected to exist as RxJS Observables in the first input parameter for `definitionFn`.
 - `...`
-- `definitionFn :: Function` a function expecting objects as parameter (as many as there are interfaces), satisfying the type requirement given by `inputInterface1`,
+- `definitionFn :: Function` a function expecting objects as parameters (as many as there are interfaces), satisfying the type requirement given by `inputInterface1`,
 `inputInterface2`, etc. Should return an object containing RxJS Observables as
 properties.
 
 #### Return:
 
 *(DataFlowNode)* a DataFlowNode, containing a `inject(inputs...)` function.
+
+### <a id="createDataFlowSink"></a> `createDataFlowSink(definitionFn)`
+
+Creates a DataFlowSink, given a definition function that receives injected inputs.
+
+#### Arguments:
+
+- `definitionFn :: Function` a function expecting some DataFlowNode(s) as arguments. The function should subscribe to Observables of the input DataFlowNodes
+and should return a `Rx.Disposable` subscription.
+
+#### Return:
+
+*(DataFlowSink)* a DataFlowSink, containing a `inject(inputs...)` function.
 
 ### <a id="createModel"></a> `createModel([intentInterface], definitionFn)`
 

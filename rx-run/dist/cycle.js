@@ -17244,6 +17244,7 @@ module.exports = createView;
 var h = require('virtual-hyperscript');
 var Rx = require('rx');
 var DataFlowNode = require('./data-flow-node');
+var DataFlowSink = require('./data-flow-node');
 var Rendering = require('./rendering');
 var PropertyHook = require('./property-hook');
 
@@ -17262,14 +17263,26 @@ var Cycle = {
    * @param {Array<String>} [inputInterface1] property names that are expected to exist
    * as RxJS Observables in the first input parameter for `definitionFn`.
    * @param {} ...
-   * @param {Function} definitionFn a function expecting objects as parameter (as many as
+   * @param {Function} definitionFn a function expecting objects as parameters (as many as
    * there are interfaces), satisfying the type requirement given by `inputInterface1`,
    * `inputInterface2`, etc. Should return an object containing RxJS Observables as
    * properties.
    * @return {DataFlowNode} a DataFlowNode, containing a `inject(inputs...)` function.
    */
-  createDataFlowNode: function () {
+  createDataFlowNode: function createDataFlowNode() {
     return DataFlowNode.apply({}, arguments);
+  },
+
+  /**
+   * Creates a DataFlowSink, given a definition function that receives injected inputs.
+   *
+   * @param {Function} definitionFn a function expecting some DataFlowNode(s) as
+   * arguments. The function should subscribe to Observables of the input DataFlowNodes
+   * and should return a `Rx.Disposable` subscription.
+   * @return {DataFlowSink} a DataFlowSink, containing a `inject(inputs...)` function.
+   */
+  createDataFlowSink: function createDataFlowSink() {
+    return DataFlowSink.apply({}, arguments);
   },
 
   /**
