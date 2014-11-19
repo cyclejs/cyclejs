@@ -82,16 +82,17 @@ var Cycle = {
   defineIntent: require('./define-intent'),
 
   /**
-   * Renders every virtual element emitted by `vtree$` into the element `container`.
+   * Returns a Renderer (a DataFlowSink) bound to a DOM container element. Contains an
+   * `inject` function that should be called with a View as argument.
    *
-   * @param {Rx.Observable<VirtualNode>} vtree$ an Observable of VTree instances (virtual
-   * DOM elements).
    * @param {(String|HTMLElement)} container the DOM selector for the element (or the
    * element itself) to contain the rendering of the VTrees.
-   * @return {Rx.Disposable} a subscription to the `vtree$` Observable.
-   * @function renderEvery
+   * @return {Renderer} a Renderer object containing an `inject(view)` function.
+   * @function defineRenderer
    */
-  renderEvery: Rendering.renderEvery,
+  defineRenderer: function defineRenderer(container) {
+    return new Rendering.Renderer(container);
+  },
 
   /**
    * Ties together the given input DataFlowNodes, making them be circular dependencies
@@ -142,9 +143,7 @@ var Cycle = {
    * This is a helper for creating VTrees in Views.
    * @name h
    */
-  h: h,
-
-  _delegator: Rendering.delegator
+  h: h
 };
 
 module.exports = Cycle;

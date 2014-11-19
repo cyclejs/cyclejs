@@ -6,6 +6,9 @@ var VDOM = {
   patch: require('virtual-dom/patch')
 };
 var DOMDelegator = require('dom-delegator');
+var DataFlowSink = require('./data-flow-sink');
+
+var delegator = new DOMDelegator();
 
 function isElement(o) {
   return (
@@ -43,9 +46,17 @@ function renderEvery(vtree$, container) {
     });
 }
 
-var delegator = new DOMDelegator();
+function Renderer(container) {
+  DataFlowSink.call(this, function injectIntoRenderer(view) {
+    return renderEvery(view.vtree$, container);
+  });
+  this.delegator = delegator;
+}
+
+Renderer.prototype = Object.create(DataFlowSink.prototype);
 
 module.exports = {
+  Renderer: Renderer,
   renderEvery: renderEvery,
   isElement: isElement,
   delegator: delegator
