@@ -2,7 +2,7 @@
 var h = require('virtual-hyperscript');
 var Rx = require('rx');
 var DataFlowNode = require('./data-flow-node');
-var DataFlowSink = require('./data-flow-node');
+var DataFlowSink = require('./data-flow-sink');
 var Rendering = require('./rendering');
 var PropertyHook = require('./property-hook');
 
