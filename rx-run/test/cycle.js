@@ -5,6 +5,52 @@ var Rx = require('rx');
 var Cycle = require('../src/cycle');
 
 describe('Cycle', function () {
+  describe('API', function () {
+    it('should have `createDataFlowNode`', function () {
+      assert.strictEqual(typeof Cycle.createDataFlowNode, 'function');
+    });
+
+    it('should have `createDataFlowSource`', function () {
+      assert.strictEqual(typeof Cycle.createDataFlowSource, 'function');
+    });
+
+    it('should have `createDataFlowSink`', function () {
+      assert.strictEqual(typeof Cycle.createDataFlowSink, 'function');
+    });
+
+    it('should have `createModel`', function () {
+      assert.strictEqual(typeof Cycle.createModel, 'function');
+    });
+
+    it('should have `createView`', function () {
+      assert.strictEqual(typeof Cycle.createView, 'function');
+    });
+
+    it('should have `createIntent`', function () {
+      assert.strictEqual(typeof Cycle.createIntent, 'function');
+    });
+
+    it('should have `createRenderer`', function () {
+      assert.strictEqual(typeof Cycle.createRenderer, 'function');
+    });
+
+    it('should have `circularInject`', function () {
+      assert.strictEqual(typeof Cycle.circularInject, 'function');
+    });
+
+    it('should have `vdomPropHook`', function () {
+      assert.strictEqual(typeof Cycle.vdomPropHook, 'function');
+    });
+
+    it('should have a shortcut to Rx', function () {
+      assert.strictEqual(typeof Cycle.Rx, 'object');
+    });
+
+    it('should have a shortcut to virtual-hyperscript', function () {
+      assert.strictEqual(typeof Cycle.h, 'function');
+    });
+  });
+
   describe('circularInject', function () {
     it('should tie MVI so that Model data is seen in Intent', function (done) {
       var fakeModel = Cycle.createDataFlowNode(['i$'], function () {

@@ -118,3 +118,35 @@ then the object `dataFlowNode` will contain the following properties:
   Observables, and all properties in the output object of `definitionFn` should be RxJS
   Observables too. If you only need to output a single value, use `Rx.Observable.just()`.
   Use the convention of suffixing with `$` to denote that the property is an Observable.
+
+# Data Flow Sinks
+
+Sinks are similar to DataFlowNodes, except they only receive inputs, they do not produce
+output. In Rx terminology, `DataFlowSink` should just **subscribe** to the input when it is
+injected. As all other important components in Cycle.js, a `DataFlowSink` can also be
+injected a dependency. Use Sinks for side-effects such as saving model data to
+localStorage or to database in the backend.
+
+## `DataFlowSink` API
+
+**Create** a DataFlowSink by calling `Cycle.createDataFlowSink(definitionFn)` where
+`definitionFn` expects Data Flow Nodes as inputs, and outputs an Rx.Disposable
+(a subscription to the Observables in the input). The `DataFlowSink` returned by
+`createDataFlowSink` contains an `inject` function that can be used in the same style as
+DataFlowNode injects are.
+
+**Inject** a dependency into a DataFlowSink by calling `inject(inputs...)`. The inject
+simply calls the original `definitionFn` using the given `inputs...`.
+
+# Data Flow Sources
+
+Sources are the opposite of Sinks. A `DataFlowSource` only produces output, and does not
+get inputs injected. They are much simpler because they do not have an `inject()`
+function. To create a `DataFlowSource`, you call `Cycle.createDataFlowSource(output)`,
+where `output` is the object containing Observables.
+
+In practice, you can replace a DataFlowSource simply by the `output` object, and the
+application will function exactly the same. Under the hood, `createDataFlowSource()` just
+returns the same object it was given. The point of using `createDataFlowSource` is to have
+the output object be an instance of `DataFlowSource`, to be consistent with `DataFlowNode`
+and `DataFlowSink`.

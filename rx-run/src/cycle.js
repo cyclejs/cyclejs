@@ -2,8 +2,9 @@
 var h = require('virtual-hyperscript');
 var Rx = require('rx');
 var DataFlowNode = require('./data-flow-node');
+var DataFlowSource = require('./data-flow-source');
 var DataFlowSink = require('./data-flow-sink');
-var Rendering = require('./rendering');
+var Renderer = require('./rendering').Renderer;
 var PropertyHook = require('./property-hook');
 
 var Cycle = {
@@ -29,6 +30,20 @@ var Cycle = {
    */
   createDataFlowNode: function createDataFlowNode() {
     return DataFlowNode.apply({}, arguments);
+  },
+
+  /**
+   * Creates a DataFlowSource. It receives an object as argument, and outputs that same
+   * object, annotated as a DataFlowSource. For all practical purposes, a DataFlowSource
+   * is just a regular object with RxJS Observables, but for consistency with other
+   * components in the framework such as DataFlowNode, the returned object is an instance
+   * of DataFlowSource.
+   *
+   * @param {Object} outputObject an object containing RxJS Observables.
+   * @return {DataFlowSource} a DataFlowSource equivalent to the given outputObject
+   */
+  createDataFlowSource: function createDataFlowSource() {
+    return DataFlowSource.apply({}, arguments);
   },
 
   /**
@@ -104,7 +119,7 @@ var Cycle = {
    * @function createRenderer
    */
   createRenderer: function createRenderer(container) {
-    return new Rendering.Renderer(container);
+    return new Renderer(container);
   },
 
   /**

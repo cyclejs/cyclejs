@@ -17149,7 +17149,7 @@ function createIntent() {
 
 module.exports = createIntent;
 
-},{"./data-flow-node":68,"./errors":70}],65:[function(require,module,exports){
+},{"./data-flow-node":68,"./errors":71}],65:[function(require,module,exports){
 'use strict';
 var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
@@ -17168,7 +17168,7 @@ function createModel() {
 
 module.exports = createModel;
 
-},{"./data-flow-node":68,"./errors":70}],66:[function(require,module,exports){
+},{"./data-flow-node":68,"./errors":71}],66:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
 var DataFlowNode = require('./data-flow-node');
@@ -17239,13 +17239,14 @@ function createView() {
 
 module.exports = createView;
 
-},{"./data-flow-node":68,"./errors":70,"rx":21}],67:[function(require,module,exports){
+},{"./data-flow-node":68,"./errors":71,"rx":21}],67:[function(require,module,exports){
 'use strict';
 var h = require('virtual-hyperscript');
 var Rx = require('rx');
 var DataFlowNode = require('./data-flow-node');
-var DataFlowSink = require('./data-flow-node');
-var Rendering = require('./rendering');
+var DataFlowSource = require('./data-flow-source');
+var DataFlowSink = require('./data-flow-sink');
+var Renderer = require('./rendering').Renderer;
 var PropertyHook = require('./property-hook');
 
 var Cycle = {
@@ -17271,6 +17272,20 @@ var Cycle = {
    */
   createDataFlowNode: function createDataFlowNode() {
     return DataFlowNode.apply({}, arguments);
+  },
+
+  /**
+   * Creates a DataFlowSource. It receives an object as argument, and outputs that same
+   * object, annotated as a DataFlowSource. For all practical purposes, a DataFlowSource
+   * is just a regular object with RxJS Observables, but for consistency with other
+   * components in the framework such as DataFlowNode, the returned object is an instance
+   * of DataFlowSource.
+   *
+   * @param {Object} outputObject an object containing RxJS Observables.
+   * @return {DataFlowSource} a DataFlowSource equivalent to the given outputObject
+   */
+  createDataFlowSource: function createDataFlowSource() {
+    return DataFlowSource.apply({}, arguments);
   },
 
   /**
@@ -17346,7 +17361,7 @@ var Cycle = {
    * @function createRenderer
    */
   createRenderer: function createRenderer(container) {
-    return new Rendering.Renderer(container);
+    return new Renderer(container);
   },
 
   /**
@@ -17403,7 +17418,7 @@ var Cycle = {
 
 module.exports = Cycle;
 
-},{"./create-intent":64,"./create-model":65,"./create-view":66,"./data-flow-node":68,"./property-hook":72,"./rendering":73,"rx":21,"virtual-hyperscript":45}],68:[function(require,module,exports){
+},{"./create-intent":64,"./create-model":65,"./create-view":66,"./data-flow-node":68,"./data-flow-sink":69,"./data-flow-source":70,"./property-hook":73,"./rendering":74,"rx":21,"virtual-hyperscript":45}],68:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
 var errors = require('./errors');
@@ -17506,7 +17521,7 @@ function DataFlowNode() {
 
 module.exports = DataFlowNode;
 
-},{"./errors":70,"rx":21}],69:[function(require,module,exports){
+},{"./errors":71,"rx":21}],69:[function(require,module,exports){
 'use strict';
 
 function DataFlowSink(definitionFn) {
@@ -17525,6 +17540,31 @@ function DataFlowSink(definitionFn) {
 module.exports = DataFlowSink;
 
 },{}],70:[function(require,module,exports){
+'use strict';
+
+function DataFlowSource(outputObject) {
+  if (arguments.length !== 1) {
+    throw new Error('DataFlowSource expects only one argument: the output object.');
+  }
+  if (typeof outputObject !== 'object') {
+    throw new Error('DataFlowSource expects the constructor argument to be the ' +
+      'output object.'
+    );
+  }
+  for (var key in outputObject) {
+    if (outputObject.hasOwnProperty(key)) {
+      this[key] = outputObject;
+    }
+  }
+  this.inject = function injectDataFlowSource() {
+    throw new Error('A DataFlowSource cannot be injected. Use a DataFlowNode instead.');
+  };
+  return this;
+}
+
+module.exports = DataFlowSource;
+
+},{}],71:[function(require,module,exports){
 'use strict';
 
 function CycleInterfaceError(message, missingMember) {
@@ -17555,14 +17595,14 @@ module.exports = {
   customInterfaceErrorMessageInInject: customInterfaceErrorMessageInInject
 };
 
-},{}],71:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 (function (global){
 'use strict';
 var Cycle = require('./cycle');
 global.Cycle = Cycle;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./cycle":67}],72:[function(require,module,exports){
+},{"./cycle":67}],73:[function(require,module,exports){
 'use strict';
 
 function PropertyHook(fn) {
@@ -17574,7 +17614,7 @@ PropertyHook.prototype.hook = function () {
 
 module.exports = PropertyHook;
 
-},{}],73:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 'use strict';
 
 var h = require('virtual-hyperscript');
@@ -17639,4 +17679,4 @@ module.exports = {
   delegator: delegator
 };
 
-},{"./data-flow-sink":69,"dom-delegator":6,"virtual-dom/diff":22,"virtual-dom/patch":41,"virtual-hyperscript":45}]},{},[71]);
+},{"./data-flow-sink":69,"dom-delegator":6,"virtual-dom/diff":22,"virtual-dom/patch":41,"virtual-hyperscript":45}]},{},[72]);
