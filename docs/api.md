@@ -2,6 +2,7 @@
 # `Cycle` object API
 
 - [`createDataFlowNode`](#createDataFlowNode)
+- [`createDataFlowSource`](#createDataFlowSource)
 - [`createDataFlowSink`](#createDataFlowSink)
 - [`createModel`](#createModel)
 - [`createView`](#createView)
@@ -36,6 +37,26 @@ properties.
 
 *(DataFlowNode)* a DataFlowNode, containing a `inject(inputs...)` function.
 
+- - -
+
+### <a id="createDataFlowSource"></a> `createDataFlowSource(outputObject)`
+
+Creates a DataFlowSource. It receives an object as argument, and outputs that same
+object, annotated as a DataFlowSource. For all practical purposes, a DataFlowSource
+is just a regular object with RxJS Observables, but for consistency with other
+components in the framework such as DataFlowNode, the returned object is an instance
+of DataFlowSource.
+
+#### Arguments:
+
+- `outputObject :: Object` an object containing RxJS Observables.
+
+#### Return:
+
+*(DataFlowSource)* a DataFlowSource equivalent to the given outputObject
+
+- - -
+
 ### <a id="createDataFlowSink"></a> `createDataFlowSink(definitionFn)`
 
 Creates a DataFlowSink, given a definition function that receives injected inputs.
@@ -48,6 +69,8 @@ and should return a `Rx.Disposable` subscription.
 #### Return:
 
 *(DataFlowSink)* a DataFlowSink, containing a `inject(inputs...)` function.
+
+- - -
 
 ### <a id="createModel"></a> `createModel([intentInterface], definitionFn)`
 
@@ -64,6 +87,8 @@ interfaces and multiple inputs in `definitionFn`.
 #### Return:
 
 *(DataFlowNode)* a DataFlowNode representing a Model, containing a `inject(intent)` function.
+
+- - -
 
 ### <a id="createView"></a> `createView([modelInterface], definitionFn)`
 
@@ -84,6 +109,8 @@ should be an Observable emitting instances of VTree (Virtual DOM elements).
 
 *(DataFlowNode)* a DataFlowNode representing a View, containing a `inject(model)` function.
 
+- - -
+
 ### <a id="createIntent"></a> `createIntent([viewInterface], definitionFn)`
 
 Returns a DataFlowNode representing an Intent, having some View as input.
@@ -100,6 +127,8 @@ interfaces and multiple inputs in `definitionFn`.
 
 *(DataFlowNode)* a DataFlowNode representing an Intent, containing a `inject(view)` function.
 
+- - -
+
 ### <a id="createRenderer"></a> `createRenderer(container)`
 
 Returns a Renderer (a DataFlowSink) bound to a DOM container element. Contains an
@@ -113,6 +142,8 @@ Returns a Renderer (a DataFlowSink) bound to a DOM container element. Contains a
 
 *(Renderer)* a Renderer object containing an `inject(view)` function.
 
+- - -
+
 ### <a id="circularInject"></a> `circularInject(model, view, intent)`
 
 Ties together the given input DataFlowNodes, making them be circular dependencies
@@ -125,6 +156,8 @@ used for the Model-View-Intent triple of nodes.
 - `model :: DataFlowNode` a Model node.
 - `view :: DataFlowNode` a View node.
 - `intent :: DataFlowNode` an Intent node.
+
+- - -
 
 ### <a id="vdomPropHook"></a> `vdomPropHook(fn)`
 
@@ -142,9 +175,13 @@ See https://github.com/Raynos/mercury/blob/master/docs/faq.md for more details.
 
 *(PropertyHook)* a hook
 
+- - -
+
 ### <a id="Rx"></a> `Rx`
 
 A shortcut to the root object of [RxJS](https://github.com/Reactive-Extensions/RxJS).
+
+- - -
 
 ### <a id="h"></a> `h`
 
