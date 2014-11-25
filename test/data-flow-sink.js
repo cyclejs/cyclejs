@@ -9,19 +9,13 @@ describe('DataFlowSink', function () {
     it('should throw an error when given no arguments', function () {
       assert.throws(function () {
         new DataFlowSink();
-      }, /DataFlowSink expects the definitionFn as the last argument/);
+      }, /DataFlowSink expects only one argument: the definition function/);
     });
 
-    it('should throw an error when given only interface', function () {
+    it('should throw an error when only interface', function () {
       assert.throws(function () {
         new DataFlowSink(['foo$', 'bar$']);
-      }, /DataFlowSink expects the definitionFn as the last argument/);
-    });
-
-    it('should throw an error if definitionFn doesn\'t return subscription', function () {
-      assert.throws(function () {
-        new DataFlowSink(['foo$', 'bar$'], function () {});
-      }, /DataFlowSink should always return a Rx\.Disposable/);
+      }, /DataFlowSink expects the argument to be the definition function/);
     });
   });
 
@@ -32,11 +26,22 @@ describe('DataFlowSink', function () {
     assert.strictEqual(typeof sink.inject, 'function');
   });
 
-  it('should have stubs for future inputs', function () {
+  it('should not execute the definitionFn immediately', function () {
     assert.doesNotThrow(function () {
-      new DataFlowSink(['asd$'], function (input) {
+      new DataFlowSink(function (input) {
         return input.asd$.subscribe(function () {});
       });
     });
+  });
+
+  it('should return a Rx.Disposable when injected', function () {
+    var sink = new DataFlowSink(function (input) {
+      return input.asd$.subscribe(function () {});
+    });
+    var x = sink.inject({asd$: Rx.Observable.just(3)});
+    var isDisposable = (typeof x.observer !== 'undefined') ||
+      (typeof x.m !== 'undefined' && typeof x.m.dispose === 'function') ||
+      (typeof x.subject !== 'undefined' && typeof x.subject.dispose !== 'function');
+    assert.strictEqual(isDisposable, true);
   });
 });
