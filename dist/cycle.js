@@ -17221,15 +17221,19 @@ function createView() {
     }
     delete view.events;
   }
-  view.vtree$ = view.vtree$.map(function (vtree) {
-    if (vtree.type !== 'VirtualNode' || vtree.tagName === 'undefined') {
-      throw new Error('View `vtree$` must emit only VirtualNode instances. ' +
-        'Hint: create them with Cycle.h()'
-      );
-    }
-    replaceStreamNameWithForwardFunction(vtree, view);
-    return vtree;
-  });
+  view.vtree$ = view.vtree$
+    .map(function (vtree) {
+      if (vtree.type !== 'VirtualNode' || vtree.tagName === 'undefined') {
+        throw new Error('View `vtree$` must emit only VirtualNode instances. ' +
+          'Hint: create them with Cycle.h()'
+        );
+      }
+      replaceStreamNameWithForwardFunction(vtree, view);
+      return vtree;
+    })
+    .shareReplay(1)
+  ;
+  try { view.vtree$.subscribe(function () {}); } catch (err) { }
   var originalArgs = arguments;
   view.clone = function cloneView() {
     return createView.apply({}, originalArgs);
