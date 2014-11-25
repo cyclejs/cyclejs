@@ -47,7 +47,7 @@ function renderEvery(vtree$, container) {
 }
 
 function Renderer(container) {
-  DataFlowSink.call(this, ['vtree$'], function injectIntoRenderer(view) {
+  DataFlowSink.call(this, function injectIntoRenderer(view) {
     return renderEvery(view.vtree$, container);
   });
   this.delegator = delegator;
