@@ -17204,32 +17204,48 @@ function replaceStreamNameWithForwardFunction(vtree, view) {
   }
 }
 
+function checkEventsArray(view) {
+  if (typeof view.events === 'undefined') {
+    throw new Error('View must define `events` array with names of event streams');
+  }
+}
+
+function checkVTree$(view) {
+  if (typeof view.vtree$ === 'undefined' || typeof view.vtree$.subscribe !== 'function') {
+    throw new Error('View must define `vtree$` Observable emitting virtual DOM elements');
+  }
+}
+
+function throwErrorIfNotVTree(vtree) {
+  if (vtree.type !== 'VirtualNode' || vtree.tagName === 'undefined') {
+    throw new Error('View `vtree$` must emit only VirtualNode instances. ' +
+      'Hint: create them with Cycle.h()'
+    );
+  }
+}
+
 function createView() {
   var view = DataFlowNode.apply({}, arguments);
   view = errors.customInterfaceErrorMessageInInject(view,
     'View expects Model to have the required property '
   );
-  if (typeof view.events === 'undefined') {
-    throw new Error('View must define `events` array with names of event streams');
-  }
-  if (typeof view.vtree$ === 'undefined') {
-    throw new Error('View must define `vtree$` Observable emitting virtual DOM elements');
-  }
+  checkEventsArray(view);
+  checkVTree$(view);
   if (view.events) {
     for (var i = view.events.length - 1; i >= 0; i--) {
       view[view.events[i]] = new Rx.Subject();
     }
     delete view.events;
   }
-  view.vtree$ = view.vtree$.map(function (vtree) {
-    if (vtree.type !== 'VirtualNode' || vtree.tagName === 'undefined') {
-      throw new Error('View `vtree$` must emit only VirtualNode instances. ' +
-        'Hint: create them with Cycle.h()'
-      );
-    }
-    replaceStreamNameWithForwardFunction(vtree, view);
-    return vtree;
-  });
+  view.vtree$ = view.vtree$
+    .map(function (vtree) {
+      throwErrorIfNotVTree(vtree);
+      replaceStreamNameWithForwardFunction(vtree, view);
+      return vtree;
+    })
+    .shareReplay(1)
+  ;
+  try { view.vtree$.subscribe(function () {}); } catch (err) { }
   var originalArgs = arguments;
   view.clone = function cloneView() {
     return createView.apply({}, originalArgs);

@@ -155,4 +155,28 @@ describe('Cycle', function () {
       Cycle.circularInject(node1, node2, node3, node4, node5, node6);
     });
   });
+
+  describe('Data Flow', function () {
+    it('should not require Renderer injected before MVI injection', function (done) {
+      var model = Cycle.createModel(['i$'], function () {
+        return {m$: Rx.Observable.just(2)};
+      });
+      var view = Cycle.createView(['m$'], function (model) {
+        return {
+          events: [],
+          vtree$: model.m$.map(function (x) { return Cycle.h('div', String(x)); }),
+          v$: model.m$.map(function (x) { return x * 3; })
+        };
+      });
+      var intent = Cycle.createIntent(['v$'], function (view) {
+        return {i$: view.v$.map(function (x) { return x * 5; })};
+      });
+      Cycle.circularInject(model, view, intent);
+      view.vtree$.subscribe(function (x) {
+        assert.strictEqual(x.type, 'VirtualNode');
+        done();
+      });
+      view.events = [];
+    });
+  });
 });
