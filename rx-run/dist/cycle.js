@@ -17505,7 +17505,7 @@ function DataFlowNode() {
   var output = definitionFn.apply(this, inputStubs);
   checkOutputObject(output);
   copyProperties(output, this);
-  this.inject = function () {
+  this.inject = function injectIntoDataFlowNode() {
     if (wasInjected) {
       console.warn('DataFlowNode has already been injected an input.');
     }
@@ -17665,7 +17665,7 @@ function renderEvery(vtree$, container) {
 }
 
 function Renderer(container) {
-  DataFlowSink.call(this, function injectIntoRenderer(view) {
+  DataFlowSink.call(this, ['vtree$'], function injectIntoRenderer(view) {
     return renderEvery(view.vtree$, container);
   });
   this.delegator = delegator;
