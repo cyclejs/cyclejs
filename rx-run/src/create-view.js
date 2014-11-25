@@ -60,8 +60,7 @@ function createView() {
       replaceStreamNameWithForwardFunction(vtree, view);
       return vtree;
     })
-    .multicast(new Rx.BehaviorSubject(null)).refCount()
-    .filter(function (x) { return x !== null; })
+    .shareReplay(1)
   ;
   try { view.vtree$.subscribe(function () {}); } catch (err) { }
   var originalArgs = arguments;
