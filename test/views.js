@@ -64,6 +64,26 @@ describe('createView', function () {
     }, /View must define `vtree\$` Observable/);
   });
 
+  it('should throw error if `vtree$` is not Observable', function () {
+    assert.throws(function () {
+      Cycle.createView(['foo$'], function () {
+        return {
+          vtree$: 123,
+          events: []
+        };
+      });
+    }, /View must define `vtree\$` Observable/);
+
+    assert.throws(function () {
+      Cycle.createView(['foo$'], function () {
+        return {
+          vtree$: [], // has map function but is not Observable
+          events: []
+        };
+      });
+    }, /View must define `vtree\$` Observable/);
+  });
+
   it('should throw error if `vtree$` emits a non-vtree', function () {
     var view = Cycle.createView(function () {
       return {
