@@ -12,6 +12,7 @@ function replicate(source, subject) {
       subject.onNext(x);
     },
     function replicationOnError(err) {
+      subject.onError(err);
       console.error(err);
     }
   );
