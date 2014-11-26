@@ -19,16 +19,7 @@ function isElement(o) {
   );
 }
 
-function renderEvery(vtree$, container) {
-  // Find and prepare the container
-  var domContainer = (typeof container === 'string') ?
-    document.querySelector(container) :
-    container;
-  if (typeof container === 'string' && domContainer === null) {
-    throw new Error('Couldn\'t render into unknown \'' + domContainer + '\'');
-  } else if (!isElement(domContainer)) {
-    throw new Error('Given container is not a DOM element neither a selector string.');
-  }
+function renderEvery(vtree$, domContainer) {
   domContainer.innerHTML = '';
   // Make the DOM node bound to the VDOM node
   var rootNode = document.createElement('div');
@@ -39,6 +30,9 @@ function renderEvery(vtree$, container) {
       try {
         var oldVTree = buffer[0];
         var newVTree = buffer[1];
+        if (typeof newVTree === 'undefined') {
+          return;
+        }
         rootNode = VDOM.patch(rootNode, VDOM.diff(oldVTree, newVTree));
       } catch (err) {
         console.error(err);
@@ -47,8 +41,17 @@ function renderEvery(vtree$, container) {
 }
 
 function Renderer(container) {
+  // Find and prepare the container
+  var domContainer = (typeof container === 'string') ?
+    document.querySelector(container) :
+    container;
+  if (typeof container === 'string' && domContainer === null) {
+    throw new Error('Cannot render into unknown element \'' + container + '\'');
+  } else if (!isElement(domContainer)) {
+    throw new Error('Given container is not a DOM element neither a selector string.');
+  }
   DataFlowSink.call(this, function injectIntoRenderer(view) {
-    return renderEvery(view.vtree$, container);
+    return renderEvery(view.vtree$, domContainer);
   });
   this.delegator = delegator;
 }
