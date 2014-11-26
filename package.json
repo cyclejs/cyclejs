@@ -27,7 +27,9 @@
     "jscs": "^1.6.2",
     "uglify-js": "^2.4.15",
     "mocha": "^2.0.1",
-    "markdox": "^0.1.7"
+    "markdox": "^0.1.7",
+    "mocha-phantomjs": "^3.5.1",
+    "phantomjs": "^1.9.12"
   },
   "engines": {
     "node": ">=0.10.0"
@@ -36,10 +38,18 @@
     "lint": "jshint src/ ",
     "jscs": "jscs src/",
     "test": "mocha",
-    "check": "npm run lint && npm run jscs && npm run test",
+
+    "pre-ph-test": "browserify test/phantomjs/*.js -o test/phantomjs/browserified-tests.js",
+    "run-ph-test": "mocha-phantomjs test/phantomjs/index.html",
+    "post-ph-test": "rm test/phantomjs/browserified-tests.js",
+    "phantomjs-test": "npm run pre-ph-test && npm run run-ph-test && npm run post-ph-test",
+
+    "check": "npm run lint && npm run jscs && npm run test && npm run phantomjs-test",
+
     "browserify": "browserify src/for-browserify.js --igv=Cycle -o dist/cycle.js",
     "uglify": "uglifyjs dist/cycle.js -o dist/cycle.min.js",
-    "docs": "node ./scripts/make-api-docs.js",
-    "build": "npm run browserify && npm run uglify"
+    "build": "npm run browserify && npm run uglify",
+
+    "docs": "node ./scripts/make-api-docs.js"
   }
 }
