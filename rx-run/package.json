@@ -37,14 +37,14 @@
   "scripts": {
     "lint": "jshint src/ ",
     "jscs": "jscs src/",
-    "test": "mocha",
+    "mocha": "mocha",
 
     "pre-ph-test": "browserify test/phantomjs/*.js -o test/phantomjs/browserified-tests.js",
     "run-ph-test": "mocha-phantomjs test/phantomjs/index.html",
     "post-ph-test": "rm test/phantomjs/browserified-tests.js",
-    "phantomjs-test": "npm run pre-ph-test && npm run run-ph-test && npm run post-ph-test",
+    "mocha-phantomjs": "npm run pre-ph-test && npm run run-ph-test && npm run post-ph-test",
 
-    "check": "npm run lint && npm run jscs && npm run test && npm run phantomjs-test",
+    "test": "npm run lint && npm run jscs && npm run mocha && npm run mocha-phantomjs",
 
     "browserify": "browserify src/for-browserify.js --igv=Cycle -o dist/cycle.js",
     "uglify": "uglifyjs dist/cycle.js -o dist/cycle.min.js",
