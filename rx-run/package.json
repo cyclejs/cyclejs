@@ -29,7 +29,9 @@
     "mocha": "^2.0.1",
     "markdox": "^0.1.7",
     "mocha-phantomjs": "^3.5.1",
-    "phantomjs": "^1.9.12"
+    "phantomjs": "^1.9.12",
+    "semver": "^4.1.0",
+    "execSync": "^1.0.2"
   },
   "engines": {
     "node": ">=0.10.0"
@@ -38,18 +40,18 @@
     "lint": "jshint src/ ",
     "jscs": "jscs src/",
     "mocha": "mocha",
-
     "pre-ph-test": "browserify test/phantomjs/*.js -o test/phantomjs/browserified-tests.js",
     "run-ph-test": "mocha-phantomjs test/phantomjs/index.html",
     "post-ph-test": "rm test/phantomjs/browserified-tests.js",
     "mocha-phantomjs": "npm run pre-ph-test && npm run run-ph-test && npm run post-ph-test",
-
     "test": "npm run lint && npm run jscs && npm run mocha && npm run mocha-phantomjs",
-
     "browserify": "browserify src/for-browserify.js --igv=Cycle -o dist/cycle.js",
     "uglify": "uglifyjs dist/cycle.js -o dist/cycle.min.js",
     "build": "npm run browserify && npm run uglify",
-
-    "docs": "node ./scripts/make-api-docs.js"
+    "docs": "node ./scripts/make-api-docs.js",
+    "release": "npm run release-patch",
+    "release-patch": "node ./scripts/release.js patch",
+    "release-minor": "node ./scripts/release.js minor",
+    "release-major": "node ./scripts/release.js major"
   }
 }

@@ -83,7 +83,7 @@ that lead to the creation of Cycle.js](http://futurice.com/blog/reactive-mvc-and
 It has [virtual-dom](https://github.com/Matt-Esch/virtual-dom) and [RxJS](https://github.com/Reactive-Extensions/RxJS)
 as hard dependencies. Cycle is a "glue" framework providing helpers for building the
 Model-View-Intent architecture properly with those technologies. Cycle's code itself is
-still under 300 lines of code only.
+still under 400 lines of code only.
 
 ## Why?
 
