@@ -29,9 +29,7 @@
     "mocha": "^2.0.1",
     "markdox": "^0.1.7",
     "mocha-phantomjs": "^3.5.1",
-    "phantomjs": "^1.9.12",
-    "semver": "^4.1.0",
-    "execSync": "^1.0.2"
+    "phantomjs": "^1.9.12"
   },
   "engines": {
     "node": ">=0.10.0"
@@ -50,8 +48,8 @@
     "build": "npm run browserify && npm run uglify",
     "docs": "node ./scripts/make-api-docs.js",
     "release": "npm run release-patch",
-    "release-patch": "node ./scripts/release.js patch",
-    "release-minor": "node ./scripts/release.js minor",
-    "release-major": "node ./scripts/release.js major"
+    "release-patch": "git checkout master && npm run build && npm version patch && git push origin master --tags && npm publish",
+    "release-minor": "git checkout master && npm run build && npm version minor && git push origin master --tags && npm publish",
+    "release-major": "git checkout master && npm run build && npm version major && git push origin master --tags && npm publish"
   }
 }
