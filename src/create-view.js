@@ -21,7 +21,7 @@ function replaceStreamNameWithForwardFunction(vtree, view) {
         var streamName = vtree.properties[key].value;
         if (view[streamName]) {
           vtree.properties[key].value = getFunctionForwardIntoStream(view[streamName]);
-        } else {
+        } else if (typeof streamName === 'string') {
           throw new Error('VTree uses event hook `' + streamName + '` which should ' +
             'have been defined in `events` array of the View.'
           );

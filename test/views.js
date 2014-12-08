@@ -136,4 +136,24 @@ describe('createView', function () {
       });
     });
   });
+
+  it('should work even when using combineLatest internally', function () {
+    assert.doesNotThrow(function () {
+      var view = Cycle.createView(function () {
+        var vtree1$ = Rx.Observable.just(Cycle.h('h1', {'ev-click': 'h1Clicks$'}, 'Foo'));
+        var vtree2$ = Rx.Observable.range(1,3)
+          .map(function () { return Cycle.h('h2', 'Bar'); })
+        return {
+          vtree$: Rx.Observable.combineLatest(vtree1$, vtree2$, function (a, b) {
+            return Cycle.h('div', [a, b]);
+          }),
+          events: ['h1Clicks$']
+        };
+      });
+      view.vtree$.subscribe(function (x) {
+        var noop = function noop() {};
+        noop(x);
+      });
+    });
+  });
 });
