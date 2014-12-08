@@ -10,6 +10,9 @@ function getFunctionForwardIntoStream(stream) {
 // traverse the vtree, replacing the value of 'ev-*' fields with
 // `function (ev) { view[$PREVIOUS_VALUE].onNext(ev); }`
 function replaceStreamNameWithForwardFunction(vtree, view) {
+  if (typeof vtree === 'undefined') {
+    return; // silent ignore
+  }
   if (vtree && vtree.type === 'VirtualNode' && typeof vtree.properties !== 'undefined') {
     for (var key in vtree.properties) {
       if (vtree.properties.hasOwnProperty(key) &&

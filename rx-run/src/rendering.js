@@ -1,7 +1,7 @@
 'use strict';
 
-var h = require('virtual-hyperscript');
 var VDOM = {
+  h: require('virtual-dom').h,
   diff: require('virtual-dom/diff'),
   patch: require('virtual-dom/patch')
 };
@@ -24,7 +24,7 @@ function renderEvery(vtree$, domContainer) {
   // Make the DOM node bound to the VDOM node
   var rootNode = document.createElement('div');
   domContainer.appendChild(rootNode);
-  return vtree$.startWith(h())
+  return vtree$.startWith(VDOM.h())
     .bufferWithCount(2, 1)
     .subscribe(function (buffer) {
       try {
