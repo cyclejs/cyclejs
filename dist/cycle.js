@@ -311,8 +311,6 @@ var process = module.exports = {};
 process.nextTick = (function () {
     var canSetImmediate = typeof window !== 'undefined'
     && window.setImmediate;
-    var canMutationObserver = typeof window !== 'undefined'
-    && window.MutationObserver;
     var canPost = typeof window !== 'undefined'
     && window.postMessage && window.addEventListener
     ;
@@ -321,29 +319,8 @@ process.nextTick = (function () {
         return function (f) { return window.setImmediate(f) };
     }
 
-    var queue = [];
-
-    if (canMutationObserver) {
-        var hiddenDiv = document.createElement("div");
-        var observer = new MutationObserver(function () {
-            var queueList = queue.slice();
-            queue.length = 0;
-            queueList.forEach(function (fn) {
-                fn();
-            });
-        });
-
-        observer.observe(hiddenDiv, { attributes: true });
-
-        return function nextTick(fn) {
-            if (!queue.length) {
-                hiddenDiv.setAttribute('yes', 'no');
-            }
-            queue.push(fn);
-        };
-    }
-
     if (canPost) {
+        var queue = [];
         window.addEventListener('message', function (ev) {
             var source = ev.source;
             if ((source === window || source === null) && ev.data === 'process-tick') {
@@ -383,7 +360,7 @@ process.emit = noop;
 
 process.binding = function (name) {
     throw new Error('process.binding is not supported');
-};
+}
 
 // TODO(shtylman)
 process.cwd = function () { return '/' };
@@ -944,7 +921,7 @@ function createStore() {
 
 },{"./hidden-store.js":16}],16:[function(require,module,exports){
 module.exports=require(11)
-},{"/Users/amed/Hobby/cycle/node_modules/dom-delegator/node_modules/data-set/node_modules/weakmap-shim/hidden-store.js":11}],17:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 var inherits = require("inherits")
 
 var ALL_PROPS = [
@@ -15724,15 +15701,15 @@ module.exports = {
 
 },{"./create-element.js":24,"./diff.js":25,"./h.js":26,"./patch.js":40}],28:[function(require,module,exports){
 module.exports=require(8)
-},{"/Users/amed/Hobby/cycle/node_modules/dom-delegator/node_modules/data-set/create-hash.js":8}],29:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 module.exports=require(9)
-},{"./create-hash.js":28,"/Users/amed/Hobby/cycle/node_modules/dom-delegator/node_modules/data-set/index.js":9,"individual":30,"weakmap-shim/create-store":31}],30:[function(require,module,exports){
+},{"./create-hash.js":28,"individual":30,"weakmap-shim/create-store":31}],30:[function(require,module,exports){
 module.exports=require(13)
-},{"/Users/amed/Hobby/cycle/node_modules/dom-delegator/node_modules/individual/index.js":13}],31:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 module.exports=require(10)
-},{"./hidden-store.js":32,"/Users/amed/Hobby/cycle/node_modules/dom-delegator/node_modules/data-set/node_modules/weakmap-shim/create-store.js":10}],32:[function(require,module,exports){
+},{"./hidden-store.js":32}],32:[function(require,module,exports){
 module.exports=require(11)
-},{"/Users/amed/Hobby/cycle/node_modules/dom-delegator/node_modules/data-set/node_modules/weakmap-shim/hidden-store.js":11}],33:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 module.exports = function(obj) {
     if (typeof obj === 'string') return camelCase(obj);
     return walk(obj);
@@ -15898,7 +15875,7 @@ function TypedError(args) {
 
 },{"camelize":33,"string-template":34,"xtend/mutable":35}],37:[function(require,module,exports){
 module.exports=require(12)
-},{"/Users/amed/Hobby/cycle/node_modules/dom-delegator/node_modules/global/document.js":12,"min-document":1}],38:[function(require,module,exports){
+},{"min-document":1}],38:[function(require,module,exports){
 module.exports = isObject
 
 function isObject(x) {
