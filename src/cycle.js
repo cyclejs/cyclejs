@@ -1,5 +1,5 @@
 'use strict';
-var h = require('virtual-hyperscript');
+var VirtualDOM = require('virtual-dom');
 var Rx = require('rx');
 var DataFlowNode = require('./data-flow-node');
 var DataFlowSource = require('./data-flow-source');
@@ -167,11 +167,12 @@ var Cycle = {
   Rx: Rx,
 
   /**
-   * A shortcut to [virtual-hyperscript](https://github.com/Raynos/virtual-hyperscript).
+   * A shortcut to [virtual-hyperscript](
+   * https://github.com/Matt-Esch/virtual-dom/tree/master/virtual-hyperscript).
    * This is a helper for creating VTrees in Views.
    * @name h
    */
-  h: h
+  h: VirtualDOM.h
 };
 
 module.exports = Cycle;

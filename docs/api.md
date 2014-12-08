@@ -185,6 +185,7 @@ A shortcut to the root object of [RxJS](https://github.com/Reactive-Extensions/R
 
 ### <a id="h"></a> `h`
 
-A shortcut to [virtual-hyperscript](https://github.com/Raynos/virtual-hyperscript).
+A shortcut to [virtual-hyperscript](
+https://github.com/Matt-Esch/virtual-dom/tree/master/virtual-hyperscript).
 This is a helper for creating VTrees in Views.
 

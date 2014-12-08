@@ -113,4 +113,27 @@ describe('createView', function () {
       });
     }, /VTree uses event hook \`[^\`]*\` which should have been defined/);
   });
+
+  it('should silently ignore undefined vtree children', function () {
+    assert.doesNotThrow(function () {
+      var view = Cycle.createView(function () {
+        return {
+          vtree$: Rx.Observable.just(Cycle.h('div', [
+            Cycle.h('div', 'a'),
+            Cycle.h('div', 'b'),
+            Cycle.h('div', 'c')
+          ]))
+          .map(function (vtree) {
+            vtree.children.length = 4;
+            return vtree;
+          }),
+          events: []
+        };
+      });
+      view.vtree$.subscribe(function (x) {
+        var noop = function noop() {};
+        noop(x);
+      });
+    });
+  });
 });
