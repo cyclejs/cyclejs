@@ -11,6 +11,7 @@ function DataFlowSink(definitionFn) {
   this.inject = function injectIntoDataFlowSink() {
     return definitionFn.apply({}, arguments);
   };
+  return this;
 }
 
 module.exports = DataFlowSink;
