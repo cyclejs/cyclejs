@@ -3,6 +3,9 @@
 var assert = require('assert');
 var Rx = require('rx');
 var Cycle = require('../src/cycle');
+var DataFlowSource = require('../src/data-flow-source.js');
+var DataFlowNode = require('../src/data-flow-node.js');
+var DataFlowSink = require('../src/data-flow-sink.js');
 
 describe('Cycle', function () {
   describe('API', function () {
@@ -177,6 +180,33 @@ describe('Cycle', function () {
         done();
       });
       view.events = [];
+    });
+  });
+
+  describe('createDataFlowSource', function () {
+    it('should return a DataFlowSource', function () {
+      var sink = Cycle.createDataFlowSource({});
+      assert.strictEqual(typeof sink, 'object');
+      assert.strictEqual(typeof sink.inject, 'function');
+      assert.strictEqual(sink instanceof DataFlowSource, true);
+    });
+  });
+
+  describe('createDataFlowNode', function () {
+    it('should return a DataFlowNode', function () {
+      var sink = Cycle.createDataFlowNode(function () { return {}; });
+      assert.strictEqual(typeof sink, 'object');
+      assert.strictEqual(typeof sink.inject, 'function');
+      assert.strictEqual(sink instanceof DataFlowNode, true);
+    });
+  });
+
+  describe('createDataFlowSink', function () {
+    it('should return a DataFlowSink', function () {
+      var sink = Cycle.createDataFlowSink(function () {});
+      assert.strictEqual(typeof sink, 'object');
+      assert.strictEqual(typeof sink.inject, 'function');
+      assert.strictEqual(sink instanceof DataFlowSink, true);
     });
   });
 });
