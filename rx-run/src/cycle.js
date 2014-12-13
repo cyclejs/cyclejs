@@ -29,7 +29,12 @@ var Cycle = {
    * @return {DataFlowNode} a DataFlowNode, containing a `inject(inputs...)` function.
    */
   createDataFlowNode: function createDataFlowNode() {
-    return DataFlowNode.apply({}, arguments);
+    var args = arguments;
+    function F() {
+      return DataFlowNode.apply(this, args);
+    }
+    F.prototype = DataFlowNode.prototype;
+    return new F();
   },
 
   /**
@@ -43,7 +48,12 @@ var Cycle = {
    * @return {DataFlowSource} a DataFlowSource equivalent to the given outputObject
    */
   createDataFlowSource: function createDataFlowSource() {
-    return DataFlowSource.apply({}, arguments);
+    var args = arguments;
+    function F() {
+      return DataFlowSource.apply(this, args);
+    }
+    F.prototype = DataFlowSource.prototype;
+    return new F();
   },
 
   /**
@@ -55,7 +65,12 @@ var Cycle = {
    * @return {DataFlowSink} a DataFlowSink, containing a `inject(inputs...)` function.
    */
   createDataFlowSink: function createDataFlowSink() {
-    return DataFlowSink.apply({}, arguments);
+    var args = arguments;
+    function F() {
+      return DataFlowSink.apply(this, args);
+    }
+    F.prototype = DataFlowSink.prototype;
+    return new F();
   },
 
   /**
