@@ -112,7 +112,7 @@ are a couple of strong reasons:
 ## Community
 
 * Ask "_how do I...?_" questions in Gitter: <br />[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/staltz/cycle?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-* Propose significant changes as a pull request
+* Propose and discuss significant changes as a GitHub issues
 
 ## Disclaimer
 
