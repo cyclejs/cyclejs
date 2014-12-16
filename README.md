@@ -1,5 +1,7 @@
 # Cycle
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/staltz/cycle?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 > A web application framework using the Reactive Model-View-Intent architecture and Virtual
 DOM Rendering.
 
