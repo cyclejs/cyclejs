@@ -1,4 +1,6 @@
-# Cycle
+<h1>
+<img src=”https://raw.github.com/staltz/cycle/master/logo.png” width=”64px” /> Cycle.js
+</h1>
 
 > A web application framework using the Reactive Model-View-Intent architecture and Virtual
 DOM Rendering.
@@ -81,8 +83,8 @@ however there are several differences worth paying attention. Read the [seminal 
 that lead to the creation of Cycle.js](http://futurice.com/blog/reactive-mvc-and-the-virtual-dom).
 
 It has [virtual-dom](https://github.com/Matt-Esch/virtual-dom) and [RxJS](https://github.com/Reactive-Extensions/RxJS)
-as hard dependencies. Cycle is a "glue" framework providing helpers for building the
-Model-View-Intent architecture properly with those technologies. Cycle's code itself is
+as hard dependencies. Cycle.js is a "glue" framework providing helpers for building the
+Model-View-Intent architecture properly with those technologies. Cycle.js's code itself is
 still under 400 lines of code only.
 
 ## Why?
@@ -109,7 +111,7 @@ are a couple of strong reasons:
 
 ## Disclaimer
 
-Cycle is in alpha mode, many changes to the API will likely occur before v1.0 is released.
+Cycle.js is in alpha mode, many changes to the API will likely occur before v1.0 is released.
 Use this framework only for experiments before that. PS: we don't want to stay as alpha
 forever, either. ;)
 
