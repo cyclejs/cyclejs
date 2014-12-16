@@ -25,6 +25,7 @@
     "CONTRIBUTING.md",
     "src",
     "package.json",
+    "logo.png",
     "test",
     "tests"
   ]
