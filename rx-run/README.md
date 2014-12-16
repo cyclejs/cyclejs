@@ -1,5 +1,5 @@
 <h1>
-<img src=”https://raw.github.com/staltz/cycle/master/logo.png” width=”64px” /> Cycle.js
+<img src="https://raw.github.com/staltz/cycle/master/logo.png" width="64px" /> Cycle.js
 </h1>
 
 > A web application framework using the Reactive Model-View-Intent architecture and Virtual
