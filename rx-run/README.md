@@ -28,6 +28,9 @@ DOM Rendering.
 ## Example
 
 ```javascript
+var Cycle = require('cyclejs');
+var h = Cycle.h;
+
 var HelloModel = Cycle.createModel(['changeName$'], function (intent) {
   return {name$: intent.changeName$.startWith('')};
 });
@@ -36,14 +39,13 @@ var HelloView = Cycle.createView(['name$'], function (model) {
   return {
     vtree$: model.name$
       .map(function (name) {
-        return Cycle.h('div', {}, [
-          Cycle.h('label', 'Name:'),
-          Cycle.h('input', {
+        return h('div', {}, [
+          h('label', 'Name:'),
+          h('input', {
             'attributes': {'type': 'text'},
             'ev-input': 'inputText$'
           }),
-          Cycle.h('hr'),
-          Cycle.h('h1', 'Hello ' + name)
+          h('h1', 'Hello ' + name)
         ]);
       }),
     events: ['inputText$']
