@@ -17324,6 +17324,7 @@ function createView() {
   }
   view.vtree$ = view.vtree$
     .map(function (vtree) {
+      if (vtree.type === 'Widget') { return vtree; }
       throwErrorIfNotVTree(vtree);
       replaceStreamNameWithForwardFunction(vtree, view);
       return vtree;
@@ -17530,7 +17531,9 @@ var Cycle = {
    * This is a helper for creating VTrees in Views.
    * @name h
    */
-  h: VirtualDOM.h
+  h: VirtualDOM.h,
+
+  VirtualDOM: VirtualDOM
 };
 
 module.exports = Cycle;
