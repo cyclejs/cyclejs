@@ -187,7 +187,9 @@ var Cycle = {
    * This is a helper for creating VTrees in Views.
    * @name h
    */
-  h: VirtualDOM.h
+  h: VirtualDOM.h,
+
+  VirtualDOM: VirtualDOM
 };
 
 module.exports = Cycle;
