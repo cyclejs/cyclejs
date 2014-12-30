@@ -9,6 +9,7 @@
 - [`createIntent`](#createIntent)
 - [`createRenderer`](#createRenderer)
 - [`circularInject`](#circularInject)
+- [`registerCustomElement`](#registerCustomElement)
 - [`vdomPropHook`](#vdomPropHook)
 - [`Rx`](#Rx)
 - [`h`](#h)
@@ -156,6 +157,21 @@ used for the Model-View-Intent triple of nodes.
 - `model :: DataFlowNode` a Model node.
 - `view :: DataFlowNode` a View node.
 - `intent :: DataFlowNode` an Intent node.
+
+- - -
+
+### <a id="registerCustomElement"></a> `registerCustomElement(tagName, dataFlowNode)`
+
+Informs Cycle to recognize the given `tagName` as a custom element implemented
+as `dataFlowNode`, whenever `tagName` is used in VTrees in Views. The given
+`dataFlowNode` must export a `vtree$` Observable. If the `dataFlowNode` expects
+Observable `foo$` as input, then the custom element's attribute named `foo` will
+be injected automatically by Cycle into `foo$`.
+
+#### Arguments:
+
+- `tagName :: String` a name for identifying the custom element.
+- `dataFlowNode :: DataFlowNode` the implementation of the custom element.
 
 - - -
 
