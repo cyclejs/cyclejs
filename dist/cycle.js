@@ -17880,16 +17880,16 @@ function renderEvery(vtree$, domContainer, Cycle) {
     })
     .bufferWithCount(2, 1)
     .subscribe(function renderDiffAndPatch(buffer) {
-      // try {
-      var oldVTree = buffer[0];
-      var newVTree = buffer[1];
-      if (typeof newVTree === 'undefined') {
-        return;
+      try {
+        var oldVTree = buffer[0];
+        var newVTree = buffer[1];
+        if (typeof newVTree === 'undefined') {
+          return;
+        }
+        rootNode = VDOM.patch(rootNode, VDOM.diff(oldVTree, newVTree));
+      } catch (err) {
+        console.error(err);
       }
-      rootNode = VDOM.patch(rootNode, VDOM.diff(oldVTree, newVTree));
-      // } catch (err) {
-      //   console.error(err);
-      // }
     });
 }
 
