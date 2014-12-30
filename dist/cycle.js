@@ -17325,7 +17325,7 @@ function createView() {
   view.vtree$ = view.vtree$
     .map(function (vtree) {
       if (vtree.type === 'Widget') { return vtree; }
-      throwErrorIfNotVTree(vtree);
+      throwErrorIfNotVTree(vtree); // TODO consider also widgets!
       replaceStreamNameWithForwardFunction(vtree, view);
       return vtree;
     })
@@ -17531,9 +17531,7 @@ var Cycle = {
    * This is a helper for creating VTrees in Views.
    * @name h
    */
-  h: VirtualDOM.h,
-
-  VirtualDOM: VirtualDOM
+  h: VirtualDOM.h
 };
 
 module.exports = Cycle;
@@ -17625,6 +17623,7 @@ function DataFlowNode() {
   var output = definitionFn.apply(this, inputStubs);
   checkOutputObject(output);
   copyProperties(output, this);
+  this.inputInterfaces = interfaces;
   this.inject = function injectIntoDataFlowNode() {
     if (wasInjected) {
       console.warn('DataFlowNode has already been injected an input.');
