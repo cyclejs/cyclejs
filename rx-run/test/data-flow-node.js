@@ -29,10 +29,12 @@ describe('DataFlowNode', function () {
       assert.equal(typeof dataFlowNode, 'object');
     });
 
-    it('should return an object with .clone() and .inject()', function () {
+    it('should return an object with clone(), inject(), inputInterfaces', function () {
       var dataFlowNode = new DataFlowNode([], function () { return {}; });
       assert.equal(typeof dataFlowNode.clone, 'function');
       assert.equal(typeof dataFlowNode.inject, 'function');
+      assert.equal(typeof dataFlowNode.inputInterfaces, 'object');
+      assert.equal(Array.isArray(dataFlowNode.inputInterfaces), true);
     });
   });
 

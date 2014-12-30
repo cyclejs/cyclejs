@@ -71,7 +71,8 @@ function createView() {
   }
   view.vtree$ = view.vtree$
     .map(function (vtree) {
-      throwErrorIfNotVTree(vtree);
+      if (vtree.type === 'Widget') { return vtree; }
+      throwErrorIfNotVTree(vtree); // TODO consider also widgets!
       replaceStreamNameWithForwardFunction(vtree, view);
       return vtree;
     })
