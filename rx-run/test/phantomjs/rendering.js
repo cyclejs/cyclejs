@@ -7,9 +7,15 @@ var Rx = Cycle.Rx;
 describe('Rendering', function () {
   this.timeout(6000);
 
+  beforeEach(function () {
+    Cycle._customElements = null;
+    var testDivs = Array.prototype.slice.call(document.querySelectorAll('.test'));
+    testDivs.forEach(function (x) { x.remove(); });
+  });
+
   describe('Cycle.createRenderer', function () {
     it('should accept a DOM element as input', function () {
-      var element = document.createElement('div');
+      var element = document.createElement('div.test');
       assert.doesNotThrow(function () {
         Cycle.createRenderer(element);
       });
@@ -17,7 +23,7 @@ describe('Rendering', function () {
 
     it('should accept a string selector to an existing element as input', function () {
       var id = 'testShouldAcceptSelectorToExisting';
-      var element = document.createElement('div');
+      var element = document.createElement('div.test');
       element.id = id;
       document.body.appendChild(element);
       assert.doesNotThrow(function () {
@@ -40,7 +46,7 @@ describe('Rendering', function () {
 
   describe('Renderer', function () {
     it('should convert a simple virtual-dom <select> to DOM element', function () {
-      var element = document.createElement('div');
+      var element = document.createElement('div.test');
       document.body.appendChild(element);
       var view = {
         vtree$: Rx.Observable.just(Cycle.h('select.my-class', [
