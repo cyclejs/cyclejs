@@ -311,6 +311,8 @@ var process = module.exports = {};
 process.nextTick = (function () {
     var canSetImmediate = typeof window !== 'undefined'
     && window.setImmediate;
+    var canMutationObserver = typeof window !== 'undefined'
+    && window.MutationObserver;
     var canPost = typeof window !== 'undefined'
     && window.postMessage && window.addEventListener
     ;
@@ -319,8 +321,29 @@ process.nextTick = (function () {
         return function (f) { return window.setImmediate(f) };
     }
 
+    var queue = [];
+
+    if (canMutationObserver) {
+        var hiddenDiv = document.createElement("div");
+        var observer = new MutationObserver(function () {
+            var queueList = queue.slice();
+            queue.length = 0;
+            queueList.forEach(function (fn) {
+                fn();
+            });
+        });
+
+        observer.observe(hiddenDiv, { attributes: true });
+
+        return function nextTick(fn) {
+            if (!queue.length) {
+                hiddenDiv.setAttribute('yes', 'no');
+            }
+            queue.push(fn);
+        };
+    }
+
     if (canPost) {
-        var queue = [];
         window.addEventListener('message', function (ev) {
             var source = ev.source;
             if ((source === window || source === null) && ev.data === 'process-tick') {
@@ -360,7 +383,7 @@ process.emit = noop;
 
 process.binding = function (name) {
     throw new Error('process.binding is not supported');
-}
+};
 
 // TODO(shtylman)
 process.cwd = function () { return '/' };
@@ -920,8 +943,8 @@ function createStore() {
 }
 
 },{"./hidden-store.js":16}],16:[function(require,module,exports){
-module.exports=require(11)
-},{}],17:[function(require,module,exports){
+arguments[4][11][0].apply(exports,arguments)
+},{"dup":11}],17:[function(require,module,exports){
 var inherits = require("inherits")
 
 var ALL_PROPS = [
@@ -15996,16 +16019,16 @@ module.exports = {
 }
 
 },{"./create-element.js":24,"./diff.js":25,"./h.js":26,"./patch.js":40}],28:[function(require,module,exports){
-module.exports=require(8)
-},{}],29:[function(require,module,exports){
-module.exports=require(9)
-},{"./create-hash.js":28,"individual":30,"weakmap-shim/create-store":31}],30:[function(require,module,exports){
-module.exports=require(13)
-},{}],31:[function(require,module,exports){
-module.exports=require(10)
-},{"./hidden-store.js":32}],32:[function(require,module,exports){
-module.exports=require(11)
-},{}],33:[function(require,module,exports){
+arguments[4][8][0].apply(exports,arguments)
+},{"dup":8}],29:[function(require,module,exports){
+arguments[4][9][0].apply(exports,arguments)
+},{"./create-hash.js":28,"dup":9,"individual":30,"weakmap-shim/create-store":31}],30:[function(require,module,exports){
+arguments[4][13][0].apply(exports,arguments)
+},{"dup":13}],31:[function(require,module,exports){
+arguments[4][10][0].apply(exports,arguments)
+},{"./hidden-store.js":32,"dup":10}],32:[function(require,module,exports){
+arguments[4][11][0].apply(exports,arguments)
+},{"dup":11}],33:[function(require,module,exports){
 module.exports = function(obj) {
     if (typeof obj === 'string') return camelCase(obj);
     return walk(obj);
@@ -16170,13 +16193,13 @@ function TypedError(args) {
 
 
 },{"camelize":33,"string-template":34,"xtend/mutable":35}],37:[function(require,module,exports){
-module.exports=require(12)
-},{"min-document":1}],38:[function(require,module,exports){
-module.exports = isObject
+arguments[4][12][0].apply(exports,arguments)
+},{"dup":12,"min-document":1}],38:[function(require,module,exports){
+"use strict";
 
-function isObject(x) {
-    return typeof x === "object" && x !== null
-}
+module.exports = function isObject(x) {
+	return typeof x === "object" && x !== null;
+};
 
 },{}],39:[function(require,module,exports){
 var nativeIsArray = Array.isArray
@@ -17156,6 +17179,7 @@ function walk(a, b, patch, index) {
     }
 
     var apply = patch[index]
+    var applyClear = false
 
     if (isThunk(a) || isThunk(b)) {
         thunks(a, b, patch, index)
@@ -17182,27 +17206,22 @@ function walk(a, b, patch, index) {
                 }
                 apply = diffChildren(a, b, patch, apply, index)
             } else {
-                clearState(a, patch, index)
-                apply = patch[index]
                 apply = appendPatch(apply, new VPatch(VPatch.VNODE, a, b))
+                applyClear = true
             }
         } else {
-            clearState(a, patch, index)
-            apply = patch[index]
             apply = appendPatch(apply, new VPatch(VPatch.VNODE, a, b))
+            applyClear = true
         }
     } else if (isVText(b)) {
         if (!isVText(a)) {
-            clearState(a, patch, index)
-            apply = patch[index]
-            apply = appendPatch(apply, new VPatch(VPatch.VTEXT, a, b))
+            applyClear = true
         } else if (a.text !== b.text) {
             apply = appendPatch(apply, new VPatch(VPatch.VTEXT, a, b))
         }
     } else if (isWidget(b)) {
         if (!isWidget(a)) {
-            clearState(a, patch, index)
-            apply = patch[index]
+            applyClear = true;
         }
 
         apply = appendPatch(apply, new VPatch(VPatch.WIDGET, a, b))
@@ -17210,6 +17229,10 @@ function walk(a, b, patch, index) {
 
     if (apply) {
         patch[index] = apply
+    }
+
+    if (applyClear) {
+        clearState(a, patch, index)
     }
 }
 
