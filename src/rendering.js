@@ -21,7 +21,7 @@ function isElement(o) {
 function replaceCustomElements(vtree, Cycle) {
   // Silently ignore corner cases
   if (!vtree || !Cycle._customElements || !Array.isArray(vtree.children)) {
-    return;
+    return vtree;
   }
   // Replace vtree itself
   if (Cycle._customElements.hasOwnProperty(vtree.tagName)) {
