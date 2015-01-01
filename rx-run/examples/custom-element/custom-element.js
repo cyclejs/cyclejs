@@ -85,7 +85,7 @@ var View = Cycle.createView(['color$', 'tickerExists$'], function (model) {
 
 var Intent = Cycle.createIntent(['removeTicker$'], function (view) {
   return {removeTicker$: view.removeTicker$};
-})
+});
 
 Cycle.createRenderer('.js-container').inject(View);
 Intent.inject(View);
