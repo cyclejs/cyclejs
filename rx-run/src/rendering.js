@@ -29,14 +29,7 @@ function replaceCustomElements(vtree, Cycle) {
   }
   // Or replace children recursively
   for (var i = vtree.children.length - 1; i >= 0; i--) {
-    var tagName = vtree.children[i].tagName;
-    if (Cycle._customElements.hasOwnProperty(tagName)) {
-      vtree.children[i] = new Cycle._customElements[tagName](
-        vtree.children[i].properties.attributes
-      );
-    } else {
-      replaceCustomElements(vtree.children[i], Cycle);
-    }
+    vtree.children[i] = replaceCustomElements(vtree.children[i], Cycle);
   }
   return vtree;
 }
