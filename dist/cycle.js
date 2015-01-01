@@ -18003,7 +18003,7 @@ function DataFlowSource(outputObject) {
   }
   for (var key in outputObject) {
     if (outputObject.hasOwnProperty(key)) {
-      this[key] = outputObject;
+      this[key] = outputObject[key];
     }
   }
   this.inject = function injectDataFlowSource() {
@@ -18262,11 +18262,11 @@ function renderEvery(vtree$, domContainer, Cycle) {
     .map(function renderingPreprocessing(vtree) {
       return replaceEventHandlersInVTrees(replaceCustomElements(vtree, Cycle));
     })
-    .bufferWithCount(2, 1)
-    .subscribe(function renderDiffAndPatch(buffer) {
+    .pairwise()
+    .subscribe(function renderDiffAndPatch(pair) {
       try {
-        var oldVTree = buffer[0];
-        var newVTree = buffer[1];
+        var oldVTree = pair[0];
+        var newVTree = pair[1];
         if (typeof newVTree === 'undefined') {
           return;
         }
