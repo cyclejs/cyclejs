@@ -3,24 +3,20 @@ var Rx = require('rx');
 var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
 
-function getFunctionForwardIntoStream(stream) {
-  return function forwardIntoStream(ev) { stream.onNext(ev); };
-}
-
 // traverse the vtree, replacing the value of 'ev-*' fields with
 // `function (ev) { view[$PREVIOUS_VALUE].onNext(ev); }`
-function replaceStreamNameWithForwardFunction(vtree, view) {
-  if (typeof vtree === 'undefined') {
+function replaceStreamNameWithStream(vtree, view) {
+  if (!vtree) {
     return; // silent ignore
   }
-  if (vtree && vtree.type === 'VirtualNode' && typeof vtree.properties !== 'undefined') {
+  if (vtree.type === 'VirtualNode' && typeof vtree.properties !== 'undefined') {
     for (var key in vtree.properties) {
       if (vtree.properties.hasOwnProperty(key) &&
         typeof key === 'string' && key.search(/^ev\-/) === 0)
       {
         var streamName = vtree.properties[key].value;
         if (view[streamName]) {
-          vtree.properties[key].value = getFunctionForwardIntoStream(view[streamName]);
+          vtree.properties[key].value = view[streamName];
         } else if (typeof streamName === 'string') {
           throw new Error('VTree uses event hook `' + streamName + '` which should ' +
             'have been defined in `events` array of the View.'
@@ -31,7 +27,7 @@ function replaceStreamNameWithForwardFunction(vtree, view) {
   }
   if (Array.isArray(vtree.children)) {
     for (var i = 0; i < vtree.children.length; i++) {
-      replaceStreamNameWithForwardFunction(vtree.children[i], view);
+      replaceStreamNameWithStream(vtree.children[i], view);
     }
   }
 }
@@ -72,8 +68,8 @@ function createView() {
   view.vtree$ = view.vtree$
     .map(function (vtree) {
       if (vtree.type === 'Widget') { return vtree; }
-      throwErrorIfNotVTree(vtree); // TODO consider also widgets!
-      replaceStreamNameWithForwardFunction(vtree, view);
+      throwErrorIfNotVTree(vtree);
+      replaceStreamNameWithStream(vtree, view);
       return vtree;
     })
     .shareReplay(1)

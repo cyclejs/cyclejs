@@ -1,18 +1,18 @@
 'use strict';
 var Rx = require('rx');
 
-function makeConstructor() {
-  return function customElementConstructor(attributes) {
-    this.type = 'Widget';
-    this.attributes = {};
-    if (!!attributes) {
-      for (var prop in attributes) {
-        if (attributes.hasOwnProperty(prop)) {
-          this.attributes[prop] = attributes[prop];
-        }
-      }
+function getEventsOrigDestMap(vtree) {
+  var map = {};
+  for (var key in vtree.properties) {
+    if (vtree.properties.hasOwnProperty(key) &&
+      typeof key === 'string' && key.search(/^ev\-/) === 0)
+    {
+      var originStreamName = key.replace(/^ev\-/, '').concat('$');
+      var destinationStream = vtree.properties[key].value;
+      map[originStreamName] = destinationStream;
     }
-  };
+  }
+  return map;
 }
 
 function createStubsForInterface(interfaceArray) {
@@ -35,11 +35,59 @@ function createContainerElement(tagName, dataFlowNode) {
   return elem;
 }
 
+function endsWithDolarSign(str) {
+  if (typeof str !== 'string') {
+    return false;
+  }
+  return str.indexOf('$', str.length - 1) !== -1;
+}
+
+function getOriginEventStreams(dataFlowNode) {
+  var events = {};
+  for (var prop in dataFlowNode) {
+    if (dataFlowNode.hasOwnProperty(prop) &&
+      endsWithDolarSign(prop) &&
+      prop !== 'vtree$')
+    {
+      events[prop] = dataFlowNode[prop];
+    }
+  }
+  return events;
+}
+
+function subscribeAndForward(origin$, destination$) {
+  origin$.subscribe(
+    function onNextWidgetEvent(x) { destination$.onNext(x); },
+    function onErrorWidgetEvent(e) { destination$.onError(e); },
+    function onCompletedWidgetEvent() { destination$.onCompleted(); }
+  );
+}
+
+function forwardOriginEventsToDestinations(events, origDestMap) {
+  for (var originStreamName in events) {
+    if (events.hasOwnProperty(originStreamName) &&
+      origDestMap.hasOwnProperty(originStreamName))
+    {
+      subscribeAndForward(events[originStreamName], origDestMap[originStreamName]);
+    }
+  }
+}
+
+function makeConstructor() {
+  return function customElementConstructor(vtree) {
+    this.type = 'Widget';
+    this.attributes = vtree.properties.attributes;
+    this.eventsOrigDestMap = getEventsOrigDestMap(vtree);
+  };
+}
+
 function makeInit(Cycle, tagName, dataFlowNode) {
   return function initCustomElement() {
     var dfn = dataFlowNode.clone();
     var elem = createContainerElement(tagName, dfn);
     var renderer = Cycle.createRenderer(elem);
+    var events = getOriginEventStreams(dfn);
+    forwardOriginEventsToDestinations(events, this.eventsOrigDestMap);
     renderer.inject(dfn);
     dfn.inject(elem.cycleCustomElementAttributes);
     this.update(null, elem);

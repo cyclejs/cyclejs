@@ -138,4 +138,36 @@ describe('Custom Elements', function () {
     assert.notStrictEqual(typeof myElement2, 'undefined');
     assert.strictEqual(myElement2.tagName, 'H2');
   });
+
+  it('should catch interaction events coming from a custom element', function (done) {
+    // Make simple custom element
+    var dfn = Cycle.createDataFlowNode(function () {
+      return {
+        vtree$: Rx.Observable.just(Cycle.h('h3.myelementclass')),
+        myevent$: Rx.Observable.just(123).delay(100)
+      };
+    });
+    Cycle.registerCustomElement('myelement', dfn);
+    // Use the custom element
+    var viewContainerElem = document.createElement('div.test');
+    document.body.appendChild(viewContainerElem);
+    var view = Cycle.createView(function () {
+      return {
+        events: ['myelementEvents$'],
+        vtree$: Rx.Observable.just(
+          Cycle.h('myelement', {'ev-myevent': 'myelementEvents$'})
+        )
+      };
+    });
+    Cycle.createRenderer(viewContainerElem).inject(view);
+    // Make assertions
+    var myElement = document.querySelector('.myelementclass');
+    assert.notStrictEqual(myElement, null);
+    assert.notStrictEqual(typeof myElement, 'undefined');
+    assert.strictEqual(myElement.tagName, 'H3');
+    view.myelementEvents$.subscribe(function (x) {
+      assert.strictEqual(x, 123);
+      done();
+    });
+  });
 });

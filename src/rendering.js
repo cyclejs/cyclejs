@@ -25,11 +25,39 @@ function replaceCustomElements(vtree, Cycle) {
   }
   // Replace vtree itself
   if (Cycle._customElements.hasOwnProperty(vtree.tagName)) {
-    return new Cycle._customElements[vtree.tagName](vtree.properties.attributes);
+    return new Cycle._customElements[vtree.tagName](vtree);
   }
   // Or replace children recursively
   for (var i = vtree.children.length - 1; i >= 0; i--) {
     vtree.children[i] = replaceCustomElements(vtree.children[i], Cycle);
+  }
+  return vtree;
+}
+
+function getFunctionForwardIntoStream(stream) {
+  return function forwardIntoStream(ev) { stream.onNext(ev); };
+}
+
+function replaceEventHandlersInVTrees(vtree) {
+  if (!vtree) {
+    return vtree; // silently ignore
+  }
+  if (vtree.type === 'VirtualNode') {
+    for (var key in vtree.properties) {
+      if (vtree.properties.hasOwnProperty(key) &&
+        typeof key === 'string' && key.search(/^ev\-/) === 0)
+      {
+        var stream = vtree.properties[key].value;
+        if (stream) {
+          vtree.properties[key].value = getFunctionForwardIntoStream(stream);
+        }
+      }
+    }
+  }
+  if (Array.isArray(vtree.children)) {
+    for (var i = 0; i < vtree.children.length; i++) {
+      vtree.children[i] = replaceEventHandlersInVTrees(vtree.children[i]);
+    }
   }
   return vtree;
 }
@@ -39,8 +67,8 @@ function renderEvery(vtree$, domContainer, Cycle) {
   domContainer.innerHTML = '';
   domContainer.appendChild(rootNode);
   return vtree$.startWith(VDOM.h())
-    .map(function replaceCustomElementsBeforeRendering(vtree) {
-      return replaceCustomElements(vtree, Cycle);
+    .map(function renderingPreprocessing(vtree) {
+      return replaceEventHandlersInVTrees(replaceCustomElements(vtree, Cycle));
     })
     .bufferWithCount(2, 1)
     .subscribe(function renderDiffAndPatch(buffer) {
