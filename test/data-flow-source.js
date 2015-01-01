@@ -16,6 +16,12 @@ describe('DataFlowSource', function () {
         new DataFlowSource({foo: 'bar'}, 'baz');
       }, /DataFlowSource expects only one argument: the output object/);
     });
+
+    it('should copy keys from the input object to itself', function () {
+      var source = new DataFlowSource({foo: 'bar', baz: 'qux'});
+      assert.equal(source.foo, 'bar');
+      assert.equal(source.baz, 'qux');
+    });
   });
 
   it('might have an inject function', function () {
