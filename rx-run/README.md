@@ -14,7 +14,7 @@ DOM Rendering.
 * **Virtual DOM Rendering**: Views re-render completely whenever Models emit any event.
   The use of [virtual-dom](https://github.com/Matt-Esch/virtual-dom) keeps performance
   optimal by patching the actual DOM with only the minimum necessary changes.
-* **MVI is functional**: each component in the MVI cycle behaves like a function,
+* **MVI is functional**: each node in the MVI cycle behaves like a function,
   receiving events as input, and outputting events. No side effects. This makes it
   convenient for composing with other components, or for automating tests.
 
@@ -117,6 +117,8 @@ are a couple of strong reasons:
 * Propose and discuss significant changes as a GitHub issues
 
 ## Disclaimer
+
+### Work in progress
 
 Cycle.js is in alpha mode, many changes to the API will likely occur before v1.0 is released.
 Use this framework only for experiments before that. PS: we don't want to stay as alpha
