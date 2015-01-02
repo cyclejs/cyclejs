@@ -20,7 +20,7 @@ function isElement(o) {
 
 function replaceCustomElements(vtree, Cycle) {
   // Silently ignore corner cases
-  if (!vtree || !Cycle._customElements || !Array.isArray(vtree.children)) {
+  if (!vtree || !Cycle._customElements) {
     return vtree;
   }
   // Replace vtree itself
@@ -28,8 +28,10 @@ function replaceCustomElements(vtree, Cycle) {
     return new Cycle._customElements[vtree.tagName](vtree);
   }
   // Or replace children recursively
-  for (var i = vtree.children.length - 1; i >= 0; i--) {
-    vtree.children[i] = replaceCustomElements(vtree.children[i], Cycle);
+  if (Array.isArray(vtree.children)) {
+    for (var i = vtree.children.length - 1; i >= 0; i--) {
+      vtree.children[i] = replaceCustomElements(vtree.children[i], Cycle);
+    }
   }
   return vtree;
 }

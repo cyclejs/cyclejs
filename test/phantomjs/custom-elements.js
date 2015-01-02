@@ -9,8 +9,10 @@ describe('Custom Elements', function () {
 
   beforeEach(function () {
     Cycle._customElements = null;
-    var testDivs = Array.prototype.slice.call(document.querySelectorAll('.test'));
-    testDivs.forEach(function (x) { x.remove(); });
+    var testDivs = Array.prototype.slice.call(document.querySelectorAll('.cycletest'));
+    testDivs.forEach(function (x) { 
+      if (x.remove) { x.remove(); }
+    });
   });
 
   describe('Cycle.registerCustomElement', function () {
@@ -57,7 +59,8 @@ describe('Custom Elements', function () {
     });
     Cycle.registerCustomElement('myelement', dfn);
     // Use the custom element
-    var viewContainerElem = document.createElement('div.test');
+    var viewContainerElem = document.createElement('div');
+    viewContainerElem.className = 'cycletest';
     document.body.appendChild(viewContainerElem);
     var view = {
       vtree$: Rx.Observable.just(Cycle.h('myelement'))
@@ -86,7 +89,8 @@ describe('Custom Elements', function () {
     });
     Cycle.registerCustomElement('myelement', dfn);
     // Use the custom element
-    var viewContainerElem = document.createElement('div.test');
+    var viewContainerElem = document.createElement('div');
+    viewContainerElem.className = 'cycletest';
     document.body.appendChild(viewContainerElem);
     var color$ = Rx.Observable.just('#00FF00').delay(50).startWith('#FF0000');
     var view = {
@@ -120,7 +124,8 @@ describe('Custom Elements', function () {
     });
     Cycle.registerCustomElement('myelement2', dfn2);
     // Use the custom elements
-    var viewContainerElem = document.createElement('div.test');
+    var viewContainerElem = document.createElement('div');
+    viewContainerElem.className = 'cycletest';
     document.body.appendChild(viewContainerElem);
     var view = {
       vtree$: Rx.Observable.just(Cycle.h('div', [
@@ -149,7 +154,8 @@ describe('Custom Elements', function () {
     });
     Cycle.registerCustomElement('myelement', dfn);
     // Use the custom element
-    var viewContainerElem = document.createElement('div.test');
+    var viewContainerElem = document.createElement('div');
+    viewContainerElem.className = 'cycletest';
     document.body.appendChild(viewContainerElem);
     var view = Cycle.createView(function () {
       return {
