@@ -81,11 +81,12 @@ function makeConstructor() {
   };
 }
 
-function makeInit(Cycle, tagName, dataFlowNode) {
+function makeInit(tagName, dataFlowNode) {
+  var Renderer = require('./renderer');
   return function initCustomElement() {
     var dfn = dataFlowNode.clone();
     var elem = createContainerElement(tagName, dfn);
-    var renderer = Cycle.createRenderer(elem);
+    var renderer = new Renderer(elem);
     var events = getOriginEventStreams(dfn);
     forwardOriginEventsToDestinations(events, this.eventsOrigDestMap);
     renderer.inject(dfn);
@@ -111,20 +112,8 @@ function makeUpdate() {
   };
 }
 
-function registerCustomElement(tagName, dataFlowNode) {
-  if (typeof tagName !== 'string' || typeof dataFlowNode !== 'object') {
-    throw new Error('registerCustomElement requires parameters `tagName` and ' +
-      '`dataFlowNode`.');
-  }
-  if (!dataFlowNode.vtree$) {
-    throw new Error('The dataFlowNode for a custom element must export ' +
-      '`vtree$`.');
-  }
-  var Cycle = this; // jshint ignore:line
-  Cycle._customElements = Cycle._customElements || {};
-  Cycle._customElements[tagName] = makeConstructor();
-  Cycle._customElements[tagName].prototype.init = makeInit(Cycle, tagName, dataFlowNode);
-  Cycle._customElements[tagName].prototype.update = makeUpdate();
-}
-
-module.exports = registerCustomElement;
+module.exports = {
+  makeConstructor: makeConstructor,
+  makeInit: makeInit,
+  makeUpdate: makeUpdate
+};

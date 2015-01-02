@@ -6,6 +6,7 @@ var VDOM = {
 };
 var DOMDelegator = require('dom-delegator');
 var DataFlowSink = require('./data-flow-sink');
+var CustomElements = require('./custom-elements');
 
 var delegator = new DOMDelegator();
 
@@ -18,19 +19,19 @@ function isElement(o) {
   );
 }
 
-function replaceCustomElements(vtree, Cycle) {
+function replaceCustomElements(vtree, _customElements) {
   // Silently ignore corner cases
-  if (!vtree || !Cycle._customElements) {
+  if (!vtree || !_customElements) {
     return vtree;
   }
   // Replace vtree itself
-  if (Cycle._customElements.hasOwnProperty(vtree.tagName)) {
-    return new Cycle._customElements[vtree.tagName](vtree);
+  if (_customElements.hasOwnProperty(vtree.tagName)) {
+    return new _customElements[vtree.tagName](vtree);
   }
   // Or replace children recursively
   if (Array.isArray(vtree.children)) {
     for (var i = vtree.children.length - 1; i >= 0; i--) {
-      vtree.children[i] = replaceCustomElements(vtree.children[i], Cycle);
+      vtree.children[i] = replaceCustomElements(vtree.children[i], _customElements);
     }
   }
   return vtree;
@@ -64,13 +65,13 @@ function replaceEventHandlersInVTrees(vtree) {
   return vtree;
 }
 
-function renderEvery(vtree$, domContainer, Cycle) {
+function renderEvery(vtree$, domContainer, _customElements) {
   var rootNode = document.createElement('div');
   domContainer.innerHTML = '';
   domContainer.appendChild(rootNode);
   return vtree$.startWith(VDOM.h())
     .map(function renderingPreprocessing(vtree) {
-      return replaceEventHandlersInVTrees(replaceCustomElements(vtree, Cycle));
+      return replaceEventHandlersInVTrees(replaceCustomElements(vtree, _customElements));
     })
     .pairwise()
     .subscribe(function renderDiffAndPatch(pair) {
@@ -87,7 +88,8 @@ function renderEvery(vtree$, domContainer, Cycle) {
     });
 }
 
-function Renderer(container, Cycle) {
+function Renderer(container) {
+  var renderer = this;
   // Find and prepare the container
   var domContainer = (typeof container === 'string') ?
     document.querySelector(container) :
@@ -100,16 +102,45 @@ function Renderer(container, Cycle) {
   }
   // Create sink
   DataFlowSink.call(this, function injectIntoRenderer(view) {
-    return renderEvery(view.vtree$, domContainer, Cycle);
+    return renderEvery(view.vtree$, domContainer, renderer._customElements);
   });
   this.delegator = delegator;
 }
 
 Renderer.prototype = Object.create(DataFlowSink.prototype);
 
-module.exports = {
-  Renderer: Renderer,
-  renderEvery: renderEvery,
-  isElement: isElement,
-  delegator: delegator
+/**
+ * Informs the Renderer to recognize the given `tagName` as a custom element implemented
+ * as `dataFlowNode`, whenever `tagName` is used in VTrees in View given as input to
+ * this Renderer. The given `dataFlowNode` must export a `vtree$` Observable. If the
+ * `dataFlowNode` expects Observable `foo$` as input, then the custom element's attribute
+ * named `foo` will be injected automatically by the Renderer into `foo$`.
+ *
+ * @param {String} tagName a name for identifying the custom element.
+ * @param {DataFlowNode} dataFlowNode the implementation of the custom element.
+ * @function registerCustomElement
+ */
+Renderer.prototype.registerCustomElement = function registerCustomElement(
+  tagName, dataFlowNode)
+{
+  if (typeof tagName !== 'string' || typeof dataFlowNode !== 'object') {
+    throw new Error('registerCustomElement requires parameters `tagName` and ' +
+      '`dataFlowNode`.');
+  }
+  if (!dataFlowNode.vtree$) {
+    throw new Error('The dataFlowNode for a custom element must export ' +
+      '`vtree$`.');
+  }
+  if (this._customElements && this._customElements.hasOwnProperty(tagName)) {
+    throw new Error('Cannot register custom element `' + tagName + '` ' +
+      'in Renderer because that tagName is already registered.');
+  }
+  var WidgetClass = CustomElements.makeConstructor();
+  WidgetClass.prototype.init = CustomElements.makeInit(tagName, dataFlowNode);
+  WidgetClass.prototype.update = CustomElements.makeUpdate();
+  this._customElements = this._customElements || {};
+  this._customElements[tagName] = WidgetClass;
+  return this;
 };
+
+module.exports = Renderer;

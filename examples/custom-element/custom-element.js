@@ -46,8 +46,6 @@ var TickerDataFlowNode = Cycle.createDataFlowNode(['color$'], function (attribut
   };
 });
 
-Cycle.registerCustomElement('ticker', TickerDataFlowNode);
-
 function makeRandomColor() {
   var hexColor = Math.floor(Math.random() * 16777215).toString(16);
   while (hexColor.length < 6) {
@@ -87,7 +85,9 @@ var Intent = Cycle.createIntent(['removeTicker$'], function (view) {
   return {removeTicker$: view.removeTicker$};
 });
 
-Cycle.createRenderer('.js-container').inject(View);
+var renderer = Cycle.createRenderer('.js-container');
+renderer.registerCustomElement('ticker', TickerDataFlowNode);
+renderer.inject(View);
 Intent.inject(View);
 View.inject(Model);
 Model.inject(Intent);

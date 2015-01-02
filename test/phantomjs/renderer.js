@@ -4,7 +4,7 @@ var assert = require('assert');
 var Cycle = require('../../src/cycle');
 var Rx = Cycle.Rx;
 
-describe('Rendering', function () {
+describe('DOM Rendering', function () {
   this.timeout(6000);
 
   beforeEach(function () {
@@ -64,6 +64,14 @@ describe('Rendering', function () {
       var selectEl = document.querySelector('.my-class');
       assert.notStrictEqual(selectEl, null);
       assert.notStrictEqual(typeof selectEl, 'undefined');
+    });
+
+    it('should have `registerCustomElement`', function () {
+      var element = document.createElement('div');
+      element.className = 'cycletest';
+      document.body.appendChild(element);
+      var renderer = Cycle.createRenderer(element);
+      assert.strictEqual(typeof renderer.registerCustomElement, 'function');
     });
   });
 });
