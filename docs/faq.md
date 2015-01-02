@@ -28,7 +28,33 @@ The idea is to represent the current page (or route) in a RouteModel, then to us
 
 ## What do the dollar signs `$` mean?
 
-(TODO answer this)
+The dollar sign `$` *suffixed* to a name is a hard convention to indicate that the variable is an Observable (instance of an RxJS Observable). Not only is it a naming helper to indicate types, it is also a required convention when working with custom elements. The following are examples of the former and the latter.
+
+If a model exports an observable stream called `lastname$`, then the view can consume it as such:
+```javascript
+var View = Cycle.createView(['lastname$'], function (model) {
+  return {
+    vtree$: model.lastname$.map(function (lastname) { return h('h1', lastname); }),
+    events: []
+});
+```
+
+Notice that the function inside `map` takes `lastname` as argument, while the `model` contains `lastname$`. The naming convention indicates that `lastname` is the value being emitted by `lastname$`. Without this convention, if `model.lastname$` would simply be named `model.lastname`, it would confuse readers about the types involved. Also, `lastname$` is succinct compared to `lastnameObservable`, `lastnameStream`, or `lastnameObs`.
+
+The suffixed dollar convention is required for custom elements. When you use a custom element and give it attributes, the attribute name will be suffixed with `$` to recover the Observable inside the custom element's DataFlowNode. Example:
+
+```javascript
+var View = Cycle.createView(['lastname$'], function (model) {
+  return {
+    vtree$: model.lastname$
+      .map(function (lastname) {
+        return h('custombutton', {attributes {'label': lastname}});
+        // lastname emitted into label$ in the DataFlowNode that
+        // implements <custombutton>
+      }),
+    events: []
+});
+```
 
 ## How to get a MVI trio inside a View? **or** How to implement View components inside other components?
 
