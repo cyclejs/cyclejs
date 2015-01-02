@@ -17550,7 +17550,7 @@ function createIntent() {
 
 module.exports = createIntent;
 
-},{"./data-flow-node":67,"./errors":70}],64:[function(require,module,exports){
+},{"./data-flow-node":68,"./errors":71}],64:[function(require,module,exports){
 'use strict';
 var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
@@ -17569,7 +17569,7 @@ function createModel() {
 
 module.exports = createModel;
 
-},{"./data-flow-node":67,"./errors":70}],65:[function(require,module,exports){
+},{"./data-flow-node":68,"./errors":71}],65:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
 var DataFlowNode = require('./data-flow-node');
@@ -17656,14 +17656,135 @@ function createView() {
 
 module.exports = createView;
 
-},{"./data-flow-node":67,"./errors":70,"rx":23}],66:[function(require,module,exports){
+},{"./data-flow-node":68,"./errors":71,"rx":23}],66:[function(require,module,exports){
+'use strict';
+var Rx = require('rx');
+
+function getEventsOrigDestMap(vtree) {
+  var map = {};
+  for (var key in vtree.properties) {
+    if (vtree.properties.hasOwnProperty(key) &&
+      typeof key === 'string' && key.search(/^ev\-/) === 0)
+    {
+      var originStreamName = key.replace(/^ev\-/, '').concat('$');
+      var destinationStream = vtree.properties[key].value;
+      map[originStreamName] = destinationStream;
+    }
+  }
+  return map;
+}
+
+function createStubsForInterface(interfaceArray) {
+  var stubs = {};
+  if (!interfaceArray) {
+    return stubs;
+  }
+  for (var i = interfaceArray.length - 1; i >= 0; i--) {
+    var streamName = interfaceArray[i];
+    stubs[streamName] = new Rx.Subject();
+  }
+  return stubs;
+}
+
+function createContainerElement(tagName, dataFlowNode) {
+  var attributesInterface = dataFlowNode.inputInterfaces[0];
+  var elem = document.createElement('div');
+  elem.className = 'cycleCustomElementContainer-' + tagName;
+  elem.cycleCustomElementAttributes = createStubsForInterface(attributesInterface);
+  return elem;
+}
+
+function endsWithDolarSign(str) {
+  if (typeof str !== 'string') {
+    return false;
+  }
+  return str.indexOf('$', str.length - 1) !== -1;
+}
+
+function getOriginEventStreams(dataFlowNode) {
+  var events = {};
+  for (var prop in dataFlowNode) {
+    if (dataFlowNode.hasOwnProperty(prop) &&
+      endsWithDolarSign(prop) &&
+      prop !== 'vtree$')
+    {
+      events[prop] = dataFlowNode[prop];
+    }
+  }
+  return events;
+}
+
+function subscribeAndForward(origin$, destination$) {
+  origin$.subscribe(
+    function onNextWidgetEvent(x) { destination$.onNext(x); },
+    function onErrorWidgetEvent(e) { destination$.onError(e); },
+    function onCompletedWidgetEvent() { destination$.onCompleted(); }
+  );
+}
+
+function forwardOriginEventsToDestinations(events, origDestMap) {
+  for (var originStreamName in events) {
+    if (events.hasOwnProperty(originStreamName) &&
+      origDestMap.hasOwnProperty(originStreamName))
+    {
+      subscribeAndForward(events[originStreamName], origDestMap[originStreamName]);
+    }
+  }
+}
+
+function makeConstructor() {
+  return function customElementConstructor(vtree) {
+    this.type = 'Widget';
+    this.attributes = vtree.properties.attributes;
+    this.eventsOrigDestMap = getEventsOrigDestMap(vtree);
+  };
+}
+
+function makeInit(tagName, dataFlowNode) {
+  var Renderer = require('./renderer');
+  return function initCustomElement() {
+    var dfn = dataFlowNode.clone();
+    var elem = createContainerElement(tagName, dfn);
+    var renderer = new Renderer(elem);
+    var events = getOriginEventStreams(dfn);
+    forwardOriginEventsToDestinations(events, this.eventsOrigDestMap);
+    renderer.inject(dfn);
+    dfn.inject(elem.cycleCustomElementAttributes);
+    this.update(null, elem);
+    return elem;
+  };
+}
+
+function makeUpdate() {
+  return function updateCustomElement(prev, elem) {
+    for (var prop in elem.cycleCustomElementAttributes) {
+      var attrStreamName = prop;
+      var attrName = prop.slice(0, -1);
+      if (elem.cycleCustomElementAttributes.hasOwnProperty(attrStreamName) &&
+        this.attributes.hasOwnProperty(attrName))
+      {
+        elem.cycleCustomElementAttributes[attrStreamName].onNext(
+          this.attributes[attrName]
+        );
+      }
+    }
+  };
+}
+
+module.exports = {
+  makeConstructor: makeConstructor,
+  makeInit: makeInit,
+  makeUpdate: makeUpdate
+};
+
+},{"./renderer":73,"rx":23}],67:[function(require,module,exports){
 'use strict';
 var VirtualDOM = require('virtual-dom');
 var Rx = require('rx');
 var DataFlowNode = require('./data-flow-node');
 var DataFlowSource = require('./data-flow-source');
 var DataFlowSink = require('./data-flow-sink');
-var Renderer = require('./rendering').Renderer;
+var Renderer = require('./renderer');
 var PropertyHook = require('./property-hook');
 
 var Cycle = {
@@ -17793,8 +17914,7 @@ var Cycle = {
    * @function createRenderer
    */
   createRenderer: function createRenderer(container) {
-    var Cycle = this;
-    return new Renderer(container, Cycle);
+    return new Renderer(container);
   },
 
   /**
@@ -17820,19 +17940,6 @@ var Cycle = {
       }
     }
   },
-
-  /**
-   * Informs Cycle to recognize the given `tagName` as a custom element implemented
-   * as `dataFlowNode`, whenever `tagName` is used in VTrees in Views. The given
-   * `dataFlowNode` must export a `vtree$` Observable. If the `dataFlowNode` expects
-   * Observable `foo$` as input, then the custom element's attribute named `foo` will
-   * be injected automatically by Cycle into `foo$`.
-   *
-   * @param {String} tagName a name for identifying the custom element.
-   * @param {DataFlowNode} dataFlowNode the implementation of the custom element.
-   * @function registerCustomElement
-   */
-  registerCustomElement: require('./register-custom-element'),
 
   /**
    * Returns a hook for manipulating an element from the real DOM. This is a helper for
@@ -17865,7 +17972,7 @@ var Cycle = {
 
 module.exports = Cycle;
 
-},{"./create-intent":63,"./create-model":64,"./create-view":65,"./data-flow-node":67,"./data-flow-sink":68,"./data-flow-source":69,"./property-hook":71,"./register-custom-element":72,"./rendering":73,"rx":23,"virtual-dom":27}],67:[function(require,module,exports){
+},{"./create-intent":63,"./create-model":64,"./create-view":65,"./data-flow-node":68,"./data-flow-sink":69,"./data-flow-source":70,"./property-hook":72,"./renderer":73,"rx":23,"virtual-dom":27}],68:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
 var errors = require('./errors');
@@ -17970,7 +18077,7 @@ function DataFlowNode() {
 
 module.exports = DataFlowNode;
 
-},{"./errors":70,"rx":23}],68:[function(require,module,exports){
+},{"./errors":71,"rx":23}],69:[function(require,module,exports){
 'use strict';
 
 function DataFlowSink(definitionFn) {
@@ -17989,7 +18096,7 @@ function DataFlowSink(definitionFn) {
 
 module.exports = DataFlowSink;
 
-},{}],69:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 'use strict';
 
 function DataFlowSource(outputObject) {
@@ -18014,7 +18121,7 @@ function DataFlowSource(outputObject) {
 
 module.exports = DataFlowSource;
 
-},{}],70:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 'use strict';
 
 function CycleInterfaceError(message, missingMember) {
@@ -18045,7 +18152,7 @@ module.exports = {
   customInterfaceErrorMessageInInject: customInterfaceErrorMessageInInject
 };
 
-},{}],71:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 'use strict';
 
 function PropertyHook(fn) {
@@ -18057,139 +18164,7 @@ PropertyHook.prototype.hook = function () {
 
 module.exports = PropertyHook;
 
-},{}],72:[function(require,module,exports){
-'use strict';
-var Rx = require('rx');
-
-function getEventsOrigDestMap(vtree) {
-  var map = {};
-  for (var key in vtree.properties) {
-    if (vtree.properties.hasOwnProperty(key) &&
-      typeof key === 'string' && key.search(/^ev\-/) === 0)
-    {
-      var originStreamName = key.replace(/^ev\-/, '').concat('$');
-      var destinationStream = vtree.properties[key].value;
-      map[originStreamName] = destinationStream;
-    }
-  }
-  return map;
-}
-
-function createStubsForInterface(interfaceArray) {
-  var stubs = {};
-  if (!interfaceArray) {
-    return stubs;
-  }
-  for (var i = interfaceArray.length - 1; i >= 0; i--) {
-    var streamName = interfaceArray[i];
-    stubs[streamName] = new Rx.Subject();
-  }
-  return stubs;
-}
-
-function createContainerElement(tagName, dataFlowNode) {
-  var attributesInterface = dataFlowNode.inputInterfaces[0];
-  var elem = document.createElement('div');
-  elem.className = 'cycleCustomElementContainer-' + tagName;
-  elem.cycleCustomElementAttributes = createStubsForInterface(attributesInterface);
-  return elem;
-}
-
-function endsWithDolarSign(str) {
-  if (typeof str !== 'string') {
-    return false;
-  }
-  return str.indexOf('$', str.length - 1) !== -1;
-}
-
-function getOriginEventStreams(dataFlowNode) {
-  var events = {};
-  for (var prop in dataFlowNode) {
-    if (dataFlowNode.hasOwnProperty(prop) &&
-      endsWithDolarSign(prop) &&
-      prop !== 'vtree$')
-    {
-      events[prop] = dataFlowNode[prop];
-    }
-  }
-  return events;
-}
-
-function subscribeAndForward(origin$, destination$) {
-  origin$.subscribe(
-    function onNextWidgetEvent(x) { destination$.onNext(x); },
-    function onErrorWidgetEvent(e) { destination$.onError(e); },
-    function onCompletedWidgetEvent() { destination$.onCompleted(); }
-  );
-}
-
-function forwardOriginEventsToDestinations(events, origDestMap) {
-  for (var originStreamName in events) {
-    if (events.hasOwnProperty(originStreamName) &&
-      origDestMap.hasOwnProperty(originStreamName))
-    {
-      subscribeAndForward(events[originStreamName], origDestMap[originStreamName]);
-    }
-  }
-}
-
-function makeConstructor() {
-  return function customElementConstructor(vtree) {
-    this.type = 'Widget';
-    this.attributes = vtree.properties.attributes;
-    this.eventsOrigDestMap = getEventsOrigDestMap(vtree);
-  };
-}
-
-function makeInit(Cycle, tagName, dataFlowNode) {
-  return function initCustomElement() {
-    var dfn = dataFlowNode.clone();
-    var elem = createContainerElement(tagName, dfn);
-    var renderer = Cycle.createRenderer(elem);
-    var events = getOriginEventStreams(dfn);
-    forwardOriginEventsToDestinations(events, this.eventsOrigDestMap);
-    renderer.inject(dfn);
-    dfn.inject(elem.cycleCustomElementAttributes);
-    this.update(null, elem);
-    return elem;
-  };
-}
-
-function makeUpdate() {
-  return function updateCustomElement(prev, elem) {
-    for (var prop in elem.cycleCustomElementAttributes) {
-      var attrStreamName = prop;
-      var attrName = prop.slice(0, -1);
-      if (elem.cycleCustomElementAttributes.hasOwnProperty(attrStreamName) &&
-        this.attributes.hasOwnProperty(attrName))
-      {
-        elem.cycleCustomElementAttributes[attrStreamName].onNext(
-          this.attributes[attrName]
-        );
-      }
-    }
-  };
-}
-
-function registerCustomElement(tagName, dataFlowNode) {
-  if (typeof tagName !== 'string' || typeof dataFlowNode !== 'object') {
-    throw new Error('registerCustomElement requires parameters `tagName` and ' +
-      '`dataFlowNode`.');
-  }
-  if (!dataFlowNode.vtree$) {
-    throw new Error('The dataFlowNode for a custom element must export ' +
-      '`vtree$`.');
-  }
-  var Cycle = this; // jshint ignore:line
-  Cycle._customElements = Cycle._customElements || {};
-  Cycle._customElements[tagName] = makeConstructor();
-  Cycle._customElements[tagName].prototype.init = makeInit(Cycle, tagName, dataFlowNode);
-  Cycle._customElements[tagName].prototype.update = makeUpdate();
-}
-
-module.exports = registerCustomElement;
-
-},{"rx":23}],73:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 'use strict';
 var VDOM = {
   h: require('virtual-dom').h,
@@ -18198,6 +18173,7 @@ var VDOM = {
 };
 var DOMDelegator = require('dom-delegator');
 var DataFlowSink = require('./data-flow-sink');
+var CustomElements = require('./custom-elements');
 
 var delegator = new DOMDelegator();
 
@@ -18210,19 +18186,19 @@ function isElement(o) {
   );
 }
 
-function replaceCustomElements(vtree, Cycle) {
+function replaceCustomElements(vtree, _customElements) {
   // Silently ignore corner cases
-  if (!vtree || !Cycle._customElements) {
+  if (!vtree || !_customElements) {
     return vtree;
   }
   // Replace vtree itself
-  if (Cycle._customElements.hasOwnProperty(vtree.tagName)) {
-    return new Cycle._customElements[vtree.tagName](vtree);
+  if (_customElements.hasOwnProperty(vtree.tagName)) {
+    return new _customElements[vtree.tagName](vtree);
   }
   // Or replace children recursively
   if (Array.isArray(vtree.children)) {
     for (var i = vtree.children.length - 1; i >= 0; i--) {
-      vtree.children[i] = replaceCustomElements(vtree.children[i], Cycle);
+      vtree.children[i] = replaceCustomElements(vtree.children[i], _customElements);
     }
   }
   return vtree;
@@ -18256,13 +18232,13 @@ function replaceEventHandlersInVTrees(vtree) {
   return vtree;
 }
 
-function renderEvery(vtree$, domContainer, Cycle) {
+function renderEvery(vtree$, domContainer, _customElements) {
   var rootNode = document.createElement('div');
   domContainer.innerHTML = '';
   domContainer.appendChild(rootNode);
   return vtree$.startWith(VDOM.h())
     .map(function renderingPreprocessing(vtree) {
-      return replaceEventHandlersInVTrees(replaceCustomElements(vtree, Cycle));
+      return replaceEventHandlersInVTrees(replaceCustomElements(vtree, _customElements));
     })
     .pairwise()
     .subscribe(function renderDiffAndPatch(pair) {
@@ -18279,7 +18255,8 @@ function renderEvery(vtree$, domContainer, Cycle) {
     });
 }
 
-function Renderer(container, Cycle) {
+function Renderer(container) {
+  var renderer = this;
   // Find and prepare the container
   var domContainer = (typeof container === 'string') ?
     document.querySelector(container) :
@@ -18292,19 +18269,48 @@ function Renderer(container, Cycle) {
   }
   // Create sink
   DataFlowSink.call(this, function injectIntoRenderer(view) {
-    return renderEvery(view.vtree$, domContainer, Cycle);
+    return renderEvery(view.vtree$, domContainer, renderer._customElements);
   });
   this.delegator = delegator;
 }
 
 Renderer.prototype = Object.create(DataFlowSink.prototype);
 
-module.exports = {
-  Renderer: Renderer,
-  renderEvery: renderEvery,
-  isElement: isElement,
-  delegator: delegator
+/**
+ * Informs the Renderer to recognize the given `tagName` as a custom element implemented
+ * as `dataFlowNode`, whenever `tagName` is used in VTrees in View given as input to
+ * this Renderer. The given `dataFlowNode` must export a `vtree$` Observable. If the
+ * `dataFlowNode` expects Observable `foo$` as input, then the custom element's attribute
+ * named `foo` will be injected automatically by the Renderer into `foo$`.
+ *
+ * @param {String} tagName a name for identifying the custom element.
+ * @param {DataFlowNode} dataFlowNode the implementation of the custom element.
+ * @function registerCustomElement
+ */
+Renderer.prototype.registerCustomElement = function registerCustomElement(
+  tagName, dataFlowNode)
+{
+  if (typeof tagName !== 'string' || typeof dataFlowNode !== 'object') {
+    throw new Error('registerCustomElement requires parameters `tagName` and ' +
+      '`dataFlowNode`.');
+  }
+  if (!dataFlowNode.vtree$) {
+    throw new Error('The dataFlowNode for a custom element must export ' +
+      '`vtree$`.');
+  }
+  if (this._customElements && this._customElements.hasOwnProperty(tagName)) {
+    throw new Error('Cannot register custom element `' + tagName + '` ' +
+      'in Renderer because that tagName is already registered.');
+  }
+  var WidgetClass = CustomElements.makeConstructor();
+  WidgetClass.prototype.init = CustomElements.makeInit(tagName, dataFlowNode);
+  WidgetClass.prototype.update = CustomElements.makeUpdate();
+  this._customElements = this._customElements || {};
+  this._customElements[tagName] = WidgetClass;
+  return this;
 };
 
-},{"./data-flow-sink":68,"dom-delegator":6,"virtual-dom":27,"virtual-dom/diff":25,"virtual-dom/patch":40}]},{},[66])(66)
+module.exports = Renderer;
+
+},{"./custom-elements":66,"./data-flow-sink":69,"dom-delegator":6,"virtual-dom":27,"virtual-dom/diff":25,"virtual-dom/patch":40}]},{},[67])(67)
 });

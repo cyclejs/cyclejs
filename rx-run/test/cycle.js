@@ -41,10 +41,6 @@ describe('Cycle', function () {
       assert.strictEqual(typeof Cycle.circularInject, 'function');
     });
 
-    it('should have `registerCustomElement`', function () {
-      assert.strictEqual(typeof Cycle.registerCustomElement, 'function');
-    });
-
     it('should have `vdomPropHook`', function () {
       assert.strictEqual(typeof Cycle.vdomPropHook, 'function');
     });

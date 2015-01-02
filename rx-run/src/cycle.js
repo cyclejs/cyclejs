@@ -4,7 +4,7 @@ var Rx = require('rx');
 var DataFlowNode = require('./data-flow-node');
 var DataFlowSource = require('./data-flow-source');
 var DataFlowSink = require('./data-flow-sink');
-var Renderer = require('./rendering').Renderer;
+var Renderer = require('./renderer');
 var PropertyHook = require('./property-hook');
 
 var Cycle = {
@@ -134,8 +134,7 @@ var Cycle = {
    * @function createRenderer
    */
   createRenderer: function createRenderer(container) {
-    var Cycle = this;
-    return new Renderer(container, Cycle);
+    return new Renderer(container);
   },
 
   /**
@@ -161,19 +160,6 @@ var Cycle = {
       }
     }
   },
-
-  /**
-   * Informs Cycle to recognize the given `tagName` as a custom element implemented
-   * as `dataFlowNode`, whenever `tagName` is used in VTrees in Views. The given
-   * `dataFlowNode` must export a `vtree$` Observable. If the `dataFlowNode` expects
-   * Observable `foo$` as input, then the custom element's attribute named `foo` will
-   * be injected automatically by Cycle into `foo$`.
-   *
-   * @param {String} tagName a name for identifying the custom element.
-   * @param {DataFlowNode} dataFlowNode the implementation of the custom element.
-   * @function registerCustomElement
-   */
-  registerCustomElement: require('./register-custom-element'),
 
   /**
    * Returns a hook for manipulating an element from the real DOM. This is a helper for
