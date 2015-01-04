@@ -102,11 +102,11 @@ describe('Custom Elements', function () {
   it('should render inner state and attributes independently', function (done) {
     var renderer = createRenderer();
     // Make custom element with internal state, and attributes as input
-    var dfn = Cycle.createDataFlowNode(['color$'], function (attributes) {
+    var dfn = Cycle.createDataFlowNode(function (attributes) {
       var number$ = Rx.Observable.interval(10).take(9);
       return {
         vtree$: Rx.Observable
-          .combineLatest(attributes.color$, number$, function (color, number) {
+          .combineLatest(attributes.get('color$'), number$, function (color, number) {
             return Cycle.h('h3.stateful-element',
               {style: {'color': color}},
               String(number)
@@ -191,7 +191,7 @@ describe('Custom Elements', function () {
     assert.notStrictEqual(myElement, null);
     assert.notStrictEqual(typeof myElement, 'undefined');
     assert.strictEqual(myElement.tagName, 'H3');
-    view.myelementEvents$.subscribe(function (x) {
+    view.get('myelementEvents$').subscribe(function (x) {
       assert.strictEqual(x, 123);
       done();
     });

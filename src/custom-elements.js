@@ -1,5 +1,7 @@
 'use strict';
-var Rx = require('rx');
+var InputProxy = require('./input-proxy');
+var DataFlowNode = require('./data-flow-node');
+var Utils = require('./utils');
 
 function getEventsOrigDestMap(vtree) {
   var map = {};
@@ -15,44 +17,27 @@ function getEventsOrigDestMap(vtree) {
   return map;
 }
 
-function createStubsForInterface(interfaceArray) {
-  var stubs = {};
-  if (!interfaceArray) {
-    return stubs;
-  }
-  for (var i = interfaceArray.length - 1; i >= 0; i--) {
-    var streamName = interfaceArray[i];
-    stubs[streamName] = new Rx.Subject();
-  }
-  return stubs;
-}
-
-function createContainerElement(tagName, dataFlowNode) {
-  var attributesInterface = dataFlowNode.inputInterfaces[0];
+function createContainerElement(tagName) {
   var elem = document.createElement('div');
   elem.className = 'cycleCustomElementContainer-' + tagName;
-  elem.cycleCustomElementAttributes = createStubsForInterface(attributesInterface);
+  elem.cycleCustomElementAttributes = new InputProxy();
   return elem;
 }
 
-function endsWithDolarSign(str) {
-  if (typeof str !== 'string') {
-    return false;
-  }
-  return str.indexOf('$', str.length - 1) !== -1;
-}
-
 function getOriginEventStreams(dataFlowNode) {
-  var events = {};
-  for (var prop in dataFlowNode) {
-    if (dataFlowNode.hasOwnProperty(prop) &&
-      endsWithDolarSign(prop) &&
-      prop !== 'vtree$')
-    {
-      events[prop] = dataFlowNode[prop];
-    }
+  if (!(dataFlowNode instanceof DataFlowNode) ||
+    !Array.isArray(dataFlowNode.outputStreams))
+  {
+    return {};
   }
-  return events;
+  return dataFlowNode.outputStreams
+    .filter(function (streamName) {
+      return Utils.endsWithDolarSign(streamName) && streamName !== 'vtree$';
+    })
+    .reduce(function (events, streamName) {
+      events[streamName] = dataFlowNode.get(streamName);
+      return events;
+    }, {});
 }
 
 function subscribeAndForward(origin$, destination$) {
@@ -85,7 +70,7 @@ function makeInit(tagName, dataFlowNode) {
   var Renderer = require('./renderer');
   return function initCustomElement() {
     var dfn = dataFlowNode.clone();
-    var elem = createContainerElement(tagName, dfn);
+    var elem = createContainerElement(tagName);
     var renderer = new Renderer(elem);
     var events = getOriginEventStreams(dfn);
     forwardOriginEventsToDestinations(events, this.eventsOrigDestMap);
@@ -98,15 +83,21 @@ function makeInit(tagName, dataFlowNode) {
 
 function makeUpdate() {
   return function updateCustomElement(prev, elem) {
-    for (var prop in elem.cycleCustomElementAttributes) {
+    if (!elem ||
+      !elem.cycleCustomElementAttributes ||
+      !(elem.cycleCustomElementAttributes instanceof InputProxy) ||
+      !elem.cycleCustomElementAttributes.proxiedProps)
+    {
+      return;
+    }
+    var proxiedProps = elem.cycleCustomElementAttributes.proxiedProps;
+    for (var prop in proxiedProps) {
       var attrStreamName = prop;
       var attrName = prop.slice(0, -1);
-      if (elem.cycleCustomElementAttributes.hasOwnProperty(attrStreamName) &&
+      if (proxiedProps.hasOwnProperty(attrStreamName) &&
         this.attributes.hasOwnProperty(attrName))
       {
-        elem.cycleCustomElementAttributes[attrStreamName].onNext(
-          this.attributes[attrName]
-        );
+        proxiedProps[attrStreamName].onNext(this.attributes[attrName]);
       }
     }
   };

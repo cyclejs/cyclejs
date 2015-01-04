@@ -40,12 +40,12 @@ function vrenderItem(itemData) {
   );
 }
 
-var ManyView = Cycle.createView(['items$'], function (model) {
+var ManyView = Cycle.createView(function (model) {
   return {
     events: ['itemWidthChanged$', 'itemColorChanged$', 'removeClicks$',
       'addOneClicks$', 'addManyClicks$'
     ],
-    vtree$: model.items$
+    vtree$: model.get('items$')
       .map(function (itemsData) {
         return h('div.everything', {}, [
           vrenderTopButtons(),

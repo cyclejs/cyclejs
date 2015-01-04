@@ -1,6 +1,8 @@
 'use strict';
 var Rx = require('rx');
 var errors = require('./errors');
+var InputProxy = require('./input-proxy');
+var Utils = require('./utils');
 var CycleInterfaceError = errors.CycleInterfaceError;
 
 function replicate(source, subject) {
@@ -18,86 +20,78 @@ function replicate(source, subject) {
   );
 }
 
-function checkInputInterfaceArray(inputInterface) {
-  if (!Array.isArray(inputInterface)) {
-    throw new Error('Expected an array as the interface of the input for \n' +
-      'the DataFlowNode.'
-    );
-  }
-}
-
-function checkInputInterfaceOnlyStrings(inputInterface) {
-  for (var i = inputInterface.length - 1; i >= 0; i--) {
-    if (typeof inputInterface[i] !== 'string') {
-      throw new Error('Expected strings as names of properties in the input interface');
-    }
-  }
-}
-
-function makeStubPropertiesFromInterface(inputStub, inputInterface) {
-  for (var i = inputInterface.length - 1; i >= 0; i--) {
-    inputStub[inputInterface[i]] = new Rx.Subject();
-  }
-}
-
 function checkOutputObject(output) {
   if (typeof output !== 'object') {
     throw new Error('A DataFlowNode should always return an object.');
   }
 }
 
-function copyProperties(orig, dest) {
-  for (var key in orig) {
-    if (orig.hasOwnProperty(key)) {
-      dest[key] = orig[key];
+function createStreamNamesArray(output) {
+  var array = [];
+  for (var streamName in output) {
+    if (output.hasOwnProperty(streamName) && Utils.endsWithDolarSign(streamName)) {
+      array.push(streamName);
     }
   }
+  return array;
 }
 
-function replicateAll(input, stub) {
-  for (var key in stub) {
-    if (stub.hasOwnProperty(key)) {
-      if (!input.hasOwnProperty(key)) {
+var replicateAll;
+
+function DataFlowNode(definitionFn) {
+  if (arguments.length !== 1 || typeof definitionFn !== 'function') {
+    throw new Error('DataFlowNode expects the definitionFn as the only argument.');
+  }
+  var proxies = [];
+  for (var i = 0; i < definitionFn.length; i++) {
+    proxies[i] = new InputProxy();
+  }
+  var wasInjected = false;
+  var output = definitionFn.apply(this, proxies);
+  checkOutputObject(output);
+  this.outputStreams = createStreamNamesArray(output);
+  this.get = function get(streamName) {
+    return output[streamName] || null;
+  };
+  this.clone = function clone() {
+    return new DataFlowNode(definitionFn);
+  };
+  this.inject = function inject() {
+    if (wasInjected) {
+      console.warn('DataFlowNode has already been injected an input.');
+    }
+    if (definitionFn.length !== arguments.length) {
+      console.warn('The call to inject() should provide the inputs that this ' +
+        'DataFlowNode expects according to its definition function.');
+    }
+    for (var i = 0; i < definitionFn.length; i++) {
+      replicateAll(arguments[i], proxies[i]);
+    }
+    wasInjected = true;
+  };
+  return this;
+}
+
+replicateAll = function replicateAll(input, proxy) {
+  if (!input || !proxy) {
+    return;
+  }
+  for (var key in proxy.proxiedProps) {
+    if (proxy.proxiedProps.hasOwnProperty(key)) {
+      if (!input.hasOwnProperty(key) && input instanceof InputProxy) {
+        input.proxiedProps[key] = new Rx.Subject();
+        replicate(input.proxiedProps[key], proxy.proxiedProps[key]);
+      } else if (input instanceof DataFlowNode && input.get(key) !== null) {
+        replicate(input.get(key), proxy.proxiedProps[key]);
+      } else if (typeof input === 'object' && input.hasOwnProperty(key)) {
+        replicate(input[key], proxy.proxiedProps[key]);
+      } else {
         throw new CycleInterfaceError('Input should have the required property ' +
           key, String(key)
         );
       }
-      replicate(input[key], stub[key]);
     }
   }
-}
-
-function DataFlowNode() {
-  var args = Array.prototype.slice.call(arguments);
-  var definitionFn = args.pop();
-  if (typeof definitionFn !== 'function') {
-    throw new Error('DataFlowNode expects the definitionFn as the last argument.');
-  }
-  var interfaces = args;
-  var inputStubs = interfaces.map(function () { return {}; });
-  var wasInjected = false;
-  for (var i = interfaces.length - 1; i >= 0; i--) {
-    checkInputInterfaceArray(interfaces[i]);
-    checkInputInterfaceOnlyStrings(interfaces[i]);
-    makeStubPropertiesFromInterface(inputStubs[i], interfaces[i]);
-  }
-  var output = definitionFn.apply(this, inputStubs);
-  checkOutputObject(output);
-  copyProperties(output, this);
-  this.inputInterfaces = interfaces;
-  this.inject = function injectIntoDataFlowNode() {
-    if (wasInjected) {
-      console.warn('DataFlowNode has already been injected an input.');
-    }
-    for (var i = arguments.length - 1; i >= 0; i--) {
-      replicateAll(arguments[i], inputStubs[i]);
-    }
-    wasInjected = true;
-  };
-  this.clone = function () {
-    return DataFlowNode.apply({}, interfaces.concat([definitionFn]));
-  };
-  return this;
-}
+};
 
 module.exports = DataFlowNode;

@@ -102,7 +102,7 @@ function Renderer(container) {
   }
   // Create sink
   DataFlowSink.call(this, function injectIntoRenderer(view) {
-    return renderEvery(view.vtree$, domContainer, renderer._customElements);
+    return renderEvery(view.get('vtree$'), domContainer, renderer._customElements);
   });
   this.delegator = delegator;
 }
@@ -127,7 +127,7 @@ Renderer.prototype.registerCustomElement = function registerCustomElement(
     throw new Error('registerCustomElement requires parameters `tagName` and ' +
       '`dataFlowNode`.');
   }
-  if (!dataFlowNode.vtree$) {
+  if (!dataFlowNode.get('vtree$')) {
     throw new Error('The dataFlowNode for a custom element must export ' +
       '`vtree$`.');
   }
