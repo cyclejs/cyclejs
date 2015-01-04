@@ -7,7 +7,7 @@ var Cycle = require('../src/cycle');
 describe('createView', function () {
   it('should throw error if output object does not have vtree$', function () {
     assert.throws(function () {
-      Cycle.createView([], function () { return {}; });
+      Cycle.createView(function () { return {}; });
     });
   });
 
@@ -18,7 +18,7 @@ describe('createView', function () {
         events: []
       };
     });
-    view.vtree$.subscribe(function (x) {
+    view.get('vtree$').subscribe(function (x) {
       assert.strictEqual(typeof x, 'object');
       done();
     });
@@ -26,14 +26,14 @@ describe('createView', function () {
   });
 
   it('should be cloneable', function (done) {
-    var view = Cycle.createIntent(['foo$'], function (input) {
+    var view = Cycle.createIntent(function (input) {
       return {
-        vtree$: input.foo$.map(function () { return Cycle.h('div', 'bar'); }),
+        vtree$: input.get('foo$').map(function () { return Cycle.h('div', 'bar'); }),
         events: []
       };
     });
     var clone = view.clone();
-    clone.vtree$.subscribe(function (x) {
+    clone.get('vtree$').subscribe(function (x) {
       assert.strictEqual(typeof x, 'object');
       assert.strictEqual(x.tagName, 'div');
       assert.strictEqual(x.children[0].text, 'bar');
@@ -45,9 +45,9 @@ describe('createView', function () {
 
   it('should throw error if `events` is not outputted', function () {
     assert.throws(function () {
-      Cycle.createView(['foo$'], function (input) {
+      Cycle.createView(function (input) {
         return {
-          vtree$: input.foo$.map(function () { return Cycle.h('div', 'bar'); })
+          vtree$: input.get('foo$').map(function () { return Cycle.h('div', 'bar'); })
         };
       });
     }, /View must define `events` array/);
@@ -55,9 +55,9 @@ describe('createView', function () {
 
   it('should throw error if `vtree$` is not outputted', function () {
     assert.throws(function () {
-      Cycle.createView(['foo$'], function (input) {
+      Cycle.createView(function (input) {
         return {
-          vtree: input.foo$.map(function () { return Cycle.h('div', 'bar'); }),
+          vtree: input.get('foo$').map(function () { return Cycle.h('div', 'bar'); }),
           events: []
         };
       });
@@ -66,7 +66,7 @@ describe('createView', function () {
 
   it('should throw error if `vtree$` is not Observable', function () {
     assert.throws(function () {
-      Cycle.createView(['foo$'], function () {
+      Cycle.createView(function () {
         return {
           vtree$: 123,
           events: []
@@ -75,7 +75,7 @@ describe('createView', function () {
     }, /View must define `vtree\$` Observable/);
 
     assert.throws(function () {
-      Cycle.createView(['foo$'], function () {
+      Cycle.createView(function () {
         return {
           vtree$: [], // has map function but is not Observable
           events: []
@@ -92,7 +92,7 @@ describe('createView', function () {
       };
     });
     assert.throws(function () {
-      view.vtree$.subscribe(function (x) {
+      view.get('vtree$').subscribe(function (x) {
         var noop = function () {};
         noop(x);
       });
@@ -107,7 +107,7 @@ describe('createView', function () {
       };
     });
     assert.throws(function () {
-      view.vtree$.subscribe(function (x) {
+      view.get('vtree$').subscribe(function (x) {
         var noop = function noop() {};
         noop(x);
       });
@@ -130,7 +130,7 @@ describe('createView', function () {
           events: []
         };
       });
-      view.vtree$.subscribe(function (x) {
+      view.get('vtree$').subscribe(function (x) {
         var noop = function noop() {};
         noop(x);
       });
@@ -150,7 +150,7 @@ describe('createView', function () {
           events: ['h1Clicks$']
         };
       });
-      view.vtree$.subscribe(function (x) {
+      view.get('vtree$').subscribe(function (x) {
         var noop = function noop() {};
         noop(x);
       });

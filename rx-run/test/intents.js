@@ -5,18 +5,18 @@ var Rx = require('rx');
 var Cycle = require('../src/cycle');
 
 describe('createIntent', function () {
-  it('should return an object when given interface and definitionFn', function () {
-    var intent = Cycle.createIntent([], function () { return {}; });
+  it('should return an object when given definitionFn', function () {
+    var intent = Cycle.createIntent(function () { return {}; });
     assert.equal(typeof intent, 'object');
   });
 
   it('should yield simple output when injected simple input', function (done) {
-    var intent = Cycle.createIntent(['foo$'], function (input) {
+    var intent = Cycle.createIntent(function (input) {
       return {
-        bar$: input.foo$.map(function () { return 'bar'; })
+        bar$: input.get('foo$').map(function () { return 'bar'; })
       };
     });
-    intent.bar$.subscribe(function (x) {
+    intent.get('bar$').subscribe(function (x) {
       assert.strictEqual(x, 'bar');
       done();
     });
@@ -25,11 +25,9 @@ describe('createIntent', function () {
 
   it('should yield simple output even when injected nothing', function (done) {
     var intent = Cycle.createIntent(function () {
-      return {
-        bar$: Rx.Observable.just(246)
-      };
+      return { bar$: Rx.Observable.just(246) };
     });
-    intent.bar$.subscribe(function (x) {
+    intent.get('bar$').subscribe(function (x) {
       assert.strictEqual(x, 246);
       done();
     });
@@ -37,15 +35,15 @@ describe('createIntent', function () {
   });
 
   it('should yield output when injected two inputs', function (done) {
-    var intent = Cycle.createIntent(['x$'], ['y$'], function (input1, input2) {
+    var intent = Cycle.createIntent(function (input1, input2) {
       return {
         sum$: Rx.Observable
-          .combineLatest(input1.x$, input2.y$, function (x, y) {
+          .combineLatest(input1.get('x$'), input2.get('y$'), function (x, y) {
             return x + y;
           })
       };
     });
-    intent.sum$.subscribe(function (x) {
+    intent.get('sum$').subscribe(function (x) {
       assert.strictEqual(x, 15);
       done();
     });
@@ -53,13 +51,13 @@ describe('createIntent', function () {
   });
 
   it('should be cloneable', function (done) {
-    var intent = Cycle.createIntent(['foo$'], function (input) {
+    var intent = Cycle.createIntent(function (input) {
       return {
-        bar$: input.foo$.map(function () { return 'bar'; })
+        bar$: input.get('foo$').map(function () { return 'bar'; })
       };
     });
     var clone = intent.clone();
-    clone.bar$.subscribe(function (x) {
+    clone.get('bar$').subscribe(function (x) {
       assert.strictEqual(x, 'bar');
       done();
     });

@@ -2,15 +2,12 @@
 var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
 
-function createModel() {
-  var model = DataFlowNode.apply({}, arguments);
+function createModel(definitionFn) {
+  var model = new DataFlowNode(definitionFn);
   model = errors.customInterfaceErrorMessageInInject(model,
     'Model expects Intent to have the required property '
   );
-  var originalArgs = arguments;
-  model.clone = function () {
-    return createModel.apply({}, originalArgs);
-  };
+  model.clone = function cloneModel() { return createModel(definitionFn); };
   return model;
 }
 

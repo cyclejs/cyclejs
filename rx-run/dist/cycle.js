@@ -17536,15 +17536,12 @@ function appendPatch(apply, patch) {
 var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
 
-function createIntent() {
-  var intent = DataFlowNode.apply({}, arguments);
+function createIntent(definitionFn) {
+  var intent = new DataFlowNode(definitionFn);
   intent = errors.customInterfaceErrorMessageInInject(intent,
     'Intent expects View to have the required property '
   );
-  var originalArgs = arguments;
-  intent.clone = function () {
-    return createIntent.apply({}, originalArgs);
-  };
+  intent.clone = function cloneIntent() { return createIntent(definitionFn); };
   return intent;
 }
 
@@ -17555,15 +17552,12 @@ module.exports = createIntent;
 var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
 
-function createModel() {
-  var model = DataFlowNode.apply({}, arguments);
+function createModel(definitionFn) {
+  var model = new DataFlowNode(definitionFn);
   model = errors.customInterfaceErrorMessageInInject(model,
     'Model expects Intent to have the required property '
   );
-  var originalArgs = arguments;
-  model.clone = function () {
-    return createModel.apply({}, originalArgs);
-  };
+  model.clone = function cloneModel() { return createModel(definitionFn); };
   return model;
 }
 
@@ -17605,13 +17599,23 @@ function replaceStreamNameWithStream(vtree, view) {
 }
 
 function checkEventsArray(view) {
-  if (typeof view.events === 'undefined') {
+  if (view.get('events') === null) {
     throw new Error('View must define `events` array with names of event streams');
   }
 }
 
+function createEventStreamsInto(view) {
+  if (view.get('events')) {
+    for (var i = view.get('events').length - 1; i >= 0; i--) {
+      view[view.get('events')[i]] = new Rx.Subject();
+    }
+  }
+}
+
 function checkVTree$(view) {
-  if (typeof view.vtree$ === 'undefined' || typeof view.vtree$.subscribe !== 'function') {
+  if (view.get('vtree$') === null ||
+    typeof view.get('vtree$').subscribe !== 'function')
+  {
     throw new Error('View must define `vtree$` Observable emitting virtual DOM elements');
   }
 }
@@ -17624,33 +17628,46 @@ function throwErrorIfNotVTree(vtree) {
   }
 }
 
-function createView() {
-  var view = DataFlowNode.apply({}, arguments);
-  view = errors.customInterfaceErrorMessageInInject(view,
-    'View expects Model to have the required property '
-  );
-  checkEventsArray(view);
-  checkVTree$(view);
-  if (view.events) {
-    for (var i = view.events.length - 1; i >= 0; i--) {
-      view[view.events[i]] = new Rx.Subject();
-    }
-    delete view.events;
-  }
-  view.vtree$ = view.vtree$
+function getCorrectedVtree$(view) {
+  var newVtree$ = view.get('vtree$')
     .map(function (vtree) {
       if (vtree.type === 'Widget') { return vtree; }
       throwErrorIfNotVTree(vtree);
       replaceStreamNameWithStream(vtree, view);
       return vtree;
     })
-    .shareReplay(1)
-  ;
-  try { view.vtree$.subscribe(function () {}); } catch (err) { }
-  var originalArgs = arguments;
-  view.clone = function cloneView() {
-    return createView.apply({}, originalArgs);
+    .replay();
+  newVtree$.connect();
+  return newVtree$;
+}
+
+function overrideGet(view) {
+  var oldGet = view.get;
+  var newVtree$ = getCorrectedVtree$(view); // Is here because has connect() side effect
+  var eventsArray = view.get('events');
+  eventsArray = (Array.isArray(eventsArray)) ? eventsArray : null;
+  view.get = function get(streamName) {
+    var eventsArrayHasStreamName = eventsArray && eventsArray.indexOf(streamName) !== -1;
+    if (streamName === 'vtree$') { // Override get('vtree$')
+      return newVtree$;
+    } else if (eventsArrayHasStreamName && view.hasOwnProperty(streamName)) {
+      return view[streamName];
+    } else {
+      return oldGet.call(this, streamName);
+    }
   };
+}
+
+function createView(definitionFn) {
+  var view = new DataFlowNode(definitionFn);
+  view = errors.customInterfaceErrorMessageInInject(view,
+    'View expects Model to have the required property '
+  );
+  checkEventsArray(view);
+  checkVTree$(view);
+  createEventStreamsInto(view);
+  overrideGet(view);
+  view.clone = function cloneView() { return createView(definitionFn); };
   return view;
 }
 
@@ -17658,7 +17675,9 @@ module.exports = createView;
 
 },{"./data-flow-node":68,"./errors":71,"rx":23}],66:[function(require,module,exports){
 'use strict';
-var Rx = require('rx');
+var InputProxy = require('./input-proxy');
+var DataFlowNode = require('./data-flow-node');
+var Utils = require('./utils');
 
 function getEventsOrigDestMap(vtree) {
   var map = {};
@@ -17674,44 +17693,27 @@ function getEventsOrigDestMap(vtree) {
   return map;
 }
 
-function createStubsForInterface(interfaceArray) {
-  var stubs = {};
-  if (!interfaceArray) {
-    return stubs;
-  }
-  for (var i = interfaceArray.length - 1; i >= 0; i--) {
-    var streamName = interfaceArray[i];
-    stubs[streamName] = new Rx.Subject();
-  }
-  return stubs;
-}
-
-function createContainerElement(tagName, dataFlowNode) {
-  var attributesInterface = dataFlowNode.inputInterfaces[0];
+function createContainerElement(tagName) {
   var elem = document.createElement('div');
   elem.className = 'cycleCustomElementContainer-' + tagName;
-  elem.cycleCustomElementAttributes = createStubsForInterface(attributesInterface);
+  elem.cycleCustomElementAttributes = new InputProxy();
   return elem;
 }
 
-function endsWithDolarSign(str) {
-  if (typeof str !== 'string') {
-    return false;
-  }
-  return str.indexOf('$', str.length - 1) !== -1;
-}
-
 function getOriginEventStreams(dataFlowNode) {
-  var events = {};
-  for (var prop in dataFlowNode) {
-    if (dataFlowNode.hasOwnProperty(prop) &&
-      endsWithDolarSign(prop) &&
-      prop !== 'vtree$')
-    {
-      events[prop] = dataFlowNode[prop];
-    }
+  if (!(dataFlowNode instanceof DataFlowNode) ||
+    !Array.isArray(dataFlowNode.outputStreams))
+  {
+    return {};
   }
-  return events;
+  return dataFlowNode.outputStreams
+    .filter(function (streamName) {
+      return Utils.endsWithDolarSign(streamName) && streamName !== 'vtree$';
+    })
+    .reduce(function (events, streamName) {
+      events[streamName] = dataFlowNode.get(streamName);
+      return events;
+    }, {});
 }
 
 function subscribeAndForward(origin$, destination$) {
@@ -17744,7 +17746,7 @@ function makeInit(tagName, dataFlowNode) {
   var Renderer = require('./renderer');
   return function initCustomElement() {
     var dfn = dataFlowNode.clone();
-    var elem = createContainerElement(tagName, dfn);
+    var elem = createContainerElement(tagName);
     var renderer = new Renderer(elem);
     var events = getOriginEventStreams(dfn);
     forwardOriginEventsToDestinations(events, this.eventsOrigDestMap);
@@ -17757,15 +17759,21 @@ function makeInit(tagName, dataFlowNode) {
 
 function makeUpdate() {
   return function updateCustomElement(prev, elem) {
-    for (var prop in elem.cycleCustomElementAttributes) {
+    if (!elem ||
+      !elem.cycleCustomElementAttributes ||
+      !(elem.cycleCustomElementAttributes instanceof InputProxy) ||
+      !elem.cycleCustomElementAttributes.proxiedProps)
+    {
+      return;
+    }
+    var proxiedProps = elem.cycleCustomElementAttributes.proxiedProps;
+    for (var prop in proxiedProps) {
       var attrStreamName = prop;
       var attrName = prop.slice(0, -1);
-      if (elem.cycleCustomElementAttributes.hasOwnProperty(attrStreamName) &&
+      if (proxiedProps.hasOwnProperty(attrStreamName) &&
         this.attributes.hasOwnProperty(attrName))
       {
-        elem.cycleCustomElementAttributes[attrStreamName].onNext(
-          this.attributes[attrName]
-        );
+        proxiedProps[attrStreamName].onNext(this.attributes[attrName]);
       }
     }
   };
@@ -17777,7 +17785,7 @@ module.exports = {
   makeUpdate: makeUpdate
 };
 
-},{"./renderer":73,"rx":23}],67:[function(require,module,exports){
+},{"./data-flow-node":68,"./input-proxy":72,"./renderer":74,"./utils":75}],67:[function(require,module,exports){
 'use strict';
 var VirtualDOM = require('virtual-dom');
 var Rx = require('rx');
@@ -17789,32 +17797,18 @@ var PropertyHook = require('./property-hook');
 
 var Cycle = {
   /**
-   * Creates a DataFlowNode.
+   * Creates a DataFlowNode based on the given `definitionFn`. The `definitionFn`
+   * function will be executed immediately on create, and the resulting DataFlowNode
+   * outputs will be synchronously available. The inputs are asynchronously injected
+   * later with the `inject()` function on the DataFlowNode.
    *
-   * `inputInterface1` is an array of strings, defining which  Observables are expected to
-   * exist in the first input. It defines the 'type' of the input, since JavaScript has no
-   * strong types. The `inputInterface1` is optional if the DataFlowNode does not have any
-   * input. In that case, the function `definitionFn` should not have any parameter
-   * either. There can be an arbitrary number of input interfaces, but the number of input
-   * interfaces must match the number of arguments that `definitionFn` has. The arguments
-   * to `definitionFn` are objects that should fulfil the respective interfaces.
-   *
-   * @param {Array<String>} [inputInterface1] property names that are expected to exist
-   * as RxJS Observables in the first input parameter for `definitionFn`.
-   * @param {} ...
-   * @param {Function} definitionFn a function expecting objects as parameters (as many as
-   * there are interfaces), satisfying the type requirement given by `inputInterface1`,
-   * `inputInterface2`, etc. Should return an object containing RxJS Observables as
-   * properties.
+   * @param {Function} definitionFn a function expecting DataFlowNodes as parameters.
+   * This function should return an object containing RxJS Observables as properties.
+   * The input parameters can also be plain objects with Observables as properties.
    * @return {DataFlowNode} a DataFlowNode, containing a `inject(inputs...)` function.
    */
-  createDataFlowNode: function createDataFlowNode() {
-    var args = arguments;
-    function F() {
-      return DataFlowNode.apply(this, args);
-    }
-    F.prototype = DataFlowNode.prototype;
-    return new F();
+  createDataFlowNode: function createDataFlowNode(definitionFn) {
+    return new DataFlowNode(definitionFn);
   },
 
   /**
@@ -17827,13 +17821,8 @@ var Cycle = {
    * @param {Object} outputObject an object containing RxJS Observables.
    * @return {DataFlowSource} a DataFlowSource equivalent to the given outputObject
    */
-  createDataFlowSource: function createDataFlowSource() {
-    var args = arguments;
-    function F() {
-      return DataFlowSource.apply(this, args);
-    }
-    F.prototype = DataFlowSource.prototype;
-    return new F();
+  createDataFlowSource: function createDataFlowSource(outputObject) {
+    return new DataFlowSource(outputObject);
   },
 
   /**
@@ -17844,25 +17833,17 @@ var Cycle = {
    * and should return a `Rx.Disposable` subscription.
    * @return {DataFlowSink} a DataFlowSink, containing a `inject(inputs...)` function.
    */
-  createDataFlowSink: function createDataFlowSink() {
-    var args = arguments;
-    function F() {
-      return DataFlowSink.apply(this, args);
-    }
-    F.prototype = DataFlowSink.prototype;
-    return new F();
+  createDataFlowSink: function createDataFlowSink(definitionFn) {
+    return new DataFlowSink(definitionFn);
   },
 
   /**
    * Returns a DataFlowNode representing a Model, having some Intent as input.
    *
-   * Is a specialized case of `createDataFlowNode()`, hence can also receive multiple
-   * interfaces and multiple inputs in `definitionFn`.
+   * Is a specialized case of `createDataFlowNode()`, with the same API.
    *
-   * @param {Array<String>} [intentInterface] property names that are expected to exist as
-   * RxJS Observables in the input Intent.
-   * @param {Function} definitionFn a function expecting an Intent object as parameter.
-   * Should return an object containing RxJS Observables as properties.
+   * @param {Function} definitionFn a function expecting an Intent DataFlowNode as
+   * parameter. Should return an object containing RxJS Observables as properties.
    * @return {DataFlowNode} a DataFlowNode representing a Model, containing a
    * `inject(intent)` function.
    * @function createModel
@@ -17872,11 +17853,8 @@ var Cycle = {
   /**
    * Returns a DataFlowNode representing a View, having some Model as input.
    *
-   * Is a specialized case of `createDataFlowNode()`, hence can also receive multiple
-   * interfaces and multiple inputs in `definitionFn`.
+   * Is a specialized case of `createDataFlowNode()`.
    *
-   * @param {Array<String>} [modelInterface] property names that are expected to exist as
-   * RxJS Observables in the input Model.
    * @param {Function} definitionFn a function expecting a Model object as parameter.
    * Should return an object containing RxJS Observables as properties. The object **must
    * contain** two properties: `vtree$` and `events`. The value of `events` must be an
@@ -17891,11 +17869,8 @@ var Cycle = {
   /**
    * Returns a DataFlowNode representing an Intent, having some View as input.
    *
-   * Is a specialized case of `createDataFlowNode()`, hence can also receive multiple
-   * interfaces and multiple inputs in `definitionFn`.
+   * Is a specialized case of `createDataFlowNode()`.
    *
-   * @param {Array<String>} [viewInterface] property names that are expected to exist as
-   * RxJS Observables in the input View.
    * @param {Function} definitionFn a function expecting a View object as parameter.
    * Should return an object containing RxJS Observables as properties.
    * @return {DataFlowNode} a DataFlowNode representing an Intent, containing a
@@ -17972,10 +17947,12 @@ var Cycle = {
 
 module.exports = Cycle;
 
-},{"./create-intent":63,"./create-model":64,"./create-view":65,"./data-flow-node":68,"./data-flow-sink":69,"./data-flow-source":70,"./property-hook":72,"./renderer":73,"rx":23,"virtual-dom":27}],68:[function(require,module,exports){
+},{"./create-intent":63,"./create-model":64,"./create-view":65,"./data-flow-node":68,"./data-flow-sink":69,"./data-flow-source":70,"./property-hook":73,"./renderer":74,"rx":23,"virtual-dom":27}],68:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
 var errors = require('./errors');
+var InputProxy = require('./input-proxy');
+var Utils = require('./utils');
 var CycleInterfaceError = errors.CycleInterfaceError;
 
 function replicate(source, subject) {
@@ -17993,92 +17970,100 @@ function replicate(source, subject) {
   );
 }
 
-function checkInputInterfaceArray(inputInterface) {
-  if (!Array.isArray(inputInterface)) {
-    throw new Error('Expected an array as the interface of the input for \n' +
-      'the DataFlowNode.'
-    );
-  }
-}
-
-function checkInputInterfaceOnlyStrings(inputInterface) {
-  for (var i = inputInterface.length - 1; i >= 0; i--) {
-    if (typeof inputInterface[i] !== 'string') {
-      throw new Error('Expected strings as names of properties in the input interface');
-    }
-  }
-}
-
-function makeStubPropertiesFromInterface(inputStub, inputInterface) {
-  for (var i = inputInterface.length - 1; i >= 0; i--) {
-    inputStub[inputInterface[i]] = new Rx.Subject();
-  }
-}
-
 function checkOutputObject(output) {
   if (typeof output !== 'object') {
     throw new Error('A DataFlowNode should always return an object.');
   }
 }
 
-function copyProperties(orig, dest) {
-  for (var key in orig) {
-    if (orig.hasOwnProperty(key)) {
-      dest[key] = orig[key];
+function createStreamNamesArray(output) {
+  var array = [];
+  for (var streamName in output) {
+    if (output.hasOwnProperty(streamName) && Utils.endsWithDolarSign(streamName)) {
+      array.push(streamName);
     }
   }
+  return array;
 }
 
-function replicateAll(input, stub) {
-  for (var key in stub) {
-    if (stub.hasOwnProperty(key)) {
-      if (!input.hasOwnProperty(key)) {
-        throw new CycleInterfaceError('Input should have the required property ' +
-          key, String(key)
-        );
-      }
-      replicate(input[key], stub[key]);
-    }
-  }
-}
+var replicateAll;
 
-function DataFlowNode() {
-  var args = Array.prototype.slice.call(arguments);
-  var definitionFn = args.pop();
-  if (typeof definitionFn !== 'function') {
-    throw new Error('DataFlowNode expects the definitionFn as the last argument.');
+function DataFlowNode(definitionFn) {
+  if (arguments.length !== 1 || typeof definitionFn !== 'function') {
+    throw new Error('DataFlowNode expects the definitionFn as the only argument.');
   }
-  var interfaces = args;
-  var inputStubs = interfaces.map(function () { return {}; });
+  var proxies = [];
+  for (var i = 0; i < definitionFn.length; i++) {
+    proxies[i] = new InputProxy();
+  }
   var wasInjected = false;
-  for (var i = interfaces.length - 1; i >= 0; i--) {
-    checkInputInterfaceArray(interfaces[i]);
-    checkInputInterfaceOnlyStrings(interfaces[i]);
-    makeStubPropertiesFromInterface(inputStubs[i], interfaces[i]);
-  }
-  var output = definitionFn.apply(this, inputStubs);
+  var output = definitionFn.apply(this, proxies);
   checkOutputObject(output);
-  copyProperties(output, this);
-  this.inputInterfaces = interfaces;
-  this.inject = function injectIntoDataFlowNode() {
+  this.outputStreams = createStreamNamesArray(output);
+  this.get = function get(streamName) {
+    return output[streamName] || null;
+  };
+  this.clone = function clone() {
+    return new DataFlowNode(definitionFn);
+  };
+  this.inject = function inject() {
     if (wasInjected) {
       console.warn('DataFlowNode has already been injected an input.');
     }
-    for (var i = arguments.length - 1; i >= 0; i--) {
-      replicateAll(arguments[i], inputStubs[i]);
+    if (definitionFn.length !== arguments.length) {
+      console.warn('The call to inject() should provide the inputs that this ' +
+        'DataFlowNode expects according to its definition function.');
+    }
+    for (var i = 0; i < definitionFn.length; i++) {
+      replicateAll(arguments[i], proxies[i]);
     }
     wasInjected = true;
-  };
-  this.clone = function () {
-    return DataFlowNode.apply({}, interfaces.concat([definitionFn]));
   };
   return this;
 }
 
+replicateAll = function replicateAll(input, proxy) {
+  if (!input || !proxy) {
+    return;
+  }
+  for (var key in proxy.proxiedProps) {
+    if (proxy.proxiedProps.hasOwnProperty(key)) {
+      if (!input.hasOwnProperty(key) && input instanceof InputProxy) {
+        input.proxiedProps[key] = new Rx.Subject();
+        replicate(input.proxiedProps[key], proxy.proxiedProps[key]);
+      } else if (input instanceof DataFlowNode && input.get(key) !== null) {
+        replicate(input.get(key), proxy.proxiedProps[key]);
+      } else if (typeof input === 'object' && input.hasOwnProperty(key)) {
+        replicate(input[key], proxy.proxiedProps[key]);
+      } else {
+        throw new CycleInterfaceError('Input should have the required property ' +
+          key, String(key)
+        );
+      }
+    }
+  }
+};
+
 module.exports = DataFlowNode;
 
-},{"./errors":71,"rx":23}],69:[function(require,module,exports){
+},{"./errors":71,"./input-proxy":72,"./utils":75,"rx":23}],69:[function(require,module,exports){
 'use strict';
+
+function makeLightweightInputProxies(args) {
+  return Array.prototype
+    .slice.call(args)
+    .map(function (arg) {
+      return {
+        get: function get(streamName) {
+          if (typeof arg.get === 'function') {
+            return arg.get(streamName);
+          } else {
+            return arg[streamName] || null;
+          }
+        }
+      };
+    });
+}
 
 function DataFlowSink(definitionFn) {
   if (arguments.length !== 1) {
@@ -18089,7 +18074,8 @@ function DataFlowSink(definitionFn) {
   }
   definitionFn.displayName += '(DataFlowSink defFn)';
   this.inject = function injectIntoDataFlowSink() {
-    return definitionFn.apply({}, arguments);
+    var proxies = makeLightweightInputProxies(arguments);
+    return definitionFn.apply({}, proxies);
   };
   return this;
 }
@@ -18133,7 +18119,7 @@ CycleInterfaceError.prototype = Error.prototype;
 
 function customInterfaceErrorMessageInInject(dataFlowNode, message) {
   var originalInject = dataFlowNode.inject;
-  dataFlowNode.inject = function () {
+  dataFlowNode.inject = function inject() {
     try {
       originalInject.apply({}, arguments);
     } catch (err) {
@@ -18154,6 +18140,22 @@ module.exports = {
 
 },{}],72:[function(require,module,exports){
 'use strict';
+var Rx = require('rx');
+
+function InputProxy() {
+  this.proxiedProps = {};
+  this.get = function getFromProxy(streamKey) {
+    if (typeof this.proxiedProps[streamKey] === 'undefined') {
+      this.proxiedProps[streamKey] = new Rx.Subject();
+    }
+    return this.proxiedProps[streamKey];
+  };
+}
+
+module.exports = InputProxy;
+
+},{"rx":23}],73:[function(require,module,exports){
+'use strict';
 
 function PropertyHook(fn) {
   this.fn = fn;
@@ -18164,7 +18166,7 @@ PropertyHook.prototype.hook = function () {
 
 module.exports = PropertyHook;
 
-},{}],73:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 'use strict';
 var VDOM = {
   h: require('virtual-dom').h,
@@ -18269,7 +18271,7 @@ function Renderer(container) {
   }
   // Create sink
   DataFlowSink.call(this, function injectIntoRenderer(view) {
-    return renderEvery(view.vtree$, domContainer, renderer._customElements);
+    return renderEvery(view.get('vtree$'), domContainer, renderer._customElements);
   });
   this.delegator = delegator;
 }
@@ -18294,7 +18296,7 @@ Renderer.prototype.registerCustomElement = function registerCustomElement(
     throw new Error('registerCustomElement requires parameters `tagName` and ' +
       '`dataFlowNode`.');
   }
-  if (!dataFlowNode.vtree$) {
+  if (!dataFlowNode.get('vtree$')) {
     throw new Error('The dataFlowNode for a custom element must export ' +
       '`vtree$`.');
   }
@@ -18312,5 +18314,19 @@ Renderer.prototype.registerCustomElement = function registerCustomElement(
 
 module.exports = Renderer;
 
-},{"./custom-elements":66,"./data-flow-sink":69,"dom-delegator":6,"virtual-dom":27,"virtual-dom/diff":25,"virtual-dom/patch":40}]},{},[67])(67)
+},{"./custom-elements":66,"./data-flow-sink":69,"dom-delegator":6,"virtual-dom":27,"virtual-dom/diff":25,"virtual-dom/patch":40}],75:[function(require,module,exports){
+'use strict';
+
+function endsWithDolarSign(str) {
+  if (typeof str !== 'string') {
+    return false;
+  }
+  return str.indexOf('$', str.length - 1) !== -1;
+}
+
+module.exports = {
+  endsWithDolarSign: endsWithDolarSign
+};
+
+},{}]},{},[67])(67)
 });

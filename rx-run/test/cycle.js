@@ -56,16 +56,16 @@ describe('Cycle', function () {
 
   describe('circularInject', function () {
     it('should tie MVI so that Model data is seen in Intent', function (done) {
-      var fakeModel = Cycle.createDataFlowNode(['i$'], function () {
+      var fakeModel = Cycle.createDataFlowNode(function () {
         return {m$: Rx.Observable.just(2)};
       });
-      var fakeView = Cycle.createDataFlowNode(['m$'], function (model) {
-        return {v$: model.m$.map(function (x) { return x * 3; })};
+      var fakeView = Cycle.createDataFlowNode(function (model) {
+        return {v$: model.get('m$').map(function (x) { return x * 3; })};
       });
-      var fakeIntent = Cycle.createDataFlowNode(['v$'], function (view) {
-        return {i$: view.v$.map(function (x) { return x * 5; })};
+      var fakeIntent = Cycle.createDataFlowNode(function (view) {
+        return {i$: view.get('v$').map(function (x) { return x * 5; })};
       });
-      fakeIntent.i$.subscribe(function (x) {
+      fakeIntent.get('i$').subscribe(function (x) {
         assert.strictEqual(x, 30);
         done();
       });
@@ -73,16 +73,16 @@ describe('Cycle', function () {
     });
 
     it('should tie MVI so that Intent data (DELAYED) is seen in View', function (done) {
-      var fakeModel = Cycle.createDataFlowNode(['i$'], function (intent) {
-        return {m$: intent.i$.startWith(2)};
+      var fakeModel = Cycle.createDataFlowNode(function (intent) {
+        return {m$: intent.get('i$').startWith(2)};
       });
-      var fakeView = Cycle.createDataFlowNode(['m$'], function (model) {
-        return {v$: model.m$.map(function (x) { return x * 3; })};
+      var fakeView = Cycle.createDataFlowNode(function (model) {
+        return {v$: model.get('m$').map(function (x) { return x * 3; })};
       });
-      var fakeIntent = Cycle.createDataFlowNode(['v$'], function () {
+      var fakeIntent = Cycle.createDataFlowNode(function () {
         return {i$: Rx.Observable.just(20).delay(200)};
       });
-      fakeView.v$.skip(1).subscribe(function (x) {
+      fakeView.get('v$').skip(1).subscribe(function (x) {
         assert.strictEqual(x, 60);
         done();
       });
@@ -93,16 +93,16 @@ describe('Cycle', function () {
       var node1 = Cycle.createDataFlowNode(function () {
         return {one$: Rx.Observable.just(2)};
       });
-      var node2 = Cycle.createDataFlowNode(['one$'], function (node1) {
-        return {two$: node1.one$.map(function (x) { return x * 3; })};
+      var node2 = Cycle.createDataFlowNode(function (node1) {
+        return {two$: node1.get('one$').map(function (x) { return x * 3; })};
       });
-      var node3 = Cycle.createDataFlowNode(['two$'], function (node2) {
-        return {three$: node2.two$.map(function (x) { return x * 5; })};
+      var node3 = Cycle.createDataFlowNode(function (node2) {
+        return {three$: node2.get('two$').map(function (x) { return x * 5; })};
       });
-      var node4 = Cycle.createDataFlowNode(['three$'], function (node3) {
-        return {four$: node3.three$.map(function (x) { return x * 7; })};
+      var node4 = Cycle.createDataFlowNode(function (node3) {
+        return {four$: node3.get('three$').map(function (x) { return x * 7; })};
       });
-      node4.four$.subscribe(function (x) {
+      node4.get('four$').subscribe(function (x) {
         assert.strictEqual(x, 210);
         done();
       });
@@ -113,19 +113,19 @@ describe('Cycle', function () {
       var node1 = Cycle.createDataFlowNode(function () {
         return {one$: Rx.Observable.just(2)};
       });
-      var node2 = Cycle.createDataFlowNode(['one$'], function (node1) {
-        return {two$: node1.one$.map(function (x) { return x * 3; })};
+      var node2 = Cycle.createDataFlowNode(function (node1) {
+        return {two$: node1.get('one$').map(function (x) { return x * 3; })};
       });
-      var node3 = Cycle.createDataFlowNode(['two$'], function (node2) {
-        return {three$: node2.two$.map(function (x) { return x * 5; })};
+      var node3 = Cycle.createDataFlowNode(function (node2) {
+        return {three$: node2.get('two$').map(function (x) { return x * 5; })};
       });
-      var node4 = Cycle.createDataFlowNode(['three$'], function (node3) {
-        return {four$: node3.three$.map(function (x) { return x * 7; })};
+      var node4 = Cycle.createDataFlowNode(function (node3) {
+        return {four$: node3.get('three$').map(function (x) { return x * 7; })};
       });
-      var node5 = Cycle.createDataFlowNode(['four$'], function (node4) {
-        return {five$: node4.four$.map(function (x) { return x * 11; })};
+      var node5 = Cycle.createDataFlowNode(function (node4) {
+        return {five$: node4.get('four$').map(function (x) { return x * 11; })};
       });
-      node5.five$.subscribe(function (x) {
+      node5.get('five$').subscribe(function (x) {
         assert.strictEqual(x, 2310);
         done();
       });
@@ -136,22 +136,22 @@ describe('Cycle', function () {
       var node1 = Cycle.createDataFlowNode(function () {
         return {one$: Rx.Observable.just(2)};
       });
-      var node2 = Cycle.createDataFlowNode(['one$'], function (node1) {
-        return {two$: node1.one$.map(function (x) { return x * 3; })};
+      var node2 = Cycle.createDataFlowNode(function (node1) {
+        return {two$: node1.get('one$').map(function (x) { return x * 3; })};
       });
-      var node3 = Cycle.createDataFlowNode(['two$'], function (node2) {
-        return {three$: node2.two$.map(function (x) { return x * 5; })};
+      var node3 = Cycle.createDataFlowNode(function (node2) {
+        return {three$: node2.get('two$').map(function (x) { return x * 5; })};
       });
-      var node4 = Cycle.createDataFlowNode(['three$'], function (node3) {
-        return {four$: node3.three$.map(function (x) { return x * 7; })};
+      var node4 = Cycle.createDataFlowNode(function (node3) {
+        return {four$: node3.get('three$').map(function (x) { return x * 7; })};
       });
-      var node5 = Cycle.createDataFlowNode(['four$'], function (node4) {
-        return {five$: node4.four$.map(function (x) { return x * 11; })};
+      var node5 = Cycle.createDataFlowNode(function (node4) {
+        return {five$: node4.get('four$').map(function (x) { return x * 11; })};
       });
-      var node6 = Cycle.createDataFlowNode(['five$'], function (node5) {
-        return {six$: node5.five$.map(function (x) { return x * 13; })};
+      var node6 = Cycle.createDataFlowNode(function (node5) {
+        return {six$: node5.get('five$').map(function (x) { return x * 13; })};
       });
-      node6.six$.subscribe(function (x) {
+      node6.get('six$').subscribe(function (x) {
         assert.strictEqual(x, 30030);
         done();
       });
@@ -161,25 +161,24 @@ describe('Cycle', function () {
 
   describe('Data Flow', function () {
     it('should not require Renderer injected before MVI injection', function (done) {
-      var model = Cycle.createModel(['i$'], function () {
+      var model = Cycle.createModel(function () {
         return {m$: Rx.Observable.just(2)};
       });
-      var view = Cycle.createView(['m$'], function (model) {
+      var view = Cycle.createView(function (model) {
         return {
           events: [],
-          vtree$: model.m$.map(function (x) { return Cycle.h('div', String(x)); }),
-          v$: model.m$.map(function (x) { return x * 3; })
+          vtree$: model.get('m$').map(function (x) { return Cycle.h('div', String(x)); }),
+          v$: model.get('m$').map(function (x) { return x * 3; })
         };
       });
-      var intent = Cycle.createIntent(['v$'], function (view) {
-        return {i$: view.v$.map(function (x) { return x * 5; })};
+      var intent = Cycle.createIntent(function (view) {
+        return {i$: view.get('v$').map(function (x) { return x * 5; })};
       });
       Cycle.circularInject(model, view, intent);
-      view.vtree$.subscribe(function (x) {
+      view.get('vtree$').subscribe(function (x) {
         assert.strictEqual(x.type, 'VirtualNode');
         done();
       });
-      view.events = [];
     });
   });
 

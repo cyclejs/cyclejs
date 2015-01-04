@@ -33,13 +33,23 @@ function replaceStreamNameWithStream(vtree, view) {
 }
 
 function checkEventsArray(view) {
-  if (typeof view.events === 'undefined') {
+  if (view.get('events') === null) {
     throw new Error('View must define `events` array with names of event streams');
   }
 }
 
+function createEventStreamsInto(view) {
+  if (view.get('events')) {
+    for (var i = view.get('events').length - 1; i >= 0; i--) {
+      view[view.get('events')[i]] = new Rx.Subject();
+    }
+  }
+}
+
 function checkVTree$(view) {
-  if (typeof view.vtree$ === 'undefined' || typeof view.vtree$.subscribe !== 'function') {
+  if (view.get('vtree$') === null ||
+    typeof view.get('vtree$').subscribe !== 'function')
+  {
     throw new Error('View must define `vtree$` Observable emitting virtual DOM elements');
   }
 }
@@ -52,33 +62,46 @@ function throwErrorIfNotVTree(vtree) {
   }
 }
 
-function createView() {
-  var view = DataFlowNode.apply({}, arguments);
-  view = errors.customInterfaceErrorMessageInInject(view,
-    'View expects Model to have the required property '
-  );
-  checkEventsArray(view);
-  checkVTree$(view);
-  if (view.events) {
-    for (var i = view.events.length - 1; i >= 0; i--) {
-      view[view.events[i]] = new Rx.Subject();
-    }
-    delete view.events;
-  }
-  view.vtree$ = view.vtree$
+function getCorrectedVtree$(view) {
+  var newVtree$ = view.get('vtree$')
     .map(function (vtree) {
       if (vtree.type === 'Widget') { return vtree; }
       throwErrorIfNotVTree(vtree);
       replaceStreamNameWithStream(vtree, view);
       return vtree;
     })
-    .shareReplay(1)
-  ;
-  try { view.vtree$.subscribe(function () {}); } catch (err) { }
-  var originalArgs = arguments;
-  view.clone = function cloneView() {
-    return createView.apply({}, originalArgs);
+    .replay();
+  newVtree$.connect();
+  return newVtree$;
+}
+
+function overrideGet(view) {
+  var oldGet = view.get;
+  var newVtree$ = getCorrectedVtree$(view); // Is here because has connect() side effect
+  var eventsArray = view.get('events');
+  eventsArray = (Array.isArray(eventsArray)) ? eventsArray : null;
+  view.get = function get(streamName) {
+    var eventsArrayHasStreamName = eventsArray && eventsArray.indexOf(streamName) !== -1;
+    if (streamName === 'vtree$') { // Override get('vtree$')
+      return newVtree$;
+    } else if (eventsArrayHasStreamName && view.hasOwnProperty(streamName)) {
+      return view[streamName];
+    } else {
+      return oldGet.call(this, streamName);
+    }
   };
+}
+
+function createView(definitionFn) {
+  var view = new DataFlowNode(definitionFn);
+  view = errors.customInterfaceErrorMessageInInject(view,
+    'View expects Model to have the required property '
+  );
+  checkEventsArray(view);
+  checkVTree$(view);
+  createEventStreamsInto(view);
+  overrideGet(view);
+  view.clone = function cloneView() { return createView(definitionFn); };
   return view;
 }
 

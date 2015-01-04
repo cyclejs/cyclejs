@@ -1,8 +1,8 @@
 var h = Cycle.h;
 
-var FooModel = Cycle.createModel(['requestNewBar$'], function (intent) {
+var FooModel = Cycle.createModel(function (intent) {
   return {
-    foo$: intent.requestNewBar$
+    foo$: intent.get('requestNewBar$')
       .map(function () {
         return {id: 2, bar: Math.round(Math.random() * 1000)};
       })
@@ -10,9 +10,9 @@ var FooModel = Cycle.createModel(['requestNewBar$'], function (intent) {
   };
 });
 
-var FooView = Cycle.createView(['foo$'], function (model) {
+var FooView = Cycle.createView(function (model) {
   return {
-    vtree$: model.foo$
+    vtree$: model.get('foo$')
       .map(function (fooData) {
         return h('div', {
           'attributes': {'data-foo-id': fooData.id},
@@ -30,9 +30,9 @@ var FooView = Cycle.createView(['foo$'], function (model) {
   };
 });
 
-var FooIntent = Cycle.createIntent(['fooClicks$'], function (view) {
+var FooIntent = Cycle.createIntent(function (view) {
   return {
-    requestNewBar$: view.fooClicks$.map(function () { return 'x'; })
+    requestNewBar$: view.get('fooClicks$').map(function () { return 'x'; })
   };
 });
 
