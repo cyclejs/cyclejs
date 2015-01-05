@@ -51,19 +51,6 @@ Page1Model ──> Page1View ────> RouteView <──── Page2View <�
 
 The idea is to represent the current page (or route) in a RouteModel, then to use a RouteView that consumes the RouteModel, but also consumes Page1View and Page2View. In other words, RouteView should take three inputs. Internally, RouteView is just a switch which redirects only from Page1View if and only if the RouteModel has emitted 'page1' as the current page, or redirects only Page2View if RouteModel emits 'page2'. Then RouteIntent consumes Page1Intent and Page2Intent, the two latter should exports events indicating that the user wants to change the page. For instance, Page1Intent might have an event stream called `goToPage2$`. RouteIntent aggregates these types of events, and the RouteModel will listen to those.
 
-## Why doesn't `ev-mouseover` or other `ev-<event>` work?
-
-The event is not likely part of `DOMDelegators` [`common events`](https://github.com/Raynos/dom-delegator/blob/master/index.js#L13).
-
-You can add them:
-
-```javascript
-var renderer = Cycle.createRenderer(<your node>);
-renderer.delegator.listenTo('mouseover');
-```
-
-See [here](https://github.com/Raynos/dom-delegator/issues/16) for more information.
-
 ## How can I set callbacks for changing data in the Model?
 
 (TODO answer this)
