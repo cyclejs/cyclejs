@@ -38,22 +38,22 @@ var HelloModel = Cycle.createModel(function (intent) {
 var HelloView = Cycle.createView(function (model) {
   return {
     vtree$: model.get('name$')
-      .map(function (name) {
-        return h('div', {}, [
+      .map((name) =>
+        h('div', {}, [
           h('label', 'Name:'),
           h('input', {
             'attributes': {'type': 'text'},
             'ev-input': 'inputText$'
           }),
           h('h1', 'Hello ' + name)
-        ]);
-      })
+        ])
+      )
   };
 });
 
 var HelloIntent = Cycle.createIntent(function (view) {
   return {
-    changeName$: view.get('inputText$').map(function (ev) { return ev.target.value; })
+    changeName$: view.get('inputText$').map((ev) => ev.target.value)
   };
 });
 
