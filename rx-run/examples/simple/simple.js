@@ -41,5 +41,5 @@ var BarIntent = FooIntent.clone();
 
 Cycle.createRenderer('.js-container1').inject(FooView);
 Cycle.createRenderer('.js-container2').inject(BarView);
-Cycle.circularInject(FooModel, FooView, FooIntent);
-Cycle.circularInject(BarModel, BarView, BarIntent);
+FooIntent.inject(FooView).inject(FooModel).inject(FooIntent);
+BarIntent.inject(BarView).inject(BarModel).inject(BarIntent);

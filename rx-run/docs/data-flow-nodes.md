@@ -136,7 +136,7 @@ localStorage or to database in the backend.
 DataFlowNode injects are.
 
 **Inject** a dependency into a DataFlowSink by calling `inject(inputs...)`. The inject
-simply calls the original `definitionFn` using the given `inputs...`.
+simply calls the original `definitionFn` using the given `inputs...`. Inject returns the same inputs it was given, e.g. `a.inject(b)` returns simply `b`. This makes it easy to create circular injection chains, for instance, `intent.inject(view).inject(model).inject(intent)` for the Model-View-Intent cycle.
 
 # Data Flow Sources
 

@@ -68,6 +68,13 @@ function DataFlowNode(definitionFn) {
       replicateAll(arguments[i], proxies[i]);
     }
     wasInjected = true;
+    if (arguments.length === 1) {
+      return arguments[0];
+    } else if (arguments.length > 1) {
+      return Array.prototype.slice.call(arguments);
+    } else {
+      return null;
+    }
   };
   return this;
 }

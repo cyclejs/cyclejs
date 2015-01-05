@@ -17881,30 +17881,6 @@ var Cycle = {
   },
 
   /**
-   * Ties together the given input DataFlowNodes, making them be circular dependencies
-   * to each other. Calls `inject()` on each of the given DataFlowNodes, in reverse order.
-   * This function can be called with an arbitrary number of inputs, but it is commonly
-   * used for the Model-View-Intent triple of nodes.
-   *
-   * @param {DataFlowNode} model a Model node.
-   * @param {DataFlowNode} view a View node.
-   * @param {DataFlowNode} intent an Intent node.
-   * @function circularInject
-   */
-  circularInject: function circularInject() {
-    for (var i = arguments.length - 1; i >= 0; i--) {
-      var current = arguments[i];
-      var previous = arguments[(i - 1 >= 0) ? i - 1 : arguments.length - 1];
-      if (typeof current === 'undefined' || typeof current.inject !== 'function') {
-        throw new Error('Bad input. circularInject() expected a DataFlowNode as input');
-      }
-      if (current) {
-        current.inject(previous);
-      }
-    }
-  },
-
-  /**
    * Returns a hook for manipulating an element from the real DOM. This is a helper for
    * creating VTrees in Views. Useful for calling `focus()` on the DOM element, or doing
    * similar mutations.
@@ -18006,6 +17982,13 @@ function DataFlowNode(definitionFn) {
       replicateAll(arguments[i], proxies[i]);
     }
     wasInjected = true;
+    if (arguments.length === 1) {
+      return arguments[0];
+    } else if (arguments.length > 1) {
+      return Array.prototype.slice.call(arguments);
+    } else {
+      return null;
+    }
   };
   return this;
 }
@@ -18112,7 +18095,7 @@ function customInterfaceErrorMessageInInject(dataFlowNode, message) {
   var originalInject = dataFlowNode.inject;
   dataFlowNode.inject = function inject() {
     try {
-      originalInject.apply({}, arguments);
+      return originalInject.apply({}, arguments);
     } catch (err) {
       if (err.name === 'CycleInterfaceError') {
         throw new CycleInterfaceError(message + err.missingMember, err.missingMember);

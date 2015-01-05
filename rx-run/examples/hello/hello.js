@@ -26,5 +26,5 @@ var HelloIntent = Cycle.createIntent(function (view) {
   };
 });
 
-Cycle.circularInject(HelloModel, HelloView, HelloIntent);
+HelloIntent.inject(HelloView).inject(HelloModel).inject(HelloIntent);
 Cycle.createRenderer('.js-container').inject(HelloView);

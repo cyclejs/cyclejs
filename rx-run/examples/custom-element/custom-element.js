@@ -89,6 +89,4 @@ var Intent = Cycle.createIntent(function (view) {
 var renderer = Cycle.createRenderer('.js-container');
 renderer.registerCustomElement('ticker', TickerDataFlowNode);
 renderer.inject(View);
-Intent.inject(View);
-View.inject(Model);
-Model.inject(Intent);
+Intent.inject(View).inject(Model).inject(Intent);
