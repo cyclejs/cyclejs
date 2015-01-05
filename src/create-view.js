@@ -2,8 +2,9 @@
 var Rx = require('rx');
 var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
+var Utils = require('./utils');
 
-// traverse the vtree, replacing the value of 'ev-*' fields with
+// traverse the vtree, replacing the value of 'onXYZ' fields with
 // `function (ev) { view[$PREVIOUS_VALUE].onNext(ev); }`
 function replaceStreamNameWithStream(vtree, view) {
   if (!vtree) {
@@ -12,16 +13,17 @@ function replaceStreamNameWithStream(vtree, view) {
   if (vtree.type === 'VirtualNode' && typeof vtree.properties !== 'undefined') {
     for (var key in vtree.properties) {
       if (vtree.properties.hasOwnProperty(key) &&
-        typeof key === 'string' && key.search(/^ev\-/) === 0)
+        typeof key === 'string' && key.search(/^on[a-z]+/) === 0)
       {
-        var streamName = vtree.properties[key].value;
-        if (view[streamName]) {
-          vtree.properties[key].value = view[streamName];
-        } else if (typeof streamName === 'string') {
-          throw new Error('VTree uses event hook `' + streamName + '` which should ' +
-            'have been defined in `events` array of the View.'
-          );
+        var streamName = vtree.properties[key];
+        if (typeof streamName === 'string' && !Utils.endsWithDolarSign(streamName)) {
+          throw new Error('VTree event hook should end with dollar sign \$. ' +
+            'Name `' + streamName + '` not allowed.');
         }
+        if (!view[streamName]) {
+          view[streamName] = new Rx.Subject();
+        }
+        vtree.properties[key] = view[streamName];
       }
     }
   }
@@ -32,14 +34,10 @@ function replaceStreamNameWithStream(vtree, view) {
   }
 }
 
-function checkEventsArray(view) {
-  if (typeof view.events === 'undefined') {
-    throw new Error('View must define `events` array with names of event streams');
-  }
-}
-
 function checkVTree$(view) {
-  if (typeof view.vtree$ === 'undefined' || typeof view.vtree$.subscribe !== 'function') {
+  if (view.get('vtree$') === null ||
+    typeof view.get('vtree$').subscribe !== 'function')
+  {
     throw new Error('View must define `vtree$` Observable emitting virtual DOM elements');
   }
 }
@@ -52,33 +50,47 @@ function throwErrorIfNotVTree(vtree) {
   }
 }
 
-function createView() {
-  var view = DataFlowNode.apply({}, arguments);
-  view = errors.customInterfaceErrorMessageInInject(view,
-    'View expects Model to have the required property '
-  );
-  checkEventsArray(view);
-  checkVTree$(view);
-  if (view.events) {
-    for (var i = view.events.length - 1; i >= 0; i--) {
-      view[view.events[i]] = new Rx.Subject();
-    }
-    delete view.events;
-  }
-  view.vtree$ = view.vtree$
+function getCorrectedVtree$(view) {
+  var newVtree$ = view.get('vtree$')
     .map(function (vtree) {
       if (vtree.type === 'Widget') { return vtree; }
       throwErrorIfNotVTree(vtree);
       replaceStreamNameWithStream(vtree, view);
       return vtree;
     })
-    .shareReplay(1)
-  ;
-  try { view.vtree$.subscribe(function () {}); } catch (err) { }
-  var originalArgs = arguments;
-  view.clone = function cloneView() {
-    return createView.apply({}, originalArgs);
+    .replay(null, 1);
+  newVtree$.connect();
+  return newVtree$;
+}
+
+function overrideGet(view) {
+  var oldGet = view.get;
+  var newVtree$ = getCorrectedVtree$(view); // Is here because has connect() side effect
+  view.get = function get(streamName) {
+    if (streamName === 'vtree$') { // Override get('vtree$')
+      return newVtree$;
+    } else if (view[streamName]) {
+      return view[streamName];
+    } else {
+      var result = oldGet.call(this, streamName);
+      if (!result) {
+        view[streamName] = new Rx.Subject();
+        return view[streamName];
+      } else {
+        return result;
+      }
+    }
   };
+}
+
+function createView(definitionFn) {
+  var view = new DataFlowNode(definitionFn);
+  view = errors.customInterfaceErrorMessageInInject(view,
+    'View expects Model to have the required property '
+  );
+  checkVTree$(view);
+  overrideGet(view);
+  view.clone = function cloneView() { return createView(definitionFn); };
   return view;
 }
 

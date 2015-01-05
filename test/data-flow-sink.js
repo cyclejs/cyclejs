@@ -29,14 +29,14 @@ describe('DataFlowSink', function () {
   it('should not execute the definitionFn immediately', function () {
     assert.doesNotThrow(function () {
       new DataFlowSink(function (input) {
-        return input.asd$.subscribe(function () {});
+        return input.get('asd$').subscribe(function () {});
       });
     });
   });
 
   it('should return a Rx.Disposable when injected', function () {
     var sink = new DataFlowSink(function (input) {
-      return input.asd$.subscribe(function () {});
+      return input.get('asd$').subscribe(function () {});
     });
     var x = sink.inject({asd$: Rx.Observable.just(3)});
     var isDisposable = (typeof x.observer !== 'undefined') ||

@@ -1,38 +1,40 @@
 var h = Cycle.h;
 var Rx = Cycle.Rx;
 
-var TickerDataFlowNode = Cycle.createDataFlowNode(['color$'], function (attributes) {
-  var TickerModel = Cycle.createModel(['color$'], ['stop$'], function (attributes, intent) {
+var TickerDataFlowNode = Cycle.createDataFlowNode(function (attributes) {
+  var TickerModel = Cycle.createModel(function (attributes, intent) {
     return {
-      color$: attributes.color$
-        .takeUntil(intent.stop$)
-        .merge(intent.stop$.map(function () { return '#FF0000'; })),
-      x$: Rx.Observable.interval(50).takeUntil(intent.stop$),
-      y$: Rx.Observable.interval(100).takeUntil(intent.stop$)
+      color$: attributes.get('color$')
+        .takeUntil(intent.get('stop$'))
+        .merge(intent.get('stop$').map(function () { return '#FF0000'; })),
+      x$: Rx.Observable.interval(50).takeUntil(intent.get('stop$')),
+      y$: Rx.Observable.interval(100).takeUntil(intent.get('stop$'))
     };
   });
 
-  var TickerView = Cycle.createView(['color$', 'x$', 'y$'], function (model) {
+  var TickerView = Cycle.createView(function (model) {
     return {
-      events: ['removeClick$'],
-      vtree$: Rx.Observable.combineLatest(model.color$, model.x$, model.y$,
+      vtree$: Rx.Observable.combineLatest(
+        model.get('color$'),
+        model.get('x$'),
+        model.get('y$'),
         function (color, x, y) {
           return h('div.ticker', {
             style: {'color': color, 'background-color': '#ECECEC'}
           }, [
             h('h4', 'x'+x+' '+color),
             h('h1','Y'+y+' '+color),
-            h('button', {'ev-click': 'removeClick$'}, 'Remove')
+            h('button', {onclick: 'removeClick$'}, 'Remove')
           ]);
         }
       )
     };
   });
 
-  var TickerIntent = Cycle.createIntent(['removeClick$'], function (view) {
+  var TickerIntent = Cycle.createIntent(function (view) {
     return {
-      stop$: view.removeClick$.map(function () { return 'stop'; }),
-      remove$: view.removeClick$.map(function () { return 'remove'; }).delay(500)
+      stop$: view.get('removeClick$').map(function () { return 'stop'; }),
+      remove$: view.get('removeClick$').map(function () { return 'remove'; }).delay(500)
     };
   });
 
@@ -41,8 +43,8 @@ var TickerDataFlowNode = Cycle.createDataFlowNode(['color$'], function (attribut
   TickerModel.inject(attributes, TickerIntent);
 
   return {
-    vtree$: TickerView.vtree$,
-    remove$: TickerIntent.remove$
+    vtree$: TickerView.get('vtree$'),
+    remove$: TickerIntent.get('remove$')
   };
 });
 
@@ -55,25 +57,24 @@ function makeRandomColor() {
   return hexColor;
 }
 
-var Model = Cycle.createModel(['removeTicker$'], function (intent) {
+var Model = Cycle.createModel(function (intent) {
   return {
     color$: Rx.Observable.interval(1000)
       .map(makeRandomColor)
       .startWith('#000000'),
     tickerExists$: Rx.Observable.just(true)
-      .merge(intent.removeTicker$.map(function() { return false; }))
+      .merge(intent.get('removeTicker$').map(function() { return false; }))
   };
 });
 
-var View = Cycle.createView(['color$', 'tickerExists$'], function (model) {
+var View = Cycle.createView(function (model) {
   return {
-    events: ['removeTicker$'],
-    vtree$: Rx.Observable.combineLatest(model.color$, model.tickerExists$,
+    vtree$: Rx.Observable.combineLatest(model.get('color$'), model.get('tickerExists$'),
       function (color, tickerExists) { 
         return h('div#the-view', [
           tickerExists ? h('ticker', {
             attributes: {'color': color},
-            'ev-remove': 'removeTicker$'
+            onremove: 'removeTicker$'
           }) : null
         ]);
       }
@@ -81,13 +82,11 @@ var View = Cycle.createView(['color$', 'tickerExists$'], function (model) {
   };
 });
 
-var Intent = Cycle.createIntent(['removeTicker$'], function (view) {
-  return {removeTicker$: view.removeTicker$};
+var Intent = Cycle.createIntent(function (view) {
+  return {removeTicker$: view.get('removeTicker$')};
 });
 
 var renderer = Cycle.createRenderer('.js-container');
 renderer.registerCustomElement('ticker', TickerDataFlowNode);
 renderer.inject(View);
-Intent.inject(View);
-View.inject(Model);
-Model.inject(Intent);
+Intent.inject(View).inject(Model).inject(Intent);

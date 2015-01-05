@@ -1,5 +1,21 @@
 'use strict';
 
+function makeLightweightInputProxies(args) {
+  return Array.prototype
+    .slice.call(args)
+    .map(function (arg) {
+      return {
+        get: function get(streamName) {
+          if (typeof arg.get === 'function') {
+            return arg.get(streamName);
+          } else {
+            return arg[streamName] || null;
+          }
+        }
+      };
+    });
+}
+
 function DataFlowSink(definitionFn) {
   if (arguments.length !== 1) {
     throw new Error('DataFlowSink expects only one argument: the definition function.');
@@ -9,7 +25,8 @@ function DataFlowSink(definitionFn) {
   }
   definitionFn.displayName += '(DataFlowSink defFn)';
   this.inject = function injectIntoDataFlowSink() {
-    return definitionFn.apply({}, arguments);
+    var proxies = makeLightweightInputProxies(arguments);
+    return definitionFn.apply({}, proxies);
   };
   return this;
 }

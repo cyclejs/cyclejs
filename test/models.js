@@ -5,18 +5,18 @@ var Rx = require('rx');
 var Cycle = require('../src/cycle');
 
 describe('createModel', function () {
-  it('should return an object when given interface and definitionFn', function () {
-    var model = Cycle.createModel([], function () { return {}; });
+  it('should return an object when given definitionFn', function () {
+    var model = Cycle.createModel(function () { return {}; });
     assert.equal(typeof model, 'object');
   });
 
   it('should yield simple output when injected simple input', function (done) {
-    var model = Cycle.createModel(['foo$'], function (input) {
+    var model = Cycle.createModel(function (input) {
       return {
-        bar$: input.foo$.map(function () { return 'bar'; })
+        bar$: input.get('foo$').map(function () { return 'bar'; })
       };
     });
-    model.bar$.subscribe(function (x) {
+    model.get('bar$').subscribe(function (x) {
       assert.strictEqual(x, 'bar');
       done();
     });
@@ -29,7 +29,7 @@ describe('createModel', function () {
         bar$: Rx.Observable.just(246)
       };
     });
-    model.bar$.subscribe(function (x) {
+    model.get('bar$').subscribe(function (x) {
       assert.strictEqual(x, 246);
       done();
     });
@@ -37,15 +37,15 @@ describe('createModel', function () {
   });
 
   it('should yield output when injected two inputs', function (done) {
-    var model = Cycle.createModel(['x$'], ['y$'], function (input1, input2) {
+    var model = Cycle.createModel(function (input1, input2) {
       return {
         sum$: Rx.Observable
-          .combineLatest(input1.x$, input2.y$, function (x, y) {
+          .combineLatest(input1.get('x$'), input2.get('y$'), function (x, y) {
             return x + y;
           })
       };
     });
-    model.sum$.subscribe(function (x) {
+    model.get('sum$').subscribe(function (x) {
       assert.strictEqual(x, 15);
       done();
     });
@@ -53,13 +53,13 @@ describe('createModel', function () {
   });
 
   it('should be cloneable', function (done) {
-    var model = Cycle.createModel(['foo$'], function (input) {
+    var model = Cycle.createModel(function (input) {
       return {
-        bar$: input.foo$.map(function () { return 'bar'; })
+        bar$: input.get('foo$').map(function () { return 'bar'; })
       };
     });
     var clone = model.clone();
-    clone.bar$.subscribe(function (x) {
+    clone.get('bar$').subscribe(function (x) {
       assert.strictEqual(x, 'bar');
       done();
     });
