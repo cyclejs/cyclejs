@@ -19,7 +19,7 @@ function getEventsOrigDestMap(vtree) {
 
 function createContainerElement(tagName) {
   var elem = document.createElement('div');
-  elem.className = 'cycleCustomElementContainer-' + tagName;
+  elem.className = 'cycleCustomElementContainer-' + tagName.toUpperCase();
   elem.cycleCustomElementAttributes = new InputProxy();
   return elem;
 }

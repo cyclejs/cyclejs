@@ -22,8 +22,8 @@ function replaceCustomElements(vtree, _customElements) {
     return vtree;
   }
   // Replace vtree itself
-  if (_customElements.hasOwnProperty(vtree.tagName)) {
-    return new _customElements[vtree.tagName](vtree);
+  if (_customElements.hasOwnProperty(vtree.tagName.toUpperCase())) {
+    return new _customElements[vtree.tagName.toUpperCase()](vtree);
   }
   // Or replace children recursively
   if (Array.isArray(vtree.children)) {
@@ -127,6 +127,7 @@ Renderer.prototype.registerCustomElement = function registerCustomElement(
     throw new Error('The dataFlowNode for a custom element must export ' +
       '`vtree$`.');
   }
+  tagName = tagName.toUpperCase();
   if (this._customElements && this._customElements.hasOwnProperty(tagName)) {
     throw new Error('Cannot register custom element `' + tagName + '` ' +
       'in Renderer because that tagName is already registered.');
