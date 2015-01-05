@@ -17568,6 +17568,7 @@ module.exports = createModel;
 var Rx = require('rx');
 var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
+var Utils = require('./utils');
 
 // traverse the vtree, replacing the value of 'ev-*' fields with
 // `function (ev) { view[$PREVIOUS_VALUE].onNext(ev); }`
@@ -17581,33 +17582,20 @@ function replaceStreamNameWithStream(vtree, view) {
         typeof key === 'string' && key.search(/^ev\-/) === 0)
       {
         var streamName = vtree.properties[key].value;
-        if (view[streamName]) {
-          vtree.properties[key].value = view[streamName];
-        } else if (typeof streamName === 'string') {
-          throw new Error('VTree uses event hook `' + streamName + '` which should ' +
-            'have been defined in `events` array of the View.'
-          );
+        if (typeof streamName === 'string' && !Utils.endsWithDolarSign(streamName)) {
+          throw new Error('VTree event hook should end with dollar sign \$. ' +
+            'Name `' + streamName + '` not allowed.');
         }
+        if (!view[streamName]) {
+          view[streamName] = new Rx.Subject();
+        }
+        vtree.properties[key].value = view[streamName];
       }
     }
   }
   if (Array.isArray(vtree.children)) {
     for (var i = 0; i < vtree.children.length; i++) {
       replaceStreamNameWithStream(vtree.children[i], view);
-    }
-  }
-}
-
-function checkEventsArray(view) {
-  if (view.get('events') === null) {
-    throw new Error('View must define `events` array with names of event streams');
-  }
-}
-
-function createEventStreamsInto(view) {
-  if (view.get('events')) {
-    for (var i = view.get('events').length - 1; i >= 0; i--) {
-      view[view.get('events')[i]] = new Rx.Subject();
     }
   }
 }
@@ -17644,16 +17632,20 @@ function getCorrectedVtree$(view) {
 function overrideGet(view) {
   var oldGet = view.get;
   var newVtree$ = getCorrectedVtree$(view); // Is here because has connect() side effect
-  var eventsArray = view.get('events');
-  eventsArray = (Array.isArray(eventsArray)) ? eventsArray : null;
   view.get = function get(streamName) {
-    var eventsArrayHasStreamName = eventsArray && eventsArray.indexOf(streamName) !== -1;
     if (streamName === 'vtree$') { // Override get('vtree$')
       return newVtree$;
-    } else if (eventsArrayHasStreamName && view.hasOwnProperty(streamName)) {
+    } else if (view[streamName]) {
       return view[streamName];
     } else {
-      return oldGet.call(this, streamName);
+      var result = oldGet.call(this, streamName);
+      if (!result) {
+        console.log('there was no ' + streamName + ' in the view, in view.get');
+        view[streamName] = new Rx.Subject();
+        return view[streamName];
+      } else {
+        return result;
+      }
     }
   };
 }
@@ -17663,9 +17655,7 @@ function createView(definitionFn) {
   view = errors.customInterfaceErrorMessageInInject(view,
     'View expects Model to have the required property '
   );
-  checkEventsArray(view);
   checkVTree$(view);
-  createEventStreamsInto(view);
   overrideGet(view);
   view.clone = function cloneView() { return createView(definitionFn); };
   return view;
@@ -17673,7 +17663,7 @@ function createView(definitionFn) {
 
 module.exports = createView;
 
-},{"./data-flow-node":68,"./errors":71,"rx":23}],66:[function(require,module,exports){
+},{"./data-flow-node":68,"./errors":71,"./utils":75,"rx":23}],66:[function(require,module,exports){
 'use strict';
 var InputProxy = require('./input-proxy');
 var DataFlowNode = require('./data-flow-node');
@@ -17857,9 +17847,8 @@ var Cycle = {
    *
    * @param {Function} definitionFn a function expecting a Model object as parameter.
    * Should return an object containing RxJS Observables as properties. The object **must
-   * contain** two properties: `vtree$` and `events`. The value of `events` must be an
-   * array of strings with the names of the Observables that carry DOM events. `vtree$`
-   * should be an Observable emitting instances of VTree (Virtual DOM elements).
+   * contain** property `vtree$`, an Observable emitting instances of VTree
+   * (Virtual DOM elements).
    * @return {DataFlowNode} a DataFlowNode representing a View, containing a
    * `inject(model)` function.
    * @function createView
@@ -18034,6 +18023,9 @@ replicateAll = function replicateAll(input, proxy) {
       } else if (input instanceof DataFlowNode && input.get(key) !== null) {
         replicate(input.get(key), proxy.proxiedProps[key]);
       } else if (typeof input === 'object' && input.hasOwnProperty(key)) {
+        if (!input[key]) {
+          input[key] = new Rx.Subject();
+        }
         replicate(input[key], proxy.proxiedProps[key]);
       } else {
         throw new CycleInterfaceError('Input should have the required property ' +

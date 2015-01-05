@@ -166,7 +166,6 @@ describe('Cycle', function () {
       });
       var view = Cycle.createView(function (model) {
         return {
-          events: [],
           vtree$: model.get('m$').map(function (x) { return Cycle.h('div', String(x)); }),
           v$: model.get('m$').map(function (x) { return x * 3; })
         };

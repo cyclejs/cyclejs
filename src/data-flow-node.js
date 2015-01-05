@@ -84,6 +84,9 @@ replicateAll = function replicateAll(input, proxy) {
       } else if (input instanceof DataFlowNode && input.get(key) !== null) {
         replicate(input.get(key), proxy.proxiedProps[key]);
       } else if (typeof input === 'object' && input.hasOwnProperty(key)) {
+        if (!input[key]) {
+          input[key] = new Rx.Subject();
+        }
         replicate(input[key], proxy.proxiedProps[key]);
       } else {
         throw new CycleInterfaceError('Input should have the required property ' +

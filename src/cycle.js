@@ -69,9 +69,8 @@ var Cycle = {
    *
    * @param {Function} definitionFn a function expecting a Model object as parameter.
    * Should return an object containing RxJS Observables as properties. The object **must
-   * contain** two properties: `vtree$` and `events`. The value of `events` must be an
-   * array of strings with the names of the Observables that carry DOM events. `vtree$`
-   * should be an Observable emitting instances of VTree (Virtual DOM elements).
+   * contain** property `vtree$`, an Observable emitting instances of VTree
+   * (Virtual DOM elements).
    * @return {DataFlowNode} a DataFlowNode representing a View, containing a
    * `inject(model)` function.
    * @function createView

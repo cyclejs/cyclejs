@@ -14,8 +14,7 @@ describe('createView', function () {
   it('should yield simple output even when injected nothing', function (done) {
     var view = Cycle.createView(function () {
       return {
-        vtree$: Rx.Observable.just(Cycle.h()),
-        events: []
+        vtree$: Rx.Observable.just(Cycle.h())
       };
     });
     view.get('vtree$').subscribe(function (x) {
@@ -28,8 +27,7 @@ describe('createView', function () {
   it('should be cloneable', function (done) {
     var view = Cycle.createIntent(function (input) {
       return {
-        vtree$: input.get('foo$').map(function () { return Cycle.h('div', 'bar'); }),
-        events: []
+        vtree$: input.get('foo$').map(function () { return Cycle.h('div', 'bar'); })
       };
     });
     var clone = view.clone();
@@ -43,22 +41,11 @@ describe('createView', function () {
     clone.inject({foo$: Rx.Observable.just('foo')});
   });
 
-  it('should throw error if `events` is not outputted', function () {
-    assert.throws(function () {
-      Cycle.createView(function (input) {
-        return {
-          vtree$: input.get('foo$').map(function () { return Cycle.h('div', 'bar'); })
-        };
-      });
-    }, /View must define `events` array/);
-  });
-
   it('should throw error if `vtree$` is not outputted', function () {
     assert.throws(function () {
       Cycle.createView(function (input) {
         return {
-          vtree: input.get('foo$').map(function () { return Cycle.h('div', 'bar'); }),
-          events: []
+          vtree: input.get('foo$').map(function () { return Cycle.h('div', 'bar'); })
         };
       });
     }, /View must define `vtree\$` Observable/);
@@ -68,8 +55,7 @@ describe('createView', function () {
     assert.throws(function () {
       Cycle.createView(function () {
         return {
-          vtree$: 123,
-          events: []
+          vtree$: 123
         };
       });
     }, /View must define `vtree\$` Observable/);
@@ -77,8 +63,7 @@ describe('createView', function () {
     assert.throws(function () {
       Cycle.createView(function () {
         return {
-          vtree$: [], // has map function but is not Observable
-          events: []
+          vtree$: [] // has map function but is not Observable
         };
       });
     }, /View must define `vtree\$` Observable/);
@@ -87,8 +72,7 @@ describe('createView', function () {
   it('should throw error if `vtree$` emits a non-vtree', function () {
     var view = Cycle.createView(function () {
       return {
-        vtree$: Rx.Observable.just('bar'),
-        events: []
+        vtree$: Rx.Observable.just('bar')
       };
     });
     assert.throws(function () {
@@ -99,11 +83,10 @@ describe('createView', function () {
     }, /View `vtree\$` must emit only VirtualNode instances/);
   });
 
-  it('should throw error if vtree has event hook name that wasn\'t defined', function () {
+  it('should throw error if vtree has event hook name not ending in $', function () {
     var view = Cycle.createView(function () {
       return {
-        vtree$: Rx.Observable.just(Cycle.h('div', {'ev-click': 'foo'})),
-        events: ['foo$']
+        vtree$: Rx.Observable.just(Cycle.h('div', {'ev-click': 'foo'}))
       };
     });
     assert.throws(function () {
@@ -111,7 +94,21 @@ describe('createView', function () {
         var noop = function noop() {};
         noop(x);
       });
-    }, /VTree uses event hook \`[^\`]*\` which should have been defined/);
+    }, /event hook should end with dollar sign \$/);
+  });
+
+  it('should not throw error if vtree has good event hook name (ending in $)', function () {
+    var view = Cycle.createView(function () {
+      return {
+        vtree$: Rx.Observable.just(Cycle.h('div', {'ev-click': 'foo$'}))
+      };
+    });
+    assert.doesNotThrow(function () {
+      view.get('vtree$').subscribe(function (x) {
+        var noop = function noop() {};
+        noop(x);
+      });
+    });
   });
 
   it('should silently ignore undefined vtree children', function () {
@@ -126,8 +123,7 @@ describe('createView', function () {
           .map(function (vtree) {
             vtree.children.length = 4;
             return vtree;
-          }),
-          events: []
+          })
         };
       });
       view.get('vtree$').subscribe(function (x) {
@@ -146,8 +142,7 @@ describe('createView', function () {
         return {
           vtree$: Rx.Observable.combineLatest(vtree1$, vtree2$, function (a, b) {
             return Cycle.h('div', [a, b]);
-          }),
-          events: ['h1Clicks$']
+          })
         };
       });
       view.get('vtree$').subscribe(function (x) {
