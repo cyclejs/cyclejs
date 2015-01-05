@@ -37,10 +37,6 @@ describe('Cycle', function () {
       assert.strictEqual(typeof Cycle.createRenderer, 'function');
     });
 
-    it('should have `circularInject`', function () {
-      assert.strictEqual(typeof Cycle.circularInject, 'function');
-    });
-
     it('should have `vdomPropHook`', function () {
       assert.strictEqual(typeof Cycle.vdomPropHook, 'function');
     });
@@ -54,7 +50,7 @@ describe('Cycle', function () {
     });
   });
 
-  describe('circularInject', function () {
+  describe('Circular Injection', function () {
     it('should tie MVI so that Model data is seen in Intent', function (done) {
       var fakeModel = Cycle.createDataFlowNode(function () {
         return {m$: Rx.Observable.just(2)};
@@ -69,7 +65,7 @@ describe('Cycle', function () {
         assert.strictEqual(x, 30);
         done();
       });
-      Cycle.circularInject(fakeModel, fakeView, fakeIntent);
+      fakeIntent.inject(fakeView).inject(fakeModel).inject(fakeIntent);
     });
 
     it('should tie MVI so that Intent data (DELAYED) is seen in View', function (done) {
@@ -86,7 +82,7 @@ describe('Cycle', function () {
         assert.strictEqual(x, 60);
         done();
       });
-      Cycle.circularInject(fakeModel, fakeView, fakeIntent);
+      fakeIntent.inject(fakeView).inject(fakeModel).inject(fakeIntent);
     });
 
     it('should accept 4 Data Flow Nodes as inputs', function (done) {
@@ -106,7 +102,7 @@ describe('Cycle', function () {
         assert.strictEqual(x, 210);
         done();
       });
-      Cycle.circularInject(node1, node2, node3, node4);
+      node4.inject(node3).inject(node2).inject(node1).inject(node4);
     });
 
     it('should accept 5 Data Flow Nodes as inputs', function (done) {
@@ -129,7 +125,7 @@ describe('Cycle', function () {
         assert.strictEqual(x, 2310);
         done();
       });
-      Cycle.circularInject(node1, node2, node3, node4, node5);
+      node5.inject(node4).inject(node3).inject(node2).inject(node1).inject(node5);
     });
 
     it('should accept 6 Data Flow Nodes as inputs', function (done) {
@@ -155,7 +151,13 @@ describe('Cycle', function () {
         assert.strictEqual(x, 30030);
         done();
       });
-      Cycle.circularInject(node1, node2, node3, node4, node5, node6);
+      node6
+        .inject(node5)
+        .inject(node4)
+        .inject(node3)
+        .inject(node2)
+        .inject(node1)
+        .inject(node6);
     });
   });
 
@@ -173,7 +175,7 @@ describe('Cycle', function () {
       var intent = Cycle.createIntent(function (view) {
         return {i$: view.get('v$').map(function (x) { return x * 5; })};
       });
-      Cycle.circularInject(model, view, intent);
+      intent.inject(view).inject(model).inject(intent);
       view.get('vtree$').subscribe(function (x) {
         assert.strictEqual(x.type, 'VirtualNode');
         done();

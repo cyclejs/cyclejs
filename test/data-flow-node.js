@@ -38,6 +38,46 @@ describe('DataFlowNode', function () {
   });
 
   describe('injection', function () {
+    it('should return the same given input', function () {
+      var dataFlowNode = new DataFlowNode(function (input) {
+        return {
+          bar$: input.get('foo$').map(function () { return 'bar'; })
+        };
+      });
+      var input = new DataFlowNode(function () {
+        return {
+          foo$: Rx.Observable.just(3)
+        };
+      });
+      var x = dataFlowNode.inject(input);
+      assert.strictEqual(x, input);
+    });
+
+    it('should return an array of the inputs, if multiple inputs', function () {
+      var dataFlowNode = new DataFlowNode(function (input1, input2) {
+        return {
+          bar$: input1.get('foo$')
+            .sample(input2.get('foo$'))
+            .map(function () { return 'bar'; })
+        };
+      });
+      var input1 = new DataFlowNode(function () {
+        return {
+          foo$: Rx.Observable.just(3)
+        };
+      });
+      var input2 = new DataFlowNode(function () {
+        return {
+          foo$: Rx.Observable.just(2)
+        };
+      });
+      var x = dataFlowNode.inject(input1, input2);
+      assert.strictEqual(Array.isArray(x), true);
+      assert.strictEqual(x.length, 2);
+      assert.strictEqual(x[0], input1);
+      assert.strictEqual(x[1], input2);
+    });
+
     it('should yield simple output when injected simple input', function (done) {
       var dataFlowNode = new DataFlowNode(function (input) {
         return {
