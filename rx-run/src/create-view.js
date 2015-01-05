@@ -4,7 +4,7 @@ var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
 var Utils = require('./utils');
 
-// traverse the vtree, replacing the value of 'ev-*' fields with
+// traverse the vtree, replacing the value of 'onXYZ' fields with
 // `function (ev) { view[$PREVIOUS_VALUE].onNext(ev); }`
 function replaceStreamNameWithStream(vtree, view) {
   if (!vtree) {
@@ -13,9 +13,9 @@ function replaceStreamNameWithStream(vtree, view) {
   if (vtree.type === 'VirtualNode' && typeof vtree.properties !== 'undefined') {
     for (var key in vtree.properties) {
       if (vtree.properties.hasOwnProperty(key) &&
-        typeof key === 'string' && key.search(/^ev\-/) === 0)
+        typeof key === 'string' && key.search(/^on[a-z]+/) === 0)
       {
-        var streamName = vtree.properties[key].value;
+        var streamName = vtree.properties[key];
         if (typeof streamName === 'string' && !Utils.endsWithDolarSign(streamName)) {
           throw new Error('VTree event hook should end with dollar sign \$. ' +
             'Name `' + streamName + '` not allowed.');
@@ -23,7 +23,7 @@ function replaceStreamNameWithStream(vtree, view) {
         if (!view[streamName]) {
           view[streamName] = new Rx.Subject();
         }
-        vtree.properties[key].value = view[streamName];
+        vtree.properties[key] = view[streamName];
       }
     }
   }

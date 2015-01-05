@@ -86,7 +86,7 @@ describe('createView', function () {
   it('should throw error if vtree has event hook name not ending in $', function () {
     var view = Cycle.createView(function () {
       return {
-        vtree$: Rx.Observable.just(Cycle.h('div', {'ev-click': 'foo'}))
+        vtree$: Rx.Observable.just(Cycle.h('div', {onclick: 'foo'}))
       };
     });
     assert.throws(function () {
@@ -100,7 +100,7 @@ describe('createView', function () {
   it('should not throw error if vtree has good event hook name (ending in $)', function () {
     var view = Cycle.createView(function () {
       return {
-        vtree$: Rx.Observable.just(Cycle.h('div', {'ev-click': 'foo$'}))
+        vtree$: Rx.Observable.just(Cycle.h('div', {onclick: 'foo$'}))
       };
     });
     assert.doesNotThrow(function () {
@@ -136,7 +136,7 @@ describe('createView', function () {
   it('should work even when using combineLatest internally', function () {
     assert.doesNotThrow(function () {
       var view = Cycle.createView(function () {
-        var vtree1$ = Rx.Observable.just(Cycle.h('h1', {'ev-click': 'h1Clicks$'}, 'Foo'));
+        var vtree1$ = Rx.Observable.just(Cycle.h('h1', {onclick: 'h1Clicks$'}, 'Foo'));
         var vtree2$ = Rx.Observable.range(1,3)
           .map(function () { return Cycle.h('h2', 'Bar'); })
         return {

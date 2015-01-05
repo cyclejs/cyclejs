@@ -23,7 +23,7 @@ var FooView = Cycle.createView(function (model) {
             'cursor': 'pointer',
             'display': 'inline-block'
           },
-          'ev-click': 'fooClicks$'
+          onclick: 'fooClicks$'
         }, String(fooData.bar));
       })
   };

@@ -7,10 +7,10 @@ function getEventsOrigDestMap(vtree) {
   var map = {};
   for (var key in vtree.properties) {
     if (vtree.properties.hasOwnProperty(key) &&
-      typeof key === 'string' && key.search(/^ev\-/) === 0)
+      typeof key === 'string' && key.search(/^on[a-z]+/) === 0)
     {
-      var originStreamName = key.replace(/^ev\-/, '').concat('$');
-      var destinationStream = vtree.properties[key].value;
+      var originStreamName = key.replace(/^on/, '').concat('$');
+      var destinationStream = vtree.properties[key];
       map[originStreamName] = destinationStream;
     }
   }

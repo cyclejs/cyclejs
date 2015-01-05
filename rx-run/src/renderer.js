@@ -4,11 +4,8 @@ var VDOM = {
   diff: require('virtual-dom/diff'),
   patch: require('virtual-dom/patch')
 };
-var DOMDelegator = require('dom-delegator');
 var DataFlowSink = require('./data-flow-sink');
 var CustomElements = require('./custom-elements');
-
-var delegator = new DOMDelegator();
 
 function isElement(o) {
   return (
@@ -48,11 +45,11 @@ function replaceEventHandlersInVTrees(vtree) {
   if (vtree.type === 'VirtualNode') {
     for (var key in vtree.properties) {
       if (vtree.properties.hasOwnProperty(key) &&
-        typeof key === 'string' && key.search(/^ev\-/) === 0)
+        typeof key === 'string' && key.search(/^on[a-z]+/) === 0)
       {
-        var stream = vtree.properties[key].value;
+        var stream = vtree.properties[key];
         if (stream) {
-          vtree.properties[key].value = getFunctionForwardIntoStream(stream);
+          vtree.properties[key] = getFunctionForwardIntoStream(stream);
         }
       }
     }
@@ -104,7 +101,6 @@ function Renderer(container) {
   DataFlowSink.call(this, function injectIntoRenderer(view) {
     return renderEvery(view.get('vtree$'), domContainer, renderer._customElements);
   });
-  this.delegator = delegator;
 }
 
 Renderer.prototype = Object.create(DataFlowSink.prototype);
