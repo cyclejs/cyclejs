@@ -24,7 +24,7 @@ var TickerDataFlowNode = Cycle.createDataFlowNode(function (attributes) {
           }, [
             h('h4', 'x'+x+' '+color),
             h('h1','Y'+y+' '+color),
-            h('button', {'ev-click': 'removeClick$'}, 'Remove')
+            h('button', {onclick: 'removeClick$'}, 'Remove')
           ]);
         }
       )
@@ -74,7 +74,7 @@ var View = Cycle.createView(function (model) {
         return h('div#the-view', [
           tickerExists ? h('ticker', {
             attributes: {'color': color},
-            'ev-remove': 'removeTicker$'
+            onremove: 'removeTicker$'
           }) : null
         ]);
       }

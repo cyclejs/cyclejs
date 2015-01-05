@@ -9,8 +9,8 @@ var HelloView = Cycle.createView(function (model) {
         return Cycle.h('div', {}, [
           Cycle.h('label', 'Name:'),
           Cycle.h('input', {
-            'attributes': {'type': 'text'},
-            'ev-input': 'inputText$'
+            attributes: {type: 'text'},
+            oninput: 'inputText$'
           }),
           Cycle.h('hr'),
           Cycle.h('h1', 'Hello ' + name)

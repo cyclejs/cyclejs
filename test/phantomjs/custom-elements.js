@@ -180,7 +180,7 @@ describe('Custom Elements', function () {
     var view = Cycle.createView(function () {
       return {
         vtree$: Rx.Observable.just(
-          Cycle.h('myelement', {'ev-myevent': 'myelementEvents$'})
+          Cycle.h('myelement', {onmyevent: 'myelementEvents$'})
         )
       };
     });

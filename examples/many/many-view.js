@@ -3,8 +3,8 @@ var h = Cycle.h;
 
 function vrenderTopButtons() {
   return h('div.topButtons', {}, [
-    h('button', {'ev-click': 'addOneClicks$'}, 'Add New Item'),
-    h('button', {'ev-click': 'addManyClicks$'}, 'Add Many Items')
+    h('button', {onclick: 'addOneClicks$'}, 'Add New Item'),
+    h('button', {onclick: 'addManyClicks$'}, 'Add Many Items')
   ]);
 }
 
@@ -21,20 +21,20 @@ function vrenderItem(itemData) {
       }}, [
       h('input', {
         type: 'text',
-        'attributes': {'data-item-id': itemData.id, value: itemData.color},
-        'ev-input': 'itemColorChanged$'
+        attributes: {'data-item-id': itemData.id, value: itemData.color},
+        oninput: 'itemColorChanged$'
       }),
       h('div', [
         h('input', {
           type: 'range', min:'200', max:'1000',
-          'attributes': {'data-item-id': itemData.id, value: itemData.width},
-          'ev-input': 'itemWidthChanged$'
+          attributes: {'data-item-id': itemData.id, value: itemData.width},
+          oninput: 'itemWidthChanged$'
         })
       ]),
       h('div', String(itemData.width)),
       h('button', {
-        'attributes': {'data-item-id': itemData.id},
-        'ev-click': 'removeClicks$'
+        attributes: {'data-item-id': itemData.id},
+        onclick: 'removeClicks$'
       }, 'Remove')
     ]
   );

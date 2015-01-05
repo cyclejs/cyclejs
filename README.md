@@ -42,8 +42,8 @@ var HelloView = Cycle.createView(function (model) {
         h('div', {}, [
           h('label', 'Name:'),
           h('input', {
-            'attributes': {'type': 'text'},
-            'ev-input': 'inputText$'
+            attributes: {'type': 'text'},
+            oninput: 'inputText$'
           }),
           h('h1', 'Hello ' + name)
         ])
