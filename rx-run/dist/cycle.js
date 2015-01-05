@@ -392,660 +392,6 @@ process.chdir = function (dir) {
 };
 
 },{}],4:[function(require,module,exports){
-var DataSet = require("data-set")
-
-module.exports = addEvent
-
-function addEvent(target, type, handler) {
-    var ds = DataSet(target)
-    var events = ds[type]
-
-    if (!events) {
-        ds[type] = handler
-    } else if (Array.isArray(events)) {
-        if (events.indexOf(handler) === -1) {
-            events.push(handler)
-        }
-    } else if (events !== handler) {
-        ds[type] = [events, handler]
-    }
-}
-
-},{"data-set":9}],5:[function(require,module,exports){
-var globalDocument = require("global/document")
-var DataSet = require("data-set")
-var createStore = require("weakmap-shim/create-store")
-
-var addEvent = require("./add-event.js")
-var removeEvent = require("./remove-event.js")
-var ProxyEvent = require("./proxy-event.js")
-
-var HANDLER_STORE = createStore()
-
-module.exports = DOMDelegator
-
-function DOMDelegator(document) {
-    if (!(this instanceof DOMDelegator)) {
-        return new DOMDelegator(document);
-    }
-
-    document = document || globalDocument
-
-    this.target = document.documentElement
-    this.events = {}
-    this.rawEventListeners = {}
-    this.globalListeners = {}
-}
-
-DOMDelegator.prototype.addEventListener = addEvent
-DOMDelegator.prototype.removeEventListener = removeEvent
-
-DOMDelegator.allocateHandle =
-    function allocateHandle(func) {
-        var handle = new Handle()
-
-        HANDLER_STORE(handle).func = func;
-
-        return handle
-    }
-
-DOMDelegator.transformHandle =
-    function transformHandle(handle, broadcast) {
-        var func = HANDLER_STORE(handle).func
-
-        return this.allocateHandle(function (ev) {
-            broadcast(ev, func);
-        })
-    }
-
-DOMDelegator.prototype.addGlobalEventListener =
-    function addGlobalEventListener(eventName, fn) {
-        var listeners = this.globalListeners[eventName] || [];
-        if (listeners.indexOf(fn) === -1) {
-            listeners.push(fn)
-        }
-
-        this.globalListeners[eventName] = listeners;
-    }
-
-DOMDelegator.prototype.removeGlobalEventListener =
-    function removeGlobalEventListener(eventName, fn) {
-        var listeners = this.globalListeners[eventName] || [];
-
-        var index = listeners.indexOf(fn)
-        if (index !== -1) {
-            listeners.splice(index, 1)
-        }
-    }
-
-DOMDelegator.prototype.listenTo = function listenTo(eventName) {
-    if (!(eventName in this.events)) {
-        this.events[eventName] = 0;
-    }
-
-    this.events[eventName]++;
-
-    if (this.events[eventName] !== 1) {
-        return
-    }
-
-    var listener = this.rawEventListeners[eventName]
-    if (!listener) {
-        listener = this.rawEventListeners[eventName] =
-            createHandler(eventName, this)
-    }
-
-    this.target.addEventListener(eventName, listener, true)
-}
-
-DOMDelegator.prototype.unlistenTo = function unlistenTo(eventName) {
-    if (!(eventName in this.events)) {
-        this.events[eventName] = 0;
-    }
-
-    if (this.events[eventName] === 0) {
-        throw new Error("already unlistened to event.");
-    }
-
-    this.events[eventName]--;
-
-    if (this.events[eventName] !== 0) {
-        return
-    }
-
-    var listener = this.rawEventListeners[eventName]
-
-    if (!listener) {
-        throw new Error("dom-delegator#unlistenTo: cannot " +
-            "unlisten to " + eventName)
-    }
-
-    this.target.removeEventListener(eventName, listener, true)
-}
-
-function createHandler(eventName, delegator) {
-    var globalListeners = delegator.globalListeners;
-    var delegatorTarget = delegator.target;
-
-    return handler
-
-    function handler(ev) {
-        var globalHandlers = globalListeners[eventName] || []
-
-        if (globalHandlers.length > 0) {
-            var globalEvent = new ProxyEvent(ev);
-            globalEvent.currentTarget = delegatorTarget;
-            callListeners(globalHandlers, globalEvent)
-        }
-
-        findAndInvokeListeners(ev.target, ev, eventName)
-    }
-}
-
-function findAndInvokeListeners(elem, ev, eventName) {
-    var listener = getListener(elem, eventName)
-
-    if (listener && listener.handlers.length > 0) {
-        var listenerEvent = new ProxyEvent(ev);
-        listenerEvent.currentTarget = listener.currentTarget
-        callListeners(listener.handlers, listenerEvent)
-
-        if (listenerEvent._bubbles) {
-            var nextTarget = listener.currentTarget.parentNode
-            findAndInvokeListeners(nextTarget, ev, eventName)
-        }
-    }
-}
-
-function getListener(target, type) {
-    // terminate recursion if parent is `null`
-    if (target === null) {
-        return null
-    }
-
-    var ds = DataSet(target)
-    // fetch list of handler fns for this event
-    var handler = ds[type]
-    var allHandler = ds.event
-
-    if (!handler && !allHandler) {
-        return getListener(target.parentNode, type)
-    }
-
-    var handlers = [].concat(handler || [], allHandler || [])
-    return new Listener(target, handlers)
-}
-
-function callListeners(handlers, ev) {
-    handlers.forEach(function (handler) {
-        if (typeof handler === "function") {
-            handler(ev)
-        } else if (typeof handler.handleEvent === "function") {
-            handler.handleEvent(ev)
-        } else if (handler.type === "dom-delegator-handle") {
-            HANDLER_STORE(handler).func(ev)
-        } else {
-            throw new Error("dom-delegator: unknown handler " +
-                "found: " + JSON.stringify(handlers));
-        }
-    })
-}
-
-function Listener(target, handlers) {
-    this.currentTarget = target
-    this.handlers = handlers
-}
-
-function Handle() {
-    this.type = "dom-delegator-handle"
-}
-
-},{"./add-event.js":4,"./proxy-event.js":17,"./remove-event.js":18,"data-set":9,"global/document":12,"weakmap-shim/create-store":15}],6:[function(require,module,exports){
-var Individual = require("individual")
-var cuid = require("cuid")
-var globalDocument = require("global/document")
-
-var DOMDelegator = require("./dom-delegator.js")
-
-var versionKey = "12"
-var cacheKey = "__DOM_DELEGATOR_CACHE@" + versionKey
-var cacheTokenKey = "__DOM_DELEGATOR_CACHE_TOKEN@" + versionKey
-var delegatorCache = Individual(cacheKey, {
-    delegators: {}
-})
-var commonEvents = [
-    "blur", "change", "click",  "contextmenu", "dblclick",
-    "error","focus", "focusin", "focusout", "input", "keydown",
-    "keypress", "keyup", "load", "mousedown", "mouseup",
-    "resize", "select", "submit", "touchcancel",
-    "touchend", "touchstart", "unload"
-]
-
-/*  Delegator is a thin wrapper around a singleton `DOMDelegator`
-        instance.
-
-    Only one DOMDelegator should exist because we do not want
-        duplicate event listeners bound to the DOM.
-
-    `Delegator` will also `listenTo()` all events unless
-        every caller opts out of it
-*/
-module.exports = Delegator
-
-function Delegator(opts) {
-    opts = opts || {}
-    var document = opts.document || globalDocument
-
-    var cacheKey = document[cacheTokenKey]
-
-    if (!cacheKey) {
-        cacheKey =
-            document[cacheTokenKey] = cuid()
-    }
-
-    var delegator = delegatorCache.delegators[cacheKey]
-
-    if (!delegator) {
-        delegator = delegatorCache.delegators[cacheKey] =
-            new DOMDelegator(document)
-    }
-
-    if (opts.defaultEvents !== false) {
-        for (var i = 0; i < commonEvents.length; i++) {
-            delegator.listenTo(commonEvents[i])
-        }
-    }
-
-    return delegator
-}
-
-Delegator.allocateHandle = DOMDelegator.allocateHandle;
-Delegator.transformHandle = DOMDelegator.transformHandle;
-
-},{"./dom-delegator.js":5,"cuid":7,"global/document":12,"individual":13}],7:[function(require,module,exports){
-/**
- * cuid.js
- * Collision-resistant UID generator for browsers and node.
- * Sequential for fast db lookups and recency sorting.
- * Safe for element IDs and server-side lookups.
- *
- * Extracted from CLCTR
- * 
- * Copyright (c) Eric Elliott 2012
- * MIT License
- */
-
-/*global window, navigator, document, require, process, module */
-(function (app) {
-  'use strict';
-  var namespace = 'cuid',
-    c = 0,
-    blockSize = 4,
-    base = 36,
-    discreteValues = Math.pow(base, blockSize),
-
-    pad = function pad(num, size) {
-      var s = "000000000" + num;
-      return s.substr(s.length-size);
-    },
-
-    randomBlock = function randomBlock() {
-      return pad((Math.random() *
-            discreteValues << 0)
-            .toString(base), blockSize);
-    },
-
-    safeCounter = function () {
-      c = (c < discreteValues) ? c : 0;
-      c++; // this is not subliminal
-      return c - 1;
-    },
-
-    api = function cuid() {
-      // Starting with a lowercase letter makes
-      // it HTML element ID friendly.
-      var letter = 'c', // hard-coded allows for sequential access
-
-        // timestamp
-        // warning: this exposes the exact date and time
-        // that the uid was created.
-        timestamp = (new Date().getTime()).toString(base),
-
-        // Prevent same-machine collisions.
-        counter,
-
-        // A few chars to generate distinct ids for different
-        // clients (so different computers are far less
-        // likely to generate the same id)
-        fingerprint = api.fingerprint(),
-
-        // Grab some more chars from Math.random()
-        random = randomBlock() + randomBlock();
-
-        counter = pad(safeCounter().toString(base), blockSize);
-
-      return  (letter + timestamp + counter + fingerprint + random);
-    };
-
-  api.slug = function slug() {
-    var date = new Date().getTime().toString(36),
-      counter,
-      print = api.fingerprint().slice(0,1) +
-        api.fingerprint().slice(-1),
-      random = randomBlock().slice(-2);
-
-      counter = safeCounter().toString(36).slice(-4);
-
-    return date.slice(-2) + 
-      counter + print + random;
-  };
-
-  api.globalCount = function globalCount() {
-    // We want to cache the results of this
-    var cache = (function calc() {
-        var i,
-          count = 0;
-
-        for (i in window) {
-          count++;
-        }
-
-        return count;
-      }());
-
-    api.globalCount = function () { return cache; };
-    return cache;
-  };
-
-  api.fingerprint = function browserPrint() {
-    return pad((navigator.mimeTypes.length +
-      navigator.userAgent.length).toString(36) +
-      api.globalCount().toString(36), 4);
-  };
-
-  // don't change anything from here down.
-  if (app.register) {
-    app.register(namespace, api);
-  } else if (typeof module !== 'undefined') {
-    module.exports = api;
-  } else {
-    app[namespace] = api;
-  }
-
-}(this.applitude || this));
-
-},{}],8:[function(require,module,exports){
-module.exports = createHash
-
-function createHash(elem) {
-    var attributes = elem.attributes
-    var hash = {}
-
-    if (attributes === null || attributes === undefined) {
-        return hash
-    }
-
-    for (var i = 0; i < attributes.length; i++) {
-        var attr = attributes[i]
-
-        if (attr.name.substr(0,5) !== "data-") {
-            continue
-        }
-
-        hash[attr.name.substr(5)] = attr.value
-    }
-
-    return hash
-}
-
-},{}],9:[function(require,module,exports){
-var createStore = require("weakmap-shim/create-store")
-var Individual = require("individual")
-
-var createHash = require("./create-hash.js")
-
-var hashStore = Individual("__DATA_SET_WEAKMAP@3", createStore())
-
-module.exports = DataSet
-
-function DataSet(elem) {
-    var store = hashStore(elem)
-
-    if (!store.hash) {
-        store.hash = createHash(elem)
-    }
-
-    return store.hash
-}
-
-},{"./create-hash.js":8,"individual":13,"weakmap-shim/create-store":10}],10:[function(require,module,exports){
-var hiddenStore = require('./hidden-store.js');
-
-module.exports = createStore;
-
-function createStore() {
-    var key = {};
-
-    return function (obj) {
-        if (typeof obj !== 'object' || obj === null) {
-            throw new Error('Weakmap-shim: Key must be object')
-        }
-
-        var store = obj.valueOf(key);
-        return store && store.identity === key ?
-            store : hiddenStore(obj, key);
-    };
-}
-
-},{"./hidden-store.js":11}],11:[function(require,module,exports){
-module.exports = hiddenStore;
-
-function hiddenStore(obj, key) {
-    var store = { identity: key };
-    var valueOf = obj.valueOf;
-
-    Object.defineProperty(obj, "valueOf", {
-        value: function (value) {
-            return value !== key ?
-                valueOf.apply(this, arguments) : store;
-        },
-        writable: true
-    });
-
-    return store;
-}
-
-},{}],12:[function(require,module,exports){
-(function (global){
-var topLevel = typeof global !== 'undefined' ? global :
-    typeof window !== 'undefined' ? window : {}
-var minDoc = require('min-document');
-
-if (typeof document !== 'undefined') {
-    module.exports = document;
-} else {
-    var doccy = topLevel['__GLOBAL_DOCUMENT_CACHE@4'];
-
-    if (!doccy) {
-        doccy = topLevel['__GLOBAL_DOCUMENT_CACHE@4'] = minDoc;
-    }
-
-    module.exports = doccy;
-}
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"min-document":1}],13:[function(require,module,exports){
-(function (global){
-var root = typeof window !== 'undefined' ?
-    window : typeof global !== 'undefined' ?
-    global : {};
-
-module.exports = Individual
-
-function Individual(key, value) {
-    if (root[key]) {
-        return root[key]
-    }
-
-    Object.defineProperty(root, key, {
-        value: value
-        , configurable: true
-    })
-
-    return value
-}
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],14:[function(require,module,exports){
-if (typeof Object.create === 'function') {
-  // implementation from standard node.js 'util' module
-  module.exports = function inherits(ctor, superCtor) {
-    ctor.super_ = superCtor
-    ctor.prototype = Object.create(superCtor.prototype, {
-      constructor: {
-        value: ctor,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    });
-  };
-} else {
-  // old school shim for old browsers
-  module.exports = function inherits(ctor, superCtor) {
-    ctor.super_ = superCtor
-    var TempCtor = function () {}
-    TempCtor.prototype = superCtor.prototype
-    ctor.prototype = new TempCtor()
-    ctor.prototype.constructor = ctor
-  }
-}
-
-},{}],15:[function(require,module,exports){
-var hiddenStore = require('./hidden-store.js');
-
-module.exports = createStore;
-
-function createStore() {
-    var key = {};
-
-    return function (obj) {
-        if ((typeof obj !== 'object' || obj === null) &&
-            typeof obj !== 'function'
-        ) {
-            throw new Error('Weakmap-shim: Key must be object')
-        }
-
-        var store = obj.valueOf(key);
-        return store && store.identity === key ?
-            store : hiddenStore(obj, key);
-    };
-}
-
-},{"./hidden-store.js":16}],16:[function(require,module,exports){
-arguments[4][11][0].apply(exports,arguments)
-},{"dup":11}],17:[function(require,module,exports){
-var inherits = require("inherits")
-
-var ALL_PROPS = [
-    "altKey", "bubbles", "cancelable", "ctrlKey",
-    "eventPhase", "metaKey", "relatedTarget", "shiftKey",
-    "target", "timeStamp", "type", "view", "which"
-]
-var KEY_PROPS = ["char", "charCode", "key", "keyCode"]
-var MOUSE_PROPS = [
-    "button", "buttons", "clientX", "clientY", "layerX",
-    "layerY", "offsetX", "offsetY", "pageX", "pageY",
-    "screenX", "screenY", "toElement"
-]
-
-var rkeyEvent = /^key|input/
-var rmouseEvent = /^(?:mouse|pointer|contextmenu)|click/
-
-module.exports = ProxyEvent
-
-function ProxyEvent(ev) {
-    if (!(this instanceof ProxyEvent)) {
-        return new ProxyEvent(ev)
-    }
-
-    if (rkeyEvent.test(ev.type)) {
-        return new KeyEvent(ev)
-    } else if (rmouseEvent.test(ev.type)) {
-        return new MouseEvent(ev)
-    }
-
-    for (var i = 0; i < ALL_PROPS.length; i++) {
-        var propKey = ALL_PROPS[i]
-        this[propKey] = ev[propKey]
-    }
-
-    this._rawEvent = ev
-    this._bubbles = false;
-}
-
-ProxyEvent.prototype.preventDefault = function () {
-    this._rawEvent.preventDefault()
-}
-
-ProxyEvent.prototype.startPropagation = function () {
-    this._bubbles = true;
-}
-
-function MouseEvent(ev) {
-    for (var i = 0; i < ALL_PROPS.length; i++) {
-        var propKey = ALL_PROPS[i]
-        this[propKey] = ev[propKey]
-    }
-
-    for (var j = 0; j < MOUSE_PROPS.length; j++) {
-        var mousePropKey = MOUSE_PROPS[j]
-        this[mousePropKey] = ev[mousePropKey]
-    }
-
-    this._rawEvent = ev
-}
-
-inherits(MouseEvent, ProxyEvent)
-
-function KeyEvent(ev) {
-    for (var i = 0; i < ALL_PROPS.length; i++) {
-        var propKey = ALL_PROPS[i]
-        this[propKey] = ev[propKey]
-    }
-
-    for (var j = 0; j < KEY_PROPS.length; j++) {
-        var keyPropKey = KEY_PROPS[j]
-        this[keyPropKey] = ev[keyPropKey]
-    }
-
-    this._rawEvent = ev
-}
-
-inherits(KeyEvent, ProxyEvent)
-
-},{"inherits":14}],18:[function(require,module,exports){
-var DataSet = require("data-set")
-
-module.exports = removeEvent
-
-function removeEvent(target, type, handler) {
-    var ds = DataSet(target)
-    var events = ds[type]
-
-    if (!events) {
-        return
-    } else if (Array.isArray(events)) {
-        var index = events.indexOf(handler)
-        if (index !== -1) {
-            events.splice(index, 1)
-        }
-    } else if (events === handler) {
-        ds[type] = null
-    }
-}
-
-},{"data-set":9}],19:[function(require,module,exports){
 (function (process,global){
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
@@ -10612,7 +9958,7 @@ function removeEvent(target, type, handler) {
 }.call(this));
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":3}],20:[function(require,module,exports){
+},{"_process":3}],5:[function(require,module,exports){
 (function (process,global){
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
@@ -15204,7 +14550,7 @@ function removeEvent(target, type, handler) {
 }.call(this));
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":3}],21:[function(require,module,exports){
+},{"_process":3}],6:[function(require,module,exports){
 (function (global){
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
@@ -15280,7 +14626,7 @@ function removeEvent(target, type, handler) {
 }));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./rx":20}],22:[function(require,module,exports){
+},{"./rx":5}],7:[function(require,module,exports){
 (function (global){
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
@@ -15814,7 +15160,7 @@ var ReactiveTest = Rx.ReactiveTest = {
 }));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./rx.all":19}],23:[function(require,module,exports){
+},{"./rx.all":4}],8:[function(require,module,exports){
 var Rx = require('./dist/rx.all');
 require('./dist/rx.sorting');
 require('./dist/rx.testing');
@@ -15990,22 +15336,22 @@ Rx.Node = {
 
 module.exports = Rx;
 
-},{"./dist/rx.all":19,"./dist/rx.sorting":21,"./dist/rx.testing":22,"events":2}],24:[function(require,module,exports){
+},{"./dist/rx.all":4,"./dist/rx.sorting":6,"./dist/rx.testing":7,"events":2}],9:[function(require,module,exports){
 var createElement = require("./vdom/create-element.js")
 
 module.exports = createElement
 
-},{"./vdom/create-element.js":42}],25:[function(require,module,exports){
+},{"./vdom/create-element.js":27}],10:[function(require,module,exports){
 var diff = require("./vtree/diff.js")
 
 module.exports = diff
 
-},{"./vtree/diff.js":62}],26:[function(require,module,exports){
+},{"./vtree/diff.js":47}],11:[function(require,module,exports){
 var h = require("./virtual-hyperscript/index.js")
 
 module.exports = h
 
-},{"./virtual-hyperscript/index.js":50}],27:[function(require,module,exports){
+},{"./virtual-hyperscript/index.js":35}],12:[function(require,module,exports){
 var diff = require("./diff.js")
 var patch = require("./patch.js")
 var h = require("./h.js")
@@ -16018,17 +15364,110 @@ module.exports = {
     create: create
 }
 
-},{"./create-element.js":24,"./diff.js":25,"./h.js":26,"./patch.js":40}],28:[function(require,module,exports){
-arguments[4][8][0].apply(exports,arguments)
-},{"dup":8}],29:[function(require,module,exports){
-arguments[4][9][0].apply(exports,arguments)
-},{"./create-hash.js":28,"dup":9,"individual":30,"weakmap-shim/create-store":31}],30:[function(require,module,exports){
-arguments[4][13][0].apply(exports,arguments)
-},{"dup":13}],31:[function(require,module,exports){
-arguments[4][10][0].apply(exports,arguments)
-},{"./hidden-store.js":32,"dup":10}],32:[function(require,module,exports){
-arguments[4][11][0].apply(exports,arguments)
-},{"dup":11}],33:[function(require,module,exports){
+},{"./create-element.js":9,"./diff.js":10,"./h.js":11,"./patch.js":25}],13:[function(require,module,exports){
+module.exports = createHash
+
+function createHash(elem) {
+    var attributes = elem.attributes
+    var hash = {}
+
+    if (attributes === null || attributes === undefined) {
+        return hash
+    }
+
+    for (var i = 0; i < attributes.length; i++) {
+        var attr = attributes[i]
+
+        if (attr.name.substr(0,5) !== "data-") {
+            continue
+        }
+
+        hash[attr.name.substr(5)] = attr.value
+    }
+
+    return hash
+}
+
+},{}],14:[function(require,module,exports){
+var createStore = require("weakmap-shim/create-store")
+var Individual = require("individual")
+
+var createHash = require("./create-hash.js")
+
+var hashStore = Individual("__DATA_SET_WEAKMAP@3", createStore())
+
+module.exports = DataSet
+
+function DataSet(elem) {
+    var store = hashStore(elem)
+
+    if (!store.hash) {
+        store.hash = createHash(elem)
+    }
+
+    return store.hash
+}
+
+},{"./create-hash.js":13,"individual":15,"weakmap-shim/create-store":16}],15:[function(require,module,exports){
+(function (global){
+var root = typeof window !== 'undefined' ?
+    window : typeof global !== 'undefined' ?
+    global : {};
+
+module.exports = Individual
+
+function Individual(key, value) {
+    if (root[key]) {
+        return root[key]
+    }
+
+    Object.defineProperty(root, key, {
+        value: value
+        , configurable: true
+    })
+
+    return value
+}
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],16:[function(require,module,exports){
+var hiddenStore = require('./hidden-store.js');
+
+module.exports = createStore;
+
+function createStore() {
+    var key = {};
+
+    return function (obj) {
+        if (typeof obj !== 'object' || obj === null) {
+            throw new Error('Weakmap-shim: Key must be object')
+        }
+
+        var store = obj.valueOf(key);
+        return store && store.identity === key ?
+            store : hiddenStore(obj, key);
+    };
+}
+
+},{"./hidden-store.js":17}],17:[function(require,module,exports){
+module.exports = hiddenStore;
+
+function hiddenStore(obj, key) {
+    var store = { identity: key };
+    var valueOf = obj.valueOf;
+
+    Object.defineProperty(obj, "valueOf", {
+        value: function (value) {
+            return value !== key ?
+                valueOf.apply(this, arguments) : store;
+        },
+        writable: true
+    });
+
+    return store;
+}
+
+},{}],18:[function(require,module,exports){
 module.exports = function(obj) {
     if (typeof obj === 'string') return camelCase(obj);
     return walk(obj);
@@ -16089,7 +15528,7 @@ function reduce (xs, f, acc) {
     return acc;
 }
 
-},{}],34:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 var nargs = /\{([0-9a-zA-Z]+)\}/g
 var slice = Array.prototype.slice
 
@@ -16125,7 +15564,7 @@ function template(string) {
     })
 }
 
-},{}],35:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 module.exports = extend
 
 function extend(target) {
@@ -16142,7 +15581,7 @@ function extend(target) {
     return target
 }
 
-},{}],36:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 var camelize = require("camelize")
 var template = require("string-template")
 var extend = require("xtend/mutable")
@@ -16192,16 +15631,33 @@ function TypedError(args) {
 }
 
 
-},{"camelize":33,"string-template":34,"xtend/mutable":35}],37:[function(require,module,exports){
-arguments[4][12][0].apply(exports,arguments)
-},{"dup":12,"min-document":1}],38:[function(require,module,exports){
+},{"camelize":18,"string-template":19,"xtend/mutable":20}],22:[function(require,module,exports){
+(function (global){
+var topLevel = typeof global !== 'undefined' ? global :
+    typeof window !== 'undefined' ? window : {}
+var minDoc = require('min-document');
+
+if (typeof document !== 'undefined') {
+    module.exports = document;
+} else {
+    var doccy = topLevel['__GLOBAL_DOCUMENT_CACHE@4'];
+
+    if (!doccy) {
+        doccy = topLevel['__GLOBAL_DOCUMENT_CACHE@4'] = minDoc;
+    }
+
+    module.exports = doccy;
+}
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"min-document":1}],23:[function(require,module,exports){
 "use strict";
 
 module.exports = function isObject(x) {
 	return typeof x === "object" && x !== null;
 };
 
-},{}],39:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 var nativeIsArray = Array.isArray
 var toString = Object.prototype.toString
 
@@ -16211,12 +15667,12 @@ function isArray(obj) {
     return toString.call(obj) === "[object Array]"
 }
 
-},{}],40:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 var patch = require("./vdom/patch.js")
 
 module.exports = patch
 
-},{"./vdom/patch.js":45}],41:[function(require,module,exports){
+},{"./vdom/patch.js":30}],26:[function(require,module,exports){
 var isObject = require("is-object")
 var isHook = require("../vnode/is-vhook.js")
 
@@ -16312,7 +15768,7 @@ function getPrototype(value) {
     }
 }
 
-},{"../vnode/is-vhook.js":54,"is-object":38}],42:[function(require,module,exports){
+},{"../vnode/is-vhook.js":39,"is-object":23}],27:[function(require,module,exports){
 var document = require("global/document")
 
 var applyProperties = require("./apply-properties")
@@ -16360,7 +15816,7 @@ function createElement(vnode, opts) {
     return node
 }
 
-},{"../vnode/handle-thunk.js":52,"../vnode/is-vnode.js":55,"../vnode/is-vtext.js":56,"../vnode/is-widget.js":57,"./apply-properties":41,"global/document":37}],43:[function(require,module,exports){
+},{"../vnode/handle-thunk.js":37,"../vnode/is-vnode.js":40,"../vnode/is-vtext.js":41,"../vnode/is-widget.js":42,"./apply-properties":26,"global/document":22}],28:[function(require,module,exports){
 // Maps a virtual DOM tree onto a real DOM tree in an efficient manner.
 // We don't want to read all of the DOM nodes in the tree so we use
 // the in-order tree indexing to eliminate recursion down certain branches.
@@ -16447,7 +15903,7 @@ function ascending(a, b) {
     return a > b ? 1 : -1
 }
 
-},{}],44:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 var applyProperties = require("./apply-properties")
 
 var isWidget = require("../vnode/is-widget.js")
@@ -16619,7 +16075,7 @@ function replaceRoot(oldRoot, newRoot) {
     return newRoot;
 }
 
-},{"../vnode/is-widget.js":57,"../vnode/vpatch.js":60,"./apply-properties":41,"./create-element":42,"./update-widget":46}],45:[function(require,module,exports){
+},{"../vnode/is-widget.js":42,"../vnode/vpatch.js":45,"./apply-properties":26,"./create-element":27,"./update-widget":31}],30:[function(require,module,exports){
 var document = require("global/document")
 var isArray = require("x-is-array")
 
@@ -16697,7 +16153,7 @@ function patchIndices(patches) {
     return indices
 }
 
-},{"./dom-index":43,"./patch-op":44,"global/document":37,"x-is-array":39}],46:[function(require,module,exports){
+},{"./dom-index":28,"./patch-op":29,"global/document":22,"x-is-array":24}],31:[function(require,module,exports){
 var isWidget = require("../vnode/is-widget.js")
 
 module.exports = updateWidget
@@ -16714,7 +16170,7 @@ function updateWidget(a, b) {
     return false
 }
 
-},{"../vnode/is-widget.js":57}],47:[function(require,module,exports){
+},{"../vnode/is-widget.js":42}],32:[function(require,module,exports){
 var DataSet = require("data-set")
 
 module.exports = DataSetHook;
@@ -16734,7 +16190,7 @@ DataSetHook.prototype.hook = function (node, propertyName) {
     ds[propName] = this.value;
 };
 
-},{"data-set":29}],48:[function(require,module,exports){
+},{"data-set":14}],33:[function(require,module,exports){
 var DataSet = require("data-set")
 
 module.exports = DataSetHook;
@@ -16761,7 +16217,7 @@ DataSetHook.prototype.unhook = function(node, propertyName) {
     ds[propName] = undefined;
 }
 
-},{"data-set":29}],49:[function(require,module,exports){
+},{"data-set":14}],34:[function(require,module,exports){
 module.exports = SoftSetHook;
 
 function SoftSetHook(value) {
@@ -16778,7 +16234,7 @@ SoftSetHook.prototype.hook = function (node, propertyName) {
     }
 };
 
-},{}],50:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 var TypedError = require("error/typed")
 
 var VNode = require("../vnode/vnode.js")
@@ -16907,7 +16363,7 @@ function isChildren(x) {
     return typeof x === "string" || Array.isArray(x) || isChild(x)
 }
 
-},{"../vnode/is-thunk":53,"../vnode/is-vhook":54,"../vnode/is-vnode":55,"../vnode/is-vtext":56,"../vnode/is-widget":57,"../vnode/vnode.js":59,"../vnode/vtext.js":61,"./hooks/data-set-hook.js":47,"./hooks/ev-hook.js":48,"./hooks/soft-set-hook.js":49,"./parse-tag.js":51,"error/typed":36}],51:[function(require,module,exports){
+},{"../vnode/is-thunk":38,"../vnode/is-vhook":39,"../vnode/is-vnode":40,"../vnode/is-vtext":41,"../vnode/is-widget":42,"../vnode/vnode.js":44,"../vnode/vtext.js":46,"./hooks/data-set-hook.js":32,"./hooks/ev-hook.js":33,"./hooks/soft-set-hook.js":34,"./parse-tag.js":36,"error/typed":21}],36:[function(require,module,exports){
 var classIdSplit = /([\.#]?[a-zA-Z0-9_:-]+)/
 var notClassId = /^\.|#/
 
@@ -16958,7 +16414,7 @@ function parseTag(tag, props) {
     return tagName ? tagName.toLowerCase() : "div"
 }
 
-},{}],52:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 var isVNode = require("./is-vnode")
 var isVText = require("./is-vtext")
 var isWidget = require("./is-widget")
@@ -17000,14 +16456,14 @@ function renderThunk(thunk, previous) {
     return renderedThunk
 }
 
-},{"./is-thunk":53,"./is-vnode":55,"./is-vtext":56,"./is-widget":57}],53:[function(require,module,exports){
+},{"./is-thunk":38,"./is-vnode":40,"./is-vtext":41,"./is-widget":42}],38:[function(require,module,exports){
 module.exports = isThunk
 
 function isThunk(t) {
     return t && t.type === "Thunk"
 }
 
-},{}],54:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 module.exports = isHook
 
 function isHook(hook) {
@@ -17015,7 +16471,7 @@ function isHook(hook) {
         !hook.hasOwnProperty("hook")
 }
 
-},{}],55:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualNode
@@ -17024,7 +16480,7 @@ function isVirtualNode(x) {
     return x && x.type === "VirtualNode" && x.version === version
 }
 
-},{"./version":58}],56:[function(require,module,exports){
+},{"./version":43}],41:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualText
@@ -17033,17 +16489,17 @@ function isVirtualText(x) {
     return x && x.type === "VirtualText" && x.version === version
 }
 
-},{"./version":58}],57:[function(require,module,exports){
+},{"./version":43}],42:[function(require,module,exports){
 module.exports = isWidget
 
 function isWidget(w) {
     return w && w.type === "Widget"
 }
 
-},{}],58:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 module.exports = "1"
 
-},{}],59:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 var version = require("./version")
 var isVNode = require("./is-vnode")
 var isWidget = require("./is-widget")
@@ -17117,7 +16573,7 @@ function VirtualNode(tagName, properties, children, key, namespace) {
 VirtualNode.prototype.version = version
 VirtualNode.prototype.type = "VirtualNode"
 
-},{"./is-thunk":53,"./is-vhook":54,"./is-vnode":55,"./is-widget":57,"./version":58}],60:[function(require,module,exports){
+},{"./is-thunk":38,"./is-vhook":39,"./is-vnode":40,"./is-widget":42,"./version":43}],45:[function(require,module,exports){
 var version = require("./version")
 
 VirtualPatch.NONE = 0
@@ -17141,7 +16597,7 @@ function VirtualPatch(type, vNode, patch) {
 VirtualPatch.prototype.version = version
 VirtualPatch.prototype.type = "VirtualPatch"
 
-},{"./version":58}],61:[function(require,module,exports){
+},{"./version":43}],46:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = VirtualText
@@ -17153,7 +16609,7 @@ function VirtualText(text) {
 VirtualText.prototype.version = version
 VirtualText.prototype.type = "VirtualText"
 
-},{"./version":58}],62:[function(require,module,exports){
+},{"./version":43}],47:[function(require,module,exports){
 var isArray = require("x-is-array")
 var isObject = require("is-object")
 
@@ -17531,51 +16987,46 @@ function appendPatch(apply, patch) {
     }
 }
 
-},{"../vnode/handle-thunk":52,"../vnode/is-thunk":53,"../vnode/is-vhook":54,"../vnode/is-vnode":55,"../vnode/is-vtext":56,"../vnode/is-widget":57,"../vnode/vpatch":60,"is-object":38,"x-is-array":39}],63:[function(require,module,exports){
+},{"../vnode/handle-thunk":37,"../vnode/is-thunk":38,"../vnode/is-vhook":39,"../vnode/is-vnode":40,"../vnode/is-vtext":41,"../vnode/is-widget":42,"../vnode/vpatch":45,"is-object":23,"x-is-array":24}],48:[function(require,module,exports){
 'use strict';
 var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
 
-function createIntent() {
-  var intent = DataFlowNode.apply({}, arguments);
+function createIntent(definitionFn) {
+  var intent = new DataFlowNode(definitionFn);
   intent = errors.customInterfaceErrorMessageInInject(intent,
     'Intent expects View to have the required property '
   );
-  var originalArgs = arguments;
-  intent.clone = function () {
-    return createIntent.apply({}, originalArgs);
-  };
+  intent.clone = function cloneIntent() { return createIntent(definitionFn); };
   return intent;
 }
 
 module.exports = createIntent;
 
-},{"./data-flow-node":68,"./errors":71}],64:[function(require,module,exports){
+},{"./data-flow-node":53,"./errors":56}],49:[function(require,module,exports){
 'use strict';
 var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
 
-function createModel() {
-  var model = DataFlowNode.apply({}, arguments);
+function createModel(definitionFn) {
+  var model = new DataFlowNode(definitionFn);
   model = errors.customInterfaceErrorMessageInInject(model,
     'Model expects Intent to have the required property '
   );
-  var originalArgs = arguments;
-  model.clone = function () {
-    return createModel.apply({}, originalArgs);
-  };
+  model.clone = function cloneModel() { return createModel(definitionFn); };
   return model;
 }
 
 module.exports = createModel;
 
-},{"./data-flow-node":68,"./errors":71}],65:[function(require,module,exports){
+},{"./data-flow-node":53,"./errors":56}],50:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
 var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
+var Utils = require('./utils');
 
-// traverse the vtree, replacing the value of 'ev-*' fields with
+// traverse the vtree, replacing the value of 'onXYZ' fields with
 // `function (ev) { view[$PREVIOUS_VALUE].onNext(ev); }`
 function replaceStreamNameWithStream(vtree, view) {
   if (!vtree) {
@@ -17584,16 +17035,17 @@ function replaceStreamNameWithStream(vtree, view) {
   if (vtree.type === 'VirtualNode' && typeof vtree.properties !== 'undefined') {
     for (var key in vtree.properties) {
       if (vtree.properties.hasOwnProperty(key) &&
-        typeof key === 'string' && key.search(/^ev\-/) === 0)
+        typeof key === 'string' && key.search(/^on[a-z]+/) === 0)
       {
-        var streamName = vtree.properties[key].value;
-        if (view[streamName]) {
-          vtree.properties[key].value = view[streamName];
-        } else if (typeof streamName === 'string') {
-          throw new Error('VTree uses event hook `' + streamName + '` which should ' +
-            'have been defined in `events` array of the View.'
-          );
+        var streamName = vtree.properties[key];
+        if (typeof streamName === 'string' && !Utils.endsWithDolarSign(streamName)) {
+          throw new Error('VTree event hook should end with dollar sign \$. ' +
+            'Name `' + streamName + '` not allowed.');
         }
+        if (!view[streamName]) {
+          view[streamName] = new Rx.Subject();
+        }
+        vtree.properties[key] = view[streamName];
       }
     }
   }
@@ -17604,14 +17056,10 @@ function replaceStreamNameWithStream(vtree, view) {
   }
 }
 
-function checkEventsArray(view) {
-  if (typeof view.events === 'undefined') {
-    throw new Error('View must define `events` array with names of event streams');
-  }
-}
-
 function checkVTree$(view) {
-  if (typeof view.vtree$ === 'undefined' || typeof view.vtree$.subscribe !== 'function') {
+  if (view.get('vtree$') === null ||
+    typeof view.get('vtree$').subscribe !== 'function')
+  {
     throw new Error('View must define `vtree$` Observable emitting virtual DOM elements');
   }
 }
@@ -17624,94 +17072,93 @@ function throwErrorIfNotVTree(vtree) {
   }
 }
 
-function createView() {
-  var view = DataFlowNode.apply({}, arguments);
-  view = errors.customInterfaceErrorMessageInInject(view,
-    'View expects Model to have the required property '
-  );
-  checkEventsArray(view);
-  checkVTree$(view);
-  if (view.events) {
-    for (var i = view.events.length - 1; i >= 0; i--) {
-      view[view.events[i]] = new Rx.Subject();
-    }
-    delete view.events;
-  }
-  view.vtree$ = view.vtree$
+function getCorrectedVtree$(view) {
+  var newVtree$ = view.get('vtree$')
     .map(function (vtree) {
       if (vtree.type === 'Widget') { return vtree; }
       throwErrorIfNotVTree(vtree);
       replaceStreamNameWithStream(vtree, view);
       return vtree;
     })
-    .shareReplay(1)
-  ;
-  try { view.vtree$.subscribe(function () {}); } catch (err) { }
-  var originalArgs = arguments;
-  view.clone = function cloneView() {
-    return createView.apply({}, originalArgs);
+    .replay(null, 1);
+  newVtree$.connect();
+  return newVtree$;
+}
+
+function overrideGet(view) {
+  var oldGet = view.get;
+  var newVtree$ = getCorrectedVtree$(view); // Is here because has connect() side effect
+  view.get = function get(streamName) {
+    if (streamName === 'vtree$') { // Override get('vtree$')
+      return newVtree$;
+    } else if (view[streamName]) {
+      return view[streamName];
+    } else {
+      var result = oldGet.call(this, streamName);
+      if (!result) {
+        view[streamName] = new Rx.Subject();
+        return view[streamName];
+      } else {
+        return result;
+      }
+    }
   };
+}
+
+function createView(definitionFn) {
+  var view = new DataFlowNode(definitionFn);
+  view = errors.customInterfaceErrorMessageInInject(view,
+    'View expects Model to have the required property '
+  );
+  checkVTree$(view);
+  overrideGet(view);
+  view.clone = function cloneView() { return createView(definitionFn); };
   return view;
 }
 
 module.exports = createView;
 
-},{"./data-flow-node":68,"./errors":71,"rx":23}],66:[function(require,module,exports){
+},{"./data-flow-node":53,"./errors":56,"./utils":60,"rx":8}],51:[function(require,module,exports){
 'use strict';
-var Rx = require('rx');
+var InputProxy = require('./input-proxy');
+var DataFlowNode = require('./data-flow-node');
+var Utils = require('./utils');
 
 function getEventsOrigDestMap(vtree) {
   var map = {};
   for (var key in vtree.properties) {
     if (vtree.properties.hasOwnProperty(key) &&
-      typeof key === 'string' && key.search(/^ev\-/) === 0)
+      typeof key === 'string' && key.search(/^on[a-z]+/) === 0)
     {
-      var originStreamName = key.replace(/^ev\-/, '').concat('$');
-      var destinationStream = vtree.properties[key].value;
+      var originStreamName = key.replace(/^on/, '').concat('$');
+      var destinationStream = vtree.properties[key];
       map[originStreamName] = destinationStream;
     }
   }
   return map;
 }
 
-function createStubsForInterface(interfaceArray) {
-  var stubs = {};
-  if (!interfaceArray) {
-    return stubs;
-  }
-  for (var i = interfaceArray.length - 1; i >= 0; i--) {
-    var streamName = interfaceArray[i];
-    stubs[streamName] = new Rx.Subject();
-  }
-  return stubs;
-}
-
-function createContainerElement(tagName, dataFlowNode) {
-  var attributesInterface = dataFlowNode.inputInterfaces[0];
+function createContainerElement(tagName) {
   var elem = document.createElement('div');
   elem.className = 'cycleCustomElementContainer-' + tagName;
-  elem.cycleCustomElementAttributes = createStubsForInterface(attributesInterface);
+  elem.cycleCustomElementAttributes = new InputProxy();
   return elem;
 }
 
-function endsWithDolarSign(str) {
-  if (typeof str !== 'string') {
-    return false;
-  }
-  return str.indexOf('$', str.length - 1) !== -1;
-}
-
 function getOriginEventStreams(dataFlowNode) {
-  var events = {};
-  for (var prop in dataFlowNode) {
-    if (dataFlowNode.hasOwnProperty(prop) &&
-      endsWithDolarSign(prop) &&
-      prop !== 'vtree$')
-    {
-      events[prop] = dataFlowNode[prop];
-    }
+  if (!(dataFlowNode instanceof DataFlowNode) ||
+    !Array.isArray(dataFlowNode.outputStreams))
+  {
+    return {};
   }
-  return events;
+  return dataFlowNode.outputStreams
+    .filter(function (streamName) {
+      return Utils.endsWithDolarSign(streamName) && streamName !== 'vtree$';
+    })
+    .reduce(function (events, streamName) {
+      events[streamName] = dataFlowNode.get(streamName);
+      return events;
+    }, {});
 }
 
 function subscribeAndForward(origin$, destination$) {
@@ -17744,7 +17191,7 @@ function makeInit(tagName, dataFlowNode) {
   var Renderer = require('./renderer');
   return function initCustomElement() {
     var dfn = dataFlowNode.clone();
-    var elem = createContainerElement(tagName, dfn);
+    var elem = createContainerElement(tagName);
     var renderer = new Renderer(elem);
     var events = getOriginEventStreams(dfn);
     forwardOriginEventsToDestinations(events, this.eventsOrigDestMap);
@@ -17757,15 +17204,21 @@ function makeInit(tagName, dataFlowNode) {
 
 function makeUpdate() {
   return function updateCustomElement(prev, elem) {
-    for (var prop in elem.cycleCustomElementAttributes) {
+    if (!elem ||
+      !elem.cycleCustomElementAttributes ||
+      !(elem.cycleCustomElementAttributes instanceof InputProxy) ||
+      !elem.cycleCustomElementAttributes.proxiedProps)
+    {
+      return;
+    }
+    var proxiedProps = elem.cycleCustomElementAttributes.proxiedProps;
+    for (var prop in proxiedProps) {
       var attrStreamName = prop;
       var attrName = prop.slice(0, -1);
-      if (elem.cycleCustomElementAttributes.hasOwnProperty(attrStreamName) &&
+      if (proxiedProps.hasOwnProperty(attrStreamName) &&
         this.attributes.hasOwnProperty(attrName))
       {
-        elem.cycleCustomElementAttributes[attrStreamName].onNext(
-          this.attributes[attrName]
-        );
+        proxiedProps[attrStreamName].onNext(this.attributes[attrName]);
       }
     }
   };
@@ -17777,7 +17230,7 @@ module.exports = {
   makeUpdate: makeUpdate
 };
 
-},{"./renderer":73,"rx":23}],67:[function(require,module,exports){
+},{"./data-flow-node":53,"./input-proxy":57,"./renderer":59,"./utils":60}],52:[function(require,module,exports){
 'use strict';
 var VirtualDOM = require('virtual-dom');
 var Rx = require('rx');
@@ -17789,32 +17242,18 @@ var PropertyHook = require('./property-hook');
 
 var Cycle = {
   /**
-   * Creates a DataFlowNode.
+   * Creates a DataFlowNode based on the given `definitionFn`. The `definitionFn`
+   * function will be executed immediately on create, and the resulting DataFlowNode
+   * outputs will be synchronously available. The inputs are asynchronously injected
+   * later with the `inject()` function on the DataFlowNode.
    *
-   * `inputInterface1` is an array of strings, defining which  Observables are expected to
-   * exist in the first input. It defines the 'type' of the input, since JavaScript has no
-   * strong types. The `inputInterface1` is optional if the DataFlowNode does not have any
-   * input. In that case, the function `definitionFn` should not have any parameter
-   * either. There can be an arbitrary number of input interfaces, but the number of input
-   * interfaces must match the number of arguments that `definitionFn` has. The arguments
-   * to `definitionFn` are objects that should fulfil the respective interfaces.
-   *
-   * @param {Array<String>} [inputInterface1] property names that are expected to exist
-   * as RxJS Observables in the first input parameter for `definitionFn`.
-   * @param {} ...
-   * @param {Function} definitionFn a function expecting objects as parameters (as many as
-   * there are interfaces), satisfying the type requirement given by `inputInterface1`,
-   * `inputInterface2`, etc. Should return an object containing RxJS Observables as
-   * properties.
+   * @param {Function} definitionFn a function expecting DataFlowNodes as parameters.
+   * This function should return an object containing RxJS Observables as properties.
+   * The input parameters can also be plain objects with Observables as properties.
    * @return {DataFlowNode} a DataFlowNode, containing a `inject(inputs...)` function.
    */
-  createDataFlowNode: function createDataFlowNode() {
-    var args = arguments;
-    function F() {
-      return DataFlowNode.apply(this, args);
-    }
-    F.prototype = DataFlowNode.prototype;
-    return new F();
+  createDataFlowNode: function createDataFlowNode(definitionFn) {
+    return new DataFlowNode(definitionFn);
   },
 
   /**
@@ -17827,13 +17266,8 @@ var Cycle = {
    * @param {Object} outputObject an object containing RxJS Observables.
    * @return {DataFlowSource} a DataFlowSource equivalent to the given outputObject
    */
-  createDataFlowSource: function createDataFlowSource() {
-    var args = arguments;
-    function F() {
-      return DataFlowSource.apply(this, args);
-    }
-    F.prototype = DataFlowSource.prototype;
-    return new F();
+  createDataFlowSource: function createDataFlowSource(outputObject) {
+    return new DataFlowSource(outputObject);
   },
 
   /**
@@ -17844,25 +17278,17 @@ var Cycle = {
    * and should return a `Rx.Disposable` subscription.
    * @return {DataFlowSink} a DataFlowSink, containing a `inject(inputs...)` function.
    */
-  createDataFlowSink: function createDataFlowSink() {
-    var args = arguments;
-    function F() {
-      return DataFlowSink.apply(this, args);
-    }
-    F.prototype = DataFlowSink.prototype;
-    return new F();
+  createDataFlowSink: function createDataFlowSink(definitionFn) {
+    return new DataFlowSink(definitionFn);
   },
 
   /**
    * Returns a DataFlowNode representing a Model, having some Intent as input.
    *
-   * Is a specialized case of `createDataFlowNode()`, hence can also receive multiple
-   * interfaces and multiple inputs in `definitionFn`.
+   * Is a specialized case of `createDataFlowNode()`, with the same API.
    *
-   * @param {Array<String>} [intentInterface] property names that are expected to exist as
-   * RxJS Observables in the input Intent.
-   * @param {Function} definitionFn a function expecting an Intent object as parameter.
-   * Should return an object containing RxJS Observables as properties.
+   * @param {Function} definitionFn a function expecting an Intent DataFlowNode as
+   * parameter. Should return an object containing RxJS Observables as properties.
    * @return {DataFlowNode} a DataFlowNode representing a Model, containing a
    * `inject(intent)` function.
    * @function createModel
@@ -17872,16 +17298,12 @@ var Cycle = {
   /**
    * Returns a DataFlowNode representing a View, having some Model as input.
    *
-   * Is a specialized case of `createDataFlowNode()`, hence can also receive multiple
-   * interfaces and multiple inputs in `definitionFn`.
+   * Is a specialized case of `createDataFlowNode()`.
    *
-   * @param {Array<String>} [modelInterface] property names that are expected to exist as
-   * RxJS Observables in the input Model.
    * @param {Function} definitionFn a function expecting a Model object as parameter.
    * Should return an object containing RxJS Observables as properties. The object **must
-   * contain** two properties: `vtree$` and `events`. The value of `events` must be an
-   * array of strings with the names of the Observables that carry DOM events. `vtree$`
-   * should be an Observable emitting instances of VTree (Virtual DOM elements).
+   * contain** property `vtree$`, an Observable emitting instances of VTree
+   * (Virtual DOM elements).
    * @return {DataFlowNode} a DataFlowNode representing a View, containing a
    * `inject(model)` function.
    * @function createView
@@ -17891,11 +17313,8 @@ var Cycle = {
   /**
    * Returns a DataFlowNode representing an Intent, having some View as input.
    *
-   * Is a specialized case of `createDataFlowNode()`, hence can also receive multiple
-   * interfaces and multiple inputs in `definitionFn`.
+   * Is a specialized case of `createDataFlowNode()`.
    *
-   * @param {Array<String>} [viewInterface] property names that are expected to exist as
-   * RxJS Observables in the input View.
    * @param {Function} definitionFn a function expecting a View object as parameter.
    * Should return an object containing RxJS Observables as properties.
    * @return {DataFlowNode} a DataFlowNode representing an Intent, containing a
@@ -17915,30 +17334,6 @@ var Cycle = {
    */
   createRenderer: function createRenderer(container) {
     return new Renderer(container);
-  },
-
-  /**
-   * Ties together the given input DataFlowNodes, making them be circular dependencies
-   * to each other. Calls `inject()` on each of the given DataFlowNodes, in reverse order.
-   * This function can be called with an arbitrary number of inputs, but it is commonly
-   * used for the Model-View-Intent triple of nodes.
-   *
-   * @param {DataFlowNode} model a Model node.
-   * @param {DataFlowNode} view a View node.
-   * @param {DataFlowNode} intent an Intent node.
-   * @function circularInject
-   */
-  circularInject: function circularInject() {
-    for (var i = arguments.length - 1; i >= 0; i--) {
-      var current = arguments[i];
-      var previous = arguments[(i - 1 >= 0) ? i - 1 : arguments.length - 1];
-      if (typeof current === 'undefined' || typeof current.inject !== 'function') {
-        throw new Error('Bad input. circularInject() expected a DataFlowNode as input');
-      }
-      if (current) {
-        current.inject(previous);
-      }
-    }
   },
 
   /**
@@ -17972,10 +17367,12 @@ var Cycle = {
 
 module.exports = Cycle;
 
-},{"./create-intent":63,"./create-model":64,"./create-view":65,"./data-flow-node":68,"./data-flow-sink":69,"./data-flow-source":70,"./property-hook":72,"./renderer":73,"rx":23,"virtual-dom":27}],68:[function(require,module,exports){
+},{"./create-intent":48,"./create-model":49,"./create-view":50,"./data-flow-node":53,"./data-flow-sink":54,"./data-flow-source":55,"./property-hook":58,"./renderer":59,"rx":8,"virtual-dom":12}],53:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
 var errors = require('./errors');
+var InputProxy = require('./input-proxy');
+var Utils = require('./utils');
 var CycleInterfaceError = errors.CycleInterfaceError;
 
 function replicate(source, subject) {
@@ -17993,92 +17390,110 @@ function replicate(source, subject) {
   );
 }
 
-function checkInputInterfaceArray(inputInterface) {
-  if (!Array.isArray(inputInterface)) {
-    throw new Error('Expected an array as the interface of the input for \n' +
-      'the DataFlowNode.'
-    );
-  }
-}
-
-function checkInputInterfaceOnlyStrings(inputInterface) {
-  for (var i = inputInterface.length - 1; i >= 0; i--) {
-    if (typeof inputInterface[i] !== 'string') {
-      throw new Error('Expected strings as names of properties in the input interface');
-    }
-  }
-}
-
-function makeStubPropertiesFromInterface(inputStub, inputInterface) {
-  for (var i = inputInterface.length - 1; i >= 0; i--) {
-    inputStub[inputInterface[i]] = new Rx.Subject();
-  }
-}
-
 function checkOutputObject(output) {
   if (typeof output !== 'object') {
     throw new Error('A DataFlowNode should always return an object.');
   }
 }
 
-function copyProperties(orig, dest) {
-  for (var key in orig) {
-    if (orig.hasOwnProperty(key)) {
-      dest[key] = orig[key];
+function createStreamNamesArray(output) {
+  var array = [];
+  for (var streamName in output) {
+    if (output.hasOwnProperty(streamName) && Utils.endsWithDolarSign(streamName)) {
+      array.push(streamName);
     }
   }
+  return array;
 }
 
-function replicateAll(input, stub) {
-  for (var key in stub) {
-    if (stub.hasOwnProperty(key)) {
-      if (!input.hasOwnProperty(key)) {
-        throw new CycleInterfaceError('Input should have the required property ' +
-          key, String(key)
-        );
-      }
-      replicate(input[key], stub[key]);
-    }
-  }
-}
+var replicateAll;
 
-function DataFlowNode() {
-  var args = Array.prototype.slice.call(arguments);
-  var definitionFn = args.pop();
-  if (typeof definitionFn !== 'function') {
-    throw new Error('DataFlowNode expects the definitionFn as the last argument.');
+function DataFlowNode(definitionFn) {
+  if (arguments.length !== 1 || typeof definitionFn !== 'function') {
+    throw new Error('DataFlowNode expects the definitionFn as the only argument.');
   }
-  var interfaces = args;
-  var inputStubs = interfaces.map(function () { return {}; });
+  var proxies = [];
+  for (var i = 0; i < definitionFn.length; i++) {
+    proxies[i] = new InputProxy();
+  }
   var wasInjected = false;
-  for (var i = interfaces.length - 1; i >= 0; i--) {
-    checkInputInterfaceArray(interfaces[i]);
-    checkInputInterfaceOnlyStrings(interfaces[i]);
-    makeStubPropertiesFromInterface(inputStubs[i], interfaces[i]);
-  }
-  var output = definitionFn.apply(this, inputStubs);
+  var output = definitionFn.apply(this, proxies);
   checkOutputObject(output);
-  copyProperties(output, this);
-  this.inputInterfaces = interfaces;
-  this.inject = function injectIntoDataFlowNode() {
+  this.outputStreams = createStreamNamesArray(output);
+  this.get = function get(streamName) {
+    return output[streamName] || null;
+  };
+  this.clone = function clone() {
+    return new DataFlowNode(definitionFn);
+  };
+  this.inject = function inject() {
     if (wasInjected) {
       console.warn('DataFlowNode has already been injected an input.');
     }
-    for (var i = arguments.length - 1; i >= 0; i--) {
-      replicateAll(arguments[i], inputStubs[i]);
+    if (definitionFn.length !== arguments.length) {
+      console.warn('The call to inject() should provide the inputs that this ' +
+        'DataFlowNode expects according to its definition function.');
+    }
+    for (var i = 0; i < definitionFn.length; i++) {
+      replicateAll(arguments[i], proxies[i]);
     }
     wasInjected = true;
-  };
-  this.clone = function () {
-    return DataFlowNode.apply({}, interfaces.concat([definitionFn]));
+    if (arguments.length === 1) {
+      return arguments[0];
+    } else if (arguments.length > 1) {
+      return Array.prototype.slice.call(arguments);
+    } else {
+      return null;
+    }
   };
   return this;
 }
 
+replicateAll = function replicateAll(input, proxy) {
+  if (!input || !proxy) {
+    return;
+  }
+  for (var key in proxy.proxiedProps) {
+    if (proxy.proxiedProps.hasOwnProperty(key)) {
+      if (!input.hasOwnProperty(key) && input instanceof InputProxy) {
+        input.proxiedProps[key] = new Rx.Subject();
+        replicate(input.proxiedProps[key], proxy.proxiedProps[key]);
+      } else if (input instanceof DataFlowNode && input.get(key) !== null) {
+        replicate(input.get(key), proxy.proxiedProps[key]);
+      } else if (typeof input === 'object' && input.hasOwnProperty(key)) {
+        if (!input[key]) {
+          input[key] = new Rx.Subject();
+        }
+        replicate(input[key], proxy.proxiedProps[key]);
+      } else {
+        throw new CycleInterfaceError('Input should have the required property ' +
+          key, String(key)
+        );
+      }
+    }
+  }
+};
+
 module.exports = DataFlowNode;
 
-},{"./errors":71,"rx":23}],69:[function(require,module,exports){
+},{"./errors":56,"./input-proxy":57,"./utils":60,"rx":8}],54:[function(require,module,exports){
 'use strict';
+
+function makeLightweightInputProxies(args) {
+  return Array.prototype
+    .slice.call(args)
+    .map(function (arg) {
+      return {
+        get: function get(streamName) {
+          if (typeof arg.get === 'function') {
+            return arg.get(streamName);
+          } else {
+            return arg[streamName] || null;
+          }
+        }
+      };
+    });
+}
 
 function DataFlowSink(definitionFn) {
   if (arguments.length !== 1) {
@@ -18089,14 +17504,15 @@ function DataFlowSink(definitionFn) {
   }
   definitionFn.displayName += '(DataFlowSink defFn)';
   this.inject = function injectIntoDataFlowSink() {
-    return definitionFn.apply({}, arguments);
+    var proxies = makeLightweightInputProxies(arguments);
+    return definitionFn.apply({}, proxies);
   };
   return this;
 }
 
 module.exports = DataFlowSink;
 
-},{}],70:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 'use strict';
 
 function DataFlowSource(outputObject) {
@@ -18121,7 +17537,7 @@ function DataFlowSource(outputObject) {
 
 module.exports = DataFlowSource;
 
-},{}],71:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 'use strict';
 
 function CycleInterfaceError(message, missingMember) {
@@ -18133,9 +17549,9 @@ CycleInterfaceError.prototype = Error.prototype;
 
 function customInterfaceErrorMessageInInject(dataFlowNode, message) {
   var originalInject = dataFlowNode.inject;
-  dataFlowNode.inject = function () {
+  dataFlowNode.inject = function inject() {
     try {
-      originalInject.apply({}, arguments);
+      return originalInject.apply({}, arguments);
     } catch (err) {
       if (err.name === 'CycleInterfaceError') {
         throw new CycleInterfaceError(message + err.missingMember, err.missingMember);
@@ -18152,7 +17568,23 @@ module.exports = {
   customInterfaceErrorMessageInInject: customInterfaceErrorMessageInInject
 };
 
-},{}],72:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
+'use strict';
+var Rx = require('rx');
+
+function InputProxy() {
+  this.proxiedProps = {};
+  this.get = function getFromProxy(streamKey) {
+    if (typeof this.proxiedProps[streamKey] === 'undefined') {
+      this.proxiedProps[streamKey] = new Rx.Subject();
+    }
+    return this.proxiedProps[streamKey];
+  };
+}
+
+module.exports = InputProxy;
+
+},{"rx":8}],58:[function(require,module,exports){
 'use strict';
 
 function PropertyHook(fn) {
@@ -18164,18 +17596,15 @@ PropertyHook.prototype.hook = function () {
 
 module.exports = PropertyHook;
 
-},{}],73:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 'use strict';
 var VDOM = {
   h: require('virtual-dom').h,
   diff: require('virtual-dom/diff'),
   patch: require('virtual-dom/patch')
 };
-var DOMDelegator = require('dom-delegator');
 var DataFlowSink = require('./data-flow-sink');
 var CustomElements = require('./custom-elements');
-
-var delegator = new DOMDelegator();
 
 function isElement(o) {
   return (
@@ -18215,11 +17644,11 @@ function replaceEventHandlersInVTrees(vtree) {
   if (vtree.type === 'VirtualNode') {
     for (var key in vtree.properties) {
       if (vtree.properties.hasOwnProperty(key) &&
-        typeof key === 'string' && key.search(/^ev\-/) === 0)
+        typeof key === 'string' && key.search(/^on[a-z]+/) === 0)
       {
-        var stream = vtree.properties[key].value;
+        var stream = vtree.properties[key];
         if (stream) {
-          vtree.properties[key].value = getFunctionForwardIntoStream(stream);
+          vtree.properties[key] = getFunctionForwardIntoStream(stream);
         }
       }
     }
@@ -18269,9 +17698,8 @@ function Renderer(container) {
   }
   // Create sink
   DataFlowSink.call(this, function injectIntoRenderer(view) {
-    return renderEvery(view.vtree$, domContainer, renderer._customElements);
+    return renderEvery(view.get('vtree$'), domContainer, renderer._customElements);
   });
-  this.delegator = delegator;
 }
 
 Renderer.prototype = Object.create(DataFlowSink.prototype);
@@ -18294,7 +17722,7 @@ Renderer.prototype.registerCustomElement = function registerCustomElement(
     throw new Error('registerCustomElement requires parameters `tagName` and ' +
       '`dataFlowNode`.');
   }
-  if (!dataFlowNode.vtree$) {
+  if (!dataFlowNode.get('vtree$')) {
     throw new Error('The dataFlowNode for a custom element must export ' +
       '`vtree$`.');
   }
@@ -18312,5 +17740,19 @@ Renderer.prototype.registerCustomElement = function registerCustomElement(
 
 module.exports = Renderer;
 
-},{"./custom-elements":66,"./data-flow-sink":69,"dom-delegator":6,"virtual-dom":27,"virtual-dom/diff":25,"virtual-dom/patch":40}]},{},[67])(67)
+},{"./custom-elements":51,"./data-flow-sink":54,"virtual-dom":12,"virtual-dom/diff":10,"virtual-dom/patch":25}],60:[function(require,module,exports){
+'use strict';
+
+function endsWithDolarSign(str) {
+  if (typeof str !== 'string') {
+    return false;
+  }
+  return str.indexOf('$', str.length - 1) !== -1;
+}
+
+module.exports = {
+  endsWithDolarSign: endsWithDolarSign
+};
+
+},{}]},{},[52])(52)
 });

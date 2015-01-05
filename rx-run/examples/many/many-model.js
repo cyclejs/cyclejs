@@ -13,10 +13,8 @@ function reassignId(item, index) {
   return {id: index, color: item.color, width: item.width};
 }
 
-var IntentInterface = ['addItem$', 'removeItem$', 'changeWidth$', 'changeColor$'];
-
-var ManyModel = Cycle.createModel(IntentInterface, function (intent) {
-  var addItemMod$ = intent.addItem$.map(function (amount) {
+var ManyModel = Cycle.createModel(function (intent) {
+  var addItemMod$ = intent.get('addItem$').map(function (amount) {
     var newItems = [];
     for (var i = 0; i < amount; i++) {
       newItems.push(createRandomItem());
@@ -26,21 +24,21 @@ var ManyModel = Cycle.createModel(IntentInterface, function (intent) {
     };
   });
 
-  var removeItemMod$ = intent.removeItem$.map(function (id) {
+  var removeItemMod$ = intent.get('removeItem$').map(function (id) {
     return function (listItems) {
       return listItems.filter(function (item) { return item.id !== id; })
         .map(reassignId);
     };
   });
 
-  var colorChangedMod$ = intent.changeColor$.map(function(x) {
+  var colorChangedMod$ = intent.get('changeColor$').map(function(x) {
     return function (listItems) {
       listItems[x.id].color = x.color;
       return listItems;
     };
   });
 
-  var widthChangedMod$ = intent.changeWidth$.map(function (x) {
+  var widthChangedMod$ = intent.get('changeWidth$').map(function (x) {
     return function (listItems) {
       listItems[x.id].width = x.width;
       return listItems;

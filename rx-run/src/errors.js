@@ -9,9 +9,9 @@ CycleInterfaceError.prototype = Error.prototype;
 
 function customInterfaceErrorMessageInInject(dataFlowNode, message) {
   var originalInject = dataFlowNode.inject;
-  dataFlowNode.inject = function () {
+  dataFlowNode.inject = function inject() {
     try {
-      originalInject.apply({}, arguments);
+      return originalInject.apply({}, arguments);
     } catch (err) {
       if (err.name === 'CycleInterfaceError') {
         throw new CycleInterfaceError(message + err.missingMember, err.missingMember);

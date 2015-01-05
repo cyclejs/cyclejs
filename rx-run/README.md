@@ -31,41 +31,40 @@ DOM Rendering.
 var Cycle = require('cyclejs');
 var h = Cycle.h;
 
-var HelloModel = Cycle.createModel(['changeName$'], function (intent) {
-  return {name$: intent.changeName$.startWith('')};
+var HelloModel = Cycle.createModel(function (intent) {
+  return {name$: intent.get('changeName$').startWith('')};
 });
 
-var HelloView = Cycle.createView(['name$'], function (model) {
+var HelloView = Cycle.createView(function (model) {
   return {
-    vtree$: model.name$
-      .map(function (name) {
-        return h('div', {}, [
+    vtree$: model.get('name$')
+      .map((name) =>
+        h('div', {}, [
           h('label', 'Name:'),
           h('input', {
-            'attributes': {'type': 'text'},
-            'ev-input': 'inputText$'
+            attributes: {'type': 'text'},
+            oninput: 'inputText$'
           }),
           h('h1', 'Hello ' + name)
-        ]);
-      }),
-    events: ['inputText$']
+        ])
+      )
   };
 });
 
-var HelloIntent = Cycle.createIntent(['inputText$'], function (view) {
+var HelloIntent = Cycle.createIntent(function (view) {
   return {
-    changeName$: view.inputText$.map(function (ev) { return ev.target.value; })
+    changeName$: view.get('inputText$').map((ev) => ev.target.value)
   };
 });
 
 Cycle.createRenderer('.js-container').inject(HelloView);
-Cycle.circularInject(HelloModel, HelloView, HelloIntent);
+HelloIntent.inject(HelloView).inject(HelloModel).inject(HelloIntent);
 ```
 
 Notice that each of the 3 components has a neighbour component as input, and each outputs
 an object mostly containing Rx Observables. At the bottom, the Renderer we created
 subscribes to changes of `HelloView.vtree$` and renders those virtual elements into
-`.js-container` in the DOM. `Cycle.circularInject` just ties all three Model, View, and
+`.js-container` in the DOM. `inject()` just ties all three Model, View, and
 Intent together by telling them that they depend on each other circularly.
 
 For an advanced example, check out [TodoMVC implemented in Cycle.js](https://github.com/staltz/todomvc-cycle).

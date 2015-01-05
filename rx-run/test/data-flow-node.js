@@ -12,7 +12,7 @@ describe('DataFlowNode', function () {
       });
     });
 
-    it('should throw an error when given only interface', function () {
+    it('should throw an error when given an (interface) array', function () {
       assert.throws(function () {
         new DataFlowNode(['foo$', 'bar$']);
       });
@@ -20,32 +20,71 @@ describe('DataFlowNode', function () {
 
     it('should throw an error when definitionFn doesn\'t return object', function () {
       assert.throws(function () {
-        new DataFlowNode(['foo$', 'bar$'], function () {});
+        new DataFlowNode(function () {});
       });
     });
 
-    it('should return an object when given interface and definitionFn', function () {
-      var dataFlowNode = new DataFlowNode([], function () { return {}; });
+    it('should return an object when given a definitionFn', function () {
+      var dataFlowNode = new DataFlowNode(function () { return {}; });
       assert.equal(typeof dataFlowNode, 'object');
     });
 
-    it('should return an object with clone(), inject(), inputInterfaces', function () {
-      var dataFlowNode = new DataFlowNode([], function () { return {}; });
+    it('should return an object with clone(), inject(), get()', function () {
+      var dataFlowNode = new DataFlowNode(function () { return {}; });
       assert.equal(typeof dataFlowNode.clone, 'function');
       assert.equal(typeof dataFlowNode.inject, 'function');
-      assert.equal(typeof dataFlowNode.inputInterfaces, 'object');
-      assert.equal(Array.isArray(dataFlowNode.inputInterfaces), true);
+      assert.equal(typeof dataFlowNode.get, 'function');
     });
   });
 
   describe('injection', function () {
-    it('should yield simple output when injected simple input', function (done) {
-      var dataFlowNode = new DataFlowNode(['foo$'], function (input) {
+    it('should return the same given input', function () {
+      var dataFlowNode = new DataFlowNode(function (input) {
         return {
-          bar$: input.foo$.map(function () { return 'bar'; })
+          bar$: input.get('foo$').map(function () { return 'bar'; })
         };
       });
-      dataFlowNode.bar$.subscribe(function (x) {
+      var input = new DataFlowNode(function () {
+        return {
+          foo$: Rx.Observable.just(3)
+        };
+      });
+      var x = dataFlowNode.inject(input);
+      assert.strictEqual(x, input);
+    });
+
+    it('should return an array of the inputs, if multiple inputs', function () {
+      var dataFlowNode = new DataFlowNode(function (input1, input2) {
+        return {
+          bar$: input1.get('foo$')
+            .sample(input2.get('foo$'))
+            .map(function () { return 'bar'; })
+        };
+      });
+      var input1 = new DataFlowNode(function () {
+        return {
+          foo$: Rx.Observable.just(3)
+        };
+      });
+      var input2 = new DataFlowNode(function () {
+        return {
+          foo$: Rx.Observable.just(2)
+        };
+      });
+      var x = dataFlowNode.inject(input1, input2);
+      assert.strictEqual(Array.isArray(x), true);
+      assert.strictEqual(x.length, 2);
+      assert.strictEqual(x[0], input1);
+      assert.strictEqual(x[1], input2);
+    });
+
+    it('should yield simple output when injected simple input', function (done) {
+      var dataFlowNode = new DataFlowNode(function (input) {
+        return {
+          bar$: input.get('foo$').map(function () { return 'bar'; })
+        };
+      });
+      dataFlowNode.get('bar$').subscribe(function (x) {
         assert.strictEqual(x, 'bar');
         done();
       });
@@ -58,7 +97,7 @@ describe('DataFlowNode', function () {
           bar$: Rx.Observable.just(246)
         };
       });
-      dataFlowNode.bar$.subscribe(function (x) {
+      dataFlowNode.get('bar$').subscribe(function (x) {
         assert.strictEqual(x, 246);
         done();
       });
@@ -66,13 +105,13 @@ describe('DataFlowNode', function () {
     });
 
     it('should work also for a clone, in the simple output case', function (done) {
-      var dataFlowNode = new DataFlowNode(['foo$'], function (input) {
+      var dataFlowNode = new DataFlowNode(function (input) {
         return {
-          bar$: input.foo$.map(function () { return 'bar'; })
+          bar$: input.get('foo$').map(function () { return 'bar'; })
         };
       });
       var cloned = dataFlowNode.clone();
-      cloned.bar$.subscribe(function (x) {
+      cloned.get('bar$').subscribe(function (x) {
         assert.strictEqual(x, 'bar');
         done();
       });
@@ -80,13 +119,13 @@ describe('DataFlowNode', function () {
     });
 
     it('should be independent to injection in clones', function (done) {
-      var dataFlowNode = new DataFlowNode(['number$'], function (input) {
+      var dataFlowNode = new DataFlowNode(function (input) {
         return {
-          sum$: input.number$.map(function (x) { return x + 100; })
+          sum$: input.get('number$').map(function (x) { return x + 100; })
         };
       });
       var cloned = dataFlowNode.clone();
-      Rx.Observable.zip(dataFlowNode.sum$, cloned.sum$, function (x, y) {
+      Rx.Observable.zip(dataFlowNode.get('sum$'), cloned.get('sum$'), function (x, y) {
         return [x, y];
       }).subscribe(function (args) {
         assert.strictEqual(args[0], 103);
@@ -98,15 +137,15 @@ describe('DataFlowNode', function () {
     });
 
     it('should yield output when injected two inputs', function (done) {
-      var dataFlowNode = new DataFlowNode(['x$'], ['y$'], function (input1, input2) {
+      var dataFlowNode = new DataFlowNode(function (input1, input2) {
         return {
           sum$: Rx.Observable
-            .combineLatest(input1.x$, input2.y$, function (x, y) {
+            .combineLatest(input1.get('x$'), input2.get('y$'), function (x, y) {
               return x + y;
             })
         };
       });
-      dataFlowNode.sum$.subscribe(function (x) {
+      dataFlowNode.get('sum$').subscribe(function (x) {
         assert.strictEqual(x, 15);
         done();
       });
