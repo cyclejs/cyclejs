@@ -179,7 +179,6 @@ describe('Custom Elements', function () {
     // Use the custom element
     var view = Cycle.createView(function () {
       return {
-        events: ['myelementEvents$'],
         vtree$: Rx.Observable.just(
           Cycle.h('myelement', {'ev-myevent': 'myelementEvents$'})
         )

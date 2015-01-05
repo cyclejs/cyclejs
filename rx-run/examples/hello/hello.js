@@ -15,8 +15,7 @@ var HelloView = Cycle.createView(function (model) {
           Cycle.h('hr'),
           Cycle.h('h1', 'Hello ' + name)
         ]);
-      }),
-    events: ['inputText$']
+      })
   };
 });
 

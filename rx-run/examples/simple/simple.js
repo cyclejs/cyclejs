@@ -25,8 +25,7 @@ var FooView = Cycle.createView(function (model) {
           },
           'ev-click': 'fooClicks$'
         }, String(fooData.bar));
-      }),
-    events: ['fooClicks$']
+      })
   };
 });
 

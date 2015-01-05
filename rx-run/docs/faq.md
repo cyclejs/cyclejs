@@ -10,8 +10,7 @@ If a model exports an observable stream called `lastname$`, then the view can co
 ```javascript
 var View = Cycle.createView(['lastname$'], function (model) {
   return {
-    vtree$: model.lastname$.map(function (lastname) { return h('h1', lastname); }),
-    events: []
+    vtree$: model.lastname$.map(function (lastname) { return h('h1', lastname); })
 });
 ```
 
@@ -27,8 +26,7 @@ var View = Cycle.createView(['lastname$'], function (model) {
         return h('custombutton', {attributes {'label': lastname}});
         // lastname emitted into label$ in the DataFlowNode that
         // implements <custombutton>
-      }),
-    events: []
+      })
 });
 ```
 

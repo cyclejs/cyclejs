@@ -14,7 +14,6 @@ var TickerDataFlowNode = Cycle.createDataFlowNode(function (attributes) {
 
   var TickerView = Cycle.createView(function (model) {
     return {
-      events: ['removeClick$'],
       vtree$: Rx.Observable.combineLatest(
         model.get('color$'),
         model.get('x$'),
@@ -70,7 +69,6 @@ var Model = Cycle.createModel(function (intent) {
 
 var View = Cycle.createView(function (model) {
   return {
-    events: ['removeTicker$'],
     vtree$: Rx.Observable.combineLatest(model.get('color$'), model.get('tickerExists$'),
       function (color, tickerExists) { 
         return h('div#the-view', [
