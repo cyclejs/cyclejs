@@ -33,7 +33,7 @@ describe('createView', function () {
     var clone = view.clone();
     clone.get('vtree$').subscribe(function (x) {
       assert.strictEqual(typeof x, 'object');
-      assert.strictEqual(x.tagName, 'div');
+      assert.strictEqual(x.tagName, 'DIV');
       assert.strictEqual(x.children[0].text, 'bar');
       done();
     });
