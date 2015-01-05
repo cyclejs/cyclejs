@@ -58,7 +58,7 @@ function getCorrectedVtree$(view) {
       replaceStreamNameWithStream(vtree, view);
       return vtree;
     })
-    .replay();
+    .replay(null, 1);
   newVtree$.connect();
   return newVtree$;
 }

@@ -132,7 +132,7 @@ describe('Custom Elements', function () {
       assert.strictEqual(myElement.textContent, '8')
       assert.strictEqual(myElement.style.color, 'rgb(0, 255, 0)');
       done();
-    }, 150);
+    }, 250);
   });
 
 

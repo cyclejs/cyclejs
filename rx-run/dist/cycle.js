@@ -17624,7 +17624,7 @@ function getCorrectedVtree$(view) {
       replaceStreamNameWithStream(vtree, view);
       return vtree;
     })
-    .replay();
+    .replay(null, 1);
   newVtree$.connect();
   return newVtree$;
 }
@@ -17640,7 +17640,6 @@ function overrideGet(view) {
     } else {
       var result = oldGet.call(this, streamName);
       if (!result) {
-        console.log('there was no ' + streamName + ' in the view, in view.get');
         view[streamName] = new Rx.Subject();
         return view[streamName];
       } else {
