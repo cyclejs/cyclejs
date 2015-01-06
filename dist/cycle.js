@@ -17525,11 +17525,11 @@ function isElement(o) {
 
 function replaceCustomElements(vtree, _customElements) {
   // Silently ignore corner cases
-  if (!vtree || !_customElements) {
+  if (!vtree || !_customElements || vtree.type === 'VirtualText') {
     return vtree;
   }
   // Replace vtree itself
-  if (_customElements.hasOwnProperty(vtree.tagName.toUpperCase())) {
+  if (vtree.tagName && _customElements.hasOwnProperty(vtree.tagName.toUpperCase())) {
     return new _customElements[vtree.tagName.toUpperCase()](vtree);
   }
   // Or replace children recursively
