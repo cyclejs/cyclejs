@@ -195,4 +195,27 @@ describe('Custom Elements', function () {
       done();
     });
   });
+
+  it('should not fail when examining VirtualText on replaceCustomElements', function () {
+    var renderer = createRenderer();
+    // Make simple custom element
+    var dfn = Cycle.createDataFlowNode(function () {
+      return {
+        vtree$: Rx.Observable.just(Cycle.h('h3.myelementclass')),
+      };
+    });
+    renderer.registerCustomElement('myelement', dfn);
+    // Use the custom element
+    var view = Cycle.createView(function () {
+      return {
+        vtree$: Rx.Observable.just(
+          Cycle.h('h1', 'This will be a VirtualText')
+        )
+      };
+    });
+    // Make assertions
+    assert.doesNotThrow(function () {
+      renderer.inject(view);
+    });
+  })
 });
