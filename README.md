@@ -62,8 +62,8 @@ HelloIntent.inject(HelloView).inject(HelloModel).inject(HelloIntent);
 ```
 
 Notice that each of the 3 components has a neighbour component as input, and each outputs
-an object mostly containing Rx Observables. At the bottom, the Renderer we created
-subscribes to changes of `HelloView.vtree$` and renders those virtual elements into
+an object containing RxJS Observables. At the bottom, the Renderer we created
+subscribes to changes of `HelloView.get('vtree$')` and renders those virtual elements into
 `.js-container` in the DOM. `inject()` just ties all three Model, View, and
 Intent together by telling them that they depend on each other circularly.
 
