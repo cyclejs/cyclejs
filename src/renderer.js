@@ -22,7 +22,7 @@ function replaceCustomElements(vtree, _customElements) {
     return vtree;
   }
   // Replace vtree itself
-  if (_customElements.hasOwnProperty(vtree.tagName.toUpperCase())) {
+  if (vtree.tagName && _customElements.hasOwnProperty(vtree.tagName.toUpperCase())) {
     return new _customElements[vtree.tagName.toUpperCase()](vtree);
   }
   // Or replace children recursively
