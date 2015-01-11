@@ -127,6 +127,11 @@ Prior to v1.0.0, the versions will follow the convention: improvements that brea
 compatibility increment the minor number, any other improvements will increment the patch
 number. After v1.0.0, we will follow [http://semver.org/](semver).
 
+## Acknowledgements
+
+- [@dobrite](https://github.com/dobrite) for boilerplate reduction ideas. 
+- This project is a grateful recipient of the [Futurice Open Source sponsorship program](http://futurice.com/blog/sponsoring-free-time-open-source-activities).
+
 ## LICENSE
 
 The MIT License (MIT)
