@@ -97,7 +97,7 @@ describe('createView', function () {
     }, /event hook should end with dollar sign \$/);
   });
 
-  it('should not throw error if vtree has good event hook name (ending in $)', function () {
+  it('should not throw error if vtree has event hook name ending with $', function () {
     var view = Cycle.createView(function () {
       return {
         vtree$: Rx.Observable.just(Cycle.h('div', {onclick: 'foo$'}))
@@ -137,8 +137,8 @@ describe('createView', function () {
     assert.doesNotThrow(function () {
       var view = Cycle.createView(function () {
         var vtree1$ = Rx.Observable.just(Cycle.h('h1', {onclick: 'h1Clicks$'}, 'Foo'));
-        var vtree2$ = Rx.Observable.range(1,3)
-          .map(function () { return Cycle.h('h2', 'Bar'); })
+        var vtree2$ = Rx.Observable.range(1, 3)
+          .map(function () { return Cycle.h('h2', 'Bar'); });
         return {
           vtree$: Rx.Observable.combineLatest(vtree1$, vtree2$, function (a, b) {
             return Cycle.h('div', [a, b]);

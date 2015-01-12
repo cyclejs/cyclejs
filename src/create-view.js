@@ -17,7 +17,7 @@ function replaceStreamNameWithStream(vtree, view) {
       {
         var streamName = vtree.properties[key];
         if (typeof streamName === 'string' && !Utils.endsWithDolarSign(streamName)) {
-          throw new Error('VTree event hook should end with dollar sign \$. ' +
+          throw new Error('VTree event hook should end with dollar sign $. ' +
             'Name `' + streamName + '` not allowed.');
         }
         if (!view[streamName]) {
