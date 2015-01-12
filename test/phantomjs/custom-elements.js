@@ -2,6 +2,7 @@
 /* global describe, it, beforeEach */
 var assert = require('assert');
 var Cycle = require('../../src/cycle');
+var Renderer = require('../../src/renderer');
 var Rx = Cycle.Rx;
 
 function createRenderer() {
@@ -15,7 +16,7 @@ describe('Custom Elements', function () {
   this.timeout(1000);
 
   beforeEach(function () {
-    Cycle._customElements = null;
+    Renderer._customElements = null;
     var testDivs = Array.prototype.slice.call(document.querySelectorAll('.cycletest'));
     testDivs.forEach(function (x) {
       if (x.remove) { x.remove(); }
@@ -25,20 +26,20 @@ describe('Custom Elements', function () {
   describe('Renderer.registerCustomElement', function () {
     it('should throw error if given no parameters', function () {
       assert.throws(function () {
-        createRenderer().registerCustomElement();
+        Cycle.registerCustomElement();
       }, /requires parameters/i);
     });
 
     it('should throw error if given only string (for tagName)', function () {
       assert.throws(function () {
-        createRenderer().registerCustomElement('myelement');
+        Cycle.registerCustomElement('myelement');
       }, /requires parameters/i);
     });
 
     it('should throw error if given only DataFlowNode', function () {
       var dfn = Cycle.createDataFlowNode(function () { return {}; });
       assert.throws(function () {
-        createRenderer().registerCustomElement(dfn);
+        Cycle.registerCustomElement(dfn);
       }, /requires parameters/i);
     });
 
@@ -47,7 +48,7 @@ describe('Custom Elements', function () {
         return {vtree$: Cycle.h('div')};
       });
       assert.doesNotThrow(function () {
-        createRenderer().registerCustomElement('myelement', dfn);
+        Cycle.registerCustomElement('myelement', dfn);
       });
     });
 
@@ -56,27 +57,25 @@ describe('Custom Elements', function () {
         return {vtree$: Cycle.h('div')};
       });
       var dfn2 = dfn1.clone();
-      var renderer = createRenderer();
-      renderer.registerCustomElement('myelement', dfn1);
+      Cycle.registerCustomElement('myelement', dfn1);
       assert.throws(function () {
-        renderer.registerCustomElement('myelement', dfn2);
+        Cycle.registerCustomElement('myelement', dfn2);
       }, /already registered/i);
     });
 
     it('should throw error if given DataFlowNode does not export vtree$', function () {
       var dfn = Cycle.createDataFlowNode(function () { return {}; });
       assert.throws(function () {
-        createRenderer().registerCustomElement('myelement', dfn);
+        Cycle.registerCustomElement('myelement', dfn);
       }, /The dataFlowNode for a custom element must export `vtree\$`/i);
     });
 
-    it('should return the parent Renderer', function () {
-      var renderer = createRenderer();
+    it('should return nothing', function () {
       var dfn = Cycle.createDataFlowNode(function () {
         return {vtree$: Cycle.h('div')};
       });
-      var result = renderer.registerCustomElement('myelement', dfn);
-      assert.strictEqual(result, renderer);
+      var result = Cycle.registerCustomElement('myelement', dfn);
+      assert.strictEqual(result, undefined);
     });
   });
 
@@ -86,7 +85,7 @@ describe('Custom Elements', function () {
     var dfn = Cycle.createDataFlowNode(function () {
       return {vtree$: Rx.Observable.just(Cycle.h('h3.myelementclass'))};
     });
-    renderer.registerCustomElement('myelement', dfn);
+    Cycle.registerCustomElement('myelement', dfn);
     // Use the custom element
     var view = {
       vtree$: Rx.Observable.just(Cycle.h('myelement'))
@@ -114,7 +113,7 @@ describe('Custom Elements', function () {
           })
       };
     });
-    renderer.registerCustomElement('myelement', dfn);
+    Cycle.registerCustomElement('myelement', dfn);
     // Use the custom element
     var color$ = Rx.Observable.just('#00FF00').delay(50).startWith('#FF0000');
     var view = {
@@ -141,12 +140,12 @@ describe('Custom Elements', function () {
     var dfn1 = Cycle.createDataFlowNode(function () {
       return {vtree$: Rx.Observable.just(Cycle.h('h1.myelement1class'))};
     });
-    renderer.registerCustomElement('myelement1', dfn1);
+    Cycle.registerCustomElement('myelement1', dfn1);
     // Make the second custom element
     var dfn2 = Cycle.createDataFlowNode(function () {
       return {vtree$: Rx.Observable.just(Cycle.h('h2.myelement2class'))};
     });
-    renderer.registerCustomElement('myelement2', dfn2);
+    Cycle.registerCustomElement('myelement2', dfn2);
     // Use the custom elements
     var view = {
       vtree$: Rx.Observable.just(Cycle.h('div', [
@@ -165,6 +164,30 @@ describe('Custom Elements', function () {
     assert.strictEqual(myElement2.tagName, 'H2');
   });
 
+  it('should recognize and create a custom element inside another', function () {
+    var renderer = createRenderer();
+    // Make the inner custom element
+    var dfn1 = Cycle.createDataFlowNode(function () {
+      return {vtree$: Rx.Observable.just(Cycle.h('h3.innerClass'))};
+    });
+    Cycle.registerCustomElement('inner', dfn1);
+    // Make the outer custom element
+    var dfn2 = Cycle.createDataFlowNode(function () {
+      return {vtree$: Rx.Observable.just(Cycle.h('div.outerClass', [Cycle.h('inner')]))};
+    });
+    Cycle.registerCustomElement('outer', dfn2);
+    // Use the custom elements
+    var view = {
+      vtree$: Rx.Observable.just(Cycle.h('div', [Cycle.h('outer')]))
+    };
+    renderer.inject(view);
+    // Make assertions
+    var innerElement = document.querySelector('.innerClass');
+    assert.notStrictEqual(innerElement, null);
+    assert.notStrictEqual(typeof innerElement, 'undefined');
+    assert.strictEqual(innerElement.tagName, 'H3');
+  });
+
   it('should catch interaction events coming from a custom element', function (done) {
     var renderer = createRenderer();
     // Make simple custom element
@@ -174,7 +197,7 @@ describe('Custom Elements', function () {
         myevent$: Rx.Observable.just(123).delay(100)
       };
     });
-    renderer.registerCustomElement('myelement', dfn);
+    Cycle.registerCustomElement('myelement', dfn);
     // Use the custom element
     var view = Cycle.createView(function () {
       return {
@@ -203,7 +226,7 @@ describe('Custom Elements', function () {
         vtree$: Rx.Observable.just(Cycle.h('h3.myelementclass'))
       };
     });
-    renderer.registerCustomElement('myelement', dfn);
+    Cycle.registerCustomElement('myelement', dfn);
     // Use the custom element
     var view = Cycle.createView(function () {
       return {

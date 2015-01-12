@@ -86,7 +86,6 @@ function renderEvery(vtree$, domContainer, _customElements) {
 }
 
 function Renderer(container) {
-  var renderer = this;
   // Find and prepare the container
   var domContainer = (typeof container === 'string') ?
     document.querySelector(container) :
@@ -99,26 +98,13 @@ function Renderer(container) {
   }
   // Create sink
   DataFlowSink.call(this, function injectIntoRenderer(view) {
-    return renderEvery(view.get('vtree$'), domContainer, renderer._customElements);
+    return renderEvery(view.get('vtree$'), domContainer, Renderer._customElements);
   });
 }
 
 Renderer.prototype = Object.create(DataFlowSink.prototype);
 
-/**
- * Informs the Renderer to recognize the given `tagName` as a custom element implemented
- * as `dataFlowNode`, whenever `tagName` is used in VTrees in View given as input to
- * this Renderer. The given `dataFlowNode` must export a `vtree$` Observable. If the
- * `dataFlowNode` expects Observable `foo$` as input, then the custom element's attribute
- * named `foo` will be injected automatically by the Renderer into `foo$`.
- *
- * @param {String} tagName a name for identifying the custom element.
- * @param {DataFlowNode} dataFlowNode the implementation of the custom element.
- * @function registerCustomElement
- */
-Renderer.prototype.registerCustomElement = function registerCustomElement(
-  tagName, dataFlowNode)
-{
+Renderer.registerCustomElement = function registerCustomElement(tagName, dataFlowNode) {
   if (typeof tagName !== 'string' || typeof dataFlowNode !== 'object') {
     throw new Error('registerCustomElement requires parameters `tagName` and ' +
       '`dataFlowNode`.');
@@ -128,16 +114,15 @@ Renderer.prototype.registerCustomElement = function registerCustomElement(
       '`vtree$`.');
   }
   tagName = tagName.toUpperCase();
-  if (this._customElements && this._customElements.hasOwnProperty(tagName)) {
+  if (Renderer._customElements && Renderer._customElements.hasOwnProperty(tagName)) {
     throw new Error('Cannot register custom element `' + tagName + '` ' +
       'in Renderer because that tagName is already registered.');
   }
   var WidgetClass = CustomElements.makeConstructor();
   WidgetClass.prototype.init = CustomElements.makeInit(tagName, dataFlowNode);
   WidgetClass.prototype.update = CustomElements.makeUpdate();
-  this._customElements = this._customElements || {};
-  this._customElements[tagName] = WidgetClass;
-  return this;
+  Renderer._customElements = Renderer._customElements || {};
+  Renderer._customElements[tagName] = WidgetClass;
 };
 
 module.exports = Renderer;
