@@ -5,9 +5,3 @@ node_js:
 branches:
   only:
     - master
-before_install:
-  - npm install npm -g
-before_script:
-  - npm install
-  - npm install istanbul coveralls
-script: npm run travis-test

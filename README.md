@@ -24,7 +24,6 @@ DOM Rendering.
 [![Dependency Status](https://david-dm.org/staltz/cycle.svg)](https://david-dm.org/staltz/cycle)
 [![devDependency Status](https://david-dm.org/staltz/cycle/dev-status.svg)](https://david-dm.org/staltz/cycle#info=devDependencies)
 [![Code Climate](https://codeclimate.com/github/staltz/cycle/badges/gpa.svg)](https://codeclimate.com/github/staltz/cycle)
-[![Coverage Status](https://img.shields.io/coveralls/staltz/cycle.svg)](https://coveralls.io/r/staltz/cycle)
 
 ## Example
 
