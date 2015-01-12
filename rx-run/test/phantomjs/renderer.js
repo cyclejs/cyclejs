@@ -1,5 +1,5 @@
 'use strict';
-/* global describe, it */
+/* global describe, it, beforeEach */
 var assert = require('assert');
 var Cycle = require('../../src/cycle');
 var Rx = Cycle.Rx;
@@ -10,7 +10,7 @@ describe('DOM Rendering', function () {
   beforeEach(function () {
     Cycle._customElements = null;
     var testDivs = Array.prototype.slice.call(document.querySelectorAll('.cycletest'));
-    testDivs.forEach(function (x) { 
+    testDivs.forEach(function (x) {
       if (x.remove) { x.remove(); }
     });
   });

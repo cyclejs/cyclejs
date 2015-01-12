@@ -25,7 +25,7 @@ describe('createIntent', function () {
 
   it('should yield simple output even when injected nothing', function (done) {
     var intent = Cycle.createIntent(function () {
-      return { bar$: Rx.Observable.just(246) };
+      return {bar$: Rx.Observable.just(246)};
     });
     intent.get('bar$').subscribe(function (x) {
       assert.strictEqual(x, 246);
