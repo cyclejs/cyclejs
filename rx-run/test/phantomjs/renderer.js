@@ -65,13 +65,5 @@ describe('DOM Rendering', function () {
       assert.notStrictEqual(selectEl, null);
       assert.notStrictEqual(typeof selectEl, 'undefined');
     });
-
-    it('should have `registerCustomElement`', function () {
-      var element = document.createElement('div');
-      element.className = 'cycletest';
-      document.body.appendChild(element);
-      var renderer = Cycle.createRenderer(element);
-      assert.strictEqual(typeof renderer.registerCustomElement, 'function');
-    });
   });
 });

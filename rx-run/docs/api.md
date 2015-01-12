@@ -8,6 +8,7 @@
 - [`createView`](#createView)
 - [`createIntent`](#createIntent)
 - [`createRenderer`](#createRenderer)
+- [`registerCustomElement`](#registerCustomElement)
 - [`vdomPropHook`](#vdomPropHook)
 - [`Rx`](#Rx)
 - [`h`](#h)
@@ -128,6 +129,21 @@ Returns a Renderer (a DataFlowSink) bound to a DOM container element. Contains a
 
 - - -
 
+### <a id="registerCustomElement"></a> `registerCustomElement(tagName, dataFlowNode)`
+
+Informs Cycle to recognize the given `tagName` as a custom element implemented
+as `dataFlowNode` whenever `tagName` is used in VTrees in a rendered View.
+The given `dataFlowNode` must export a `vtree$` Observable. If the `dataFlowNode`
+expects Observable `foo$` as input, then the custom element's attribute named `foo`
+will be injected automatically into `foo$`.
+
+#### Arguments:
+
+- `tagName :: String` a name for identifying the custom element.
+- `dataFlowNode :: DataFlowNode` the implementation of the custom element.
+
+- - -
+
 ### <a id="vdomPropHook"></a> `vdomPropHook(fn)`
 
 Returns a hook for manipulating an element from the real DOM. This is a helper for
@@ -157,4 +173,3 @@ A shortcut to the root object of [RxJS](https://github.com/Reactive-Extensions/R
 A shortcut to [virtual-hyperscript](
 https://github.com/Matt-Esch/virtual-dom/tree/master/virtual-hyperscript).
 This is a helper for creating VTrees in Views.
-

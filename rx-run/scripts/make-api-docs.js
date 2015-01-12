@@ -20,9 +20,3 @@ generateDocs({
   output: './docs/api.md',
   template: './scripts/cycle-docs-template.md.ejs'
 });
-
-generateDocs({
-  src: './src/renderer.js',
-  output: './docs/renderer.md',
-  template: './scripts/renderer-docs-template.md.ejs'
-});

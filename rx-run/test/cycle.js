@@ -37,6 +37,10 @@ describe('Cycle', function () {
       assert.strictEqual(typeof Cycle.createRenderer, 'function');
     });
 
+    it('should have `registerCustomElement`', function () {
+      assert.strictEqual(typeof Cycle.registerCustomElement, 'function');
+    });
+
     it('should have `vdomPropHook`', function () {
       assert.strictEqual(typeof Cycle.vdomPropHook, 'function');
     });

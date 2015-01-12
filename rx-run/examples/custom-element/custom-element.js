@@ -22,8 +22,8 @@ var TickerDataFlowNode = Cycle.createDataFlowNode(function (attributes) {
           return h('div.ticker', {
             style: {'color': color, 'background-color': '#ECECEC'}
           }, [
-            h('h4', 'x'+x+' '+color),
-            h('h1','Y'+y+' '+color),
+            h('h4', 'x' + x + ' ' + color),
+            h('h1', 'Y' + y + ' ' + color),
             h('button', {onclick: 'removeClick$'}, 'Remove')
           ]);
         }
@@ -63,14 +63,14 @@ var Model = Cycle.createModel(function (intent) {
       .map(makeRandomColor)
       .startWith('#000000'),
     tickerExists$: Rx.Observable.just(true)
-      .merge(intent.get('removeTicker$').map(function() { return false; }))
+      .merge(intent.get('removeTicker$').map(function () { return false; }))
   };
 });
 
 var View = Cycle.createView(function (model) {
   return {
     vtree$: Rx.Observable.combineLatest(model.get('color$'), model.get('tickerExists$'),
-      function (color, tickerExists) { 
+      function (color, tickerExists) {
         return h('div#the-view', [
           tickerExists ? h('ticker', {
             attributes: {'color': color},
@@ -87,6 +87,6 @@ var Intent = Cycle.createIntent(function (view) {
 });
 
 var renderer = Cycle.createRenderer('.js-container');
-renderer.registerCustomElement('ticker', TickerDataFlowNode);
+Cycle.registerCustomElement('ticker', TickerDataFlowNode);
 renderer.inject(View);
 Intent.inject(View).inject(Model).inject(Intent);
