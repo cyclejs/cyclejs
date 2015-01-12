@@ -17104,6 +17104,7 @@ function makeInit(tagName, dataFlowNode) {
     var events = getOriginEventStreams(dfn);
     forwardOriginEventsToDestinations(events, this.eventsOrigDestMap);
     renderer.inject(dfn);
+    dfn._inCustomElement = true;
     dfn.inject(elem.cycleCustomElementAttributes);
     this.update(null, elem);
     return elem;
@@ -17353,7 +17354,7 @@ function DataFlowNode(definitionFn) {
     if (wasInjected) {
       console.warn('DataFlowNode has already been injected an input.');
     }
-    if (definitionFn.length !== arguments.length) {
+    if (!this._inCustomElement && definitionFn.length !== arguments.length) {
       console.warn('The call to inject() should provide the inputs that this ' +
         'DataFlowNode expects according to its definition function.');
     }
