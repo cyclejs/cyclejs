@@ -75,6 +75,7 @@ function makeInit(tagName, dataFlowNode) {
     var events = getOriginEventStreams(dfn);
     forwardOriginEventsToDestinations(events, this.eventsOrigDestMap);
     renderer.inject(dfn);
+    dfn._inCustomElement = true;
     dfn.inject(elem.cycleCustomElementAttributes);
     this.update(null, elem);
     return elem;

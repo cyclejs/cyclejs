@@ -69,7 +69,7 @@ describe('Cycle', function () {
         assert.strictEqual(x, 30);
         done();
       });
-      fakeIntent.inject(fakeView).inject(fakeModel).inject(fakeIntent);
+      fakeIntent.inject(fakeView).inject(fakeModel);
     });
 
     it('should tie MVI so that Intent data (DELAYED) is seen in View', function (done) {
@@ -86,7 +86,7 @@ describe('Cycle', function () {
         assert.strictEqual(x, 60);
         done();
       });
-      fakeIntent.inject(fakeView).inject(fakeModel).inject(fakeIntent);
+      fakeView.inject(fakeModel).inject(fakeIntent);
     });
 
     it('should accept 4 Data Flow Nodes as inputs', function (done) {
@@ -106,7 +106,7 @@ describe('Cycle', function () {
         assert.strictEqual(x, 210);
         done();
       });
-      node4.inject(node3).inject(node2).inject(node1).inject(node4);
+      node4.inject(node3).inject(node2).inject(node1);
     });
 
     it('should accept 5 Data Flow Nodes as inputs', function (done) {
@@ -129,7 +129,7 @@ describe('Cycle', function () {
         assert.strictEqual(x, 2310);
         done();
       });
-      node5.inject(node4).inject(node3).inject(node2).inject(node1).inject(node5);
+      node5.inject(node4).inject(node3).inject(node2).inject(node1);
     });
 
     it('should accept 6 Data Flow Nodes as inputs', function (done) {
@@ -155,13 +155,7 @@ describe('Cycle', function () {
         assert.strictEqual(x, 30030);
         done();
       });
-      node6
-        .inject(node5)
-        .inject(node4)
-        .inject(node3)
-        .inject(node2)
-        .inject(node1)
-        .inject(node6);
+      node6.inject(node5).inject(node4).inject(node3).inject(node2).inject(node1);
     });
   });
 
@@ -179,7 +173,7 @@ describe('Cycle', function () {
       var intent = Cycle.createIntent(function (view) {
         return {i$: view.get('v$').map(function (x) { return x * 5; })};
       });
-      intent.inject(view).inject(model).inject(intent);
+      intent.inject(view).inject(model);
       view.get('vtree$').subscribe(function (x) {
         assert.strictEqual(x.type, 'VirtualNode');
         done();
