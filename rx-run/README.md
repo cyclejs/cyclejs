@@ -108,7 +108,8 @@ are a couple of strong reasons:
   and doing some post-processing before the actual rendering.
 - **Welcomes immutable and stateless programming.** Cycle.js is built for, in
   combination with RxJS, a programming style that favors immutability and statelessness.
-  This allows code to be clearer and less prone to bugs.
+  This allows code to be clearer and less prone to bugs. Apps written in Cycle.js are
+  `this`-less. See it for yourself, `this` cannot be found in [Cycle.js TodoMVC](https://github.com/staltz/todomvc-cycle/tree/master/js). 
 
 ## Community
 
