@@ -21,13 +21,13 @@
   },
   "devDependencies": {
     "browserify": "8.0.2",
-    "jshint": "^2.5.6",
-    "jscs": "^1.6.2",
-    "uglify-js": "^2.4.15",
-    "mocha": "^2.0.1",
-    "markdox": "^0.1.7",
-    "mocha-phantomjs": "^3.5.1",
-    "phantomjs": "^1.9.12"
+    "jshint": "2.5.x",
+    "jscs": "1.10.x",
+    "uglify-js": "2.4.15",
+    "mocha": "2.1.x",
+    "markdox": "0.1.7",
+    "mocha-phantomjs": "3.5.3",
+    "phantomjs": "1.9.13"
   },
   "engines": {
     "node": ">=0.10.0"

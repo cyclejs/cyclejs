@@ -16934,32 +16934,47 @@ var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
 var Utils = require('./utils');
 
+/**
+ * Mutates vtree.properties[eventName] replacing its (expected) string value
+ * with a stream owned by view.
+ * @param  {VirtualNode} vtree
+ * @param  {String} eventName
+ * @param  {DataFlowNode} view
+ */
+function replaceStreamName(vtree, eventName, view) {
+  if (typeof eventName !== 'string' || eventName.search(/^on[a-z]+/) !== 0) {
+    return;
+  }
+  var streamName = vtree.properties[eventName];
+  if (typeof streamName !== 'string') {
+    return;
+  }
+  if (!Utils.endsWithDolarSign(streamName)) {
+    throw new Error('VTree event hook should end with dollar sign $. ' +
+      'Name `' + streamName + '` not allowed.');
+  }
+  if (!view[streamName]) {
+    view[streamName] = new Rx.Subject();
+  }
+  vtree.properties[eventName] = view[streamName];
+}
+
 // traverse the vtree, replacing the value of 'onXYZ' fields with
 // `function (ev) { view[$PREVIOUS_VALUE].onNext(ev); }`
-function replaceStreamNameWithStream(vtree, view) {
+function replaceAllStreamNames(vtree, view) {
   if (!vtree) {
     return; // silent ignore
   }
-  if (vtree.type === 'VirtualNode' && typeof vtree.properties !== 'undefined') {
+  if (vtree.type === 'VirtualNode' && !!vtree.properties) {
     for (var key in vtree.properties) {
-      if (vtree.properties.hasOwnProperty(key) &&
-        typeof key === 'string' && key.search(/^on[a-z]+/) === 0)
-      {
-        var streamName = vtree.properties[key];
-        if (typeof streamName === 'string' && !Utils.endsWithDolarSign(streamName)) {
-          throw new Error('VTree event hook should end with dollar sign $. ' +
-            'Name `' + streamName + '` not allowed.');
-        }
-        if (!view[streamName]) {
-          view[streamName] = new Rx.Subject();
-        }
-        vtree.properties[key] = view[streamName];
+      if (vtree.properties.hasOwnProperty(key)) {
+        replaceStreamName(vtree, key, view);
       }
     }
   }
   if (Array.isArray(vtree.children)) {
     for (var i = 0; i < vtree.children.length; i++) {
-      replaceStreamNameWithStream(vtree.children[i], view);
+      replaceAllStreamNames(vtree.children[i], view);
     }
   }
 }
@@ -16985,7 +17000,7 @@ function getCorrectedVtree$(view) {
     .map(function (vtree) {
       if (vtree.type === 'Widget') { return vtree; }
       throwErrorIfNotVTree(vtree);
-      replaceStreamNameWithStream(vtree, view);
+      replaceAllStreamNames(vtree, view);
       return vtree;
     })
     .replay(null, 1);
@@ -17561,19 +17576,31 @@ function getFunctionForwardIntoStream(stream) {
   return function forwardIntoStream(ev) { stream.onNext(ev); };
 }
 
+/**
+ * Mutates vtree.properties[eventName] replacing its (expected) stream with a
+ * handler function that forwards the event into the stream using onNext().
+ * @param  {VirtualNode} vtree
+ * @param  {String} eventName
+ */
+function replaceEventHandler(vtree, eventName) {
+  if (typeof eventName !== 'string' && eventName.search(/^on[a-z]+/) !== 0) {
+    return;
+  }
+  var stream = vtree.properties[eventName];
+  if (!stream || typeof stream === 'function' || !stream.subscribe) {
+    return;
+  }
+  vtree.properties[eventName] = getFunctionForwardIntoStream(stream);
+}
+
 function replaceEventHandlersInVTrees(vtree) {
   if (!vtree) {
     return vtree; // silently ignore
   }
-  if (vtree.type === 'VirtualNode') {
+  if (vtree.type === 'VirtualNode' && !!vtree.properties) {
     for (var key in vtree.properties) {
-      if (vtree.properties.hasOwnProperty(key) &&
-        typeof key === 'string' && key.search(/^on[a-z]+/) === 0)
-      {
-        var stream = vtree.properties[key];
-        if (stream) {
-          vtree.properties[key] = getFunctionForwardIntoStream(stream);
-        }
+      if (vtree.properties.hasOwnProperty(key)) {
+        replaceEventHandler(vtree, key);
       }
     }
   }
