@@ -38,19 +38,31 @@ function getFunctionForwardIntoStream(stream) {
   return function forwardIntoStream(ev) { stream.onNext(ev); };
 }
 
+/**
+ * Mutates vtree.properties[eventName] replacing its (expected) stream with a
+ * handler function that forwards the event into the stream using onNext().
+ * @param  {VirtualNode} vtree
+ * @param  {String} eventName
+ */
+function replaceEventHandler(vtree, eventName) {
+  if (typeof eventName !== 'string' && eventName.search(/^on[a-z]+/) !== 0) {
+    return;
+  }
+  var stream = vtree.properties[eventName];
+  if (!stream || typeof stream === 'function' || !stream.subscribe) {
+    return;
+  }
+  vtree.properties[eventName] = getFunctionForwardIntoStream(stream);
+}
+
 function replaceEventHandlersInVTrees(vtree) {
   if (!vtree) {
     return vtree; // silently ignore
   }
-  if (vtree.type === 'VirtualNode') {
+  if (vtree.type === 'VirtualNode' && !!vtree.properties) {
     for (var key in vtree.properties) {
-      if (vtree.properties.hasOwnProperty(key) &&
-        typeof key === 'string' && key.search(/^on[a-z]+/) === 0)
-      {
-        var stream = vtree.properties[key];
-        if (stream) {
-          vtree.properties[key] = getFunctionForwardIntoStream(stream);
-        }
+      if (vtree.properties.hasOwnProperty(key)) {
+        replaceEventHandler(vtree, key);
       }
     }
   }
