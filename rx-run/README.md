@@ -31,31 +31,28 @@ DOM Rendering.
 var Cycle = require('cyclejs');
 var h = Cycle.h;
 
-var HelloModel = Cycle.createModel(function (intent) {
-  return {name$: intent.get('changeName$').startWith('')};
+var HelloModel = Cycle.createModel(intent =>
+  ({name$: intent.get('changeName$').startWith('')})
 });
 
-var HelloView = Cycle.createView(function (model) {
-  return {
-    vtree$: model.get('name$')
-      .map((name) =>
-        h('div', [
-          h('label', 'Name:'),
-          h('input', {
-            attributes: {'type': 'text'},
-            oninput: 'inputText$'
-          }),
-          h('h1', 'Hello ' + name)
-        ])
-      )
-  };
-});
+var HelloView = Cycle.createView(model =>
+  ({
+    vtree$: model.get('name$').map(name =>
+      h('div', [
+        h('label', 'Name:'),
+        h('input', {
+          attributes: {'type': 'text'},
+          oninput: 'inputText$'
+        }),
+        h('h1', 'Hello ' + name)
+      ])
+    )
+  })
+);
 
-var HelloIntent = Cycle.createIntent(function (view) {
-  return {
-    changeName$: view.get('inputText$').map((ev) => ev.target.value)
-  };
-});
+var HelloIntent = Cycle.createIntent(view =>
+  ({changeName$: view.get('inputText$').map(ev => ev.target.value)})
+);
 
 Cycle.createRenderer('.js-container').inject(HelloView);
 HelloIntent.inject(HelloView).inject(HelloModel).inject(HelloIntent);
