@@ -5,10 +5,12 @@
 > A web application framework using the Reactive Model-View-Intent architecture and Virtual
 DOM Rendering.
 
-* **Purely Reactive**: the building blocks in Cycle are event-driven and [RxJS](https://github.com/Reactive-Extensions/RxJS)
+* **Honestly Reactive**: the building blocks in Cycle are event-driven and [RxJS](https://github.com/Reactive-Extensions/RxJS)
   is a hard dependency, which simplifies all code related to events, asynchrony, and
   errors. Structuring the app with RxJS also separates concerns, because Rx decouples
-  data production from data consumption.
+  data production from data consumption. As result, apps in Cycle have nothing comparable
+  to imperative calls such as `setState()`, `forceUpdate()`, `replaceProps()`, 
+  `handleClick()`, etc.
 * **Unidirectional Dataflow**: based on the Model-View-Intent architecture, data moves
   from Model to View, events move from View to Intent, and Intent emits "user intentions"
   to the Model. Model handles information, View handles display, Intent handles interaction.
