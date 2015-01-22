@@ -5,18 +5,24 @@
 > A web application framework using the Reactive Model-View-Intent architecture and Virtual
 DOM Rendering.
 
+* **Honestly Reactive**: the building blocks in Cycle are event-driven and [RxJS](https://github.com/Reactive-Extensions/RxJS)
+  is a hard dependency, which simplifies all code related to events, asynchrony, and
+  errors. Structuring the app with RxJS also separates concerns, because Rx decouples
+  data production from data consumption. As result, apps in Cycle have nothing comparable
+  to imperative calls such as `setState()`, `forceUpdate()`, `replaceProps()`, 
+  `handleClick()`, etc.
 * **Unidirectional Dataflow**: based on the Model-View-Intent architecture, data moves
-  from Model to View, events move from View to Intent, and Intent sends "user intentions"
-  to the Model. They are tied together as a cycle.
-* **Purely Reactive**: all components are event-driven and [RxJS](https://github.com/Reactive-Extensions/RxJS)
-  is a hard dependency, which simplifies all code related to events, asynchronicity, and
-  errors.
-* **Virtual DOM Rendering**: Views re-render completely whenever Models emit any event.
-  The use of [virtual-dom](https://github.com/Matt-Esch/virtual-dom) keeps performance
-  optimal by patching the actual DOM with only the minimum necessary changes.
-* **MVI is functional**: each node in the MVI cycle behaves like a function,
+  from Model to View, events move from View to Intent, and Intent emits "user intentions"
+  to the Model. Model handles information, View handles display, Intent handles interaction.
+  They are tied together as a circular loop, each one reacting to the other, but none is 
+  controlling the others.
+* **Functions, not classes**: each node in the MVI cycle behaves like a function,
   receiving events as input, and outputting events. No side effects. This makes it
-  convenient for composing with other components, or for automating tests.
+  convenient for composing with other components, or for automating tests. It also allows
+  for a JavaScript programming style without the pitfalling `this`.
+* **Virtual DOM Rendering**: Views re-render completely whenever Models emit any data.
+  The use of [virtual-dom](https://github.com/Matt-Esch/virtual-dom) keeps performance
+  fast by patching the actual DOM with only the minimum necessary changes.
 
 [![npm version](https://badge.fury.io/js/cyclejs.svg)](http://badge.fury.io/js/cyclejs)
 [![Bower version](https://badge.fury.io/bo/cycle.svg)](http://badge.fury.io/bo/cycle)
@@ -31,31 +37,28 @@ DOM Rendering.
 var Cycle = require('cyclejs');
 var h = Cycle.h;
 
-var HelloModel = Cycle.createModel(function (intent) {
-  return {name$: intent.get('changeName$').startWith('')};
+var HelloModel = Cycle.createModel(intent =>
+  ({name$: intent.get('changeName$').startWith('')})
 });
 
-var HelloView = Cycle.createView(function (model) {
-  return {
-    vtree$: model.get('name$')
-      .map((name) =>
-        h('div', [
-          h('label', 'Name:'),
-          h('input', {
-            attributes: {'type': 'text'},
-            oninput: 'inputText$'
-          }),
-          h('h1', 'Hello ' + name)
-        ])
-      )
-  };
-});
+var HelloView = Cycle.createView(model =>
+  ({
+    vtree$: model.get('name$').map(name =>
+      h('div', [
+        h('label', 'Name:'),
+        h('input', {
+          attributes: {'type': 'text'},
+          oninput: 'inputText$'
+        }),
+        h('h1', 'Hello ' + name)
+      ])
+    )
+  })
+);
 
-var HelloIntent = Cycle.createIntent(function (view) {
-  return {
-    changeName$: view.get('inputText$').map((ev) => ev.target.value)
-  };
-});
+var HelloIntent = Cycle.createIntent(view =>
+  ({changeName$: view.get('inputText$').map(ev => ev.target.value)})
+);
 
 Cycle.createRenderer('.js-container').inject(HelloView);
 HelloIntent.inject(HelloView).inject(HelloModel).inject(HelloIntent);
