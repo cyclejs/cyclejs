@@ -1,6 +1,6 @@
 {
   "name": "cyclejs",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "author": "Andre Staltz",
   "description": "A web application framework with Model-View-Intent and Virtual DOM",
   "license": "MIT",
@@ -16,8 +16,8 @@
   ],
   "main": "src/cycle.js",
   "dependencies": {
-    "rx": "2.3.22",
-    "virtual-dom": "1.0.0"
+    "rx": "2.3.24",
+    "virtual-dom": "1.1.0"
   },
   "devDependencies": {
     "browserify": "8.0.2",
