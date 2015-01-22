@@ -16,24 +16,6 @@ function isElement(o) {
   );
 }
 
-function replaceCustomElements(vtree, _customElements) {
-  // Silently ignore corner cases
-  if (!vtree || !_customElements || vtree.type === 'VirtualText') {
-    return vtree;
-  }
-  // Replace vtree itself
-  if (vtree.tagName && _customElements.hasOwnProperty(vtree.tagName.toUpperCase())) {
-    return new _customElements[vtree.tagName.toUpperCase()](vtree);
-  }
-  // Or replace children recursively
-  if (Array.isArray(vtree.children)) {
-    for (var i = vtree.children.length - 1; i >= 0; i--) {
-      vtree.children[i] = replaceCustomElements(vtree.children[i], _customElements);
-    }
-  }
-  return vtree;
-}
-
 function getFunctionForwardIntoStream(stream) {
   return function forwardIntoStream(ev) { stream.onNext(ev); };
 }
@@ -74,13 +56,43 @@ function replaceEventHandlersInVTrees(vtree) {
   return vtree;
 }
 
-function renderEvery(vtree$, domContainer, _customElements) {
-  var rootNode = document.createElement('div');
-  domContainer.innerHTML = '';
-  domContainer.appendChild(rootNode);
+function Renderer(container, useInternalContainer) {
+  if (typeof useInternalContainer === 'undefined') {
+    useInternalContainer = true;
+  }
+  this._useInternalContainer = useInternalContainer;
+  // Find and prepare the container
+  this._domContainer = (typeof container === 'string') ?
+    document.querySelector(container) :
+    container;
+  // Check pre-conditions
+  if (typeof container === 'string' && this._domContainer === null) {
+    throw new Error('Cannot render into unknown element \'' + container + '\'');
+  } else if (!isElement(this._domContainer)) {
+    throw new Error('Given container is not a DOM element neither a selector string.');
+  }
+  // Create sink
+  var self = this;
+  DataFlowSink.call(this, function injectIntoRenderer(view) {
+    return self.renderEvery(view.get('vtree$'));
+  });
+}
+
+Renderer.prototype = Object.create(DataFlowSink.prototype);
+
+Renderer.prototype.renderEvery = function renderEvery(vtree$) {
+  var self = this;
+  var rootNode;
+  if (this._useInternalContainer) {
+    rootNode = document.createElement('div');
+    this._domContainer.innerHTML = '';
+    this._domContainer.appendChild(rootNode);
+  } else {
+    rootNode = this._domContainer;
+  }
   return vtree$.startWith(VDOM.h())
     .map(function renderingPreprocessing(vtree) {
-      return replaceEventHandlersInVTrees(replaceCustomElements(vtree, _customElements));
+      return replaceEventHandlersInVTrees(self.replaceCustomElements(vtree));
     })
     .pairwise()
     .subscribe(function renderDiffAndPatch(pair) {
@@ -95,26 +107,26 @@ function renderEvery(vtree$, domContainer, _customElements) {
         console.error(err);
       }
     });
-}
+};
 
-function Renderer(container) {
-  // Find and prepare the container
-  var domContainer = (typeof container === 'string') ?
-    document.querySelector(container) :
-    container;
-  // Check pre-conditions
-  if (typeof container === 'string' && domContainer === null) {
-    throw new Error('Cannot render into unknown element \'' + container + '\'');
-  } else if (!isElement(domContainer)) {
-    throw new Error('Given container is not a DOM element neither a selector string.');
+Renderer.prototype.replaceCustomElements = function replaceCustomElements(vtree) {
+  // Silently ignore corner cases
+  if (!vtree || !Renderer._customElements || vtree.type === 'VirtualText') {
+    return vtree;
   }
-  // Create sink
-  DataFlowSink.call(this, function injectIntoRenderer(view) {
-    return renderEvery(view.get('vtree$'), domContainer, Renderer._customElements);
-  });
-}
-
-Renderer.prototype = Object.create(DataFlowSink.prototype);
+  var tagName = (vtree.tagName || '').toUpperCase();
+  // Replace vtree itself
+  if (vtree.tagName && Renderer._customElements.hasOwnProperty(tagName)) {
+    return new Renderer._customElements[tagName](vtree);
+  }
+  // Or replace children recursively
+  if (Array.isArray(vtree.children)) {
+    for (var i = vtree.children.length - 1; i >= 0; i--) {
+      vtree.children[i] = this.replaceCustomElements(vtree.children[i]);
+    }
+  }
+  return vtree;
+};
 
 Renderer.registerCustomElement = function registerCustomElement(tagName, dataFlowNode) {
   if (typeof tagName !== 'string' || typeof dataFlowNode !== 'object') {
