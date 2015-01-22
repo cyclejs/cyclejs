@@ -1,7 +1,7 @@
 var h = Cycle.h;
 var Rx = Cycle.Rx;
 
-var TickerDataFlowNode = Cycle.createDataFlowNode(function (attributes) {
+var TickerComponent = Cycle.createView(function (attributes) {
   var TickerModel = Cycle.createModel(function (attributes, intent) {
     return {
       color$: attributes.get('color$')
@@ -87,6 +87,6 @@ var Intent = Cycle.createIntent(function (view) {
 });
 
 var renderer = Cycle.createRenderer('.js-container');
-Cycle.registerCustomElement('ticker', TickerDataFlowNode);
+Cycle.registerCustomElement('ticker', TickerComponent);
 renderer.inject(View);
 Intent.inject(View).inject(Model).inject(Intent);

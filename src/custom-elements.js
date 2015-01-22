@@ -71,7 +71,7 @@ function makeInit(tagName, dataFlowNode) {
   return function initCustomElement() {
     var dfn = dataFlowNode.clone();
     var elem = createContainerElement(tagName);
-    var renderer = new Renderer(elem);
+    var renderer = new Renderer(elem, false);
     var events = getOriginEventStreams(dfn);
     forwardOriginEventsToDestinations(events, this.eventsOrigDestMap);
     renderer.inject(dfn);
