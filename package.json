@@ -17,7 +17,7 @@
   "main": "src/cycle.js",
   "dependencies": {
     "rx": "2.3.24",
-    "virtual-dom": "1.1.0"
+    "virtual-dom": "1.2.0"
   },
   "devDependencies": {
     "browserify": "8.1.1",
