@@ -15966,6 +15966,7 @@ function applyProperties(node, props, previous) {
         if (propValue === undefined) {
             removeProperty(node, props, previous, propName);
         } else if (isHook(propValue)) {
+            removeProperty(node, props, previous, propName)
             propValue.hook(node,
                 propName,
                 previous ? previous[propName] : undefined)
@@ -16758,8 +16759,9 @@ function isThunk(t) {
 module.exports = isHook
 
 function isHook(hook) {
-    return hook && typeof hook.hook === "function" &&
-        !hook.hasOwnProperty("hook")
+    return hook &&
+      (typeof hook.hook === "function" && !hook.hasOwnProperty("hook") ||
+       typeof hook.unhook === "function" && !hook.hasOwnProperty("unhook"))
 }
 
 },{}],34:[function(require,module,exports){
