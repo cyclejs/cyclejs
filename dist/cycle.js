@@ -307,69 +307,39 @@ function isUndefined(arg) {
 // shim for using process in browser
 
 var process = module.exports = {};
+var queue = [];
+var draining = false;
 
-process.nextTick = (function () {
-    var canSetImmediate = typeof window !== 'undefined'
-    && window.setImmediate;
-    var canMutationObserver = typeof window !== 'undefined'
-    && window.MutationObserver;
-    var canPost = typeof window !== 'undefined'
-    && window.postMessage && window.addEventListener
-    ;
-
-    if (canSetImmediate) {
-        return function (f) { return window.setImmediate(f) };
+function drainQueue() {
+    if (draining) {
+        return;
     }
-
-    var queue = [];
-
-    if (canMutationObserver) {
-        var hiddenDiv = document.createElement("div");
-        var observer = new MutationObserver(function () {
-            var queueList = queue.slice();
-            queue.length = 0;
-            queueList.forEach(function (fn) {
-                fn();
-            });
-        });
-
-        observer.observe(hiddenDiv, { attributes: true });
-
-        return function nextTick(fn) {
-            if (!queue.length) {
-                hiddenDiv.setAttribute('yes', 'no');
-            }
-            queue.push(fn);
-        };
+    draining = true;
+    var currentQueue;
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        var i = -1;
+        while (++i < len) {
+            currentQueue[i]();
+        }
+        len = queue.length;
     }
-
-    if (canPost) {
-        window.addEventListener('message', function (ev) {
-            var source = ev.source;
-            if ((source === window || source === null) && ev.data === 'process-tick') {
-                ev.stopPropagation();
-                if (queue.length > 0) {
-                    var fn = queue.shift();
-                    fn();
-                }
-            }
-        }, true);
-
-        return function nextTick(fn) {
-            queue.push(fn);
-            window.postMessage('process-tick', '*');
-        };
+    draining = false;
+}
+process.nextTick = function (fun) {
+    queue.push(fun);
+    if (!draining) {
+        setTimeout(drainQueue, 0);
     }
-
-    return function nextTick(fn) {
-        setTimeout(fn, 0);
-    };
-})();
+};
 
 process.title = 'browser';
 process.browser = true;
 process.env = {};
 process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
 
 function noop() {}
 
@@ -390,6 +360,7 @@ process.cwd = function () { return '/' };
 process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
+process.umask = function() { return 0; };
 
 },{}],4:[function(require,module,exports){
 (function (process,global){
@@ -15746,7 +15717,7 @@ var diff = require("./vtree/diff.js")
 
 module.exports = diff
 
-},{"./vtree/diff.js":41}],11:[function(require,module,exports){
+},{"./vtree/diff.js":42}],11:[function(require,module,exports){
 var h = require("./virtual-hyperscript/index.js")
 
 module.exports = h
@@ -15993,22 +15964,25 @@ function applyProperties(node, props, previous) {
         var propValue = props[propName]
 
         if (propValue === undefined) {
-            removeProperty(node, props, previous, propName);
+            removeProperty(node, propName, propValue, previous);
         } else if (isHook(propValue)) {
-            propValue.hook(node,
-                propName,
-                previous ? previous[propName] : undefined)
+            removeProperty(node, propName, propValue, previous)
+            if (propValue.hook) {
+                propValue.hook(node,
+                    propName,
+                    previous ? previous[propName] : undefined)
+            }
         } else {
             if (isObject(propValue)) {
                 patchObject(node, props, previous, propName, propValue);
-            } else if (propValue !== undefined) {
+            } else {
                 node[propName] = propValue
             }
         }
     }
 }
 
-function removeProperty(node, props, previous, propName) {
+function removeProperty(node, propName, propValue, previous) {
     if (previous) {
         var previousValue = previous[propName]
 
@@ -16027,7 +16001,7 @@ function removeProperty(node, props, previous, propName) {
                 node[propName] = null
             }
         } else if (previousValue.unhook) {
-            previousValue.unhook(node, propName)
+            previousValue.unhook(node, propName, propValue)
         }
     }
 }
@@ -16787,8 +16761,9 @@ function isThunk(t) {
 module.exports = isHook
 
 function isHook(hook) {
-    return hook && typeof hook.hook === "function" &&
-        !hook.hasOwnProperty("hook")
+    return hook &&
+      (typeof hook.hook === "function" && !hook.hasOwnProperty("hook") ||
+       typeof hook.unhook === "function" && !hook.hasOwnProperty("unhook"))
 }
 
 },{}],34:[function(require,module,exports){
@@ -16930,16 +16905,76 @@ VirtualText.prototype.version = version
 VirtualText.prototype.type = "VirtualText"
 
 },{"./version":37}],41:[function(require,module,exports){
-var isArray = require("x-is-array")
 var isObject = require("is-object")
+var isHook = require("../vnode/is-vhook")
+
+module.exports = diffProps
+
+function diffProps(a, b) {
+    var diff
+
+    for (var aKey in a) {
+        if (!(aKey in b)) {
+            diff = diff || {}
+            diff[aKey] = undefined
+        }
+
+        var aValue = a[aKey]
+        var bValue = b[aKey]
+
+        if (aValue === bValue) {
+            continue
+        } else if (isObject(aValue) && isObject(bValue)) {
+            if (getPrototype(bValue) !== getPrototype(aValue)) {
+                diff = diff || {}
+                diff[aKey] = bValue
+            } else if (isHook(bValue)) {
+                 diff = diff || {}
+                 diff[aKey] = bValue
+            } else {
+                var objectDiff = diffProps(aValue, bValue)
+                if (objectDiff) {
+                    diff = diff || {}
+                    diff[aKey] = objectDiff
+                }
+            }
+        } else {
+            diff = diff || {}
+            diff[aKey] = bValue
+        }
+    }
+
+    for (var bKey in b) {
+        if (!(bKey in a)) {
+            diff = diff || {}
+            diff[bKey] = b[bKey]
+        }
+    }
+
+    return diff
+}
+
+function getPrototype(value) {
+  if (Object.getPrototypeOf) {
+    return Object.getPrototypeOf(value)
+  } else if (value.__proto__) {
+    return value.__proto__
+  } else if (value.constructor) {
+    return value.constructor.prototype
+  }
+}
+
+},{"../vnode/is-vhook":33,"is-object":18}],42:[function(require,module,exports){
+var isArray = require("x-is-array")
 
 var VPatch = require("../vnode/vpatch")
 var isVNode = require("../vnode/is-vnode")
 var isVText = require("../vnode/is-vtext")
 var isWidget = require("../vnode/is-widget")
 var isThunk = require("../vnode/is-thunk")
-var isHook = require("../vnode/is-vhook")
 var handleThunk = require("../vnode/handle-thunk")
+
+var diffProps = require("./diff-props")
 
 module.exports = diff
 
@@ -17010,60 +17045,6 @@ function walk(a, b, patch, index) {
 
     if (applyClear) {
         clearState(a, patch, index)
-    }
-}
-
-function diffProps(a, b) {
-    var diff
-
-    for (var aKey in a) {
-        if (!(aKey in b)) {
-            diff = diff || {}
-            diff[aKey] = undefined
-        }
-
-        var aValue = a[aKey]
-        var bValue = b[aKey]
-
-        if (aValue === bValue) {
-            continue
-        } else if (isObject(aValue) && isObject(bValue)) {
-            if (getPrototype(bValue) !== getPrototype(aValue)) {
-                diff = diff || {}
-                diff[aKey] = bValue
-            } else if (isHook(bValue)) {
-                 diff = diff || {}
-                 diff[aKey] = bValue
-            } else {
-                var objectDiff = diffProps(aValue, bValue)
-                if (objectDiff) {
-                    diff = diff || {}
-                    diff[aKey] = objectDiff
-                }
-            }
-        } else {
-            diff = diff || {}
-            diff[aKey] = bValue
-        }
-    }
-
-    for (var bKey in b) {
-        if (!(bKey in a)) {
-            diff = diff || {}
-            diff[bKey] = b[bKey]
-        }
-    }
-
-    return diff
-}
-
-function getPrototype(value) {
-    if (Object.getPrototypeOf) {
-        return Object.getPrototypeOf(value)
-    } else if (value.__proto__) {
-        return value.__proto__
-    } else if (value.constructor) {
-        return value.constructor.prototype
     }
 }
 
@@ -17308,7 +17289,7 @@ function appendPatch(apply, patch) {
     }
 }
 
-},{"../vnode/handle-thunk":31,"../vnode/is-thunk":32,"../vnode/is-vhook":33,"../vnode/is-vnode":34,"../vnode/is-vtext":35,"../vnode/is-widget":36,"../vnode/vpatch":39,"is-object":18,"x-is-array":19}],42:[function(require,module,exports){
+},{"../vnode/handle-thunk":31,"../vnode/is-thunk":32,"../vnode/is-vnode":34,"../vnode/is-vtext":35,"../vnode/is-widget":36,"../vnode/vpatch":39,"./diff-props":41,"x-is-array":19}],43:[function(require,module,exports){
 'use strict';
 var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
@@ -17324,7 +17305,7 @@ function createIntent(definitionFn) {
 
 module.exports = createIntent;
 
-},{"./data-flow-node":47,"./errors":50}],43:[function(require,module,exports){
+},{"./data-flow-node":48,"./errors":51}],44:[function(require,module,exports){
 'use strict';
 var DataFlowNode = require('./data-flow-node');
 var errors = require('./errors');
@@ -17340,7 +17321,7 @@ function createModel(definitionFn) {
 
 module.exports = createModel;
 
-},{"./data-flow-node":47,"./errors":50}],44:[function(require,module,exports){
+},{"./data-flow-node":48,"./errors":51}],45:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
 var DataFlowNode = require('./data-flow-node');
@@ -17454,7 +17435,7 @@ function createView(definitionFn) {
 
 module.exports = createView;
 
-},{"./data-flow-node":47,"./errors":50,"./utils":54,"rx":8}],45:[function(require,module,exports){
+},{"./data-flow-node":48,"./errors":51,"./utils":55,"rx":8}],46:[function(require,module,exports){
 'use strict';
 var InputProxy = require('./input-proxy');
 var DataFlowNode = require('./data-flow-node');
@@ -17567,7 +17548,7 @@ module.exports = {
   makeUpdate: makeUpdate
 };
 
-},{"./data-flow-node":47,"./input-proxy":51,"./renderer":53,"./utils":54}],46:[function(require,module,exports){
+},{"./data-flow-node":48,"./input-proxy":52,"./renderer":54,"./utils":55}],47:[function(require,module,exports){
 'use strict';
 var VirtualDOM = require('virtual-dom');
 var Rx = require('rx');
@@ -17719,7 +17700,7 @@ var Cycle = {
 
 module.exports = Cycle;
 
-},{"./create-intent":42,"./create-model":43,"./create-view":44,"./data-flow-node":47,"./data-flow-sink":48,"./data-flow-source":49,"./property-hook":52,"./renderer":53,"rx":8,"virtual-dom":12}],47:[function(require,module,exports){
+},{"./create-intent":43,"./create-model":44,"./create-view":45,"./data-flow-node":48,"./data-flow-sink":49,"./data-flow-source":50,"./property-hook":53,"./renderer":54,"rx":8,"virtual-dom":12}],48:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
 var errors = require('./errors');
@@ -17828,7 +17809,7 @@ replicateAll = function replicateAll(input, proxy) {
 
 module.exports = DataFlowNode;
 
-},{"./errors":50,"./input-proxy":51,"./utils":54,"rx":8}],48:[function(require,module,exports){
+},{"./errors":51,"./input-proxy":52,"./utils":55,"rx":8}],49:[function(require,module,exports){
 'use strict';
 
 function makeLightweightInputProxies(args) {
@@ -17864,7 +17845,7 @@ function DataFlowSink(definitionFn) {
 
 module.exports = DataFlowSink;
 
-},{}],49:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 'use strict';
 
 function DataFlowSource(outputObject) {
@@ -17889,7 +17870,7 @@ function DataFlowSource(outputObject) {
 
 module.exports = DataFlowSource;
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 'use strict';
 
 function CycleInterfaceError(message, missingMember) {
@@ -17920,7 +17901,7 @@ module.exports = {
   customInterfaceErrorMessageInInject: customInterfaceErrorMessageInInject
 };
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
 
@@ -17936,7 +17917,7 @@ function InputProxy() {
 
 module.exports = InputProxy;
 
-},{"rx":8}],52:[function(require,module,exports){
+},{"rx":8}],53:[function(require,module,exports){
 'use strict';
 
 function PropertyHook(fn) {
@@ -17948,7 +17929,7 @@ PropertyHook.prototype.hook = function () {
 
 module.exports = PropertyHook;
 
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 'use strict';
 var VDOM = {
   h: require('virtual-dom').h,
@@ -18102,7 +18083,7 @@ Renderer.registerCustomElement = function registerCustomElement(tagName, dataFlo
 
 module.exports = Renderer;
 
-},{"./custom-elements":45,"./data-flow-sink":48,"virtual-dom":12,"virtual-dom/diff":10,"virtual-dom/patch":20}],54:[function(require,module,exports){
+},{"./custom-elements":46,"./data-flow-sink":49,"virtual-dom":12,"virtual-dom/diff":10,"virtual-dom/patch":20}],55:[function(require,module,exports){
 'use strict';
 
 function endsWithDolarSign(str) {
@@ -18116,5 +18097,5 @@ module.exports = {
   endsWithDolarSign: endsWithDolarSign
 };
 
-},{}]},{},[46])(46)
+},{}]},{},[47])(47)
 });
