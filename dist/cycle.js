@@ -307,39 +307,69 @@ function isUndefined(arg) {
 // shim for using process in browser
 
 var process = module.exports = {};
-var queue = [];
-var draining = false;
 
-function drainQueue() {
-    if (draining) {
-        return;
+process.nextTick = (function () {
+    var canSetImmediate = typeof window !== 'undefined'
+    && window.setImmediate;
+    var canMutationObserver = typeof window !== 'undefined'
+    && window.MutationObserver;
+    var canPost = typeof window !== 'undefined'
+    && window.postMessage && window.addEventListener
+    ;
+
+    if (canSetImmediate) {
+        return function (f) { return window.setImmediate(f) };
     }
-    draining = true;
-    var currentQueue;
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        var i = -1;
-        while (++i < len) {
-            currentQueue[i]();
-        }
-        len = queue.length;
+
+    var queue = [];
+
+    if (canMutationObserver) {
+        var hiddenDiv = document.createElement("div");
+        var observer = new MutationObserver(function () {
+            var queueList = queue.slice();
+            queue.length = 0;
+            queueList.forEach(function (fn) {
+                fn();
+            });
+        });
+
+        observer.observe(hiddenDiv, { attributes: true });
+
+        return function nextTick(fn) {
+            if (!queue.length) {
+                hiddenDiv.setAttribute('yes', 'no');
+            }
+            queue.push(fn);
+        };
     }
-    draining = false;
-}
-process.nextTick = function (fun) {
-    queue.push(fun);
-    if (!draining) {
-        setTimeout(drainQueue, 0);
+
+    if (canPost) {
+        window.addEventListener('message', function (ev) {
+            var source = ev.source;
+            if ((source === window || source === null) && ev.data === 'process-tick') {
+                ev.stopPropagation();
+                if (queue.length > 0) {
+                    var fn = queue.shift();
+                    fn();
+                }
+            }
+        }, true);
+
+        return function nextTick(fn) {
+            queue.push(fn);
+            window.postMessage('process-tick', '*');
+        };
     }
-};
+
+    return function nextTick(fn) {
+        setTimeout(fn, 0);
+    };
+})();
 
 process.title = 'browser';
 process.browser = true;
 process.env = {};
 process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
 
 function noop() {}
 
@@ -360,7 +390,6 @@ process.cwd = function () { return '/' };
 process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
-process.umask = function() { return 0; };
 
 },{}],4:[function(require,module,exports){
 (function (process,global){
@@ -15966,7 +15995,6 @@ function applyProperties(node, props, previous) {
         if (propValue === undefined) {
             removeProperty(node, props, previous, propName);
         } else if (isHook(propValue)) {
-            removeProperty(node, props, previous, propName)
             propValue.hook(node,
                 propName,
                 previous ? previous[propName] : undefined)
@@ -16759,9 +16787,8 @@ function isThunk(t) {
 module.exports = isHook
 
 function isHook(hook) {
-    return hook &&
-      (typeof hook.hook === "function" && !hook.hasOwnProperty("hook") ||
-       typeof hook.unhook === "function" && !hook.hasOwnProperty("unhook"))
+    return hook && typeof hook.hook === "function" &&
+        !hook.hasOwnProperty("hook")
 }
 
 },{}],34:[function(require,module,exports){
@@ -17951,11 +17978,11 @@ function getFunctionForwardIntoStream(stream) {
  * @param  {String} eventName
  */
 function replaceEventHandler(vtree, eventName) {
-  if (typeof eventName !== 'string' && eventName.search(/^on[a-z]+/) !== 0) {
+  if (typeof eventName !== 'string' || eventName.search(/^on[a-z]+/) !== 0) {
     return;
   }
   var stream = vtree.properties[eventName];
-  if (!stream || typeof stream === 'function' || !stream.subscribe) {
+  if (!stream || typeof stream === 'function') {
     return;
   }
   vtree.properties[eventName] = getFunctionForwardIntoStream(stream);

@@ -27,11 +27,11 @@ function getFunctionForwardIntoStream(stream) {
  * @param  {String} eventName
  */
 function replaceEventHandler(vtree, eventName) {
-  if (typeof eventName !== 'string' && eventName.search(/^on[a-z]+/) !== 0) {
+  if (typeof eventName !== 'string' || eventName.search(/^on[a-z]+/) !== 0) {
     return;
   }
   var stream = vtree.properties[eventName];
-  if (!stream || typeof stream === 'function' || !stream.subscribe) {
+  if (!stream || typeof stream === 'function') {
     return;
   }
   vtree.properties[eventName] = getFunctionForwardIntoStream(stream);
