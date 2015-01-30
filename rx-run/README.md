@@ -23,6 +23,8 @@ DOM Rendering.
 * **Virtual DOM Rendering**: Views re-render completely whenever Models emit any data.
   The use of [virtual-dom](https://github.com/Matt-Esch/virtual-dom) keeps performance
   fast by patching the actual DOM with only the minimum necessary changes.
+* **Work in progress**: API design is the current priority and might significantly evolve,
+  performance and other issues are left aside before this gets stable.  
 
 [![npm version](https://badge.fury.io/js/cyclejs.svg)](http://badge.fury.io/js/cyclejs)
 [![Bower version](https://badge.fury.io/bo/cycle.svg)](http://badge.fury.io/bo/cycle)
