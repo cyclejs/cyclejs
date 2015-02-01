@@ -72,7 +72,7 @@ subscribes to changes of `HelloView.get('vtree$')` and renders those virtual ele
 `.js-container` in the DOM. `inject()` just ties all three Model, View, and
 Intent together by telling them that they depend on each other circularly.
 
-For an advanced example, check out [TodoMVC implemented in Cycle.js](https://github.com/staltz/todomvc-cycle).
+For advanced examples, check out [TodoMVC implemented in Cycle.js](https://github.com/staltz/todomvc-cycle) and [RxMarbles](https://github.com/staltz/rxmarbles).
 
 ## Installing through npm
 
