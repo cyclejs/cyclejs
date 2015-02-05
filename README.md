@@ -98,19 +98,22 @@ still under 600 lines of code only.
 Why would you use Cycle.js instead of other web frameworks such as Angular and React? Here
 are a couple of strong reasons:
 
+- **The only (yet) 100% reactive frontend framework.** The truth is, if you really wanted 
+  to apply reactive programming everywhere in a single page app, you would have no other
+  choice than Cycle. This is not yet another Flux library. I built it because it doesn't
+  exist elsewhere. I want to structure apps as observable event streams as much as possible, 
+  while minimizing the use of `subscribe`, side effects, and `this`.
 - **Separation of concerns.** The reactive pattern for Models, Views, and Intents makes it
   possible for no component to have functions such as `updateSomething()` which inherently
   create coupling. You can write code with single responsibilities throughout. For
   instance, the View just takes model data and renders virtual elements, it doesn't even
-  have callbacks to handle events.
-- **Superb testability.** Everything is a JavaScript function or a [DataFlowNode](https://github.com/staltz/cycle/blob/master/docs/data-flow-nodes.md),
-  so testing is mostly a matter of feeding input and inspecting the output. You can even
-  test styles if you use functions to output your styles instead of using CSS files.
-- **Rendering separated from View.** Contrary to what you expect, a View in Cycle.js does
-  not directly render anything to the browser. Instead, it just outputs virtual DOM
-  elements. This allows for better testability, and also makes it easier to implement
-  UI skins since it is just a matter of introducing Skin components taking Views as input
-  and doing some post-processing before the actual rendering.
+  have callbacks to handle events. Additionally, Rendering is separated from View. Contrary
+  to what you expect, a View in Cycle.js does not directly render anything to the browser.
+  Instead, it just outputs virtual DOM elements. This allows for testing without depending
+  on the DOM, besides other benefits such as being able to hypothetically swap the DOM 
+  Renderer with a Cocoa UI tree Renderer or whatever other target you wish.
+- **Great unit testability.** Everything is a JavaScript function or a [DataFlowNode](https://github.com/staltz/cycle/blob/master/docs/data-flow-nodes.md),
+  so testing is mostly a matter of feeding input and inspecting the output.
 - **Welcomes immutable and stateless programming.** Cycle.js is built for, in
   combination with RxJS, a programming style that favors immutability and statelessness.
   This allows code to be clearer and less prone to bugs. Apps written in Cycle.js are
