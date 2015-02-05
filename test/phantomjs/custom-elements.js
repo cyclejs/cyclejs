@@ -102,12 +102,12 @@ describe('Custom Elements', function () {
 
   it('should render inner state and attributes independently', function (done) {
     var renderer = createRenderer();
-    // Make custom element with internal state, and attributes as input
-    var component = Cycle.createView(function (attributes) {
+    // Make custom element with internal state, and properties as input
+    var component = Cycle.createView(function (Properties) {
       var number$ = Rx.Observable.interval(10).take(9);
       return {
         vtree$: Rx.Observable
-          .combineLatest(attributes.get('color$'), number$, function (color, number) {
+          .combineLatest(Properties.get('color$'), number$, function (color, number) {
             return Cycle.h('h3.stateful-element',
               {style: {'color': color}},
               String(number)
@@ -120,7 +120,7 @@ describe('Custom Elements', function () {
     var color$ = Rx.Observable.just('#00FF00').delay(50).startWith('#FF0000');
     var view = {
       vtree$: color$.map(function (color) {
-        return Cycle.h('myelement', {attributes: {'color': color}});
+        return Cycle.h('myelement', {'color': color});
       })
     };
     renderer.inject(view);
@@ -166,7 +166,7 @@ describe('Custom Elements', function () {
     assert.strictEqual(myElement2.tagName, 'H2');
   });
 
-  it('should recognize and create a custom element inside another', function () {
+  it('should recognize and create a nested custom elements', function () {
     var renderer = createRenderer();
     // Make the inner custom element
     var component1 = Cycle.createView(function () {
@@ -229,7 +229,7 @@ describe('Custom Elements', function () {
       };
     });
     Cycle.registerCustomElement('myelement', component);
-    // Use the custom element
+    // Make VNode with a string as child
     var view = Cycle.createView(function () {
       return {
         vtree$: Rx.Observable.just(

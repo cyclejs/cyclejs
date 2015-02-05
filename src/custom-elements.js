@@ -19,8 +19,8 @@ function getEventsOrigDestMap(vtree) {
 
 function createContainerElement(tagName) {
   var elem = document.createElement('div');
-  elem.className = 'cycleCustomElementContainer-' + tagName.toUpperCase();
-  elem.cycleCustomElementAttributes = new InputProxy();
+  elem.className = 'cycleCustomElement-' + tagName.toUpperCase();
+  elem.cycleCustomElementProperties = new InputProxy();
   return elem;
 }
 
@@ -61,7 +61,7 @@ function forwardOriginEventsToDestinations(events, origDestMap) {
 function makeConstructor() {
   return function customElementConstructor(vtree) {
     this.type = 'Widget';
-    this.attributes = vtree.properties.attributes;
+    this.properties = vtree.properties;
     this.eventsOrigDestMap = getEventsOrigDestMap(vtree);
   };
 }
@@ -76,7 +76,7 @@ function makeInit(tagName, dataFlowNode) {
     forwardOriginEventsToDestinations(events, this.eventsOrigDestMap);
     renderer.inject(dfn);
     dfn._inCustomElement = true;
-    dfn.inject(elem.cycleCustomElementAttributes);
+    dfn.inject(elem.cycleCustomElementProperties);
     this.update(null, elem);
     return elem;
   };
@@ -85,20 +85,20 @@ function makeInit(tagName, dataFlowNode) {
 function makeUpdate() {
   return function updateCustomElement(prev, elem) {
     if (!elem ||
-      !elem.cycleCustomElementAttributes ||
-      !(elem.cycleCustomElementAttributes instanceof InputProxy) ||
-      !elem.cycleCustomElementAttributes.proxiedProps)
+      !elem.cycleCustomElementProperties ||
+      !(elem.cycleCustomElementProperties instanceof InputProxy) ||
+      !elem.cycleCustomElementProperties.proxiedProps)
     {
       return;
     }
-    var proxiedProps = elem.cycleCustomElementAttributes.proxiedProps;
+    var proxiedProps = elem.cycleCustomElementProperties.proxiedProps;
     for (var prop in proxiedProps) {
-      var attrStreamName = prop;
-      var attrName = prop.slice(0, -1);
-      if (proxiedProps.hasOwnProperty(attrStreamName) &&
-        this.attributes.hasOwnProperty(attrName))
+      var propStreamName = prop;
+      var propName = prop.slice(0, -1);
+      if (proxiedProps.hasOwnProperty(propStreamName) &&
+        this.properties.hasOwnProperty(propName))
       {
-        proxiedProps[attrStreamName].onNext(this.attributes[attrName]);
+        proxiedProps[propStreamName].onNext(this.properties[propName]);
       }
     }
   };
