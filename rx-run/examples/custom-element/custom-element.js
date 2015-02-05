@@ -1,23 +1,23 @@
 var h = Cycle.h;
 var Rx = Cycle.Rx;
 
-var TickerComponent = Cycle.createView(function (attributes) {
-  var TickerModel = Cycle.createModel(function (attributes, intent) {
+var TickerComponent = Cycle.createView(function (Properties) {
+  var TickerModel = Cycle.createModel(function (Properties, Intent) {
     return {
-      color$: attributes.get('color$')
-        .takeUntil(intent.get('stop$'))
-        .merge(intent.get('stop$').map(function () { return '#FF0000'; })),
-      x$: Rx.Observable.interval(50).takeUntil(intent.get('stop$')),
-      y$: Rx.Observable.interval(100).takeUntil(intent.get('stop$'))
+      color$: Properties.get('color$')
+        .takeUntil(Intent.get('stop$'))
+        .merge(Intent.get('stop$').map(function () { return '#FF0000'; })),
+      x$: Rx.Observable.interval(50).takeUntil(Intent.get('stop$')),
+      y$: Rx.Observable.interval(100).takeUntil(Intent.get('stop$'))
     };
   });
 
-  var TickerView = Cycle.createView(function (model) {
+  var TickerView = Cycle.createView(function (Model) {
     return {
       vtree$: Rx.Observable.combineLatest(
-        model.get('color$'),
-        model.get('x$'),
-        model.get('y$'),
+        Model.get('color$'),
+        Model.get('x$'),
+        Model.get('y$'),
         function (color, x, y) {
           return h('div.ticker', {
             style: {'color': color, 'background-color': '#ECECEC'}
@@ -31,16 +31,16 @@ var TickerComponent = Cycle.createView(function (attributes) {
     };
   });
 
-  var TickerIntent = Cycle.createIntent(function (view) {
+  var TickerIntent = Cycle.createIntent(function (View) {
     return {
-      stop$: view.get('removeClick$').map(function () { return 'stop'; }),
-      remove$: view.get('removeClick$').map(function () { return 'remove'; }).delay(500)
+      stop$: View.get('removeClick$').map(function () { return 'stop'; }),
+      remove$: View.get('removeClick$').map(function () { return 'remove'; }).delay(500)
     };
   });
 
   TickerIntent.inject(TickerView);
   TickerView.inject(TickerModel);
-  TickerModel.inject(attributes, TickerIntent);
+  TickerModel.inject(Properties, TickerIntent);
 
   return {
     vtree$: TickerView.get('vtree$'),
@@ -73,7 +73,7 @@ var View = Cycle.createView(function (model) {
       function (color, tickerExists) {
         return h('div#the-view', [
           tickerExists ? h('ticker', {
-            attributes: {'color': color},
+            color: color,
             onremove: 'removeTicker$'
           }) : null
         ]);
