@@ -10,8 +10,8 @@ var CustomElements = require('./custom-elements');
 function isElement(o) {
   return (
     typeof HTMLElement === 'object' ?
-      o instanceof HTMLElement : //DOM2
-      o && typeof o === 'object' && o !== null && o.nodeType === 1 &&
+      o instanceof HTMLElement || s instanceof DocumentFragment : //DOM2
+      o && typeof o === 'object' && o !== null && (o.nodeType === 1 || o.nodeType === 11) &&
       typeof o.nodeName === 'string'
   );
 }
