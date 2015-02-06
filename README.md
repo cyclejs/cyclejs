@@ -138,8 +138,9 @@ number. After v1.0.0, we will follow [http://semver.org/](semver).
 
 ## Acknowledgements
 
-- [@dobrite](https://github.com/dobrite) for [boilerplate reduction ideas](https://github.com/staltz/cycle/issues/56). 
 - This project is a grateful recipient of the [Futurice Open Source sponsorship program](http://futurice.com/blog/sponsoring-free-time-open-source-activities).
+- [@dobrite](https://github.com/dobrite) for [boilerplate reduction ideas](https://github.com/staltz/cycle/issues/56). 
+- [@erykpiast](https://github.com/erykpiast) for pull requests.
 
 ## LICENSE
 
