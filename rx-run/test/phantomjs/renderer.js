@@ -43,6 +43,13 @@ describe('DOM Rendering', function () {
         Cycle.createRenderer(element);
       });
     });
+    
+    it('should accept a DocumentFragment as input', function () {
+      var element = document.createDocumentFragment();
+      assert.doesNotThrow(function () {
+        Cycle.createRenderer(element);
+      });
+    });
 
     it('should accept a string selector to an existing element as input', function () {
       var id = 'testShouldAcceptSelectorToExisting';
@@ -54,6 +61,7 @@ describe('DOM Rendering', function () {
         Cycle.createRenderer('#' + id);
       });
     });
+    
 
     it('should not accept a selector to an unknown element as input', function () {
       assert.throws(function () {
