@@ -46,8 +46,8 @@
     "build": "npm run browserify && npm run uglify",
     "docs": "node ./scripts/make-api-docs.js",
     "release": "npm run release-patch",
-    "release-patch": "git checkout master && npm run build && git commit -a -m 'Compiled' && npm version patch && git push origin master --tags && npm publish",
-    "release-minor": "git checkout master && npm run build && git commit -a -m 'Compiled' && npm version minor && git push origin master --tags && npm publish",
-    "release-major": "git checkout master && npm run build && git commit -a -m 'Compiled' && npm version major && git push origin master --tags && npm publish"
+    "release-patch": "git checkout master && npm run build; git commit -a -m 'Compiled'; npm version patch && git push origin master --tags && npm publish",
+    "release-minor": "git checkout master && npm run build; git commit -a -m 'Compiled'; npm version minor && git push origin master --tags && npm publish",
+    "release-major": "git checkout master && npm run build; git commit -a -m 'Compiled'; npm version major && git push origin master --tags && npm publish"
   }
 }
