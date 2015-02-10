@@ -49,7 +49,7 @@ var HelloView = Cycle.createView(model =>
       h('div', [
         h('label', 'Name:'),
         h('input', {
-          attributes: {'type': 'text'},
+          attributes: {type: 'text'},
           oninput: 'inputText$'
         }),
         h('h1', 'Hello ' + name)
