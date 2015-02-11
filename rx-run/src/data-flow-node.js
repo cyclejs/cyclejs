@@ -60,7 +60,7 @@ function DataFlowNode(definitionFn) {
     if (wasInjected) {
       console.warn('DataFlowNode has already been injected an input.');
     }
-    if (!this._inCustomElement && definitionFn.length !== arguments.length) {
+    if (definitionFn.length !== arguments.length) {
       console.warn('The call to inject() should provide the inputs that this ' +
         'DataFlowNode expects according to its definition function.');
     }
@@ -79,22 +79,37 @@ function DataFlowNode(definitionFn) {
   return this;
 }
 
+function replicateAllEvent$(input, selector, proxyObj) {
+  for (var eventName in proxyObj) {
+    if (proxyObj.hasOwnProperty(eventName) && eventName !== '_hasEvent$') {
+      var event$ = input.event$(selector, eventName);
+      if (event$ !== null) {
+        replicate(event$, proxyObj[eventName]);
+      }
+    }
+  }
+}
+
 replicateAll = function replicateAll(input, proxy) {
   if (!input || !proxy) {
     return;
   }
   for (var key in proxy.proxiedProps) {
     if (proxy.proxiedProps.hasOwnProperty(key)) {
-      if (!input.hasOwnProperty(key) && input instanceof InputProxy) {
+      var proxiedProperty = proxy.proxiedProps[key];
+      if (typeof input.event$ === 'function' && proxiedProperty._hasEvent$) {
+        replicateAllEvent$(input, key, proxiedProperty);
+      } else if (!input.hasOwnProperty(key) && input instanceof InputProxy) {
+        // TODO Maybe remove this initialization from here, might be unnecessary
         input.proxiedProps[key] = new Rx.Subject();
-        replicate(input.proxiedProps[key], proxy.proxiedProps[key]);
-      } else if (input instanceof DataFlowNode && input.get(key) !== null) {
-        replicate(input.get(key), proxy.proxiedProps[key]);
+        replicate(input.proxiedProps[key], proxiedProperty);
+      } else if (typeof input.get === 'function' && input.get(key) !== null) {
+        replicate(input.get(key), proxiedProperty);
       } else if (typeof input === 'object' && input.hasOwnProperty(key)) {
         if (!input[key]) {
           input[key] = new Rx.Subject();
         }
-        replicate(input[key], proxy.proxiedProps[key]);
+        replicate(input[key], proxiedProperty);
       } else {
         throw new CycleInterfaceError('Input should have the required property ' +
           key, String(key)

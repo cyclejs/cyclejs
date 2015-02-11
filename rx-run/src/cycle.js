@@ -4,7 +4,7 @@ var Rx = require('rx');
 var DataFlowNode = require('./data-flow-node');
 var DataFlowSource = require('./data-flow-source');
 var DataFlowSink = require('./data-flow-sink');
-var Renderer = require('./renderer');
+var DOMUser = require('./dom-user');
 var PropertyHook = require('./property-hook');
 
 var Cycle = {
@@ -91,31 +91,35 @@ var Cycle = {
   createIntent: require('./create-intent'),
 
   /**
-   * Returns a Renderer (a DataFlowSink) bound to a DOM container element. Contains an
-   * `inject` function that should be called with a View as argument.
+   * Returns a DOMUser (a DataFlowNode) bound to a DOM container element. Contains an
+   * `inject` function that should be called with a View as argument. Events coming from
+   * this user can be listened using `domUser.event$(selector, eventName)`. Example:
+   * `domUser.event$('.mybutton', 'click').subscribe( ... )`
    *
    * @param {(String|HTMLElement)} container the DOM selector for the element (or the
    * element itself) to contain the rendering of the VTrees.
-   * @return {Renderer} a Renderer object containing an `inject(view)` function.
-   * @function createRenderer
+   * @return {DOMUser} a DOMUser object containing functions `inject(view)` and
+   * `event$(selector, eventName)`.
+   * @function createDOMUser
    */
-  createRenderer: function createRenderer(container) {
-    return new Renderer(container);
+  createDOMUser: function createDOMUser(container) {
+    return new DOMUser(container);
   },
 
   /**
    * Informs Cycle to recognize the given `tagName` as a custom element implemented
-   * as `dataFlowNode` whenever `tagName` is used in VTrees in a rendered View.
+   * as `dataFlowNode` whenever `tagName` is used in VTrees in a View rendered to a
+   * DOMUser.
    * The given `dataFlowNode` must export a `vtree$` Observable. If the `dataFlowNode`
    * expects Observable `foo$` as input, then the custom element's attribute named `foo`
    * will be injected automatically into `foo$`.
    *
    * @param {String} tagName a name for identifying the custom element.
-   * @param {DataFlowNode} dataFlowNode the implementation of the custom element.
+   * @param {Function} definitionFn the implementation for the custom element.
    * @function registerCustomElement
    */
-  registerCustomElement: function registerCustomElement(tagName, dataFlowNode) {
-    Renderer.registerCustomElement(tagName, dataFlowNode);
+  registerCustomElement: function registerCustomElement(tagName, definitionFn) {
+    DOMUser.registerCustomElement(tagName, definitionFn);
   },
 
   /**

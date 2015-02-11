@@ -1,3 +1,4 @@
 
-Cycle.createRenderer('.js-container').inject(ManyView);
-ManyIntent.inject(ManyView).inject(ManyModel).inject(ManyIntent);
+var ManyUser = Cycle.createDOMUser('.js-container');
+
+ManyUser.inject(ManyView).inject(ManyModel).inject(ManyIntent).inject(ManyUser);

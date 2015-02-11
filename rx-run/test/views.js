@@ -83,34 +83,6 @@ describe('createView', function () {
     }, /View `vtree\$` must emit only VirtualNode instances/);
   });
 
-  it('should throw error if vtree has event hook name not ending in $', function () {
-    var view = Cycle.createView(function () {
-      return {
-        vtree$: Rx.Observable.just(Cycle.h('div', {onclick: 'foo'}))
-      };
-    });
-    assert.throws(function () {
-      view.get('vtree$').subscribe(function (x) {
-        var noop = function noop() {};
-        noop(x);
-      });
-    }, /event hook should end with dollar sign \$/);
-  });
-
-  it('should not throw error if vtree has event hook name ending with $', function () {
-    var view = Cycle.createView(function () {
-      return {
-        vtree$: Rx.Observable.just(Cycle.h('div', {onclick: 'foo$'}))
-      };
-    });
-    assert.doesNotThrow(function () {
-      view.get('vtree$').subscribe(function (x) {
-        var noop = function noop() {};
-        noop(x);
-      });
-    });
-  });
-
   it('should silently ignore undefined vtree children', function () {
     assert.doesNotThrow(function () {
       var view = Cycle.createView(function () {

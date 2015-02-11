@@ -33,8 +33,8 @@ describe('Cycle', function () {
       assert.strictEqual(typeof Cycle.createIntent, 'function');
     });
 
-    it('should have `createRenderer`', function () {
-      assert.strictEqual(typeof Cycle.createRenderer, 'function');
+    it('should have `createDOMUser`', function () {
+      assert.strictEqual(typeof Cycle.createDOMUser, 'function');
     });
 
     it('should have `registerCustomElement`', function () {
@@ -160,7 +160,7 @@ describe('Cycle', function () {
   });
 
   describe('Data Flow', function () {
-    it('should not require Renderer injected before MVI injection', function (done) {
+    it('should not require DOMUser injected before MVI injection', function (done) {
       var model = Cycle.createModel(function () {
         return {m$: Rx.Observable.just(2)};
       });
