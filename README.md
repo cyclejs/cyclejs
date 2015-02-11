@@ -145,3 +145,5 @@ number. After v1.0.0, we will follow [http://semver.org/](semver).
 ## LICENSE
 
 [The MIT License (MIT)](https://github.com/staltz/cycle/blob/master/LICENSE)
+
+<img src="http://i.imgur.com/IDayYJM.png" />
