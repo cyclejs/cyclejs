@@ -60,7 +60,7 @@ function DataFlowNode(definitionFn) {
     if (wasInjected) {
       console.warn('DataFlowNode has already been injected an input.');
     }
-    if (!this._inCustomElement && definitionFn.length !== arguments.length) {
+    if (definitionFn.length !== arguments.length) {
       console.warn('The call to inject() should provide the inputs that this ' +
         'DataFlowNode expects according to its definition function.');
     }
