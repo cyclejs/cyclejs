@@ -4,7 +4,8 @@ var VDOM = {
   diff: require('virtual-dom/diff'),
   patch: require('virtual-dom/patch')
 };
-var DataFlowSink = require('./data-flow-sink');
+var Rx = require('rx');
+var DataFlowNode = require('./data-flow-node');
 var CustomElements = require('./custom-elements');
 
 function isElement(o) {
@@ -17,47 +18,7 @@ function isElement(o) {
   );
 }
 
-function getFunctionForwardIntoStream(stream) {
-  return function forwardIntoStream(ev) { stream.onNext(ev); };
-}
-
-/**
- * Mutates vtree.properties[eventName] replacing its (expected) stream with a
- * handler function that forwards the event into the stream using onNext().
- * @param  {VirtualNode} vtree
- * @param  {String} eventName
- */
-function replaceEventHandler(vtree, eventName) {
-  if (typeof eventName !== 'string' || eventName.search(/^on[a-z]+/) !== 0) {
-    return;
-  }
-  var stream = vtree.properties[eventName];
-  if (!stream || typeof stream === 'function') {
-    return;
-  }
-  vtree.properties[eventName] = getFunctionForwardIntoStream(stream);
-}
-
-function replaceEventHandlersInVTrees(vtree) {
-  if (!vtree) {
-    return vtree; // silently ignore
-  }
-  if (vtree.type === 'VirtualNode' && !!vtree.properties) {
-    for (var key in vtree.properties) {
-      if (vtree.properties.hasOwnProperty(key)) {
-        replaceEventHandler(vtree, key);
-      }
-    }
-  }
-  if (Array.isArray(vtree.children)) {
-    for (var i = 0; i < vtree.children.length; i++) {
-      vtree.children[i] = replaceEventHandlersInVTrees(vtree.children[i]);
-    }
-  }
-  return vtree;
-}
-
-function Renderer(container, useInternalContainer) {
+function DOMUser(container, useInternalContainer) {
   if (typeof useInternalContainer === 'undefined') {
     useInternalContainer = true;
   }
@@ -66,34 +27,37 @@ function Renderer(container, useInternalContainer) {
   this._domContainer = (typeof container === 'string') ?
     document.querySelector(container) :
     container;
+  this._domContainer$ = new Rx.ReplaySubject(1);
+  this._domContainer$.onNext(this._domContainer);
   // Check pre-conditions
   if (typeof container === 'string' && this._domContainer === null) {
     throw new Error('Cannot render into unknown element \'' + container + '\'');
   } else if (!isElement(this._domContainer)) {
     throw new Error('Given container is not a DOM element neither a selector string.');
   }
-  // Create sink
+  // Create node
   var self = this;
-  DataFlowSink.call(this, function injectIntoRenderer(view) {
-    return self.renderEvery(view.get('vtree$'));
+  DataFlowNode.call(this, function injectIntoDOMUser(view) {
+    return self._renderEvery(view.get('vtree$'));
   });
 }
 
-Renderer.prototype = Object.create(DataFlowSink.prototype);
+DOMUser.prototype = Object.create(DataFlowNode.prototype);
 
-Renderer.prototype.renderEvery = function renderEvery(vtree$) {
+DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
   var self = this;
   var rootNode;
-  if (this._useInternalContainer) {
+  if (self._useInternalContainer) {
     rootNode = document.createElement('div');
-    this._domContainer.innerHTML = '';
-    this._domContainer.appendChild(rootNode);
+    self._domContainer.innerHTML = '';
+    self._domContainer.appendChild(rootNode);
   } else {
     rootNode = this._domContainer;
   }
+  self._domContainer$.onNext(this._domContainer);
   return vtree$.startWith(VDOM.h())
     .map(function renderingPreprocessing(vtree) {
-      return replaceEventHandlersInVTrees(self.replaceCustomElements(vtree));
+      return self._replaceCustomElements(vtree);
     })
     .pairwise()
     .subscribe(function renderDiffAndPatch(pair) {
@@ -104,32 +68,54 @@ Renderer.prototype.renderEvery = function renderEvery(vtree$) {
           return;
         }
         rootNode = VDOM.patch(rootNode, VDOM.diff(oldVTree, newVTree));
+        self._domContainer$.onNext(self._domContainer);
       } catch (err) {
         console.error(err);
       }
     });
 };
 
-Renderer.prototype.replaceCustomElements = function replaceCustomElements(vtree) {
+DOMUser.prototype._replaceCustomElements = function replaceCustomElements(vtree) {
   // Silently ignore corner cases
-  if (!vtree || !Renderer._customElements || vtree.type === 'VirtualText') {
+  if (!vtree || !DOMUser._customElements || vtree.type === 'VirtualText') {
     return vtree;
   }
   var tagName = (vtree.tagName || '').toUpperCase();
   // Replace vtree itself
-  if (vtree.tagName && Renderer._customElements.hasOwnProperty(tagName)) {
-    return new Renderer._customElements[tagName](vtree);
+  if (tagName && DOMUser._customElements.hasOwnProperty(tagName)) {
+    return new DOMUser._customElements[tagName](vtree);
   }
   // Or replace children recursively
   if (Array.isArray(vtree.children)) {
     for (var i = vtree.children.length - 1; i >= 0; i--) {
-      vtree.children[i] = this.replaceCustomElements(vtree.children[i]);
+      vtree.children[i] = this._replaceCustomElements(vtree.children[i]);
     }
   }
   return vtree;
 };
 
-Renderer.registerCustomElement = function registerCustomElement(tagName, dataFlowNode) {
+DOMUser.prototype.event$ = function event$(selector, eventName) {
+  if (typeof selector !== 'string') {
+    throw new Error('DOMUser.event$ expects first argument to be a string as a ' +
+      'CSS selector');
+  }
+  if (typeof eventName !== 'string') {
+    throw new Error('DOMUser.event$ expects second argument to be a string ' +
+      'representing the event type to listen for.');
+  }
+  return this._domContainer$
+    .filter(function filterEventStream(domContainer) { return !!domContainer; })
+    .flatMapLatest(function flatMapEventStream(domContainer) {
+      var targetElements = domContainer.querySelectorAll(selector);
+      if (targetElements && targetElements.length > 0) {
+        return Rx.Observable.fromEvent(targetElements, eventName);
+      } else {
+        return Rx.Observable.empty();
+      }
+    });
+};
+
+DOMUser.registerCustomElement = function registerCustomElement(tagName, dataFlowNode) {
   if (typeof tagName !== 'string' || typeof dataFlowNode !== 'object') {
     throw new Error('registerCustomElement requires parameters `tagName` and ' +
       '`dataFlowNode`.');
@@ -139,15 +125,15 @@ Renderer.registerCustomElement = function registerCustomElement(tagName, dataFlo
       '`vtree$`.');
   }
   tagName = tagName.toUpperCase();
-  if (Renderer._customElements && Renderer._customElements.hasOwnProperty(tagName)) {
+  if (DOMUser._customElements && DOMUser._customElements.hasOwnProperty(tagName)) {
     throw new Error('Cannot register custom element `' + tagName + '` ' +
-      'in Renderer because that tagName is already registered.');
+      'for the DOMUser because that tagName is already registered.');
   }
   var WidgetClass = CustomElements.makeConstructor();
   WidgetClass.prototype.init = CustomElements.makeInit(tagName, dataFlowNode);
   WidgetClass.prototype.update = CustomElements.makeUpdate();
-  Renderer._customElements = Renderer._customElements || {};
-  Renderer._customElements[tagName] = WidgetClass;
+  DOMUser._customElements = DOMUser._customElements || {};
+  DOMUser._customElements[tagName] = WidgetClass;
 };
 
-module.exports = Renderer;
+module.exports = DOMUser;
