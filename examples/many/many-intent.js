@@ -1,15 +1,11 @@
-var ManyIntent = Cycle.createIntent(function (view) {
+var ManyIntent = Cycle.createIntent(function (User) {
   return {
     addItem$: Cycle.Rx.Observable.merge(
-      view.get('addOneClicks$').map(function () { return 1; }),
-      view.get('addManyClicks$').map(function () { return 1000; })
+      User.event$('.add-one-btn', 'click').map(function () { return 1; }),
+      User.event$('.add-many-btn', 'click').map(function () { return 1000; })
     ),
 
-    removeItem$: view.get('removeClicks$').map(function (clickEvent) {
-      return Number(clickEvent.currentTarget.attributes['data-item-id'].value);
-    }),
-
-    changeColor$: view.get('itemColorChanged$')
+    changeColor$: User.event$('.color-field', 'input')
       .map(function (inputEvent) {
         return {
           id: Number(inputEvent.currentTarget.attributes['data-item-id'].value),
@@ -17,12 +13,16 @@ var ManyIntent = Cycle.createIntent(function (view) {
         };
       }),
 
-    changeWidth$: view.get('itemWidthChanged$')
+    changeWidth$: User.event$('.width-slider', 'input')
       .map(function (inputEvent) {
         return {
           id: Number(inputEvent.currentTarget.attributes['data-item-id'].value),
           width: Number(inputEvent.currentTarget.value)
         };
-      })
+      }),
+
+    removeItem$: User.event$('.remove-btn', 'click').map(function (clickEvent) {
+      return Number(clickEvent.currentTarget.attributes['data-item-id'].value);
+    })
   };
 });

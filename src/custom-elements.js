@@ -1,84 +1,59 @@
 'use strict';
 var InputProxy = require('./input-proxy');
-var DataFlowNode = require('./data-flow-node');
 var Utils = require('./utils');
 
-function getEventsOrigDestMap(vtree) {
-  var map = {};
-  for (var key in vtree.properties) {
-    if (vtree.properties.hasOwnProperty(key) &&
-      typeof key === 'string' && key.search(/^on[a-z]+/) === 0)
-    {
-      var originStreamName = key.replace(/^on/, '').concat('$');
-      var destinationStream = vtree.properties[key];
-      map[originStreamName] = destinationStream;
+function makeDispatchFunction(element, eventName) {
+  return function dispatchCustomEvent(evData) {
+    var event;
+    try {
+      event = new Event(eventName);
+    } catch (err) {
+      event = document.createEvent('Event');
+      event.initEvent(eventName, true, true);
     }
-  }
-  return map;
+    event.data = evData;
+    element.dispatchEvent(event);
+  };
 }
 
-function createContainerElement(tagName) {
+function subscribeDispatchers(element, eventStreams) {
+  if (!eventStreams || eventStreams === null || typeof eventStreams !== 'object') {
+    return;
+  }
+  for (var streamName in eventStreams) {
+    if (eventStreams.hasOwnProperty(streamName) &&
+      Utils.endsWithDolarSign(streamName) &&
+      typeof eventStreams[streamName].subscribe === 'function')
+    {
+      var eventName = streamName.slice(0, -1);
+      eventStreams[streamName].subscribe(makeDispatchFunction(element, eventName));
+    }
+  }
+}
+
+function createContainerElement(tagName, vtreeProperties) {
   var elem = document.createElement('div');
-  elem.className = 'cycleCustomElement-' + tagName.toUpperCase();
+  elem.className = vtreeProperties.className || '';
+  elem.id = vtreeProperties.id || '';
+  elem.className += ' cycleCustomElement-' + tagName.toUpperCase();
   elem.cycleCustomElementProperties = new InputProxy();
   return elem;
-}
-
-function getOriginEventStreams(dataFlowNode) {
-  if (!(dataFlowNode instanceof DataFlowNode) ||
-    !Array.isArray(dataFlowNode.outputStreams))
-  {
-    return {};
-  }
-  return dataFlowNode.outputStreams
-    .filter(function (streamName) {
-      return Utils.endsWithDolarSign(streamName) && streamName !== 'vtree$';
-    })
-    .reduce(function (events, streamName) {
-      events[streamName] = dataFlowNode.get(streamName);
-      return events;
-    }, {});
-}
-
-function subscribeAndForward(origin$, destination$) {
-  origin$.subscribe(
-    function onNextWidgetEvent(x) { destination$.onNext(x); },
-    function onErrorWidgetEvent(e) { destination$.onError(e); },
-    function onCompletedWidgetEvent() { destination$.onCompleted(); }
-  );
-}
-
-function forwardOriginEventsToDestinations(events, origDestMap) {
-  for (var originStreamName in events) {
-    if (events.hasOwnProperty(originStreamName) &&
-      origDestMap.hasOwnProperty(originStreamName))
-    {
-      subscribeAndForward(events[originStreamName], origDestMap[originStreamName]);
-    }
-  }
 }
 
 function makeConstructor() {
   return function customElementConstructor(vtree) {
     this.type = 'Widget';
     this.properties = vtree.properties;
-    this.eventsOrigDestMap = getEventsOrigDestMap(vtree);
   };
 }
 
-function makeInit(tagName, dataFlowNode) {
-  var Renderer = require('./renderer');
+function makeInit(tagName, definitionFn) {
   return function initCustomElement() {
-    var dfn = dataFlowNode.clone();
-    var elem = createContainerElement(tagName);
-    var renderer = new Renderer(elem, false);
-    var events = getOriginEventStreams(dfn);
-    forwardOriginEventsToDestinations(events, this.eventsOrigDestMap);
-    renderer.inject(dfn);
-    dfn._inCustomElement = true;
-    dfn.inject(elem.cycleCustomElementProperties);
-    this.update(null, elem);
-    return elem;
+    var element = createContainerElement(tagName, this.properties);
+    var eventStreams = definitionFn(element, element.cycleCustomElementProperties);
+    subscribeDispatchers(element, eventStreams);
+    this.update(null, element);
+    return element;
   };
 }
 

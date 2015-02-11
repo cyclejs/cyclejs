@@ -16,6 +16,12 @@ var HelloView = Cycle.createView(function (Model) {
   };
 });
 
+var ProxyView = Cycle.createView(function (View) {
+  return {
+    vtree$: View.get('vtree$')
+  };
+});
+
 var HelloUser = Cycle.createDOMUser('.js-container');
 
 var HelloIntent = Cycle.createIntent(function (User) {
@@ -26,6 +32,7 @@ var HelloIntent = Cycle.createIntent(function (User) {
 });
 
 HelloUser
+.inject(ProxyView)
 .inject(HelloView)
 .inject(HelloModel)
 .inject(HelloIntent)
