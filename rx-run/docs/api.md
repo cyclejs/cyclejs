@@ -7,7 +7,7 @@
 - [`createModel`](#createModel)
 - [`createView`](#createView)
 - [`createIntent`](#createIntent)
-- [`createRenderer`](#createRenderer)
+- [`createDOMUser`](#createDOMUser)
 - [`registerCustomElement`](#registerCustomElement)
 - [`vdomPropHook`](#vdomPropHook)
 - [`Rx`](#Rx)
@@ -114,10 +114,12 @@ Is a specialized case of `createDataFlowNode()`.
 
 - - -
 
-### <a id="createRenderer"></a> `createRenderer(container)`
+### <a id="createDOMUser"></a> `createDOMUser(container)`
 
-Returns a Renderer (a DataFlowSink) bound to a DOM container element. Contains an
-`inject` function that should be called with a View as argument.
+Returns a DOMUser (a DataFlowNode) bound to a DOM container element. Contains an
+`inject` function that should be called with a View as argument. Events coming from
+this user can be listened using `domUser.event$(selector, eventName)`. Example:
+`domUser.event$('.mybutton', 'click').subscribe( ... )`
 
 #### Arguments:
 
@@ -125,14 +127,15 @@ Returns a Renderer (a DataFlowSink) bound to a DOM container element. Contains a
 
 #### Return:
 
-*(Renderer)* a Renderer object containing an `inject(view)` function.
+*(DOMUser)* a DOMUser object containing functions `inject(view)` and `event$(selector, eventName)`.
 
 - - -
 
-### <a id="registerCustomElement"></a> `registerCustomElement(tagName, dataFlowNode)`
+### <a id="registerCustomElement"></a> `registerCustomElement(tagName, definitionFn)`
 
 Informs Cycle to recognize the given `tagName` as a custom element implemented
-as `dataFlowNode` whenever `tagName` is used in VTrees in a rendered View.
+as `dataFlowNode` whenever `tagName` is used in VTrees in a View rendered to a
+DOMUser.
 The given `dataFlowNode` must export a `vtree$` Observable. If the `dataFlowNode`
 expects Observable `foo$` as input, then the custom element's attribute named `foo`
 will be injected automatically into `foo$`.
@@ -140,7 +143,7 @@ will be injected automatically into `foo$`.
 #### Arguments:
 
 - `tagName :: String` a name for identifying the custom element.
-- `dataFlowNode :: DataFlowNode` the implementation of the custom element.
+- `definitionFn :: Function` the implementation for the custom element.
 
 - - -
 
