@@ -18,11 +18,7 @@ function isElement(o) {
   );
 }
 
-function DOMUser(container, useInternalContainer) {
-  if (typeof useInternalContainer === 'undefined') {
-    useInternalContainer = true;
-  }
-  this._useInternalContainer = useInternalContainer;
+function DOMUser(container) {
   // Find and prepare the container
   this._domContainer = (typeof container === 'string') ?
     document.querySelector(container) :
@@ -47,12 +43,12 @@ DOMUser.prototype = Object.create(DataFlowNode.prototype);
 DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
   var self = this;
   var rootNode;
-  if (self._useInternalContainer) {
+  if (self._domContainer.cycleCustomElementProperties) {
+    rootNode = self._domContainer;
+  } else {
     rootNode = document.createElement('div');
     self._domContainer.innerHTML = '';
     self._domContainer.appendChild(rootNode);
-  } else {
-    rootNode = this._domContainer;
   }
   self._domContainer$.onNext(this._domContainer);
   return vtree$.startWith(VDOM.h())
@@ -115,14 +111,10 @@ DOMUser.prototype.event$ = function event$(selector, eventName) {
     });
 };
 
-DOMUser.registerCustomElement = function registerCustomElement(tagName, dataFlowNode) {
-  if (typeof tagName !== 'string' || typeof dataFlowNode !== 'object') {
+DOMUser.registerCustomElement = function registerCustomElement(tagName, definitionFn) {
+  if (typeof tagName !== 'string' || typeof definitionFn !== 'function') {
     throw new Error('registerCustomElement requires parameters `tagName` and ' +
-      '`dataFlowNode`.');
-  }
-  if (!dataFlowNode.get('vtree$')) {
-    throw new Error('The dataFlowNode for a custom element must export ' +
-      '`vtree$`.');
+      '`definitionFn`.');
   }
   tagName = tagName.toUpperCase();
   if (DOMUser._customElements && DOMUser._customElements.hasOwnProperty(tagName)) {
@@ -130,7 +122,7 @@ DOMUser.registerCustomElement = function registerCustomElement(tagName, dataFlow
       'for the DOMUser because that tagName is already registered.');
   }
   var WidgetClass = CustomElements.makeConstructor();
-  WidgetClass.prototype.init = CustomElements.makeInit(tagName, dataFlowNode);
+  WidgetClass.prototype.init = CustomElements.makeInit(tagName, definitionFn);
   WidgetClass.prototype.update = CustomElements.makeUpdate();
   DOMUser._customElements = DOMUser._customElements || {};
   DOMUser._customElements[tagName] = WidgetClass;

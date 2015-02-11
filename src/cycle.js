@@ -115,11 +115,11 @@ var Cycle = {
    * will be injected automatically into `foo$`.
    *
    * @param {String} tagName a name for identifying the custom element.
-   * @param {DataFlowNode} dataFlowNode the implementation of the custom element.
+   * @param {Function} definitionFn the implementation for the custom element.
    * @function registerCustomElement
    */
-  registerCustomElement: function registerCustomElement(tagName, dataFlowNode) {
-    DOMUser.registerCustomElement(tagName, dataFlowNode);
+  registerCustomElement: function registerCustomElement(tagName, definitionFn) {
+    DOMUser.registerCustomElement(tagName, definitionFn);
   },
 
   /**

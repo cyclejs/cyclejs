@@ -98,14 +98,14 @@ describe('DOM User', function () {
     });
 
     // BROKEN TEST
-    // Our click simulation is not functioning under PhantomJS :(
+    // PhantomJS you don't understand click simulations :(
     it.skip('should catch interaction events coming from wrapped View', function (done) {
       var user = createDOMUser();
       // Make a View reactively imitating another View
       var view = Cycle.createView(function () {
         return {
           vtree$: Rx.Observable.just(
-            Cycle.h('h3.myelementclass', {onclick: 'asd$'}, 'Foobar')
+            Cycle.h('h3.myelementclass', 'Foobar')
           )
         };
       });
@@ -121,7 +121,7 @@ describe('DOM User', function () {
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
       assert.strictEqual(myElement.tagName, 'H3');
-      view.get('asd$').subscribe(function (ev) {
+      user.event$('.myelementclass', 'click').subscribe(function (ev) {
         assert.strictEqual(ev.screenX, 123);
         done();
       });
