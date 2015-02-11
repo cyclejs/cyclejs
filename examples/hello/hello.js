@@ -1,17 +1,14 @@
-var HelloModel = Cycle.createModel(function (intent) {
-  return {name$: intent.get('changeName$').startWith('')};
+var HelloModel = Cycle.createModel(function (Intent) {
+  return {name$: Intent.get('changeName$').startWith('')};
 });
 
-var HelloView = Cycle.createView(function (model) {
+var HelloView = Cycle.createView(function (Model) {
   return {
-    vtree$: model.get('name$')
+    vtree$: Model.get('name$')
       .map(function (name) {
         return Cycle.h('div', {}, [
           Cycle.h('label', 'Name:'),
-          Cycle.h('input', {
-            attributes: {type: 'text'},
-            oninput: 'inputText$'
-          }),
+          Cycle.h('input.myinput', {attributes: {type: 'text'}}),
           Cycle.h('hr'),
           Cycle.h('h1', 'Hello ' + name)
         ]);
@@ -19,12 +16,17 @@ var HelloView = Cycle.createView(function (model) {
   };
 });
 
-var HelloIntent = Cycle.createIntent(function (view) {
+var HelloUser = Cycle.createDOMUser('.js-container');
+
+var HelloIntent = Cycle.createIntent(function (User) {
   return {
-    changeName$: view.get('inputText$')
+    changeName$: User.event$('.myinput', 'input')
       .map(function (ev) { return ev.target.value; })
   };
 });
 
-HelloIntent.inject(HelloView).inject(HelloModel).inject(HelloIntent);
-Cycle.createRenderer('.js-container').inject(HelloView);
+HelloUser
+.inject(HelloView)
+.inject(HelloModel)
+.inject(HelloIntent)
+.inject(HelloUser);

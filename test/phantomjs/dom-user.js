@@ -4,11 +4,11 @@ var assert = require('assert');
 var Cycle = require('../../src/cycle');
 var Rx = Cycle.Rx;
 
-function createRenderer() {
+function createDOMUser() {
   var element = document.createElement('div');
   element.className = 'cycletest';
   document.body.appendChild(element);
-  return Cycle.createRenderer(element);
+  return Cycle.createDOMUser(element);
 }
 
 function click(element) {
@@ -22,9 +22,9 @@ function click(element) {
     0 /*left*/, null
   );
   element.dispatchEvent(ev);
-};
+}
 
-describe('DOM Rendering', function () {
+describe('DOM User', function () {
   this.timeout(6000);
 
   beforeEach(function () {
@@ -35,19 +35,19 @@ describe('DOM Rendering', function () {
     });
   });
 
-  describe('Cycle.createRenderer', function () {
+  describe('Cycle.createDOMUser', function () {
     it('should accept a DOM element as input', function () {
       var element = document.createElement('div');
       element.className = 'cycletest';
       assert.doesNotThrow(function () {
-        Cycle.createRenderer(element);
+        Cycle.createDOMUser(element);
       });
     });
-    
+
     it('should accept a DocumentFragment as input', function () {
       var element = document.createDocumentFragment();
       assert.doesNotThrow(function () {
-        Cycle.createRenderer(element);
+        Cycle.createDOMUser(element);
       });
     });
 
@@ -58,25 +58,30 @@ describe('DOM Rendering', function () {
       element.id = id;
       document.body.appendChild(element);
       assert.doesNotThrow(function () {
-        Cycle.createRenderer('#' + id);
+        Cycle.createDOMUser('#' + id);
       });
     });
-    
 
     it('should not accept a selector to an unknown element as input', function () {
       assert.throws(function () {
-        Cycle.createRenderer('#nonsenseIdToNothing');
+        Cycle.createDOMUser('#nonsenseIdToNothing');
       }, /Cannot render into unknown element/);
     });
 
     it('should not accept a number as input', function () {
       assert.throws(function () {
-        Cycle.createRenderer(123);
+        Cycle.createDOMUser(123);
       }, /Given container is not a DOM element neither a selector string/);
     });
   });
 
-  describe('Renderer', function () {
+  describe('DOMUser', function () {
+    it('should have `event$` function', function () {
+      var user = createDOMUser();
+      assert.strictEqual(typeof user.event$, 'function');
+      assert.strictEqual(user.event$.length, 2);
+    });
+
     it('should convert a simple virtual-dom <select> to DOM element', function () {
       var view = {
         vtree$: Rx.Observable.just(Cycle.h('select.my-class', [
@@ -85,8 +90,8 @@ describe('DOM Rendering', function () {
           Cycle.h('option', {value: 'baz'}, 'Baz')
         ]))
       };
-      var renderer = createRenderer();
-      renderer.inject(view);
+      var user = createDOMUser();
+      user.inject(view);
       var selectEl = document.querySelector('.my-class');
       assert.notStrictEqual(selectEl, null);
       assert.notStrictEqual(typeof selectEl, 'undefined');
@@ -94,8 +99,8 @@ describe('DOM Rendering', function () {
 
     // BROKEN TEST
     // Our click simulation is not functioning under PhantomJS :(
-    it.skip('should catch interaction events coming from a wrapped View', function (done) {
-      var renderer = createRenderer();
+    it.skip('should catch interaction events coming from wrapped View', function (done) {
+      var user = createDOMUser();
       // Make a View reactively imitating another View
       var view = Cycle.createView(function () {
         return {
@@ -109,7 +114,7 @@ describe('DOM Rendering', function () {
           vtree$: view.get('vtree$')
         };
       });
-      renderer.inject(wrapperView);
+      user.inject(wrapperView);
       wrapperView.inject(view);
       // Make assertions
       var myElement = document.querySelector('.myelementclass');
@@ -122,7 +127,7 @@ describe('DOM Rendering', function () {
       });
       assert.doesNotThrow(function () {
         click(myElement);
-      })
+      });
     });
   });
 });

@@ -1,45 +1,42 @@
 var h = Cycle.h;
 
-var FooModel = Cycle.createModel(function (intent) {
+var FooModel = Cycle.createModel(function (Intent) {
   return {
-    foo$: intent.get('requestNewBar$')
-      .map(function () {
-        return {id: 2, bar: Math.round(Math.random() * 1000)};
-      })
-      .startWith({id: 2, bar: 135})
+    data$: Intent.get('refreshData$')
+      .map(function () { return Math.round(Math.random() * 1000); })
+      .startWith(135)
   };
 });
 
-var FooView = Cycle.createView(function (model) {
+var FooView = Cycle.createView(function (Model) {
   return {
-    vtree$: model.get('foo$')
-      .map(function (fooData) {
-        return h('div', {
-          'attributes': {'data-foo-id': fooData.id},
-          'style': {
-            'margin': '10px',
-            'background': '#ececec',
-            'padding': '5px',
-            'cursor': 'pointer',
-            'display': 'inline-block'
-          },
-          onclick: 'fooClicks$'
-        }, String(fooData.bar));
+    vtree$: Model.get('data$')
+      .map(function (data) {
+        return h('div.box', {
+          style: {
+            margin: '10px',
+            background: '#ececec',
+            padding: '5px',
+            cursor: 'pointer',
+            display: 'inline-block'
+          }
+        }, String(data));
       })
   };
 });
 
-var FooIntent = Cycle.createIntent(function (view) {
+var FooUser = Cycle.createDOMUser('.js-container1');
+
+var FooIntent = Cycle.createIntent(function (User) {
   return {
-    requestNewBar$: view.get('fooClicks$').map(function () { return 'x'; })
+    refreshData$: User.event$('.box', 'click').map(function () { return 'x'; })
   };
 });
 
-var BarModel = FooModel.clone();
-var BarView = FooView.clone();
-var BarIntent = FooIntent.clone();
+//var BarModel = FooModel.clone();
+//var BarView = FooView.clone();
+//var BarUser = Cycle.createDOMUser('.js-container2');
+//var BarIntent = FooIntent.clone();
 
-Cycle.createRenderer('.js-container1').inject(FooView);
-Cycle.createRenderer('.js-container2').inject(BarView);
-FooIntent.inject(FooView).inject(FooModel).inject(FooIntent);
-BarIntent.inject(BarView).inject(BarModel).inject(BarIntent);
+FooUser.inject(FooView).inject(FooModel).inject(FooIntent).inject(FooUser);
+//BarUser.inject(BarView).inject(BarModel).inject(BarIntent).inject(BarUser);

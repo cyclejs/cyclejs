@@ -66,15 +66,21 @@ function makeConstructor() {
   };
 }
 
+// TODO Figure out the API for grabbing custom element events just like we have now
+// events being grabbed from normal DOM using domUser.event$(selector, eventName).
+// Maybe with custom DOM events emitted from the actual container element?
+
+// TODO Remove the DOMUser from this since it will be specified inside the dataFlowNode
+
 function makeInit(tagName, dataFlowNode) {
-  var Renderer = require('./renderer');
+  var DOMUser = require('./dom-user');
   return function initCustomElement() {
     var dfn = dataFlowNode.clone();
     var elem = createContainerElement(tagName);
-    var renderer = new Renderer(elem, false);
+    var user = new DOMUser(elem, false);
     var events = getOriginEventStreams(dfn);
     forwardOriginEventsToDestinations(events, this.eventsOrigDestMap);
-    renderer.inject(dfn);
+    user.inject(dfn);
     dfn._inCustomElement = true;
     dfn.inject(elem.cycleCustomElementProperties);
     this.update(null, elem);
