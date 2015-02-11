@@ -27,28 +27,28 @@ The dollar sign `$` *suffixed* to a name is a hard convention to indicate that t
 
 If a model exports an observable stream called `lastname$`, then the view can consume it as such:
 ```javascript
-var View = Cycle.createView(['lastname$'], function (model) {
+var View = Cycle.createView(function (Model) {
   return {
-    vtree$: model.lastname$.map(function (lastname) { return h('h1', lastname); })
+    vtree$: Model.get('lastname$')
+      .map(function (lastname) { return h('h1', lastname); })
 });
 ```
 
-Notice that the function inside `map` takes `lastname` as argument, while the `model` contains `lastname$`. The naming convention indicates that `lastname` is the value being emitted by `lastname$`. Without this convention, if `model.lastname$` would simply be named `model.lastname`, it would confuse readers about the types involved. Also, `lastname$` is succinct compared to `lastnameObservable`, `lastnameStream`, or `lastnameObs`.
+Notice that the function inside `map` takes `lastname` as argument, while the `Model` owns `lastname$`. The naming convention indicates that `lastname` is the value being emitted by `lastname$`. Without this convention, if `Model.get('lastname$')` would simply be named `Model.get('lastname')`, it would confuse readers about the types involved. Also, `lastname$` is succinct compared to alternatives like `lastnameObservable`, `lastnameStream`, or `lastnameObs`.
 
 The suffixed dollar convention is required for custom elements. When you use a custom element and give it attributes, the attribute name will be suffixed with `$` to recover the Observable inside the custom element's DataFlowNode. Example:
 
 ```javascript
-var View = Cycle.createView(['lastname$'], function (model) {
+var View = Cycle.createView(function (Model) {
   return {
-    vtree$: model.lastname$
+    vtree$: Model.get('lastname$')
       .map(function (lastname) {
-        return h('custombutton', {attributes {'label': lastname}});
+        return h('custombutton', {label: lastname});
         // lastname emitted into label$ in the DataFlowNode that
         // implements <custombutton>
       })
 });
 ```
-
 
 ## How to implement routing and manage different pages?
 
