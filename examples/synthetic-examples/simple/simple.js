@@ -33,10 +33,10 @@ var FooIntent = Cycle.createIntent(function (User) {
   };
 });
 
-//var BarModel = FooModel.clone();
-//var BarView = FooView.clone();
-//var BarUser = Cycle.createDOMUser('.js-container2');
-//var BarIntent = FooIntent.clone();
+var BarModel = FooModel.clone();
+var BarView = FooView.clone();
+var BarUser = Cycle.createDOMUser('.js-container2');
+var BarIntent = FooIntent.clone();
 
 FooUser.inject(FooView).inject(FooModel).inject(FooIntent).inject(FooUser);
-//BarUser.inject(BarView).inject(BarModel).inject(BarIntent).inject(BarUser);
+BarUser.inject(BarView).inject(BarModel).inject(BarIntent).inject(BarUser);
