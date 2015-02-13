@@ -49,7 +49,7 @@ var View = Cycle.createView(Model =>
       h('div', [
         h('label', 'Name:'),
         h('input.field', {attributes: {type: 'text'}}),
-        h('h1', 'Hello ' + name)
+        h('h1.header', 'Hello ' + name)
       ])
     )
   })
@@ -106,11 +106,13 @@ are a couple of strong reasons:
   possible for no component to have functions such as `updateSomething()` which inherently
   create coupling. You can write code with single responsibilities throughout. For
   instance, the View just takes model data and renders virtual elements, it doesn't even
-  have callbacks to handle events. Additionally, Rendering is separated from View. Contrary
+  have callbacks to handle events. Views aren't even aware of events (click, input, etc)
+  that can happen on them. Additionally, Rendering is separated from View. Contrary
   to what you expect, a View in Cycle.js does not directly render anything to the browser.
   Instead, it just outputs virtual DOM elements. This allows for testing without depending
   on the DOM, besides other benefits such as being able to hypothetically swap the DOM
-  Renderer with a Cocoa UI tree Renderer or whatever other target you wish.
+  renderer with a Canvas renderer or a Cocoa UI tree renderer or whatever other target 
+  you wish.
 - **Great unit testability.** Everything is a JavaScript function or a [DataFlowNode](https://github.com/staltz/cycle/blob/master/docs/data-flow-nodes.md),
   so testing is mostly a matter of feeding input and inspecting the output.
 - **Welcomes immutable and stateless programming.** Cycle.js is built for, in
