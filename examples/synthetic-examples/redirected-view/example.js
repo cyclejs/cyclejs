@@ -10,7 +10,7 @@ var HelloView = Cycle.createView(function (Model) {
           Cycle.h('label', 'Name:'),
           Cycle.h('input.myinput', {attributes: {type: 'text'}}),
           Cycle.h('hr'),
-          Cycle.h('h1', 'Hello ' + name)
+          Cycle.h('h1', 'Redirected text: ' + name)
         ]);
       })
   };

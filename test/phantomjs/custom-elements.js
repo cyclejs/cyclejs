@@ -69,11 +69,11 @@ describe('Custom Elements', function () {
   it('should recognize and create simple element that is registered', function () {
     var user = createDOMUser();
     // Make simple custom element
-    Cycle.registerCustomElement('myelement', function (element) {
+    Cycle.registerCustomElement('myelement', function (User) {
       var View = Cycle.createView(function () {
         return {vtree$: Rx.Observable.just(Cycle.h('h3.myelementclass'))};
       });
-      Cycle.createDOMUser(element).inject(View);
+      User.inject(View);
     });
     // Use the custom element
     var view = {
@@ -90,7 +90,7 @@ describe('Custom Elements', function () {
   it('should render inner state and attributes independently', function (done) {
     var user = createDOMUser();
     // Make custom element with internal state, and properties as input
-    Cycle.registerCustomElement('myelement', function (element, Properties) {
+    Cycle.registerCustomElement('myelement', function (User, Properties) {
       var View = Cycle.createView(function (Properties) {
         var number$ = Rx.Observable.interval(10).take(9);
         return {
@@ -103,7 +103,6 @@ describe('Custom Elements', function () {
             })
         };
       });
-      var User = Cycle.createDOMUser(element);
       User.inject(View).inject(Properties);
     });
     // Use the custom element
@@ -129,18 +128,18 @@ describe('Custom Elements', function () {
   it('should recognize and create two unrelated elements', function () {
     var user = createDOMUser();
     // Make the first custom element
-    Cycle.registerCustomElement('myelement1', function (element) {
+    Cycle.registerCustomElement('myelement1', function (User) {
       var View = Cycle.createView(function () {
         return {vtree$: Rx.Observable.just(Cycle.h('h1.myelement1class'))};
       });
-      Cycle.createDOMUser(element).inject(View);
+      User.inject(View);
     });
     // Make the second custom element
-    Cycle.registerCustomElement('myelement2', function (element) {
+    Cycle.registerCustomElement('myelement2', function (User) {
       var View = Cycle.createView(function () {
         return {vtree$: Rx.Observable.just(Cycle.h('h2.myelement2class'))};
       });
-      Cycle.createDOMUser(element).inject(View);
+      User.inject(View);
     });
     // Use the custom elements
     var view = {
@@ -163,20 +162,20 @@ describe('Custom Elements', function () {
   it('should recognize and create a nested custom elements', function () {
     var user = createDOMUser();
     // Make the inner custom element
-    Cycle.registerCustomElement('inner', function (element) {
+    Cycle.registerCustomElement('inner', function (User) {
       var View = Cycle.createView(function () {
         return {vtree$: Rx.Observable.just(Cycle.h('h3.innerClass'))};
       });
-      Cycle.createDOMUser(element).inject(View);
+      User.inject(View);
     });
     // Make the outer custom element
-    Cycle.registerCustomElement('outer', function (element) {
+    Cycle.registerCustomElement('outer', function (User) {
       var View = Cycle.createView(function () {
         return {vtree$: Rx.Observable.just(
           Cycle.h('div.outerClass', [Cycle.h('inner')])
         )};
       });
-      Cycle.createDOMUser(element).inject(View);
+      User.inject(View);
     });
     // Use the custom elements
     var view = {
@@ -198,11 +197,10 @@ describe('Custom Elements', function () {
   it.skip('should catch interaction events coming from custom element', function (done) {
     var user = createDOMUser();
     // Make simple custom element
-    Cycle.registerCustomElement('myelement', function (element) {
+    Cycle.registerCustomElement('myelement', function (User) {
       var View = Cycle.createView(function () {
         return {vtree$: Rx.Observable.just(Cycle.h('h3.myelementclass'))};
       });
-      var User = Cycle.createDOMUser(element);
       User.inject(View);
       return {
         myevent$: Rx.Observable.just(123).delay(300)
@@ -229,11 +227,10 @@ describe('Custom Elements', function () {
   it('should not fail when examining VirtualText on replaceCustomElements', function () {
     var user = createDOMUser();
     // Make simple custom element
-    Cycle.registerCustomElement('myelement', function (element) {
+    Cycle.registerCustomElement('myelement', function (User) {
       var View = Cycle.createView(function () {
         return {vtree$: Rx.Observable.just(Cycle.h('h3.myelementclass'))};
       });
-      var User = Cycle.createDOMUser(element);
       User.inject(View);
     });
     // Make VNode with a string as child

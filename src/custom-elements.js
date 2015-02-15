@@ -48,9 +48,11 @@ function makeConstructor() {
 }
 
 function makeInit(tagName, definitionFn) {
+  var DOMUser = require('./dom-user');
   return function initCustomElement() {
     var element = createContainerElement(tagName, this.properties);
-    var eventStreams = definitionFn(element, element.cycleCustomElementProperties);
+    var user = new DOMUser(element);
+    var eventStreams = definitionFn(user, element.cycleCustomElementProperties);
     subscribeDispatchers(element, eventStreams);
     this.update(null, element);
     return element;
