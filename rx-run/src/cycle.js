@@ -116,9 +116,9 @@ var Cycle = {
    *
    * @param {String} tagName a name for identifying the custom element.
    * @param {Function} definitionFn the implementation for the custom element. This
-   * function takes two arguments: `User`, and Properties. Use `User` to inject into an
-   * Intent and to be injected a View. Properties is a DataFlowNode containing observables
-   * matching the custom element properties.
+   * function takes two arguments: `User`, and `Properties`. Use `User` to inject into an
+   * Intent and to be injected a View. `Properties` is a DataFlowNode containing
+   * observables matching the custom element properties.
    * @function registerCustomElement
    */
   registerCustomElement: function registerCustomElement(tagName, definitionFn) {
