@@ -9,7 +9,7 @@ var ManyView = Cycle.createView(function (Model) {
   }
 
   function vrenderItem(itemData) {
-    return h('div', {
+    return h('div.item', {
         style: {
           border: '1px solid #000',
           background: 'none repeat scroll 0% 0% ' + itemData.color,
@@ -23,13 +23,13 @@ var ManyView = Cycle.createView(function (Model) {
           type: 'text',
           attributes: {'data-item-id': itemData.id, value: itemData.color}
         }),
-        h('div', [
+        h('div.slider-container', [
           h('input.width-slider', {
             type: 'range', min:'200', max:'1000',
             attributes: {'data-item-id': itemData.id, value: itemData.width}
           })
         ]),
-        h('div', String(itemData.width)),
+        h('div.width-content', String(itemData.width)),
         h('button.remove-btn', {attributes: {'data-item-id': itemData.id}}, 'Remove')
       ]
     );

@@ -1,7 +1,7 @@
 var h = Cycle.h;
 var Rx = Cycle.Rx;
 
-Cycle.registerCustomElement('ticker', function (element, Properties) {
+Cycle.registerCustomElement('ticker', function (TickerUser, Properties) {
   var TickerModel = Cycle.createModel(function (Properties, Intent) {
     return {
       color$: Properties.get('color$')
@@ -30,8 +30,6 @@ Cycle.registerCustomElement('ticker', function (element, Properties) {
       )
     };
   });
-
-  var TickerUser = Cycle.createDOMUser(element);
 
   var TickerIntent = Cycle.createIntent(function (User) {
     var removeClicks$ = User.event$('.remove-btn', 'click');

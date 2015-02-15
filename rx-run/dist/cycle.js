@@ -17439,9 +17439,11 @@ function makeConstructor() {
 }
 
 function makeInit(tagName, definitionFn) {
+  var DOMUser = require('./dom-user');
   return function initCustomElement() {
     var element = createContainerElement(tagName, this.properties);
-    var eventStreams = definitionFn(element, element.cycleCustomElementProperties);
+    var user = new DOMUser(element);
+    var eventStreams = definitionFn(user, element.cycleCustomElementProperties);
     subscribeDispatchers(element, eventStreams);
     this.update(null, element);
     return element;
@@ -17476,7 +17478,7 @@ module.exports = {
   makeUpdate: makeUpdate
 };
 
-},{"./input-proxy":53,"./utils":55}],47:[function(require,module,exports){
+},{"./dom-user":51,"./input-proxy":53,"./utils":55}],47:[function(require,module,exports){
 'use strict';
 var VirtualDOM = require('virtual-dom');
 var Rx = require('rx');
@@ -17594,7 +17596,10 @@ var Cycle = {
    * will be injected automatically into `foo$`.
    *
    * @param {String} tagName a name for identifying the custom element.
-   * @param {Function} definitionFn the implementation for the custom element.
+   * @param {Function} definitionFn the implementation for the custom element. This
+   * function takes two arguments: `User`, and Properties. Use `User` to inject into an
+   * Intent and to be injected a View. Properties is a DataFlowNode containing observables
+   * matching the custom element properties.
    * @function registerCustomElement
    */
   registerCustomElement: function registerCustomElement(tagName, definitionFn) {
