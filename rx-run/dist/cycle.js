@@ -17597,9 +17597,9 @@ var Cycle = {
    *
    * @param {String} tagName a name for identifying the custom element.
    * @param {Function} definitionFn the implementation for the custom element. This
-   * function takes two arguments: `User`, and Properties. Use `User` to inject into an
-   * Intent and to be injected a View. Properties is a DataFlowNode containing observables
-   * matching the custom element properties.
+   * function takes two arguments: `User`, and `Properties`. Use `User` to inject into an
+   * Intent and to be injected a View. `Properties` is a DataFlowNode containing
+   * observables matching the custom element properties.
    * @function registerCustomElement
    */
   registerCustomElement: function registerCustomElement(tagName, definitionFn) {
@@ -17848,8 +17848,7 @@ function DOMUser(container) {
   this._domContainer = (typeof container === 'string') ?
     document.querySelector(container) :
     container;
-  this._domContainer$ = new Rx.ReplaySubject(1);
-  this._domContainer$.onNext(this._domContainer);
+  this._rootNode$ = new Rx.ReplaySubject(1);
   // Check pre-conditions
   if (typeof container === 'string' && this._domContainer === null) {
     throw new Error('Cannot render into unknown element \'' + container + '\'');
@@ -17875,7 +17874,7 @@ DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
     self._domContainer.innerHTML = '';
     self._domContainer.appendChild(rootNode);
   }
-  self._domContainer$.onNext(this._domContainer);
+  self._rootNode$.onNext(rootNode);
   return vtree$.startWith(VDOM.h())
     .map(function renderingPreprocessing(vtree) {
       return self._replaceCustomElements(vtree);
@@ -17889,7 +17888,7 @@ DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
           return;
         }
         rootNode = VDOM.patch(rootNode, VDOM.diff(oldVTree, newVTree));
-        self._domContainer$.onNext(self._domContainer);
+        self._rootNode$.onNext(rootNode);
       } catch (err) {
         console.error(err);
       }
@@ -17924,10 +17923,14 @@ DOMUser.prototype.event$ = function event$(selector, eventName) {
     throw new Error('DOMUser.event$ expects second argument to be a string ' +
       'representing the event type to listen for.');
   }
-  return this._domContainer$
-    .filter(function filterEventStream(domContainer) { return !!domContainer; })
-    .flatMapLatest(function flatMapEventStream(domContainer) {
-      var targetElements = domContainer.querySelectorAll(selector);
+  return this._rootNode$
+    .filter(function filterEventStream(rootNode) { return !!rootNode; })
+    .flatMapLatest(function flatMapEventStream(rootNode) {
+      var klass = selector.replace('.', '');
+      if (rootNode.className.search(new RegExp('\\b' + klass + '\\b')) >= 0) {
+        return Rx.Observable.fromEvent(rootNode, eventName);
+      }
+      var targetElements = rootNode.querySelectorAll(selector);
       if (targetElements && targetElements.length > 0) {
         return Rx.Observable.fromEvent(targetElements, eventName);
       } else {
