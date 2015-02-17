@@ -23,6 +23,7 @@ function DOMUser(container) {
   this._domContainer = (typeof container === 'string') ?
     document.querySelector(container) :
     container;
+  this._originalClassName = this._domContainer.className;
   this._rootNode$ = new Rx.ReplaySubject(1);
   // Check pre-conditions
   if (typeof container === 'string' && this._domContainer === null) {
@@ -63,12 +64,24 @@ DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
           return;
         }
         rootNode = VDOM.patch(rootNode, VDOM.diff(oldVTree, newVTree));
+        self._fixClassName();
         self._rootNode$.onNext(rootNode);
       } catch (err) {
         console.error(err);
       }
     });
 };
+
+DOMUser.prototype._fixClassName = function fixClassName() {
+  this._domContainer.className = this._domContainer.className.replace(
+    this._originalClassName.trim(), ''
+  );
+  this._domContainer.className += ' ' + this._originalClassName;
+  this._domContainer.className = this._domContainer.className
+    .trim()
+    .split(/\s+/)
+    .join(' ');
+}
 
 DOMUser.prototype._replaceCustomElements = function replaceCustomElements(vtree) {
   // Silently ignore corner cases
