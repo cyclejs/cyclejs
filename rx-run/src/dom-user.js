@@ -23,8 +23,6 @@ function DOMUser(container) {
   this._domContainer = (typeof container === 'string') ?
     document.querySelector(container) :
     container;
-  this._originalClasses = this._domContainer.className.trim().split(/\s+/);
-  this._rootNode$ = new Rx.ReplaySubject(1);
   // Check pre-conditions
   if (typeof container === 'string' && this._domContainer === null) {
     throw new Error('Cannot render into unknown element \'' + container + '\'');
@@ -32,6 +30,8 @@ function DOMUser(container) {
     throw new Error('Given container is not a DOM element neither a selector string.');
   }
   // Create node
+  this._originalClasses = (this._domContainer.className || '').trim().split(/\s+/);
+  this._rootNode$ = new Rx.ReplaySubject(1);
   var self = this;
   DataFlowNode.call(this, function injectIntoDOMUser(view) {
     return self._renderEvery(view.get('vtree$'));
