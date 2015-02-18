@@ -17850,7 +17850,7 @@ function DOMUser(container) {
   this._domContainer = (typeof container === 'string') ?
     document.querySelector(container) :
     container;
-  this._originalClassName = this._domContainer.className;
+  this._originalClasses = this._domContainer.className.trim().split(/\s+/);
   this._rootNode$ = new Rx.ReplaySubject(1);
   // Check pre-conditions
   if (typeof container === 'string' && this._domContainer === null) {
@@ -17899,16 +17899,14 @@ DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
     });
 };
 
+// TODO Optimize me :)
 DOMUser.prototype._fixClassName = function fixClassName() {
-  this._domContainer.className = this._domContainer.className.replace(
-    this._originalClassName.trim(), ''
-  );
-  this._domContainer.className += ' ' + this._originalClassName;
-  this._domContainer.className = this._domContainer.className
-    .trim()
-    .split(/\s+/)
-    .join(' ');
-}
+  var previousClasses = this._domContainer.className.trim().split(/\s+/);
+  var missingClasses = this._originalClasses.filter(function (clss) {
+    return previousClasses.indexOf(clss) < 0;
+  });
+  this._domContainer.className = previousClasses.concat(missingClasses).join(' ');
+};
 
 DOMUser.prototype._replaceCustomElements = function replaceCustomElements(vtree) {
   // Silently ignore corner cases
