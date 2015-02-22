@@ -29,9 +29,17 @@ function DOMUser(container) {
   } else if (!isElement(this._domContainer)) {
     throw new Error('Given container is not a DOM element neither a selector string.');
   }
-  // Create node
-  this._originalClasses = (this._domContainer.className || '').trim().split(/\s+/);
+  // Create rootNode stream and automatic className correction
+  var originalClasses = (this._domContainer.className || '').trim().split(/\s+/);
   this._rootNode$ = new Rx.ReplaySubject(1);
+  this._rootNode$.subscribe(function fixClassName(rootNode) {
+    var previousClasses = rootNode.className.trim().split(/\s+/);
+    var missingClasses = originalClasses.filter(function (clss) {
+      return previousClasses.indexOf(clss) < 0;
+    });
+    rootNode.className = previousClasses.concat(missingClasses).join(' ');
+  });
+  // Create DataFlowNode
   var self = this;
   DataFlowNode.call(this, function injectIntoDOMUser(view) {
     return self._renderEvery(view.get('vtree$'));
@@ -42,6 +50,7 @@ DOMUser.prototype = Object.create(DataFlowNode.prototype);
 
 DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
   var self = this;
+  // Select the correct rootNode
   var rootNode;
   if (self._domContainer.cycleCustomElementProperties) {
     rootNode = self._domContainer;
@@ -51,7 +60,9 @@ DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
     self._domContainer.appendChild(rootNode);
   }
   self._rootNode$.onNext(rootNode);
-  return vtree$.startWith(VDOM.h())
+  // Reactively render the vtree$ into the rootNode
+  return vtree$
+    .startWith(VDOM.h())
     .map(function renderingPreprocessing(vtree) {
       return self._replaceCustomElements(vtree);
     })
@@ -64,21 +75,11 @@ DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
           return;
         }
         rootNode = VDOM.patch(rootNode, VDOM.diff(oldVTree, newVTree));
-        self._fixClassName();
         self._rootNode$.onNext(rootNode);
       } catch (err) {
         console.error(err);
       }
     });
-};
-
-// TODO Optimize me :)
-DOMUser.prototype._fixClassName = function fixClassName() {
-  var previousClasses = this._domContainer.className.trim().split(/\s+/);
-  var missingClasses = this._originalClasses.filter(function (clss) {
-    return previousClasses.indexOf(clss) < 0;
-  });
-  this._domContainer.className = previousClasses.concat(missingClasses).join(' ');
 };
 
 DOMUser.prototype._replaceCustomElements = function replaceCustomElements(vtree) {

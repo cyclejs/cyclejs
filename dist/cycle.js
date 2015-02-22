@@ -17394,6 +17394,7 @@ module.exports = createView;
 'use strict';
 var InputProxy = require('./input-proxy');
 var Utils = require('./utils');
+var Rx = require('rx');
 
 function makeDispatchFunction(element, eventName) {
   return function dispatchCustomEvent(evData) {
@@ -17413,15 +17414,33 @@ function subscribeDispatchers(element, eventStreams) {
   if (!eventStreams || eventStreams === null || typeof eventStreams !== 'object') {
     return;
   }
+  var disposables = new Rx.CompositeDisposable();
   for (var streamName in eventStreams) {
     if (eventStreams.hasOwnProperty(streamName) &&
       Utils.endsWithDolarSign(streamName) &&
       typeof eventStreams[streamName].subscribe === 'function')
     {
       var eventName = streamName.slice(0, -1);
-      eventStreams[streamName].subscribe(makeDispatchFunction(element, eventName));
+      var disposable = eventStreams[streamName].subscribe(
+        makeDispatchFunction(element, eventName)
+      );
+      disposables.add(disposable);
     }
   }
+  return disposables;
+}
+
+function subscribeDispatchersWhenRootChanges(user, widget, eventStreams) {
+  user._rootNode$
+    .distinctUntilChanged(Rx.helpers.identity,
+      function comparer(x, y) { return x && y && x.isEqualNode && x.isEqualNode(y); }
+    )
+    .subscribe(function (rootNode) {
+      if (widget.eventStreamsSubscriptions) {
+        widget.eventStreamsSubscriptions.dispose();
+      }
+      widget.eventStreamsSubscriptions = subscribeDispatchers(rootNode, eventStreams);
+    });
 }
 
 function createContainerElement(tagName, vtreeProperties) {
@@ -17443,11 +17462,12 @@ function makeConstructor() {
 function makeInit(tagName, definitionFn) {
   var DOMUser = require('./dom-user');
   return function initCustomElement() {
-    var element = createContainerElement(tagName, this.properties);
+    var widget = this;
+    var element = createContainerElement(tagName, widget.properties);
     var user = new DOMUser(element);
     var eventStreams = definitionFn(user, element.cycleCustomElementProperties);
-    subscribeDispatchers(element, eventStreams);
-    this.update(null, element);
+    subscribeDispatchersWhenRootChanges(user, widget, eventStreams);
+    widget.update(null, element);
     return element;
   };
 }
@@ -17463,12 +17483,12 @@ function makeUpdate() {
     }
     var proxiedProps = elem.cycleCustomElementProperties.proxiedProps;
     for (var prop in proxiedProps) {
-      var propStreamName = prop;
-      var propName = prop.slice(0, -1);
-      if (proxiedProps.hasOwnProperty(propStreamName) &&
-        this.properties.hasOwnProperty(propName))
-      {
-        proxiedProps[propStreamName].onNext(this.properties[propName]);
+      if (proxiedProps.hasOwnProperty(prop)) {
+        var propStreamName = prop;
+        var propName = prop.slice(0, -1);
+        if (this.properties.hasOwnProperty(propName)) {
+          proxiedProps[propStreamName].onNext(this.properties[propName]);
+        }
       }
     }
   };
@@ -17480,7 +17500,7 @@ module.exports = {
   makeUpdate: makeUpdate
 };
 
-},{"./dom-user":51,"./input-proxy":53,"./utils":55}],47:[function(require,module,exports){
+},{"./dom-user":51,"./input-proxy":53,"./utils":55,"rx":8}],47:[function(require,module,exports){
 'use strict';
 var VirtualDOM = require('virtual-dom');
 var Rx = require('rx');
@@ -17856,9 +17876,17 @@ function DOMUser(container) {
   } else if (!isElement(this._domContainer)) {
     throw new Error('Given container is not a DOM element neither a selector string.');
   }
-  // Create node
-  this._originalClasses = (this._domContainer.className || '').trim().split(/\s+/);
+  // Create rootNode stream and automatic className correction
+  var originalClasses = (this._domContainer.className || '').trim().split(/\s+/);
   this._rootNode$ = new Rx.ReplaySubject(1);
+  this._rootNode$.subscribe(function fixClassName(rootNode) {
+    var previousClasses = rootNode.className.trim().split(/\s+/);
+    var missingClasses = originalClasses.filter(function (clss) {
+      return previousClasses.indexOf(clss) < 0;
+    });
+    rootNode.className = previousClasses.concat(missingClasses).join(' ');
+  });
+  // Create DataFlowNode
   var self = this;
   DataFlowNode.call(this, function injectIntoDOMUser(view) {
     return self._renderEvery(view.get('vtree$'));
@@ -17869,6 +17897,7 @@ DOMUser.prototype = Object.create(DataFlowNode.prototype);
 
 DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
   var self = this;
+  // Select the correct rootNode
   var rootNode;
   if (self._domContainer.cycleCustomElementProperties) {
     rootNode = self._domContainer;
@@ -17878,7 +17907,9 @@ DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
     self._domContainer.appendChild(rootNode);
   }
   self._rootNode$.onNext(rootNode);
-  return vtree$.startWith(VDOM.h())
+  // Reactively render the vtree$ into the rootNode
+  return vtree$
+    .startWith(VDOM.h())
     .map(function renderingPreprocessing(vtree) {
       return self._replaceCustomElements(vtree);
     })
@@ -17891,21 +17922,11 @@ DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
           return;
         }
         rootNode = VDOM.patch(rootNode, VDOM.diff(oldVTree, newVTree));
-        self._fixClassName();
         self._rootNode$.onNext(rootNode);
       } catch (err) {
         console.error(err);
       }
     });
-};
-
-// TODO Optimize me :)
-DOMUser.prototype._fixClassName = function fixClassName() {
-  var previousClasses = this._domContainer.className.trim().split(/\s+/);
-  var missingClasses = this._originalClasses.filter(function (clss) {
-    return previousClasses.indexOf(clss) < 0;
-  });
-  this._domContainer.className = previousClasses.concat(missingClasses).join(' ');
 };
 
 DOMUser.prototype._replaceCustomElements = function replaceCustomElements(vtree) {
