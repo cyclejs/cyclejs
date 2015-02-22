@@ -13,7 +13,7 @@ Cycle.registerCustomElement('inner-elem', function (User, Properties) {
     return {
       vtree$: Model.get('data$')
         .map(function (data) {
-          return h('div.innerRoot', {
+          return h('h2.innerRoot', {
             style: {
               margin: '10px',
               background: '#ececec',

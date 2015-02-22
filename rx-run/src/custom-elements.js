@@ -1,6 +1,7 @@
 'use strict';
 var InputProxy = require('./input-proxy');
 var Utils = require('./utils');
+var Rx = require('rx');
 
 function makeDispatchFunction(element, eventName) {
   return function dispatchCustomEvent(evData) {
@@ -20,15 +21,33 @@ function subscribeDispatchers(element, eventStreams) {
   if (!eventStreams || eventStreams === null || typeof eventStreams !== 'object') {
     return;
   }
+  var disposables = new Rx.CompositeDisposable();
   for (var streamName in eventStreams) {
     if (eventStreams.hasOwnProperty(streamName) &&
       Utils.endsWithDolarSign(streamName) &&
       typeof eventStreams[streamName].subscribe === 'function')
     {
       var eventName = streamName.slice(0, -1);
-      eventStreams[streamName].subscribe(makeDispatchFunction(element, eventName));
+      var disposable = eventStreams[streamName].subscribe(
+        makeDispatchFunction(element, eventName)
+      );
+      disposables.add(disposable);
     }
   }
+  return disposables;
+}
+
+function subscribeDispatchersWhenRootChanges(user, widget, eventStreams) {
+  user._rootNode$
+    .distinctUntilChanged(Rx.helpers.identity,
+      function comparer(x, y) { return x && y && x.isEqualNode && x.isEqualNode(y); }
+    )
+    .subscribe(function (rootNode) {
+      if (widget.eventStreamsSubscriptions) {
+        widget.eventStreamsSubscriptions.dispose();
+      }
+      widget.eventStreamsSubscriptions = subscribeDispatchers(rootNode, eventStreams);
+    });
 }
 
 function createContainerElement(tagName, vtreeProperties) {
@@ -50,11 +69,12 @@ function makeConstructor() {
 function makeInit(tagName, definitionFn) {
   var DOMUser = require('./dom-user');
   return function initCustomElement() {
-    var element = createContainerElement(tagName, this.properties);
+    var widget = this;
+    var element = createContainerElement(tagName, widget.properties);
     var user = new DOMUser(element);
     var eventStreams = definitionFn(user, element.cycleCustomElementProperties);
-    subscribeDispatchers(element, eventStreams);
-    this.update(null, element);
+    subscribeDispatchersWhenRootChanges(user, widget, eventStreams);
+    widget.update(null, element);
     return element;
   };
 }
@@ -70,12 +90,12 @@ function makeUpdate() {
     }
     var proxiedProps = elem.cycleCustomElementProperties.proxiedProps;
     for (var prop in proxiedProps) {
-      var propStreamName = prop;
-      var propName = prop.slice(0, -1);
-      if (proxiedProps.hasOwnProperty(propStreamName) &&
-        this.properties.hasOwnProperty(propName))
-      {
-        proxiedProps[propStreamName].onNext(this.properties[propName]);
+      if (proxiedProps.hasOwnProperty(prop)) {
+        var propStreamName = prop;
+        var propName = prop.slice(0, -1);
+        if (this.properties.hasOwnProperty(propName)) {
+          proxiedProps[propStreamName].onNext(this.properties[propName]);
+        }
       }
     }
   };
