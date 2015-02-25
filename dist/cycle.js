@@ -17467,7 +17467,6 @@ function makeConstructor() {
 function makeInit(tagName, definitionFn) {
   var DOMUser = require('./dom-user');
   return function initCustomElement() {
-    console.debug('## custom element init ##');
     var widget = this;
     var element = createContainerElement(tagName, widget.properties);
     var user = new DOMUser(element);
@@ -17482,7 +17481,6 @@ function makeInit(tagName, definitionFn) {
 
 function makeUpdate() {
   return function updateCustomElement(prev, elem) {
-    console.debug('## custom element update ##');
     if (!elem ||
       !elem.cycleCustomElementProperties ||
       !(elem.cycleCustomElementProperties instanceof InputProxy) ||
@@ -17899,7 +17897,6 @@ function defineRootElemStream(user) {
         return previousClasses.indexOf(clss) < 0;
       });
       rootElem.className = previousClasses.concat(missingClasses).join(' ');
-      console.debug('------ fixedRootElemClassName: ' + rootElem.className);
       return rootElem;
     })
     .shareReplay(1);
@@ -17937,8 +17934,6 @@ DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
     self._domContainer.innerHTML = '';
     self._domContainer.appendChild(rootElem);
   }
-  console.debug('--------- rootElem init: ' +
-    rootElem.tagName + '.' + rootElem.className);
   // TODO Refactor/rework. Unclear why, but setTimeout this is necessary.
   setTimeout(function () {
     self._rawRootElem$.onNext(rootElem);
@@ -17956,17 +17951,10 @@ DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
       if (typeof newVTree === 'undefined') {
         return;
       }
-      console.debug('>>>>>>>>> diffAndPatch: ' +
-        rootElem.tagName + '.' + rootElem.className);
       var arrayOfAll = getArrayOfAllWidgetRootElemStreams(newVTree);
       if (arrayOfAll.length > 0) {
-        Rx.Observable.combineLatest(arrayOfAll, function () { return 0; })
-          .first()
-          .subscribe(function () {
-            console.debug('<==<==<== diffAndPatch: ' +
-              rootElem.tagName + '.' + rootElem.className);
-            self._rawRootElem$.onNext(rootElem);
-          });
+        Rx.Observable.combineLatest(arrayOfAll, function () { return 0; }).first()
+          .subscribe(function () { self._rawRootElem$.onNext(rootElem); });
       }
       try {
         rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
@@ -17974,8 +17962,6 @@ DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
         console.error(err);
       }
       if (arrayOfAll.length === 0) {
-        console.debug('<--<--<-- diffAndPatch: ' +
-          rootElem.tagName + '.' + rootElem.className);
         self._rawRootElem$.onNext(rootElem);
       }
     });
@@ -18010,22 +17996,17 @@ DOMUser.prototype.event$ = function event$(selector, eventName) {
       'representing the event type to listen for.');
   }
   return this._rootElem$.flatMapLatest(function flatMapDOMUserEventStream(rootElem) {
-    console.debug('--- flatMap event$ in ' + rootElem.tagName + '.' + rootElem.className +
-      ' (' + selector + ':' + eventName + ')');
     if (!rootElem) {
       return Rx.Observable.empty();
     }
     var klass = selector.replace('.', '');
     if (rootElem.className.search(new RegExp('\\b' + klass + '\\b')) >= 0) {
-      console.debug('--- flatMap FOUND target element');
       return Rx.Observable.fromEvent(rootElem, eventName);
     }
     var targetElements = rootElem.querySelectorAll(selector);
     if (targetElements && targetElements.length > 0) {
-      console.debug('--- flatMap FOUND target elements');
       return Rx.Observable.fromEvent(targetElements, eventName);
     } else {
-      console.debug('--- flatMap empty');
       return Rx.Observable.empty();
     }
   });

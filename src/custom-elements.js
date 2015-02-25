@@ -74,7 +74,6 @@ function makeConstructor() {
 function makeInit(tagName, definitionFn) {
   var DOMUser = require('./dom-user');
   return function initCustomElement() {
-    console.debug('## custom element init ##');
     var widget = this;
     var element = createContainerElement(tagName, widget.properties);
     var user = new DOMUser(element);
@@ -89,7 +88,6 @@ function makeInit(tagName, definitionFn) {
 
 function makeUpdate() {
   return function updateCustomElement(prev, elem) {
-    console.debug('## custom element update ##');
     if (!elem ||
       !elem.cycleCustomElementProperties ||
       !(elem.cycleCustomElementProperties instanceof InputProxy) ||
