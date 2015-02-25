@@ -18,6 +18,37 @@ function isElement(o) {
   );
 }
 
+function getArrayOfAllWidgetRootElemStreams(vtree) {
+  if (vtree.type === 'Widget' && vtree._rootElem$) {
+    return [vtree._rootElem$];
+  }
+  // Or replace children recursively
+  var array = [];
+  if (Array.isArray(vtree.children)) {
+    for (var i = vtree.children.length - 1; i >= 0; i--) {
+      array = array.concat(getArrayOfAllWidgetRootElemStreams(vtree.children[i]));
+    }
+  }
+  return array;
+}
+
+function defineRootElemStream(user) {
+  // Create rootElem stream and automatic className correction
+  var originalClasses = (user._domContainer.className || '').trim().split(/\s+/);
+  user._rawRootElem$ = new Rx.Subject();
+  user._rootElem$ = user._rawRootElem$
+    .map(function fixRootElemClassName(rootElem) {
+      var previousClasses = rootElem.className.trim().split(/\s+/);
+      var missingClasses = originalClasses.filter(function (clss) {
+        return previousClasses.indexOf(clss) < 0;
+      });
+      rootElem.className = previousClasses.concat(missingClasses).join(' ');
+      console.debug('------ fixedRootElemClassName: ' + rootElem.className);
+      return rootElem;
+    })
+    .shareReplay(1);
+}
+
 function DOMUser(container) {
   // Find and prepare the container
   this._domContainer = (typeof container === 'string') ?
@@ -29,17 +60,8 @@ function DOMUser(container) {
   } else if (!isElement(this._domContainer)) {
     throw new Error('Given container is not a DOM element neither a selector string.');
   }
-  // Create rootNode stream and automatic className correction
-  var originalClasses = (this._domContainer.className || '').trim().split(/\s+/);
-  this._rootNode$ = new Rx.ReplaySubject(1);
-  this._rootNode$.subscribe(function fixClassName(rootNode) {
-    var previousClasses = rootNode.className.trim().split(/\s+/);
-    var missingClasses = originalClasses.filter(function (clss) {
-      return previousClasses.indexOf(clss) < 0;
-    });
-    rootNode.className = previousClasses.concat(missingClasses).join(' ');
-  });
-  // Create DataFlowNode
+  defineRootElemStream(this);
+  // Create DataFlowNode with rendering logic
   var self = this;
   DataFlowNode.call(this, function injectIntoDOMUser(view) {
     return self._renderEvery(view.get('vtree$'));
@@ -50,17 +72,22 @@ DOMUser.prototype = Object.create(DataFlowNode.prototype);
 
 DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
   var self = this;
-  // Select the correct rootNode
-  var rootNode;
+  // Select the correct rootElem
+  var rootElem;
   if (self._domContainer.cycleCustomElementProperties) {
-    rootNode = self._domContainer;
+    rootElem = self._domContainer;
   } else {
-    rootNode = document.createElement('div');
+    rootElem = document.createElement('div');
     self._domContainer.innerHTML = '';
-    self._domContainer.appendChild(rootNode);
+    self._domContainer.appendChild(rootElem);
   }
-  self._rootNode$.onNext(rootNode);
-  // Reactively render the vtree$ into the rootNode
+  console.debug('--------- rootElem init: ' +
+    rootElem.tagName + '.' + rootElem.className);
+  // TODO Refactor/rework. Unclear why, but setTimeout this is necessary.
+  setTimeout(function () {
+    self._rawRootElem$.onNext(rootElem);
+  }, 0);
+  // Reactively render the vtree$ into the rootElem
   return vtree$
     .startWith(VDOM.h())
     .map(function renderingPreprocessing(vtree) {
@@ -68,16 +95,32 @@ DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
     })
     .pairwise()
     .subscribe(function renderDiffAndPatch(pair) {
+      var oldVTree = pair[0];
+      var newVTree = pair[1];
+      if (typeof newVTree === 'undefined') {
+        return;
+      }
+      console.debug('>>>>>>>>> diffAndPatch: ' +
+        rootElem.tagName + '.' + rootElem.className);
+      var arrayOfAll = getArrayOfAllWidgetRootElemStreams(newVTree);
+      if (arrayOfAll.length > 0) {
+        Rx.Observable.combineLatest(arrayOfAll, function () { return 0; })
+          .first()
+          .subscribe(function () {
+            console.debug('<==<==<== diffAndPatch: ' +
+              rootElem.tagName + '.' + rootElem.className);
+            self._rawRootElem$.onNext(rootElem);
+          });
+      }
       try {
-        var oldVTree = pair[0];
-        var newVTree = pair[1];
-        if (typeof newVTree === 'undefined') {
-          return;
-        }
-        rootNode = VDOM.patch(rootNode, VDOM.diff(oldVTree, newVTree));
-        self._rootNode$.onNext(rootNode);
+        rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
       } catch (err) {
         console.error(err);
+      }
+      if (arrayOfAll.length === 0) {
+        console.debug('<--<--<-- diffAndPatch: ' +
+          rootElem.tagName + '.' + rootElem.className);
+        self._rawRootElem$.onNext(rootElem);
       }
     });
 };
@@ -110,20 +153,26 @@ DOMUser.prototype.event$ = function event$(selector, eventName) {
     throw new Error('DOMUser.event$ expects second argument to be a string ' +
       'representing the event type to listen for.');
   }
-  return this._rootNode$
-    .filter(function filterEventStream(rootNode) { return !!rootNode; })
-    .flatMapLatest(function flatMapEventStream(rootNode) {
-      var klass = selector.replace('.', '');
-      if (rootNode.className.search(new RegExp('\\b' + klass + '\\b')) >= 0) {
-        return Rx.Observable.fromEvent(rootNode, eventName);
-      }
-      var targetElements = rootNode.querySelectorAll(selector);
-      if (targetElements && targetElements.length > 0) {
-        return Rx.Observable.fromEvent(targetElements, eventName);
-      } else {
-        return Rx.Observable.empty();
-      }
-    });
+  return this._rootElem$.flatMapLatest(function flatMapDOMUserEventStream(rootElem) {
+    console.debug('--- flatMap event$ in ' + rootElem.tagName + '.' + rootElem.className +
+      ' (' + selector + ':' + eventName + ')');
+    if (!rootElem) {
+      return Rx.Observable.empty();
+    }
+    var klass = selector.replace('.', '');
+    if (rootElem.className.search(new RegExp('\\b' + klass + '\\b')) >= 0) {
+      console.debug('--- flatMap FOUND target element');
+      return Rx.Observable.fromEvent(rootElem, eventName);
+    }
+    var targetElements = rootElem.querySelectorAll(selector);
+    if (targetElements && targetElements.length > 0) {
+      console.debug('--- flatMap FOUND target elements');
+      return Rx.Observable.fromEvent(targetElements, eventName);
+    } else {
+      console.debug('--- flatMap empty');
+      return Rx.Observable.empty();
+    }
+  });
 };
 
 DOMUser.registerCustomElement = function registerCustomElement(tagName, definitionFn) {

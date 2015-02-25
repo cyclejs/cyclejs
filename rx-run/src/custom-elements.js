@@ -37,16 +37,16 @@ function subscribeDispatchers(element, eventStreams) {
   return disposables;
 }
 
-function subscribeDispatchersWhenRootChanges(user, widget, eventStreams) {
-  user._rootNode$
+function subscribeDispatchersWhenRootChanges(widget, eventStreams) {
+  widget._rootElem$
     .distinctUntilChanged(Rx.helpers.identity,
       function comparer(x, y) { return x && y && x.isEqualNode && x.isEqualNode(y); }
     )
-    .subscribe(function (rootNode) {
+    .subscribe(function (rootElem) {
       if (widget.eventStreamsSubscriptions) {
         widget.eventStreamsSubscriptions.dispose();
       }
-      widget.eventStreamsSubscriptions = subscribeDispatchers(rootNode, eventStreams);
+      widget.eventStreamsSubscriptions = subscribeDispatchers(rootElem, eventStreams);
     });
 }
 
@@ -59,21 +59,29 @@ function createContainerElement(tagName, vtreeProperties) {
   return elem;
 }
 
+function replicateUserRootElem$(user, widget) {
+  user._rootElem$.subscribe(function (elem) { widget._rootElem$.onNext(elem); });
+}
+
 function makeConstructor() {
   return function customElementConstructor(vtree) {
     this.type = 'Widget';
     this.properties = vtree.properties;
+    this._rootElem$ = new Rx.ReplaySubject(1);
   };
 }
 
 function makeInit(tagName, definitionFn) {
   var DOMUser = require('./dom-user');
   return function initCustomElement() {
+    console.debug('## custom element init ##');
     var widget = this;
     var element = createContainerElement(tagName, widget.properties);
     var user = new DOMUser(element);
     var eventStreams = definitionFn(user, element.cycleCustomElementProperties);
-    subscribeDispatchersWhenRootChanges(user, widget, eventStreams);
+    replicateUserRootElem$(user, widget);
+    widget.eventStreamsSubscriptions = subscribeDispatchers(element, eventStreams);
+    subscribeDispatchersWhenRootChanges(widget, eventStreams);
     widget.update(null, element);
     return element;
   };
@@ -81,6 +89,7 @@ function makeInit(tagName, definitionFn) {
 
 function makeUpdate() {
   return function updateCustomElement(prev, elem) {
+    console.debug('## custom element update ##');
     if (!elem ||
       !elem.cycleCustomElementProperties ||
       !(elem.cycleCustomElementProperties instanceof InputProxy) ||
