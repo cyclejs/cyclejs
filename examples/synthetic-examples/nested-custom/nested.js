@@ -1,18 +1,27 @@
 var h = Cycle.h;
 
+// This example tests 3 issues:
+// - Whether custom events from a custom element are caught by the parent View/User
+// - Whether custom events on a custom element are catchable even when the root element is
+//   not a div (in this case, an h2).
+// - Whether Model streams internal to a custom element can be used in the custom
+//   element's return object. E.g. Model.get('foo$').
+
 Cycle.registerCustomElement('inner-elem', function (User, Properties) {
-  var InnerModel = Cycle.createModel(function (Intent) {
+  var Model = Cycle.createModel(function (Properties, Intent) {
     return {
-      data$: Intent.get('refreshData$')
+      foo$: Properties.get('foo$').shareReplay(1),
+      content$: Intent.get('refreshData$')
         .map(function () { return Math.round(Math.random() * 1000); })
-        .startWith(135)
+        .merge(Properties.get('content$'))
+        .shareReplay(1)
     };
   });
 
-  var InnerView = Cycle.createView(function (Model) {
+  var View = Cycle.createView(function (Model) {
     return {
-      vtree$: Model.get('data$')
-        .map(function (data) {
+      vtree$: Model.get('content$')
+        .map(function (content) {
           return h('h2.innerRoot', {
             style: {
               margin: '10px',
@@ -21,21 +30,25 @@ Cycle.registerCustomElement('inner-elem', function (User, Properties) {
               cursor: 'pointer',
               display: 'inline-block'
             }
-          }, String(data));
+          }, String(content));
         })
     };
   });
 
-  var InnerIntent = Cycle.createIntent(function (User) {
+  var Intent = Cycle.createIntent(function (User) {
     return {
       refreshData$: User.event$('.innerRoot', 'click').map(function () { return 'x'; })
     };
   });
 
-  User.inject(InnerView).inject(InnerModel).inject(InnerIntent).inject(User);
+  User.inject(View).inject(Model).inject(Properties, Intent)[1].inject(User);
 
   return {
-    myevent$: InnerIntent.get('refreshData$').delay(500)
+    wasRefreshed$: Intent.get('refreshData$').delay(500),
+    contentOnRefresh$: Intent.get('refreshData$')
+      .withLatestFrom(Model.get('content$'), function (x, y) { return y; }),
+    fooOnRefresh$: Intent.get('refreshData$')
+      .withLatestFrom(Model.get('foo$'), function (x, y) { return y; })
   };
 });
 
@@ -55,13 +68,24 @@ var OuterView = Cycle.createView(function (Model) {
             border: '1px solid #323232',
             padding: '20px'}},
           [
-            h('inner-elem.inner'),
-            h('p', {style: {color: color}}, String(color)) ]);
+            h('inner-elem.inner', {foo: 17, content: 153}),
+            h('p', {style: {color: color}}, String(color)),
+            h('p', '(Please check also the logs)')]);
       })
   };
 });
 
 var OuterUser = Cycle.createDOMUser('.js-container');
+
+console.info('You should see both \'foo: ...\' and \'content: ...\' ' +
+  'logs every time you click on the inner box.'
+);
+OuterUser.event$('.inner', 'fooOnRefresh').subscribe(function (ev) {
+  console.log('foo: ' + ev.data);
+});
+OuterUser.event$('.inner', 'contentOnRefresh').subscribe(function (ev) {
+  console.log('content: ' + ev.data);
+});
 
 var OuterIntent = Cycle.createIntent(function (User) {
   function makeRandomColor() {
@@ -74,7 +98,7 @@ var OuterIntent = Cycle.createIntent(function (User) {
   }
 
   return {
-    changeColor$: User.event$('.inner', 'myevent').map(makeRandomColor)
+    changeColor$: User.event$('.inner', 'wasRefreshed').map(makeRandomColor)
   };
 });
 
