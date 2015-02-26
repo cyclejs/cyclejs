@@ -63,11 +63,14 @@ function replicateUserRootElem$(user, widget) {
   user._rootElem$.subscribe(function (elem) { widget._rootElem$.onNext(elem); });
 }
 
+var customElementWidgetCounter = 0;
+
 function makeConstructor() {
   return function customElementConstructor(vtree) {
     this.type = 'Widget';
     this.properties = vtree.properties;
     this._rootElem$ = new Rx.ReplaySubject(1);
+    this.key = ++customElementWidgetCounter;
   };
 }
 
