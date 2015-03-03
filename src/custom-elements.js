@@ -70,7 +70,7 @@ function makeConstructor() {
     this.type = 'Widget';
     this.properties = vtree.properties;
     this._rootElem$ = new Rx.ReplaySubject(1);
-    this.key = ++customElementWidgetCounter;
+    this.key = vtree.key || ++customElementWidgetCounter;
   };
 }
 

@@ -12,7 +12,8 @@ var ManyView = Cycle.createView(function (Model) {
     return h('item.item', {
       itemid: itemData.id,
       color:  itemData.color,
-      width:  itemData.width
+      width:  itemData.width,
+      key: itemData.id
     });
   }
 
