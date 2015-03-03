@@ -17,7 +17,6 @@ Cycle.registerCustomElement('item', function (User, Properties) {
         Model.get('width$'),
         function (id, color, width) {
           return h('div.item', {
-              key: id,
               style: {
                 border: '1px solid #000',
                 background: 'none repeat scroll 0% 0% ' + color,
