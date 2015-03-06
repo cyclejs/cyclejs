@@ -5,24 +5,16 @@ var ManyIntent = Cycle.createIntent(function (User) {
       User.event$('.add-many-btn', 'click').map(function () { return 1000; })
     ),
 
-    changeColor$: User.event$('.color-field', 'input')
-      .map(function (inputEvent) {
-        return {
-          id: Number(inputEvent.currentTarget.attributes['data-item-id'].value),
-          color: inputEvent.currentTarget.value
-        };
+    changeColor$: User.event$('.item', 'changeColor').map(function (ev) {
+      return ev.data;
+    }),
+
+    changeWidth$: User.event$('.item', 'changeWidth').map(function (ev) {
+        return ev.data;
       }),
 
-    changeWidth$: User.event$('.width-slider', 'input')
-      .map(function (inputEvent) {
-        return {
-          id: Number(inputEvent.currentTarget.attributes['data-item-id'].value),
-          width: Number(inputEvent.currentTarget.value)
-        };
-      }),
-
-    removeItem$: User.event$('.remove-btn', 'click').map(function (clickEvent) {
-      return Number(clickEvent.currentTarget.attributes['data-item-id'].value);
+    removeItem$: User.event$('.item', 'destroy').map(function (ev) {
+      return ev.data;
     })
   };
 });
