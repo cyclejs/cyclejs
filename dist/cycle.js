@@ -17411,13 +17411,11 @@ function makeDispatchFunction(element, eventName) {
 }
 
 function subscribeDispatchers(element, eventStreams) {
-  if (!eventStreams || eventStreams === null || typeof eventStreams !== 'object') {
-    return;
-  }
+  if (!eventStreams || typeof eventStreams !== 'object') { return; }
+
   var disposables = new Rx.CompositeDisposable();
-  for (var streamName in eventStreams) {
-    if (eventStreams.hasOwnProperty(streamName) &&
-      Utils.endsWithDolarSign(streamName) &&
+  for (var streamName in eventStreams) { if (eventStreams.hasOwnProperty(streamName)) {
+    if (Utils.endsWithDollarSign(streamName) &&
       typeof eventStreams[streamName].subscribe === 'function')
     {
       var eventName = streamName.slice(0, -1);
@@ -17426,7 +17424,7 @@ function subscribeDispatchers(element, eventStreams) {
       );
       disposables.add(disposable);
     }
-  }
+  }}
   return disposables;
 }
 
@@ -17443,12 +17441,26 @@ function subscribeDispatchersWhenRootChanges(widget, eventStreams) {
     });
 }
 
+function makeInputPropertiesProxy() {
+  var inputProxy = new InputProxy();
+  var oldGet = inputProxy.get;
+  inputProxy.get = function get(streamName) {
+    var result = oldGet.call(this, streamName);
+    if (result && result.distinctUntilChanged) {
+      return result.distinctUntilChanged();
+    } else {
+      return result;
+    }
+  };
+  return inputProxy;
+}
+
 function createContainerElement(tagName, vtreeProperties) {
   var elem = document.createElement('div');
   elem.className = vtreeProperties.className || '';
   elem.id = vtreeProperties.id || '';
   elem.className += ' cycleCustomElement-' + tagName.toUpperCase();
-  elem.cycleCustomElementProperties = new InputProxy();
+  elem.cycleCustomElementProperties = makeInputPropertiesProxy();
   return elem;
 }
 
@@ -17456,14 +17468,11 @@ function replicateUserRootElem$(user, widget) {
   user._rootElem$.subscribe(function (elem) { widget._rootElem$.onNext(elem); });
 }
 
-var customElementWidgetCounter = 0;
-
 function makeConstructor() {
   return function customElementConstructor(vtree) {
     this.type = 'Widget';
     this.properties = vtree.properties;
-    this._rootElem$ = new Rx.ReplaySubject(1);
-    this.key = ++customElementWidgetCounter;
+    this.key = vtree.key;
   };
 }
 
@@ -17474,6 +17483,7 @@ function makeInit(tagName, definitionFn) {
     var element = createContainerElement(tagName, widget.properties);
     var user = new DOMUser(element);
     var eventStreams = definitionFn(user, element.cycleCustomElementProperties);
+    widget._rootElem$ = new Rx.ReplaySubject(1);
     replicateUserRootElem$(user, widget);
     widget.eventStreamsSubscriptions = subscribeDispatchers(element, eventStreams);
     subscribeDispatchersWhenRootChanges(widget, eventStreams);
@@ -17484,23 +17494,19 @@ function makeInit(tagName, definitionFn) {
 
 function makeUpdate() {
   return function updateCustomElement(prev, elem) {
-    if (!elem ||
-      !elem.cycleCustomElementProperties ||
-      !(elem.cycleCustomElementProperties instanceof InputProxy) ||
-      !elem.cycleCustomElementProperties.proxiedProps)
-    {
-      return;
-    }
+    if (!elem) { return; }
+    if (!elem.cycleCustomElementProperties) { return; }
+    if (!(elem.cycleCustomElementProperties instanceof InputProxy)) { return; }
+    if (!elem.cycleCustomElementProperties.proxiedProps) { return; }
+
     var proxiedProps = elem.cycleCustomElementProperties.proxiedProps;
-    for (var prop in proxiedProps) {
-      if (proxiedProps.hasOwnProperty(prop)) {
-        var propStreamName = prop;
-        var propName = prop.slice(0, -1);
-        if (this.properties.hasOwnProperty(propName)) {
-          proxiedProps[propStreamName].onNext(this.properties[propName]);
-        }
+    for (var prop in proxiedProps) { if (proxiedProps.hasOwnProperty(prop)) {
+      var propStreamName = prop;
+      var propName = prop.slice(0, -1);
+      if (this.properties.hasOwnProperty(propName)) {
+        proxiedProps[propStreamName].onNext(this.properties[propName]);
       }
-    }
+    }}
   };
 }
 
@@ -17700,11 +17706,11 @@ function checkOutputObject(output) {
 
 function createStreamNamesArray(output) {
   var array = [];
-  for (var streamName in output) {
-    if (output.hasOwnProperty(streamName) && Utils.endsWithDolarSign(streamName)) {
+  for (var streamName in output) { if (output.hasOwnProperty(streamName)) {
+    if (Utils.endsWithDollarSign(streamName)) {
       array.push(streamName);
     }
-  }
+  }}
   return array;
 }
 
@@ -17752,43 +17758,38 @@ function DataFlowNode(definitionFn) {
 }
 
 function replicateAllEvent$(input, selector, proxyObj) {
-  for (var eventName in proxyObj) {
-    if (proxyObj.hasOwnProperty(eventName) && eventName !== '_hasEvent$') {
+  for (var eventName in proxyObj) { if (proxyObj.hasOwnProperty(eventName)) {
+    if (eventName !== '_hasEvent$') {
       var event$ = input.event$(selector, eventName);
       if (event$ !== null) {
         replicate(event$, proxyObj[eventName]);
       }
     }
-  }
+  }}
 }
 
 replicateAll = function replicateAll(input, proxy) {
-  if (!input || !proxy) {
-    return;
-  }
-  for (var key in proxy.proxiedProps) {
-    if (proxy.proxiedProps.hasOwnProperty(key)) {
-      var proxiedProperty = proxy.proxiedProps[key];
-      if (typeof input.event$ === 'function' && proxiedProperty._hasEvent$) {
-        replicateAllEvent$(input, key, proxiedProperty);
-      } else if (!input.hasOwnProperty(key) && input instanceof InputProxy) {
-        // TODO Maybe remove this initialization from here, might be unnecessary
-        input.proxiedProps[key] = new Rx.Subject();
-        replicate(input.proxiedProps[key], proxiedProperty);
-      } else if (typeof input.get === 'function' && input.get(key) !== null) {
-        replicate(input.get(key), proxiedProperty);
-      } else if (typeof input === 'object' && input.hasOwnProperty(key)) {
-        if (!input[key]) {
-          input[key] = new Rx.Subject();
-        }
-        replicate(input[key], proxiedProperty);
-      } else {
-        throw new CycleInterfaceError('Input should have the required property ' +
-          key, String(key)
-        );
+  if (!input || !proxy) { return; }
+
+  for (var key in proxy.proxiedProps) { if (proxy.proxiedProps.hasOwnProperty(key)) {
+    var proxiedProperty = proxy.proxiedProps[key];
+    if (typeof input.event$ === 'function' && proxiedProperty._hasEvent$) {
+      replicateAllEvent$(input, key, proxiedProperty);
+    } else if (!input.hasOwnProperty(key) && input instanceof InputProxy) {
+      replicate(input.get(key), proxiedProperty);
+    } else if (typeof input.get === 'function' && input.get(key) !== null) {
+      replicate(input.get(key), proxiedProperty);
+    } else if (typeof input === 'object' && input.hasOwnProperty(key)) {
+      if (!input[key]) {
+        input[key] = new Rx.Subject();
       }
+      replicate(input[key], proxiedProperty);
+    } else {
+      throw new CycleInterfaceError('Input should have the required property ' +
+        key, String(key)
+      );
     }
-  }
+  }}
 };
 
 module.exports = DataFlowNode;
@@ -17841,11 +17842,10 @@ function DataFlowSource(outputObject) {
       'output object.'
     );
   }
-  for (var key in outputObject) {
-    if (outputObject.hasOwnProperty(key)) {
-      this[key] = outputObject[key];
-    }
-  }
+
+  for (var key in outputObject) { if (outputObject.hasOwnProperty(key)) {
+    this[key] = outputObject[key];
+  }}
   this.inject = function injectDataFlowSource() {
     throw new Error('A DataFlowSource cannot be injected. Use a DataFlowNode instead.');
   };
@@ -17951,19 +17951,20 @@ DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
     .subscribe(function renderDiffAndPatch(pair) {
       var oldVTree = pair[0];
       var newVTree = pair[1];
-      if (typeof newVTree === 'undefined') {
-        return;
-      }
+      if (typeof newVTree === 'undefined') { return; }
+
       var arrayOfAll = getArrayOfAllWidgetRootElemStreams(newVTree);
       if (arrayOfAll.length > 0) {
         Rx.Observable.combineLatest(arrayOfAll, function () { return 0; }).first()
           .subscribe(function () { self._rawRootElem$.onNext(rootElem); });
       }
+      var cycleCustomElementProperties = rootElem.cycleCustomElementProperties;
       try {
         rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
       } catch (err) {
         console.error(err);
       }
+      rootElem.cycleCustomElementProperties = cycleCustomElementProperties;
       if (arrayOfAll.length === 0) {
         self._rawRootElem$.onNext(rootElem);
       }
@@ -17998,6 +17999,7 @@ DOMUser.prototype.event$ = function event$(selector, eventName) {
     throw new Error('DOMUser.event$ expects second argument to be a string ' +
       'representing the event type to listen for.');
   }
+
   return this._rootElem$.flatMapLatest(function flatMapDOMUserEventStream(rootElem) {
     if (!rootElem) {
       return Rx.Observable.empty();
@@ -18025,6 +18027,7 @@ DOMUser.registerCustomElement = function registerCustomElement(tagName, definiti
     throw new Error('Cannot register custom element `' + tagName + '` ' +
       'for the DOMUser because that tagName is already registered.');
   }
+
   var WidgetClass = CustomElements.makeConstructor();
   WidgetClass.prototype.init = CustomElements.makeInit(tagName, definitionFn);
   WidgetClass.prototype.update = CustomElements.makeUpdate();
@@ -18109,7 +18112,7 @@ module.exports = PropertyHook;
 },{}],55:[function(require,module,exports){
 'use strict';
 
-function endsWithDolarSign(str) {
+function endsWithDollarSign(str) {
   if (typeof str !== 'string') {
     return false;
   }
@@ -18117,7 +18120,7 @@ function endsWithDolarSign(str) {
 }
 
 module.exports = {
-  endsWithDolarSign: endsWithDolarSign
+  endsWithDollarSign: endsWithDollarSign
 };
 
 },{}]},{},[47])(47)
