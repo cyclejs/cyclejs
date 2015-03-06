@@ -100,9 +100,7 @@ replicateAll = function replicateAll(input, proxy) {
       if (typeof input.event$ === 'function' && proxiedProperty._hasEvent$) {
         replicateAllEvent$(input, key, proxiedProperty);
       } else if (!input.hasOwnProperty(key) && input instanceof InputProxy) {
-        // TODO Maybe remove this initialization from here, might be unnecessary
-        input.proxiedProps[key] = new Rx.Subject();
-        replicate(input.proxiedProps[key], proxiedProperty);
+        replicate(input.get(key), proxiedProperty);
       } else if (typeof input.get === 'function' && input.get(key) !== null) {
         replicate(input.get(key), proxiedProperty);
       } else if (typeof input === 'object' && input.hasOwnProperty(key)) {

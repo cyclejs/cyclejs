@@ -17443,12 +17443,26 @@ function subscribeDispatchersWhenRootChanges(widget, eventStreams) {
     });
 }
 
+function makeInputPropertiesProxy() {
+  var inputProxy = new InputProxy();
+  var oldGet = inputProxy.get;
+  inputProxy.get = function get(streamName) {
+    var result = oldGet.call(this, streamName);
+    if (result && result.distinctUntilChanged) {
+      return result.distinctUntilChanged();
+    } else {
+      return result;
+    }
+  };
+  return inputProxy;
+}
+
 function createContainerElement(tagName, vtreeProperties) {
   var elem = document.createElement('div');
   elem.className = vtreeProperties.className || '';
   elem.id = vtreeProperties.id || '';
   elem.className += ' cycleCustomElement-' + tagName.toUpperCase();
-  elem.cycleCustomElementProperties = new InputProxy();
+  elem.cycleCustomElementProperties = makeInputPropertiesProxy();
   return elem;
 }
 
@@ -17456,14 +17470,11 @@ function replicateUserRootElem$(user, widget) {
   user._rootElem$.subscribe(function (elem) { widget._rootElem$.onNext(elem); });
 }
 
-var customElementWidgetCounter = 0;
-
 function makeConstructor() {
   return function customElementConstructor(vtree) {
     this.type = 'Widget';
     this.properties = vtree.properties;
-    this._rootElem$ = new Rx.ReplaySubject(1);
-    this.key = ++customElementWidgetCounter;
+    this.key = vtree.key;
   };
 }
 
@@ -17474,6 +17485,7 @@ function makeInit(tagName, definitionFn) {
     var element = createContainerElement(tagName, widget.properties);
     var user = new DOMUser(element);
     var eventStreams = definitionFn(user, element.cycleCustomElementProperties);
+    widget._rootElem$ = new Rx.ReplaySubject(1);
     replicateUserRootElem$(user, widget);
     widget.eventStreamsSubscriptions = subscribeDispatchers(element, eventStreams);
     subscribeDispatchersWhenRootChanges(widget, eventStreams);
@@ -17772,9 +17784,7 @@ replicateAll = function replicateAll(input, proxy) {
       if (typeof input.event$ === 'function' && proxiedProperty._hasEvent$) {
         replicateAllEvent$(input, key, proxiedProperty);
       } else if (!input.hasOwnProperty(key) && input instanceof InputProxy) {
-        // TODO Maybe remove this initialization from here, might be unnecessary
-        input.proxiedProps[key] = new Rx.Subject();
-        replicate(input.proxiedProps[key], proxiedProperty);
+        replicate(input.get(key), proxiedProperty);
       } else if (typeof input.get === 'function' && input.get(key) !== null) {
         replicate(input.get(key), proxiedProperty);
       } else if (typeof input === 'object' && input.hasOwnProperty(key)) {
@@ -17959,11 +17969,13 @@ DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
         Rx.Observable.combineLatest(arrayOfAll, function () { return 0; }).first()
           .subscribe(function () { self._rawRootElem$.onNext(rootElem); });
       }
+      var cycleCustomElementProperties = rootElem.cycleCustomElementProperties;
       try {
         rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
       } catch (err) {
         console.error(err);
       }
+      rootElem.cycleCustomElementProperties = cycleCustomElementProperties;
       if (arrayOfAll.length === 0) {
         self._rawRootElem$.onNext(rootElem);
       }

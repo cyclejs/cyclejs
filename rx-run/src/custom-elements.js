@@ -50,12 +50,26 @@ function subscribeDispatchersWhenRootChanges(widget, eventStreams) {
     });
 }
 
+function makeInputPropertiesProxy() {
+  var inputProxy = new InputProxy();
+  var oldGet = inputProxy.get;
+  inputProxy.get = function get(streamName) {
+    var result = oldGet.call(this, streamName);
+    if (result && result.distinctUntilChanged) {
+      return result.distinctUntilChanged();
+    } else {
+      return result;
+    }
+  };
+  return inputProxy;
+}
+
 function createContainerElement(tagName, vtreeProperties) {
   var elem = document.createElement('div');
   elem.className = vtreeProperties.className || '';
   elem.id = vtreeProperties.id || '';
   elem.className += ' cycleCustomElement-' + tagName.toUpperCase();
-  elem.cycleCustomElementProperties = new InputProxy();
+  elem.cycleCustomElementProperties = makeInputPropertiesProxy();
   return elem;
 }
 
@@ -63,14 +77,11 @@ function replicateUserRootElem$(user, widget) {
   user._rootElem$.subscribe(function (elem) { widget._rootElem$.onNext(elem); });
 }
 
-var customElementWidgetCounter = 0;
-
 function makeConstructor() {
   return function customElementConstructor(vtree) {
     this.type = 'Widget';
     this.properties = vtree.properties;
-    this._rootElem$ = new Rx.ReplaySubject(1);
-    this.key = ++customElementWidgetCounter;
+    this.key = vtree.key;
   };
 }
 
@@ -81,6 +92,7 @@ function makeInit(tagName, definitionFn) {
     var element = createContainerElement(tagName, widget.properties);
     var user = new DOMUser(element);
     var eventStreams = definitionFn(user, element.cycleCustomElementProperties);
+    widget._rootElem$ = new Rx.ReplaySubject(1);
     replicateUserRootElem$(user, widget);
     widget.eventStreamsSubscriptions = subscribeDispatchers(element, eventStreams);
     subscribeDispatchersWhenRootChanges(widget, eventStreams);

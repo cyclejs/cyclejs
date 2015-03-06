@@ -102,11 +102,13 @@ DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
         Rx.Observable.combineLatest(arrayOfAll, function () { return 0; }).first()
           .subscribe(function () { self._rawRootElem$.onNext(rootElem); });
       }
+      var cycleCustomElementProperties = rootElem.cycleCustomElementProperties;
       try {
         rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
       } catch (err) {
         console.error(err);
       }
+      rootElem.cycleCustomElementProperties = cycleCustomElementProperties;
       if (arrayOfAll.length === 0) {
         self._rawRootElem$.onNext(rootElem);
       }
