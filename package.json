@@ -1,6 +1,6 @@
 {
   "name": "cyclejs",
-  "version": "0.14.4",
+  "version": "0.15.0",
   "author": "Andre Staltz",
   "description": "A web application framework with Model-View-Intent and Virtual DOM",
   "license": "MIT",
