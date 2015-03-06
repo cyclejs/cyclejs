@@ -109,7 +109,9 @@ describe('Custom Elements', function () {
     var color$ = Rx.Observable.just('#00FF00').delay(50).startWith('#FF0000');
     var view = {
       vtree$: color$.map(function (color) {
-        return Cycle.h('myelement', {'color': color});
+        return Cycle.h('div', [
+          Cycle.h('myelement', {key: 1, 'color': color})
+        ]);
       })
     };
     user.inject(view);
@@ -209,7 +211,7 @@ describe('Custom Elements', function () {
     // Use the custom element
     var view = Cycle.createView(function () {
       return {
-        vtree$: Rx.Observable.just(Cycle.h('myelement.cute'))
+        vtree$: Rx.Observable.just(Cycle.h('myelement.eventsource'))
       };
     });
     user.inject(view);
@@ -218,7 +220,7 @@ describe('Custom Elements', function () {
     assert.notStrictEqual(myElement, null);
     assert.notStrictEqual(typeof myElement, 'undefined');
     assert.strictEqual(myElement.tagName, 'H3');
-    user.event$('.cute', 'myevent').subscribe(function (x) {
+    user.event$('.eventsource', 'myevent').subscribe(function (x) {
       assert.strictEqual(x.data, 123);
       done();
     });
