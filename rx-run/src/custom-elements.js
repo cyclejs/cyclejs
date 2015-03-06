@@ -18,13 +18,11 @@ function makeDispatchFunction(element, eventName) {
 }
 
 function subscribeDispatchers(element, eventStreams) {
-  if (!eventStreams || eventStreams === null || typeof eventStreams !== 'object') {
-    return;
-  }
+  if (!eventStreams || typeof eventStreams !== 'object') { return; }
+
   var disposables = new Rx.CompositeDisposable();
-  for (var streamName in eventStreams) {
-    if (eventStreams.hasOwnProperty(streamName) &&
-      Utils.endsWithDolarSign(streamName) &&
+  for (var streamName in eventStreams) { if (eventStreams.hasOwnProperty(streamName)) {
+    if (Utils.endsWithDollarSign(streamName) &&
       typeof eventStreams[streamName].subscribe === 'function')
     {
       var eventName = streamName.slice(0, -1);
@@ -33,7 +31,7 @@ function subscribeDispatchers(element, eventStreams) {
       );
       disposables.add(disposable);
     }
-  }
+  }}
   return disposables;
 }
 
@@ -103,23 +101,19 @@ function makeInit(tagName, definitionFn) {
 
 function makeUpdate() {
   return function updateCustomElement(prev, elem) {
-    if (!elem ||
-      !elem.cycleCustomElementProperties ||
-      !(elem.cycleCustomElementProperties instanceof InputProxy) ||
-      !elem.cycleCustomElementProperties.proxiedProps)
-    {
-      return;
-    }
+    if (!elem) { return; }
+    if (!elem.cycleCustomElementProperties) { return; }
+    if (!(elem.cycleCustomElementProperties instanceof InputProxy)) { return; }
+    if (!elem.cycleCustomElementProperties.proxiedProps) { return; }
+
     var proxiedProps = elem.cycleCustomElementProperties.proxiedProps;
-    for (var prop in proxiedProps) {
-      if (proxiedProps.hasOwnProperty(prop)) {
-        var propStreamName = prop;
-        var propName = prop.slice(0, -1);
-        if (this.properties.hasOwnProperty(propName)) {
-          proxiedProps[propStreamName].onNext(this.properties[propName]);
-        }
+    for (var prop in proxiedProps) { if (proxiedProps.hasOwnProperty(prop)) {
+      var propStreamName = prop;
+      var propName = prop.slice(0, -1);
+      if (this.properties.hasOwnProperty(propName)) {
+        proxiedProps[propStreamName].onNext(this.properties[propName]);
       }
-    }
+    }}
   };
 }
 

@@ -1,6 +1,6 @@
 'use strict';
 
-function endsWithDolarSign(str) {
+function endsWithDollarSign(str) {
   if (typeof str !== 'string') {
     return false;
   }
@@ -8,5 +8,5 @@ function endsWithDolarSign(str) {
 }
 
 module.exports = {
-  endsWithDolarSign: endsWithDolarSign
+  endsWithDollarSign: endsWithDollarSign
 };

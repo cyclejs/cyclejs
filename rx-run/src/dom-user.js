@@ -94,9 +94,8 @@ DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
     .subscribe(function renderDiffAndPatch(pair) {
       var oldVTree = pair[0];
       var newVTree = pair[1];
-      if (typeof newVTree === 'undefined') {
-        return;
-      }
+      if (typeof newVTree === 'undefined') { return; }
+
       var arrayOfAll = getArrayOfAllWidgetRootElemStreams(newVTree);
       if (arrayOfAll.length > 0) {
         Rx.Observable.combineLatest(arrayOfAll, function () { return 0; }).first()
@@ -143,6 +142,7 @@ DOMUser.prototype.event$ = function event$(selector, eventName) {
     throw new Error('DOMUser.event$ expects second argument to be a string ' +
       'representing the event type to listen for.');
   }
+
   return this._rootElem$.flatMapLatest(function flatMapDOMUserEventStream(rootElem) {
     if (!rootElem) {
       return Rx.Observable.empty();
@@ -170,6 +170,7 @@ DOMUser.registerCustomElement = function registerCustomElement(tagName, definiti
     throw new Error('Cannot register custom element `' + tagName + '` ' +
       'for the DOMUser because that tagName is already registered.');
   }
+
   var WidgetClass = CustomElements.makeConstructor();
   WidgetClass.prototype.init = CustomElements.makeInit(tagName, definitionFn);
   WidgetClass.prototype.update = CustomElements.makeUpdate();
