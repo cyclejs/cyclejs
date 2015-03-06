@@ -18,13 +18,11 @@ function makeDispatchFunction(element, eventName) {
 }
 
 function subscribeDispatchers(element, eventStreams) {
-  if (!eventStreams || eventStreams === null || typeof eventStreams !== 'object') {
-    return;
-  }
+  if (!eventStreams || typeof eventStreams !== 'object') { return; }
+
   var disposables = new Rx.CompositeDisposable();
-  for (var streamName in eventStreams) {
-    if (eventStreams.hasOwnProperty(streamName) &&
-      Utils.endsWithDolarSign(streamName) &&
+  for (var streamName in eventStreams) { if (eventStreams.hasOwnProperty(streamName)) {
+    if (Utils.endsWithDollarSign(streamName) &&
       typeof eventStreams[streamName].subscribe === 'function')
     {
       var eventName = streamName.slice(0, -1);
@@ -33,7 +31,7 @@ function subscribeDispatchers(element, eventStreams) {
       );
       disposables.add(disposable);
     }
-  }
+  }}
   return disposables;
 }
 
@@ -50,12 +48,26 @@ function subscribeDispatchersWhenRootChanges(widget, eventStreams) {
     });
 }
 
+function makeInputPropertiesProxy() {
+  var inputProxy = new InputProxy();
+  var oldGet = inputProxy.get;
+  inputProxy.get = function get(streamName) {
+    var result = oldGet.call(this, streamName);
+    if (result && result.distinctUntilChanged) {
+      return result.distinctUntilChanged();
+    } else {
+      return result;
+    }
+  };
+  return inputProxy;
+}
+
 function createContainerElement(tagName, vtreeProperties) {
   var elem = document.createElement('div');
   elem.className = vtreeProperties.className || '';
   elem.id = vtreeProperties.id || '';
   elem.className += ' cycleCustomElement-' + tagName.toUpperCase();
-  elem.cycleCustomElementProperties = new InputProxy();
+  elem.cycleCustomElementProperties = makeInputPropertiesProxy();
   return elem;
 }
 
@@ -63,14 +75,11 @@ function replicateUserRootElem$(user, widget) {
   user._rootElem$.subscribe(function (elem) { widget._rootElem$.onNext(elem); });
 }
 
-var customElementWidgetCounter = 0;
-
 function makeConstructor() {
   return function customElementConstructor(vtree) {
     this.type = 'Widget';
     this.properties = vtree.properties;
-    this._rootElem$ = new Rx.ReplaySubject(1);
-    this.key = vtree.key || ++customElementWidgetCounter;
+    this.key = vtree.key;
   };
 }
 
@@ -81,6 +90,7 @@ function makeInit(tagName, definitionFn) {
     var element = createContainerElement(tagName, widget.properties);
     var user = new DOMUser(element);
     var eventStreams = definitionFn(user, element.cycleCustomElementProperties);
+    widget._rootElem$ = new Rx.ReplaySubject(1);
     replicateUserRootElem$(user, widget);
     widget.eventStreamsSubscriptions = subscribeDispatchers(element, eventStreams);
     subscribeDispatchersWhenRootChanges(widget, eventStreams);
@@ -91,23 +101,19 @@ function makeInit(tagName, definitionFn) {
 
 function makeUpdate() {
   return function updateCustomElement(prev, elem) {
-    if (!elem ||
-      !elem.cycleCustomElementProperties ||
-      !(elem.cycleCustomElementProperties instanceof InputProxy) ||
-      !elem.cycleCustomElementProperties.proxiedProps)
-    {
-      return;
-    }
+    if (!elem) { return; }
+    if (!elem.cycleCustomElementProperties) { return; }
+    if (!(elem.cycleCustomElementProperties instanceof InputProxy)) { return; }
+    if (!elem.cycleCustomElementProperties.proxiedProps) { return; }
+
     var proxiedProps = elem.cycleCustomElementProperties.proxiedProps;
-    for (var prop in proxiedProps) {
-      if (proxiedProps.hasOwnProperty(prop)) {
-        var propStreamName = prop;
-        var propName = prop.slice(0, -1);
-        if (this.properties.hasOwnProperty(propName)) {
-          proxiedProps[propStreamName].onNext(this.properties[propName]);
-        }
+    for (var prop in proxiedProps) { if (proxiedProps.hasOwnProperty(prop)) {
+      var propStreamName = prop;
+      var propName = prop.slice(0, -1);
+      if (this.properties.hasOwnProperty(propName)) {
+        proxiedProps[propStreamName].onNext(this.properties[propName]);
       }
-    }
+    }}
   };
 }
 

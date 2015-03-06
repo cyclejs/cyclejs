@@ -7,8 +7,8 @@ Cycle.registerCustomElement('ticker', function (TickerUser, Properties) {
       color$: Properties.get('color$')
         .takeUntil(Intent.get('stop$'))
         .merge(Intent.get('stop$').map(function () { return '#FF0000'; })),
-      x$: Rx.Observable.interval(50).takeUntil(Intent.get('stop$')),
-      y$: Rx.Observable.interval(100).takeUntil(Intent.get('stop$'))
+      x$: Rx.Observable.interval(50).startWith(0).takeUntil(Intent.get('stop$')),
+      y$: Rx.Observable.interval(100).startWith(0).takeUntil(Intent.get('stop$'))
     };
   });
 
@@ -74,7 +74,7 @@ var View = Cycle.createView(function (Model) {
     vtree$: Rx.Observable.combineLatest(Model.get('color$'), Model.get('tickerExists$'),
       function (color, tickerExists) {
         return h('div#the-view', [
-          tickerExists ? h('ticker.ticker', {color: color}) : null
+          tickerExists ? h('ticker.ticker', {key: 1, color: color}) : null
         ]);
       }
     )
