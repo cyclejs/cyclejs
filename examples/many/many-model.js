@@ -30,7 +30,7 @@ var ManyModel = Cycle.createModel(function (Intent) {
     };
   });
 
-  var colorChangedMod$ = Intent.get('changeColor$').map(function(x) {
+  var colorChangedMod$ = Intent.get('changeColor$').map(function (x) {
     return function (listItems) {
       listItems[x.id].color = x.color;
       return listItems;
