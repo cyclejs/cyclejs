@@ -25,7 +25,7 @@ function DataFlowSink(definitionFn) {
   }
   definitionFn.displayName += '(DataFlowSink defFn)';
   this.inject = function injectIntoDataFlowSink() {
-    var proxies = makeLightweightInputProxies(arguments);
+    let proxies = makeLightweightInputProxies(arguments);
     return definitionFn.apply({}, proxies);
   };
   return this;

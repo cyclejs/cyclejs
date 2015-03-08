@@ -8,7 +8,7 @@ function CycleInterfaceError(message, missingMember) {
 CycleInterfaceError.prototype = Error.prototype;
 
 function customInterfaceErrorMessageInInject(dataFlowNode, message) {
-  var originalInject = dataFlowNode.inject;
+  let originalInject = dataFlowNode.inject;
   dataFlowNode.inject = function inject() {
     try {
       return originalInject.apply({}, arguments);

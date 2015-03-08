@@ -10,7 +10,7 @@ function DataFlowSource(outputObject) {
     );
   }
 
-  for (var key in outputObject) { if (outputObject.hasOwnProperty(key)) {
+  for (let key in outputObject) { if (outputObject.hasOwnProperty(key)) {
     this[key] = outputObject[key];
   }}
   this.inject = function injectDataFlowSource() {

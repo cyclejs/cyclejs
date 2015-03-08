@@ -17292,67 +17292,66 @@ function appendPatch(apply, patch) {
 }
 
 },{"../vnode/handle-thunk":31,"../vnode/is-thunk":32,"../vnode/is-vnode":34,"../vnode/is-vtext":35,"../vnode/is-widget":36,"../vnode/vpatch":39,"./diff-props":41,"x-is-array":19}],43:[function(require,module,exports){
-'use strict';
-var DataFlowNode = require('./data-flow-node');
-var errors = require('./errors');
+"use strict";
+
+var DataFlowNode = require("./data-flow-node");
+var errors = require("./errors");
 
 function createIntent(definitionFn) {
   var intent = new DataFlowNode(definitionFn);
-  intent = errors.customInterfaceErrorMessageInInject(intent,
-    'Intent expects View to have the required property '
-  );
-  intent.clone = function cloneIntent() { return createIntent(definitionFn); };
+  intent = errors.customInterfaceErrorMessageInInject(intent, "Intent expects View to have the required property ");
+  intent.clone = function cloneIntent() {
+    return createIntent(definitionFn);
+  };
   return intent;
 }
 
 module.exports = createIntent;
 
 },{"./data-flow-node":48,"./errors":52}],44:[function(require,module,exports){
-'use strict';
-var DataFlowNode = require('./data-flow-node');
-var errors = require('./errors');
+"use strict";
+
+var DataFlowNode = require("./data-flow-node");
+var errors = require("./errors");
 
 function createModel(definitionFn) {
   var model = new DataFlowNode(definitionFn);
-  model = errors.customInterfaceErrorMessageInInject(model,
-    'Model expects Intent to have the required property '
-  );
-  model.clone = function cloneModel() { return createModel(definitionFn); };
+  model = errors.customInterfaceErrorMessageInInject(model, "Model expects Intent to have the required property ");
+  model.clone = function cloneModel() {
+    return createModel(definitionFn);
+  };
   return model;
 }
 
 module.exports = createModel;
 
 },{"./data-flow-node":48,"./errors":52}],45:[function(require,module,exports){
-'use strict';
-var Rx = require('rx');
-var DataFlowNode = require('./data-flow-node');
-var errors = require('./errors');
+"use strict";
+
+var Rx = require("rx");
+var DataFlowNode = require("./data-flow-node");
+var errors = require("./errors");
 
 function checkVTree$(view) {
-  if (view.get('vtree$') === null ||
-    typeof view.get('vtree$').subscribe !== 'function')
-  {
-    throw new Error('View must define `vtree$` Observable emitting virtual DOM elements');
+  if (view.get("vtree$") === null || typeof view.get("vtree$").subscribe !== "function") {
+    throw new Error("View must define `vtree$` Observable emitting virtual DOM elements");
   }
 }
 
 function throwErrorIfNotVTree(vtree) {
-  if (vtree.type !== 'VirtualNode' || vtree.tagName === 'undefined') {
-    throw new Error('View `vtree$` must emit only VirtualNode instances. ' +
-      'Hint: create them with Cycle.h()'
-    );
+  if (vtree.type !== "VirtualNode" || vtree.tagName === "undefined") {
+    throw new Error("View `vtree$` must emit only VirtualNode instances. " + "Hint: create them with Cycle.h()");
   }
 }
 
 function getCorrectedVtree$(view) {
-  var newVtree$ = view.get('vtree$')
-    .map(function (vtree) {
-      if (vtree.type === 'Widget') { return vtree; }
-      throwErrorIfNotVTree(vtree);
+  var newVtree$ = view.get("vtree$").map(function (vtree) {
+    if (vtree.type === "Widget") {
       return vtree;
-    })
-    .replay(null, 1);
+    }
+    throwErrorIfNotVTree(vtree);
+    return vtree;
+  }).replay(null, 1);
   newVtree$.connect();
   return newVtree$;
 }
@@ -17361,7 +17360,8 @@ function overrideGet(view) {
   var oldGet = view.get;
   var newVtree$ = getCorrectedVtree$(view); // Is here because has connect() side effect
   view.get = function get(streamName) {
-    if (streamName === 'vtree$') { // Override get('vtree$')
+    if (streamName === "vtree$") {
+      // Override get('vtree$')
       return newVtree$;
     } else if (view[streamName]) {
       return view[streamName];
@@ -17379,22 +17379,23 @@ function overrideGet(view) {
 
 function createView(definitionFn) {
   var view = new DataFlowNode(definitionFn);
-  view = errors.customInterfaceErrorMessageInInject(view,
-    'View expects Model to have the required property '
-  );
+  view = errors.customInterfaceErrorMessageInInject(view, "View expects Model to have the required property ");
   checkVTree$(view);
   overrideGet(view);
-  view.clone = function cloneView() { return createView(definitionFn); };
+  view.clone = function cloneView() {
+    return createView(definitionFn);
+  };
   return view;
 }
 
 module.exports = createView;
 
 },{"./data-flow-node":48,"./errors":52,"rx":8}],46:[function(require,module,exports){
-'use strict';
-var InputProxy = require('./input-proxy');
-var Utils = require('./utils');
-var Rx = require('rx');
+"use strict";
+
+var InputProxy = require("./input-proxy");
+var Utils = require("./utils");
+var Rx = require("rx");
 
 function makeDispatchFunction(element, eventName) {
   return function dispatchCustomEvent(evData) {
@@ -17402,7 +17403,7 @@ function makeDispatchFunction(element, eventName) {
     try {
       event = new Event(eventName);
     } catch (err) {
-      event = document.createEvent('Event');
+      event = document.createEvent("Event");
       event.initEvent(eventName, true, true);
     }
     event.data = evData;
@@ -17411,34 +17412,32 @@ function makeDispatchFunction(element, eventName) {
 }
 
 function subscribeDispatchers(element, eventStreams) {
-  if (!eventStreams || typeof eventStreams !== 'object') { return; }
+  if (!eventStreams || typeof eventStreams !== "object") {
+    return;
+  }
 
   var disposables = new Rx.CompositeDisposable();
-  for (var streamName in eventStreams) { if (eventStreams.hasOwnProperty(streamName)) {
-    if (Utils.endsWithDollarSign(streamName) &&
-      typeof eventStreams[streamName].subscribe === 'function')
-    {
-      var eventName = streamName.slice(0, -1);
-      var disposable = eventStreams[streamName].subscribe(
-        makeDispatchFunction(element, eventName)
-      );
-      disposables.add(disposable);
+  for (var streamName in eventStreams) {
+    if (eventStreams.hasOwnProperty(streamName)) {
+      if (Utils.endsWithDollarSign(streamName) && typeof eventStreams[streamName].subscribe === "function") {
+        var eventName = streamName.slice(0, -1);
+        var disposable = eventStreams[streamName].subscribe(makeDispatchFunction(element, eventName));
+        disposables.add(disposable);
+      }
     }
-  }}
+  }
   return disposables;
 }
 
 function subscribeDispatchersWhenRootChanges(widget, eventStreams) {
-  widget._rootElem$
-    .distinctUntilChanged(Rx.helpers.identity,
-      function comparer(x, y) { return x && y && x.isEqualNode && x.isEqualNode(y); }
-    )
-    .subscribe(function (rootElem) {
-      if (widget.eventStreamsSubscriptions) {
-        widget.eventStreamsSubscriptions.dispose();
-      }
-      widget.eventStreamsSubscriptions = subscribeDispatchers(rootElem, eventStreams);
-    });
+  widget._rootElem$.distinctUntilChanged(Rx.helpers.identity, function (x, y) {
+    return x && y && x.isEqualNode && x.isEqualNode(y);
+  }).subscribe(function (rootElem) {
+    if (widget.eventStreamsSubscriptions) {
+      widget.eventStreamsSubscriptions.dispose();
+    }
+    widget.eventStreamsSubscriptions = subscribeDispatchers(rootElem, eventStreams);
+  });
 }
 
 function makeInputPropertiesProxy() {
@@ -17456,28 +17455,30 @@ function makeInputPropertiesProxy() {
 }
 
 function createContainerElement(tagName, vtreeProperties) {
-  var elem = document.createElement('div');
-  elem.className = vtreeProperties.className || '';
-  elem.id = vtreeProperties.id || '';
-  elem.className += ' cycleCustomElement-' + tagName.toUpperCase();
+  var elem = document.createElement("div");
+  elem.className = vtreeProperties.className || "";
+  elem.id = vtreeProperties.id || "";
+  elem.className += " cycleCustomElement-" + tagName.toUpperCase();
   elem.cycleCustomElementProperties = makeInputPropertiesProxy();
   return elem;
 }
 
 function replicateUserRootElem$(user, widget) {
-  user._rootElem$.subscribe(function (elem) { widget._rootElem$.onNext(elem); });
+  user._rootElem$.subscribe(function (elem) {
+    return widget._rootElem$.onNext(elem);
+  });
 }
 
 function makeConstructor() {
   return function customElementConstructor(vtree) {
-    this.type = 'Widget';
+    this.type = "Widget";
     this.properties = vtree.properties;
     this.key = vtree.key;
   };
 }
 
 function makeInit(tagName, definitionFn) {
-  var DOMUser = require('./dom-user');
+  var DOMUser = require("./dom-user");
   return function initCustomElement() {
     var widget = this;
     var element = createContainerElement(tagName, widget.properties);
@@ -17494,19 +17495,29 @@ function makeInit(tagName, definitionFn) {
 
 function makeUpdate() {
   return function updateCustomElement(prev, elem) {
-    if (!elem) { return; }
-    if (!elem.cycleCustomElementProperties) { return; }
-    if (!(elem.cycleCustomElementProperties instanceof InputProxy)) { return; }
-    if (!elem.cycleCustomElementProperties.proxiedProps) { return; }
+    if (!elem) {
+      return;
+    }
+    if (!elem.cycleCustomElementProperties) {
+      return;
+    }
+    if (!(elem.cycleCustomElementProperties instanceof InputProxy)) {
+      return;
+    }
+    if (!elem.cycleCustomElementProperties.proxiedProps) {
+      return;
+    }
 
     var proxiedProps = elem.cycleCustomElementProperties.proxiedProps;
-    for (var prop in proxiedProps) { if (proxiedProps.hasOwnProperty(prop)) {
-      var propStreamName = prop;
-      var propName = prop.slice(0, -1);
-      if (this.properties.hasOwnProperty(propName)) {
-        proxiedProps[propStreamName].onNext(this.properties[propName]);
+    for (var prop in proxiedProps) {
+      if (proxiedProps.hasOwnProperty(prop)) {
+        var propStreamName = prop;
+        var propName = prop.slice(0, -1);
+        if (this.properties.hasOwnProperty(propName)) {
+          proxiedProps[propStreamName].onNext(this.properties[propName]);
+        }
       }
-    }}
+    }
   };
 }
 
@@ -17517,14 +17528,15 @@ module.exports = {
 };
 
 },{"./dom-user":51,"./input-proxy":53,"./utils":55,"rx":8}],47:[function(require,module,exports){
-'use strict';
-var VirtualDOM = require('virtual-dom');
-var Rx = require('rx');
-var DataFlowNode = require('./data-flow-node');
-var DataFlowSource = require('./data-flow-source');
-var DataFlowSink = require('./data-flow-sink');
-var DOMUser = require('./dom-user');
-var PropertyHook = require('./property-hook');
+"use strict";
+
+var VirtualDOM = require("virtual-dom");
+var Rx = require("rx");
+var DataFlowNode = require("./data-flow-node");
+var DataFlowSource = require("./data-flow-source");
+var DataFlowSink = require("./data-flow-sink");
+var DOMUser = require("./dom-user");
+var PropertyHook = require("./property-hook");
 
 var Cycle = {
   /**
@@ -17579,7 +17591,7 @@ var Cycle = {
    * `inject(intent)` function.
    * @function createModel
    */
-  createModel: require('./create-model'),
+  createModel: require("./create-model"),
 
   /**
    * Returns a DataFlowNode representing a View, having some Model as input.
@@ -17594,7 +17606,7 @@ var Cycle = {
    * `inject(model)` function.
    * @function createView
    */
-  createView: require('./create-view'),
+  createView: require("./create-view"),
 
   /**
    * Returns a DataFlowNode representing an Intent, having some View as input.
@@ -17607,7 +17619,7 @@ var Cycle = {
    * `inject(view)` function.
    * @function createIntent
    */
-  createIntent: require('./create-intent'),
+  createIntent: require("./create-intent"),
 
   /**
    * Returns a DOMUser (a DataFlowNode) bound to a DOM container element. Contains an
@@ -17654,7 +17666,7 @@ var Cycle = {
    * @param {Function} fn a function with two arguments: `element`, `property`.
    * @return {PropertyHook} a hook
    */
-  vdomPropHook: function (fn) {
+  vdomPropHook: function vdomPropHook(fn) {
     return new PropertyHook(fn);
   },
 
@@ -17676,49 +17688,49 @@ var Cycle = {
 module.exports = Cycle;
 
 },{"./create-intent":43,"./create-model":44,"./create-view":45,"./data-flow-node":48,"./data-flow-sink":49,"./data-flow-source":50,"./dom-user":51,"./property-hook":54,"rx":8,"virtual-dom":12}],48:[function(require,module,exports){
-'use strict';
-var Rx = require('rx');
-var errors = require('./errors');
-var InputProxy = require('./input-proxy');
-var Utils = require('./utils');
+"use strict";
+
+var Rx = require("rx");
+var errors = require("./errors");
+var InputProxy = require("./input-proxy");
+var Utils = require("./utils");
 var CycleInterfaceError = errors.CycleInterfaceError;
 
 function replicate(source, subject) {
-  if (typeof source === 'undefined') {
-    throw new Error('Cannot replicate() if source is undefined.');
+  if (typeof source === "undefined") {
+    throw new Error("Cannot replicate() if source is undefined.");
   }
-  return source.subscribe(
-    function replicationOnNext(x) {
-      subject.onNext(x);
-    },
-    function replicationOnError(err) {
-      subject.onError(err);
-      console.error(err);
-    }
-  );
+  return source.subscribe(function replicationOnNext(x) {
+    subject.onNext(x);
+  }, function replicationOnError(err) {
+    subject.onError(err);
+    console.error(err);
+  });
 }
 
 function checkOutputObject(output) {
-  if (typeof output !== 'object') {
-    throw new Error('A DataFlowNode should always return an object.');
+  if (typeof output !== "object") {
+    throw new Error("A DataFlowNode should always return an object.");
   }
 }
 
 function createStreamNamesArray(output) {
   var array = [];
-  for (var streamName in output) { if (output.hasOwnProperty(streamName)) {
-    if (Utils.endsWithDollarSign(streamName)) {
-      array.push(streamName);
+  for (var streamName in output) {
+    if (output.hasOwnProperty(streamName)) {
+      if (Utils.endsWithDollarSign(streamName)) {
+        array.push(streamName);
+      }
     }
-  }}
+  }
   return array;
 }
 
-var replicateAll;
+var replicateAll = undefined;
 
 function DataFlowNode(definitionFn) {
-  if (arguments.length !== 1 || typeof definitionFn !== 'function') {
-    throw new Error('DataFlowNode expects the definitionFn as the only argument.');
+  if (arguments.length !== 1 || typeof definitionFn !== "function") {
+    throw new Error("DataFlowNode expects the definitionFn as the only argument.");
   }
   var proxies = [];
   for (var i = 0; i < definitionFn.length; i++) {
@@ -17736,11 +17748,10 @@ function DataFlowNode(definitionFn) {
   };
   this.inject = function inject() {
     if (wasInjected) {
-      console.warn('DataFlowNode has already been injected an input.');
+      console.warn("DataFlowNode has already been injected an input.");
     }
     if (definitionFn.length !== arguments.length) {
-      console.warn('The call to inject() should provide the inputs that this ' +
-        'DataFlowNode expects according to its definition function.');
+      console.warn("The call to inject() should provide the inputs that this " + "DataFlowNode expects according to its definition function.");
     }
     for (var i = 0; i < definitionFn.length; i++) {
       replicateAll(arguments[i], proxies[i]);
@@ -17758,69 +17769,71 @@ function DataFlowNode(definitionFn) {
 }
 
 function replicateAllEvent$(input, selector, proxyObj) {
-  for (var eventName in proxyObj) { if (proxyObj.hasOwnProperty(eventName)) {
-    if (eventName !== '_hasEvent$') {
-      var event$ = input.event$(selector, eventName);
-      if (event$ !== null) {
-        replicate(event$, proxyObj[eventName]);
+  for (var eventName in proxyObj) {
+    if (proxyObj.hasOwnProperty(eventName)) {
+      if (eventName !== "_hasEvent$") {
+        var event$ = input.event$(selector, eventName);
+        if (event$ !== null) {
+          replicate(event$, proxyObj[eventName]);
+        }
       }
     }
-  }}
+  }
 }
 
 replicateAll = function replicateAll(input, proxy) {
-  if (!input || !proxy) { return; }
+  if (!input || !proxy) {
+    return;
+  }
 
-  for (var key in proxy.proxiedProps) { if (proxy.proxiedProps.hasOwnProperty(key)) {
-    var proxiedProperty = proxy.proxiedProps[key];
-    if (typeof input.event$ === 'function' && proxiedProperty._hasEvent$) {
-      replicateAllEvent$(input, key, proxiedProperty);
-    } else if (!input.hasOwnProperty(key) && input instanceof InputProxy) {
-      replicate(input.get(key), proxiedProperty);
-    } else if (typeof input.get === 'function' && input.get(key) !== null) {
-      replicate(input.get(key), proxiedProperty);
-    } else if (typeof input === 'object' && input.hasOwnProperty(key)) {
-      if (!input[key]) {
-        input[key] = new Rx.Subject();
+  for (var key in proxy.proxiedProps) {
+    if (proxy.proxiedProps.hasOwnProperty(key)) {
+      var proxiedProperty = proxy.proxiedProps[key];
+      if (typeof input.event$ === "function" && proxiedProperty._hasEvent$) {
+        replicateAllEvent$(input, key, proxiedProperty);
+      } else if (!input.hasOwnProperty(key) && input instanceof InputProxy) {
+        replicate(input.get(key), proxiedProperty);
+      } else if (typeof input.get === "function" && input.get(key) !== null) {
+        replicate(input.get(key), proxiedProperty);
+      } else if (typeof input === "object" && input.hasOwnProperty(key)) {
+        if (!input[key]) {
+          input[key] = new Rx.Subject();
+        }
+        replicate(input[key], proxiedProperty);
+      } else {
+        throw new CycleInterfaceError("Input should have the required property " + key, String(key));
       }
-      replicate(input[key], proxiedProperty);
-    } else {
-      throw new CycleInterfaceError('Input should have the required property ' +
-        key, String(key)
-      );
     }
-  }}
+  }
 };
 
 module.exports = DataFlowNode;
 
 },{"./errors":52,"./input-proxy":53,"./utils":55,"rx":8}],49:[function(require,module,exports){
-'use strict';
+"use strict";
 
 function makeLightweightInputProxies(args) {
-  return Array.prototype
-    .slice.call(args)
-    .map(function (arg) {
-      return {
-        get: function get(streamName) {
-          if (typeof arg.get === 'function') {
-            return arg.get(streamName);
-          } else {
-            return arg[streamName] || null;
-          }
+  return Array.prototype.slice.call(args).map(function (arg) {
+    return {
+      get: function get(streamName) {
+        if (typeof arg.get === "function") {
+          return arg.get(streamName);
+        } else {
+          return arg[streamName] || null;
         }
-      };
-    });
+      }
+    };
+  });
 }
 
 function DataFlowSink(definitionFn) {
   if (arguments.length !== 1) {
-    throw new Error('DataFlowSink expects only one argument: the definition function.');
+    throw new Error("DataFlowSink expects only one argument: the definition function.");
   }
-  if (typeof definitionFn !== 'function') {
-    throw new Error('DataFlowSink expects the argument to be the definition function.');
+  if (typeof definitionFn !== "function") {
+    throw new Error("DataFlowSink expects the argument to be the definition function.");
   }
-  definitionFn.displayName += '(DataFlowSink defFn)';
+  definitionFn.displayName += "(DataFlowSink defFn)";
   this.inject = function injectIntoDataFlowSink() {
     var proxies = makeLightweightInputProxies(arguments);
     return definitionFn.apply({}, proxies);
@@ -17831,23 +17844,23 @@ function DataFlowSink(definitionFn) {
 module.exports = DataFlowSink;
 
 },{}],50:[function(require,module,exports){
-'use strict';
+"use strict";
 
 function DataFlowSource(outputObject) {
   if (arguments.length !== 1) {
-    throw new Error('DataFlowSource expects only one argument: the output object.');
+    throw new Error("DataFlowSource expects only one argument: the output object.");
   }
-  if (typeof outputObject !== 'object') {
-    throw new Error('DataFlowSource expects the constructor argument to be the ' +
-      'output object.'
-    );
+  if (typeof outputObject !== "object") {
+    throw new Error("DataFlowSource expects the constructor argument to be the " + "output object.");
   }
 
-  for (var key in outputObject) { if (outputObject.hasOwnProperty(key)) {
-    this[key] = outputObject[key];
-  }}
+  for (var key in outputObject) {
+    if (outputObject.hasOwnProperty(key)) {
+      this[key] = outputObject[key];
+    }
+  }
   this.inject = function injectDataFlowSource() {
-    throw new Error('A DataFlowSource cannot be injected. Use a DataFlowNode instead.');
+    throw new Error("A DataFlowSource cannot be injected. Use a DataFlowNode instead.");
   };
   return this;
 }
@@ -17855,28 +17868,26 @@ function DataFlowSource(outputObject) {
 module.exports = DataFlowSource;
 
 },{}],51:[function(require,module,exports){
-'use strict';
+"use strict";
+
+var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) { _arr.push(_step.value); if (i && _arr.length === i) break; } return _arr; } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } };
+
 var VDOM = {
-  h: require('virtual-dom').h,
-  diff: require('virtual-dom/diff'),
-  patch: require('virtual-dom/patch')
+  h: require("virtual-dom").h,
+  diff: require("virtual-dom/diff"),
+  patch: require("virtual-dom/patch")
 };
-var Rx = require('rx');
-var DataFlowNode = require('./data-flow-node');
-var CustomElements = require('./custom-elements');
+var Rx = require("rx");
+var DataFlowNode = require("./data-flow-node");
+var CustomElements = require("./custom-elements");
 
 function isElement(o) {
-  return (
-    typeof HTMLElement === 'object' ?
-      o instanceof HTMLElement || o instanceof DocumentFragment : //DOM2
-      o && typeof o === 'object' && o !== null &&
-        (o.nodeType === 1 || o.nodeType === 11) &&
-        typeof o.nodeName === 'string'
-  );
+  return typeof HTMLElement === "object" ? o instanceof HTMLElement || o instanceof DocumentFragment : //DOM2
+  o && typeof o === "object" && o !== null && (o.nodeType === 1 || o.nodeType === 11) && typeof o.nodeName === "string";
 }
 
 function getArrayOfAllWidgetRootElemStreams(vtree) {
-  if (vtree.type === 'Widget' && vtree._rootElem$) {
+  if (vtree.type === "Widget" && vtree._rootElem$) {
     return [vtree._rootElem$];
   }
   // Or replace children recursively
@@ -17891,36 +17902,34 @@ function getArrayOfAllWidgetRootElemStreams(vtree) {
 
 function defineRootElemStream(user) {
   // Create rootElem stream and automatic className correction
-  var originalClasses = (user._domContainer.className || '').trim().split(/\s+/);
+  var originalClasses = (user._domContainer.className || "").trim().split(/\s+/);
   user._rawRootElem$ = new Rx.Subject();
-  user._rootElem$ = user._rawRootElem$
-    .map(function fixRootElemClassName(rootElem) {
-      var previousClasses = rootElem.className.trim().split(/\s+/);
-      var missingClasses = originalClasses.filter(function (clss) {
-        return previousClasses.indexOf(clss) < 0;
-      });
-      rootElem.className = previousClasses.concat(missingClasses).join(' ');
-      return rootElem;
-    })
-    .shareReplay(1);
+  user._rootElem$ = user._rawRootElem$.map(function fixRootElemClassName(rootElem) {
+    var previousClasses = rootElem.className.trim().split(/\s+/);
+    var missingClasses = originalClasses.filter(function (clss) {
+      return previousClasses.indexOf(clss) < 0;
+    });
+    rootElem.className = previousClasses.concat(missingClasses).join(" ");
+    return rootElem;
+  }).shareReplay(1);
 }
 
 function DOMUser(container) {
+  var _this = this;
+
   // Find and prepare the container
-  this._domContainer = (typeof container === 'string') ?
-    document.querySelector(container) :
-    container;
+  this._domContainer = typeof container === "string" ? document.querySelector(container) : container;
   // Check pre-conditions
-  if (typeof container === 'string' && this._domContainer === null) {
-    throw new Error('Cannot render into unknown element \'' + container + '\'');
+  if (typeof container === "string" && this._domContainer === null) {
+    throw new Error("Cannot render into unknown element '" + container + "'");
   } else if (!isElement(this._domContainer)) {
-    throw new Error('Given container is not a DOM element neither a selector string.');
+    throw new Error("Given container is not a DOM element neither a selector string.");
   }
   defineRootElemStream(this);
   // Create DataFlowNode with rendering logic
-  var self = this;
-  DataFlowNode.call(this, function injectIntoDOMUser(view) {
-    return self._renderEvery(view.get('vtree$'));
+  DataFlowNode.call(this, function (view) {
+    _this._renderEvery(view.get("vtree$"));
+    return {};
   });
 }
 
@@ -17929,54 +17938,58 @@ DOMUser.prototype = Object.create(DataFlowNode.prototype);
 DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
   var self = this;
   // Select the correct rootElem
-  var rootElem;
+  var rootElem = undefined;
   if (self._domContainer.cycleCustomElementProperties) {
     rootElem = self._domContainer;
   } else {
-    rootElem = document.createElement('div');
-    self._domContainer.innerHTML = '';
+    rootElem = document.createElement("div");
+    self._domContainer.innerHTML = "";
     self._domContainer.appendChild(rootElem);
   }
-  // TODO Refactor/rework. Unclear why, but setTimeout this is necessary.
+  // TODO Refactor/rework. Unclear why, but this setTimeout is necessary.
   setTimeout(function () {
-    self._rawRootElem$.onNext(rootElem);
+    return self._rawRootElem$.onNext(rootElem);
   }, 0);
   // Reactively render the vtree$ into the rootElem
-  return vtree$
-    .startWith(VDOM.h())
-    .map(function renderingPreprocessing(vtree) {
-      return self._replaceCustomElements(vtree);
-    })
-    .pairwise()
-    .subscribe(function renderDiffAndPatch(pair) {
-      var oldVTree = pair[0];
-      var newVTree = pair[1];
-      if (typeof newVTree === 'undefined') { return; }
+  return vtree$.startWith(VDOM.h()).map(function renderingPreprocessing(vtree) {
+    return self._replaceCustomElements(vtree);
+  }).pairwise().subscribe(function renderDiffAndPatch(_ref) {
+    var _ref2 = _slicedToArray(_ref, 2);
 
-      var arrayOfAll = getArrayOfAllWidgetRootElemStreams(newVTree);
-      if (arrayOfAll.length > 0) {
-        Rx.Observable.combineLatest(arrayOfAll, function () { return 0; }).first()
-          .subscribe(function () { self._rawRootElem$.onNext(rootElem); });
-      }
-      var cycleCustomElementProperties = rootElem.cycleCustomElementProperties;
-      try {
-        rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
-      } catch (err) {
-        console.error(err);
-      }
-      rootElem.cycleCustomElementProperties = cycleCustomElementProperties;
-      if (arrayOfAll.length === 0) {
+    var oldVTree = _ref2[0];
+    var newVTree = _ref2[1];
+
+    if (typeof newVTree === "undefined") {
+      return;
+    }
+
+    var arrayOfAll = getArrayOfAllWidgetRootElemStreams(newVTree);
+    if (arrayOfAll.length > 0) {
+      Rx.Observable.combineLatest(arrayOfAll, function () {
+        return 0;
+      }).first().subscribe(function () {
         self._rawRootElem$.onNext(rootElem);
-      }
-    });
+      });
+    }
+    var cycleCustomElementProperties = rootElem.cycleCustomElementProperties;
+    try {
+      rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
+    } catch (err) {
+      console.error(err);
+    }
+    rootElem.cycleCustomElementProperties = cycleCustomElementProperties;
+    if (arrayOfAll.length === 0) {
+      self._rawRootElem$.onNext(rootElem);
+    }
+  });
 };
 
 DOMUser.prototype._replaceCustomElements = function replaceCustomElements(vtree) {
   // Silently ignore corner cases
-  if (!vtree || !DOMUser._customElements || vtree.type === 'VirtualText') {
+  if (!vtree || !DOMUser._customElements || vtree.type === "VirtualText") {
     return vtree;
   }
-  var tagName = (vtree.tagName || '').toUpperCase();
+  var tagName = (vtree.tagName || "").toUpperCase();
   // Replace vtree itself
   if (tagName && DOMUser._customElements.hasOwnProperty(tagName)) {
     return new DOMUser._customElements[tagName](vtree);
@@ -17991,21 +18004,19 @@ DOMUser.prototype._replaceCustomElements = function replaceCustomElements(vtree)
 };
 
 DOMUser.prototype.event$ = function event$(selector, eventName) {
-  if (typeof selector !== 'string') {
-    throw new Error('DOMUser.event$ expects first argument to be a string as a ' +
-      'CSS selector');
+  if (typeof selector !== "string") {
+    throw new Error("DOMUser.event$ expects first argument to be a string as a " + "CSS selector");
   }
-  if (typeof eventName !== 'string') {
-    throw new Error('DOMUser.event$ expects second argument to be a string ' +
-      'representing the event type to listen for.');
+  if (typeof eventName !== "string") {
+    throw new Error("DOMUser.event$ expects second argument to be a string " + "representing the event type to listen for.");
   }
 
   return this._rootElem$.flatMapLatest(function flatMapDOMUserEventStream(rootElem) {
     if (!rootElem) {
       return Rx.Observable.empty();
     }
-    var klass = selector.replace('.', '');
-    if (rootElem.className.search(new RegExp('\\b' + klass + '\\b')) >= 0) {
+    var klass = selector.replace(".", "");
+    if (rootElem.className.search(new RegExp("\\b" + klass + "\\b")) >= 0) {
       return Rx.Observable.fromEvent(rootElem, eventName);
     }
     var targetElements = rootElem.querySelectorAll(selector);
@@ -18018,14 +18029,12 @@ DOMUser.prototype.event$ = function event$(selector, eventName) {
 };
 
 DOMUser.registerCustomElement = function registerCustomElement(tagName, definitionFn) {
-  if (typeof tagName !== 'string' || typeof definitionFn !== 'function') {
-    throw new Error('registerCustomElement requires parameters `tagName` and ' +
-      '`definitionFn`.');
+  if (typeof tagName !== "string" || typeof definitionFn !== "function") {
+    throw new Error("registerCustomElement requires parameters `tagName` and " + "`definitionFn`.");
   }
   tagName = tagName.toUpperCase();
   if (DOMUser._customElements && DOMUser._customElements.hasOwnProperty(tagName)) {
-    throw new Error('Cannot register custom element `' + tagName + '` ' +
-      'for the DOMUser because that tagName is already registered.');
+    throw new Error("Cannot register custom element `" + tagName + "` " + "for the DOMUser because that tagName is already registered.");
   }
 
   var WidgetClass = CustomElements.makeConstructor();
@@ -18038,12 +18047,12 @@ DOMUser.registerCustomElement = function registerCustomElement(tagName, definiti
 module.exports = DOMUser;
 
 },{"./custom-elements":46,"./data-flow-node":48,"rx":8,"virtual-dom":12,"virtual-dom/diff":10,"virtual-dom/patch":20}],52:[function(require,module,exports){
-'use strict';
+"use strict";
 
 function CycleInterfaceError(message, missingMember) {
-  this.name = 'CycleInterfaceError';
-  this.message = (message || '');
-  this.missingMember = (missingMember || '');
+  this.name = "CycleInterfaceError";
+  this.message = message || "";
+  this.missingMember = missingMember || "";
 }
 CycleInterfaceError.prototype = Error.prototype;
 
@@ -18053,7 +18062,7 @@ function customInterfaceErrorMessageInInject(dataFlowNode, message) {
     try {
       return originalInject.apply({}, arguments);
     } catch (err) {
-      if (err.name === 'CycleInterfaceError') {
+      if (err.name === "CycleInterfaceError") {
         throw new CycleInterfaceError(message + err.missingMember, err.missingMember);
       } else {
         throw err;
@@ -18069,54 +18078,91 @@ module.exports = {
 };
 
 },{}],53:[function(require,module,exports){
-'use strict';
-var Rx = require('rx');
+"use strict";
 
-function InputProxy() {
-  this.proxiedProps = {};
-  // For any DataFlowNode
-  this.get = function getFromProxy(streamKey) {
-    if (typeof this.proxiedProps[streamKey] === 'undefined') {
-      this.proxiedProps[streamKey] = new Rx.Subject();
+var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
+var Rx = require("rx");
+
+var InputProxy = (function () {
+  function InputProxy() {
+    _classCallCheck(this, InputProxy);
+
+    this.proxiedProps = {};
+  }
+
+  _createClass(InputProxy, {
+    get: {
+
+      // For any DataFlowNode
+
+      value: function get(streamKey) {
+        if (typeof this.proxiedProps[streamKey] === "undefined") {
+          this.proxiedProps[streamKey] = new Rx.Subject();
+        }
+        return this.proxiedProps[streamKey];
+      }
+    },
+    event$: {
+
+      // For the DOMUser
+
+      value: function event$(selector, eventName) {
+        if (typeof this.proxiedProps[selector] === "undefined") {
+          this.proxiedProps[selector] = {
+            _hasEvent$: true
+          };
+        }
+        if (typeof this.proxiedProps[selector][eventName] === "undefined") {
+          this.proxiedProps[selector][eventName] = new Rx.Subject();
+        }
+        return this.proxiedProps[selector][eventName];
+      }
     }
-    return this.proxiedProps[streamKey];
-  };
-  // For the DOMUser
-  this.event$ = function event$FromProxy(selector, eventName) {
-    if (typeof this.proxiedProps[selector] === 'undefined') {
-      this.proxiedProps[selector] = {
-        _hasEvent$: true
-      };
-    }
-    if (typeof this.proxiedProps[selector][eventName] === 'undefined') {
-      this.proxiedProps[selector][eventName] = new Rx.Subject();
-    }
-    return this.proxiedProps[selector][eventName];
-  };
-}
+  });
+
+  return InputProxy;
+})();
 
 module.exports = InputProxy;
 
 },{"rx":8}],54:[function(require,module,exports){
-'use strict';
+"use strict";
 
-function PropertyHook(fn) {
-  this.fn = fn;
-}
-PropertyHook.prototype.hook = function () {
-  this.fn.apply(this, arguments);
-};
+var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
+var PropertyHook = (function () {
+  function PropertyHook(fn) {
+    _classCallCheck(this, PropertyHook);
+
+    this.fn = fn;
+  }
+
+  _createClass(PropertyHook, {
+    hook: {
+      value: function hook() {
+        this.fn.apply(this, arguments);
+      }
+    }
+  });
+
+  return PropertyHook;
+})();
 
 module.exports = PropertyHook;
 
 },{}],55:[function(require,module,exports){
-'use strict';
+"use strict";
 
 function endsWithDollarSign(str) {
-  if (typeof str !== 'string') {
+  if (typeof str !== "string") {
     return false;
   }
-  return str.indexOf('$', str.length - 1) !== -1;
+  return str.indexOf("$", str.length - 1) !== -1;
 }
 
 module.exports = {

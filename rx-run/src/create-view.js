@@ -1,7 +1,7 @@
 'use strict';
-var Rx = require('rx');
-var DataFlowNode = require('./data-flow-node');
-var errors = require('./errors');
+let Rx = require('rx');
+let DataFlowNode = require('./data-flow-node');
+let errors = require('./errors');
 
 function checkVTree$(view) {
   if (view.get('vtree$') === null ||
@@ -20,7 +20,7 @@ function throwErrorIfNotVTree(vtree) {
 }
 
 function getCorrectedVtree$(view) {
-  var newVtree$ = view.get('vtree$')
+  let newVtree$ = view.get('vtree$')
     .map(function (vtree) {
       if (vtree.type === 'Widget') { return vtree; }
       throwErrorIfNotVTree(vtree);
@@ -32,15 +32,15 @@ function getCorrectedVtree$(view) {
 }
 
 function overrideGet(view) {
-  var oldGet = view.get;
-  var newVtree$ = getCorrectedVtree$(view); // Is here because has connect() side effect
+  let oldGet = view.get;
+  let newVtree$ = getCorrectedVtree$(view); // Is here because has connect() side effect
   view.get = function get(streamName) {
     if (streamName === 'vtree$') { // Override get('vtree$')
       return newVtree$;
     } else if (view[streamName]) {
       return view[streamName];
     } else {
-      var result = oldGet.call(this, streamName);
+      let result = oldGet.call(this, streamName);
       if (!result) {
         view[streamName] = new Rx.Subject();
         return view[streamName];
@@ -52,7 +52,7 @@ function overrideGet(view) {
 }
 
 function createView(definitionFn) {
-  var view = new DataFlowNode(definitionFn);
+  let view = new DataFlowNode(definitionFn);
   view = errors.customInterfaceErrorMessageInInject(view,
     'View expects Model to have the required property '
   );
