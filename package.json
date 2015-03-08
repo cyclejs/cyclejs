@@ -17,7 +17,7 @@
   "main": "src/cycle.js",
   "dependencies": {
     "rx": "2.4.1",
-    "virtual-dom": "1.3.0"
+    "virtual-dom": "2.0.1"
   },
   "devDependencies": {
     "babel": "^4.7.3",
