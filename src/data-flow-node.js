@@ -1,9 +1,9 @@
 'use strict';
-var Rx = require('rx');
-var errors = require('./errors');
-var InputProxy = require('./input-proxy');
-var Utils = require('./utils');
-var CycleInterfaceError = errors.CycleInterfaceError;
+let Rx = require('rx');
+let errors = require('./errors');
+let InputProxy = require('./input-proxy');
+let Utils = require('./utils');
+let CycleInterfaceError = errors.CycleInterfaceError;
 
 function replicate(source, subject) {
   if (typeof source === 'undefined') {
@@ -27,8 +27,8 @@ function checkOutputObject(output) {
 }
 
 function createStreamNamesArray(output) {
-  var array = [];
-  for (var streamName in output) { if (output.hasOwnProperty(streamName)) {
+  let array = [];
+  for (let streamName in output) { if (output.hasOwnProperty(streamName)) {
     if (Utils.endsWithDollarSign(streamName)) {
       array.push(streamName);
     }
@@ -36,18 +36,18 @@ function createStreamNamesArray(output) {
   return array;
 }
 
-var replicateAll;
+let replicateAll;
 
 function DataFlowNode(definitionFn) {
   if (arguments.length !== 1 || typeof definitionFn !== 'function') {
     throw new Error('DataFlowNode expects the definitionFn as the only argument.');
   }
-  var proxies = [];
-  for (var i = 0; i < definitionFn.length; i++) {
+  let proxies = [];
+  for (let i = 0; i < definitionFn.length; i++) {
     proxies[i] = new InputProxy();
   }
-  var wasInjected = false;
-  var output = definitionFn.apply(this, proxies);
+  let wasInjected = false;
+  let output = definitionFn.apply(this, proxies);
   checkOutputObject(output);
   this.outputStreams = createStreamNamesArray(output);
   this.get = function get(streamName) {
@@ -64,7 +64,7 @@ function DataFlowNode(definitionFn) {
       console.warn('The call to inject() should provide the inputs that this ' +
         'DataFlowNode expects according to its definition function.');
     }
-    for (var i = 0; i < definitionFn.length; i++) {
+    for (let i = 0; i < definitionFn.length; i++) {
       replicateAll(arguments[i], proxies[i]);
     }
     wasInjected = true;
@@ -80,9 +80,9 @@ function DataFlowNode(definitionFn) {
 }
 
 function replicateAllEvent$(input, selector, proxyObj) {
-  for (var eventName in proxyObj) { if (proxyObj.hasOwnProperty(eventName)) {
+  for (let eventName in proxyObj) { if (proxyObj.hasOwnProperty(eventName)) {
     if (eventName !== '_hasEvent$') {
-      var event$ = input.event$(selector, eventName);
+      let event$ = input.event$(selector, eventName);
       if (event$ !== null) {
         replicate(event$, proxyObj[eventName]);
       }
@@ -93,8 +93,8 @@ function replicateAllEvent$(input, selector, proxyObj) {
 replicateAll = function replicateAll(input, proxy) {
   if (!input || !proxy) { return; }
 
-  for (var key in proxy.proxiedProps) { if (proxy.proxiedProps.hasOwnProperty(key)) {
-    var proxiedProperty = proxy.proxiedProps[key];
+  for (let key in proxy.proxiedProps) { if (proxy.proxiedProps.hasOwnProperty(key)) {
+    let proxiedProperty = proxy.proxiedProps[key];
     if (typeof input.event$ === 'function' && proxiedProperty._hasEvent$) {
       replicateAllEvent$(input, key, proxiedProperty);
     } else if (!input.hasOwnProperty(key) && input instanceof InputProxy) {

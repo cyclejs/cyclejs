@@ -1,10 +1,13 @@
 'use strict';
 
-function PropertyHook(fn) {
-  this.fn = fn;
+class PropertyHook {
+  constructor(fn) {
+    this.fn = fn;
+  }
+
+  hook() {
+    this.fn.apply(this, arguments);
+  }
 }
-PropertyHook.prototype.hook = function () {
-  this.fn.apply(this, arguments);
-};
 
 module.exports = PropertyHook;

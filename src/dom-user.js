@@ -1,12 +1,12 @@
 'use strict';
-var VDOM = {
+let VDOM = {
   h: require('virtual-dom').h,
   diff: require('virtual-dom/diff'),
   patch: require('virtual-dom/patch')
 };
-var Rx = require('rx');
-var DataFlowNode = require('./data-flow-node');
-var CustomElements = require('./custom-elements');
+let Rx = require('rx');
+let DataFlowNode = require('./data-flow-node');
+let CustomElements = require('./custom-elements');
 
 function isElement(o) {
   return (
@@ -23,9 +23,9 @@ function getArrayOfAllWidgetRootElemStreams(vtree) {
     return [vtree._rootElem$];
   }
   // Or replace children recursively
-  var array = [];
+  let array = [];
   if (Array.isArray(vtree.children)) {
-    for (var i = vtree.children.length - 1; i >= 0; i--) {
+    for (let i = vtree.children.length - 1; i >= 0; i--) {
       array = array.concat(getArrayOfAllWidgetRootElemStreams(vtree.children[i]));
     }
   }
@@ -34,12 +34,12 @@ function getArrayOfAllWidgetRootElemStreams(vtree) {
 
 function defineRootElemStream(user) {
   // Create rootElem stream and automatic className correction
-  var originalClasses = (user._domContainer.className || '').trim().split(/\s+/);
+  let originalClasses = (user._domContainer.className || '').trim().split(/\s+/);
   user._rawRootElem$ = new Rx.Subject();
   user._rootElem$ = user._rawRootElem$
     .map(function fixRootElemClassName(rootElem) {
-      var previousClasses = rootElem.className.trim().split(/\s+/);
-      var missingClasses = originalClasses.filter(function (clss) {
+      let previousClasses = rootElem.className.trim().split(/\s+/);
+      let missingClasses = originalClasses.filter(function (clss) {
         return previousClasses.indexOf(clss) < 0;
       });
       rootElem.className = previousClasses.concat(missingClasses).join(' ');
@@ -61,18 +61,18 @@ function DOMUser(container) {
   }
   defineRootElemStream(this);
   // Create DataFlowNode with rendering logic
-  var self = this;
-  DataFlowNode.call(this, function injectIntoDOMUser(view) {
-    return self._renderEvery(view.get('vtree$'));
+  DataFlowNode.call(this, (view) => {
+    this._renderEvery(view.get('vtree$'));
+    return {};
   });
 }
 
 DOMUser.prototype = Object.create(DataFlowNode.prototype);
 
 DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
-  var self = this;
+  let self = this;
   // Select the correct rootElem
-  var rootElem;
+  let rootElem;
   if (self._domContainer.cycleCustomElementProperties) {
     rootElem = self._domContainer;
   } else {
@@ -80,10 +80,8 @@ DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
     self._domContainer.innerHTML = '';
     self._domContainer.appendChild(rootElem);
   }
-  // TODO Refactor/rework. Unclear why, but setTimeout this is necessary.
-  setTimeout(function () {
-    self._rawRootElem$.onNext(rootElem);
-  }, 0);
+  // TODO Refactor/rework. Unclear why, but this setTimeout is necessary.
+  setTimeout(() => self._rawRootElem$.onNext(rootElem), 0);
   // Reactively render the vtree$ into the rootElem
   return vtree$
     .startWith(VDOM.h())
@@ -91,17 +89,15 @@ DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
       return self._replaceCustomElements(vtree);
     })
     .pairwise()
-    .subscribe(function renderDiffAndPatch(pair) {
-      var oldVTree = pair[0];
-      var newVTree = pair[1];
+    .subscribe(function renderDiffAndPatch([oldVTree, newVTree]) {
       if (typeof newVTree === 'undefined') { return; }
 
-      var arrayOfAll = getArrayOfAllWidgetRootElemStreams(newVTree);
+      let arrayOfAll = getArrayOfAllWidgetRootElemStreams(newVTree);
       if (arrayOfAll.length > 0) {
         Rx.Observable.combineLatest(arrayOfAll, function () { return 0; }).first()
           .subscribe(function () { self._rawRootElem$.onNext(rootElem); });
       }
-      var cycleCustomElementProperties = rootElem.cycleCustomElementProperties;
+      let cycleCustomElementProperties = rootElem.cycleCustomElementProperties;
       try {
         rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
       } catch (err) {
@@ -119,14 +115,14 @@ DOMUser.prototype._replaceCustomElements = function replaceCustomElements(vtree)
   if (!vtree || !DOMUser._customElements || vtree.type === 'VirtualText') {
     return vtree;
   }
-  var tagName = (vtree.tagName || '').toUpperCase();
+  let tagName = (vtree.tagName || '').toUpperCase();
   // Replace vtree itself
   if (tagName && DOMUser._customElements.hasOwnProperty(tagName)) {
     return new DOMUser._customElements[tagName](vtree);
   }
   // Or replace children recursively
   if (Array.isArray(vtree.children)) {
-    for (var i = vtree.children.length - 1; i >= 0; i--) {
+    for (let i = vtree.children.length - 1; i >= 0; i--) {
       vtree.children[i] = this._replaceCustomElements(vtree.children[i]);
     }
   }
@@ -147,11 +143,11 @@ DOMUser.prototype.event$ = function event$(selector, eventName) {
     if (!rootElem) {
       return Rx.Observable.empty();
     }
-    var klass = selector.replace('.', '');
+    let klass = selector.replace('.', '');
     if (rootElem.className.search(new RegExp('\\b' + klass + '\\b')) >= 0) {
       return Rx.Observable.fromEvent(rootElem, eventName);
     }
-    var targetElements = rootElem.querySelectorAll(selector);
+    let targetElements = rootElem.querySelectorAll(selector);
     if (targetElements && targetElements.length > 0) {
       return Rx.Observable.fromEvent(targetElements, eventName);
     } else {
@@ -171,7 +167,7 @@ DOMUser.registerCustomElement = function registerCustomElement(tagName, definiti
       'for the DOMUser because that tagName is already registered.');
   }
 
-  var WidgetClass = CustomElements.makeConstructor();
+  let WidgetClass = CustomElements.makeConstructor();
   WidgetClass.prototype.init = CustomElements.makeInit(tagName, definitionFn);
   WidgetClass.prototype.update = CustomElements.makeUpdate();
   DOMUser._customElements = DOMUser._customElements || {};

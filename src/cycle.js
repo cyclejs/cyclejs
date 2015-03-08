@@ -1,11 +1,11 @@
 'use strict';
-var VirtualDOM = require('virtual-dom');
-var Rx = require('rx');
-var DataFlowNode = require('./data-flow-node');
-var DataFlowSource = require('./data-flow-source');
-var DataFlowSink = require('./data-flow-sink');
-var DOMUser = require('./dom-user');
-var PropertyHook = require('./property-hook');
+let VirtualDOM = require('virtual-dom');
+let Rx = require('rx');
+let DataFlowNode = require('./data-flow-node');
+let DataFlowSource = require('./data-flow-source');
+let DataFlowSink = require('./data-flow-sink');
+let DOMUser = require('./dom-user');
+let PropertyHook = require('./property-hook');
 
 var Cycle = {
   /**

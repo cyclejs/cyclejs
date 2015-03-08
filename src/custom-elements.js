@@ -1,7 +1,7 @@
 'use strict';
-var InputProxy = require('./input-proxy');
-var Utils = require('./utils');
-var Rx = require('rx');
+let InputProxy = require('./input-proxy');
+let Utils = require('./utils');
+let Rx = require('rx');
 
 function makeDispatchFunction(element, eventName) {
   return function dispatchCustomEvent(evData) {
@@ -21,12 +21,12 @@ function subscribeDispatchers(element, eventStreams) {
   if (!eventStreams || typeof eventStreams !== 'object') { return; }
 
   var disposables = new Rx.CompositeDisposable();
-  for (var streamName in eventStreams) { if (eventStreams.hasOwnProperty(streamName)) {
+  for (let streamName in eventStreams) { if (eventStreams.hasOwnProperty(streamName)) {
     if (Utils.endsWithDollarSign(streamName) &&
       typeof eventStreams[streamName].subscribe === 'function')
     {
-      var eventName = streamName.slice(0, -1);
-      var disposable = eventStreams[streamName].subscribe(
+      let eventName = streamName.slice(0, -1);
+      let disposable = eventStreams[streamName].subscribe(
         makeDispatchFunction(element, eventName)
       );
       disposables.add(disposable);
@@ -38,7 +38,7 @@ function subscribeDispatchers(element, eventStreams) {
 function subscribeDispatchersWhenRootChanges(widget, eventStreams) {
   widget._rootElem$
     .distinctUntilChanged(Rx.helpers.identity,
-      function comparer(x, y) { return x && y && x.isEqualNode && x.isEqualNode(y); }
+      (x, y) => (x && y && x.isEqualNode && x.isEqualNode(y))
     )
     .subscribe(function (rootElem) {
       if (widget.eventStreamsSubscriptions) {
@@ -49,10 +49,10 @@ function subscribeDispatchersWhenRootChanges(widget, eventStreams) {
 }
 
 function makeInputPropertiesProxy() {
-  var inputProxy = new InputProxy();
-  var oldGet = inputProxy.get;
+  let inputProxy = new InputProxy();
+  let oldGet = inputProxy.get;
   inputProxy.get = function get(streamName) {
-    var result = oldGet.call(this, streamName);
+    let result = oldGet.call(this, streamName);
     if (result && result.distinctUntilChanged) {
       return result.distinctUntilChanged();
     } else {
@@ -63,7 +63,7 @@ function makeInputPropertiesProxy() {
 }
 
 function createContainerElement(tagName, vtreeProperties) {
-  var elem = document.createElement('div');
+  let elem = document.createElement('div');
   elem.className = vtreeProperties.className || '';
   elem.id = vtreeProperties.id || '';
   elem.className += ' cycleCustomElement-' + tagName.toUpperCase();
@@ -72,7 +72,7 @@ function createContainerElement(tagName, vtreeProperties) {
 }
 
 function replicateUserRootElem$(user, widget) {
-  user._rootElem$.subscribe(function (elem) { widget._rootElem$.onNext(elem); });
+  user._rootElem$.subscribe(elem => widget._rootElem$.onNext(elem));
 }
 
 function makeConstructor() {
@@ -84,12 +84,12 @@ function makeConstructor() {
 }
 
 function makeInit(tagName, definitionFn) {
-  var DOMUser = require('./dom-user');
+  let DOMUser = require('./dom-user');
   return function initCustomElement() {
-    var widget = this;
-    var element = createContainerElement(tagName, widget.properties);
-    var user = new DOMUser(element);
-    var eventStreams = definitionFn(user, element.cycleCustomElementProperties);
+    let widget = this;
+    let element = createContainerElement(tagName, widget.properties);
+    let user = new DOMUser(element);
+    let eventStreams = definitionFn(user, element.cycleCustomElementProperties);
     widget._rootElem$ = new Rx.ReplaySubject(1);
     replicateUserRootElem$(user, widget);
     widget.eventStreamsSubscriptions = subscribeDispatchers(element, eventStreams);
@@ -106,10 +106,10 @@ function makeUpdate() {
     if (!(elem.cycleCustomElementProperties instanceof InputProxy)) { return; }
     if (!elem.cycleCustomElementProperties.proxiedProps) { return; }
 
-    var proxiedProps = elem.cycleCustomElementProperties.proxiedProps;
-    for (var prop in proxiedProps) { if (proxiedProps.hasOwnProperty(prop)) {
-      var propStreamName = prop;
-      var propName = prop.slice(0, -1);
+    let proxiedProps = elem.cycleCustomElementProperties.proxiedProps;
+    for (let prop in proxiedProps) { if (proxiedProps.hasOwnProperty(prop)) {
+      let propStreamName = prop;
+      let propName = prop.slice(0, -1);
       if (this.properties.hasOwnProperty(propName)) {
         proxiedProps[propStreamName].onNext(this.properties[propName]);
       }
