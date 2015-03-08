@@ -26,7 +26,7 @@
     "jscs": "1.11.x",
     "jshint": "2.6.x",
     "markdox": "0.1.8",
-    "mocha": "2.1.x",
+    "mocha": "2.2.x",
     "mocha-phantomjs": "3.5.3",
     "phantomjs": "1.9.15",
     "uglify-js": "2.4.16"
