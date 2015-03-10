@@ -135,7 +135,7 @@ forever, either. ;)
 
 Prior to v1.0.0, the versions will follow the convention: improvements that break backwards
 compatibility increment the minor number, any other improvements will increment the patch
-number. After v1.0.0, we will follow [http://semver.org/](semver).
+number. After v1.0.0, we will follow [semver](http://semver.org/).
 
 ## Acknowledgements
 
