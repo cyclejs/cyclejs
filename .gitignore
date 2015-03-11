@@ -9,6 +9,7 @@ node_modules
 
 # Generated
 test/phantomjs/browserified-tests.js
+lib/
 
 # Misc
 ignore
