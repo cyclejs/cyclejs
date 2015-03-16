@@ -25,10 +25,6 @@ class DataFlowNode {
     return this._output[streamName] || null;
   }
 
-  clone() {
-    return new DataFlowNode(this._definitionFn);
-  }
-
   inject() {
     if (this._wasInjected) {
       console.warn('DataFlowNode has already been injected an input.');

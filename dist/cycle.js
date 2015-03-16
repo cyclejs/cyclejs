@@ -13968,11 +13968,6 @@ var DataFlowNode = (function () {
         return this._output[streamName] || null;
       }
     },
-    clone: {
-      value: function clone() {
-        return new DataFlowNode(this._definitionFn);
-      }
-    },
     inject: {
       value: function inject() {
         if (this._wasInjected) {

@@ -24,23 +24,6 @@ describe('createView', function () {
     view.inject();
   });
 
-  it('should be cloneable', function (done) {
-    var view = Cycle.createIntent(function (input) {
-      return {
-        vtree$: input.get('foo$').map(function () { return Cycle.h('div', 'bar'); })
-      };
-    });
-    var clone = view.clone();
-    clone.get('vtree$').subscribe(function (x) {
-      assert.strictEqual(typeof x, 'object');
-      assert.strictEqual(x.tagName, 'DIV');
-      assert.strictEqual(x.children[0].text, 'bar');
-      done();
-    });
-    view.inject({foo$: Rx.Observable.just('foo')});
-    clone.inject({foo$: Rx.Observable.just('foo')});
-  });
-
   it('should throw error if `vtree$` is not outputted', function () {
     assert.throws(function () {
       Cycle.createView(function (input) {

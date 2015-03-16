@@ -98,17 +98,13 @@ then the object `dataFlowNode` will contain the following properties:
 
 ```javascript
 {
-  baz$ // Rx.Observable
+  get // Function (given a string, returns Rx.Observable)
   inject // Function
-  clone // Function
 }
 ```
 
 ## Common pitfalls
 
-- **Trying to reuse a DataFlowNode.** A `DataFlowNode` can only represent one instance
-  of its output object. To reuse a DataFlowNode, call `clone()` on it to get another
-  `DataFlowNode` (in essence, a different output).
 - **Calling `inject` twice.** It should be called only once.
 - **Using input properties not defined in `inputInterface`**. If you use `input.foo$`
   inside `definitionFn`, and `'foo$'` is not in the given `inputInterface` array, then

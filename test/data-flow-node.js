@@ -29,9 +29,8 @@ describe('DataFlowNode', function () {
       assert.equal(typeof dataFlowNode, 'object');
     });
 
-    it('should return an object with clone(), inject(), get()', function () {
+    it('should return an object with inject(), get()', function () {
       var dataFlowNode = new DataFlowNode(function () { return {}; });
-      assert.equal(typeof dataFlowNode.clone, 'function');
       assert.equal(typeof dataFlowNode.inject, 'function');
       assert.equal(typeof dataFlowNode.get, 'function');
     });
@@ -105,12 +104,13 @@ describe('DataFlowNode', function () {
     });
 
     it('should work also for a clone, in the simple output case', function (done) {
-      var dataFlowNode = new DataFlowNode(function (input) {
+      var definitionFn = function definitionFn(input) {
         return {
           bar$: input.get('foo$').map(function () { return 'bar'; })
         };
-      });
-      var cloned = dataFlowNode.clone();
+      };
+      var dataFlowNode = new DataFlowNode(definitionFn);
+      var cloned = new DataFlowNode(definitionFn);
       cloned.get('bar$').subscribe(function (x) {
         assert.strictEqual(x, 'bar');
         done();
@@ -119,12 +119,13 @@ describe('DataFlowNode', function () {
     });
 
     it('should be independent to injection in clones', function (done) {
-      var dataFlowNode = new DataFlowNode(function (input) {
+      var definitionFn = function definitionFn(input) {
         return {
           sum$: input.get('number$').map(function (x) { return x + 100; })
         };
-      });
-      var cloned = dataFlowNode.clone();
+      };
+      var dataFlowNode = new DataFlowNode(definitionFn);
+      var cloned = new DataFlowNode(definitionFn);
       Rx.Observable.zip(dataFlowNode.get('sum$'), cloned.get('sum$'), function (x, y) {
         return [x, y];
       }).subscribe(function (args) {
