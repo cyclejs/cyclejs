@@ -49,19 +49,4 @@ describe('createIntent', function () {
     });
     intent.inject({x$: Rx.Observable.just(9)}, {y$: Rx.Observable.just(6)});
   });
-
-  it('should be cloneable', function (done) {
-    var intent = Cycle.createIntent(function (input) {
-      return {
-        bar$: input.get('foo$').map(function () { return 'bar'; })
-      };
-    });
-    var clone = intent.clone();
-    clone.get('bar$').subscribe(function (x) {
-      assert.strictEqual(x, 'bar');
-      done();
-    });
-    intent.inject({foo$: Rx.Observable.just('foo')});
-    clone.inject({foo$: Rx.Observable.just('foo')});
-  });
 });
