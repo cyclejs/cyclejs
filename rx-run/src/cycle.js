@@ -4,7 +4,10 @@ let Rx = require('rx');
 let DataFlowNode = require('./data-flow-node');
 let DataFlowSource = require('./data-flow-source');
 let DataFlowSink = require('./data-flow-sink');
+let Model = require('./model');
+let View = require('./view');
 let DOMUser = require('./dom-user');
+let Intent = require('./intent');
 let PropertyHook = require('./property-hook');
 
 var Cycle = {
@@ -60,7 +63,9 @@ var Cycle = {
    * `inject(intent)` function.
    * @function createModel
    */
-  createModel: require('./create-model'),
+  createModel: function createModel(definitionFn) {
+    return new Model(definitionFn);
+  },
 
   /**
    * Returns a DataFlowNode representing a View, having some Model as input.
@@ -75,7 +80,9 @@ var Cycle = {
    * `inject(model)` function.
    * @function createView
    */
-  createView: require('./create-view'),
+  createView: function createView(definitionFn) {
+    return new View(definitionFn);
+  },
 
   /**
    * Returns a DataFlowNode representing an Intent, having some View as input.
@@ -88,7 +95,9 @@ var Cycle = {
    * `inject(view)` function.
    * @function createIntent
    */
-  createIntent: require('./create-intent'),
+  createIntent: function createIntent(definitionFn) {
+    return new Intent(definitionFn);
+  },
 
   /**
    * Returns a DOMUser (a DataFlowNode) bound to a DOM container element. Contains an
