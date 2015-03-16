@@ -13950,6 +13950,7 @@ var DataFlowNode = (function () {
     if (arguments.length !== 1 || typeof definitionFn !== "function") {
       throw new Error("DataFlowNode expects the definitionFn as the only argument.");
     }
+
     this.type = "DataFlowNode";
     this._definitionFn = definitionFn;
     this._proxies = [];
@@ -14065,58 +14066,92 @@ module.exports = DataFlowNode;
 },{"./errors":58,"./input-proxy":59,"rx":16}],55:[function(require,module,exports){
 "use strict";
 
-function makeLightweightInputProxies(args) {
-  return Array.prototype.slice.call(args).map(function (arg) {
-    return {
-      get: function get(streamName) {
-        if (typeof arg.get === "function") {
-          return arg.get(streamName);
-        } else {
-          return arg[streamName] || null;
-        }
-      }
-    };
-  });
-}
+var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-function DataFlowSink(definitionFn) {
-  if (arguments.length !== 1) {
-    throw new Error("DataFlowSink expects only one argument: the definition function.");
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
+var DataFlowSink = (function () {
+  function DataFlowSink(definitionFn) {
+    _classCallCheck(this, DataFlowSink);
+
+    if (arguments.length !== 1) {
+      throw new Error("DataFlowSink expects only one argument: the definition function.");
+    }
+    if (typeof definitionFn !== "function") {
+      throw new Error("DataFlowSink expects the argument to be the definition function.");
+    }
+
+    definitionFn.displayName += "(DataFlowSink defFn)";
+    this.type = "DataFlowSink";
+    this._definitionFn = definitionFn;
   }
-  if (typeof definitionFn !== "function") {
-    throw new Error("DataFlowSink expects the argument to be the definition function.");
-  }
-  definitionFn.displayName += "(DataFlowSink defFn)";
-  this.inject = function injectIntoDataFlowSink() {
-    var proxies = makeLightweightInputProxies(arguments);
-    return definitionFn.apply({}, proxies);
-  };
-  return this;
-}
+
+  _createClass(DataFlowSink, {
+    inject: {
+      value: function inject() {
+        var proxies = DataFlowSink.makeLightweightInputProxies(arguments);
+        return this._definitionFn.apply({}, proxies);
+      }
+    }
+  }, {
+    makeLightweightInputProxies: {
+      value: function makeLightweightInputProxies(args) {
+        return Array.prototype.slice.call(args).map(function (arg) {
+          return {
+            get: function get(streamName) {
+              if (typeof arg.get === "function") {
+                return arg.get(streamName);
+              } else {
+                return arg[streamName] || null;
+              }
+            }
+          };
+        });
+      }
+    }
+  });
+
+  return DataFlowSink;
+})();
 
 module.exports = DataFlowSink;
 
 },{}],56:[function(require,module,exports){
 "use strict";
 
-function DataFlowSource(outputObject) {
-  if (arguments.length !== 1) {
-    throw new Error("DataFlowSource expects only one argument: the output object.");
-  }
-  if (typeof outputObject !== "object") {
-    throw new Error("DataFlowSource expects the constructor argument to be the " + "output object.");
-  }
+var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-  for (var key in outputObject) {
-    if (outputObject.hasOwnProperty(key)) {
-      this[key] = outputObject[key];
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
+var DataFlowSource = (function () {
+  function DataFlowSource(outputObject) {
+    _classCallCheck(this, DataFlowSource);
+
+    if (arguments.length !== 1) {
+      throw new Error("DataFlowSource expects only one argument: the output object.");
+    }
+    if (typeof outputObject !== "object") {
+      throw new Error("DataFlowSource expects the constructor argument to be the " + "output object.");
+    }
+
+    this.type = "DataFlowSource";
+    for (var key in outputObject) {
+      if (outputObject.hasOwnProperty(key)) {
+        this[key] = outputObject[key];
+      }
     }
   }
-  this.inject = function injectDataFlowSource() {
-    throw new Error("A DataFlowSource cannot be injected. Use a DataFlowNode instead.");
-  };
-  return this;
-}
+
+  _createClass(DataFlowSource, {
+    inject: {
+      value: function inject() {
+        throw new Error("A DataFlowSource cannot be injected. Use a DataFlowNode instead.");
+      }
+    }
+  });
+
+  return DataFlowSource;
+})();
 
 module.exports = DataFlowSource;
 
@@ -14124,6 +14159,14 @@ module.exports = DataFlowSource;
 "use strict";
 
 var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) { _arr.push(_step.value); if (i && _arr.length === i) break; } return _arr; } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(object, property, receiver) { var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc && desc.writable) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _inherits = function (subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; };
+
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
 
 var VDOM = {
   h: require("virtual-dom").h,
@@ -14134,168 +14177,186 @@ var Rx = require("rx");
 var DataFlowNode = require("./data-flow-node");
 var CustomElements = require("./custom-elements");
 
-function isElement(o) {
-  return typeof HTMLElement === "object" ? o instanceof HTMLElement || o instanceof DocumentFragment : //DOM2
-  o && typeof o === "object" && o !== null && (o.nodeType === 1 || o.nodeType === 11) && typeof o.nodeName === "string";
-}
+var DOMUser = (function (_DataFlowNode) {
+  function DOMUser(container) {
+    var _this = this;
 
-function getArrayOfAllWidgetRootElemStreams(vtree) {
-  if (vtree.type === "Widget" && vtree._rootElem$) {
-    return [vtree._rootElem$];
-  }
-  // Or replace children recursively
-  var array = [];
-  if (Array.isArray(vtree.children)) {
-    for (var i = vtree.children.length - 1; i >= 0; i--) {
-      array = array.concat(getArrayOfAllWidgetRootElemStreams(vtree.children[i]));
+    _classCallCheck(this, DOMUser);
+
+    this.type = "DOMUser";
+    // Find and prepare the container
+    this._domContainer = typeof container === "string" ? document.querySelector(container) : container;
+    // Check pre-conditions
+    if (typeof container === "string" && this._domContainer === null) {
+      throw new Error("Cannot render into unknown element '" + container + "'");
+    } else if (!DOMUser._isElement(this._domContainer)) {
+      throw new Error("Given container is not a DOM element neither a selector string.");
     }
-  }
-  return array;
-}
-
-function defineRootElemStream(user) {
-  // Create rootElem stream and automatic className correction
-  var originalClasses = (user._domContainer.className || "").trim().split(/\s+/);
-  user._rawRootElem$ = new Rx.Subject();
-  user._rootElem$ = user._rawRootElem$.map(function fixRootElemClassName(rootElem) {
-    var previousClasses = rootElem.className.trim().split(/\s+/);
-    var missingClasses = originalClasses.filter(function (clss) {
-      return previousClasses.indexOf(clss) < 0;
+    this._defineRootElemStream();
+    // Create DataFlowNode with rendering logic
+    _get(Object.getPrototypeOf(DOMUser.prototype), "constructor", this).call(this, function (view) {
+      _this._renderEvery(view.get("vtree$"));
+      return {};
     });
-    rootElem.className = previousClasses.concat(missingClasses).join(" ");
-    return rootElem;
-  }).shareReplay(1);
-}
-
-function DOMUser(container) {
-  var _this = this;
-
-  // Find and prepare the container
-  this._domContainer = typeof container === "string" ? document.querySelector(container) : container;
-  // Check pre-conditions
-  if (typeof container === "string" && this._domContainer === null) {
-    throw new Error("Cannot render into unknown element '" + container + "'");
-  } else if (!isElement(this._domContainer)) {
-    throw new Error("Given container is not a DOM element neither a selector string.");
   }
-  defineRootElemStream(this);
-  // Create DataFlowNode with rendering logic
-  DataFlowNode.call(this, function (view) {
-    _this._renderEvery(view.get("vtree$"));
-    return {};
+
+  _inherits(DOMUser, _DataFlowNode);
+
+  _createClass(DOMUser, {
+    _renderEvery: {
+      value: function _renderEvery(vtree$) {
+        var self = this;
+        // Select the correct rootElem
+        var rootElem = undefined;
+        if (self._domContainer.cycleCustomElementProperties) {
+          rootElem = self._domContainer;
+        } else {
+          rootElem = document.createElement("div");
+          self._domContainer.innerHTML = "";
+          self._domContainer.appendChild(rootElem);
+        }
+        // TODO Refactor/rework. Unclear why, but this setTimeout is necessary.
+        setTimeout(function () {
+          return self._rawRootElem$.onNext(rootElem);
+        }, 0);
+        // Reactively render the vtree$ into the rootElem
+        return vtree$.startWith(VDOM.h()).map(function renderingPreprocessing(vtree) {
+          return self._replaceCustomElements(vtree);
+        }).pairwise().subscribe(function renderDiffAndPatch(_ref) {
+          var _ref2 = _slicedToArray(_ref, 2);
+
+          var oldVTree = _ref2[0];
+          var newVTree = _ref2[1];
+
+          if (typeof newVTree === "undefined") {
+            return;
+          }
+
+          var arrayOfAll = DOMUser._getArrayOfAllWidgetRootElemStreams(newVTree);
+          if (arrayOfAll.length > 0) {
+            Rx.Observable.combineLatest(arrayOfAll, function () {
+              return 0;
+            }).first().subscribe(function () {
+              self._rawRootElem$.onNext(rootElem);
+            });
+          }
+          var cycleCustomElementProperties = rootElem.cycleCustomElementProperties;
+          try {
+            rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
+          } catch (err) {
+            console.error(err);
+          }
+          rootElem.cycleCustomElementProperties = cycleCustomElementProperties;
+          if (arrayOfAll.length === 0) {
+            self._rawRootElem$.onNext(rootElem);
+          }
+        });
+      }
+    },
+    _defineRootElemStream: {
+      value: function _defineRootElemStream() {
+        // Create rootElem stream and automatic className correction
+        var originalClasses = (this._domContainer.className || "").trim().split(/\s+/);
+        this._rawRootElem$ = new Rx.Subject();
+        this._rootElem$ = this._rawRootElem$.map(function fixRootElemClassName(rootElem) {
+          var previousClasses = rootElem.className.trim().split(/\s+/);
+          var missingClasses = originalClasses.filter(function (clss) {
+            return previousClasses.indexOf(clss) < 0;
+          });
+          rootElem.className = previousClasses.concat(missingClasses).join(" ");
+          return rootElem;
+        }).shareReplay(1);
+      }
+    },
+    _replaceCustomElements: {
+      value: function _replaceCustomElements(vtree) {
+        // Silently ignore corner cases
+        if (!vtree || !DOMUser._customElements || vtree.type === "VirtualText") {
+          return vtree;
+        }
+        var tagName = (vtree.tagName || "").toUpperCase();
+        // Replace vtree itself
+        if (tagName && DOMUser._customElements.hasOwnProperty(tagName)) {
+          return new DOMUser._customElements[tagName](vtree);
+        }
+        // Or replace children recursively
+        if (Array.isArray(vtree.children)) {
+          for (var i = vtree.children.length - 1; i >= 0; i--) {
+            vtree.children[i] = this._replaceCustomElements(vtree.children[i]);
+          }
+        }
+        return vtree;
+      }
+    },
+    event$: {
+      value: function event$(selector, eventName) {
+        if (typeof selector !== "string") {
+          throw new Error("DOMUser.event$ expects first argument to be a string as a " + "CSS selector");
+        }
+        if (typeof eventName !== "string") {
+          throw new Error("DOMUser.event$ expects second argument to be a string " + "representing the event type to listen for.");
+        }
+
+        return this._rootElem$.flatMapLatest(function flatMapDOMUserEventStream(rootElem) {
+          if (!rootElem) {
+            return Rx.Observable.empty();
+          }
+          var klass = selector.replace(".", "");
+          if (rootElem.className.search(new RegExp("\\b" + klass + "\\b")) >= 0) {
+            return Rx.Observable.fromEvent(rootElem, eventName);
+          }
+          var targetElements = rootElem.querySelectorAll(selector);
+          if (targetElements && targetElements.length > 0) {
+            return Rx.Observable.fromEvent(targetElements, eventName);
+          } else {
+            return Rx.Observable.empty();
+          }
+        });
+      }
+    }
+  }, {
+    _isElement: {
+      value: function _isElement(o) {
+        return typeof HTMLElement === "object" ? o instanceof HTMLElement || o instanceof DocumentFragment : //DOM2
+        o && typeof o === "object" && o !== null && (o.nodeType === 1 || o.nodeType === 11) && typeof o.nodeName === "string";
+      }
+    },
+    _getArrayOfAllWidgetRootElemStreams: {
+      value: function _getArrayOfAllWidgetRootElemStreams(vtree) {
+        if (vtree.type === "Widget" && vtree._rootElem$) {
+          return [vtree._rootElem$];
+        }
+        // Or replace children recursively
+        var array = [];
+        if (Array.isArray(vtree.children)) {
+          for (var i = vtree.children.length - 1; i >= 0; i--) {
+            array = array.concat(DOMUser._getArrayOfAllWidgetRootElemStreams(vtree.children[i]));
+          }
+        }
+        return array;
+      }
+    },
+    registerCustomElement: {
+      value: function registerCustomElement(tagName, definitionFn) {
+        if (typeof tagName !== "string" || typeof definitionFn !== "function") {
+          throw new Error("registerCustomElement requires parameters `tagName` and " + "`definitionFn`.");
+        }
+        tagName = tagName.toUpperCase();
+        if (DOMUser._customElements && DOMUser._customElements.hasOwnProperty(tagName)) {
+          throw new Error("Cannot register custom element `" + tagName + "` " + "for the DOMUser because that tagName is already registered.");
+        }
+
+        var WidgetClass = CustomElements.makeConstructor();
+        WidgetClass.prototype.init = CustomElements.makeInit(tagName, definitionFn);
+        WidgetClass.prototype.update = CustomElements.makeUpdate();
+        DOMUser._customElements = DOMUser._customElements || {};
+        DOMUser._customElements[tagName] = WidgetClass;
+      }
+    }
   });
-}
 
-DOMUser.prototype = Object.create(DataFlowNode.prototype);
-
-DOMUser.prototype._renderEvery = function renderEvery(vtree$) {
-  var self = this;
-  // Select the correct rootElem
-  var rootElem = undefined;
-  if (self._domContainer.cycleCustomElementProperties) {
-    rootElem = self._domContainer;
-  } else {
-    rootElem = document.createElement("div");
-    self._domContainer.innerHTML = "";
-    self._domContainer.appendChild(rootElem);
-  }
-  // TODO Refactor/rework. Unclear why, but this setTimeout is necessary.
-  setTimeout(function () {
-    return self._rawRootElem$.onNext(rootElem);
-  }, 0);
-  // Reactively render the vtree$ into the rootElem
-  return vtree$.startWith(VDOM.h()).map(function renderingPreprocessing(vtree) {
-    return self._replaceCustomElements(vtree);
-  }).pairwise().subscribe(function renderDiffAndPatch(_ref) {
-    var _ref2 = _slicedToArray(_ref, 2);
-
-    var oldVTree = _ref2[0];
-    var newVTree = _ref2[1];
-
-    if (typeof newVTree === "undefined") {
-      return;
-    }
-
-    var arrayOfAll = getArrayOfAllWidgetRootElemStreams(newVTree);
-    if (arrayOfAll.length > 0) {
-      Rx.Observable.combineLatest(arrayOfAll, function () {
-        return 0;
-      }).first().subscribe(function () {
-        self._rawRootElem$.onNext(rootElem);
-      });
-    }
-    var cycleCustomElementProperties = rootElem.cycleCustomElementProperties;
-    try {
-      rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
-    } catch (err) {
-      console.error(err);
-    }
-    rootElem.cycleCustomElementProperties = cycleCustomElementProperties;
-    if (arrayOfAll.length === 0) {
-      self._rawRootElem$.onNext(rootElem);
-    }
-  });
-};
-
-DOMUser.prototype._replaceCustomElements = function replaceCustomElements(vtree) {
-  // Silently ignore corner cases
-  if (!vtree || !DOMUser._customElements || vtree.type === "VirtualText") {
-    return vtree;
-  }
-  var tagName = (vtree.tagName || "").toUpperCase();
-  // Replace vtree itself
-  if (tagName && DOMUser._customElements.hasOwnProperty(tagName)) {
-    return new DOMUser._customElements[tagName](vtree);
-  }
-  // Or replace children recursively
-  if (Array.isArray(vtree.children)) {
-    for (var i = vtree.children.length - 1; i >= 0; i--) {
-      vtree.children[i] = this._replaceCustomElements(vtree.children[i]);
-    }
-  }
-  return vtree;
-};
-
-DOMUser.prototype.event$ = function event$(selector, eventName) {
-  if (typeof selector !== "string") {
-    throw new Error("DOMUser.event$ expects first argument to be a string as a " + "CSS selector");
-  }
-  if (typeof eventName !== "string") {
-    throw new Error("DOMUser.event$ expects second argument to be a string " + "representing the event type to listen for.");
-  }
-
-  return this._rootElem$.flatMapLatest(function flatMapDOMUserEventStream(rootElem) {
-    if (!rootElem) {
-      return Rx.Observable.empty();
-    }
-    var klass = selector.replace(".", "");
-    if (rootElem.className.search(new RegExp("\\b" + klass + "\\b")) >= 0) {
-      return Rx.Observable.fromEvent(rootElem, eventName);
-    }
-    var targetElements = rootElem.querySelectorAll(selector);
-    if (targetElements && targetElements.length > 0) {
-      return Rx.Observable.fromEvent(targetElements, eventName);
-    } else {
-      return Rx.Observable.empty();
-    }
-  });
-};
-
-DOMUser.registerCustomElement = function registerCustomElement(tagName, definitionFn) {
-  if (typeof tagName !== "string" || typeof definitionFn !== "function") {
-    throw new Error("registerCustomElement requires parameters `tagName` and " + "`definitionFn`.");
-  }
-  tagName = tagName.toUpperCase();
-  if (DOMUser._customElements && DOMUser._customElements.hasOwnProperty(tagName)) {
-    throw new Error("Cannot register custom element `" + tagName + "` " + "for the DOMUser because that tagName is already registered.");
-  }
-
-  var WidgetClass = CustomElements.makeConstructor();
-  WidgetClass.prototype.init = CustomElements.makeInit(tagName, definitionFn);
-  WidgetClass.prototype.update = CustomElements.makeUpdate();
-  DOMUser._customElements = DOMUser._customElements || {};
-  DOMUser._customElements[tagName] = WidgetClass;
-};
+  return DOMUser;
+})(DataFlowNode);
 
 module.exports = DOMUser;
 
@@ -14337,6 +14398,7 @@ var InputProxy = (function () {
   function InputProxy() {
     _classCallCheck(this, InputProxy);
 
+    this.type = "InputProxy";
     this.proxiedProps = {};
   }
 
