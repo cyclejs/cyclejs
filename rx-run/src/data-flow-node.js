@@ -9,6 +9,7 @@ class DataFlowNode {
     if (arguments.length !== 1 || typeof definitionFn !== 'function') {
       throw new Error('DataFlowNode expects the definitionFn as the only argument.');
     }
+
     this.type = 'DataFlowNode';
     this._definitionFn = definitionFn;
     this._proxies = [];

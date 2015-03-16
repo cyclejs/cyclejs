@@ -1,34 +1,39 @@
 'use strict';
 
-function makeLightweightInputProxies(args) {
-  return Array.prototype
-    .slice.call(args)
-    .map(function (arg) {
-      return {
-        get: function get(streamName) {
-          if (typeof arg.get === 'function') {
-            return arg.get(streamName);
-          } else {
-            return arg[streamName] || null;
-          }
-        }
-      };
-    });
-}
+class DataFlowSink {
+  constructor(definitionFn) {
+    if (arguments.length !== 1) {
+      throw new Error('DataFlowSink expects only one argument: the definition function.');
+    }
+    if (typeof definitionFn !== 'function') {
+      throw new Error('DataFlowSink expects the argument to be the definition function.');
+    }
 
-function DataFlowSink(definitionFn) {
-  if (arguments.length !== 1) {
-    throw new Error('DataFlowSink expects only one argument: the definition function.');
+    definitionFn.displayName += '(DataFlowSink defFn)';
+    this.type = 'DataFlowSink';
+    this._definitionFn = definitionFn;
   }
-  if (typeof definitionFn !== 'function') {
-    throw new Error('DataFlowSink expects the argument to be the definition function.');
+
+  inject() {
+    let proxies = DataFlowSink.makeLightweightInputProxies(arguments);
+    return this._definitionFn.apply({}, proxies);
   }
-  definitionFn.displayName += '(DataFlowSink defFn)';
-  this.inject = function injectIntoDataFlowSink() {
-    let proxies = makeLightweightInputProxies(arguments);
-    return definitionFn.apply({}, proxies);
-  };
-  return this;
+
+  static makeLightweightInputProxies(args) {
+    return Array.prototype
+      .slice.call(args)
+      .map(arg =>
+        ({
+          get(streamName) {
+            if (typeof arg.get === 'function') {
+              return arg.get(streamName);
+            } else {
+              return arg[streamName] || null;
+            }
+          }
+        })
+      );
+  }
 }
 
 module.exports = DataFlowSink;
