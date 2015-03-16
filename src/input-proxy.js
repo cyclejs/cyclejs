@@ -3,6 +3,7 @@ var Rx = require('rx');
 
 class InputProxy {
   constructor() {
+    this.type = 'InputProxy';
     this.proxiedProps = {};
   }
 
