@@ -13576,108 +13576,15 @@ function appendPatch(apply, patch) {
 },{"../vnode/handle-thunk":39,"../vnode/is-thunk":40,"../vnode/is-vnode":42,"../vnode/is-vtext":43,"../vnode/is-widget":44,"../vnode/vpatch":47,"./diff-props":49,"x-is-array":27}],51:[function(require,module,exports){
 "use strict";
 
-var DataFlowNode = require("./data-flow-node");
-var errors = require("./errors");
-
-function createIntent(definitionFn) {
-  var intent = new DataFlowNode(definitionFn);
-  intent = errors.customInterfaceErrorMessageInInject(intent, "Intent expects View to have the required property ");
-  intent.clone = function cloneIntent() {
-    return createIntent(definitionFn);
-  };
-  return intent;
-}
-
-module.exports = createIntent;
-
-},{"./data-flow-node":56,"./errors":60}],52:[function(require,module,exports){
-"use strict";
-
-var DataFlowNode = require("./data-flow-node");
-var errors = require("./errors");
-
-function createModel(definitionFn) {
-  var model = new DataFlowNode(definitionFn);
-  model = errors.customInterfaceErrorMessageInInject(model, "Model expects Intent to have the required property ");
-  model.clone = function cloneModel() {
-    return createModel(definitionFn);
-  };
-  return model;
-}
-
-module.exports = createModel;
-
-},{"./data-flow-node":56,"./errors":60}],53:[function(require,module,exports){
-"use strict";
-
-var Rx = require("rx");
-var DataFlowNode = require("./data-flow-node");
-var errors = require("./errors");
-
-function checkVTree$(view) {
-  if (view.get("vtree$") === null || typeof view.get("vtree$").subscribe !== "function") {
-    throw new Error("View must define `vtree$` Observable emitting virtual DOM elements");
-  }
-}
-
-function throwErrorIfNotVTree(vtree) {
-  if (vtree.type !== "VirtualNode" || vtree.tagName === "undefined") {
-    throw new Error("View `vtree$` must emit only VirtualNode instances. " + "Hint: create them with Cycle.h()");
-  }
-}
-
-function getCorrectedVtree$(view) {
-  var newVtree$ = view.get("vtree$").map(function (vtree) {
-    if (vtree.type === "Widget") {
-      return vtree;
-    }
-    throwErrorIfNotVTree(vtree);
-    return vtree;
-  }).replay(null, 1);
-  newVtree$.connect();
-  return newVtree$;
-}
-
-function overrideGet(view) {
-  var oldGet = view.get;
-  var newVtree$ = getCorrectedVtree$(view); // Is here because has connect() side effect
-  view.get = function get(streamName) {
-    if (streamName === "vtree$") {
-      // Override get('vtree$')
-      return newVtree$;
-    } else if (view[streamName]) {
-      return view[streamName];
-    } else {
-      var result = oldGet.call(this, streamName);
-      if (!result) {
-        view[streamName] = new Rx.Subject();
-        return view[streamName];
-      } else {
-        return result;
-      }
-    }
-  };
-}
-
-function createView(definitionFn) {
-  var view = new DataFlowNode(definitionFn);
-  view = errors.customInterfaceErrorMessageInInject(view, "View expects Model to have the required property ");
-  checkVTree$(view);
-  overrideGet(view);
-  view.clone = function cloneView() {
-    return createView(definitionFn);
-  };
-  return view;
-}
-
-module.exports = createView;
-
-},{"./data-flow-node":56,"./errors":60,"rx":16}],54:[function(require,module,exports){
-"use strict";
-
 var InputProxy = require("./input-proxy");
-var Utils = require("./utils");
 var Rx = require("rx");
+
+function endsWithDollarSign(str) {
+  if (typeof str !== "string") {
+    return false;
+  }
+  return str.indexOf("$", str.length - 1) !== -1;
+}
 
 function makeDispatchFunction(element, eventName) {
   return function dispatchCustomEvent(evData) {
@@ -13701,7 +13608,7 @@ function subscribeDispatchers(element, eventStreams) {
   var disposables = new Rx.CompositeDisposable();
   for (var streamName in eventStreams) {
     if (eventStreams.hasOwnProperty(streamName)) {
-      if (Utils.endsWithDollarSign(streamName) && typeof eventStreams[streamName].subscribe === "function") {
+      if (endsWithDollarSign(streamName) && typeof eventStreams[streamName].subscribe === "function") {
         var eventName = streamName.slice(0, -1);
         var disposable = eventStreams[streamName].subscribe(makeDispatchFunction(element, eventName));
         disposables.add(disposable);
@@ -13809,7 +13716,7 @@ module.exports = {
   makeUpdate: makeUpdate
 };
 
-},{"./dom-user":59,"./input-proxy":61,"./utils":63,"rx":16}],55:[function(require,module,exports){
+},{"./dom-user":57,"./input-proxy":59,"rx":16}],52:[function(require,module,exports){
 "use strict";
 
 var VirtualDOM = require("virtual-dom");
@@ -13817,7 +13724,10 @@ var Rx = require("rx");
 var DataFlowNode = require("./data-flow-node");
 var DataFlowSource = require("./data-flow-source");
 var DataFlowSink = require("./data-flow-sink");
+var Model = require("./model");
+var View = require("./view");
 var DOMUser = require("./dom-user");
+var Intent = require("./intent");
 var PropertyHook = require("./property-hook");
 
 var Cycle = {
@@ -13873,7 +13783,9 @@ var Cycle = {
    * `inject(intent)` function.
    * @function createModel
    */
-  createModel: require("./create-model"),
+  createModel: function createModel(definitionFn) {
+    return new Model(definitionFn);
+  },
 
   /**
    * Returns a DataFlowNode representing a View, having some Model as input.
@@ -13888,7 +13800,9 @@ var Cycle = {
    * `inject(model)` function.
    * @function createView
    */
-  createView: require("./create-view"),
+  createView: function createView(definitionFn) {
+    return new View(definitionFn);
+  },
 
   /**
    * Returns a DataFlowNode representing an Intent, having some View as input.
@@ -13901,7 +13815,9 @@ var Cycle = {
    * `inject(view)` function.
    * @function createIntent
    */
-  createIntent: require("./create-intent"),
+  createIntent: function createIntent(definitionFn) {
+    return new Intent(definitionFn);
+  },
 
   /**
    * Returns a DOMUser (a DataFlowNode) bound to a DOM container element. Contains an
@@ -13969,129 +13885,184 @@ var Cycle = {
 
 module.exports = Cycle;
 
-},{"./create-intent":51,"./create-model":52,"./create-view":53,"./data-flow-node":56,"./data-flow-sink":57,"./data-flow-source":58,"./dom-user":59,"./property-hook":62,"rx":16,"virtual-dom":20}],56:[function(require,module,exports){
+},{"./data-flow-node":54,"./data-flow-sink":55,"./data-flow-source":56,"./dom-user":57,"./intent":60,"./model":61,"./property-hook":62,"./view":63,"rx":16,"virtual-dom":20}],53:[function(require,module,exports){
 "use strict";
+
+var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(object, property, receiver) { var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc && desc.writable) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _inherits = function (subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; };
+
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
+var DataFlowNode = require("./data-flow-node");
+var errors = require("./errors");
+var CycleInterfaceError = errors.CycleInterfaceError;
+
+var DataFlowNodeWithCustomWarning = (function (_DataFlowNode) {
+  function DataFlowNodeWithCustomWarning(definitionFn, cycleInterfaceErrorMessage) {
+    _classCallCheck(this, DataFlowNodeWithCustomWarning);
+
+    this._cycleInterfaceErrorMessage = cycleInterfaceErrorMessage;
+    _get(Object.getPrototypeOf(DataFlowNodeWithCustomWarning.prototype), "constructor", this).call(this, definitionFn);
+  }
+
+  _inherits(DataFlowNodeWithCustomWarning, _DataFlowNode);
+
+  _createClass(DataFlowNodeWithCustomWarning, {
+    inject: {
+      value: function inject() {
+        try {
+          return _get(Object.getPrototypeOf(DataFlowNodeWithCustomWarning.prototype), "inject", this).apply(this, arguments);
+        } catch (err) {
+          if (err.name === "CycleInterfaceError") {
+            throw new CycleInterfaceError(this._cycleInterfaceErrorMessage + err.missingMember, err.missingMember);
+          } else {
+            throw err;
+          }
+        }
+      }
+    }
+  });
+
+  return DataFlowNodeWithCustomWarning;
+})(DataFlowNode);
+
+module.exports = DataFlowNodeWithCustomWarning;
+
+},{"./data-flow-node":54,"./errors":58}],54:[function(require,module,exports){
+"use strict";
+
+var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
 
 var Rx = require("rx");
 var errors = require("./errors");
 var InputProxy = require("./input-proxy");
-var Utils = require("./utils");
 var CycleInterfaceError = errors.CycleInterfaceError;
 
-function replicate(source, subject) {
-  if (typeof source === "undefined") {
-    throw new Error("Cannot replicate() if source is undefined.");
-  }
-  return source.subscribe(function replicationOnNext(x) {
-    subject.onNext(x);
-  }, function replicationOnError(err) {
-    subject.onError(err);
-    console.error(err);
-  });
-}
+var DataFlowNode = (function () {
+  function DataFlowNode(definitionFn) {
+    _classCallCheck(this, DataFlowNode);
 
-function checkOutputObject(output) {
-  if (typeof output !== "object") {
-    throw new Error("A DataFlowNode should always return an object.");
-  }
-}
-
-function createStreamNamesArray(output) {
-  var array = [];
-  for (var streamName in output) {
-    if (output.hasOwnProperty(streamName)) {
-      if (Utils.endsWithDollarSign(streamName)) {
-        array.push(streamName);
-      }
+    if (arguments.length !== 1 || typeof definitionFn !== "function") {
+      throw new Error("DataFlowNode expects the definitionFn as the only argument.");
     }
-  }
-  return array;
-}
-
-var replicateAll = undefined;
-
-function DataFlowNode(definitionFn) {
-  if (arguments.length !== 1 || typeof definitionFn !== "function") {
-    throw new Error("DataFlowNode expects the definitionFn as the only argument.");
-  }
-  var proxies = [];
-  for (var i = 0; i < definitionFn.length; i++) {
-    proxies[i] = new InputProxy();
-  }
-  var wasInjected = false;
-  var output = definitionFn.apply(this, proxies);
-  checkOutputObject(output);
-  this.outputStreams = createStreamNamesArray(output);
-  this.get = function get(streamName) {
-    return output[streamName] || null;
-  };
-  this.clone = function clone() {
-    return new DataFlowNode(definitionFn);
-  };
-  this.inject = function inject() {
-    if (wasInjected) {
-      console.warn("DataFlowNode has already been injected an input.");
-    }
-    if (definitionFn.length !== arguments.length) {
-      console.warn("The call to inject() should provide the inputs that this " + "DataFlowNode expects according to its definition function.");
-    }
+    this.type = "DataFlowNode";
+    this._definitionFn = definitionFn;
+    this._proxies = [];
     for (var i = 0; i < definitionFn.length; i++) {
-      replicateAll(arguments[i], proxies[i]);
+      this._proxies[i] = new InputProxy();
     }
-    wasInjected = true;
-    if (arguments.length === 1) {
-      return arguments[0];
-    } else if (arguments.length > 1) {
-      return Array.prototype.slice.call(arguments);
-    } else {
-      return null;
-    }
-  };
-  return this;
-}
+    this._wasInjected = false;
+    this._output = definitionFn.apply(this, this._proxies);
+    DataFlowNode._checkOutputObject(this._output);
+  }
 
-function replicateAllEvent$(input, selector, proxyObj) {
-  for (var eventName in proxyObj) {
-    if (proxyObj.hasOwnProperty(eventName)) {
-      if (eventName !== "_hasEvent$") {
-        var event$ = input.event$(selector, eventName);
-        if (event$ !== null) {
-          replicate(event$, proxyObj[eventName]);
+  _createClass(DataFlowNode, {
+    get: {
+      value: function get(streamName) {
+        return this._output[streamName] || null;
+      }
+    },
+    clone: {
+      value: function clone() {
+        return new DataFlowNode(this._definitionFn);
+      }
+    },
+    inject: {
+      value: function inject() {
+        if (this._wasInjected) {
+          console.warn("DataFlowNode has already been injected an input.");
+        }
+        if (this._definitionFn.length !== arguments.length) {
+          console.warn("The call to inject() should provide the inputs that this " + "DataFlowNode expects according to its definition function.");
+        }
+        for (var i = 0; i < this._definitionFn.length; i++) {
+          DataFlowNode._replicateAll(arguments[i], this._proxies[i]);
+        }
+        this._wasInjected = true;
+        if (arguments.length === 1) {
+          return arguments[0];
+        } else if (arguments.length > 1) {
+          return Array.prototype.slice.call(arguments);
+        } else {
+          return null;
         }
       }
     }
-  }
-}
-
-replicateAll = function replicateAll(input, proxy) {
-  if (!input || !proxy) {
-    return;
-  }
-
-  for (var key in proxy.proxiedProps) {
-    if (proxy.proxiedProps.hasOwnProperty(key)) {
-      var proxiedProperty = proxy.proxiedProps[key];
-      if (typeof input.event$ === "function" && proxiedProperty._hasEvent$) {
-        replicateAllEvent$(input, key, proxiedProperty);
-      } else if (!input.hasOwnProperty(key) && input instanceof InputProxy) {
-        replicate(input.get(key), proxiedProperty);
-      } else if (typeof input.get === "function" && input.get(key) !== null) {
-        replicate(input.get(key), proxiedProperty);
-      } else if (typeof input === "object" && input.hasOwnProperty(key)) {
-        if (!input[key]) {
-          input[key] = new Rx.Subject();
+  }, {
+    _checkOutputObject: {
+      value: function _checkOutputObject(output) {
+        if (typeof output !== "object") {
+          throw new Error("A DataFlowNode should always return an object.");
         }
-        replicate(input[key], proxiedProperty);
-      } else {
-        throw new CycleInterfaceError("Input should have the required property " + key, String(key));
+      }
+    },
+    _replicateAll: {
+      value: function _replicateAll(input, proxy) {
+        if (!input || !proxy) {
+          return;
+        }
+
+        for (var key in proxy.proxiedProps) {
+          if (proxy.proxiedProps.hasOwnProperty(key)) {
+            var proxiedProperty = proxy.proxiedProps[key];
+            if (typeof input.event$ === "function" && proxiedProperty._hasEvent$) {
+              DataFlowNode._replicateAllEvent$(input, key, proxiedProperty);
+            } else if (!input.hasOwnProperty(key) && input instanceof InputProxy) {
+              DataFlowNode._replicate(input.get(key), proxiedProperty);
+            } else if (typeof input.get === "function" && input.get(key) !== null) {
+              DataFlowNode._replicate(input.get(key), proxiedProperty);
+            } else if (typeof input === "object" && input.hasOwnProperty(key)) {
+              if (!input[key]) {
+                input[key] = new Rx.Subject();
+              }
+              DataFlowNode._replicate(input[key], proxiedProperty);
+            } else {
+              throw new CycleInterfaceError("Input should have the required property " + key, String(key));
+            }
+          }
+        }
+      }
+    },
+    _replicateAllEvent$: {
+      value: function _replicateAllEvent$(input, selector, proxyObj) {
+        for (var eventName in proxyObj) {
+          if (proxyObj.hasOwnProperty(eventName)) {
+            if (eventName !== "_hasEvent$") {
+              var event$ = input.event$(selector, eventName);
+              if (event$ !== null) {
+                DataFlowNode._replicate(event$, proxyObj[eventName]);
+              }
+            }
+          }
+        }
+      }
+    },
+    _replicate: {
+      value: function _replicate(source, subject) {
+        if (typeof source === "undefined") {
+          throw new Error("Cannot replicate() if source is undefined.");
+        }
+        return source.subscribe(function replicationOnNext(x) {
+          subject.onNext(x);
+        }, function replicationOnError(err) {
+          subject.onError(err);
+          console.error(err);
+        });
       }
     }
-  }
-};
+  });
+
+  return DataFlowNode;
+})();
 
 module.exports = DataFlowNode;
 
-},{"./errors":60,"./input-proxy":61,"./utils":63,"rx":16}],57:[function(require,module,exports){
+},{"./errors":58,"./input-proxy":59,"rx":16}],55:[function(require,module,exports){
 "use strict";
 
 function makeLightweightInputProxies(args) {
@@ -14125,7 +14096,7 @@ function DataFlowSink(definitionFn) {
 
 module.exports = DataFlowSink;
 
-},{}],58:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 "use strict";
 
 function DataFlowSource(outputObject) {
@@ -14149,7 +14120,7 @@ function DataFlowSource(outputObject) {
 
 module.exports = DataFlowSource;
 
-},{}],59:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 "use strict";
 
 var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) { _arr.push(_step.value); if (i && _arr.length === i) break; } return _arr; } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } };
@@ -14328,38 +14299,32 @@ DOMUser.registerCustomElement = function registerCustomElement(tagName, definiti
 
 module.exports = DOMUser;
 
-},{"./custom-elements":54,"./data-flow-node":56,"rx":16,"virtual-dom":20,"virtual-dom/diff":18,"virtual-dom/patch":28}],60:[function(require,module,exports){
+},{"./custom-elements":51,"./data-flow-node":54,"rx":16,"virtual-dom":20,"virtual-dom/diff":18,"virtual-dom/patch":28}],58:[function(require,module,exports){
 "use strict";
 
-function CycleInterfaceError(message, missingMember) {
-  this.name = "CycleInterfaceError";
-  this.message = message || "";
-  this.missingMember = missingMember || "";
-}
-CycleInterfaceError.prototype = Error.prototype;
+var _inherits = function (subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; };
 
-function customInterfaceErrorMessageInInject(dataFlowNode, message) {
-  var originalInject = dataFlowNode.inject;
-  dataFlowNode.inject = function inject() {
-    try {
-      return originalInject.apply({}, arguments);
-    } catch (err) {
-      if (err.name === "CycleInterfaceError") {
-        throw new CycleInterfaceError(message + err.missingMember, err.missingMember);
-      } else {
-        throw err;
-      }
-    }
-  };
-  return dataFlowNode;
-}
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
+var CycleInterfaceError = (function (_Error) {
+  function CycleInterfaceError(message, missingMember) {
+    _classCallCheck(this, CycleInterfaceError);
+
+    this.name = "CycleInterfaceError";
+    this.message = message || "";
+    this.missingMember = missingMember || "";
+  }
+
+  _inherits(CycleInterfaceError, _Error);
+
+  return CycleInterfaceError;
+})(Error);
 
 module.exports = {
-  CycleInterfaceError: CycleInterfaceError,
-  customInterfaceErrorMessageInInject: customInterfaceErrorMessageInInject
+  CycleInterfaceError: CycleInterfaceError
 };
 
-},{}],61:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -14410,7 +14375,59 @@ var InputProxy = (function () {
 
 module.exports = InputProxy;
 
-},{"rx":16}],62:[function(require,module,exports){
+},{"rx":16}],60:[function(require,module,exports){
+"use strict";
+
+var _get = function get(object, property, receiver) { var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc && desc.writable) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _inherits = function (subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; };
+
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
+var DataFlowNodeWithCustomWarning = require("./data-flow-node-custom-warning");
+
+var Intent = (function (_DataFlowNodeWithCustomWarning) {
+  function Intent(definitionFn) {
+    _classCallCheck(this, Intent);
+
+    this.type = "Intent";
+    _get(Object.getPrototypeOf(Intent.prototype), "constructor", this).call(this, definitionFn, "Intent expects an input to have the required property ");
+  }
+
+  _inherits(Intent, _DataFlowNodeWithCustomWarning);
+
+  return Intent;
+})(DataFlowNodeWithCustomWarning);
+
+module.exports = Intent;
+
+},{"./data-flow-node-custom-warning":53}],61:[function(require,module,exports){
+"use strict";
+
+var _get = function get(object, property, receiver) { var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc && desc.writable) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _inherits = function (subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; };
+
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
+var DataFlowNodeWithCustomWarning = require("./data-flow-node-custom-warning");
+
+var Model = (function (_DataFlowNodeWithCustomWarning) {
+  function Model(definitionFn) {
+    _classCallCheck(this, Model);
+
+    this.type = "Model";
+    _get(Object.getPrototypeOf(Model.prototype), "constructor", this).call(this, definitionFn, "Model expects an input to have the required property ");
+  }
+
+  _inherits(Model, _DataFlowNodeWithCustomWarning);
+
+  return Model;
+})(DataFlowNodeWithCustomWarning);
+
+module.exports = Model;
+
+},{"./data-flow-node-custom-warning":53}],62:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -14440,16 +14457,81 @@ module.exports = PropertyHook;
 },{}],63:[function(require,module,exports){
 "use strict";
 
-function endsWithDollarSign(str) {
-  if (typeof str !== "string") {
-    return false;
+var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(object, property, receiver) { var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc && desc.writable) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _inherits = function (subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; };
+
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
+var Rx = require("rx");
+var DataFlowNodeWithCustomWarning = require("./data-flow-node-custom-warning");
+
+var View = (function (_DataFlowNodeWithCustomWarning) {
+  function View(definitionFn) {
+    _classCallCheck(this, View);
+
+    this.type = "View";
+    _get(Object.getPrototypeOf(View.prototype), "constructor", this).call(this, definitionFn, "View expects an input to have the required property ");
+    View.checkVTree$(this._output);
+    this._correctedVtree$ = View.getCorrectedVtree$(this._output);
   }
-  return str.indexOf("$", str.length - 1) !== -1;
-}
 
-module.exports = {
-  endsWithDollarSign: endsWithDollarSign
-};
+  _inherits(View, _DataFlowNodeWithCustomWarning);
 
-},{}]},{},[55])(55)
+  _createClass(View, {
+    get: {
+      value: function get(streamName) {
+        if (streamName === "vtree$") {
+          return this._correctedVtree$;
+        } else if (this._output[streamName]) {
+          return this._output[streamName];
+        } else {
+          var result = _get(Object.getPrototypeOf(View.prototype), "get", this).call(this, streamName);
+          if (!result) {
+            this._output[streamName] = new Rx.Subject();
+            return this._output[streamName];
+          } else {
+            return result;
+          }
+        }
+      }
+    }
+  }, {
+    checkVTree$: {
+      value: function checkVTree$(view) {
+        if (!view.vtree$ || typeof view.vtree$.subscribe !== "function") {
+          throw new Error("View must define `vtree$` Observable emitting virtual " + "DOM elements");
+        }
+      }
+    },
+    throwErrorIfNotVTree: {
+      value: function throwErrorIfNotVTree(vtree) {
+        if (vtree.type !== "VirtualNode" || vtree.tagName === "undefined") {
+          throw new Error("View `vtree$` must emit only VirtualNode instances. " + "Hint: create them with Cycle.h()");
+        }
+      }
+    },
+    getCorrectedVtree$: {
+      value: function getCorrectedVtree$(view) {
+        var newVtree$ = view.vtree$.map(function (vtree) {
+          if (vtree.type === "Widget") {
+            return vtree;
+          }
+          View.throwErrorIfNotVTree(vtree);
+          return vtree;
+        }).replay(null, 1);
+        newVtree$.connect();
+        return newVtree$;
+      }
+    }
+  });
+
+  return View;
+})(DataFlowNodeWithCustomWarning);
+
+module.exports = View;
+
+},{"./data-flow-node-custom-warning":53,"rx":16}]},{},[52])(52)
 });

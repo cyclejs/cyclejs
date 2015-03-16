@@ -1,7 +1,13 @@
 'use strict';
 let InputProxy = require('./input-proxy');
-let Utils = require('./utils');
 let Rx = require('rx');
+
+function endsWithDollarSign(str) {
+  if (typeof str !== 'string') {
+    return false;
+  }
+  return str.indexOf('$', str.length - 1) !== -1;
+}
 
 function makeDispatchFunction(element, eventName) {
   return function dispatchCustomEvent(evData) {
@@ -22,7 +28,7 @@ function subscribeDispatchers(element, eventStreams) {
 
   var disposables = new Rx.CompositeDisposable();
   for (let streamName in eventStreams) { if (eventStreams.hasOwnProperty(streamName)) {
-    if (Utils.endsWithDollarSign(streamName) &&
+    if (endsWithDollarSign(streamName) &&
       typeof eventStreams[streamName].subscribe === 'function')
     {
       let eventName = streamName.slice(0, -1);
