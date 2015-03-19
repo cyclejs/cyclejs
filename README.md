@@ -125,6 +125,14 @@ are a couple of strong reasons:
 * Ask "_how do I...?_" questions in Gitter: <br />[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/staltz/cycle?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 * Propose and discuss significant changes as a GitHub issues
 
+### Resources
+
+- [Cycle.js examples using JSX and ES6](https://github.com/ivan-kleshnin/cyclejs-examples) by [@ivan-kleshnin](https://github.com/ivan-kleshnin)
+- [TodoMVP, an example webapp written in Cycle.js](https://github.com/cgeorg/todomvp) by [@cgeorg](https://github.com/cgeorg)
+- [sinject, a dependency injection tool supporting Cycle's circular dependencies](https://github.com/cgeorg/sinject) by [@cgeorg](https://github.com/cgeorg)
+- [Slack trend searching written in Cycle.js](https://github.com/grozen/trends-cycle) by [@grozen](https://github.com/grozen)
+- [RxMarbles is written in Cycle.js](https://github.com/staltz/rxmarbles)
+
 ## Disclaimer
 
 ### Work in progress
