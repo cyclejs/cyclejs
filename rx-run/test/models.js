@@ -4,7 +4,7 @@ var assert = require('assert');
 var Rx = require('rx');
 var Cycle = require('../src/cycle');
 
-describe('createModel', function () {
+describe('Model', function () {
   it('should return an object when given definitionFn', function () {
     var model = Cycle.createModel(function () { return {}; });
     assert.equal(typeof model, 'object');

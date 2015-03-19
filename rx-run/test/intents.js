@@ -4,7 +4,7 @@ var assert = require('assert');
 var Rx = require('rx');
 var Cycle = require('../src/cycle');
 
-describe('createIntent', function () {
+describe('Intent', function () {
   it('should return an object when given definitionFn', function () {
     var intent = Cycle.createIntent(function () { return {}; });
     assert.equal(typeof intent, 'object');
