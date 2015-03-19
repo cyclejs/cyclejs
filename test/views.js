@@ -4,7 +4,7 @@ var assert = require('assert');
 var Rx = require('rx');
 var Cycle = require('../src/cycle');
 
-describe('createView', function () {
+describe('View', function () {
   it('should throw error if output object does not have vtree$', function () {
     assert.throws(function () {
       Cycle.createView(function () { return {}; });
@@ -64,6 +64,25 @@ describe('createView', function () {
         noop(x);
       });
     }, /View `vtree\$` must emit only VirtualNode instances/);
+  });
+
+  it('should not throw error if `vtree$` emits a virtual-dom Widget', function () {
+    var TestWidget = function TestWidget() {};
+    TestWidget.prototype.type = 'Widget';
+    TestWidget.prototype.init = function init() {};
+    TestWidget.prototype.update = function update() {};
+    TestWidget.prototype.destroy = function destroy() {};
+    var view = Cycle.createView(function () {
+      return {
+        vtree$: Rx.Observable.just(new TestWidget())
+      };
+    });
+    assert.doesNotThrow(function () {
+      view.get('vtree$').subscribe(function (x) {
+        var noop = function () {};
+        noop(x);
+      });
+    });
   });
 
   it('should silently ignore undefined vtree children', function () {
