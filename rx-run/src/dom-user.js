@@ -54,14 +54,18 @@ class DOMUser extends DataFlowNode {
 
         let arrayOfAll = DOMUser._getArrayOfAllWidgetRootElemStreams(newVTree);
         if (arrayOfAll.length > 0) {
-          Rx.Observable.combineLatest(arrayOfAll, function () { return 0; }).first()
+          Rx.Observable.combineLatest(arrayOfAll, () => 0).first()
             .subscribe(function () { self._rawRootElem$.onNext(rootElem); });
         }
+        let cycleCustomElementDOMUser = rootElem.cycleCustomElementDOMUser;
         let cycleCustomElementProperties = rootElem.cycleCustomElementProperties;
         try {
           rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
         } catch (err) {
           console.error(err);
+        }
+        if (!!cycleCustomElementDOMUser) {
+          rootElem.cycleCustomElementDOMUser = cycleCustomElementDOMUser;
         }
         if (!!cycleCustomElementProperties) {
           rootElem.cycleCustomElementProperties = cycleCustomElementProperties;

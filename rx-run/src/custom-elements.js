@@ -69,16 +69,15 @@ function makeInputPropertiesProxy() {
 }
 
 function createContainerElement(tagName, vtreeProperties) {
-  let elem = document.createElement('div');
-  elem.className = vtreeProperties.className || '';
-  elem.id = vtreeProperties.id || '';
-  elem.className += ' cycleCustomElement-' + tagName.toUpperCase();
-  elem.cycleCustomElementProperties = makeInputPropertiesProxy();
-  return elem;
+  let element = document.createElement('div');
+  element.className = vtreeProperties.className || '';
+  element.id = vtreeProperties.id || '';
+  element.className += ' cycleCustomElement-' + tagName.toUpperCase();
+  return element;
 }
 
-function replicateUserRootElem$(user, widget) {
-  user._rootElem$.subscribe(elem => widget._rootElem$.onNext(elem));
+function replicateUserRootElem$(origin, destination) {
+  origin._rootElem$.subscribe(elem => destination._rootElem$.onNext(elem));
 }
 
 function makeConstructor() {
@@ -86,6 +85,7 @@ function makeConstructor() {
     this.type = 'Widget';
     this.properties = vtree.properties;
     this.key = vtree.key;
+    this._rootElem$ = new Rx.ReplaySubject(1);
   };
 }
 
@@ -94,10 +94,12 @@ function makeInit(tagName, definitionFn) {
   return function initCustomElement() {
     let widget = this;
     let element = createContainerElement(tagName, widget.properties);
-    let user = new DOMUser(element);
-    let eventStreams = definitionFn(user, element.cycleCustomElementProperties);
-    widget._rootElem$ = new Rx.ReplaySubject(1);
-    replicateUserRootElem$(user, widget);
+    element.cycleCustomElementDOMUser = new DOMUser(element);
+    element.cycleCustomElementProperties = makeInputPropertiesProxy();
+    let eventStreams = definitionFn(
+      element.cycleCustomElementDOMUser,
+      element.cycleCustomElementProperties
+    );
     widget.eventStreamsSubscriptions = subscribeDispatchers(element, eventStreams);
     subscribeDispatchersWhenRootChanges(widget, eventStreams);
     widget.update(null, element);
@@ -106,13 +108,14 @@ function makeInit(tagName, definitionFn) {
 }
 
 function makeUpdate() {
-  return function updateCustomElement(prev, elem) {
-    if (!elem) { return; }
-    if (!elem.cycleCustomElementProperties) { return; }
-    if (!(elem.cycleCustomElementProperties instanceof InputProxy)) { return; }
-    if (!elem.cycleCustomElementProperties.proxiedProps) { return; }
+  return function updateCustomElement(previous, element) {
+    if (!element) { return; }
+    if (!element.cycleCustomElementProperties) { return; }
+    if (!(element.cycleCustomElementProperties instanceof InputProxy)) { return; }
+    if (!element.cycleCustomElementProperties.proxiedProps) { return; }
 
-    let proxiedProps = elem.cycleCustomElementProperties.proxiedProps;
+    replicateUserRootElem$(element.cycleCustomElementDOMUser, this);
+    let proxiedProps = element.cycleCustomElementProperties.proxiedProps;
     for (let prop in proxiedProps) { if (proxiedProps.hasOwnProperty(prop)) {
       let propStreamName = prop;
       let propName = prop.slice(0, -1);
