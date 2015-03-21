@@ -191,19 +191,15 @@ describe('Custom Elements', function () {
     assert.strictEqual(innerElement.tagName, 'H3');
   });
 
-  // BROKEN TEST
-  // Oh PhantomJS, How dumb are thee
-  // You used to work nicely for me
-  // But then you took an arrow to the knee
-  // (doesn't understand `new Event()` neither `document.createEvent()`)
+  // TODO make this pass
   it.skip('should catch interaction events coming from custom element', function (done) {
     var user = createDOMUser();
     // Make simple custom element
-    Cycle.registerCustomElement('myelement', function (User) {
+    Cycle.registerCustomElement('myelement', function (user) {
       var View = Cycle.createView(function () {
         return {vtree$: Rx.Observable.just(Cycle.h('h3.myelementclass'))};
       });
-      User.inject(View);
+      user.inject(View);
       return {
         myevent$: Rx.Observable.just(123).delay(300)
       };
@@ -214,16 +210,16 @@ describe('Custom Elements', function () {
         vtree$: Rx.Observable.just(Cycle.h('myelement.eventsource'))
       };
     });
+    user.event$('.eventsource', 'myevent').subscribe(function (x) {
+      assert.strictEqual(x.data, 123);
+      done();
+    });
     user.inject(view);
     // Make assertions
     var myElement = document.querySelector('.myelementclass');
     assert.notStrictEqual(myElement, null);
     assert.notStrictEqual(typeof myElement, 'undefined');
     assert.strictEqual(myElement.tagName, 'H3');
-    user.event$('.eventsource', 'myevent').subscribe(function (x) {
-      assert.strictEqual(x.data, 123);
-      done();
-    });
   });
 
   it('should not fail when examining VirtualText on replaceCustomElements', function () {
