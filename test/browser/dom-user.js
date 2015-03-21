@@ -11,22 +11,7 @@ function createDOMUser() {
   return Cycle.createDOMUser(element);
 }
 
-function click(element) {
-  var ev = document.createEvent('MouseEvent');
-  ev.initMouseEvent(
-    'click',
-    true /* bubble */, true /* cancelable */,
-    window, null,
-    0, 0, 0, 0, /* coordinates */
-    false, false, false, false, /* modifier keys */
-    0 /*left*/, null
-  );
-  element.dispatchEvent(ev);
-}
-
 describe('DOM User', function () {
-  this.timeout(6000);
-
   beforeEach(function () {
     Cycle._customElements = null;
     var testDivs = Array.prototype.slice.call(document.querySelectorAll('.cycletest'));
@@ -97,9 +82,7 @@ describe('DOM User', function () {
       assert.notStrictEqual(typeof selectEl, 'undefined');
     });
 
-    // BROKEN TEST
-    // PhantomJS you don't understand click simulations :(
-    it.skip('should catch interaction events coming from wrapped View', function (done) {
+    it('should catch interaction events coming from wrapped View', function (done) {
       var user = createDOMUser();
       // Make a View reactively imitating another View
       var view = Cycle.createView(function () {
@@ -114,6 +97,11 @@ describe('DOM User', function () {
           vtree$: view.get('vtree$')
         };
       });
+      user.event$('.myelementclass', 'click').subscribe(function (ev) {
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual(ev.target.innerHTML, 'Foobar');
+        done();
+      });
       user.inject(wrapperView);
       wrapperView.inject(view);
       // Make assertions
@@ -121,12 +109,35 @@ describe('DOM User', function () {
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
       assert.strictEqual(myElement.tagName, 'H3');
+      assert.doesNotThrow(function () {
+        myElement.click();
+      });
+    });
+
+    // TODO make this pass
+    it.skip('should allow calling event$() after user was injected', function (done) {
+      var user = createDOMUser();
+      // Make a View reactively imitating another View
+      var view = Cycle.createView(function () {
+        return {
+          vtree$: Rx.Observable.just(
+            Cycle.h('h3.myelementclass', 'Foobar')
+          )
+        };
+      });
+      user.inject(view);
       user.event$('.myelementclass', 'click').subscribe(function (ev) {
-        assert.strictEqual(ev.screenX, 123);
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual(ev.target.innerHTML, 'Foobar');
         done();
       });
+      // Make assertions
+      var myElement = document.querySelector('.myelementclass');
+      assert.notStrictEqual(myElement, null);
+      assert.notStrictEqual(typeof myElement, 'undefined');
+      assert.strictEqual(myElement.tagName, 'H3');
       assert.doesNotThrow(function () {
-        click(myElement);
+        myElement.click();
       });
     });
   });
