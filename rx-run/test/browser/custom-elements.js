@@ -1,9 +1,9 @@
 'use strict';
 /* global describe, it, beforeEach */
-var assert = require('assert');
-var Cycle = require('../../src/cycle');
-var DOMUser = require('../../src/dom-user');
-var Rx = Cycle.Rx;
+let assert = require('assert');
+let Cycle = require('../../src/cycle');
+let DOMUser = require('../../src/dom-user');
+let {Rx, h} = Cycle;
 
 function createDOMUser() {
   var element = document.createElement('div');
@@ -241,5 +241,80 @@ describe('Custom Elements', function () {
     assert.doesNotThrow(function () {
       user.inject(view);
     });
+  });
+
+  it.only('should not miss custom events from a list of custom elements #87', function (done) {
+    // Make custom element
+    Cycle.registerCustomElement('slider', function (user, props) {
+      let model = Cycle.createModel((intent, props) => ({
+        id$: props.get('id$').shareReplay(1)
+      }));
+
+      let view = Cycle.createView((model) => {
+        return {
+          vtree$: model.get('id$').map((id) => Cycle.h('h3.internalslider', String(id)))
+        };
+      });
+
+      let intent = Cycle.createIntent((user) => {
+        return {
+          remove$: user.event$('.internalslider', 'click').map(() => true)
+        };
+      });
+
+      user.inject(view).inject(model).inject(intent, props)[0].inject(user);
+
+      return {
+        remove$: intent.get('remove$').withLatestFrom(model.get('id$'), (_, id) => id)
+      };
+    });
+    // Make MVUI
+    let model = Cycle.createModel(intent => {
+      return {
+        items$: Rx.Observable
+          .merge(
+            Rx.Observable.just([{id: 23}]).delay(50),
+            Rx.Observable.just([{id: 23}, {id: 45}]).delay(100)
+          )
+          .merge(intent.get('remove$'))
+          .scan((items, x) => {
+            if (typeof x === 'object') {
+              return x;
+            } else {
+              return items.filter((item) => item.id !== x);
+            }
+          })
+      };
+    });
+
+    let view = Cycle.createView(function (model) {
+      return {
+        vtree$: model.get('items$')
+          .map((items) =>
+            h('div.allSliders', items.map(item => h('slider', {id: item.id})))
+          )
+      };
+    });
+
+    let user = createDOMUser();
+
+    let intent = Cycle.createIntent(user => {
+      return {
+        remove$: user.event$('.slider', 'remove').map(event => event.data)
+      };
+    });
+
+    user.inject(view).inject(model).inject(intent).inject(user);
+
+    // Simulate clicks
+    setTimeout(() => document.querySelector('.internalslider').click(), '200');
+    setTimeout(() => document.querySelector('.internalslider').click(), '300');
+
+    // Make assertion
+    setTimeout(() => {
+      let sliders = document.querySelectorAll('.internalslider');
+      assert.strictEqual(sliders.length, 0);
+      done();
+    }, 500);
   });
 });
