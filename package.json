@@ -27,8 +27,6 @@
     "jshint": "2.6.x",
     "markdox": "0.1.8",
     "mocha": "2.2.x",
-    "mocha-phantomjs": "3.5.3",
-    "phantomjs": "1.9.16",
     "testem": "^0.7.5",
     "testling": "^1.7.1",
     "uglify-js": "2.4.16"
@@ -40,6 +38,7 @@
     "jshint": "jshint src/",
     "jscs": "jscs src/",
     "test-common": "mocha --compilers js:babel/register test/common",
+    "pretest-onlynode": "mkdir -p test/node",
     "test-onlynode": "mocha --compilers js:babel/register test/node",
     "test-node": "npm run test-common && npm run test-onlynode",
     "test-browser": "testem",
