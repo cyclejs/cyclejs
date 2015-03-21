@@ -2,7 +2,7 @@
 /* global describe, it */
 var assert = require('assert');
 var Rx = require('rx');
-var DataFlowNode = require('../src/data-flow-node');
+var DataFlowNode = require('../../src/data-flow-node');
 
 describe('DataFlowNode', function () {
   describe('constructor', function () {

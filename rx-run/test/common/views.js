@@ -2,7 +2,7 @@
 /* global describe, it */
 var assert = require('assert');
 var Rx = require('rx');
-var Cycle = require('../src/cycle');
+var Cycle = require('../../src/cycle');
 
 describe('View', function () {
   it('should throw error if output object does not have vtree$', function () {

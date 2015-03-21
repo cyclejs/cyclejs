@@ -1,7 +1,7 @@
 'use strict';
 /* global describe, it */
 var assert = require('assert');
-var DataFlowSink = require('../src/data-flow-sink');
+var DataFlowSink = require('../../src/data-flow-sink');
 var Rx = require('rx');
 
 describe('DataFlowSink', function () {

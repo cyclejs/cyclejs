@@ -8,7 +8,7 @@
 node_modules
 
 # Generated
-test/phantomjs/browserified-tests.js
+test/browser/page/tests-bundle.js
 lib/
 
 # Misc
