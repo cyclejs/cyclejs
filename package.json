@@ -29,23 +29,27 @@
     "mocha": "2.2.x",
     "mocha-phantomjs": "3.5.3",
     "phantomjs": "1.9.16",
+    "testem": "^0.7.5",
+    "testling": "^1.7.1",
     "uglify-js": "2.4.16"
   },
   "engines": {
     "node": ">=0.10.0"
   },
   "scripts": {
-    "lint": "jshint src/",
+    "jshint": "jshint src/",
     "jscs": "jscs src/",
-    "mocha": "mocha --compilers js:babel/register",
-    "pre-ph-test": "browserify test/phantomjs/*.js -t babelify -o test/phantomjs/browserified-tests.js",
-    "run-ph-test": "mocha-phantomjs test/phantomjs/index.html",
-    "post-ph-test": "rm test/phantomjs/browserified-tests.js",
-    "mocha-phantomjs": "npm run pre-ph-test && npm run run-ph-test && npm run post-ph-test",
-    "test": "npm run lint && npm run jscs && npm run mocha && npm run mocha-phantomjs",
+    "test-common": "mocha --compilers js:babel/register test/common",
+    "test-onlynode": "mocha --compilers js:babel/register test/node",
+    "test-node": "npm run test-common && npm run test-onlynode",
+    "test-browser": "testem",
+    "pretest-browser": "browserify test/browser/index.js -t babelify -o test/browser/page/tests-bundle.js",
+    "posttest-browser": "rm test/browser/page/tests-bundle.js",
+    "test": "npm run jshint && npm run jscs && npm run test-node && npm run test-browser",
+    "travis-test": "npm run jshint && npm run jscs && npm run test-node",
     "browserify": "browserify src/cycle.js -t babelify --standalone Cycle --outfile dist/cycle.js",
     "uglify": "uglifyjs dist/cycle.js -o dist/cycle.min.js",
-    "build": "npm run browserify && npm run uglify",
+    "dist": "npm run browserify && npm run uglify",
     "docs": "node ./scripts/make-api-docs.js",
     "compile-lib": "babel -d lib/ src/",
     "prepublish": "npm run compile-lib",
@@ -53,5 +57,15 @@
     "release-patch": "git checkout master && npm run build; git commit -a -m 'Compiled'; npm version patch && git push origin master --tags && npm publish",
     "release-minor": "git checkout master && npm run build; git commit -a -m 'Compiled'; npm version minor && git push origin master --tags && npm publish",
     "release-major": "git checkout master && npm run build; git commit -a -m 'Compiled'; npm version major && git push origin master --tags && npm publish"
+  },
+  "testling": {
+    "html": "test/browser/page/index.html",
+    "browsers": [
+      "chrome/20..latest",
+      "firefox/5..latest",
+      "opera/11..latest",
+      "opera/next",
+      "chrome/canary"
+    ]
   }
 }

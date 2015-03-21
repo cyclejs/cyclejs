@@ -2,7 +2,7 @@
 /* global describe, it */
 var assert = require('assert');
 var Rx = require('rx');
-var Cycle = require('../src/cycle');
+var Cycle = require('../../src/cycle');
 
 describe('Model', function () {
   it('should return an object when given definitionFn', function () {

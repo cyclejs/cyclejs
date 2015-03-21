@@ -1,7 +1,7 @@
 'use strict';
 /* global describe, it */
 var assert = require('assert');
-var DataFlowSource = require('../src/data-flow-source');
+var DataFlowSource = require('../../src/data-flow-source');
 
 describe('DataFlowSource', function () {
   describe('constructor', function () {
