@@ -1,8 +1,10 @@
 'use strict';
 /* global describe, it, beforeEach */
-var assert = require('assert');
-var Cycle = require('../../src/cycle');
-var Rx = Cycle.Rx;
+let assert = require('assert');
+let Cycle = require('../../src/cycle');
+let DOMUser = require('../../src/dom-user');
+let Fixture89 = require('./fixtures/issue-89');
+let {Rx, h} = Cycle;
 
 function createDOMUser() {
   var element = document.createElement('div');
@@ -13,7 +15,7 @@ function createDOMUser() {
 
 describe('DOM User', function () {
   beforeEach(function () {
-    Cycle._customElements = null;
+    DOMUser._customElements = null;
     var testDivs = Array.prototype.slice.call(document.querySelectorAll('.cycletest'));
     testDivs.forEach(function (x) {
       if (x.remove) { x.remove(); }
@@ -139,6 +141,50 @@ describe('DOM User', function () {
       assert.doesNotThrow(function () {
         myElement.click();
       });
+    });
+
+    it('should accept a view wrapping a custom element (#89)', function (done) {
+      Cycle.registerCustomElement('myelement', Fixture89.myelement);
+      let model = Cycle.createModel(Fixture89.modelFn);
+      let view = Cycle.createView(Fixture89.viewWithContainerFn);
+      let user = createDOMUser();
+      user.inject(view).inject(model);
+
+      setTimeout(() => {
+        let myelement = document.querySelector('.myelementclass');
+        assert.notStrictEqual(myelement, null);
+        assert.strictEqual(myelement.tagName, 'H3');
+        assert.strictEqual(myelement.innerHTML, '123');
+      }, 100);
+      setTimeout(() => {
+        let myelement = document.querySelector('.myelementclass');
+        assert.notStrictEqual(myelement, null);
+        assert.strictEqual(myelement.tagName, 'H3');
+        assert.strictEqual(myelement.innerHTML, '456');
+        done();
+      }, 300);
+    });
+
+    it('should accept a view with custom element at the root of vtree$', function (done) {
+      Cycle.registerCustomElement('myelement', Fixture89.myelement);
+      let model = Cycle.createModel(Fixture89.modelFn);
+      let view = Cycle.createView(Fixture89.viewWithoutContainerFn);
+      let user = createDOMUser();
+      user.inject(view).inject(model);
+
+      setTimeout(() => {
+        let myelement = document.querySelector('.myelementclass');
+        assert.notStrictEqual(myelement, null);
+        assert.strictEqual(myelement.tagName, 'H3');
+        assert.strictEqual(myelement.innerHTML, '123');
+      }, 100);
+      setTimeout(() => {
+        let myelement = document.querySelector('.myelementclass');
+        assert.notStrictEqual(myelement, null);
+        assert.strictEqual(myelement.tagName, 'H3');
+        assert.strictEqual(myelement.innerHTML, '456');
+        done();
+      }, 300);
     });
   });
 });

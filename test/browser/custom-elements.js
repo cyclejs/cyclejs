@@ -13,8 +13,6 @@ function createDOMUser() {
 }
 
 describe('Custom Elements', function () {
-  this.timeout(1000);
-
   beforeEach(function () {
     DOMUser._customElements = null;
     var testDivs = Array.prototype.slice.call(document.querySelectorAll('.cycletest'));
