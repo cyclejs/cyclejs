@@ -63,7 +63,9 @@ class DOMUser extends DataFlowNode {
         } catch (err) {
           console.error(err);
         }
-        rootElem.cycleCustomElementProperties = cycleCustomElementProperties;
+        if (!!cycleCustomElementProperties) {
+          rootElem.cycleCustomElementProperties = cycleCustomElementProperties;
+        }
         if (arrayOfAll.length === 0) {
           self._rawRootElem$.onNext(rootElem);
         }
