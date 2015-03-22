@@ -13575,7 +13575,6 @@ function appendPatch(apply, patch) {
 
 },{"../vnode/handle-thunk":39,"../vnode/is-thunk":40,"../vnode/is-vnode":42,"../vnode/is-vtext":43,"../vnode/is-widget":44,"../vnode/vpatch":47,"./diff-props":49,"x-is-array":27}],51:[function(require,module,exports){
 "use strict";
-
 var InputProxy = require("./input-proxy");
 var Rx = require("rx");
 
@@ -13718,7 +13717,6 @@ module.exports = {
 
 },{"./dom-user":57,"./input-proxy":59,"rx":16}],52:[function(require,module,exports){
 "use strict";
-
 var VirtualDOM = require("virtual-dom");
 var Rx = require("rx");
 var DataFlowNode = require("./data-flow-node");
@@ -14241,7 +14239,9 @@ var DOMUser = (function (_DataFlowNode) {
           } catch (err) {
             console.error(err);
           }
-          rootElem.cycleCustomElementProperties = cycleCustomElementProperties;
+          if (!!cycleCustomElementProperties) {
+            rootElem.cycleCustomElementProperties = cycleCustomElementProperties;
+          }
           if (arrayOfAll.length === 0) {
             self._rawRootElem$.onNext(rootElem);
           }
