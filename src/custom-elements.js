@@ -82,6 +82,8 @@ function replicateUserRootElem$(origin, destination) {
 
 function makeConstructor() {
   return function customElementConstructor(vtree) {
+    //console.log('%cnew (constructor) custom element ' + vtree.tagName,
+    //  'color: #880088');
     this.type = 'Widget';
     this.properties = vtree.properties;
     this.key = vtree.key;
@@ -92,6 +94,7 @@ function makeConstructor() {
 function makeInit(tagName, definitionFn) {
   let DOMUser = require('./dom-user');
   return function initCustomElement() {
+    //console.log('%cInit() custom element ' + tagName, 'color: #880088');
     let widget = this;
     let element = createContainerElement(tagName, widget.properties);
     element.cycleCustomElementDOMUser = new DOMUser(element);
@@ -114,6 +117,7 @@ function makeUpdate() {
     if (!(element.cycleCustomElementProperties instanceof InputProxy)) { return; }
     if (!element.cycleCustomElementProperties.proxiedProps) { return; }
 
+    //console.log('%cupdate() custom element ' + element.className, 'color: #880088');
     replicateUserRootElem$(element.cycleCustomElementDOMUser, this);
     let proxiedProps = element.cycleCustomElementProperties.proxiedProps;
     for (let prop in proxiedProps) { if (proxiedProps.hasOwnProperty(prop)) {

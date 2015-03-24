@@ -33,7 +33,7 @@ class DOMUser extends DataFlowNode {
     let self = this;
     // Select the correct rootElem
     let rootElem;
-    if (self._domContainer.cycleCustomElementProperties) {
+    if (/cycleCustomElement-[^\b]+/.exec(self._domContainer.className) !== null) {
       rootElem = self._domContainer;
     } else {
       rootElem = document.createElement('div');
@@ -52,15 +52,22 @@ class DOMUser extends DataFlowNode {
       .subscribe(function renderDiffAndPatch([oldVTree, newVTree]) {
         if (typeof newVTree === 'undefined') { return; }
 
+        //let forWhat = (self._domContainer.className === 'cycletest') ?
+        //  'for top-level View' : 'for custom element';
         let arrayOfAll = DOMUser._getArrayOfAllWidgetRootElemStreams(newVTree);
         if (arrayOfAll.length > 0) {
           Rx.Observable.combineLatest(arrayOfAll, () => 0).first()
-            .subscribe(function () { self._rawRootElem$.onNext(rootElem); });
+            .subscribe(function () {
+              //console.log('%cEmit rawRootElem$ (1) ' + forWhat, 'color: #008800');
+              self._rawRootElem$.onNext(rootElem);
+            });
         }
         let cycleCustomElementDOMUser = rootElem.cycleCustomElementDOMUser;
         let cycleCustomElementProperties = rootElem.cycleCustomElementProperties;
         try {
+          //console.log('%cVDOM diff and patch ' + forWhat + ' START', 'color: #636300');
           rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
+          //console.log('%cVDOM diff and patch ' + forWhat + ' END', 'color: #636300');
         } catch (err) {
           console.error(err);
         }
@@ -71,6 +78,7 @@ class DOMUser extends DataFlowNode {
           rootElem.cycleCustomElementProperties = cycleCustomElementProperties;
         }
         if (arrayOfAll.length === 0) {
+          //console.log('%cEmit rawRootElem$ (2) ' + forWhat, 'color: #008800');
           self._rawRootElem$.onNext(rootElem);
         }
       });
@@ -79,6 +87,8 @@ class DOMUser extends DataFlowNode {
   _defineRootElemStream() {
     // Create rootElem stream and automatic className correction
     let originalClasses = (this._domContainer.className || '').trim().split(/\s+/);
+    //console.log('%coriginalClasses: ' + originalClasses,
+    //  'color: white; background-color: black');
     this._rawRootElem$ = new Rx.Subject();
     this._rootElem$ = this._rawRootElem$
       .map(function fixRootElemClassName(rootElem) {
@@ -86,7 +96,11 @@ class DOMUser extends DataFlowNode {
         let missingClasses = originalClasses.filter(function (clss) {
           return previousClasses.indexOf(clss) < 0;
         });
+        //console.log('%cfixRootElemClassName(), missingClasses: ' + missingClasses,
+        //  'color: white; background-color: black');
         rootElem.className = previousClasses.concat(missingClasses).join(' ');
+        //console.log('%c  result: ' + rootElem.className,
+        //  'color: white; background-color: black');
         return rootElem;
       })
       .shareReplay(1);
@@ -121,18 +135,26 @@ class DOMUser extends DataFlowNode {
       'representing the event type to listen for.');
     }
 
+    //console.log(`%cevent$("${selector}", "${eventName}")`, 'color: #0000BB');
     return this._rootElem$.flatMapLatest(function flatMapDOMUserEventStream(rootElem) {
       if (!rootElem) {
         return Rx.Observable.empty();
       }
+      //let isCustomElement = !!rootElem.cycleCustomElementDOMUser;
+      //console.log('%cevent$("' + selector + '", "' + eventName + '") flatMapper' +
+      //  (isCustomElement ? ' for a custom element' : ' for top-level View'),
+      //  'color: #0000BB');
       let klass = selector.replace('.', '');
       if (rootElem.className.search(new RegExp('\\b' + klass + '\\b')) >= 0) {
+        //console.log('%c  Good return. (A)', 'color:#0000BB');
         return Rx.Observable.fromEvent(rootElem, eventName);
       }
       let targetElements = rootElem.querySelectorAll(selector);
       if (targetElements && targetElements.length > 0) {
+        //console.log('%c  Good return. (B)', 'color:#0000BB');
         return Rx.Observable.fromEvent(targetElements, eventName);
       } else {
+        //console.log('%c  returning empty!', 'color: #0000BB');
         return Rx.Observable.empty();
       }
     });
