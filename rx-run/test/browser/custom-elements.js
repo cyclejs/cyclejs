@@ -243,31 +243,24 @@ describe('Custom Elements', function () {
     });
   });
 
-  it.only('should not miss custom events from a list of custom elements #87', function (done) {
+  it('should not miss custom events from a list of custom elements #87', function (done) {
     // Make custom element
     Cycle.registerCustomElement('slider', function (user, props) {
       let model = Cycle.createModel((intent, props) => ({
         id$: props.get('id$').shareReplay(1)
       }));
-
-      let view = Cycle.createView((model) => {
-        return {
-          vtree$: model.get('id$').map((id) => Cycle.h('h3.internalslider', String(id)))
-        };
-      });
-
-      let intent = Cycle.createIntent((user) => {
-        return {
-          remove$: user.event$('.internalslider', 'click').map(() => true)
-        };
-      });
-
+      let view = Cycle.createView((model) => ({
+        vtree$: model.get('id$').map((id) => Cycle.h('h3.internalslider', String(id)))
+      }));
+      let intent = Cycle.createIntent((user) => ({
+        remove$: user.event$('.internalslider', 'click').map(() => true)
+      }));
       user.inject(view).inject(model).inject(intent, props)[0].inject(user);
-
       return {
         remove$: intent.get('remove$').withLatestFrom(model.get('id$'), (_, id) => id)
       };
     });
+
     // Make MVUI
     let model = Cycle.createModel(intent => {
       return {
@@ -291,7 +284,7 @@ describe('Custom Elements', function () {
       return {
         vtree$: model.get('items$')
           .map((items) =>
-            h('div.allSliders', items.map(item => h('slider', {id: item.id})))
+            h('div.allSliders', items.map(item => h('slider.slider', {id: item.id})))
           )
       };
     });
@@ -307,8 +300,8 @@ describe('Custom Elements', function () {
     user.inject(view).inject(model).inject(intent).inject(user);
 
     // Simulate clicks
-    setTimeout(() => document.querySelector('.internalslider').click(), '200');
-    setTimeout(() => document.querySelector('.internalslider').click(), '300');
+    setTimeout(() => document.querySelector('.internalslider').click(), 200);
+    setTimeout(() => document.querySelector('.internalslider').click(), 300);
 
     // Make assertion
     setTimeout(() => {
