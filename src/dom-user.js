@@ -22,10 +22,11 @@ class DOMUser extends DataFlowNode {
       throw new Error('Given container is not a DOM element neither a selector string.');
     }
     this._defineRootElemStream();
+    this._error$ = new Rx.Subject();
     // Create DataFlowNode with rendering logic
     super(view => {
       this._renderEvery(view.get('vtree$'));
-      return {};
+      return {error$: this._error$};
     });
   }
 
@@ -47,6 +48,12 @@ class DOMUser extends DataFlowNode {
       .startWith(VDOM.h())
       .map(function renderingPreprocessing(vtree) {
         return self._replaceCustomElements(vtree);
+      })
+      .map(function checkDOMUserVtreeNotCustomElement(vtree) {
+        if (DOMUser._isVtreeCustomElement(vtree)) {
+          throw new Error('Illegal to use a Cycle custom element as the root of a View.');
+        }
+        return vtree;
       })
       .pairwise()
       .subscribe(function renderDiffAndPatch([oldVTree, newVTree]) {
@@ -81,6 +88,9 @@ class DOMUser extends DataFlowNode {
           //console.log('%cEmit rawRootElem$ (2) ' + forWhat, 'color: #008800');
           self._rawRootElem$.onNext(rootElem);
         }
+      }, function handleRenderError(err) {
+        console.error(err);
+        self._error$.onNext(err);
       });
   }
 
@@ -184,6 +194,10 @@ class DOMUser extends DataFlowNode {
       }
     }
     return array;
+  }
+
+  static _isVtreeCustomElement(vtree) {
+    return (vtree.type === 'Widget' && !!vtree._rootElem$);
   }
 
   static registerCustomElement(tagName, definitionFn) {

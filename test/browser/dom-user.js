@@ -165,26 +165,17 @@ describe('DOM User', function () {
       }, 300);
     });
 
-    it('should accept a view with custom element at the root of vtree$', function (done) {
+    it('should reject a view with custom element as the root of vtree$', function (done) {
       Cycle.registerCustomElement('myelement', Fixture89.myelement);
       let model = Cycle.createModel(Fixture89.modelFn);
       let view = Cycle.createView(Fixture89.viewWithoutContainerFn);
       let user = createDOMUser();
-      user.inject(view).inject(model);
-
-      setTimeout(() => {
-        let myelement = document.querySelector('.myelementclass');
-        assert.notStrictEqual(myelement, null);
-        assert.strictEqual(myelement.tagName, 'H3');
-        assert.strictEqual(myelement.innerHTML, '123');
-      }, 100);
-      setTimeout(() => {
-        let myelement = document.querySelector('.myelementclass');
-        assert.notStrictEqual(myelement, null);
-        assert.strictEqual(myelement.tagName, 'H3');
-        assert.strictEqual(myelement.innerHTML, '456');
+      user.get('error$').subscribe((err) => {
+        let errMsg = 'Illegal to use a Cycle custom element as the root of a View.';
+        assert.strictEqual(err.message, errMsg);
         done();
-      }, 300);
+      });
+      user.inject(view).inject(model);
     });
   });
 });
