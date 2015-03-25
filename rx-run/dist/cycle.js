@@ -13587,6 +13587,8 @@ function endsWithDollarSign(str) {
 
 function makeDispatchFunction(element, eventName) {
   return function dispatchCustomEvent(evData) {
+    //console.log('%cdispatchCustomEvent ' + eventName,
+    //  'background-color: #CCCCFF; color: black');
     var event;
     try {
       event = new Event(eventName);
@@ -14190,10 +14192,11 @@ var DOMUser = (function (_DataFlowNode) {
       throw new Error("Given container is not a DOM element neither a selector string.");
     }
     this._defineRootElemStream();
+    this._error$ = new Rx.Subject();
     // Create DataFlowNode with rendering logic
     _get(Object.getPrototypeOf(DOMUser.prototype), "constructor", this).call(this, function (view) {
       _this._renderEvery(view.get("vtree$"));
-      return {};
+      return { error$: _this._error$ };
     });
   }
 
@@ -14219,6 +14222,11 @@ var DOMUser = (function (_DataFlowNode) {
         // Reactively render the vtree$ into the rootElem
         return vtree$.startWith(VDOM.h()).map(function renderingPreprocessing(vtree) {
           return self._replaceCustomElements(vtree);
+        }).map(function checkDOMUserVtreeNotCustomElement(vtree) {
+          if (DOMUser._isVtreeCustomElement(vtree)) {
+            throw new Error("Illegal to use a Cycle custom element as the root of a View.");
+          }
+          return vtree;
         }).pairwise().subscribe(function renderDiffAndPatch(_ref) {
           var _ref2 = _slicedToArray(_ref, 2);
 
@@ -14259,6 +14267,9 @@ var DOMUser = (function (_DataFlowNode) {
             //console.log('%cEmit rawRootElem$ (2) ' + forWhat, 'color: #008800');
             self._rawRootElem$.onNext(rootElem);
           }
+        }, function handleRenderError(err) {
+          console.error(err);
+          self._error$.onNext(err);
         });
       }
     },
@@ -14266,8 +14277,7 @@ var DOMUser = (function (_DataFlowNode) {
       value: function _defineRootElemStream() {
         // Create rootElem stream and automatic className correction
         var originalClasses = (this._domContainer.className || "").trim().split(/\s+/);
-        //console.log('%coriginalClasses: ' + originalClasses,
-        //  'color: white; background-color: black');
+        //console.log('%coriginalClasses: ' + originalClasses, 'color: lightgray');
         this._rawRootElem$ = new Rx.Subject();
         this._rootElem$ = this._rawRootElem$.map(function fixRootElemClassName(rootElem) {
           var previousClasses = rootElem.className.trim().split(/\s+/);
@@ -14275,10 +14285,11 @@ var DOMUser = (function (_DataFlowNode) {
             return previousClasses.indexOf(clss) < 0;
           });
           //console.log('%cfixRootElemClassName(), missingClasses: ' + missingClasses,
-          //  'color: white; background-color: black');
+          //  'color: lightgray');
           rootElem.className = previousClasses.concat(missingClasses).join(" ");
-          //console.log('%c  result: ' + rootElem.className,
-          //  'color: white; background-color: black');
+          //console.log('%c  result: ' + rootElem.className, 'color: lightgray');
+          //console.log('%cEmit rootElem$ ' + rootElem.tagName + '.' + rootElem.className,
+          //  'color: #009988');
           return rootElem;
         }).shareReplay(1);
       }
@@ -14357,6 +14368,11 @@ var DOMUser = (function (_DataFlowNode) {
           }
         }
         return array;
+      }
+    },
+    _isVtreeCustomElement: {
+      value: function _isVtreeCustomElement(vtree) {
+        return vtree.type === "Widget" && !!vtree._rootElem$;
       }
     },
     registerCustomElement: {
