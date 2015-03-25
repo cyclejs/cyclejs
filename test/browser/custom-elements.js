@@ -189,13 +189,11 @@ describe('Custom Elements', function () {
     assert.strictEqual(innerElement.tagName, 'H3');
   });
 
-  // TODO make this pass
-  it.skip('should catch interaction events coming from custom element', function (done) {
-    var user = createDOMUser();
+  it('should catch interaction events coming from custom element', function (done) {
     // Make simple custom element
     Cycle.registerCustomElement('myelement', function (user) {
       var View = Cycle.createView(function () {
-        return {vtree$: Rx.Observable.just(Cycle.h('h3.myelementclass'))};
+        return {vtree$: Rx.Observable.just(h('h3.myelementclass', 'foobar'))};
       });
       user.inject(View);
       return {
@@ -205,9 +203,10 @@ describe('Custom Elements', function () {
     // Use the custom element
     var view = Cycle.createView(function () {
       return {
-        vtree$: Rx.Observable.just(Cycle.h('myelement.eventsource'))
+        vtree$: Rx.Observable.just(h('div.toplevel', [h('myelement.eventsource')]))
       };
     });
+    var user = createDOMUser();
     user.event$('.eventsource', 'myevent').subscribe(function (x) {
       assert.strictEqual(x.data, 123);
       done();

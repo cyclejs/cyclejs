@@ -11,6 +11,8 @@ function endsWithDollarSign(str) {
 
 function makeDispatchFunction(element, eventName) {
   return function dispatchCustomEvent(evData) {
+    //console.log('%cdispatchCustomEvent ' + eventName,
+    //  'background-color: #CCCCFF; color: black');
     var event;
     try {
       event = new Event(eventName);

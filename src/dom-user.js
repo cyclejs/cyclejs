@@ -87,8 +87,7 @@ class DOMUser extends DataFlowNode {
   _defineRootElemStream() {
     // Create rootElem stream and automatic className correction
     let originalClasses = (this._domContainer.className || '').trim().split(/\s+/);
-    //console.log('%coriginalClasses: ' + originalClasses,
-    //  'color: white; background-color: black');
+    //console.log('%coriginalClasses: ' + originalClasses, 'color: lightgray');
     this._rawRootElem$ = new Rx.Subject();
     this._rootElem$ = this._rawRootElem$
       .map(function fixRootElemClassName(rootElem) {
@@ -97,10 +96,11 @@ class DOMUser extends DataFlowNode {
           return previousClasses.indexOf(clss) < 0;
         });
         //console.log('%cfixRootElemClassName(), missingClasses: ' + missingClasses,
-        //  'color: white; background-color: black');
+        //  'color: lightgray');
         rootElem.className = previousClasses.concat(missingClasses).join(' ');
-        //console.log('%c  result: ' + rootElem.className,
-        //  'color: white; background-color: black');
+        //console.log('%c  result: ' + rootElem.className, 'color: lightgray');
+        //console.log('%cEmit rootElem$ ' + rootElem.tagName + '.' + rootElem.className,
+        //  'color: #009988');
         return rootElem;
       })
       .shareReplay(1);
