@@ -69,13 +69,13 @@ describe('Custom Elements', function () {
     // Make simple custom element
     Cycle.registerCustomElement('myelement', function (User) {
       var View = Cycle.createView(function () {
-        return {vtree$: Rx.Observable.just(Cycle.h('h3.myelementclass'))};
+        return {vtree$: Rx.Observable.just(h('h3.myelementclass'))};
       });
       User.inject(View);
     });
     // Use the custom element
     var view = {
-      vtree$: Rx.Observable.just(Cycle.h('myelement'))
+      vtree$: Rx.Observable.just(h('div.toplevel', [h('myelement')]))
     };
     user.inject(view);
     // Make assertions
