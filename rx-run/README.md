@@ -36,28 +36,28 @@ DOM Rendering.
 ## Example
 
 ```javascript
-var Cycle = require('cyclejs');
-var h = Cycle.h;
+import Cycle from 'cyclejs';
+let {Rx, h} = Cycle;
 
-var Model = Cycle.createModel(Intent =>
+let Model = Cycle.createModel(Intent =>
   ({name$: Intent.get('changeName$').startWith('')})
 });
 
-var View = Cycle.createView(Model =>
+let View = Cycle.createView(Model =>
   ({
     vtree$: Model.get('name$').map(name =>
       h('div', [
         h('label', 'Name:'),
         h('input.field', {attributes: {type: 'text'}}),
-        h('h1.header', 'Hello ' + name)
+        h('h1.header', `Hello ${name}`)
       ])
     )
   })
 );
 
-var User = Cycle.createDOMUser('.js-container');
+let User = Cycle.createDOMUser('.js-container');
 
-var Intent = Cycle.createIntent(User =>
+let Intent = Cycle.createIntent(User =>
   ({changeName$: User.event$('.field', 'input').map(ev => ev.target.value)})
 );
 
