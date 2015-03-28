@@ -23,13 +23,13 @@
     "babel": "^4.7.3",
     "babelify": "^5.0.4",
     "browserify": "9.0.3",
-    "jscs": "1.11.x",
+    "jscs": "1.12.x",
     "jshint": "2.6.x",
     "markdox": "0.1.8",
     "mocha": "2.2.x",
-    "testem": "^0.7.5",
+    "testem": "^0.7.6",
     "testling": "^1.7.1",
-    "uglify-js": "2.4.16"
+    "uglify-js": "2.4.17"
   },
   "engines": {
     "node": ">=0.10.0"
