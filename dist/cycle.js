@@ -12330,6 +12330,7 @@ var DataFlowNode = (function () {
 
     this.type = "DataFlowNode";
     this._definitionFn = definitionFn;
+    this._subscription = new Rx.CompositeDisposable();
     this._proxies = [];
     for (var i = 0; i < definitionFn.length; i++) {
       this._proxies[i] = new InputProxy();
@@ -12354,7 +12355,8 @@ var DataFlowNode = (function () {
           console.warn("The call to inject() should provide the inputs that this " + "DataFlowNode expects according to its definition function.");
         }
         for (var i = 0; i < this._definitionFn.length; i++) {
-          DataFlowNode._replicateAll(arguments[i], this._proxies[i]);
+          var subscription = DataFlowNode._replicateAll(arguments[i], this._proxies[i]);
+          this._subscription.add(subscription);
         }
         this._wasInjected = true;
         if (arguments.length === 1) {
@@ -12363,6 +12365,13 @@ var DataFlowNode = (function () {
           return Array.prototype.slice.call(arguments);
         } else {
           return null;
+        }
+      }
+    },
+    dispose: {
+      value: function dispose() {
+        if (this._subscription && typeof this._subscription.dispose === "function") {
+          this._subscription.dispose();
         }
       }
     }
@@ -12380,39 +12389,46 @@ var DataFlowNode = (function () {
           return;
         }
 
+        var subscriptions = new Rx.CompositeDisposable();
         for (var key in proxy.proxiedProps) {
           if (proxy.proxiedProps.hasOwnProperty(key)) {
             var proxiedProperty = proxy.proxiedProps[key];
+            var subscription = undefined;
             if (typeof input.event$ === "function" && proxiedProperty._hasEvent$) {
-              DataFlowNode._replicateAllEvent$(input, key, proxiedProperty);
+              subscription = DataFlowNode._replicateAllEvent$(input, key, proxiedProperty);
             } else if (!input.hasOwnProperty(key) && input instanceof InputProxy) {
-              DataFlowNode._replicate(input.get(key), proxiedProperty);
+              subscription = DataFlowNode._replicate(input.get(key), proxiedProperty);
             } else if (typeof input.get === "function" && input.get(key) !== null) {
-              DataFlowNode._replicate(input.get(key), proxiedProperty);
+              subscription = DataFlowNode._replicate(input.get(key), proxiedProperty);
             } else if (typeof input === "object" && input.hasOwnProperty(key)) {
               if (!input[key]) {
                 input[key] = new Rx.Subject();
               }
-              DataFlowNode._replicate(input[key], proxiedProperty);
+              subscription = DataFlowNode._replicate(input[key], proxiedProperty);
             } else {
               throw new CycleInterfaceError("Input should have the required property " + key, String(key));
             }
+            subscriptions.add(subscription);
           }
         }
+        return subscriptions;
       }
     },
     _replicateAllEvent$: {
       value: function _replicateAllEvent$(input, selector, proxyObj) {
+        var subscriptions = new Rx.CompositeDisposable();
         for (var eventName in proxyObj) {
           if (proxyObj.hasOwnProperty(eventName)) {
             if (eventName !== "_hasEvent$") {
               var event$ = input.event$(selector, eventName);
               if (event$ !== null) {
-                DataFlowNode._replicate(event$, proxyObj[eventName]);
+                var subscription = DataFlowNode._replicate(event$, proxyObj[eventName]);
+                subscriptions.add(subscription);
               }
             }
           }
         }
+        return subscriptions;
       }
     },
     _replicate: {
@@ -12462,7 +12478,21 @@ var DataFlowSink = (function () {
     inject: {
       value: function inject() {
         var proxies = DataFlowSink.makeLightweightInputProxies(arguments);
-        return this._definitionFn.apply({}, proxies);
+        this._subscription = this._definitionFn.apply({}, proxies);
+        if (arguments.length === 1) {
+          return arguments[0];
+        } else if (arguments.length > 1) {
+          return Array.prototype.slice.call(arguments);
+        } else {
+          return null;
+        }
+      }
+    },
+    dispose: {
+      value: function dispose() {
+        if (this._subscription && typeof this._subscription.dispose === "function") {
+          this._subscription.dispose();
+        }
       }
     }
   }, {
@@ -12515,6 +12545,11 @@ var DataFlowSource = (function () {
   }
 
   _createClass(DataFlowSource, {
+    get: {
+      value: function get(key) {
+        return this[key];
+      }
+    },
     inject: {
       value: function inject() {
         throw new Error("A DataFlowSource cannot be injected. Use a DataFlowNode instead.");
