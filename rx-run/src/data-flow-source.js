@@ -24,6 +24,10 @@ class DataFlowSource {
   inject() {
     throw new Error('A DataFlowSource cannot be injected. Use a DataFlowNode instead.');
   }
+
+  dispose() {
+    throw new Error('A DataFlowSource cannot be disposed. Use a DataFlowNode instead.');
+  }
 }
 
 module.exports = DataFlowSource;
