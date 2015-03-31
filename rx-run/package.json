@@ -17,6 +17,7 @@
   "main": "lib/cycle.js",
   "dependencies": {
     "rx": "2.4.7",
+    "string.prototype.endswith": "^0.2.0",
     "virtual-dom": "2.0.1"
   },
   "devDependencies": {
