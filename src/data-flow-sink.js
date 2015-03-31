@@ -14,6 +14,10 @@ class DataFlowSink {
     this._definitionFn = definitionFn;
   }
 
+  get() {
+    throw new Error('A DataFlowSink does not have get(). Use a DataFlowNode instead.');
+  }
+
   inject() {
     let proxies = DataFlowSink.makeLightweightInputProxies(arguments);
     this._subscription = this._definitionFn.apply({}, proxies);
