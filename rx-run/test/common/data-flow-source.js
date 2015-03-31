@@ -22,6 +22,12 @@ describe('DataFlowSource', function () {
       assert.equal(source.foo, 'bar');
       assert.equal(source.baz, 'qux');
     });
+
+    it('should return an object with a function get()', function () {
+      var source = new DataFlowSource({foo: 'bar', baz: 'qux'});
+      assert.strictEqual(typeof source.get, 'function');
+      assert.strictEqual(source.get('foo'), 'bar');
+    });
   });
 
   it('might have an inject function', function () {
