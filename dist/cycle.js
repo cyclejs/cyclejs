@@ -10288,21 +10288,83 @@ process.umask = function() { return 0; };
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"_process":2}],4:[function(require,module,exports){
+/*! http://mths.be/endswith v0.2.0 by @mathias */
+if (!String.prototype.endsWith) {
+	(function() {
+		'use strict'; // needed to support `apply`/`call` with `undefined`/`null`
+		var defineProperty = (function() {
+			// IE 8 only supports `Object.defineProperty` on DOM elements
+			try {
+				var object = {};
+				var $defineProperty = Object.defineProperty;
+				var result = $defineProperty(object, object, object) && $defineProperty;
+			} catch(error) {}
+			return result;
+		}());
+		var toString = {}.toString;
+		var endsWith = function(search) {
+			if (this == null) {
+				throw TypeError();
+			}
+			var string = String(this);
+			if (search && toString.call(search) == '[object RegExp]') {
+				throw TypeError();
+			}
+			var stringLength = string.length;
+			var searchString = String(search);
+			var searchLength = searchString.length;
+			var pos = stringLength;
+			if (arguments.length > 1) {
+				var position = arguments[1];
+				if (position !== undefined) {
+					// `ToInteger`
+					pos = position ? Number(position) : 0;
+					if (pos != pos) { // better `isNaN`
+						pos = 0;
+					}
+				}
+			}
+			var end = Math.min(Math.max(pos, 0), stringLength);
+			var start = end - searchLength;
+			if (start < 0) {
+				return false;
+			}
+			var index = -1;
+			while (++index < searchLength) {
+				if (string.charCodeAt(start + index) != searchString.charCodeAt(index)) {
+					return false;
+				}
+			}
+			return true;
+		};
+		if (defineProperty) {
+			defineProperty(String.prototype, 'endsWith', {
+				'value': endsWith,
+				'configurable': true,
+				'writable': true
+			});
+		} else {
+			String.prototype.endsWith = endsWith;
+		}
+	}());
+}
+
+},{}],5:[function(require,module,exports){
 var createElement = require("./vdom/create-element.js")
 
 module.exports = createElement
 
-},{"./vdom/create-element.js":17}],5:[function(require,module,exports){
+},{"./vdom/create-element.js":18}],6:[function(require,module,exports){
 var diff = require("./vtree/diff.js")
 
 module.exports = diff
 
-},{"./vtree/diff.js":37}],6:[function(require,module,exports){
+},{"./vtree/diff.js":38}],7:[function(require,module,exports){
 var h = require("./virtual-hyperscript/index.js")
 
 module.exports = h
 
-},{"./virtual-hyperscript/index.js":24}],7:[function(require,module,exports){
+},{"./virtual-hyperscript/index.js":25}],8:[function(require,module,exports){
 var diff = require("./diff.js")
 var patch = require("./patch.js")
 var h = require("./h.js")
@@ -10319,7 +10381,7 @@ module.exports = {
     VText: VText
 }
 
-},{"./create-element.js":4,"./diff.js":5,"./h.js":6,"./patch.js":15,"./vnode/vnode.js":33,"./vnode/vtext.js":35}],8:[function(require,module,exports){
+},{"./create-element.js":5,"./diff.js":6,"./h.js":7,"./patch.js":16,"./vnode/vnode.js":34,"./vnode/vtext.js":36}],9:[function(require,module,exports){
 /*!
  * Cross-Browser Split 1.1.1
  * Copyright 2007-2012 Steven Levithan <stevenlevithan.com>
@@ -10427,7 +10489,7 @@ module.exports = (function split(undef) {
   return self;
 })();
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
 var OneVersionConstraint = require('individual/one-version');
@@ -10449,7 +10511,7 @@ function EvStore(elem) {
     return hash;
 }
 
-},{"individual/one-version":11}],10:[function(require,module,exports){
+},{"individual/one-version":12}],11:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -10472,7 +10534,7 @@ function Individual(key, value) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 var Individual = require('./index.js');
@@ -10496,7 +10558,7 @@ function OneVersion(moduleName, version, defaultValue) {
     return Individual(key, defaultValue);
 }
 
-},{"./index.js":10}],12:[function(require,module,exports){
+},{"./index.js":11}],13:[function(require,module,exports){
 (function (global){
 var topLevel = typeof global !== 'undefined' ? global :
     typeof window !== 'undefined' ? window : {}
@@ -10515,14 +10577,14 @@ if (typeof document !== 'undefined') {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"min-document":1}],13:[function(require,module,exports){
+},{"min-document":1}],14:[function(require,module,exports){
 "use strict";
 
 module.exports = function isObject(x) {
 	return typeof x === "object" && x !== null;
 };
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 var nativeIsArray = Array.isArray
 var toString = Object.prototype.toString
 
@@ -10532,12 +10594,12 @@ function isArray(obj) {
     return toString.call(obj) === "[object Array]"
 }
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 var patch = require("./vdom/patch.js")
 
 module.exports = patch
 
-},{"./vdom/patch.js":20}],16:[function(require,module,exports){
+},{"./vdom/patch.js":21}],17:[function(require,module,exports){
 var isObject = require("is-object")
 var isHook = require("../vnode/is-vhook.js")
 
@@ -10636,7 +10698,7 @@ function getPrototype(value) {
     }
 }
 
-},{"../vnode/is-vhook.js":28,"is-object":13}],17:[function(require,module,exports){
+},{"../vnode/is-vhook.js":29,"is-object":14}],18:[function(require,module,exports){
 var document = require("global/document")
 
 var applyProperties = require("./apply-properties")
@@ -10684,7 +10746,7 @@ function createElement(vnode, opts) {
     return node
 }
 
-},{"../vnode/handle-thunk.js":26,"../vnode/is-vnode.js":29,"../vnode/is-vtext.js":30,"../vnode/is-widget.js":31,"./apply-properties":16,"global/document":12}],18:[function(require,module,exports){
+},{"../vnode/handle-thunk.js":27,"../vnode/is-vnode.js":30,"../vnode/is-vtext.js":31,"../vnode/is-widget.js":32,"./apply-properties":17,"global/document":13}],19:[function(require,module,exports){
 // Maps a virtual DOM tree onto a real DOM tree in an efficient manner.
 // We don't want to read all of the DOM nodes in the tree so we use
 // the in-order tree indexing to eliminate recursion down certain branches.
@@ -10771,7 +10833,7 @@ function ascending(a, b) {
     return a > b ? 1 : -1
 }
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 var applyProperties = require("./apply-properties")
 
 var isWidget = require("../vnode/is-widget.js")
@@ -10925,7 +10987,7 @@ function replaceRoot(oldRoot, newRoot) {
     return newRoot;
 }
 
-},{"../vnode/is-widget.js":31,"../vnode/vpatch.js":34,"./apply-properties":16,"./create-element":17,"./update-widget":21}],20:[function(require,module,exports){
+},{"../vnode/is-widget.js":32,"../vnode/vpatch.js":35,"./apply-properties":17,"./create-element":18,"./update-widget":22}],21:[function(require,module,exports){
 var document = require("global/document")
 var isArray = require("x-is-array")
 
@@ -11003,7 +11065,7 @@ function patchIndices(patches) {
     return indices
 }
 
-},{"./dom-index":18,"./patch-op":19,"global/document":12,"x-is-array":14}],21:[function(require,module,exports){
+},{"./dom-index":19,"./patch-op":20,"global/document":13,"x-is-array":15}],22:[function(require,module,exports){
 var isWidget = require("../vnode/is-widget.js")
 
 module.exports = updateWidget
@@ -11020,7 +11082,7 @@ function updateWidget(a, b) {
     return false
 }
 
-},{"../vnode/is-widget.js":31}],22:[function(require,module,exports){
+},{"../vnode/is-widget.js":32}],23:[function(require,module,exports){
 'use strict';
 
 var EvStore = require('ev-store');
@@ -11049,7 +11111,7 @@ EvHook.prototype.unhook = function(node, propertyName) {
     es[propName] = undefined;
 };
 
-},{"ev-store":9}],23:[function(require,module,exports){
+},{"ev-store":10}],24:[function(require,module,exports){
 'use strict';
 
 module.exports = SoftSetHook;
@@ -11068,7 +11130,7 @@ SoftSetHook.prototype.hook = function (node, propertyName) {
     }
 };
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 'use strict';
 
 var isArray = require('x-is-array');
@@ -11205,7 +11267,7 @@ function errorString(obj) {
     }
 }
 
-},{"../vnode/is-thunk":27,"../vnode/is-vhook":28,"../vnode/is-vnode":29,"../vnode/is-vtext":30,"../vnode/is-widget":31,"../vnode/vnode.js":33,"../vnode/vtext.js":35,"./hooks/ev-hook.js":22,"./hooks/soft-set-hook.js":23,"./parse-tag.js":25,"x-is-array":14}],25:[function(require,module,exports){
+},{"../vnode/is-thunk":28,"../vnode/is-vhook":29,"../vnode/is-vnode":30,"../vnode/is-vtext":31,"../vnode/is-widget":32,"../vnode/vnode.js":34,"../vnode/vtext.js":36,"./hooks/ev-hook.js":23,"./hooks/soft-set-hook.js":24,"./parse-tag.js":26,"x-is-array":15}],26:[function(require,module,exports){
 'use strict';
 
 var split = require('browser-split');
@@ -11261,7 +11323,7 @@ function parseTag(tag, props) {
     return props.namespace ? tagName : tagName.toUpperCase();
 }
 
-},{"browser-split":8}],26:[function(require,module,exports){
+},{"browser-split":9}],27:[function(require,module,exports){
 var isVNode = require("./is-vnode")
 var isVText = require("./is-vtext")
 var isWidget = require("./is-widget")
@@ -11303,14 +11365,14 @@ function renderThunk(thunk, previous) {
     return renderedThunk
 }
 
-},{"./is-thunk":27,"./is-vnode":29,"./is-vtext":30,"./is-widget":31}],27:[function(require,module,exports){
+},{"./is-thunk":28,"./is-vnode":30,"./is-vtext":31,"./is-widget":32}],28:[function(require,module,exports){
 module.exports = isThunk
 
 function isThunk(t) {
     return t && t.type === "Thunk"
 }
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 module.exports = isHook
 
 function isHook(hook) {
@@ -11319,7 +11381,7 @@ function isHook(hook) {
        typeof hook.unhook === "function" && !hook.hasOwnProperty("unhook"))
 }
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualNode
@@ -11328,7 +11390,7 @@ function isVirtualNode(x) {
     return x && x.type === "VirtualNode" && x.version === version
 }
 
-},{"./version":32}],30:[function(require,module,exports){
+},{"./version":33}],31:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualText
@@ -11337,17 +11399,17 @@ function isVirtualText(x) {
     return x && x.type === "VirtualText" && x.version === version
 }
 
-},{"./version":32}],31:[function(require,module,exports){
+},{"./version":33}],32:[function(require,module,exports){
 module.exports = isWidget
 
 function isWidget(w) {
     return w && w.type === "Widget"
 }
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 module.exports = "2"
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 var version = require("./version")
 var isVNode = require("./is-vnode")
 var isWidget = require("./is-widget")
@@ -11421,7 +11483,7 @@ function VirtualNode(tagName, properties, children, key, namespace) {
 VirtualNode.prototype.version = version
 VirtualNode.prototype.type = "VirtualNode"
 
-},{"./is-thunk":27,"./is-vhook":28,"./is-vnode":29,"./is-widget":31,"./version":32}],34:[function(require,module,exports){
+},{"./is-thunk":28,"./is-vhook":29,"./is-vnode":30,"./is-widget":32,"./version":33}],35:[function(require,module,exports){
 var version = require("./version")
 
 VirtualPatch.NONE = 0
@@ -11445,7 +11507,7 @@ function VirtualPatch(type, vNode, patch) {
 VirtualPatch.prototype.version = version
 VirtualPatch.prototype.type = "VirtualPatch"
 
-},{"./version":32}],35:[function(require,module,exports){
+},{"./version":33}],36:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = VirtualText
@@ -11457,7 +11519,7 @@ function VirtualText(text) {
 VirtualText.prototype.version = version
 VirtualText.prototype.type = "VirtualText"
 
-},{"./version":32}],36:[function(require,module,exports){
+},{"./version":33}],37:[function(require,module,exports){
 var isObject = require("is-object")
 var isHook = require("../vnode/is-vhook")
 
@@ -11517,7 +11579,7 @@ function getPrototype(value) {
   }
 }
 
-},{"../vnode/is-vhook":28,"is-object":13}],37:[function(require,module,exports){
+},{"../vnode/is-vhook":29,"is-object":14}],38:[function(require,module,exports){
 var isArray = require("x-is-array")
 
 var VPatch = require("../vnode/vpatch")
@@ -11946,17 +12008,11 @@ function appendPatch(apply, patch) {
     }
 }
 
-},{"../vnode/handle-thunk":26,"../vnode/is-thunk":27,"../vnode/is-vnode":29,"../vnode/is-vtext":30,"../vnode/is-widget":31,"../vnode/vpatch":34,"./diff-props":36,"x-is-array":14}],38:[function(require,module,exports){
+},{"../vnode/handle-thunk":27,"../vnode/is-thunk":28,"../vnode/is-vnode":30,"../vnode/is-vtext":31,"../vnode/is-widget":32,"../vnode/vpatch":35,"./diff-props":37,"x-is-array":15}],39:[function(require,module,exports){
 "use strict";
 var InputProxy = require("./input-proxy");
 var Rx = require("rx");
-
-function endsWithDollarSign(str) {
-  if (typeof str !== "string") {
-    return false;
-  }
-  return str.indexOf("$", str.length - 1) !== -1;
-}
+require("string.prototype.endswith");
 
 function makeDispatchFunction(element, eventName) {
   return function dispatchCustomEvent(evData) {
@@ -11982,7 +12038,7 @@ function subscribeDispatchers(element, eventStreams) {
   var disposables = new Rx.CompositeDisposable();
   for (var streamName in eventStreams) {
     if (eventStreams.hasOwnProperty(streamName)) {
-      if (endsWithDollarSign(streamName) && typeof eventStreams[streamName].subscribe === "function") {
+      if (streamName.endsWith("$") && typeof eventStreams[streamName].subscribe === "function") {
         var eventName = streamName.slice(0, -1);
         var disposable = eventStreams[streamName].subscribe(makeDispatchFunction(element, eventName));
         disposables.add(disposable);
@@ -12031,10 +12087,17 @@ function replicateUserRootElem$(origin, destination) {
   });
 }
 
+function warnIfVTreeHasNoKey(vtree) {
+  if (typeof vtree.key === "undefined") {
+    console.warn("Missing key property for Cycle custom element " + vtree.tagName);
+  }
+}
+
 function makeConstructor() {
   return function customElementConstructor(vtree) {
     //console.log('%cnew (constructor) custom element ' + vtree.tagName,
     //  'color: #880088');
+    warnIfVTreeHasNoKey(vtree);
     this.type = "Widget";
     this.properties = vtree.properties;
     this.key = vtree.key;
@@ -12094,7 +12157,7 @@ module.exports = {
   makeUpdate: makeUpdate
 };
 
-},{"./dom-user":44,"./input-proxy":46,"rx":3}],39:[function(require,module,exports){
+},{"./dom-user":45,"./input-proxy":47,"rx":3,"string.prototype.endswith":4}],40:[function(require,module,exports){
 "use strict";
 var VirtualDOM = require("virtual-dom");
 var Rx = require("rx");
@@ -12262,7 +12325,7 @@ var Cycle = {
 
 module.exports = Cycle;
 
-},{"./data-flow-node":41,"./data-flow-sink":42,"./data-flow-source":43,"./dom-user":44,"./intent":47,"./model":48,"./property-hook":49,"./view":50,"rx":3,"virtual-dom":7}],40:[function(require,module,exports){
+},{"./data-flow-node":42,"./data-flow-sink":43,"./data-flow-source":44,"./dom-user":45,"./intent":48,"./model":49,"./property-hook":50,"./view":51,"rx":3,"virtual-dom":8}],41:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -12308,7 +12371,7 @@ var DataFlowNodeWithCustomWarning = (function (_DataFlowNode) {
 
 module.exports = DataFlowNodeWithCustomWarning;
 
-},{"./data-flow-node":41,"./errors":45}],41:[function(require,module,exports){
+},{"./data-flow-node":42,"./errors":46}],42:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -12451,7 +12514,7 @@ var DataFlowNode = (function () {
 
 module.exports = DataFlowNode;
 
-},{"./errors":45,"./input-proxy":46,"rx":3}],42:[function(require,module,exports){
+},{"./errors":46,"./input-proxy":47,"rx":3}],43:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -12475,6 +12538,11 @@ var DataFlowSink = (function () {
   }
 
   _createClass(DataFlowSink, {
+    get: {
+      value: function get() {
+        throw new Error("A DataFlowSink does not have get(). Use a DataFlowNode instead.");
+      }
+    },
     inject: {
       value: function inject() {
         var proxies = DataFlowSink.makeLightweightInputProxies(arguments);
@@ -12518,7 +12586,7 @@ var DataFlowSink = (function () {
 
 module.exports = DataFlowSink;
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -12554,6 +12622,11 @@ var DataFlowSource = (function () {
       value: function inject() {
         throw new Error("A DataFlowSource cannot be injected. Use a DataFlowNode instead.");
       }
+    },
+    dispose: {
+      value: function dispose() {
+        throw new Error("A DataFlowSource cannot be disposed. Use a DataFlowNode instead.");
+      }
     }
   });
 
@@ -12562,7 +12635,7 @@ var DataFlowSource = (function () {
 
 module.exports = DataFlowSource;
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 "use strict";
 
 var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) { _arr.push(_step.value); if (i && _arr.length === i) break; } return _arr; } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } };
@@ -12807,7 +12880,7 @@ var DOMUser = (function (_DataFlowNode) {
 
 module.exports = DOMUser;
 
-},{"./custom-elements":38,"./data-flow-node":41,"rx":3,"virtual-dom":7,"virtual-dom/diff":5,"virtual-dom/patch":15}],45:[function(require,module,exports){
+},{"./custom-elements":39,"./data-flow-node":42,"rx":3,"virtual-dom":8,"virtual-dom/diff":6,"virtual-dom/patch":16}],46:[function(require,module,exports){
 "use strict";
 
 var _inherits = function (subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; };
@@ -12832,7 +12905,7 @@ module.exports = {
   CycleInterfaceError: CycleInterfaceError
 };
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -12884,7 +12957,7 @@ var InputProxy = (function () {
 
 module.exports = InputProxy;
 
-},{"rx":3}],47:[function(require,module,exports){
+},{"rx":3}],48:[function(require,module,exports){
 "use strict";
 
 var _get = function get(object, property, receiver) { var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc && desc.writable) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
@@ -12910,7 +12983,7 @@ var Intent = (function (_DataFlowNodeWithCustomWarning) {
 
 module.exports = Intent;
 
-},{"./data-flow-node-custom-warning":40}],48:[function(require,module,exports){
+},{"./data-flow-node-custom-warning":41}],49:[function(require,module,exports){
 "use strict";
 
 var _get = function get(object, property, receiver) { var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc && desc.writable) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
@@ -12936,7 +13009,7 @@ var Model = (function (_DataFlowNodeWithCustomWarning) {
 
 module.exports = Model;
 
-},{"./data-flow-node-custom-warning":40}],49:[function(require,module,exports){
+},{"./data-flow-node-custom-warning":41}],50:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -12963,7 +13036,7 @@ var PropertyHook = (function () {
 
 module.exports = PropertyHook;
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -13042,5 +13115,5 @@ var View = (function (_DataFlowNodeWithCustomWarning) {
 
 module.exports = View;
 
-},{"./data-flow-node-custom-warning":40,"rx":3}]},{},[39])(39)
+},{"./data-flow-node-custom-warning":41,"rx":3}]},{},[40])(40)
 });
