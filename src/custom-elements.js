@@ -76,10 +76,17 @@ function replicateUserRootElem$(origin, destination) {
   origin._rootElem$.subscribe(elem => destination._rootElem$.onNext(elem));
 }
 
+function warnIfVTreeHasNoKey(vtree) {
+  if (typeof vtree.key === 'undefined') {
+    console.warn(`Missing key property for Cycle custom element ${vtree.tagName}`);
+  }
+}
+
 function makeConstructor() {
   return function customElementConstructor(vtree) {
     //console.log('%cnew (constructor) custom element ' + vtree.tagName,
     //  'color: #880088');
+    warnIfVTreeHasNoKey(vtree);
     this.type = 'Widget';
     this.properties = vtree.properties;
     this.key = vtree.key;

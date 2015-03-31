@@ -219,12 +219,45 @@ describe('Custom Elements', function () {
     assert.strictEqual(myElement.tagName, 'H3');
   });
 
+  it('should warn when custom element is used with no key', function () {
+    let user = createDOMUser();
+    let realConsole = console;
+    let warnMessages = [];
+    let noop = () => {};
+    console = {
+      log: noop,
+      error: noop,
+      warn: (msg) => warnMessages.push(msg)
+    };
+    // Make simple custom element
+    Cycle.registerCustomElement('myelement', function (user) {
+      var view = Cycle.createView(function () {
+        return {vtree$: Rx.Observable.just(h('h3.myelementclass'))};
+      });
+      user.inject(view);
+    });
+    // Make VNode with a string as child
+    var view = Cycle.createView(function () {
+      return {
+        vtree$: Rx.Observable.just(
+          h('myelement')
+        )
+      };
+    });
+    user.inject(view);
+    console = realConsole;
+    assert.strictEqual(warnMessages.length, 1);
+    assert.strictEqual(warnMessages[0],
+      'Missing key property for Cycle custom element MYELEMENT'
+    );
+  });
+
   it('should not fail when examining VirtualText on replaceCustomElements', function () {
     var user = createDOMUser();
     // Make simple custom element
     Cycle.registerCustomElement('myelement', function (User) {
       var View = Cycle.createView(function () {
-        return {vtree$: Rx.Observable.just(Cycle.h('h3.myelementclass'))};
+        return {vtree$: Rx.Observable.just(h('h3.myelementclass'))};
       });
       User.inject(View);
     });
@@ -232,7 +265,7 @@ describe('Custom Elements', function () {
     var view = Cycle.createView(function () {
       return {
         vtree$: Rx.Observable.just(
-          Cycle.h('h1', 'This will be a VirtualText')
+          h('h1', 'This will be a VirtualText')
         )
       };
     });
