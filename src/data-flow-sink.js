@@ -16,7 +16,20 @@ class DataFlowSink {
 
   inject() {
     let proxies = DataFlowSink.makeLightweightInputProxies(arguments);
-    return this._definitionFn.apply({}, proxies);
+    this._subscription = this._definitionFn.apply({}, proxies);
+    if (arguments.length === 1) {
+      return arguments[0];
+    } else if (arguments.length > 1) {
+      return Array.prototype.slice.call(arguments);
+    } else {
+      return null;
+    }
+  }
+
+  dispose() {
+    if (this._subscription && typeof this._subscription.dispose === 'function') {
+      this._subscription.dispose();
+    }
   }
 
   static makeLightweightInputProxies(args) {

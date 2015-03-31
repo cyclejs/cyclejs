@@ -17,6 +17,10 @@ class DataFlowSource {
     }}
   }
 
+  get(key) {
+    return this[key];
+  }
+
   inject() {
     throw new Error('A DataFlowSource cannot be injected. Use a DataFlowNode instead.');
   }

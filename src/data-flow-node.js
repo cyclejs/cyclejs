@@ -12,6 +12,7 @@ class DataFlowNode {
 
     this.type = 'DataFlowNode';
     this._definitionFn = definitionFn;
+    this._subscription = new Rx.CompositeDisposable();
     this._proxies = [];
     for (let i = 0; i < definitionFn.length; i++) {
       this._proxies[i] = new InputProxy();
@@ -34,7 +35,8 @@ class DataFlowNode {
       'DataFlowNode expects according to its definition function.');
     }
     for (let i = 0; i < this._definitionFn.length; i++) {
-      DataFlowNode._replicateAll(arguments[i], this._proxies[i]);
+      let subscription = DataFlowNode._replicateAll(arguments[i], this._proxies[i]);
+      this._subscription.add(subscription);
     }
     this._wasInjected = true;
     if (arguments.length === 1) {
@@ -43,6 +45,12 @@ class DataFlowNode {
       return Array.prototype.slice.call(arguments);
     } else {
       return null;
+    }
+  }
+
+  dispose() {
+    if (this._subscription && typeof this._subscription.dispose === 'function') {
+      this._subscription.dispose();
     }
   }
 
@@ -55,36 +63,43 @@ class DataFlowNode {
   static _replicateAll(input, proxy) {
     if (!input || !proxy) { return; }
 
+    let subscriptions = new Rx.CompositeDisposable();
     for (let key in proxy.proxiedProps) { if (proxy.proxiedProps.hasOwnProperty(key)) {
       let proxiedProperty = proxy.proxiedProps[key];
+      let subscription;
       if (typeof input.event$ === 'function' && proxiedProperty._hasEvent$) {
-        DataFlowNode._replicateAllEvent$(input, key, proxiedProperty);
+        subscription = DataFlowNode._replicateAllEvent$(input, key, proxiedProperty);
       } else if (!input.hasOwnProperty(key) && input instanceof InputProxy) {
-        DataFlowNode._replicate(input.get(key), proxiedProperty);
+        subscription = DataFlowNode._replicate(input.get(key), proxiedProperty);
       } else if (typeof input.get === 'function' && input.get(key) !== null) {
-        DataFlowNode._replicate(input.get(key), proxiedProperty);
+        subscription = DataFlowNode._replicate(input.get(key), proxiedProperty);
       } else if (typeof input === 'object' && input.hasOwnProperty(key)) {
         if (!input[key]) {
           input[key] = new Rx.Subject();
         }
-        DataFlowNode._replicate(input[key], proxiedProperty);
+        subscription = DataFlowNode._replicate(input[key], proxiedProperty);
       } else {
         throw new CycleInterfaceError('Input should have the required property ' +
           key, String(key)
         );
       }
+      subscriptions.add(subscription);
     }}
+    return subscriptions;
   }
 
   static _replicateAllEvent$(input, selector, proxyObj) {
+    let subscriptions = new Rx.CompositeDisposable();
     for (let eventName in proxyObj) { if (proxyObj.hasOwnProperty(eventName)) {
       if (eventName !== '_hasEvent$') {
         let event$ = input.event$(selector, eventName);
         if (event$ !== null) {
-          DataFlowNode._replicate(event$, proxyObj[eventName]);
+          let subscription = DataFlowNode._replicate(event$, proxyObj[eventName]);
+          subscriptions.add(subscription);
         }
       }
     }}
+    return subscriptions;
   }
 
   static _replicate(source, subject) {

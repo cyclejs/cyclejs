@@ -29,11 +29,33 @@ describe('DataFlowNode', function () {
       assert.equal(typeof dataFlowNode, 'object');
     });
 
-    it('should return an object with inject(), get()', function () {
+    it('should return an object with inject(), get(), dispose()', function () {
       var dataFlowNode = new DataFlowNode(function () { return {}; });
       assert.equal(typeof dataFlowNode.inject, 'function');
       assert.equal(typeof dataFlowNode.get, 'function');
+      assert.equal(typeof dataFlowNode.dispose, 'function');
     });
+  });
+
+  it('should not operate after dispose() has been called', function (done) {
+    var first = new DataFlowNode(function () {
+      return {
+        foo$: Rx.Observable.interval(100).map(x => x + 1).take(3)
+      };
+    });
+    var second = new DataFlowNode(function (input) {
+      return {
+        bar$: input.get('foo$').map(x => x * 10)
+      };
+    });
+    second.inject(first);
+    second.get('bar$').subscribe(function (x) {
+      assert.notStrictEqual(x, 30);
+    });
+    setTimeout(function () { second.dispose(); }, 250);
+    setTimeout(function () {
+      done();
+    }, 400);
   });
 
   describe('injection', function () {
