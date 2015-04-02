@@ -44,12 +44,12 @@ var ManyModel = Cycle.createModel(function (Intent) {
     };
   });
 
-  var itemModifications = Cycle.Rx.Observable.merge(
+  var itemModification$ = Cycle.Rx.Observable.merge(
     addItemMod$, removeItemMod$, colorChangedMod$, widthChangedMod$
   );
 
   return {
-    items$: itemModifications
+    items$: itemModification$
       .startWith([{id: 0, color: 'red', width: 300}])
       .scan(function (listItems, modification) {
         return modification(listItems);
