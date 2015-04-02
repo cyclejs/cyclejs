@@ -4,7 +4,7 @@
   "author": "Andre Staltz",
   "description": "An honestly reactive framework for web user interfaces",
   "license": "MIT",
-  "homepage": "http://staltz.com/cycle",
+  "homepage": "https://github.com/staltz/cycle",
   "bugs": "https://github.com/staltz/cycle/issues",
   "repository": {
     "type": "git",
