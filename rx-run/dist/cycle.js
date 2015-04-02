@@ -12093,6 +12093,12 @@ function warnIfVTreeHasNoKey(vtree) {
   }
 }
 
+function throwIfVTreeHasPropertyChildren(vtree) {
+  if (typeof vtree.properties.children !== "undefined") {
+    throw new Error("Custom element should not have property `children`. This is " + "reserved for children elements nested into this custom element.");
+  }
+}
+
 function makeConstructor() {
   return function customElementConstructor(vtree) {
     //console.log('%cnew (constructor) custom element ' + vtree.tagName,
@@ -12100,6 +12106,8 @@ function makeConstructor() {
     warnIfVTreeHasNoKey(vtree);
     this.type = "Widget";
     this.properties = vtree.properties;
+    throwIfVTreeHasPropertyChildren(vtree);
+    this.properties.children = vtree.children;
     this.key = vtree.key;
     this._rootElem$ = new Rx.ReplaySubject(1);
   };
@@ -12129,7 +12137,7 @@ function makeUpdate() {
     if (!element.cycleCustomElementProperties) {
       return;
     }
-    if (!(element.cycleCustomElementProperties instanceof InputProxy)) {
+    if (element.cycleCustomElementProperties.type !== "InputProxy") {
       return;
     }
     if (!element.cycleCustomElementProperties.proxiedProps) {
