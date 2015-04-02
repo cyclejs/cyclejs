@@ -117,7 +117,7 @@ function makeUpdate() {
   return function updateCustomElement(previous, element) {
     if (!element) { return; }
     if (!element.cycleCustomElementProperties) { return; }
-    if (!(element.cycleCustomElementProperties instanceof InputProxy)) { return; }
+    if (element.cycleCustomElementProperties.type !== 'InputProxy') { return; }
     if (!element.cycleCustomElementProperties.proxiedProps) { return; }
 
     //console.log('%cupdate() custom element ' + element.className, 'color: #880088');
