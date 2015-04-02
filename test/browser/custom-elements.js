@@ -342,4 +342,58 @@ describe('Custom Elements', function () {
       done();
     }, 500);
   });
+
+  it('should recognize nested vtree as Properties.get(\'children$\')', function () {
+    var user = createDOMUser();
+    // Make simple custom element
+    Cycle.registerCustomElement('simple-wrapper', function (user, properties) {
+      var view = Cycle.createView(function (properties) {
+        return {
+          vtree$: properties.get('children$').map(children =>
+            h('div.wrapper', children)
+          )
+        };
+      });
+      user.inject(view).inject(properties);
+    });
+    // Use the custom element
+    var view = {
+      vtree$: Rx.Observable.just(h('div.toplevel', [
+        h('simple-wrapper', [
+          h('h1', 'Hello'), h('h2', 'World')
+        ])
+      ]))
+    };
+    user.inject(view);
+    // Make assertions
+    var wrapper = document.querySelector('.wrapper');
+    assert.notStrictEqual(wrapper, null);
+    assert.notStrictEqual(typeof wrapper, 'undefined');
+    assert.strictEqual(wrapper.tagName, 'DIV');
+  });
+
+  it('should throw error if children property is explicitly used', function (done) {
+    var user = createDOMUser();
+    // Make simple custom element
+    Cycle.registerCustomElement('myelement', function (User) {
+      var View = Cycle.createView(function () {
+        return {vtree$: Rx.Observable.just(h('h3.myelementclass'))};
+      });
+      User.inject(View);
+    });
+    // Use the custom element
+    var view = {
+      vtree$: Rx.Observable.just(h('div.toplevel', [
+        h('myelement', {children: 123})
+      ]))
+    };
+    user._error$.subscribe(function (err) {
+      assert.strictEqual(err.message, 'Custom element should not have property ' +
+        '`children`. This is reserved for children elements nested into this ' +
+        'custom element.'
+      );
+      done();
+    });
+    user.inject(view);
+  });
 });
