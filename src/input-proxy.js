@@ -1,31 +1,22 @@
 'use strict';
 var Rx = require('rx');
 
-class InputProxy {
+class InputProxy extends Rx.Subject {
   constructor() {
+    super();
     this.type = 'InputProxy';
-    this.proxiedProps = {};
+    this._userEvent$ = {};
   }
 
-  // For any DataFlowNode
-  get(streamKey) {
-    if (typeof this.proxiedProps[streamKey] === 'undefined') {
-      this.proxiedProps[streamKey] = new Rx.Subject();
+  // For the rendered rootElem$ with getInteractions$
+  choose(selector, eventName) {
+    if (typeof this._userEvent$[selector] === 'undefined') {
+      this._userEvent$[selector] = {};
     }
-    return this.proxiedProps[streamKey];
-  }
-
-  // For the DOMUser
-  event$(selector, eventName) {
-    if (typeof this.proxiedProps[selector] === 'undefined') {
-      this.proxiedProps[selector] = {
-        _hasEvent$: true
-      };
+    if (typeof this._userEvent$[selector][eventName] === 'undefined') {
+      this._userEvent$[selector][eventName] = new Rx.Subject();
     }
-    if (typeof this.proxiedProps[selector][eventName] === 'undefined') {
-      this.proxiedProps[selector][eventName] = new Rx.Subject();
-    }
-    return this.proxiedProps[selector][eventName];
+    return this._userEvent$[selector][eventName];
   }
 }
 

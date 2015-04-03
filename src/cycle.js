@@ -1,6 +1,7 @@
 'use strict';
 let VirtualDOM = require('virtual-dom');
 let Rx = require('rx');
+let Stream = require('./stream');
 let DataFlowNode = require('./data-flow-node');
 let DataFlowSource = require('./data-flow-source');
 let DataFlowSink = require('./data-flow-sink');
@@ -9,8 +10,15 @@ let View = require('./view');
 let DOMUser = require('./dom-user');
 let Intent = require('./intent');
 let PropertyHook = require('./property-hook');
+let Rendering = require('./render');
 
 var Cycle = {
+  createStream: function createStream(definitionFn) {
+    return new Stream.createStream(definitionFn);
+  },
+
+  render: Rendering.render,
+
   /**
    * Creates a DataFlowNode based on the given `definitionFn`. The `definitionFn`
    * function will be executed immediately on create, and the resulting DataFlowNode
