@@ -1,20 +1,37 @@
-var ManyIntent = Cycle.createIntent(function (User) {
+var manyIntent = (function () {
+  var addItem$ = Cycle.createStream(function (interactions$) {
+    return Cycle.Rx.Observable.merge(
+      interactions$.choose('.add-one-btn', 'click').map(function () { return 1; }),
+      interactions$.choose('.add-many-btn', 'click').map(function () { return 1000; })
+    );
+  });
+
+  var changeColor$ = Cycle.createStream(function (interactions$) {
+    return interactions$.choose('.item', 'changeColor')
+      .map(function (ev) { return ev.data; });
+  });
+
+  var changeWidth$ = Cycle.createStream(function (interactions$) {
+    return interactions$.choose('.item', 'changeWidth')
+      .map(function (ev) { return ev.data; });
+  });
+
+  var removeItem$ = Cycle.createStream(function (interactions$) {
+    return interactions$.choose('.item', 'destroy')
+      .map(function (ev) { return ev.data; });
+  });
+
   return {
-    addItem$: Cycle.Rx.Observable.merge(
-      User.event$('.add-one-btn', 'click').map(function () { return 1; }),
-      User.event$('.add-many-btn', 'click').map(function () { return 1000; })
-    ),
-
-    changeColor$: User.event$('.item', 'changeColor').map(function (ev) {
-      return ev.data;
-    }),
-
-    changeWidth$: User.event$('.item', 'changeWidth').map(function (ev) {
-        return ev.data;
-      }),
-
-    removeItem$: User.event$('.item', 'destroy').map(function (ev) {
-      return ev.data;
-    })
+    addItem$: addItem$,
+    changeColor$: changeColor$,
+    changeWidth$: changeWidth$,
+    removeItem$: removeItem$,
+    inject: function inject(user) {
+      addItem$.inject(user.interactions$);
+      changeColor$.inject(user.interactions$);
+      changeWidth$.inject(user.interactions$);
+      removeItem$.inject(user.interactions$);
+      return user;
+    }
   };
-});
+})();

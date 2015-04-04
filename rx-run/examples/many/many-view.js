@@ -1,6 +1,6 @@
 var h = Cycle.h;
 
-var ManyView = Cycle.createView(function (Model) {
+var manyView = (function () {
   function vrenderTopButtons() {
     return h('div.topButtons', [
       h('button.add-one-btn', 'Add New Item'),
@@ -17,13 +17,21 @@ var ManyView = Cycle.createView(function (Model) {
     });
   }
 
-  return {
-    vtree$: Model.get('items$')
+  var vtree$ = Cycle.createStream(function (items$) {
+    return items$
       .map(function (itemsData) {
         return h('div.everything', {}, [
           vrenderTopButtons(),
           itemsData.map(vrenderItem)
         ]);
-      })
+      });
+  });
+
+  return {
+    vtree$: vtree$,
+    inject: function inject(model) {
+      vtree$.inject(model.items$);
+      return model;
+    }
   };
-});
+})();
