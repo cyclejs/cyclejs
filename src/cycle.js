@@ -138,9 +138,7 @@ var Cycle = {
    * observables matching the custom element properties.
    * @function registerCustomElement
    */
-  registerCustomElement: function registerCustomElement(tagName, definitionFn) {
-    DOMUser.registerCustomElement(tagName, definitionFn);
-  },
+  registerCustomElement: Rendering.registerCustomElement,
 
   /**
    * Returns a hook for manipulating an element from the real DOM. This is a helper for

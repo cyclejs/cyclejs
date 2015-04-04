@@ -12010,8 +12010,17 @@ function appendPatch(apply, patch) {
 
 },{"../vnode/handle-thunk":27,"../vnode/is-thunk":28,"../vnode/is-vnode":30,"../vnode/is-vtext":31,"../vnode/is-widget":32,"../vnode/vpatch":35,"./diff-props":37,"x-is-array":15}],39:[function(require,module,exports){
 "use strict";
-var InputProxy = require("./input-proxy");
+
+var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
 var Rx = require("rx");
+
+var _require = require("./stream");
+
+var createStream = _require.createStream;
+
 require("string.prototype.endswith");
 
 function makeDispatchFunction(element, eventName) {
@@ -12059,37 +12068,45 @@ function subscribeDispatchersWhenRootChanges(widget, eventStreams) {
   });
 }
 
-function makeInputPropertiesProxy() {
-  var inputProxy = new InputProxy();
-  var oldGet = inputProxy.get;
-  inputProxy.get = function get(streamName) {
-    var result = oldGet.call(this, streamName);
-    if (result && result.distinctUntilChanged) {
-      return result.distinctUntilChanged();
-    } else {
-      return result;
+var PropertiesProxy = (function () {
+  function PropertiesProxy() {
+    _classCallCheck(this, PropertiesProxy);
+
+    this.type = "PropertiesProxy";
+    this.proxiedProps = {};
+  }
+
+  _createClass(PropertiesProxy, {
+    get: {
+      value: function get(streamKey) {
+        if (typeof this.proxiedProps[streamKey] === "undefined") {
+          this.proxiedProps[streamKey] = new Rx.Subject();
+        }
+        return this.proxiedProps[streamKey].distinctUntilChanged();
+      }
     }
-  };
-  return inputProxy;
-}
+  });
+
+  return PropertiesProxy;
+})();
 
 function createContainerElement(tagName, vtreeProperties) {
   var element = document.createElement("div");
-  element.className = vtreeProperties.className || "";
   element.id = vtreeProperties.id || "";
+  element.className = vtreeProperties.className || "";
   element.className += " cycleCustomElement-" + tagName.toUpperCase();
   return element;
 }
 
-function replicateUserRootElem$(origin, destination) {
-  origin._rootElem$.subscribe(function (elem) {
-    return destination._rootElem$.onNext(elem);
+function replicate(origin, destination) {
+  origin.subscribe(function (elem) {
+    return destination.onNext(elem);
   });
 }
 
 function warnIfVTreeHasNoKey(vtree) {
   if (typeof vtree.key === "undefined") {
-    console.warn("Missing key property for Cycle custom element " + vtree.tagName);
+    console.warn("Missing `key` property for Cycle custom element " + vtree.tagName);
   }
 }
 
@@ -12114,14 +12131,19 @@ function makeConstructor() {
 }
 
 function makeInit(tagName, definitionFn) {
-  var DOMUser = require("./dom-user");
+  var _require2 = require("./render");
+
+  var render = _require2.render;
+
   return function initCustomElement() {
     //console.log('%cInit() custom element ' + tagName, 'color: #880088');
     var widget = this;
     var element = createContainerElement(tagName, widget.properties);
-    element.cycleCustomElementDOMUser = new DOMUser(element);
-    element.cycleCustomElementProperties = makeInputPropertiesProxy();
-    var eventStreams = definitionFn(element.cycleCustomElementDOMUser, element.cycleCustomElementProperties);
+    element.cycleCustomElementRoot$ = createStream(function (vtree$) {
+      return render(vtree$, element);
+    });
+    element.cycleCustomElementProperties = new PropertiesProxy();
+    var eventStreams = definitionFn(element.cycleCustomElementRoot$, element.cycleCustomElementProperties);
     widget.eventStreamsSubscriptions = subscribeDispatchers(element, eventStreams);
     subscribeDispatchersWhenRootChanges(widget, eventStreams);
     widget.update(null, element);
@@ -12137,7 +12159,7 @@ function makeUpdate() {
     if (!element.cycleCustomElementProperties) {
       return;
     }
-    if (element.cycleCustomElementProperties.type !== "InputProxy") {
+    if (element.cycleCustomElementProperties.type !== "PropertiesProxy") {
       return;
     }
     if (!element.cycleCustomElementProperties.proxiedProps) {
@@ -12145,7 +12167,7 @@ function makeUpdate() {
     }
 
     //console.log('%cupdate() custom element ' + element.className, 'color: #880088');
-    replicateUserRootElem$(element.cycleCustomElementDOMUser, this);
+    replicate(element.cycleCustomElementRoot$, this._rootElem$);
     var proxiedProps = element.cycleCustomElementProperties.proxiedProps;
     for (var prop in proxiedProps) {
       if (proxiedProps.hasOwnProperty(prop)) {
@@ -12165,7 +12187,7 @@ module.exports = {
   makeUpdate: makeUpdate
 };
 
-},{"./dom-user":45,"./input-proxy":47,"rx":3,"string.prototype.endswith":4}],40:[function(require,module,exports){
+},{"./render":51,"./stream":52,"rx":3,"string.prototype.endswith":4}],40:[function(require,module,exports){
 "use strict";
 var VirtualDOM = require("virtual-dom");
 var Rx = require("rx");
@@ -12306,9 +12328,7 @@ var Cycle = {
    * observables matching the custom element properties.
    * @function registerCustomElement
    */
-  registerCustomElement: function registerCustomElement(tagName, definitionFn) {
-    DOMUser.registerCustomElement(tagName, definitionFn);
-  },
+  registerCustomElement: Rendering.registerCustomElement,
 
   /**
    * Returns a hook for manipulating an element from the real DOM. This is a helper for
@@ -13058,6 +13078,7 @@ var VDOM = {
 };
 var Rx = require("rx");
 var CustomElements = require("./custom-elements");
+var CustomElementsRegistry = {}; // TODO replace with ES6 Map
 
 function isElement(obj) {
   return typeof HTMLElement === "object" ? obj instanceof HTMLElement || obj instanceof DocumentFragment : //DOM2
@@ -13088,7 +13109,21 @@ function isVtreeCustomElement(vtree) {
 }
 
 function replaceCustomElements(vtree) {
-  // TODO
+  // Silently ignore corner cases
+  if (!vtree || vtree.type === "VirtualText") {
+    return vtree;
+  }
+  var tagName = (vtree.tagName || "").toUpperCase();
+  // Replace vtree itself
+  if (tagName && CustomElementsRegistry.hasOwnProperty(tagName)) {
+    return new CustomElementsRegistry[tagName](vtree);
+  }
+  // Or replace children recursively
+  if (Array.isArray(vtree.children)) {
+    for (var i = vtree.children.length - 1; i >= 0; i--) {
+      vtree.children[i] = replaceCustomElements(vtree.children[i]);
+    }
+  }
   return vtree;
 }
 
@@ -13224,24 +13259,23 @@ function render(vtree$, container) {
 }
 
 function registerCustomElement(tagName, definitionFn) {
-  // TODO put in a different file? This is anyway global
   if (typeof tagName !== "string" || typeof definitionFn !== "function") {
     throw new Error("registerCustomElement requires parameters `tagName` and " + "`definitionFn`.");
   }
   tagName = tagName.toUpperCase();
-  if (DOMUser._customElements && DOMUser._customElements.hasOwnProperty(tagName)) {
+  if (CustomElementsRegistry.hasOwnProperty(tagName)) {
     throw new Error("Cannot register custom element `" + tagName + "` " + "for the DOMUser because that tagName is already registered.");
   }
 
   var WidgetClass = CustomElements.makeConstructor();
   WidgetClass.prototype.init = CustomElements.makeInit(tagName, definitionFn);
   WidgetClass.prototype.update = CustomElements.makeUpdate();
-  DOMUser._customElements = DOMUser._customElements || {};
-  DOMUser._customElements[tagName] = WidgetClass;
+  CustomElementsRegistry[tagName] = WidgetClass;
 }
 
 module.exports = {
-  render: render
+  render: render,
+  registerCustomElement: registerCustomElement
 };
 
 },{"./custom-elements":39,"rx":3,"virtual-dom":8,"virtual-dom/diff":6,"virtual-dom/patch":16}],52:[function(require,module,exports){
