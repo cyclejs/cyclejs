@@ -1,4 +1,16 @@
 
-var ManyUser = Cycle.createDOMUser('.js-container');
+var manyUser = (function () {
+  var interactions$ = Cycle.createStream(function (vtree$) {
+    return Cycle.render(vtree$, '.js-container').getInteractions$();
+  });
 
-ManyUser.inject(ManyView).inject(ManyModel).inject(ManyIntent).inject(ManyUser);
+  return {
+    interactions$: interactions$,
+    inject: function inject(view) {
+      interactions$.inject(view.vtree$);
+      return view;
+    }
+  };
+})();
+
+manyUser.inject(manyView).inject(manyModel).inject(manyIntent).inject(manyUser);
