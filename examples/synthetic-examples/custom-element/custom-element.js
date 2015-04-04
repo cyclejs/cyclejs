@@ -53,10 +53,8 @@ Cycle.registerCustomElement('ticker', function (rootElem$, props) {
   })();
 
   var user = (function () {
-    var interactions$ = rootElem$.getInteractions$();
-
     return {
-      interactions$: interactions$,
+      interactions$: rootElem$.interactions$,
       inject: function inject(view) {
         rootElem$.inject(view.vtree$);
         return view;
@@ -139,7 +137,7 @@ var view = (function () {
 
 var user = (function () {
   var interactions$ = Cycle.createStream(function (vtree$) {
-    return Cycle.render(vtree$, '.js-container').getInteractions$();
+    return Cycle.render(vtree$, '.js-container').interactions$;
   });
 
   return {

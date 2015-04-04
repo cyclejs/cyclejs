@@ -12216,8 +12216,8 @@ var Cycle = {
   /**
    * Renders a stream of virtual DOM elements (`vtree$`) into the DOM element indicated
    * by `container`, which can be either a CSS selector or an actual element.
-   * Returns a stream of real DOM element, with a special function attached to it called
-   * `getInteractions$()`. This interactions$ is a theoretical stream containing all
+   * Returns a stream of real DOM element, with a special property attached to it called
+   * `interactions$()`. This `interactions$` is a theoretical stream containing all
    * possible events happening on all elements which were rendered. You must query it
    * with `interactions$.choose(selector, eventName)` in order to get an event stream of
    * interactions of type `eventName` happening on the element identified by `selector`.
@@ -12227,7 +12227,7 @@ var Cycle = {
    * @param {(String|HTMLElement)} container the DOM selector for the element (or the
    * element itself) to contain the rendering of the VTrees.
    * @return {Rx.Observable} a stream emitting the root DOM element for this rendering,
-   * with the function `getInteractions$()` attached to it.
+   * with the property `interactions$()` attached to it.
    * @function render
    */
   render: Rendering.render,
@@ -12307,7 +12307,7 @@ var InputProxy = (function (_Rx$Subject) {
   _createClass(InputProxy, {
     choose: {
 
-      // For the rendered rootElem$ with getInteractions$
+      // For the rendered rootElem$ with interactions$
 
       value: function choose(selector, eventName) {
         if (typeof this._userEvent$[selector] === "undefined") {
@@ -12487,45 +12487,43 @@ function renderRawRootElem$(vtree$, domContainer) {
   }).startWith(rootElem);
 }
 
-function makeGetInteractions$Fn(rootElem$) {
-  return function getInteractions() {
-    return {
-      subscribe: function subscribe() {
-        throw new Error("Cannot subscribe to interactions$ without first calling " + "choose(selector, eventName)");
-      },
-      choose: function choose(selector, eventName) {
-        if (typeof selector !== "string") {
-          throw new Error("interactions$.choose() expects first argument to be a " + "string as a CSS selector");
-        }
-        if (typeof eventName !== "string") {
-          throw new Error("interactions$.choose() expects second argument to be a " + "string representing the event type to listen for.");
-        }
-
-        //console.log(`%cchoose("${selector}", "${eventName}")`, 'color: #0000BB');
-        return rootElem$.flatMapLatest(function flatMapDOMUserEventStream(rootElem) {
-          if (!rootElem) {
-            return Rx.Observable.empty();
-          }
-          //let isCustomElement = !!rootElem.cycleCustomElementDOMUser;
-          //console.log('%cchoose("' + selector + '", "' + eventName + '") flatMapper' +
-          //  (isCustomElement ? ' for a custom element' : ' for top-level View'),
-          //  'color: #0000BB');
-          var klass = selector.replace(".", "");
-          if (rootElem.className.search(new RegExp("\\b" + klass + "\\b")) >= 0) {
-            //console.log('%c  Good return. (A)', 'color:#0000BB');
-            return Rx.Observable.fromEvent(rootElem, eventName);
-          }
-          var targetElements = rootElem.querySelectorAll(selector);
-          if (targetElements && targetElements.length > 0) {
-            //console.log('%c  Good return. (B)', 'color:#0000BB');
-            return Rx.Observable.fromEvent(targetElements, eventName);
-          } else {
-            //console.log('%c  returning empty!', 'color: #0000BB');
-            return Rx.Observable.empty();
-          }
-        });
+function makeInteractions$(rootElem$) {
+  return {
+    subscribe: function subscribe() {
+      throw new Error("Cannot subscribe to interactions$ without first calling " + "choose(selector, eventName)");
+    },
+    choose: function choose(selector, eventName) {
+      if (typeof selector !== "string") {
+        throw new Error("interactions$.choose() expects first argument to be a " + "string as a CSS selector");
       }
-    };
+      if (typeof eventName !== "string") {
+        throw new Error("interactions$.choose() expects second argument to be a " + "string representing the event type to listen for.");
+      }
+
+      //console.log(`%cchoose("${selector}", "${eventName}")`, 'color: #0000BB');
+      return rootElem$.flatMapLatest(function flatMapDOMUserEventStream(rootElem) {
+        if (!rootElem) {
+          return Rx.Observable.empty();
+        }
+        //let isCustomElement = !!rootElem.cycleCustomElementDOMUser;
+        //console.log('%cchoose("' + selector + '", "' + eventName + '") flatMapper' +
+        //  (isCustomElement ? ' for a custom element' : ' for top-level View'),
+        //  'color: #0000BB');
+        var klass = selector.replace(".", "");
+        if (rootElem.className.search(new RegExp("\\b" + klass + "\\b")) >= 0) {
+          //console.log('%c  Good return. (A)', 'color:#0000BB');
+          return Rx.Observable.fromEvent(rootElem, eventName);
+        }
+        var targetElements = rootElem.querySelectorAll(selector);
+        if (targetElements && targetElements.length > 0) {
+          //console.log('%c  Good return. (B)', 'color:#0000BB');
+          return Rx.Observable.fromEvent(targetElements, eventName);
+        } else {
+          //console.log('%c  returning empty!', 'color: #0000BB');
+          return Rx.Observable.empty();
+        }
+      });
+    }
   };
 }
 
@@ -12540,7 +12538,7 @@ function render(vtree$, container) {
   }
   var rawRootElem$ = renderRawRootElem$(vtree$, domContainer);
   var rootElem$ = fixRootElem$(rawRootElem$, domContainer);
-  rootElem$.getInteractions$ = makeGetInteractions$Fn(rootElem$);
+  rootElem$.interactions$ = makeInteractions$(rootElem$);
   rootElem$.publish().connect();
   return rootElem$;
 }

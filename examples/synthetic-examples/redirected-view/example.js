@@ -18,7 +18,7 @@ var proxyVtree$ = Cycle.createStream(function (vtree$) {
 });
 
 var interactions$ = Cycle.createStream(function (vtree$) {
-  return Cycle.render(vtree$, '.js-container').getInteractions$();
+  return Cycle.render(vtree$, '.js-container').interactions$;
 });
 
 var changeName$ = Cycle.createStream(function (interactions$) {

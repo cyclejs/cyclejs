@@ -23,7 +23,7 @@ function view(data$) {
 
 function createUser(container) {
   return function user(vtree$) {
-    return Cycle.render(vtree$, container).getInteractions$();
+    return Cycle.render(vtree$, container).interactions$;
   };
 }
 
