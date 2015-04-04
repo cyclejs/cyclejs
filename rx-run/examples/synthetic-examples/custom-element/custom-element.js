@@ -1,56 +1,94 @@
 var h = Cycle.h;
 var Rx = Cycle.Rx;
 
-Cycle.registerCustomElement('ticker', function (TickerUser, Properties) {
-  var TickerModel = Cycle.createModel(function (Properties, Intent) {
-    return {
-      color$: Properties.get('color$')
-        .takeUntil(Intent.get('stop$'))
-        .merge(Intent.get('stop$').map(function () { return '#FF0000'; })),
-      x$: Rx.Observable.interval(50).startWith(0).takeUntil(Intent.get('stop$')),
-      y$: Rx.Observable.interval(100).startWith(0).takeUntil(Intent.get('stop$'))
-    };
-  });
+Cycle.registerCustomElement('ticker', function (rootElem$, props) {
+  var model = (function () {
+    var color$ = Cycle.createStream(function (color$, stop$) {
+      return Rx.Observable.merge(
+        color$.takeUntil(stop$),
+        stop$.map(function () { return '#FF0000'; })
+      );
+    });
 
-  var TickerView = Cycle.createView(function (Model) {
-    return {
-      vtree$: Rx.Observable.combineLatest(
-        Model.get('color$'),
-        Model.get('x$'),
-        Model.get('y$'),
-        function (color, x, y) {
-          return h('div.ticker', {
-            style: {'color': color, 'background-color': '#ECECEC'}
-          }, [
-            h('h4', 'x' + x + ' ' + color),
-            h('h1', 'Y' + y + ' ' + color),
-            h('button.remove-btn', {onclick: 'removeClick$'}, 'Remove')
-          ]);
-        }
-      )
-    };
-  });
+    var x$ = Cycle.createStream(function (stop$) {
+      return Rx.Observable.interval(50).startWith(0).takeUntil(stop$);
+    });
+    var y$ = Cycle.createStream(function (stop$) {
+      return Rx.Observable.interval(100).startWith(0).takeUntil(stop$);
+    });
 
-  var TickerIntent = Cycle.createIntent(function (User) {
-    var removeClicks$ = User.event$('.remove-btn', 'click');
     return {
-      stop$: removeClicks$.map(function () { return 'stop'; }),
-      remove$: removeClicks$.map(function () { return 'remove'; }).delay(500)
+      color$: color$,
+      x$: x$,
+      y$: y$,
+      inject: function inject(props, intent) {
+        color$.inject(props.get('color$'), intent.stop$);
+        x$.inject(intent.stop$);
+        y$.inject(intent.stop$);
+        return [props, intent];
+      }
     };
-  });
+  })();
 
-  TickerUser
-  .inject(TickerView)
-  .inject(TickerModel)
-  .inject(Properties, TickerIntent)
-  [1].inject(TickerUser);
+  var view = (function () {
+    var vtree$ = Cycle.createStream(function (color$, x$, y$) {
+      return Rx.Observable.combineLatest(color$, x$, y$, function (color, x, y) {
+        return h('div.ticker', {
+          style: {color: color, backgroundColor: '#ECECEC'}
+        }, [
+          h('h4', 'x' + x + ' ' + color),
+          h('h1', 'Y' + y + ' ' + color),
+          h('button.remove-btn', {onclick: 'removeClick$'}, 'Remove')
+        ]);
+      });
+    });
+
+    return {
+      vtree$: vtree$,
+      inject: function inject(model) {
+        vtree$.inject(model.color$, model.x$, model.y$);
+        return model;
+      }
+    };
+  })();
+
+  var user = (function () {
+    var interactions$ = rootElem$.getInteractions$();
+
+    return {
+      interactions$: interactions$,
+      inject: function inject(view) {
+        rootElem$.inject(view.vtree$);
+        return view;
+      }
+    };
+  })();
+
+  var intent = (function () {
+    var removeClicks$ = Cycle.createStream(function (interactions$) {
+      return interactions$.choose('.remove-btn', 'click');
+    });
+    var stop$ = removeClicks$.map(function () { return 'stop'; });
+    var remove$ = removeClicks$.map(function () { return 'remove'; }).delay(500);
+
+    return {
+      stop$: stop$,
+      remove$: remove$,
+      inject: function inject(user) {
+        removeClicks$.inject(user.interactions$);
+        return user;
+      }
+    };
+  })();
+
+  user.inject(view).inject(model).inject(props, intent)[1].inject(user);
 
   return {
-    remove$: TickerIntent.get('remove$')
+    remove$: intent.remove$
   };
 });
 
-var Model = Cycle.createModel(function (Intent) {
+var model = (function () {
   function makeRandomColor() {
     var hexColor = Math.floor(Math.random() * 16777215).toString(16);
     while (hexColor.length < 6) {
@@ -60,31 +98,71 @@ var Model = Cycle.createModel(function (Intent) {
     return hexColor;
   }
 
-  return {
-    color$: Rx.Observable.interval(1000)
-      .map(makeRandomColor)
-      .startWith('#000000'),
-    tickerExists$: Rx.Observable.just(true)
-      .merge(Intent.get('removeTicker$').map(function () { return false; }))
-  };
-});
+  var color$ = Rx.Observable.interval(1000)
+    .map(makeRandomColor)
+    .startWith('#000000');
 
-var View = Cycle.createView(function (Model) {
+  var tickerExists$ = Cycle.createStream(function (removeTicker$) {
+    return Rx.Observable.just(true)
+      .merge(removeTicker$.map(function () { return false; }));
+  });
+
   return {
-    vtree$: Rx.Observable.combineLatest(Model.get('color$'), Model.get('tickerExists$'),
+    color$: color$,
+    tickerExists$: tickerExists$,
+    inject: function inject(intent) {
+      tickerExists$.inject(intent.removeTicker$);
+      return intent;
+    }
+  };
+})();
+
+var view = (function () {
+  var vtree$ = Cycle.createStream(function (color$, tickerExists$) {
+    return Rx.Observable.combineLatest(color$, tickerExists$,
       function (color, tickerExists) {
         return h('div#the-view', [
           tickerExists ? h('ticker.ticker', {key: 1, color: color}) : null
         ]);
       }
-    )
+    );
+  });
+
+  return {
+    vtree$: vtree$,
+    inject: function inject(model) {
+      vtree$.inject(model.color$, model.tickerExists$);
+      return model;
+    }
   };
-});
+})();
 
-var User = Cycle.createDOMUser('.js-container');
+var user = (function () {
+  var interactions$ = Cycle.createStream(function (vtree$) {
+    return Cycle.render(vtree$, '.js-container').getInteractions$();
+  });
 
-var Intent = Cycle.createIntent(function (User) {
-  return {removeTicker$: User.event$('.ticker', 'remove')};
-});
+  return {
+    interactions$: interactions$,
+    inject: function inject(view) {
+      interactions$.inject(view.vtree$);
+      return view;
+    }
+  };
+})();
 
-User.inject(View).inject(Model).inject(Intent).inject(User);
+var intent = (function () {
+  var removeTicker$ = Cycle.createStream(function (interactions$) {
+    return interactions$.choose('.ticker', 'remove');
+  });
+
+  return {
+    removeTicker$: removeTicker$,
+    inject: function inject(user) {
+      removeTicker$.inject(user.interactions$);
+      return user;
+    }
+  };
+})();
+
+user.inject(view).inject(model).inject(intent).inject(user);

@@ -6,6 +6,7 @@ let VDOM = {
 };
 let Rx = require('rx');
 let CustomElements = require('./custom-elements');
+let CustomElementsRegistry = {}; // TODO replace with ES6 Map
 
 function isElement(obj) {
   return (
@@ -43,7 +44,21 @@ function isVtreeCustomElement(vtree) {
 }
 
 function replaceCustomElements(vtree) {
-  // TODO
+  // Silently ignore corner cases
+  if (!vtree || vtree.type === 'VirtualText') {
+    return vtree;
+  }
+  let tagName = (vtree.tagName || '').toUpperCase();
+  // Replace vtree itself
+  if (tagName && CustomElementsRegistry.hasOwnProperty(tagName)) {
+    return new CustomElementsRegistry[tagName](vtree);
+  }
+  // Or replace children recursively
+  if (Array.isArray(vtree.children)) {
+    for (let i = vtree.children.length - 1; i >= 0; i--) {
+      vtree.children[i] = replaceCustomElements(vtree.children[i]);
+    }
+  }
   return vtree;
 }
 
@@ -187,13 +202,12 @@ function render(vtree$, container) {
 }
 
 function registerCustomElement(tagName, definitionFn) {
-  // TODO put in a different file? This is anyway global
   if (typeof tagName !== 'string' || typeof definitionFn !== 'function') {
     throw new Error('registerCustomElement requires parameters `tagName` and ' +
     '`definitionFn`.');
   }
   tagName = tagName.toUpperCase();
-  if (DOMUser._customElements && DOMUser._customElements.hasOwnProperty(tagName)) {
+  if (CustomElementsRegistry.hasOwnProperty(tagName)) {
     throw new Error('Cannot register custom element `' + tagName + '` ' +
     'for the DOMUser because that tagName is already registered.');
   }
@@ -201,10 +215,10 @@ function registerCustomElement(tagName, definitionFn) {
   let WidgetClass = CustomElements.makeConstructor();
   WidgetClass.prototype.init = CustomElements.makeInit(tagName, definitionFn);
   WidgetClass.prototype.update = CustomElements.makeUpdate();
-  DOMUser._customElements = DOMUser._customElements || {};
-  DOMUser._customElements[tagName] = WidgetClass;
+  CustomElementsRegistry[tagName] = WidgetClass;
 }
 
 module.exports = {
-  render: render
+  render: render,
+  registerCustomElement: registerCustomElement
 };
