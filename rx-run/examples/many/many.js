@@ -1,7 +1,7 @@
 
 var manyUser = (function () {
   var interactions$ = Cycle.createStream(function (vtree$) {
-    return Cycle.render(vtree$, '.js-container').getInteractions$();
+    return Cycle.render(vtree$, '.js-container').interactions$;
   });
 
   return {

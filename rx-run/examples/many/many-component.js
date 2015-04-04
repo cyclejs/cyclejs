@@ -69,7 +69,7 @@ Cycle.registerCustomElement('item', function (rootElem$, props) {
 
   var user = (function () {
     return {
-      interactions$: rootElem$.getInteractions$(),
+      interactions$: rootElem$.interactions$,
       inject: function inject(view) {
         rootElem$.inject(view.vtree$);
         return view;

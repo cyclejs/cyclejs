@@ -137,49 +137,47 @@ function renderRawRootElem$(vtree$, domContainer) {
     .startWith(rootElem);
 }
 
-function makeGetInteractions$Fn(rootElem$) {
-  return function getInteractions() {
-    return {
-      subscribe: function subscribe() {
-        throw new Error('Cannot subscribe to interactions$ without first calling ' +
-          'choose(selector, eventName)'
-        );
-      },
-      choose: function choose(selector, eventName) {
-        if (typeof selector !== 'string') {
-          throw new Error('interactions$.choose() expects first argument to be a ' +
-          'string as a CSS selector');
-        }
-        if (typeof eventName !== 'string') {
-          throw new Error('interactions$.choose() expects second argument to be a ' +
-          'string representing the event type to listen for.');
-        }
-
-        //console.log(`%cchoose("${selector}", "${eventName}")`, 'color: #0000BB');
-        return rootElem$.flatMapLatest(function flatMapDOMUserEventStream(rootElem) {
-          if (!rootElem) {
-            return Rx.Observable.empty();
-          }
-          //let isCustomElement = !!rootElem.cycleCustomElementDOMUser;
-          //console.log('%cchoose("' + selector + '", "' + eventName + '") flatMapper' +
-          //  (isCustomElement ? ' for a custom element' : ' for top-level View'),
-          //  'color: #0000BB');
-          let klass = selector.replace('.', '');
-          if (rootElem.className.search(new RegExp('\\b' + klass + '\\b')) >= 0) {
-            //console.log('%c  Good return. (A)', 'color:#0000BB');
-            return Rx.Observable.fromEvent(rootElem, eventName);
-          }
-          let targetElements = rootElem.querySelectorAll(selector);
-          if (targetElements && targetElements.length > 0) {
-            //console.log('%c  Good return. (B)', 'color:#0000BB');
-            return Rx.Observable.fromEvent(targetElements, eventName);
-          } else {
-            //console.log('%c  returning empty!', 'color: #0000BB');
-            return Rx.Observable.empty();
-          }
-        });
+function makeInteractions$(rootElem$) {
+  return {
+    subscribe: function subscribe() {
+      throw new Error('Cannot subscribe to interactions$ without first calling ' +
+        'choose(selector, eventName)'
+      );
+    },
+    choose: function choose(selector, eventName) {
+      if (typeof selector !== 'string') {
+        throw new Error('interactions$.choose() expects first argument to be a ' +
+        'string as a CSS selector');
       }
-    };
+      if (typeof eventName !== 'string') {
+        throw new Error('interactions$.choose() expects second argument to be a ' +
+        'string representing the event type to listen for.');
+      }
+
+      //console.log(`%cchoose("${selector}", "${eventName}")`, 'color: #0000BB');
+      return rootElem$.flatMapLatest(function flatMapDOMUserEventStream(rootElem) {
+        if (!rootElem) {
+          return Rx.Observable.empty();
+        }
+        //let isCustomElement = !!rootElem.cycleCustomElementDOMUser;
+        //console.log('%cchoose("' + selector + '", "' + eventName + '") flatMapper' +
+        //  (isCustomElement ? ' for a custom element' : ' for top-level View'),
+        //  'color: #0000BB');
+        let klass = selector.replace('.', '');
+        if (rootElem.className.search(new RegExp('\\b' + klass + '\\b')) >= 0) {
+          //console.log('%c  Good return. (A)', 'color:#0000BB');
+          return Rx.Observable.fromEvent(rootElem, eventName);
+        }
+        let targetElements = rootElem.querySelectorAll(selector);
+        if (targetElements && targetElements.length > 0) {
+          //console.log('%c  Good return. (B)', 'color:#0000BB');
+          return Rx.Observable.fromEvent(targetElements, eventName);
+        } else {
+          //console.log('%c  returning empty!', 'color: #0000BB');
+          return Rx.Observable.empty();
+        }
+      });
+    }
   };
 }
 
@@ -196,7 +194,7 @@ function render(vtree$, container) {
   }
   let rawRootElem$ = renderRawRootElem$(vtree$, domContainer);
   let rootElem$ = fixRootElem$(rawRootElem$, domContainer);
-  rootElem$.getInteractions$ = makeGetInteractions$Fn(rootElem$);
+  rootElem$.interactions$ = makeInteractions$(rootElem$);
   rootElem$.publish().connect();
   return rootElem$;
 }
