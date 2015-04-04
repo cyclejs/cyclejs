@@ -6,7 +6,8 @@ let VDOM = {
 };
 let Rx = require('rx');
 let CustomElements = require('./custom-elements');
-let CustomElementsRegistry = {}; // TODO replace with ES6 Map
+require('babel/polyfill');
+let CustomElementsRegistry = new Map();
 
 function isElement(obj) {
   return (
@@ -50,8 +51,9 @@ function replaceCustomElements(vtree) {
   }
   let tagName = (vtree.tagName || '').toUpperCase();
   // Replace vtree itself
-  if (tagName && CustomElementsRegistry.hasOwnProperty(tagName)) {
-    return new CustomElementsRegistry[tagName](vtree);
+  if (tagName && CustomElementsRegistry.has(tagName)) {
+    let WidgetClass = CustomElementsRegistry.get(tagName);
+    return new WidgetClass(vtree);
   }
   // Or replace children recursively
   if (Array.isArray(vtree.children)) {
@@ -205,7 +207,7 @@ function registerCustomElement(tagName, definitionFn) {
     '`definitionFn`.');
   }
   tagName = tagName.toUpperCase();
-  if (CustomElementsRegistry.hasOwnProperty(tagName)) {
+  if (CustomElementsRegistry.has(tagName)) {
     throw new Error('Cannot register custom element `' + tagName + '` ' +
     'for the DOMUser because that tagName is already registered.');
   }
@@ -213,7 +215,7 @@ function registerCustomElement(tagName, definitionFn) {
   let WidgetClass = CustomElements.makeConstructor();
   WidgetClass.prototype.init = CustomElements.makeInit(tagName, definitionFn);
   WidgetClass.prototype.update = CustomElements.makeUpdate();
-  CustomElementsRegistry[tagName] = WidgetClass;
+  CustomElementsRegistry.set(tagName, WidgetClass);
 }
 
 module.exports = {
