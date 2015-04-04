@@ -112,7 +112,7 @@ function renderRawRootElem$(vtree$, domContainer) {
         return rootElem;
       })
         .first();
-      let cycleCustomElementDOMUser = rootElem.cycleCustomElementDOMUser;
+      let cycleCustomElementRoot$ = rootElem.cycleCustomElementRoot$;
       let cycleCustomElementProperties = rootElem.cycleCustomElementProperties;
       try {
         //console.log('%cVDOM diff and patch START', 'color: #636300');
@@ -121,8 +121,8 @@ function renderRawRootElem$(vtree$, domContainer) {
       } catch (err) {
         console.error(err);
       }
-      if (!!cycleCustomElementDOMUser) {
-        rootElem.cycleCustomElementDOMUser = cycleCustomElementDOMUser;
+      if (!!cycleCustomElementRoot$) {
+        rootElem.cycleCustomElementRoot$ = cycleCustomElementRoot$;
       }
       if (!!cycleCustomElementProperties) {
         rootElem.cycleCustomElementProperties = cycleCustomElementProperties;

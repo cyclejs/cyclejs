@@ -5,22 +5,34 @@ var h = Cycle.h;
 // - Whether custom events on a custom element are catchable even when the root element is
 //   not a div (in this case, an h2).
 // - Whether Model streams internal to a custom element can be used in the custom
-//   element's return object. E.g. Model.get('foo$').
+//   element's return object. E.g. model.foo$.
 
-Cycle.registerCustomElement('inner-elem', function (User, Properties) {
-  var Model = Cycle.createModel(function (Properties, Intent) {
-    return {
-      foo$: Properties.get('foo$').shareReplay(1),
-      content$: Intent.get('refreshData$')
+Cycle.registerCustomElement('inner-elem', function (rootElem$, props) {
+  var model = (function () {
+    var foo$ = Cycle.createStream(function (propsFoo$) {
+      return propsFoo$.shareReplay(1);
+    });
+    var content$ = Cycle.createStream(function (refreshData$, content$) {
+      return refreshData$
         .map(function () { return Math.round(Math.random() * 1000); })
-        .merge(Properties.get('content$'))
-        .shareReplay(1)
-    };
-  });
+        .merge(content$)
+        .shareReplay(1);
+    });
 
-  var View = Cycle.createView(function (Model) {
     return {
-      vtree$: Model.get('content$')
+      foo$: foo$,
+      content$: content$,
+      inject: function inject(props, intent) {
+        foo$.inject(props.get('foo$'));
+        content$.inject(intent.refreshData$, props.get('content$'));
+        return [props, intent];
+      }
+    };
+  })();
+
+  var view = (function () {
+    var vtree$ = Cycle.createStream(function (content$) {
+      return content$
         .map(function (content) {
           return h('h2.innerRoot', {
             style: {
@@ -31,63 +43,117 @@ Cycle.registerCustomElement('inner-elem', function (User, Properties) {
               display: 'inline-block'
             }
           }, String(content));
-        })
-    };
-  });
+        });
+    });
 
-  var Intent = Cycle.createIntent(function (User) {
     return {
-      refreshData$: User.event$('.innerRoot', 'click').map(function () { return 'x'; })
+      vtree$: vtree$,
+      inject: function inject(model) {
+        vtree$.inject(model.content$);
+        return model;
+      }
     };
+  })();
+
+  var user = (function () {
+    return {
+      interactions$: rootElem$.getInteractions$(),
+      inject: function inject(view) {
+        rootElem$.inject(view.vtree$);
+        return view;
+      }
+    };
+  })();
+
+  var intent = (function () {
+    var refreshData$ = Cycle.createStream(function (interactions$) {
+      return interactions$.choose('.innerRoot', 'click').map(function () { return 'x'; });
+    });
+
+    return {
+      refreshData$: refreshData$,
+      inject: function inject(user) {
+        refreshData$.inject(user.interactions$);
+        return user;
+      }
+    };
+  })();
+
+  user.inject(view).inject(model).inject(props, intent)[1].inject(user);
+
+  return {
+    wasRefreshed$: intent.refreshData$.delay(500),
+    contentOnRefresh$: intent.refreshData$
+      .withLatestFrom(model.content$, function (x, y) { return y; }),
+    fooOnRefresh$: intent.refreshData$
+      .withLatestFrom(model.foo$, function (x, y) { return y; })
+  };
+});
+
+var model = (function () {
+  var color$ = Cycle.createStream(function (changeColor$) {
+    return changeColor$.startWith('#000000');
   });
 
-  User.inject(View).inject(Model).inject(Properties, Intent)[1].inject(User);
-
   return {
-    wasRefreshed$: Intent.get('refreshData$').delay(500),
-    contentOnRefresh$: Intent.get('refreshData$')
-      .withLatestFrom(Model.get('content$'), function (x, y) { return y; }),
-    fooOnRefresh$: Intent.get('refreshData$')
-      .withLatestFrom(Model.get('foo$'), function (x, y) { return y; })
+    color$: color$,
+    inject: function inject(intent) {
+      color$.inject(intent.changeColor$);
+      return intent;
+    }
   };
-});
+})();
 
-var OuterModel = Cycle.createModel(function (Intent) {
-  return {
-    color$: Intent.get('changeColor$').startWith('#000000')
-  };
-});
-
-var OuterView = Cycle.createView(function (Model) {
-  return {
-    vtree$: Model.get('color$')
+var view = (function () {
+  var vtree$ = Cycle.createStream(function (color$) {
+    return color$
       .map(function (color) {
         return h('div.outer', {
-          style: {
-            margin: '40px',
-            border: '1px solid #323232',
-            padding: '20px'}},
+            style: {
+              margin: '40px',
+              border: '1px solid #323232',
+              padding: '20px'}},
           [
-            h('inner-elem.inner', {foo: 17, content: 153}),
+            h('inner-elem.inner', {foo: 17, content: 153, key: 1}),
             h('p', {style: {color: color}}, String(color)),
             h('p', '(Please check also the logs)')]);
-      })
-  };
-});
+      });
+  });
 
-var OuterUser = Cycle.createDOMUser('.js-container');
+  return {
+    vtree$: vtree$,
+    inject: function inject(model) {
+      vtree$.inject(model.color$);
+      return model;
+    }
+  };
+})();
+
+var user = (function () {
+  var interactions$ = Cycle.createStream(function (vtree$) {
+    return Cycle.render(vtree$, '.js-container').getInteractions$();
+  });
+
+  return {
+    interactions$: interactions$,
+    inject: function inject(view) {
+      interactions$.inject(view.vtree$);
+      return view;
+    }
+  };
+})();
 
 console.info('You should see both \'foo: ...\' and \'content: ...\' ' +
   'logs every time you click on the inner box.'
 );
-OuterUser.event$('.inner', 'fooOnRefresh').subscribe(function (ev) {
+user.interactions$.choose('.inner', 'fooOnRefresh').subscribe(function (ev) {
   console.log('foo: ' + ev.data);
 });
-OuterUser.event$('.inner', 'contentOnRefresh').subscribe(function (ev) {
+user.interactions$.choose('.inner', 'contentOnRefresh').subscribe(function (ev) {
   console.log('content: ' + ev.data);
 });
 
-var OuterIntent = Cycle.createIntent(function (User) {
+var intent = (function () {
   function makeRandomColor() {
     var hexColor = Math.floor(Math.random() * 16777215).toString(16);
     while (hexColor.length < 6) {
@@ -97,13 +163,17 @@ var OuterIntent = Cycle.createIntent(function (User) {
     return hexColor;
   }
 
-  return {
-    changeColor$: User.event$('.inner', 'wasRefreshed').map(makeRandomColor)
-  };
-});
+  var changeColor$ = Cycle.createStream(function (interactions$) {
+    return interactions$.choose('.inner', 'wasRefreshed').map(makeRandomColor);
+  });
 
-OuterUser
-.inject(OuterView)
-.inject(OuterModel)
-.inject(OuterIntent)
-.inject(OuterUser);
+  return {
+    changeColor$: changeColor$,
+    inject: function inject(user) {
+      changeColor$.inject(user.interactions$);
+      return user;
+    }
+  };
+})();
+
+user.inject(view).inject(model).inject(intent).inject(user);

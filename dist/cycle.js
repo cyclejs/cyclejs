@@ -13176,7 +13176,7 @@ function renderRawRootElem$(vtree$, domContainer) {
       //console.log('%cEmit rawRootElem$ (1) ', 'color: #008800');
       return rootElem;
     }).first();
-    var cycleCustomElementDOMUser = rootElem.cycleCustomElementDOMUser;
+    var cycleCustomElementRoot$ = rootElem.cycleCustomElementRoot$;
     var cycleCustomElementProperties = rootElem.cycleCustomElementProperties;
     try {
       //console.log('%cVDOM diff and patch START', 'color: #636300');
@@ -13185,8 +13185,8 @@ function renderRawRootElem$(vtree$, domContainer) {
     } catch (err) {
       console.error(err);
     }
-    if (!!cycleCustomElementDOMUser) {
-      rootElem.cycleCustomElementDOMUser = cycleCustomElementDOMUser;
+    if (!!cycleCustomElementRoot$) {
+      rootElem.cycleCustomElementRoot$ = cycleCustomElementRoot$;
     }
     if (!!cycleCustomElementProperties) {
       rootElem.cycleCustomElementProperties = cycleCustomElementProperties;
