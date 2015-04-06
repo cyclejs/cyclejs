@@ -104,5 +104,5 @@ function createStream(definitionFn) {
 }
 
 module.exports = {
-  createStream: createStream
+  createStream
 };

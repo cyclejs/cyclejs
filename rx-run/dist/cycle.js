@@ -15096,9 +15096,14 @@ function registerCustomElement(tagName, definitionFn) {
   CustomElementsRegistry.set(tagName, WidgetClass);
 }
 
+function unregisterAllCustomElements() {
+  CustomElementsRegistry.clear();
+}
+
 module.exports = {
   render: render,
-  registerCustomElement: registerCustomElement
+  registerCustomElement: registerCustomElement,
+  unregisterAllCustomElements: unregisterAllCustomElements
 };
 
 },{"./custom-elements":43,"babel/polyfill":4,"rx":7,"virtual-dom":12,"virtual-dom/diff":10,"virtual-dom/patch":20}],48:[function(require,module,exports){

@@ -183,6 +183,14 @@ function makeInteractions$(rootElem$) {
   };
 }
 
+function publishConnectRootElem$(rootElem$) {
+  let subscription = rootElem$.publish().connect();
+  rootElem$.dispose = function dispose() {
+    subscription.dispose();
+  };
+  return rootElem$;
+}
+
 function render(vtree$, container) {
   // Find and prepare the container
   let domContainer = (typeof container === 'string') ?
@@ -197,7 +205,7 @@ function render(vtree$, container) {
   let rawRootElem$ = renderRawRootElem$(vtree$, domContainer);
   let rootElem$ = fixRootElem$(rawRootElem$, domContainer);
   rootElem$.interactions$ = makeInteractions$(rootElem$);
-  rootElem$.publish().connect();
+  rootElem$ = publishConnectRootElem$(rootElem$);
   return rootElem$;
 }
 
@@ -218,7 +226,12 @@ function registerCustomElement(tagName, definitionFn) {
   CustomElementsRegistry.set(tagName, WidgetClass);
 }
 
+function unregisterAllCustomElements() {
+  CustomElementsRegistry.clear();
+}
+
 module.exports = {
-  render: render,
-  registerCustomElement: registerCustomElement
+  render,
+  registerCustomElement,
+  unregisterAllCustomElements
 };

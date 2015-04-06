@@ -38,6 +38,8 @@ function subscribeDispatchers(element, eventStreams) {
 }
 
 function subscribeDispatchersWhenRootChanges(widget, eventStreams) {
+  if (!eventStreams || typeof eventStreams !== 'object') { return; }
+
   widget._rootElem$
     .distinctUntilChanged(Rx.helpers.identity,
       (x, y) => (x && y && x.isEqualNode && x.isEqualNode(y))
@@ -143,7 +145,7 @@ function makeUpdate() {
 }
 
 module.exports = {
-  makeConstructor: makeConstructor,
-  makeInit: makeInit,
-  makeUpdate: makeUpdate
+  makeConstructor,
+  makeInit,
+  makeUpdate
 };
