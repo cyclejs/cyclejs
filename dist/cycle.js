@@ -14594,6 +14594,10 @@ function subscribeDispatchers(element, eventStreams) {
 }
 
 function subscribeDispatchersWhenRootChanges(widget, eventStreams) {
+  if (!eventStreams || typeof eventStreams !== "object") {
+    return;
+  }
+
   widget._rootElem$.distinctUntilChanged(Rx.helpers.identity, function (x, y) {
     return x && y && x.isEqualNode && x.isEqualNode(y);
   }).subscribe(function (rootElem) {
@@ -15065,6 +15069,14 @@ function makeInteractions$(rootElem$) {
   };
 }
 
+function publishConnectRootElem$(rootElem$) {
+  var subscription = rootElem$.publish().connect();
+  rootElem$.dispose = function dispose() {
+    subscription.dispose();
+  };
+  return rootElem$;
+}
+
 function render(vtree$, container) {
   // Find and prepare the container
   var domContainer = typeof container === "string" ? document.querySelector(container) : container;
@@ -15077,7 +15089,7 @@ function render(vtree$, container) {
   var rawRootElem$ = renderRawRootElem$(vtree$, domContainer);
   var rootElem$ = fixRootElem$(rawRootElem$, domContainer);
   rootElem$.interactions$ = makeInteractions$(rootElem$);
-  rootElem$.publish().connect();
+  rootElem$ = publishConnectRootElem$(rootElem$);
   return rootElem$;
 }
 
