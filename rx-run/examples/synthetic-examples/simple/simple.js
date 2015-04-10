@@ -1,48 +1,54 @@
 var h = Cycle.h;
 
-function fooModelDefintion(Intent) {
-  return {
-    data$: Intent.get('refreshData$')
-      .map(function () { return Math.round(Math.random() * 1000); })
-      .startWith(135)
+function model(refreshData$) {
+  return refreshData$
+    .map(function () { return Math.round(Math.random() * 1000); })
+    .startWith(135);
+}
+
+function view(data$) {
+  return data$
+    .map(function (data) {
+      return h('div.box', {
+        style: {
+          margin: '10px',
+          background: '#ececec',
+          padding: '5px',
+          cursor: 'pointer',
+          display: 'inline-block'
+        }
+      }, String(data));
+    });
+}
+
+function createUser(container) {
+  return function user(vtree$) {
+    return Cycle.render(vtree$, container).interactions$;
   };
 }
 
-function fooViewDefinition(Model) {
-  return {
-    vtree$: Model.get('data$')
-      .map(function (data) {
-        return h('div.box', {
-          style: {
-            margin: '10px',
-            background: '#ececec',
-            padding: '5px',
-            cursor: 'pointer',
-            display: 'inline-block'
-          }
-        }, String(data));
-      })
-  };
+function intent(interactions$) {
+  return interactions$.choose('.box', 'click').map(function () { return 'x'; });
 }
 
-function fooIntentDefinition(User) {
-  return {
-    refreshData$: User.event$('.box', 'click').map(function () { return 'x'; })
-  };
-}
+var fooName$ = Cycle.createStream(model);
+var fooVtree$ = Cycle.createStream(view);
+var fooInteractions$ = Cycle.createStream(createUser('.js-container1'));
+var fooChangeName$ = Cycle.createStream(intent);
 
-var FooModel = Cycle.createModel(fooModelDefintion);
+var barName$ = Cycle.createStream(model);
+var barVtree$ = Cycle.createStream(view);
+var barInteractions$ = Cycle.createStream(createUser('.js-container2'));
+var barChangeName$ = Cycle.createStream(intent);
 
-var FooView = Cycle.createView(fooViewDefinition);
+fooInteractions$
+  .inject(fooVtree$)
+  .inject(fooName$)
+  .inject(fooChangeName$)
+  .inject(fooInteractions$);
 
-var FooUser = Cycle.createDOMUser('.js-container1');
-
-var FooIntent = Cycle.createIntent(fooIntentDefinition);
-
-var BarModel = Cycle.createModel(fooModelDefintion);
-var BarView = Cycle.createView(fooViewDefinition);
-var BarUser = Cycle.createDOMUser('.js-container2');
-var BarIntent = Cycle.createIntent(fooIntentDefinition);
-
-FooUser.inject(FooView).inject(FooModel).inject(FooIntent).inject(FooUser);
-BarUser.inject(BarView).inject(BarModel).inject(BarIntent).inject(BarUser);
+barInteractions$
+  .inject(barVtree$)
+  .inject(barName$)
+  .inject(barChangeName$)
+  .inject(barInteractions$);

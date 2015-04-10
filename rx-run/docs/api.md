@@ -1,133 +1,51 @@
 
 # `Cycle` object API
 
-- [`createDataFlowNode`](#createDataFlowNode)
-- [`createDataFlowSource`](#createDataFlowSource)
-- [`createDataFlowSink`](#createDataFlowSink)
-- [`createModel`](#createModel)
-- [`createView`](#createView)
-- [`createIntent`](#createIntent)
-- [`createDOMUser`](#createDOMUser)
+- [`createStream`](#createStream)
+- [`render`](#render)
 - [`registerCustomElement`](#registerCustomElement)
 - [`vdomPropHook`](#vdomPropHook)
 - [`Rx`](#Rx)
 - [`h`](#h)
 
-### <a id="createDataFlowNode"></a> `createDataFlowNode(definitionFn)`
+### <a id="createStream"></a> `createStream(definitionFn)`
 
-Creates a DataFlowNode based on the given `definitionFn`. The `definitionFn`
-function will be executed immediately on create, and the resulting DataFlowNode
-outputs will be synchronously available. The inputs are asynchronously injected
-later with the `inject()` function on the DataFlowNode.
+Creates a Cycle stream defined by `definitionFn`. A Stream is a subclass of
+Rx.Observable and implements "Injectable", so it contains the function
+`inject(...inputs)`. This function will synchronously return the same Observable as
+`definitionFn` returns, but will use proxy inputs created internally. You should
+supply the real inputs later with inject(), and the proxy inputs will imitate the
+behavior of the real inputs.
 
 #### Arguments:
 
-- `definitionFn :: Function` a function expecting DataFlowNodes as parameters. This function should return an object containing RxJS Observables as properties.
-The input parameters can also be plain objects with Observables as properties.
+- `definitionFn :: Function` a function taking Observables as input and outputting one Rx.Observable.
 
 #### Return:
 
-*(DataFlowNode)* a DataFlowNode, containing a `inject(inputs...)` function.
+*(Rx.Observable)* a stream as defined by the return of `definitionFn`.
 
 - - -
 
-### <a id="createDataFlowSource"></a> `createDataFlowSource(outputObject)`
+### <a id="render"></a> `render(vtree$, container)`
 
-Creates a DataFlowSource. It receives an object as argument, and outputs that same
-object, annotated as a DataFlowSource. For all practical purposes, a DataFlowSource
-is just a regular object with RxJS Observables, but for consistency with other
-components in the framework such as DataFlowNode, the returned object is an instance
-of DataFlowSource.
-
-#### Arguments:
-
-- `outputObject :: Object` an object containing RxJS Observables.
-
-#### Return:
-
-*(DataFlowSource)* a DataFlowSource equivalent to the given outputObject
-
-- - -
-
-### <a id="createDataFlowSink"></a> `createDataFlowSink(definitionFn)`
-
-Creates a DataFlowSink, given a definition function that receives injected inputs.
+Renders a stream of virtual DOM elements (`vtree$`) into the DOM element indicated
+by `container`, which can be either a CSS selector or an actual element.
+Returns a stream of real DOM element, with a special property attached to it called
+`interactions$()`. This `interactions$` is a theoretical stream containing all
+possible events happening on all elements which were rendered. You must query it
+with `interactions$.choose(selector, eventName)` in order to get an event stream of
+interactions of type `eventName` happening on the element identified by `selector`.
+Example: `interactions$.choose('.mybutton', 'click').subscribe( ... )`
 
 #### Arguments:
 
-- `definitionFn :: Function` a function expecting some DataFlowNode(s) as arguments. The function should subscribe to Observables of the input DataFlowNodes
-and should return a `Rx.Disposable` subscription.
-
-#### Return:
-
-*(DataFlowSink)* a DataFlowSink, containing a `inject(inputs...)` function.
-
-- - -
-
-### <a id="createModel"></a> `createModel(definitionFn)`
-
-Returns a DataFlowNode representing a Model, having some Intent as input.
-
-Is a specialized case of `createDataFlowNode()`, with the same API.
-
-#### Arguments:
-
-- `definitionFn :: Function` a function expecting an Intent DataFlowNode as parameter. Should return an object containing RxJS Observables as properties.
-
-#### Return:
-
-*(DataFlowNode)* a DataFlowNode representing a Model, containing a `inject(intent)` function.
-
-- - -
-
-### <a id="createView"></a> `createView(definitionFn)`
-
-Returns a DataFlowNode representing a View, having some Model as input.
-
-Is a specialized case of `createDataFlowNode()`.
-
-#### Arguments:
-
-- `definitionFn :: Function` a function expecting a Model object as parameter. Should return an object containing RxJS Observables as properties. The object **must
-contain** property `vtree$`, an Observable emitting instances of VTree
-(Virtual DOM elements).
-
-#### Return:
-
-*(DataFlowNode)* a DataFlowNode representing a View, containing a `inject(model)` function.
-
-- - -
-
-### <a id="createIntent"></a> `createIntent(definitionFn)`
-
-Returns a DataFlowNode representing an Intent, having some View as input.
-
-Is a specialized case of `createDataFlowNode()`.
-
-#### Arguments:
-
-- `definitionFn :: Function` a function expecting a View object as parameter. Should return an object containing RxJS Observables as properties.
-
-#### Return:
-
-*(DataFlowNode)* a DataFlowNode representing an Intent, containing a `inject(view)` function.
-
-- - -
-
-### <a id="createDOMUser"></a> `createDOMUser(container)`
-
-Returns a DOMUser (a DataFlowNode) bound to a DOM container element. Contains an
-`inject` function that should be called with a View as argument. Events coming from
-this user can be listened using `domUser.event$(selector, eventName)`. Example:
-`domUser.event$('.mybutton', 'click').subscribe( ... )`
-
-#### Arguments:
-
+- `vtree$ :: RxObservable` stream of virtual DOM elements.
 - `container :: String|HTMLElement` the DOM selector for the element (or the element itself) to contain the rendering of the VTrees.
 
 #### Return:
 
-*(DOMUser)* a DOMUser object containing functions `inject(view)` and `event$(selector, eventName)`.
+*(Rx.Observable)* a stream emitting the root DOM element for this rendering, with the property `interactions$()` attached to it.
 
 - - -
 
