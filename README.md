@@ -65,7 +65,7 @@ let changeName$ = Cycle.createStream(function intent(interaction$) {
   return interaction$.choose('.field', 'input').map(ev => ev.target.value);
 });
 
-interaction$.inject(vtree$).inject(name$).inject(changeName$).inject(interaction$);
+name$.inject(changeName$).inject(interaction$).inject(vtree$).inject(name$);
 ```
 
 Notice that each of the 4 streams takes its preceding neighbour stream as input, hence the
