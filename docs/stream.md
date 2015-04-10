@@ -4,7 +4,7 @@ Cycle.js is above all a library for creating circularly-dependent RxJS Observabl
 enabling web user interfaces to be created with Observables. Circularly-dependent
 Observables are necessary if we are to architect applications as a loop: Model affects
 View, View is displayed to the User, the User creates interactions, Intent interprets or
-pre-processes interaction events, and the Model listens for requests made my the Intent.
+pre-processes interaction events, and the Model listens for requests made by the Intent.
 In each of these, we represent data and events as an Observable, hence the need for a
 circular dependency solution.
 
