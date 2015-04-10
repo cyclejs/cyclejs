@@ -27,17 +27,17 @@ var Cycle = {
    * Renders a stream of virtual DOM elements (`vtree$`) into the DOM element indicated
    * by `container`, which can be either a CSS selector or an actual element.
    * Returns a stream of real DOM element, with a special property attached to it called
-   * `interactions$()`. This `interactions$` is a theoretical stream containing all
+   * `interaction$()`. This `interaction$` is a theoretical stream containing all
    * possible events happening on all elements which were rendered. You must query it
-   * with `interactions$.choose(selector, eventName)` in order to get an event stream of
+   * with `interaction$.choose(selector, eventName)` in order to get an event stream of
    * interactions of type `eventName` happening on the element identified by `selector`.
-   * Example: `interactions$.choose('.mybutton', 'click').subscribe( ... )`
+   * Example: `interaction$.choose('.mybutton', 'click').subscribe( ... )`
    *
    * @param {Rx.Observable} vtree$ stream of virtual DOM elements.
    * @param {(String|HTMLElement)} container the DOM selector for the element (or the
    * element itself) to contain the rendering of the VTrees.
    * @return {Rx.Observable} a stream emitting the root DOM element for this rendering,
-   * with the property `interactions$()` attached to it.
+   * with the property `interaction$()` attached to it.
    * @function render
    */
   render: Rendering.render,

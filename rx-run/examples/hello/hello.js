@@ -16,14 +16,14 @@ var vtree$ = Cycle.createStream(function view(name$) {
   });
 });
 
-var interactions$ = Cycle.createStream(function user(vtree$) {
-  return Cycle.render(vtree$, '.js-container').interactions$;
+var interaction$ = Cycle.createStream(function user(vtree$) {
+  return Cycle.render(vtree$, '.js-container').interaction$;
 });
 
-var changeName$ = Cycle.createStream(function intent(interactions$) {
-  return interactions$.choose('.myinput', 'input').map(function (ev) {
+var changeName$ = Cycle.createStream(function intent(interaction$) {
+  return interaction$.choose('.myinput', 'input').map(function (ev) {
     return ev.target.value;
   });
 });
 
-interactions$.inject(vtree$).inject(name$).inject(changeName$).inject(interactions$);
+interaction$.inject(vtree$).inject(name$).inject(changeName$).inject(interaction$);

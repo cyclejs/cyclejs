@@ -17,18 +17,18 @@ var proxyVtree$ = Cycle.createStream(function (vtree$) {
   return vtree$.replay(null, 1).refCount();
 });
 
-var interactions$ = Cycle.createStream(function (vtree$) {
-  return Cycle.render(vtree$, '.js-container').interactions$;
+var interaction$ = Cycle.createStream(function (vtree$) {
+  return Cycle.render(vtree$, '.js-container').interaction$;
 });
 
-var changeName$ = Cycle.createStream(function (interactions$) {
-  return interactions$.choose('.myinput', 'input')
+var changeName$ = Cycle.createStream(function (interaction$) {
+  return interaction$.choose('.myinput', 'input')
     .map(function (ev) { return ev.target.value; });
 });
 
-interactions$
+interaction$
 .inject(proxyVtree$)
 .inject(vtree$)
 .inject(name$)
 .inject(changeName$)
-.inject(interactions$);
+.inject(interaction$);

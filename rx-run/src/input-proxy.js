@@ -8,7 +8,7 @@ class InputProxy extends Rx.Subject {
     this._userEvent$ = {};
   }
 
-  // For the rendered rootElem$ with interactions$
+  // For the rendered rootElem$ with interaction$
   choose(selector, eventName) {
     if (typeof this._userEvent$[selector] === 'undefined') {
       this._userEvent$[selector] = {};

@@ -57,15 +57,15 @@ let vtree$ = Cycle.createStream(function view(name$) {
   );
 });
 
-let interactions$ = Cycle.createStream(function user(vtree$) {
-  return Cycle.render(vtree$, '.js-container').getInteractions$();
+let interaction$ = Cycle.createStream(function user(vtree$) {
+  return Cycle.render(vtree$, '.js-container').interaction$;
 });
 
-let changeName$ = Cycle.createStream(function intent(interactions$) {
-  return interactions$.choose('.field', 'input').map(ev => ev.target.value);
+let changeName$ = Cycle.createStream(function intent(interaction$) {
+  return interaction$.choose('.field', 'input').map(ev => ev.target.value);
 });
 
-interactions$.inject(vtree$).inject(name$).inject(changeName$).inject(interactions$);
+interaction$.inject(vtree$).inject(name$).inject(changeName$).inject(interaction$);
 ```
 
 Notice that each of the 4 streams takes its preceding neighbour stream as input, hence the

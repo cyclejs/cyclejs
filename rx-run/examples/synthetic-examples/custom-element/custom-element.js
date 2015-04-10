@@ -54,7 +54,7 @@ Cycle.registerCustomElement('ticker', function (rootElem$, props) {
 
   var user = (function () {
     return {
-      interactions$: rootElem$.interactions$,
+      interaction$: rootElem$.interaction$,
       inject: function inject(view) {
         rootElem$.inject(view.vtree$);
         return view;
@@ -63,8 +63,8 @@ Cycle.registerCustomElement('ticker', function (rootElem$, props) {
   })();
 
   var intent = (function () {
-    var removeClicks$ = Cycle.createStream(function (interactions$) {
-      return interactions$.choose('.remove-btn', 'click');
+    var removeClicks$ = Cycle.createStream(function (interaction$) {
+      return interaction$.choose('.remove-btn', 'click');
     });
     var stop$ = removeClicks$.map(function () { return 'stop'; });
     var remove$ = removeClicks$.map(function () { return 'remove'; }).delay(500);
@@ -73,7 +73,7 @@ Cycle.registerCustomElement('ticker', function (rootElem$, props) {
       stop$: stop$,
       remove$: remove$,
       inject: function inject(user) {
-        removeClicks$.inject(user.interactions$);
+        removeClicks$.inject(user.interaction$);
         return user;
       }
     };
@@ -136,28 +136,28 @@ var view = (function () {
 })();
 
 var user = (function () {
-  var interactions$ = Cycle.createStream(function (vtree$) {
-    return Cycle.render(vtree$, '.js-container').interactions$;
+  var interaction$ = Cycle.createStream(function (vtree$) {
+    return Cycle.render(vtree$, '.js-container').interaction$;
   });
 
   return {
-    interactions$: interactions$,
+    interaction$: interaction$,
     inject: function inject(view) {
-      interactions$.inject(view.vtree$);
+      interaction$.inject(view.vtree$);
       return view;
     }
   };
 })();
 
 var intent = (function () {
-  var removeTicker$ = Cycle.createStream(function (interactions$) {
-    return interactions$.choose('.ticker', 'remove');
+  var removeTicker$ = Cycle.createStream(function (interaction$) {
+    return interaction$.choose('.ticker', 'remove');
   });
 
   return {
     removeTicker$: removeTicker$,
     inject: function inject(user) {
-      removeTicker$.inject(user.interactions$);
+      removeTicker$.inject(user.interaction$);
       return user;
     }
   };

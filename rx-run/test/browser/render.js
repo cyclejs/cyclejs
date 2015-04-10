@@ -68,12 +68,12 @@ describe('Rendering', function () {
   });
 
   describe('rootElem$', function () {
-    it('should have `interactions$` stream', function () {
+    it('should have `interaction$` stream', function () {
       let rootElem$ = Cycle.render(Rx.Observable.empty(), createRenderTarget());
-      assert.strictEqual(typeof rootElem$.interactions$, 'object');
-      assert.strictEqual(typeof rootElem$.interactions$.subscribe, 'function');
-      assert.strictEqual(typeof rootElem$.interactions$.choose, 'function');
-      assert.strictEqual(rootElem$.interactions$.choose.length, 2);
+      assert.strictEqual(typeof rootElem$.interaction$, 'object');
+      assert.strictEqual(typeof rootElem$.interaction$.subscribe, 'function');
+      assert.strictEqual(typeof rootElem$.interaction$.choose, 'function');
+      assert.strictEqual(rootElem$.interaction$.choose.length, 2);
       rootElem$.dispose();
     });
 
@@ -101,7 +101,7 @@ describe('Rendering', function () {
       let rootElem$ = Cycle.createStream(function (vtree$) {
         return Cycle.render(vtree$, createRenderTarget());
       });
-      rootElem$.interactions$.choose('.myelementclass', 'click').subscribe(function (ev) {
+      rootElem$.interaction$.choose('.myelementclass', 'click').subscribe(function (ev) {
         assert.strictEqual(ev.type, 'click');
         assert.strictEqual(ev.target.innerHTML, 'Foobar');
         done();
@@ -120,14 +120,14 @@ describe('Rendering', function () {
       rootElem$.dispose();
     });
 
-    it('should allow subscribing to interactions$ after injection', function (done) {
+    it('should allow subscribing to interaction$ after injection', function (done) {
       let rootElem$ = Cycle.createStream(function (vtree$) {
         return Cycle.render(vtree$, createRenderTarget());
       });
       // Make a View reactively imitating another View
       let vtree$ = Rx.Observable.just(h('h3.myelementclass', 'Foobar'));
       rootElem$.inject(vtree$);
-      rootElem$.interactions$.choose('.myelementclass', 'click').subscribe(function (ev) {
+      rootElem$.interaction$.choose('.myelementclass', 'click').subscribe(function (ev) {
         assert.strictEqual(ev.type, 'click');
         assert.strictEqual(ev.target.innerHTML, 'Foobar');
         done();

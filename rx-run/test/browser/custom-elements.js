@@ -199,7 +199,7 @@ describe('Custom Elements', function () {
     let rootElem$ = Cycle.createStream(function (vtree$) {
       return Cycle.render(vtree$, createRenderTarget());
     });
-    rootElem$.interactions$.choose('.eventsource', 'myevent').subscribe(function (x) {
+    rootElem$.interaction$.choose('.eventsource', 'myevent').subscribe(function (x) {
       assert.strictEqual(x.data, 123);
       rootElem$.dispose();
       done();
@@ -259,7 +259,7 @@ describe('Custom Elements', function () {
       let vtree$ = Cycle.createStream(id$ =>
         id$.map((id) => h('h3.internalslider', String(id))).shareReplay(1)
       );
-      let remove$ = rootElem$.interactions$.choose('.internalslider', 'click')
+      let remove$ = rootElem$.interaction$.choose('.internalslider', 'click')
         .map(() => true);
       rootElem$.inject(vtree$).inject(id$).inject(props.get('id$'));
       return {
@@ -291,7 +291,7 @@ describe('Custom Elements', function () {
 
     let rootElem$ = Cycle.render(vtree$, createRenderTarget());
 
-    let remove$ = rootElem$.interactions$.choose('.slider', 'remove')
+    let remove$ = rootElem$.interaction$.choose('.slider', 'remove')
       .map(event => event.data);
 
     items$.inject(remove$);
