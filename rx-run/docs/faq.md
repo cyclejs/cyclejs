@@ -27,28 +27,25 @@ You can also allow these Views to communicate with each other through a common t
 
 The dollar sign `$` *suffixed* to a name is a hard convention to indicate that the variable is an Observable (instance of an RxJS Observable). Not only is it a naming helper to indicate types, it is also a required convention when working with custom elements. The following are examples of the former and the latter.
 
-If a model exports an observable stream called `lastname$`, then the view can consume it as such:
+Suppose you have an Observable of vtree depending on an Observable of "lastname" string:
 ```javascript
-var View = Cycle.createView(function (Model) {
-  return {
-    vtree$: Model.get('lastname$')
-      .map(function (lastname) { return h('h1', lastname); })
+var vtree$ = Cycle.createStream(function view(lastname$) {
+  return lastname$.map(lastname => h('h1', lastname))
 });
 ```
 
-Notice that the function inside `map` takes `lastname` as argument, while the `Model` owns `lastname$`. The naming convention indicates that `lastname` is the value being emitted by `lastname$`. Without this convention, if `Model.get('lastname$')` would simply be named `Model.get('lastname')`, it would confuse readers about the types involved. Also, `lastname$` is succinct compared to alternatives like `lastnameObservable`, `lastnameStream`, or `lastnameObs`.
+Notice that the function inside `map` takes `lastname` as argument, while the Observable is named `lastname$`. The naming convention indicates that `lastname` is the value being emitted by `lastname$`. In general, `foobar$` emits `foobar`. Without this convention, if `lastname$` would be named simply `lastname`, it would confuse readers about the types involved. Also, `lastname$` is succinct compared to alternatives like `lastnameObservable`, `lastnameStream`, or `lastnameObs`. This convention can also be extended to arrays: use plurality to indicate the type is an array. Example: `vtrees` is an array of `vtree`, but `vtree$` is an Observable of `vtree`.
 
-The suffixed dollar convention is required for custom elements. When you use a custom element and give it attributes, the attribute name will be suffixed with `$` to recover the Observable inside the custom element's DataFlowNode. Example:
+The suffixed dollar convention is required for custom elements. When you use a custom element and give it attributes, the attribute name will be suffixed with `$` to recover the Observable in the custom element's properties. Example:
 
 ```javascript
-var View = Cycle.createView(function (Model) {
-  return {
-    vtree$: Model.get('lastname$')
-      .map(function (lastname) {
-        return h('custombutton', {label: lastname});
-        // lastname emitted into label$ in the DataFlowNode that
-        // implements <custombutton>
-      })
+var vtree$ = Cycle.createStream(function view(lastname$) {
+  return lastname$
+    .map(function (lastname) {
+      return h('custom-button', {label: lastname});
+      // lastname emitted into label$ in the `props` object 
+      // that is passed to the definition function for <custom-button>
+    });
 });
 ```
 
