@@ -2,6 +2,12 @@
 
 Join the Gitter chat room <br />[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/staltz/cycle?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+## What is the difference between a Cycle Stream and Rx.Observable?
+
+Cycle Stream is a subclass of Rx.Observable. Every Stream is an Observable. So when we talk of Observables, we include Cycle Streams, but not the other way around.
+
+A Cycle Stream is [well introduced here](https://github.com/staltz/cycle/blob/master/docs/stream.md#cycle-streams). An alternative name for Stream would have been "InjectableObservable" but the latter is less friendly than the former. 
+
 ## What does the suffixed dollar sign `$` mean?
 
 The dollar sign `$` *suffixed* to a name is a hard convention to indicate that the variable is an Observable (instance of an RxJS Observable). Not only is it a naming helper to indicate types, it is also a required convention when working with custom elements. The following are examples of the former and the latter.
