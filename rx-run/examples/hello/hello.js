@@ -26,4 +26,4 @@ var changeName$ = Cycle.createStream(function intent(interaction$) {
   });
 });
 
-interaction$.inject(vtree$).inject(name$).inject(changeName$).inject(interaction$);
+name$.inject(changeName$).inject(interaction$).inject(vtree$).inject(name$);
