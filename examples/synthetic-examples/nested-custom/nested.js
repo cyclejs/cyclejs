@@ -57,7 +57,7 @@ Cycle.registerCustomElement('inner-elem', function (rootElem$, props) {
 
   var user = (function () {
     return {
-      interactions$: rootElem$.interactions$,
+      interaction$: rootElem$.interaction$,
       inject: function inject(view) {
         rootElem$.inject(view.vtree$);
         return view;
@@ -66,14 +66,14 @@ Cycle.registerCustomElement('inner-elem', function (rootElem$, props) {
   })();
 
   var intent = (function () {
-    var refreshData$ = Cycle.createStream(function (interactions$) {
-      return interactions$.choose('.innerRoot', 'click').map(function () { return 'x'; });
+    var refreshData$ = Cycle.createStream(function (interaction$) {
+      return interaction$.choose('.innerRoot', 'click').map(function () { return 'x'; });
     });
 
     return {
       refreshData$: refreshData$,
       inject: function inject(user) {
-        refreshData$.inject(user.interactions$);
+        refreshData$.inject(user.interaction$);
         return user;
       }
     };
@@ -130,14 +130,14 @@ var view = (function () {
 })();
 
 var user = (function () {
-  var interactions$ = Cycle.createStream(function (vtree$) {
-    return Cycle.render(vtree$, '.js-container').interactions$;
+  var interaction$ = Cycle.createStream(function (vtree$) {
+    return Cycle.render(vtree$, '.js-container').interaction$;
   });
 
   return {
-    interactions$: interactions$,
+    interaction$: interaction$,
     inject: function inject(view) {
-      interactions$.inject(view.vtree$);
+      interaction$.inject(view.vtree$);
       return view;
     }
   };
@@ -146,10 +146,10 @@ var user = (function () {
 console.info('You should see both \'foo: ...\' and \'content: ...\' ' +
   'logs every time you click on the inner box.'
 );
-user.interactions$.choose('.inner', 'fooOnRefresh').subscribe(function (ev) {
+user.interaction$.choose('.inner', 'fooOnRefresh').subscribe(function (ev) {
   console.log('foo: ' + ev.data);
 });
-user.interactions$.choose('.inner', 'contentOnRefresh').subscribe(function (ev) {
+user.interaction$.choose('.inner', 'contentOnRefresh').subscribe(function (ev) {
   console.log('content: ' + ev.data);
 });
 
@@ -163,14 +163,14 @@ var intent = (function () {
     return hexColor;
   }
 
-  var changeColor$ = Cycle.createStream(function (interactions$) {
-    return interactions$.choose('.inner', 'wasRefreshed').map(makeRandomColor);
+  var changeColor$ = Cycle.createStream(function (interaction$) {
+    return interaction$.choose('.inner', 'wasRefreshed').map(makeRandomColor);
   });
 
   return {
     changeColor$: changeColor$,
     inject: function inject(user) {
-      changeColor$.inject(user.interactions$);
+      changeColor$.inject(user.interaction$);
       return user;
     }
   };

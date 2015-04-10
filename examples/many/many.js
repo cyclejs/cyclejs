@@ -1,13 +1,13 @@
 
 var manyUser = (function () {
-  var interactions$ = Cycle.createStream(function (vtree$) {
-    return Cycle.render(vtree$, '.js-container').interactions$;
+  var interaction$ = Cycle.createStream(function (vtree$) {
+    return Cycle.render(vtree$, '.js-container').interaction$;
   });
 
   return {
-    interactions$: interactions$,
+    interaction$: interaction$,
     inject: function inject(view) {
-      interactions$.inject(view.vtree$);
+      interaction$.inject(view.vtree$);
       return view;
     }
   };

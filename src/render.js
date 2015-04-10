@@ -139,20 +139,20 @@ function renderRawRootElem$(vtree$, domContainer) {
     .startWith(rootElem);
 }
 
-function makeInteractions$(rootElem$) {
+function makeInteraction$(rootElem$) {
   return {
     subscribe: function subscribe() {
-      throw new Error('Cannot subscribe to interactions$ without first calling ' +
+      throw new Error('Cannot subscribe to interaction$ without first calling ' +
         'choose(selector, eventName)'
       );
     },
     choose: function choose(selector, eventName) {
       if (typeof selector !== 'string') {
-        throw new Error('interactions$.choose() expects first argument to be a ' +
+        throw new Error('interaction$.choose() expects first argument to be a ' +
         'string as a CSS selector');
       }
       if (typeof eventName !== 'string') {
-        throw new Error('interactions$.choose() expects second argument to be a ' +
+        throw new Error('interaction$.choose() expects second argument to be a ' +
         'string representing the event type to listen for.');
       }
 
@@ -204,7 +204,7 @@ function render(vtree$, container) {
   }
   let rawRootElem$ = renderRawRootElem$(vtree$, domContainer);
   let rootElem$ = fixRootElem$(rawRootElem$, domContainer);
-  rootElem$.interactions$ = makeInteractions$(rootElem$);
+  rootElem$.interaction$ = makeInteraction$(rootElem$);
   rootElem$ = publishConnectRootElem$(rootElem$);
   return rootElem$;
 }

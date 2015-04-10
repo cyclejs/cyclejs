@@ -69,7 +69,7 @@ Cycle.registerCustomElement('item', function (rootElem$, props) {
 
   var user = (function () {
     return {
-      interactions$: rootElem$.interactions$,
+      interaction$: rootElem$.interaction$,
       inject: function inject(view) {
         rootElem$.inject(view.vtree$);
         return view;
@@ -78,14 +78,14 @@ Cycle.registerCustomElement('item', function (rootElem$, props) {
   })();
 
   var intent = (function () {
-    var destroy$ = Cycle.createStream(function (interactions$) {
-      return interactions$.choose('.remove-btn', 'click');
+    var destroy$ = Cycle.createStream(function (interaction$) {
+      return interaction$.choose('.remove-btn', 'click');
     });
-    var changeColor$ = Cycle.createStream(function (interactions$) {
-      return interactions$.choose('.color-field', 'input');
+    var changeColor$ = Cycle.createStream(function (interaction$) {
+      return interaction$.choose('.color-field', 'input');
     });
-    var changeWidth$ = Cycle.createStream(function (interactions$) {
-      return interactions$.choose('.width-slider', 'input');
+    var changeWidth$ = Cycle.createStream(function (interaction$) {
+      return interaction$.choose('.width-slider', 'input');
     });
 
     return {
@@ -93,9 +93,9 @@ Cycle.registerCustomElement('item', function (rootElem$, props) {
       changeColor$: changeColor$,
       changeWidth$: changeWidth$,
       inject: function inject(user) {
-        destroy$.inject(user.interactions$);
-        changeColor$.inject(user.interactions$);
-        changeWidth$.inject(user.interactions$);
+        destroy$.inject(user.interaction$);
+        changeColor$.inject(user.interaction$);
+        changeWidth$.inject(user.interaction$);
         return user;
       }
     };

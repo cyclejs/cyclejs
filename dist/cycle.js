@@ -14757,17 +14757,17 @@ var Cycle = {
    * Renders a stream of virtual DOM elements (`vtree$`) into the DOM element indicated
    * by `container`, which can be either a CSS selector or an actual element.
    * Returns a stream of real DOM element, with a special property attached to it called
-   * `interactions$()`. This `interactions$` is a theoretical stream containing all
+   * `interaction$()`. This `interaction$` is a theoretical stream containing all
    * possible events happening on all elements which were rendered. You must query it
-   * with `interactions$.choose(selector, eventName)` in order to get an event stream of
+   * with `interaction$.choose(selector, eventName)` in order to get an event stream of
    * interactions of type `eventName` happening on the element identified by `selector`.
-   * Example: `interactions$.choose('.mybutton', 'click').subscribe( ... )`
+   * Example: `interaction$.choose('.mybutton', 'click').subscribe( ... )`
    *
    * @param {Rx.Observable} vtree$ stream of virtual DOM elements.
    * @param {(String|HTMLElement)} container the DOM selector for the element (or the
    * element itself) to contain the rendering of the VTrees.
    * @return {Rx.Observable} a stream emitting the root DOM element for this rendering,
-   * with the property `interactions$()` attached to it.
+   * with the property `interaction$()` attached to it.
    * @function render
    */
   render: Rendering.render,
@@ -14847,7 +14847,7 @@ var InputProxy = (function (_Rx$Subject) {
   _createClass(InputProxy, {
     choose: {
 
-      // For the rendered rootElem$ with interactions$
+      // For the rendered rootElem$ with interaction$
 
       value: function choose(selector, eventName) {
         if (typeof this._userEvent$[selector] === "undefined") {
@@ -15029,17 +15029,17 @@ function renderRawRootElem$(vtree$, domContainer) {
   }).startWith(rootElem);
 }
 
-function makeInteractions$(rootElem$) {
+function makeInteraction$(rootElem$) {
   return {
     subscribe: function subscribe() {
-      throw new Error("Cannot subscribe to interactions$ without first calling " + "choose(selector, eventName)");
+      throw new Error("Cannot subscribe to interaction$ without first calling " + "choose(selector, eventName)");
     },
     choose: function choose(selector, eventName) {
       if (typeof selector !== "string") {
-        throw new Error("interactions$.choose() expects first argument to be a " + "string as a CSS selector");
+        throw new Error("interaction$.choose() expects first argument to be a " + "string as a CSS selector");
       }
       if (typeof eventName !== "string") {
-        throw new Error("interactions$.choose() expects second argument to be a " + "string representing the event type to listen for.");
+        throw new Error("interaction$.choose() expects second argument to be a " + "string representing the event type to listen for.");
       }
 
       //console.log(`%cchoose("${selector}", "${eventName}")`, 'color: #0000BB');
@@ -15088,7 +15088,7 @@ function render(vtree$, container) {
   }
   var rawRootElem$ = renderRawRootElem$(vtree$, domContainer);
   var rootElem$ = fixRootElem$(rawRootElem$, domContainer);
-  rootElem$.interactions$ = makeInteractions$(rootElem$);
+  rootElem$.interaction$ = makeInteraction$(rootElem$);
   rootElem$ = publishConnectRootElem$(rootElem$);
   return rootElem$;
 }
@@ -15141,7 +15141,7 @@ function replicate(source, subject) {
   });
 }
 
-function replicateAllInteractions$(input, proxy) {
+function replicateAllInteraction$(input, proxy) {
   var subscriptions = new Rx.CompositeDisposable();
   var selectors = proxy._userEvent$;
   for (var selector in selectors) {
@@ -15167,7 +15167,7 @@ function replicateAll(input, proxy) {
   }
 
   if (typeof input.choose === "function") {
-    return replicateAllInteractions$(input, proxy);
+    return replicateAllInteraction$(input, proxy);
   } else if (typeof input.subscribe === "function" && proxy.type === "InputProxy") {
     return replicate(input, proxy);
   } else {

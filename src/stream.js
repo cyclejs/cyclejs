@@ -23,7 +23,7 @@ function replicate(source, subject) {
   );
 }
 
-function replicateAllInteractions$(input, proxy) {
+function replicateAllInteraction$(input, proxy) {
   let subscriptions = new Rx.CompositeDisposable();
   let selectors = proxy._userEvent$;
   for (let selector in selectors) { if (selectors.hasOwnProperty(selector)) {
@@ -43,7 +43,7 @@ function replicateAll(input, proxy) {
   if (!input || !proxy) { return; }
 
   if (typeof input.choose === 'function') {
-    return replicateAllInteractions$(input, proxy);
+    return replicateAllInteraction$(input, proxy);
   } else if (typeof input.subscribe === 'function' && proxy.type === 'InputProxy') {
     return replicate(input, proxy);
   } else {

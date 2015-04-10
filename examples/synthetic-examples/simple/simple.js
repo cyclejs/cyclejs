@@ -23,32 +23,32 @@ function view(data$) {
 
 function createUser(container) {
   return function user(vtree$) {
-    return Cycle.render(vtree$, container).interactions$;
+    return Cycle.render(vtree$, container).interaction$;
   };
 }
 
-function intent(interactions$) {
-  return interactions$.choose('.box', 'click').map(function () { return 'x'; });
+function intent(interaction$) {
+  return interaction$.choose('.box', 'click').map(function () { return 'x'; });
 }
 
 var fooName$ = Cycle.createStream(model);
 var fooVtree$ = Cycle.createStream(view);
-var fooInteractions$ = Cycle.createStream(createUser('.js-container1'));
+var fooInteraction$ = Cycle.createStream(createUser('.js-container1'));
 var fooChangeName$ = Cycle.createStream(intent);
 
 var barName$ = Cycle.createStream(model);
 var barVtree$ = Cycle.createStream(view);
-var barInteractions$ = Cycle.createStream(createUser('.js-container2'));
+var barInteraction$ = Cycle.createStream(createUser('.js-container2'));
 var barChangeName$ = Cycle.createStream(intent);
 
-fooInteractions$
+fooInteraction$
   .inject(fooVtree$)
   .inject(fooName$)
   .inject(fooChangeName$)
-  .inject(fooInteractions$);
+  .inject(fooInteraction$);
 
-barInteractions$
+barInteraction$
   .inject(barVtree$)
   .inject(barName$)
   .inject(barChangeName$)
-  .inject(barInteractions$);
+  .inject(barInteraction$);
