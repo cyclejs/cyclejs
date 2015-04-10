@@ -1,20 +1,33 @@
 var h = Cycle.h;
 
-Cycle.registerCustomElement('item', function (User, Properties) {
-  var Model = Cycle.createModel(function (Intent, Properties) {
-    return {
-      id$:    Properties.get('itemid$').shareReplay(1),
-      color$: Properties.get('color$').startWith('#888'),
-      width$: Properties.get('width$').startWith(200)
-    };
-  });
+Cycle.registerCustomElement('item', function (rootElem$, props) {
+  var model = (function () {
+    var id$ = Cycle.createStream(function (itemid$) {
+      return itemid$.shareReplay(1);
+    });
+    var color$ = Cycle.createStream(function (color$) {
+      return color$.startWith('#888');
+    });
+    var width$ = Cycle.createStream(function (width$) {
+      return width$.startWith(200);
+    });
 
-  var View = Cycle.createView(function (Model) {
     return {
-      vtree$: Cycle.Rx.Observable.combineLatest(
-        Model.get('id$'),
-        Model.get('color$'),
-        Model.get('width$'),
+      id$: id$,
+      color$: color$,
+      width$: width$,
+      inject: function inject(props, intent) {
+        id$.inject(props.get('itemid$'));
+        color$.inject(props.get('color$'));
+        width$.inject(props.get('width$'));
+        return [props, intent];
+      }
+    };
+  })();
+
+  var view = (function () {
+    var vtree$ = Cycle.createStream(function (id$, color$, width$) {
+      return Cycle.Rx.Observable.combineLatest(id$, color$, width$,
         function (id, color, width) {
           return h('div.item', {
               style: {
@@ -42,31 +55,65 @@ Cycle.registerCustomElement('item', function (User, Properties) {
             ]
           );
         }
-      )
-    };
-  });
+      );
+    });
 
-  var Intent = Cycle.createIntent(function (User) {
     return {
-      destroy$: User.event$('.remove-btn', 'click'),
-      changeColor$: User.event$('.color-field', 'input'),
-      changeWidth$: User.event$('.width-slider', 'input')
+      vtree$: vtree$,
+      inject: function inject(model) {
+        vtree$.inject(model.id$, model.color$, model.width$);
+        return model;
+      }
     };
-  });
+  })();
 
-  User.inject(View).inject(Model).inject(Intent, Properties)[0].inject(User);
+  var user = (function () {
+    return {
+      interactions$: rootElem$.interactions$,
+      inject: function inject(view) {
+        rootElem$.inject(view.vtree$);
+        return view;
+      }
+    };
+  })();
+
+  var intent = (function () {
+    var destroy$ = Cycle.createStream(function (interactions$) {
+      return interactions$.choose('.remove-btn', 'click');
+    });
+    var changeColor$ = Cycle.createStream(function (interactions$) {
+      return interactions$.choose('.color-field', 'input');
+    });
+    var changeWidth$ = Cycle.createStream(function (interactions$) {
+      return interactions$.choose('.width-slider', 'input');
+    });
+
+    return {
+      destroy$: destroy$,
+      changeColor$: changeColor$,
+      changeWidth$: changeWidth$,
+      inject: function inject(user) {
+        destroy$.inject(user.interactions$);
+        changeColor$.inject(user.interactions$);
+        changeWidth$.inject(user.interactions$);
+        return user;
+      }
+    };
+  })();
+
+  user.inject(view).inject(model).inject(props, intent)[1].inject(user);
 
   return {
-    destroy$: Intent.get('destroy$')
-      .withLatestFrom(Model.get('id$'), function (ev, id) { return id; }),
+    destroy$: intent.destroy$
+      .withLatestFrom(model.id$, function (ev, id) { return id; }),
 
-    changeColor$: Intent.get('changeColor$')
-      .withLatestFrom(Model.get('id$'), function (ev, id) {
+    changeColor$: intent.changeColor$
+      .withLatestFrom(model.id$, function (ev, id) {
         return {id: id, color: ev.currentTarget.value};
       }),
 
-    changeWidth$: Intent.get('changeWidth$')
-      .withLatestFrom(Model.get('id$'), function (ev, id) {
+    changeWidth$: intent.changeWidth$
+      .withLatestFrom(model.id$, function (ev, id) {
         return {id: id, width: parseInt(ev.currentTarget.value)};
       })
   };

@@ -1,6 +1,6 @@
 'use strict';
-let InputProxy = require('./input-proxy');
 let Rx = require('rx');
+let {createStream} = require('./stream');
 require('string.prototype.endswith');
 
 function makeDispatchFunction(element, eventName) {
@@ -38,6 +38,8 @@ function subscribeDispatchers(element, eventStreams) {
 }
 
 function subscribeDispatchersWhenRootChanges(widget, eventStreams) {
+  if (!eventStreams || typeof eventStreams !== 'object') { return; }
+
   widget._rootElem$
     .distinctUntilChanged(Rx.helpers.identity,
       (x, y) => (x && y && x.isEqualNode && x.isEqualNode(y))
@@ -50,35 +52,35 @@ function subscribeDispatchersWhenRootChanges(widget, eventStreams) {
     });
 }
 
-function makeInputPropertiesProxy() {
-  let inputProxy = new InputProxy();
-  let oldGet = inputProxy.get;
-  inputProxy.get = function get(streamName) {
-    let result = oldGet.call(this, streamName);
-    if (result && result.distinctUntilChanged) {
-      return result.distinctUntilChanged();
-    } else {
-      return result;
+class PropertiesProxy {
+  constructor() {
+    this.type = 'PropertiesProxy';
+    this.proxiedProps = {};
+  }
+
+  get(streamKey) {
+    if (typeof this.proxiedProps[streamKey] === 'undefined') {
+      this.proxiedProps[streamKey] = new Rx.Subject();
     }
-  };
-  return inputProxy;
+    return this.proxiedProps[streamKey].distinctUntilChanged();
+  }
 }
 
 function createContainerElement(tagName, vtreeProperties) {
   let element = document.createElement('div');
-  element.className = vtreeProperties.className || '';
   element.id = vtreeProperties.id || '';
+  element.className = vtreeProperties.className || '';
   element.className += ' cycleCustomElement-' + tagName.toUpperCase();
   return element;
 }
 
-function replicateUserRootElem$(origin, destination) {
-  origin._rootElem$.subscribe(elem => destination._rootElem$.onNext(elem));
+function replicate(origin, destination) {
+  origin.subscribe(elem => destination.onNext(elem));
 }
 
 function warnIfVTreeHasNoKey(vtree) {
   if (typeof vtree.key === 'undefined') {
-    console.warn(`Missing key property for Cycle custom element ${vtree.tagName}`);
+    console.warn('Missing `key` property for Cycle custom element ' + vtree.tagName);
   }
 }
 
@@ -104,15 +106,15 @@ function makeConstructor() {
 }
 
 function makeInit(tagName, definitionFn) {
-  let DOMUser = require('./dom-user');
+  let {render} = require('./render');
   return function initCustomElement() {
     //console.log('%cInit() custom element ' + tagName, 'color: #880088');
     let widget = this;
     let element = createContainerElement(tagName, widget.properties);
-    element.cycleCustomElementDOMUser = new DOMUser(element);
-    element.cycleCustomElementProperties = makeInputPropertiesProxy();
+    element.cycleCustomElementRoot$ = createStream(vtree$ => render(vtree$, element));
+    element.cycleCustomElementProperties = new PropertiesProxy();
     let eventStreams = definitionFn(
-      element.cycleCustomElementDOMUser,
+      element.cycleCustomElementRoot$,
       element.cycleCustomElementProperties
     );
     widget.eventStreamsSubscriptions = subscribeDispatchers(element, eventStreams);
@@ -126,11 +128,11 @@ function makeUpdate() {
   return function updateCustomElement(previous, element) {
     if (!element) { return; }
     if (!element.cycleCustomElementProperties) { return; }
-    if (element.cycleCustomElementProperties.type !== 'InputProxy') { return; }
+    if (element.cycleCustomElementProperties.type !== 'PropertiesProxy') { return; }
     if (!element.cycleCustomElementProperties.proxiedProps) { return; }
 
     //console.log('%cupdate() custom element ' + element.className, 'color: #880088');
-    replicateUserRootElem$(element.cycleCustomElementDOMUser, this);
+    replicate(element.cycleCustomElementRoot$, this._rootElem$);
     let proxiedProps = element.cycleCustomElementProperties.proxiedProps;
     for (let prop in proxiedProps) { if (proxiedProps.hasOwnProperty(prop)) {
       let propStreamName = prop;
@@ -143,7 +145,7 @@ function makeUpdate() {
 }
 
 module.exports = {
-  makeConstructor: makeConstructor,
-  makeInit: makeInit,
-  makeUpdate: makeUpdate
+  makeConstructor,
+  makeInit,
+  makeUpdate
 };
