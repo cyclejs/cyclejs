@@ -31,7 +31,7 @@
     "mocha": "2.2.x",
     "testem": "^0.7.6",
     "testling": "^1.7.1",
-    "uglify-js": "2.4.17"
+    "uglify-js": "2.4.19"
   },
   "engines": {
     "node": ">=0.10.0"
