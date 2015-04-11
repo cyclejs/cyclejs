@@ -6,7 +6,7 @@ let VDOM = {
 };
 let Rx = require('rx');
 let CustomElements = require('./custom-elements');
-require('babel/polyfill');
+let Map = require('es6-map'); /* jshint: -W079 */
 let CustomElementsRegistry = new Map();
 
 function isElement(obj) {
