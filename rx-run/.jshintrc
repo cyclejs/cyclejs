@@ -19,5 +19,8 @@
   "boss": true,
   "eqnull": true,
   "node": true,
-  "browser": true
+  "browser": true,
+  "globals": {
+    "Map": true
+  }
 }
