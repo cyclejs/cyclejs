@@ -1431,7 +1431,6 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
   // Defaults
   var noop = Rx.helpers.noop = function () { },
     notDefined = Rx.helpers.notDefined = function (x) { return typeof x === 'undefined'; },
-    isScheduler = Rx.helpers.isScheduler = function (x) { return x instanceof Rx.Scheduler; },
     identity = Rx.helpers.identity = function (x) { return x; },
     pluck = Rx.helpers.pluck = function (property) { return function (x) { return x[property]; }; },
     just = Rx.helpers.just = function (value) { return function () { return value; }; },
@@ -2180,51 +2179,54 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
     if (disposable.isDisposed) { throw new ObjectDisposedError(); }
   };
 
-  var SingleAssignmentDisposable = Rx.SingleAssignmentDisposable = (function () {
-    function BooleanDisposable () {
-      this.isDisposed = false;
+  // Single assignment
+  var SingleAssignmentDisposable = Rx.SingleAssignmentDisposable = function () {
+    this.isDisposed = false;
+    this.current = null;
+  };
+  SingleAssignmentDisposable.prototype.getDisposable = function () {
+    return this.current;
+  };
+  SingleAssignmentDisposable.prototype.setDisposable = function (value) {
+    if (this.current) { throw new Error('Disposable has already been assigned'); }
+    var shouldDispose = this.isDisposed;
+    !shouldDispose && (this.current = value);
+    shouldDispose && value && value.dispose();
+  };
+  SingleAssignmentDisposable.prototype.dispose = function () {
+    if (!this.isDisposed) {
+      this.isDisposed = true;
+      var old = this.current;
       this.current = null;
     }
+    old && old.dispose();
+  };
 
-    var booleanDisposablePrototype = BooleanDisposable.prototype;
-
-    /**
-     * Gets the underlying disposable.
-     * @return The underlying disposable.
-     */
-    booleanDisposablePrototype.getDisposable = function () {
-      return this.current;
-    };
-
-    /**
-     * Sets the underlying disposable.
-     * @param {Disposable} value The new underlying disposable.
-     */
-    booleanDisposablePrototype.setDisposable = function (value) {
-      var shouldDispose = this.isDisposed;
-      if (!shouldDispose) {
-        var old = this.current;
-        this.current = value;
-      }
-      old && old.dispose();
-      shouldDispose && value && value.dispose();
-    };
-
-    /**
-     * Disposes the underlying disposable as well as all future replacements.
-     */
-    booleanDisposablePrototype.dispose = function () {
-      if (!this.isDisposed) {
-        this.isDisposed = true;
-        var old = this.current;
-        this.current = null;
-      }
-      old && old.dispose();
-    };
-
-    return BooleanDisposable;
-  }());
-  var SerialDisposable = Rx.SerialDisposable = SingleAssignmentDisposable;
+  // Multiple assignment disposable
+  var SerialDisposable = Rx.SerialDisposable = function () {
+    this.isDisposed = false;
+    this.current = null;
+  };
+  SerialDisposable.prototype.getDisposable = function () {
+    return this.current;
+  };
+  SerialDisposable.prototype.setDisposable = function (value) {
+    var shouldDispose = this.isDisposed;
+    if (!shouldDispose) {
+      var old = this.current;
+      this.current = value;
+    }
+    old && old.dispose();
+    shouldDispose && value && value.dispose();
+  };
+  SerialDisposable.prototype.dispose = function () {
+    if (!this.isDisposed) {
+      this.isDisposed = true;
+      var old = this.current;
+      this.current = null;
+    }
+    old && old.dispose();
+  };
 
   /**
    * Represents a disposable resource that only disposes its underlying disposable resource when all dependent disposable objects have been disposed.
@@ -2336,6 +2338,11 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
       this._scheduleAbsolute = scheduleAbsolute;
     }
 
+    /** Determines whether the given object is a scheduler */
+    Scheduler.isScheduler = function (s) {
+      return s instanceof Scheduler;
+    }
+
     function invokeAction(scheduler, action) {
       action();
       return disposableEmpty;
@@ -2420,7 +2427,7 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
     return Scheduler;
   }());
 
-  var normalizeTime = Scheduler.normalize;
+  var normalizeTime = Scheduler.normalize, isScheduler = Scheduler.isScheduler;
 
   (function (schedulerProto) {
 
@@ -2658,14 +2665,14 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
 
   var localTimer = (function () {
     var localSetTimeout, localClearTimeout = noop;
-    if (!!root.WScript) {
+    if (!!root.setTimeout) {
+      localSetTimeout = root.setTimeout;
+      localClearTimeout = root.clearTimeout;
+    } else if (!!root.WScript) {
       localSetTimeout = function (fn, time) {
         root.WScript.Sleep(time);
         fn();
       };
-    } else if (!!root.setTimeout) {
-      localSetTimeout = root.setTimeout;
-      localClearTimeout = root.clearTimeout;
     } else {
       throw new NotSupportedError();
     }
@@ -2751,8 +2758,10 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
 
       if (root.addEventListener) {
         root.addEventListener('message', onGlobalPostMessage, false);
+      } else if (root.attachEvent) {
+        root.attachEvent('onmessage', onGlobalPostMessage);
       } else {
-        root.attachEvent('onmessage', onGlobalPostMessage, false);
+        root.onmessage = onGlobalPostMessage;
       }
 
       scheduleMethod = function (action) {
@@ -2805,15 +2814,12 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
   /**
    * Gets a scheduler that schedules work via a timed callback based upon platform.
    */
-  var timeoutScheduler = Scheduler.timeout = Scheduler.default = (function () {
+  var timeoutScheduler = Scheduler.timeout = Scheduler['default'] = (function () {
 
     function scheduleNow(state, action) {
-      var scheduler = this,
-        disposable = new SingleAssignmentDisposable();
+      var scheduler = this, disposable = new SingleAssignmentDisposable();
       var id = scheduleMethod(function () {
-        if (!disposable.isDisposed) {
-          disposable.setDisposable(action(scheduler, state));
-        }
+        !disposable.isDisposed && disposable.setDisposable(action(scheduler, state));
       });
       return new CompositeDisposable(disposable, disposableCreate(function () {
         clearMethod(id);
@@ -2821,13 +2827,10 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
     }
 
     function scheduleRelative(state, dueTime, action) {
-      var scheduler = this, dt = Scheduler.normalize(dueTime);
+      var scheduler = this, dt = Scheduler.normalize(dueTime), disposable = new SingleAssignmentDisposable();
       if (dt === 0) { return scheduler.scheduleWithState(state, action); }
-      var disposable = new SingleAssignmentDisposable();
       var id = localSetTimeout(function () {
-        if (!disposable.isDisposed) {
-          disposable.setDisposable(action(scheduler, state));
-        }
+        !disposable.isDisposed && disposable.setDisposable(action(scheduler, state));
       }, dt);
       return new CompositeDisposable(disposable, disposableCreate(function () {
         localClearTimeout(id);
@@ -3800,6 +3803,34 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
     });
   };
 
+  var EmptyObservable = (function(__super__) {
+    inherits(EmptyObservable, __super__);
+    function EmptyObservable(scheduler) {
+      this.scheduler = scheduler;
+      __super__.call(this);
+    }
+
+    EmptyObservable.prototype.subscribeCore = function (observer) {
+      var sink = new EmptySink(observer, this);
+      return sink.run();
+    };
+
+    function EmptySink(observer, parent) {
+      this.observer = observer;
+      this.parent = parent;
+    }
+
+    function scheduleItem(s, state) {
+      state.onCompleted();
+    }
+
+    EmptySink.prototype.run = function () {
+      return this.parent.scheduler.scheduleWithState(this.observer, scheduleItem);
+    };
+
+    return EmptyObservable;
+  }(ObservableBase));
+
   /**
    *  Returns an empty observable sequence, using the specified scheduler to send out the single OnCompleted message.
    *
@@ -3811,11 +3842,7 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
    */
   var observableEmpty = Observable.empty = function (scheduler) {
     isScheduler(scheduler) || (scheduler = immediateScheduler);
-    return new AnonymousObservable(function (observer) {
-      return scheduler.scheduleWithState(null, function () {
-        observer.onCompleted();
-      });
-    });
+    return new EmptyObservable(scheduler);
   };
 
   var FromObservable = (function(__super__) {
@@ -4141,14 +4168,62 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
     });
   };
 
+  var NeverObservable = (function(__super__) {
+    inherits(NeverObservable, __super__);
+    function NeverObservable() {
+      __super__.call(this);
+    }
+
+    NeverObservable.prototype.subscribeCore = function (observer) {
+      return disposableEmpty;
+    };
+
+    return NeverObservable;
+  }(ObservableBase));
+
   /**
-   *  Returns a non-terminating observable sequence, which can be used to denote an infinite duration (e.g. when using reactive joins).
+   * Returns a non-terminating observable sequence, which can be used to denote an infinite duration (e.g. when using reactive joins).
    * @returns {Observable} An observable sequence whose observers will never get called.
    */
   var observableNever = Observable.never = function () {
-    return new AnonymousObservable(function () {
-      return disposableEmpty;
-    });
+    return new NeverObservable();
+  };
+
+  var PairsObservable = (function(__super__) {
+    inherits(PairsObservable, __super__);
+    function PairsObservable(obj, scheduler) {
+      this.obj = obj;
+      this.keys = Object.keys(obj);
+      this.scheduler = scheduler;
+      __super__.call(this);
+    }
+
+    PairsObservable.prototype.subscribeCore = function (observer) {
+      var sink = new PairsSink(observer, this);
+      return sink.run();
+    };
+
+    return PairsObservable;
+  }(ObservableBase));
+
+  function PairsSink(observer, parent) {
+    this.observer = observer;
+    this.parent = parent;
+  }
+
+  PairsSink.prototype.run = function () {
+    var observer = this.observer, obj = this.parent.obj, keys = this.parent.keys, len = keys.length;
+    function loopRecursive(i, recurse) {
+      if (i < len) {
+        var key = keys[i];
+        observer.onNext([key, obj[key]]);
+        recurse(i + 1);
+      } else {
+        observer.onCompleted();
+      }
+    }
+
+    return this.parent.scheduler.scheduleRecursiveWithState(0, loopRecursive);
   };
 
   /**
@@ -4158,19 +4233,8 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
    * @returns {Observable} An observable sequence of [key, value] pairs from the object.
    */
   Observable.pairs = function (obj, scheduler) {
-    scheduler || (scheduler = Rx.Scheduler.currentThread);
-    return new AnonymousObservable(function (observer) {
-      var keys = Object.keys(obj), len = keys.length;
-      return scheduler.scheduleRecursiveWithState(0, function (idx, self) {
-        if (idx < len) {
-          var key = keys[idx];
-          observer.onNext([key, obj[key]]);
-          self(idx + 1);
-        } else {
-          observer.onCompleted();
-        }
-      });
-    });
+    scheduler || (scheduler = currentThreadScheduler);
+    return new PairsObservable(obj, scheduler);
   };
 
     var RangeObservable = (function(__super__) {
@@ -4225,14 +4289,44 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
     return new RangeObservable(start, count, scheduler);
   };
 
+  var RepeatObservable = (function(__super__) {
+    inherits(RepeatObservable, __super__);
+    function RepeatObservable(value, repeatCount, scheduler) {
+      this.value = value;
+      this.repeatCount = repeatCount == null ? -1 : repeatCount;
+      this.scheduler = scheduler;
+      __super__.call(this);
+    }
+
+    RepeatObservable.prototype.subscribeCore = function (observer) {
+      var sink = new RepeatSink(observer, this);
+      return sink.run();
+    };
+
+    return RepeatObservable;
+  }(ObservableBase));
+
+  function RepeatSink(observer, parent) {
+    this.observer = observer;
+    this.parent = parent;
+  }
+
+  RepeatSink.prototype.run = function () {
+    var observer = this.observer, value = this.parent.value;
+    function loopRecursive(i, recurse) {
+      if (i === -1 || i > 0) {
+        observer.onNext(value);
+        i > 0 && i--;
+      }
+      if (i === 0) { return observer.onCompleted(); }
+      recurse(i);
+    }
+
+    return this.parent.scheduler.scheduleRecursiveWithState(this.parent.repeatCount, loopRecursive);
+  };
+
   /**
    *  Generates an observable sequence that repeats the given element the specified number of times, using the specified scheduler to send out observer messages.
-   *
-   * @example
-   *  var res = Rx.Observable.repeat(42);
-   *  var res = Rx.Observable.repeat(42, 4);
-   *  3 - res = Rx.Observable.repeat(42, 4, Rx.Scheduler.timeout);
-   *  4 - res = Rx.Observable.repeat(42, null, Rx.Scheduler.timeout);
    * @param {Mixed} value Element to repeat.
    * @param {Number} repeatCount [Optiona] Number of times to repeat the element. If not specified, repeats indefinitely.
    * @param {Scheduler} scheduler Scheduler to run the producer loop on. If not specified, defaults to Scheduler.immediate.
@@ -4240,8 +4334,39 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
    */
   Observable.repeat = function (value, repeatCount, scheduler) {
     isScheduler(scheduler) || (scheduler = currentThreadScheduler);
-    return observableReturn(value, scheduler).repeat(repeatCount == null ? -1 : repeatCount);
+    return new RepeatObservable(value, repeatCount, scheduler);
   };
+
+  var JustObservable = (function(__super__) {
+    inherits(JustObservable, __super__);
+    function JustObservable(value, scheduler) {
+      this.value = value;
+      this.scheduler = scheduler;
+      __super__.call(this);
+    }
+
+    JustObservable.prototype.subscribeCore = function (observer) {
+      var sink = new JustSink(observer, this);
+      return sink.run();
+    };
+
+    function JustSink(observer, parent) {
+      this.observer = observer;
+      this.parent = parent;
+    }
+
+    function scheduleItem(s, state) {
+      var value = state[0], observer = state[1];
+      observer.onNext(value);
+      observer.onCompleted();
+    }
+
+    JustSink.prototype.run = function () {
+      return this.parent.scheduler.scheduleWithState([this.parent.value, this.observer], scheduleItem);
+    };
+
+    return JustObservable;
+  }(ObservableBase));
 
   /**
    *  Returns an observable sequence that contains a single element, using the specified scheduler to send out observer messages.
@@ -4252,13 +4377,38 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
    */
   var observableReturn = Observable['return'] = Observable.just = Observable.returnValue = function (value, scheduler) {
     isScheduler(scheduler) || (scheduler = immediateScheduler);
-    return new AnonymousObservable(function (o) {
-      return scheduler.scheduleWithState(value, function(_,v) {
-        o.onNext(v);
-        o.onCompleted();
-      });
-    });
+    return new JustObservable(value, scheduler);
   };
+
+  var ThrowObservable = (function(__super__) {
+    inherits(ThrowObservable, __super__);
+    function ThrowObservable(error, scheduler) {
+      this.error = error;
+      this.scheduler = scheduler;
+      __super__.call(this);
+    }
+
+    ThrowObservable.prototype.subscribeCore = function (observer) {
+      var sink = new ThrowSink(observer, this);
+      return sink.run();
+    };
+
+    function ThrowSink(observer, parent) {
+      this.observer = observer;
+      this.parent = parent;
+    }
+
+    function scheduleItem(s, state) {
+      var error = state[0], observer = state[1];
+      observer.onError(error);
+    }
+
+    ThrowSink.prototype.run = function () {
+      return this.parent.scheduler.scheduleWithState([this.parent.error, this.observer], scheduleItem);
+    };
+
+    return ThrowObservable;
+  }(ObservableBase));
 
   /**
    *  Returns an observable sequence that terminates with an exception, using the specified scheduler to send out the single onError message.
@@ -4267,19 +4417,9 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
    * @param {Scheduler} scheduler Scheduler to send the exceptional termination call on. If not specified, defaults to Scheduler.immediate.
    * @returns {Observable} The observable sequence that terminates exceptionally with the specified exception object.
    */
-  var observableThrow = Observable['throw'] = Observable.throwError = function (error, scheduler) {
+  var observableThrow = Observable['throw'] = Observable.throwError = Observable.throwException = function (error, scheduler) {
     isScheduler(scheduler) || (scheduler = immediateScheduler);
-    return new AnonymousObservable(function (observer) {
-      return scheduler.schedule(function () {
-        observer.onError(error);
-      });
-    });
-  };
-
-  /** @deprecated use #some instead */
-  Observable.throwException = function () {
-    //deprecate('throwException', 'throwError');
-    return Observable.throwError.apply(null, arguments);
+    return new ThrowObservable(error, scheduler);
   };
 
   /**
@@ -6559,6 +6699,7 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
     //deprecate('contains', 'includes');
     observableProto.includes(searchElement, fromIndex);
   };
+
   /**
    * Returns an observable sequence containing a value that represents how many elements in the specified observable sequence satisfy a condition if provided, else the count of items.
    * @example
@@ -7739,15 +7880,14 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
       return this.source.subscribe(observer);
     }
 
-    function ControlledObservable (source, enableQueue) {
+    function ControlledObservable (source, enableQueue, scheduler) {
       __super__.call(this, subscribe, source);
-      this.subject = new ControlledSubject(enableQueue);
+      this.subject = new ControlledSubject(enableQueue, scheduler);
       this.source = source.multicast(this.subject).refCount();
     }
 
     ControlledObservable.prototype.request = function (numberOfItems) {
-      if (numberOfItems == null) { numberOfItems = -1; }
-      return this.subject.request(numberOfItems);
+      return this.subject.request(numberOfItems == null ? -1 : numberOfItems);
     };
 
     return ControlledObservable;
@@ -7762,7 +7902,7 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
 
     inherits(ControlledSubject, __super__);
 
-    function ControlledSubject(enableQueue) {
+    function ControlledSubject(enableQueue, scheduler) {
       enableQueue == null && (enableQueue = true);
 
       __super__.call(this, subscribe);
@@ -7774,29 +7914,32 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
       this.error = null;
       this.hasFailed = false;
       this.hasCompleted = false;
+      this.scheduler = scheduler || currentThreadScheduler;
     }
 
     addProperties(ControlledSubject.prototype, Observer, {
       onCompleted: function () {
         this.hasCompleted = true;
-        if (!this.enableQueue || this.queue.length === 0)
+        if (!this.enableQueue || this.queue.length === 0) {
           this.subject.onCompleted();
-        else
-          this.queue.push(Rx.Notification.createOnCompleted());
+        } else {
+          this.queue.push(Notification.createOnCompleted());
+        }
       },
       onError: function (error) {
         this.hasFailed = true;
         this.error = error;
-        if (!this.enableQueue || this.queue.length === 0)
+        if (!this.enableQueue || this.queue.length === 0) {
           this.subject.onError(error);
-        else
-          this.queue.push(Rx.Notification.createOnError(error));
+        } else {
+          this.queue.push(Notification.createOnError(error));
+        }
       },
       onNext: function (value) {
         var hasRequested = false;
 
         if (this.requestedCount === 0) {
-          this.enableQueue && this.queue.push(Rx.Notification.createOnNext(value));
+          this.enableQueue && this.queue.push(Notification.createOnNext(value));
         } else {
           (this.requestedCount !== -1 && this.requestedCount-- === 0) && this.disposeCurrentRequest();
           hasRequested = true;
@@ -7809,37 +7952,35 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
           (this.queue.length > 0 && this.queue[0].kind !== 'N')) {
             var first = this.queue.shift();
             first.accept(this.subject);
-            if (first.kind === 'N') numberOfItems--;
-            else { this.disposeCurrentRequest(); this.queue = []; }
+            if (first.kind === 'N') {
+              numberOfItems--;
+            } else {
+              this.disposeCurrentRequest();
+              this.queue = [];
+            }
           }
 
           return { numberOfItems : numberOfItems, returnValue: this.queue.length !== 0};
         }
 
-        //TODO I don't think this is ever necessary, since termination of a sequence without a queue occurs in the onCompletion or onError function
-        //if (this.hasFailed) {
-        //  this.subject.onError(this.error);
-        //} else if (this.hasCompleted) {
-        //  this.subject.onCompleted();
-        //}
-
         return { numberOfItems: numberOfItems, returnValue: false };
       },
       request: function (number) {
         this.disposeCurrentRequest();
-        var self = this, r = this._processRequest(number);
+        var self = this;
 
-        var number = r.numberOfItems;
-        if (!r.returnValue) {
-          this.requestedCount = number;
-          this.requestedDisposable = disposableCreate(function () {
-            self.requestedCount = 0;
-          });
+        this.requestedDisposable = this.scheduler.scheduleWithState(number,
+        function(s, i) {
+          var r = self._processRequest(i), remaining = r.numberOfItems;
+          if (!r.returnValue) {
+            self.requestedCount = remaining;
+            self.requestedDisposable = disposableCreate(function () {
+              self.requestedCount = 0;
+            });
+          }
+        });
 
-          return this.requestedDisposable;
-        } else {
-          return disposableEmpty;
-        }
+        return this.requestedDisposable;
       },
       disposeCurrentRequest: function () {
         this.requestedDisposable.dispose();
@@ -7855,12 +7996,19 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
    * @example
    * var source = Rx.Observable.interval(100).controlled();
    * source.request(3); // Reads 3 values
-   * @param {Observable} pauser The observable sequence used to pause the underlying sequence.
+   * @param {bool} enableQueue truthy value to determine if values should be queued pending the next request
+   * @param {Scheduler} scheduler determines how the requests will be scheduled
    * @returns {Observable} The observable sequence which is paused based upon the pauser.
    */
-  observableProto.controlled = function (enableQueue) {
+  observableProto.controlled = function (enableQueue, scheduler) {
+
+    if (enableQueue && isScheduler(enableQueue)) {
+        scheduler = enableQueue;
+        enableQueue = true;
+    }
+
     if (enableQueue == null) {  enableQueue = true; }
-    return new ControlledObservable(this, enableQueue);
+    return new ControlledObservable(this, enableQueue, scheduler);
   };
 
   var StopAndWaitObservable = (function (__super__) {
@@ -10191,9 +10339,9 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
    *
    * @example
    *  1 - res = source.timestamp(); // produces { value: x, timestamp: ts }
-   *  2 - res = source.timestamp(Rx.Scheduler.timeout);
+   *  2 - res = source.timestamp(Rx.Scheduler.default);
    *
-   * @param {Scheduler} [scheduler]  Scheduler used to compute timestamps. If not specified, the timeout scheduler is used.
+   * @param {Scheduler} [scheduler]  Scheduler used to compute timestamps. If not specified, the default scheduler is used.
    * @returns {Observable} An observable sequence with timestamp information on values.
    */
   observableProto.timestamp = function (scheduler) {
@@ -10412,18 +10560,29 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
   };
 
   /**
-   *  Time shifts the observable sequence by delaying the subscription.
+   *  Time shifts the observable sequence by delaying the subscription with the specified relative time duration, using the specified scheduler to run timers.
    *
    * @example
    *  1 - res = source.delaySubscription(5000); // 5s
-   *  2 - res = source.delaySubscription(5000, Rx.Scheduler.timeout); // 5 seconds
+   *  2 - res = source.delaySubscription(5000, Rx.Scheduler.default); // 5 seconds
    *
-   * @param {Number} dueTime Absolute or relative time to perform the subscription at.
+   * @param {Number} dueTime Relative or absolute time shift of the subscription.
    * @param {Scheduler} [scheduler]  Scheduler to run the subscription delay timer on. If not specified, the timeout scheduler is used.
    * @returns {Observable} Time-shifted sequence.
    */
   observableProto.delaySubscription = function (dueTime, scheduler) {
-    return this.delayWithSelector(observableTimer(dueTime, isScheduler(scheduler) ? scheduler : timeoutScheduler), observableEmpty);
+    var scheduleMethod = dueTime instanceof Date ? 'scheduleWithAbsolute' : 'scheduleWithRelative';
+    var source = this;
+    isScheduler(scheduler) || (scheduler = timeoutScheduler);
+    return new AnonymousObservable(function (o) {
+      var d = new SerialDisposable();
+
+      d.setDisposable(scheduler[scheduleMethod](dueTime, function() {
+        d.setDisposable(source.subscribe(o));
+      }));
+
+      return d;
+    }, this);
   };
 
   /**
@@ -10438,47 +10597,54 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
    * @returns {Observable} Time-shifted sequence.
    */
   observableProto.delayWithSelector = function (subscriptionDelay, delayDurationSelector) {
-      var source = this, subDelay, selector;
-      if (typeof subscriptionDelay === 'function') {
-        selector = subscriptionDelay;
-      } else {
-        subDelay = subscriptionDelay;
-        selector = delayDurationSelector;
-      }
-      return new AnonymousObservable(function (observer) {
-        var delays = new CompositeDisposable(), atEnd = false, done = function () {
-            if (atEnd && delays.length === 0) { observer.onCompleted(); }
-        }, subscription = new SerialDisposable(), start = function () {
-          subscription.setDisposable(source.subscribe(function (x) {
-              var delay;
-              try {
-                delay = selector(x);
-              } catch (error) {
-                observer.onError(error);
-                return;
+    var source = this, subDelay, selector;
+    if (isFunction(subscriptionDelay)) {
+      selector = subscriptionDelay;
+    } else {
+      subDelay = subscriptionDelay;
+      selector = delayDurationSelector;
+    }
+    return new AnonymousObservable(function (observer) {
+      var delays = new CompositeDisposable(), atEnd = false, subscription = new SerialDisposable();
+
+      function start() {
+        subscription.setDisposable(source.subscribe(
+          function (x) {
+            var delay = tryCatch(selector)(x);
+            if (delay === errorObj) { return observer.onError(delay.e); }
+            var d = new SingleAssignmentDisposable();
+            delays.add(d);
+            d.setDisposable(delay.subscribe(
+              function () {
+                observer.onNext(x);
+                delays.remove(d);
+                done();
+              },
+              function (e) { observer.onError(e); },
+              function () {
+                observer.onNext(x);
+                delays.remove(d);
+                done();
               }
-              var d = new SingleAssignmentDisposable();
-              delays.add(d);
-              d.setDisposable(delay.subscribe(function () {
-                observer.onNext(x);
-                delays.remove(d);
-                done();
-              }, observer.onError.bind(observer), function () {
-                observer.onNext(x);
-                delays.remove(d);
-                done();
-              }));
-          }, observer.onError.bind(observer), function () {
+            ))
+          },
+          function (e) { observer.onError(e); },
+          function () {
             atEnd = true;
             subscription.dispose();
             done();
-          }));
-      };
+          }
+        ))
+      }
+
+      function done () {
+        atEnd && delays.length === 0 && observer.onCompleted();
+      }
 
       if (!subDelay) {
         start();
       } else {
-        subscription.setDisposable(subDelay.subscribe(start, observer.onError.bind(observer), start));
+        subscription.setDisposable(subDelay.subscribe(start, function (e) { observer.onError(e); }, start));
       }
 
       return new CompositeDisposable(subscription, delays);
