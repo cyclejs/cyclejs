@@ -2654,13 +2654,13 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
     return currentScheduler;
   }());
 
-  var scheduleMethod;
+  var scheduleMethod, clearMethod;
 
   var localTimer = (function () {
     var localSetTimeout, localClearTimeout = noop;
-    if ('WScript' in this) {
+    if (!!root.WScript) {
       localSetTimeout = function (fn, time) {
-        WScript.Sleep(time);
+        root.WScript.Sleep(time);
         fn();
       };
     } else if (!!root.setTimeout) {
@@ -2682,9 +2682,9 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
 
     var nextHandle = 1, tasksByHandle = {}, currentlyRunning = false;
 
-    function clearMethod(handle) {
+    clearMethod = function (handle) {
       delete tasksByHandle[handle];
-    }
+    };
 
     function runTask(handle) {
       if (currentlyRunning) {
@@ -3812,7 +3812,7 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
   var observableEmpty = Observable.empty = function (scheduler) {
     isScheduler(scheduler) || (scheduler = immediateScheduler);
     return new AnonymousObservable(function (observer) {
-      return scheduler.schedule(function () {
+      return scheduler.scheduleWithState(null, function () {
         observer.onCompleted();
       });
     });
@@ -4044,9 +4044,9 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
    */
   Observable.generate = function (initialState, condition, iterate, resultSelector, scheduler) {
     isScheduler(scheduler) || (scheduler = currentThreadScheduler);
-    return new AnonymousObservable(function (observer) {
-      var first = true, state = initialState;
-      return scheduler.scheduleRecursive(function (self) {
+    return new AnonymousObservable(function (o) {
+      var first = true;
+      return scheduler.scheduleRecursiveWithState(initialState, function (state, self) {
         var hasResult, result;
         try {
           if (first) {
@@ -4055,18 +4055,15 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
             state = iterate(state);
           }
           hasResult = condition(state);
-          if (hasResult) {
-            result = resultSelector(state);
-          }
-        } catch (exception) {
-          observer.onError(exception);
-          return;
+          hasResult && (result = resultSelector(state));
+        } catch (e) {
+          return o.onError(e);
         }
         if (hasResult) {
-          observer.onNext(result);
-          self();
+          o.onNext(result);
+          self(state);
         } else {
-          observer.onCompleted();
+          o.onCompleted();
         }
       });
     });
@@ -4248,25 +4245,19 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
 
   /**
    *  Returns an observable sequence that contains a single element, using the specified scheduler to send out observer messages.
-   *  There is an alias called 'just', and 'returnValue' for browsers <IE9.
+   *  There is an alias called 'just' or browsers <IE9.
    * @param {Mixed} value Single element in the resulting observable sequence.
    * @param {Scheduler} scheduler Scheduler to send the single element on. If not specified, defaults to Scheduler.immediate.
    * @returns {Observable} An observable sequence containing the single specified element.
    */
-  var observableReturn = Observable['return'] = Observable.just = function (value, scheduler) {
+  var observableReturn = Observable['return'] = Observable.just = Observable.returnValue = function (value, scheduler) {
     isScheduler(scheduler) || (scheduler = immediateScheduler);
-    return new AnonymousObservable(function (observer) {
-      return scheduler.schedule(function () {
-        observer.onNext(value);
-        observer.onCompleted();
+    return new AnonymousObservable(function (o) {
+      return scheduler.scheduleWithState(value, function(_,v) {
+        o.onNext(v);
+        o.onCompleted();
       });
     });
-  };
-
-  /** @deprecated use return or just */
-  Observable.returnValue = function () {
-    //deprecate('returnValue', 'return or just');
-    return observableReturn.apply(null, arguments);
   };
 
   /**
@@ -5340,10 +5331,12 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
    * @returns {Observable} The source sequence with the side-effecting behavior applied.
    */
   observableProto['do'] = observableProto.tap = observableProto.doAction = function (observerOrOnNext, onError, onCompleted) {
-    var source = this, tapObserver = typeof observerOrOnNext === 'function' || typeof observerOrOnNext === 'undefined'?
-      observerCreate(observerOrOnNext || noop, onError || noop, onCompleted || noop) :
-      observerOrOnNext;
+    var source = this;
     return new AnonymousObservable(function (observer) {
+      var tapObserver = !observerOrOnNext || isFunction(observerOrOnNext) ?
+        observerCreate(observerOrOnNext || noop, onError || noop, onCompleted || noop) :
+        observerOrOnNext;
+
       return source.subscribe(function (x) {
         try {
           tapObserver.onNext(x);
@@ -5993,7 +5986,7 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
 
     MapObservable.prototype.internalMap = function (selector, thisArg) {
       var self = this;
-      return new MapObservable(this.source, function (x, i, o) { return selector(self.selector(x, i, o), i, o); }, thisArg)
+      return new MapObservable(this.source, function (x, i, o) { return selector.call(this, self.selector(x, i, o), i, o); }, thisArg)
     };
 
     MapObservable.prototype.subscribeCore = function (observer) {
@@ -6019,12 +6012,6 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
       return this.observer.onError(result.e);
     }
     this.observer.onNext(result);
-    /*try {
-      var result = this.selector(x, this.i++, this.source);
-    } catch (e) {
-      return this.observer.onError(e);
-    }
-    this.observer.onNext(result);*/
   };
   MapObserver.prototype.onError = function (e) {
     if(!this.isStopped) { this.isStopped = true; this.observer.onError(e); }
@@ -6307,7 +6294,7 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
 
     FilterObservable.prototype.internalFilter = function(predicate, thisArg) {
       var self = this;
-      return new FilterObservable(this.source, function(x, i, o) { return self.predicate(x, i, o) && predicate(x, i, o); }, thisArg);
+      return new FilterObservable(this.source, function(x, i, o) { return self.predicate(x, i, o) && predicate.call(this, x, i, o); }, thisArg);
     };
 
     return FilterObservable;
@@ -7332,15 +7319,17 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
    */
   Observable.fromCallback = function (func, context, selector) {
     return function () {
-      for(var args = [], i = 0, len = arguments.length; i < len; i++) { args.push(arguments[i]); }
+      var len = arguments.length, args = new Array(len)
+      for(var i = 0; i < len; i++) { args[i] = arguments[i]; }
 
       return new AnonymousObservable(function (observer) {
         function handler() {
-          var results = arguments;
+          var len = arguments.length, results = new Array(len);
+          for(var i = 0; i < len; i++) { results[i] = arguments[i]; }
 
           if (selector) {
             try {
-              results = selector(results);
+              results = selector.apply(context, results);
             } catch (e) {
               return observer.onError(e);
             }
@@ -7387,7 +7376,7 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
 
           if (selector) {
             try {
-              results = selector(results);
+              results = selector.apply(context, results);
             } catch (e) {
               return observer.onError(e);
             }
@@ -8026,6 +8015,38 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
    */
   ControlledObservable.prototype.windowed = function (windowSize) {
     return new WindowedObservable(this, windowSize);
+  };
+
+  /**
+   * Pipes the existing Observable sequence into a Node.js Stream.
+   * @param {Stream} dest The destination Node.js stream.
+   * @returns {Stream} The destination stream.
+   */
+  observableProto.pipe = function (dest) {
+    var source = this.pausableBuffered();
+
+    function onDrain() {
+      source.resume();
+    }
+
+    dest.addListener('drain', onDrain);
+
+    source.subscribe(
+      function (x) {
+        !dest.write(String(x)) && source.pause();
+      },
+      function (err) {
+        dest.emit('error', err);
+      },
+      function () {
+        // Hack check because STDIO is not closable
+        !dest._isStdio && dest.end();
+        dest.removeListener('drain', onDrain);
+      });
+
+    source.resume();
+
+    return dest;
   };
 
   /**
@@ -10583,9 +10604,12 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
     }, source);
   };
 
-  observableProto.throttleWithSelector = function () {
+  /**
+   * @deprecated use #debounceWithSelector instead.
+   */
+  observableProto.throttleWithSelector = function (durationSelector) {
     //deprecate('throttleWithSelector', 'debounceWithSelector');
-    return this.debounceWithSelector.apply(this, arguments);
+    return this.debounceWithSelector(durationSelector);
   };
 
   /**
@@ -10814,32 +10838,32 @@ Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
   observableProto.transduce = function(transducer) {
     var source = this;
 
-    function transformForObserver(observer) {
+    function transformForObserver(o) {
       return {
-        init: function() {
-          return observer;
+        '@@transducer/init': function() {
+          return o;
         },
-        step: function(obs, input) {
+        '@@transducer/step': function(obs, input) {
           return obs.onNext(input);
         },
-        result: function(obs) {
+        '@@transducer/result': function(obs) {
           return obs.onCompleted();
         }
       };
     }
 
-    return new AnonymousObservable(function(observer) {
-      var xform = transducer(transformForObserver(observer));
+    return new AnonymousObservable(function(o) {
+      var xform = transducer(transformForObserver(o));
       return source.subscribe(
         function(v) {
           try {
-            xform.step(observer, v);
+            xform['@@transducer/step'](o, v);
           } catch (e) {
-            observer.onError(e);
+            o.onError(e);
           }
         },
-        observer.onError.bind(observer),
-        function() { xform.result(observer); }
+        function (e) { o.onError(e); },
+        function() { xform['@@transducer/result'](o); }
       );
     }, source);
   };

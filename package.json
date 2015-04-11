@@ -17,7 +17,7 @@
   "main": "lib/cycle.js",
   "dependencies": {
     "es6-map": "^0.1.1",
-    "rx": "2.4.7",
+    "rx": "2.5.1",
     "string.prototype.endswith": "^0.2.0",
     "virtual-dom": "2.0.1"
   },
