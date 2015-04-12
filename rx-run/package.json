@@ -22,8 +22,8 @@
     "virtual-dom": "2.0.1"
   },
   "devDependencies": {
-    "babel": "^4.7.3",
-    "babelify": "^5.0.4",
+    "babel": "5.0.x",
+    "babelify": "6.0.x",
     "browserify": "9.0.8",
     "jscs": "1.12.x",
     "jshint": "2.7.x",
