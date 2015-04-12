@@ -72,7 +72,7 @@ Notice that each of the 4 streams takes its preceding neighbour stream as input,
 circularly-dependent streams. Model, View, and Intent are functions. The User is also a
 function: it takes vtree$ as input, renders them to the DOM into `.js-container`, and 
 outputs interaction event streams that can be accessed through 
-`interactons$.choose(selector, eventName)`. At the bottom, `inject()` ties everything
+`interaction$.choose(selector, eventName)`. At the bottom, `inject()` ties everything
 together, pointing each stream to its appropriate input.
 
 For advanced examples, check out [TodoMVC implemented in Cycle.js](https://github.com/staltz/todomvc-cycle) and [RxMarbles](https://github.com/staltz/rxmarbles).
