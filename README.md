@@ -77,11 +77,11 @@ together, pointing each stream to its appropriate input.
 
 For advanced examples, check out [TodoMVC implemented in Cycle.js](https://github.com/staltz/todomvc-cycle) and [RxMarbles](https://github.com/staltz/rxmarbles).
 
-## Installing through npm
+## Installing
 
 `npm install cyclejs`
 
-## Installing through Bower
+or
 
 `bower install cycle`
 
