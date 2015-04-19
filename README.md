@@ -21,9 +21,9 @@ DOM Rendering.
   the preceding, but none is manipulating the others.
 * **Functions, not classes**: each object in the circular architecture is an event stream.
   Model, View, User and Intent are simply functions over event streams. These are the only
-  concepts needed for building applications. Functional composition is the default way of
-  working. Functions also facilitate automating tests, and allow for a JavaScript 
-  programming style without the pitfalling `this`.
+  concepts needed for building applications. Pure functional composition is the tool for
+  creating architectures in Cycle. Functions also facilitate automating tests, and allow 
+  for a JavaScript programming style without the pitfalling `this`.
 * **Virtual DOM Rendering**: Views re-render completely whenever Models emit any data.
   The use of [virtual-dom](https://github.com/Matt-Esch/virtual-dom) keeps performance
   fast by patching the actual DOM with only the minimum necessary changes.
@@ -74,6 +74,33 @@ function: it takes vtree$ as input, renders them to the DOM into `.js-container`
 outputs interaction event streams that can be accessed through 
 `interaction$.choose(selector, eventName)`. At the bottom, `inject()` ties everything
 together, pointing each stream to its appropriate input.
+
+Because this code uses pure functions (model, view, user, intent), we are not constrained
+to 4 streams and 4 functions. In fact, the code above can be refactored to be more concise:
+
+```js
+import Cycle from 'cyclejs';
+let {Rx, h} = Cycle;
+
+let vtree$ = Cycle.createStream(function computer(interaction$) {
+  return interaction$.choose('.field', 'input')
+    .map(ev => ev.target.value)
+    .startWith('')
+    .map(name =>
+      h('div', [
+        h('label', 'Name:'),
+        h('input.field', {attributes: {type: 'text'}}),
+        h('h1.header', `Hello ${name}`)
+      ])
+    );
+});
+
+let interaction$ = Cycle.createStream(function user(vtree$) {
+  return Cycle.render(vtree$, '.js-container').interaction$;
+});
+
+interaction$.inject(vtree$).inject(interaction$);
+```
 
 For advanced examples, check out [TodoMVC implemented in Cycle.js](https://github.com/staltz/todomvc-cycle) and [RxMarbles](https://github.com/staltz/rxmarbles).
 
