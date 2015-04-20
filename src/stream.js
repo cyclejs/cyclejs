@@ -87,6 +87,9 @@ function createStream(definitionFn) {
   if (arguments.length !== 1 || typeof definitionFn !== 'function') {
     throw new Error('Stream expects the definitionFn as the only argument.');
   }
+  if (this instanceof createStream) { // jshint ignore:line
+    throw new Error('Cannot use `new` on `createStream()`, it is not a constructor.');
+  }
 
   let proxies = [];
   for (let i = 0; i < definitionFn.length; i++) {

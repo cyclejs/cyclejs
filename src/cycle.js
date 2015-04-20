@@ -20,7 +20,7 @@ var Cycle = {
    * @function createStream
    */
   createStream: function createStream(definitionFn) {
-    return new Stream.createStream(definitionFn);
+    return Stream.createStream(definitionFn);
   },
 
   /**

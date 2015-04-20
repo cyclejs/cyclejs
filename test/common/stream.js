@@ -11,6 +11,12 @@ describe('createStream', function () {
     });
   });
 
+  it('should throw an error when used as a constructor', function () {
+    assert.throws(function () {
+      new createStream(function () { return Rx.Observable.just(1); });
+    }, /Cannot use `new`/i);
+  });
+
   it('should throw an error when given an argument which is not a function', function () {
     assert.throws(function () {
       createStream(['foo$', 'bar$']);
