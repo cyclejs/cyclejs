@@ -25,7 +25,7 @@ function replicate(source, subject) {
 
 function replicateAllInteraction$(input, proxy) {
   let subscriptions = new Rx.CompositeDisposable();
-  let selectors = proxy._userEvent$;
+  let selectors = proxy._interaction$;
   for (let selector in selectors) { if (selectors.hasOwnProperty(selector)) {
     let elemEvents = selectors[selector];
     for (let eventName in elemEvents) { if (elemEvents.hasOwnProperty(eventName)) {
