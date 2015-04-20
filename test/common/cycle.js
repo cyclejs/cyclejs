@@ -2,7 +2,6 @@
 /* global describe, it */
 let assert = require('assert');
 let Cycle = require('../../src/cycle');
-let {Rx} = Cycle;
 
 describe('Cycle', function () {
   describe('API', function () {

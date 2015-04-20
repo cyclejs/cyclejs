@@ -2,7 +2,6 @@
 /* global describe, it, beforeEach */
 let assert = require('assert');
 let Cycle = require('../../src/cycle');
-//let DOMUser = require('../../src/dom-user');
 let Rendering = require('../../src/render');
 let {Rx, h} = Cycle;
 
@@ -12,13 +11,6 @@ function createRenderTarget() {
   document.body.appendChild(element);
   return element;
 }
-
-//function createDOMUser() {
-//  let element = document.createElement('div');
-//  element.className = 'cycletest';
-//  document.body.appendChild(element);
-//  return Cycle.createDOMUser(element);
-//}
 
 describe('Custom Elements', function () {
   beforeEach(function () {
