@@ -59,6 +59,10 @@ class PropertiesProxy {
   }
 
   get(streamKey) {
+    if (!streamKey.endsWith('$')) {
+      throw new Error('Custom element property stream accessed from props.get() must ' +
+        'be named ending with $ symbol.');
+    }
     if (typeof this.proxiedProps[streamKey] === 'undefined') {
       this.proxiedProps[streamKey] = new Rx.Subject();
     }

@@ -5,9 +5,12 @@ let VDOM = {
   patch: require('virtual-dom/patch')
 };
 let Rx = require('rx');
+let toHTML = require('vdom-to-html');
+let {createStream} = require('./stream');
 let CustomElements = require('./custom-elements');
 let Map = require('es6-map'); /* jshint: -W079 */
 let CustomElementsRegistry = new Map();
+require('string.prototype.endswith');
 
 function isElement(obj) {
   return (
@@ -40,11 +43,11 @@ function fixRootElem$(rawRootElem$, domContainer) {
     .shareReplay(1);
 }
 
-function isVtreeCustomElement(vtree) {
+function isVTreeCustomElement(vtree) {
   return (vtree.type === 'Widget' && !!vtree._rootElem$);
 }
 
-function replaceCustomElements(vtree) {
+function replaceCustomElementsWithSomething(vtree, customElementVTreeToSomething) {
   // Silently ignore corner cases
   if (!vtree || vtree.type === 'VirtualText') {
     return vtree;
@@ -53,15 +56,76 @@ function replaceCustomElements(vtree) {
   // Replace vtree itself
   if (tagName && CustomElementsRegistry.has(tagName)) {
     let WidgetClass = CustomElementsRegistry.get(tagName);
-    return new WidgetClass(vtree);
+    return customElementVTreeToSomething(vtree, WidgetClass);
   }
   // Or replace children recursively
   if (Array.isArray(vtree.children)) {
     for (let i = vtree.children.length - 1; i >= 0; i--) {
-      vtree.children[i] = replaceCustomElements(vtree.children[i]);
+      vtree.children[i] = replaceCustomElementsWithSomething(
+        vtree.children[i],
+        customElementVTreeToSomething
+      );
     }
   }
   return vtree;
+}
+
+function replaceCustomElementsWithWidgets(vtree) {
+  return replaceCustomElementsWithSomething(vtree,
+    (vtree, WidgetClass) => new WidgetClass(vtree)
+  );
+}
+
+/**
+ * Converts a tree of VirtualNode|Observable<VirtualNode> into Observable<VirtualNode>.
+ */
+function transposeVTree(vtree) {
+  if (typeof vtree.subscribe === 'function') {
+    return vtree;
+  } else if (vtree.type === 'VirtualText') {
+    return Rx.Observable.just(vtree);
+  } else if (vtree.type === 'VirtualNode' && Array.isArray(vtree.children) &&
+    vtree.children.length > 0)
+  {
+    /* jshint: -W117 */
+    return Rx.Observable.combineLatest(vtree.children.map(transposeVTree), (...arr) => {
+      vtree.children = arr;
+      return vtree;
+    });
+    /* jshint: +W117 */
+  } else if (vtree.type === 'VirtualNode') {
+    return Rx.Observable.just(vtree);
+  } else {
+    throw new Error('Handle this case please');
+  }
+}
+
+function makePropertiesProxyFromVTree(vtree) {
+  return {
+    get(streamName) {
+      if (!streamName.endsWith('$')) {
+        throw new Error('Custom element property stream accessed from props.get() must ' +
+          'be named ending with $ symbol.');
+      }
+      let propertyName = streamName.slice(0, -1);
+      return Rx.Observable.just(vtree.properties[propertyName]);
+    }
+  };
+}
+
+function replaceCustomElementsWithVTree$(vtree) {
+  return replaceCustomElementsWithSomething(vtree, function (vtree, WidgetClass) {
+    let vtree$ = createStream(vtree$ => convertCustomElementsToVTree(vtree$.take(1)));
+    let props = makePropertiesProxyFromVTree(vtree);
+    WidgetClass.definitionFn(vtree$, props);
+    return vtree$;
+  });
+}
+
+function convertCustomElementsToVTree(vtree$) { // jshint ignore:line
+  return vtree$
+    .map(replaceCustomElementsWithVTree$)
+    .flatMap(transposeVTree);
 }
 
 function getArrayOfAllWidgetRootElemStreams(vtree) {
@@ -80,8 +144,48 @@ function getArrayOfAllWidgetRootElemStreams(vtree) {
   return array;
 }
 
-function renderRawRootElem$(vtree$, domContainer) {
-  // Select the correct rootElem
+function checkRootVTreeNotCustomElement(vtree) {
+  if (isVTreeCustomElement(vtree)) {
+    throw new Error('Illegal to use a Cycle custom element as the root of a View.');
+  }
+}
+
+function makeDiffAndPatchToElement$(rootElem) {
+  return function diffAndPatchToElement$([oldVTree, newVTree]) {
+    if (typeof newVTree === 'undefined') { return Rx.Observable.empty(); }
+
+    let arrayOfAll = getArrayOfAllWidgetRootElemStreams(newVTree);
+    let rootElemAfterChildren$ = Rx.Observable
+      .combineLatest(arrayOfAll, () => {
+        //console.log('%cEmit rawRootElem$ (1) ', 'color: #008800');
+        return rootElem;
+      })
+      .first();
+    let cycleCustomElementRoot$ = rootElem.cycleCustomElementRoot$;
+    let cycleCustomElementProperties = rootElem.cycleCustomElementProperties;
+    try {
+      //console.log('%cVDOM diff and patch START', 'color: #636300');
+      rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
+      //console.log('%cVDOM diff and patch END', 'color: #636300');
+    } catch (err) {
+      console.error(err);
+    }
+    if (!!cycleCustomElementRoot$) {
+      rootElem.cycleCustomElementRoot$ = cycleCustomElementRoot$;
+    }
+    if (!!cycleCustomElementProperties) {
+      rootElem.cycleCustomElementProperties = cycleCustomElementProperties;
+    }
+    if (arrayOfAll.length === 0) {
+      //console.log('%cEmit rawRootElem$ (2)', 'color: #008800');
+      return Rx.Observable.just(rootElem);
+    } else {
+      return rootElemAfterChildren$;
+    }
+  };
+}
+
+function getRenderRootElem(domContainer) {
   let rootElem;
   if (/cycleCustomElement-[^\b]+/.exec(domContainer.className) !== null) {
     rootElem = domContainer;
@@ -90,52 +194,18 @@ function renderRawRootElem$(vtree$, domContainer) {
     domContainer.innerHTML = '';
     domContainer.appendChild(rootElem);
   }
-  // TODO Refactor/rework. Unclear why, but this setTimeout is necessary.
-  //setTimeout(() => rawRootElem$.onNext(rootElem), 0);
-  // Make rootElem$ from vtree$
+  return rootElem;
+}
+
+function renderRawRootElem$(vtree$, domContainer) {
+  let rootElem = getRenderRootElem(domContainer);
+  let diffAndPatchToElement$ = makeDiffAndPatchToElement$(rootElem);
   return vtree$
     .startWith(VDOM.h())
-    .map(function renderingPreprocessing(vtree) {
-      return replaceCustomElements(vtree);
-    })
-    .map(function checkDOMUserVtreeNotCustomElement(vtree) {
-      if (isVtreeCustomElement(vtree)) {
-        throw new Error('Illegal to use a Cycle custom element as the root of a View.');
-      }
-      return vtree;
-    })
+    .map(replaceCustomElementsWithWidgets)
+    .doOnNext(checkRootVTreeNotCustomElement)
     .pairwise()
-    .flatMap(function renderDiffAndPatch([oldVTree, newVTree]) {
-      if (typeof newVTree === 'undefined') { return; }
-
-      let arrayOfAll = getArrayOfAllWidgetRootElemStreams(newVTree);
-      let rootElemAfterChildren$ = Rx.Observable.combineLatest(arrayOfAll, () => {
-        //console.log('%cEmit rawRootElem$ (1) ', 'color: #008800');
-        return rootElem;
-      })
-        .first();
-      let cycleCustomElementRoot$ = rootElem.cycleCustomElementRoot$;
-      let cycleCustomElementProperties = rootElem.cycleCustomElementProperties;
-      try {
-        //console.log('%cVDOM diff and patch START', 'color: #636300');
-        rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
-        //console.log('%cVDOM diff and patch END', 'color: #636300');
-      } catch (err) {
-        console.error(err);
-      }
-      if (!!cycleCustomElementRoot$) {
-        rootElem.cycleCustomElementRoot$ = cycleCustomElementRoot$;
-      }
-      if (!!cycleCustomElementProperties) {
-        rootElem.cycleCustomElementProperties = cycleCustomElementProperties;
-      }
-      if (arrayOfAll.length === 0) {
-        //console.log('%cEmit rawRootElem$ (2)', 'color: #008800');
-        return Rx.Observable.just(rootElem);
-      } else {
-        return rootElemAfterChildren$;
-      }
-    })
+    .flatMap(diffAndPatchToElement$)
     .startWith(rootElem);
 }
 
@@ -209,6 +279,10 @@ function render(vtree$, container) {
   return rootElem$;
 }
 
+function renderAsHTML(vtree$) {
+  return convertCustomElementsToVTree(vtree$.take(1)).map(vtree => toHTML(vtree));
+}
+
 function registerCustomElement(tagName, definitionFn) {
   if (typeof tagName !== 'string' || typeof definitionFn !== 'function') {
     throw new Error('registerCustomElement requires parameters `tagName` and ' +
@@ -221,6 +295,7 @@ function registerCustomElement(tagName, definitionFn) {
   }
 
   let WidgetClass = CustomElements.makeConstructor();
+  WidgetClass.definitionFn = definitionFn;
   WidgetClass.prototype.init = CustomElements.makeInit(tagName, definitionFn);
   WidgetClass.prototype.update = CustomElements.makeUpdate();
   CustomElementsRegistry.set(tagName, WidgetClass);
@@ -232,6 +307,7 @@ function unregisterAllCustomElements() {
 
 module.exports = {
   render,
+  renderAsHTML,
   registerCustomElement,
   unregisterAllCustomElements
 };
