@@ -22,7 +22,7 @@
     "virtual-dom": "2.0.1"
   },
   "devDependencies": {
-    "babel": "5.0.x",
+    "babel": "5.1.x",
     "babelify": "6.0.x",
     "browserify": "9.0.8",
     "jscs": "1.12.x",
