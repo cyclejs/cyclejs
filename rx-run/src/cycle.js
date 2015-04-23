@@ -42,6 +42,9 @@ var Cycle = {
    */
   render: Rendering.render,
 
+  // TODO documentation
+  renderAsHTML: Rendering.renderAsHTML,
+
   /**
    * Informs Cycle to recognize the given `tagName` as a custom element implemented
    * as `dataFlowNode` whenever `tagName` is used in VTrees in a View rendered to a
