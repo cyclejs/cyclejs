@@ -346,4 +346,48 @@ describe('Custom Elements', function () {
     });
     rootElem$.inject(vtree$);
   });
+
+  it('should recognize changes on a mutable collection given as props', function (done) {
+    Cycle.registerCustomElement('x-element', function (rootElem$, props) {
+      let vtree$ = props.get('list$', (x, y) => false).map((list) =>
+        h('div', [
+          h('ol', list.map((value) => h('li.test-item', null, value)))
+        ]));
+      rootElem$.inject(vtree$);
+    });
+
+    let counter = 0;
+    let vtree$ = Cycle.createStream(function (interaction$) {
+      let clickMod$ = interaction$.choose('.button', 'click')
+        .map(() => `item${++counter}`)
+        .map(random => data => {
+          data.push(random);
+          return data;
+        });
+
+      return clickMod$
+        .startWith([])
+        .scan((data, modifier) => modifier(data))
+        .map(data => h('.root', [
+          h('button.button', 'add new item'),
+          h('x-element', {key: 0, list: data})
+        ]));
+    });
+
+    let interaction$ = Cycle.createStream(function user(vtree$) {
+      return Cycle.render(vtree$, createRenderTarget()).interaction$;
+    });
+
+    interaction$.inject(vtree$).inject(interaction$);
+    setTimeout(() => document.querySelector('.button').click(), 100);
+    setTimeout(() => document.querySelector('.button').click(), 200);
+    setTimeout(() => {
+      let items = document.querySelectorAll('li.test-item');
+      assert.strictEqual(items.length, 2);
+      assert.strictEqual(items[0].textContent, 'item1');
+      assert.strictEqual(items[1].textContent, 'item2');
+      interaction$.dispose();
+      done();
+    }, 500);
+  });
 });
