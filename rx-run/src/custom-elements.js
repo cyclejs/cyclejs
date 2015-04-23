@@ -58,11 +58,12 @@ class PropertiesProxy {
     this.proxiedProps = {};
   }
 
-  get(streamKey) {
+  get(streamKey, distinctnessComparer = Rx.helpers.defaultComparer) {
     if (typeof this.proxiedProps[streamKey] === 'undefined') {
       this.proxiedProps[streamKey] = new Rx.Subject();
     }
-    return this.proxiedProps[streamKey].distinctUntilChanged();
+    return this.proxiedProps[streamKey]
+      .distinctUntilChanged(Rx.helpers.identity, distinctnessComparer);
   }
 }
 
