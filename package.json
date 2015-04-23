@@ -28,9 +28,9 @@
     "jscs": "1.12.x",
     "jshint": "2.7.x",
     "markdox": "0.1.8",
-    "mocha": "2.2.x",
+    "mocha": "2.2.4",
     "testem": "0.8.2",
-    "uglify-js": "2.4.19"
+    "uglify-js": "2.4.20"
   },
   "engines": {
     "node": ">=0.10.0"
