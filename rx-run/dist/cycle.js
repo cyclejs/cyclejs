@@ -13608,10 +13608,12 @@ var PropertiesProxy = (function () {
   _createClass(PropertiesProxy, [{
     key: 'get',
     value: function get(streamKey) {
+      var distinctnessComparer = arguments[1] === undefined ? Rx.helpers.defaultComparer : arguments[1];
+
       if (typeof this.proxiedProps[streamKey] === 'undefined') {
         this.proxiedProps[streamKey] = new Rx.Subject();
       }
-      return this.proxiedProps[streamKey].distinctUntilChanged();
+      return this.proxiedProps[streamKey].distinctUntilChanged(Rx.helpers.identity, distinctnessComparer);
     }
   }]);
 
@@ -13738,7 +13740,7 @@ var Cycle = {
    * @function createStream
    */
   createStream: function createStream(definitionFn) {
-    return new Stream.createStream(definitionFn);
+    return Stream.createStream(definitionFn);
   },
 
   /**
@@ -13827,7 +13829,7 @@ var InputProxy = (function (_Rx$Subject) {
 
     _get(Object.getPrototypeOf(InputProxy.prototype), 'constructor', this).call(this);
     this.type = 'InputProxy';
-    this._userEvent$ = {};
+    this._interaction$ = {};
   }
 
   _inherits(InputProxy, _Rx$Subject);
@@ -13837,13 +13839,13 @@ var InputProxy = (function (_Rx$Subject) {
 
     // For the rendered rootElem$ with interaction$
     value: function choose(selector, eventName) {
-      if (typeof this._userEvent$[selector] === 'undefined') {
-        this._userEvent$[selector] = {};
+      if (typeof this._interaction$[selector] === 'undefined') {
+        this._interaction$[selector] = {};
       }
-      if (typeof this._userEvent$[selector][eventName] === 'undefined') {
-        this._userEvent$[selector][eventName] = new Rx.Subject();
+      if (typeof this._interaction$[selector][eventName] === 'undefined') {
+        this._interaction$[selector][eventName] = new Rx.Subject();
       }
-      return this._userEvent$[selector][eventName];
+      return this._interaction$[selector][eventName];
     }
   }]);
 
@@ -14128,7 +14130,7 @@ function replicate(source, subject) {
 
 function replicateAllInteraction$(input, proxy) {
   var subscriptions = new Rx.CompositeDisposable();
-  var selectors = proxy._userEvent$;
+  var selectors = proxy._interaction$;
   for (var selector in selectors) {
     if (selectors.hasOwnProperty(selector)) {
       var elemEvents = selectors[selector];
@@ -14194,6 +14196,10 @@ function makeDisposeFn(stream) {
 function createStream(definitionFn) {
   if (arguments.length !== 1 || typeof definitionFn !== 'function') {
     throw new Error('Stream expects the definitionFn as the only argument.');
+  }
+  if (this instanceof createStream) {
+    // jshint ignore:line
+    throw new Error('Cannot use `new` on `createStream()`, it is not a constructor.');
   }
 
   var proxies = [];
