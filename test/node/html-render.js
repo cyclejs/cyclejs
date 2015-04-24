@@ -3,11 +3,11 @@
 let assert = require('assert');
 let Cycle = require('../../src/cycle');
 let {Rx, h} = Cycle;
-let Rendering = require('../../src/render');
+let CustomElements = require('../../src/rendering/custom-elements');
 
 describe('renderAsHTML()', function () {
   beforeEach(function () {
-    Rendering.unregisterAllCustomElements();
+    CustomElements.unregisterAllCustomElements();
   });
 
   it('should output HTML when given a simple vtree stream', function (done) {

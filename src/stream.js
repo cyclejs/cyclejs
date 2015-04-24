@@ -9,9 +9,6 @@ function throwIfNotObservable(thing) {
 }
 
 function replicate(source, subject) {
-  if (typeof source === 'undefined') {
-    throw new Error('Cannot replicate() if source is undefined.');
-  }
   return source.subscribe(subject.asObserver());
 }
 
@@ -99,5 +96,12 @@ function createStream(definitionFn) {
 }
 
 module.exports = {
+  throwIfNotObservable,
+  replicate,
+  replicateAllInteraction$,
+  replicateAll,
+  makeInjectFn,
+  makeDisposeFn,
+
   createStream
 };
