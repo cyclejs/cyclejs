@@ -24,7 +24,11 @@ describe('renderAsHTML()', function () {
       let vtree$ = Rx.Observable.just(h('h3.myelementclass')).shareReplay(1);
       rootElem$.inject(vtree$);
     });
-    var vtree$ = Rx.Observable.just(h('div.test-element', [h('myelement')]));
+    var vtree$ = Rx.Observable.just(
+      h('div.test-element', [
+        h('myelement')
+      ])
+    );
     let html$ = Cycle.renderAsHTML(vtree$);
     html$.subscribe(function (html) {
       assert.strictEqual(html,
