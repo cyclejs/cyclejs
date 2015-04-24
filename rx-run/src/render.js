@@ -115,7 +115,7 @@ function makePropertiesProxyFromVTree(vtree) {
 
 function replaceCustomElementsWithVTree$(vtree) {
   return replaceCustomElementsWithSomething(vtree, function (vtree, WidgetClass) {
-    let vtree$ = createStream(vtree$ => convertCustomElementsToVTree(vtree$.take(1)));
+    let vtree$ = createStream(vtree$ => convertCustomElementsToVTree(vtree$.last()));
     let props = makePropertiesProxyFromVTree(vtree);
     WidgetClass.definitionFn(vtree$, props);
     return vtree$;
@@ -280,7 +280,7 @@ function render(vtree$, container) {
 }
 
 function renderAsHTML(vtree$) {
-  return convertCustomElementsToVTree(vtree$.take(1)).map(vtree => toHTML(vtree));
+  return convertCustomElementsToVTree(vtree$.last()).map(vtree => toHTML(vtree));
 }
 
 function registerCustomElement(tagName, definitionFn) {
