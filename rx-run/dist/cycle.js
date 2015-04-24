@@ -14074,16 +14074,180 @@ function appendPatch(apply, patch) {
 
 },{"../vnode/handle-thunk":95,"../vnode/is-thunk":96,"../vnode/is-vnode":98,"../vnode/is-vtext":99,"../vnode/is-widget":100,"../vnode/vpatch":103,"./diff-props":105,"x-is-array":82}],107:[function(require,module,exports){
 'use strict';
+var VirtualDOM = require('virtual-dom');
+var Rx = require('rx');
+var Stream = require('./stream');
+var PropertyHook = require('./property-hook');
+var CustomElements = require('./rendering/custom-elements');
+var RenderingDOM = require('./rendering/render-dom');
+var RenderingHTML = require('./rendering/render-html');
+
+var Cycle = {
+  /**
+   * Creates a Cycle stream defined by `definitionFn`. A Stream is a subclass of
+   * Rx.Observable and implements "Injectable", so it contains the function
+   * `inject(...inputs)`. This function will synchronously return the same Observable as
+   * `definitionFn` returns, but will use proxy inputs created internally. You should
+   * supply the real inputs later with inject(), and the proxy inputs will imitate the
+   * behavior of the real inputs.
+   *
+   * @param {Function} definitionFn a function taking Observables as input and outputting
+   * one Rx.Observable.
+   * @return {Rx.Observable} a stream as defined by the return of `definitionFn`.
+   * @function createStream
+   */
+  createStream: function createStream(definitionFn) {
+    return Stream.createStream(definitionFn);
+  },
+
+  /**
+   * Renders a stream of virtual DOM elements (`vtree$`) into the DOM element indicated
+   * by `container`, which can be either a CSS selector or an actual element.
+   * Returns a stream of real DOM element, with a special property attached to it called
+   * `interaction$()`. This `interaction$` is a theoretical stream containing all
+   * possible events happening on all elements which were rendered. You must query it
+   * with `interaction$.choose(selector, eventName)` in order to get an event stream of
+   * interactions of type `eventName` happening on the element identified by `selector`.
+   * Example: `interaction$.choose('.mybutton', 'click').subscribe( ... )`
+   *
+   * @param {Rx.Observable} vtree$ stream of virtual DOM elements.
+   * @param {(String|HTMLElement)} container the DOM selector for the element (or the
+   * element itself) to contain the rendering of the VTrees.
+   * @return {Rx.Observable} a stream emitting the root DOM element for this rendering,
+   * with the property `interaction$()` attached to it.
+   * @function render
+   */
+  render: RenderingDOM.render,
+
+  // TODO documentation
+  renderAsHTML: RenderingHTML.renderAsHTML,
+
+  /**
+   * Informs Cycle to recognize the given `tagName` as a custom element implemented
+   * as `dataFlowNode` whenever `tagName` is used in VTrees in a View rendered to a
+   * DOMUser.
+   * The given `dataFlowNode` must export a `vtree$` Observable. If the `dataFlowNode`
+   * expects Observable `foo$` as input, then the custom element's attribute named `foo`
+   * will be injected automatically into `foo$`.
+   *
+   * @param {String} tagName a name for identifying the custom element.
+   * @param {Function} definitionFn the implementation for the custom element. This
+   * function takes two arguments: `User`, and `Properties`. Use `User` to inject into an
+   * Intent and to be injected a View. `Properties` is a DataFlowNode containing
+   * observables matching the custom element properties.
+   * @function registerCustomElement
+   */
+  registerCustomElement: CustomElements.registerCustomElement,
+
+  /**
+   * Returns a hook for manipulating an element from the real DOM. This is a helper for
+   * creating VTrees in Views. Useful for calling `focus()` on the DOM element, or doing
+   * similar mutations.
+   *
+   * See https://github.com/Raynos/mercury/blob/master/docs/faq.md for more details.
+   *
+   * @param {Function} fn a function with two arguments: `element`, `property`.
+   * @return {PropertyHook} a hook
+   */
+  vdomPropHook: function vdomPropHook(fn) {
+    return new PropertyHook(fn);
+  },
+
+  /**
+   * A shortcut to the root object of [RxJS](https://github.com/Reactive-Extensions/RxJS).
+   * @name Rx
+   */
+  Rx: Rx,
+
+  /**
+   * A shortcut to [virtual-hyperscript](
+   * https://github.com/Matt-Esch/virtual-dom/tree/master/virtual-hyperscript).
+   * This is a helper for creating VTrees in Views.
+   * @name h
+   */
+  h: VirtualDOM.h
+};
+
+module.exports = Cycle;
+
+},{"./property-hook":109,"./rendering/custom-elements":111,"./rendering/render-dom":112,"./rendering/render-html":113,"./stream":114,"rx":58,"virtual-dom":75}],108:[function(require,module,exports){
+'use strict';
 
 var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
+var _get = function get(object, property, receiver) { var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _inherits = function (subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; };
+
 var Rx = require('rx');
 
-var _require = require('./stream');
+var InputProxy = (function (_Rx$Subject) {
+  function InputProxy() {
+    _classCallCheck(this, InputProxy);
+
+    _get(Object.getPrototypeOf(InputProxy.prototype), 'constructor', this).call(this);
+    this.type = 'InputProxy';
+    this._interaction$ = {};
+  }
+
+  _inherits(InputProxy, _Rx$Subject);
+
+  _createClass(InputProxy, [{
+    key: 'choose',
+
+    // For the rendered rootElem$ with interaction$
+    value: function choose(selector, eventName) {
+      if (typeof this._interaction$[selector] === 'undefined') {
+        this._interaction$[selector] = {};
+      }
+      if (typeof this._interaction$[selector][eventName] === 'undefined') {
+        this._interaction$[selector][eventName] = new Rx.Subject();
+      }
+      return this._interaction$[selector][eventName];
+    }
+  }]);
+
+  return InputProxy;
+})(Rx.Subject);
+
+module.exports = InputProxy;
+
+},{"rx":58}],109:[function(require,module,exports){
+'use strict';
+
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var PropertyHook = (function () {
+  function PropertyHook(fn) {
+    _classCallCheck(this, PropertyHook);
+
+    this.fn = fn;
+  }
+
+  _createClass(PropertyHook, [{
+    key: 'hook',
+    value: function hook() {
+      this.fn.apply(this, arguments);
+    }
+  }]);
+
+  return PropertyHook;
+})();
+
+module.exports = PropertyHook;
+
+},{}],110:[function(require,module,exports){
+'use strict';
+var Rx = require('rx');
+
+var _require = require('../stream');
 
 var createStream = _require.createStream;
+var replicate = _require.replicate;
 
 require('string.prototype.endswith');
 
@@ -14136,29 +14300,24 @@ function subscribeDispatchersWhenRootChanges(widget, eventStreams) {
   });
 }
 
-var PropertiesProxy = (function () {
-  function PropertiesProxy() {
-    _classCallCheck(this, PropertiesProxy);
+function makePropertiesProxy() {
+  var proxiedProps = {};
+  return {
+    type: 'PropertiesProxy',
 
-    this.type = 'PropertiesProxy';
-    this.proxiedProps = {};
-  }
+    proxiedProps: proxiedProps,
 
-  _createClass(PropertiesProxy, [{
-    key: 'get',
-    value: function get(streamKey) {
+    get: function get(streamKey) {
       if (!streamKey.endsWith('$')) {
         throw new Error('Custom element property stream accessed from props.get() must ' + 'be named ending with $ symbol.');
       }
-      if (typeof this.proxiedProps[streamKey] === 'undefined') {
-        this.proxiedProps[streamKey] = new Rx.Subject();
+      if (typeof proxiedProps[streamKey] === 'undefined') {
+        proxiedProps[streamKey] = new Rx.Subject();
       }
-      return this.proxiedProps[streamKey].distinctUntilChanged();
+      return proxiedProps[streamKey].distinctUntilChanged();
     }
-  }]);
-
-  return PropertiesProxy;
-})();
+  };
+}
 
 function createContainerElement(tagName, vtreeProperties) {
   var element = document.createElement('div');
@@ -14166,12 +14325,6 @@ function createContainerElement(tagName, vtreeProperties) {
   element.className = vtreeProperties.className || '';
   element.className += ' cycleCustomElement-' + tagName.toUpperCase();
   return element;
-}
-
-function replicate(origin, destination) {
-  origin.subscribe(function (elem) {
-    return destination.onNext(elem);
-  });
 }
 
 function warnIfVTreeHasNoKey(vtree) {
@@ -14201,7 +14354,7 @@ function makeConstructor() {
 }
 
 function makeInit(tagName, definitionFn) {
-  var _require2 = require('./render');
+  var _require2 = require('./render-dom');
 
   var render = _require2.render;
 
@@ -14212,7 +14365,7 @@ function makeInit(tagName, definitionFn) {
     element.cycleCustomElementRoot$ = createStream(function (vtree$) {
       return render(vtree$, element);
     });
-    element.cycleCustomElementProperties = new PropertiesProxy();
+    element.cycleCustomElementProperties = makePropertiesProxy();
     var eventStreams = definitionFn(element.cycleCustomElementRoot$, element.cycleCustomElementProperties);
     widget.eventStreamsSubscriptions = subscribeDispatchers(element, eventStreams);
     subscribeDispatchersWhenRootChanges(widget, eventStreams);
@@ -14252,198 +14405,86 @@ function makeUpdate() {
 }
 
 module.exports = {
+  makeDispatchFunction: makeDispatchFunction,
+  subscribeDispatchers: subscribeDispatchers,
+  subscribeDispatchersWhenRootChanges: subscribeDispatchersWhenRootChanges,
+  makePropertiesProxy: makePropertiesProxy,
+  createContainerElement: createContainerElement,
+  warnIfVTreeHasNoKey: warnIfVTreeHasNoKey,
+  throwIfVTreeHasPropertyChildren: throwIfVTreeHasPropertyChildren,
+
   makeConstructor: makeConstructor,
   makeInit: makeInit,
   makeUpdate: makeUpdate
 };
 
-},{"./render":111,"./stream":112,"rx":58,"string.prototype.endswith":59}],108:[function(require,module,exports){
+},{"../stream":114,"./render-dom":112,"rx":58,"string.prototype.endswith":59}],111:[function(require,module,exports){
 'use strict';
-var VirtualDOM = require('virtual-dom');
-var Rx = require('rx');
-var Stream = require('./stream');
-var PropertyHook = require('./property-hook');
-var Rendering = require('./render');
+var CustomElementWidget = require('./custom-element-widget');
+var Map = require('es6-map'); /* jshint: -W079 */
+var CustomElementsRegistry = new Map();
 
-var Cycle = {
-  /**
-   * Creates a Cycle stream defined by `definitionFn`. A Stream is a subclass of
-   * Rx.Observable and implements "Injectable", so it contains the function
-   * `inject(...inputs)`. This function will synchronously return the same Observable as
-   * `definitionFn` returns, but will use proxy inputs created internally. You should
-   * supply the real inputs later with inject(), and the proxy inputs will imitate the
-   * behavior of the real inputs.
-   *
-   * @param {Function} definitionFn a function taking Observables as input and outputting
-   * one Rx.Observable.
-   * @return {Rx.Observable} a stream as defined by the return of `definitionFn`.
-   * @function createStream
-   */
-  createStream: function createStream(definitionFn) {
-    return Stream.createStream(definitionFn);
-  },
+function replaceCustomElementsWithSomething(vtree, customElementVTreeToSomething) {
+  // Silently ignore corner cases
+  if (!vtree || vtree.type === 'VirtualText') {
+    return vtree;
+  }
+  var tagName = (vtree.tagName || '').toUpperCase();
+  // Replace vtree itself
+  if (tagName && CustomElementsRegistry.has(tagName)) {
+    var WidgetClass = CustomElementsRegistry.get(tagName);
+    return customElementVTreeToSomething(vtree, WidgetClass);
+  }
+  // Or replace children recursively
+  if (Array.isArray(vtree.children)) {
+    for (var i = vtree.children.length - 1; i >= 0; i--) {
+      vtree.children[i] = replaceCustomElementsWithSomething(vtree.children[i], customElementVTreeToSomething);
+    }
+  }
+  return vtree;
+}
 
-  /**
-   * Renders a stream of virtual DOM elements (`vtree$`) into the DOM element indicated
-   * by `container`, which can be either a CSS selector or an actual element.
-   * Returns a stream of real DOM element, with a special property attached to it called
-   * `interaction$()`. This `interaction$` is a theoretical stream containing all
-   * possible events happening on all elements which were rendered. You must query it
-   * with `interaction$.choose(selector, eventName)` in order to get an event stream of
-   * interactions of type `eventName` happening on the element identified by `selector`.
-   * Example: `interaction$.choose('.mybutton', 'click').subscribe( ... )`
-   *
-   * @param {Rx.Observable} vtree$ stream of virtual DOM elements.
-   * @param {(String|HTMLElement)} container the DOM selector for the element (or the
-   * element itself) to contain the rendering of the VTrees.
-   * @return {Rx.Observable} a stream emitting the root DOM element for this rendering,
-   * with the property `interaction$()` attached to it.
-   * @function render
-   */
-  render: Rendering.render,
+function registerCustomElement(tagName, definitionFn) {
+  if (typeof tagName !== 'string' || typeof definitionFn !== 'function') {
+    throw new Error('registerCustomElement requires parameters `tagName` and ' + '`definitionFn`.');
+  }
+  tagName = tagName.toUpperCase();
+  if (CustomElementsRegistry.has(tagName)) {
+    throw new Error('Cannot register custom element `' + tagName + '` ' + 'for the DOMUser because that tagName is already registered.');
+  }
 
-  // TODO documentation
-  renderAsHTML$: Rendering.renderAsHTML$,
+  var WidgetClass = CustomElementWidget.makeConstructor();
+  WidgetClass.definitionFn = definitionFn;
+  WidgetClass.prototype.init = CustomElementWidget.makeInit(tagName, definitionFn);
+  WidgetClass.prototype.update = CustomElementWidget.makeUpdate();
+  CustomElementsRegistry.set(tagName, WidgetClass);
+}
 
-  /**
-   * Informs Cycle to recognize the given `tagName` as a custom element implemented
-   * as `dataFlowNode` whenever `tagName` is used in VTrees in a View rendered to a
-   * DOMUser.
-   * The given `dataFlowNode` must export a `vtree$` Observable. If the `dataFlowNode`
-   * expects Observable `foo$` as input, then the custom element's attribute named `foo`
-   * will be injected automatically into `foo$`.
-   *
-   * @param {String} tagName a name for identifying the custom element.
-   * @param {Function} definitionFn the implementation for the custom element. This
-   * function takes two arguments: `User`, and `Properties`. Use `User` to inject into an
-   * Intent and to be injected a View. `Properties` is a DataFlowNode containing
-   * observables matching the custom element properties.
-   * @function registerCustomElement
-   */
-  registerCustomElement: Rendering.registerCustomElement,
+function unregisterAllCustomElements() {
+  CustomElementsRegistry.clear();
+}
 
-  /**
-   * Returns a hook for manipulating an element from the real DOM. This is a helper for
-   * creating VTrees in Views. Useful for calling `focus()` on the DOM element, or doing
-   * similar mutations.
-   *
-   * See https://github.com/Raynos/mercury/blob/master/docs/faq.md for more details.
-   *
-   * @param {Function} fn a function with two arguments: `element`, `property`.
-   * @return {PropertyHook} a hook
-   */
-  vdomPropHook: function vdomPropHook(fn) {
-    return new PropertyHook(fn);
-  },
-
-  /**
-   * A shortcut to the root object of [RxJS](https://github.com/Reactive-Extensions/RxJS).
-   * @name Rx
-   */
-  Rx: Rx,
-
-  /**
-   * A shortcut to [virtual-hyperscript](
-   * https://github.com/Matt-Esch/virtual-dom/tree/master/virtual-hyperscript).
-   * This is a helper for creating VTrees in Views.
-   * @name h
-   */
-  h: VirtualDOM.h
+module.exports = {
+  replaceCustomElementsWithSomething: replaceCustomElementsWithSomething,
+  registerCustomElement: registerCustomElement,
+  unregisterAllCustomElements: unregisterAllCustomElements
 };
 
-module.exports = Cycle;
-
-},{"./property-hook":110,"./render":111,"./stream":112,"rx":58,"virtual-dom":75}],109:[function(require,module,exports){
-'use strict';
-
-var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(object, property, receiver) { var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
-
-var _inherits = function (subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; };
-
-var Rx = require('rx');
-
-var InputProxy = (function (_Rx$Subject) {
-  function InputProxy() {
-    _classCallCheck(this, InputProxy);
-
-    _get(Object.getPrototypeOf(InputProxy.prototype), 'constructor', this).call(this);
-    this.type = 'InputProxy';
-    this._interaction$ = {};
-  }
-
-  _inherits(InputProxy, _Rx$Subject);
-
-  _createClass(InputProxy, [{
-    key: 'choose',
-
-    // For the rendered rootElem$ with interaction$
-    value: function choose(selector, eventName) {
-      if (typeof this._interaction$[selector] === 'undefined') {
-        this._interaction$[selector] = {};
-      }
-      if (typeof this._interaction$[selector][eventName] === 'undefined') {
-        this._interaction$[selector][eventName] = new Rx.Subject();
-      }
-      return this._interaction$[selector][eventName];
-    }
-  }]);
-
-  return InputProxy;
-})(Rx.Subject);
-
-module.exports = InputProxy;
-
-},{"rx":58}],110:[function(require,module,exports){
-'use strict';
-
-var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var PropertyHook = (function () {
-  function PropertyHook(fn) {
-    _classCallCheck(this, PropertyHook);
-
-    this.fn = fn;
-  }
-
-  _createClass(PropertyHook, [{
-    key: 'hook',
-    value: function hook() {
-      this.fn.apply(this, arguments);
-    }
-  }]);
-
-  return PropertyHook;
-})();
-
-module.exports = PropertyHook;
-
-},{}],111:[function(require,module,exports){
+},{"./custom-element-widget":110,"es6-map":3}],112:[function(require,module,exports){
 'use strict';
 
 var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } };
 
+var Rx = require('rx');
 var VDOM = {
   h: require('virtual-dom').h,
   diff: require('virtual-dom/diff'),
   patch: require('virtual-dom/patch')
 };
-var Rx = require('rx');
-var toHTML = require('vdom-to-html');
 
-var _require = require('./stream');
+var _require = require('./custom-elements');
 
-var createStream = _require.createStream;
-
-var CustomElements = require('./custom-elements');
-var Map = require('es6-map'); /* jshint: -W079 */
-var CustomElementsRegistry = new Map();
-require('string.prototype.endswith');
+var replaceCustomElementsWithSomething = _require.replaceCustomElementsWithSomething;
 
 function isElement(obj) {
   return typeof HTMLElement === 'object' ? obj instanceof HTMLElement || obj instanceof DocumentFragment : //DOM2
@@ -14473,103 +14514,9 @@ function isVTreeCustomElement(vtree) {
   return vtree.type === 'Widget' && !!vtree._rootElem$;
 }
 
-function replaceCustomElementsWithSomething(vtree, customElementVTreeToSomething) {
-  // Silently ignore corner cases
-  if (!vtree || vtree.type === 'VirtualText') {
-    return vtree;
-  }
-  var tagName = (vtree.tagName || '').toUpperCase();
-  // Replace vtree itself
-  if (tagName && CustomElementsRegistry.has(tagName)) {
-    var WidgetClass = CustomElementsRegistry.get(tagName);
-    return customElementVTreeToSomething(vtree, WidgetClass);
-  }
-  // Or replace children recursively
-  if (Array.isArray(vtree.children)) {
-    for (var i = vtree.children.length - 1; i >= 0; i--) {
-      vtree.children[i] = replaceCustomElementsWithSomething(vtree.children[i], customElementVTreeToSomething);
-    }
-  }
-  return vtree;
-}
-
 function replaceCustomElementsWithWidgets(vtree) {
   return replaceCustomElementsWithSomething(vtree, function (vtree, WidgetClass) {
     return new WidgetClass(vtree);
-  });
-}
-
-// [obs1, obs2, obs3]
-// obs[1,2,3]
-
-// transpose [[a, b, obs1], [c, [d, obs2]]]
-//   transpose [a, b, obs1]
-//     transpose a
-//     ==> obs-a
-//     transpose b
-//     ==> obs-b
-//     transpose obs1
-//     ==> obs1
-//   ==> combineLatest [obs-a, obs-b, obs1]
-//   transpose [c, [d, obs2]]
-//     transpose c
-//     ==> obs-c
-//     transpose [d, obs2]
-//       transpose d ==> obs-d
-//       transpose obs2 ==> obs2
-//     ==> combineLatest [obs-d, obs]
-//   ==> combineLatest [obs-c, combineLatest [obs-d, obs]]
-// ==> combineLatest [
-//   combineLatest [obs-a, obs-b, obs1],
-//   combineLatest [obs-c, combineLatest [obs-d, obs]]
-// ]
-
-// obs[[a,b,1], [c,[d,2]]]
-
-/**
- * Converts a tree of VirtualNode|Observable<VirtualNode> into Observable<VirtualNode>.
- */
-function transpose(vtree) {
-  if (typeof vtree.subscribe === 'function') {
-    return vtree;
-  } else if (vtree.type === 'VirtualText') {
-    return Rx.Observable.just(vtree);
-  } else if (vtree.type === 'VirtualNode' && Array.isArray(vtree.children) && vtree.children.length > 0) {
-    return Rx.Observable.combineLatest(vtree.children.map(transpose), function () {
-      for (var _len = arguments.length, arr = Array(_len), _key = 0; _key < _len; _key++) {
-        arr[_key] = arguments[_key];
-      }
-
-      vtree.children = arr;
-      return vtree;
-    });
-  } else if (vtree.type === 'VirtualNode') {
-    return Rx.Observable.just(vtree);
-  } else {
-    throw new Error('Handle this case please');
-  }
-}
-
-function makePropertiesProxyFromVTree(vtree) {
-  return {
-    get: function get(streamName) {
-      if (!streamName.endsWith('$')) {
-        throw new Error('Custom element property stream accessed from props.get() must ' + 'be named ending with $ symbol.');
-      }
-      var propertyName = streamName.slice(0, -1);
-      return Rx.Observable.just(vtree.properties[propertyName]);
-    }
-  };
-}
-
-function replaceCustomElementsWithVTree$(vtree) {
-  return replaceCustomElementsWithSomething(vtree, function (vtree, WidgetClass) {
-    var vtree$ = createStream(function (vtree$) {
-      return vtree$.take(1).map(replaceCustomElementsWithVTree$).flatMap(transpose);
-    });
-    var props = makePropertiesProxyFromVTree(vtree);
-    WidgetClass.definitionFn(vtree$, props);
-    return vtree$;
   });
 }
 
@@ -14591,7 +14538,6 @@ function checkRootVTreeNotCustomElement(vtree) {
   if (isVTreeCustomElement(vtree)) {
     throw new Error('Illegal to use a Cycle custom element as the root of a View.');
   }
-  return vtree;
 }
 
 function makeDiffAndPatchToElement$(rootElem) {
@@ -14634,8 +14580,7 @@ function makeDiffAndPatchToElement$(rootElem) {
   };
 }
 
-function renderRawRootElem$(vtree$, domContainer) {
-  // Select the correct rootElem
+function getRenderRootElem(domContainer) {
   var rootElem = undefined;
   if (/cycleCustomElement-[^\b]+/.exec(domContainer.className) !== null) {
     rootElem = domContainer;
@@ -14644,9 +14589,13 @@ function renderRawRootElem$(vtree$, domContainer) {
     domContainer.innerHTML = '';
     domContainer.appendChild(rootElem);
   }
+  return rootElem;
+}
+
+function renderRawRootElem$(vtree$, domContainer) {
+  var rootElem = getRenderRootElem(domContainer);
   var diffAndPatchToElement$ = makeDiffAndPatchToElement$(rootElem);
-  // Make rootElem$ from vtree$
-  return vtree$.startWith(VDOM.h()).map(replaceCustomElementsWithWidgets).map(checkRootVTreeNotCustomElement).pairwise().flatMap(diffAndPatchToElement$).startWith(rootElem);
+  return vtree$.startWith(VDOM.h()).map(replaceCustomElementsWithWidgets).doOnNext(checkRootVTreeNotCustomElement).pairwise().flatMap(diffAndPatchToElement$).startWith(rootElem);
 }
 
 function makeInteraction$(rootElem$) {
@@ -14713,40 +14662,106 @@ function render(vtree$, container) {
   return rootElem$;
 }
 
-function renderAsHTML$(vtree$) {
-  return vtree$.take(1).map(replaceCustomElementsWithVTree$).flatMap(transpose).map(function (vtree) {
+module.exports = {
+  isElement: isElement,
+  fixRootElem$: fixRootElem$,
+  isVTreeCustomElement: isVTreeCustomElement,
+  replaceCustomElementsWithWidgets: replaceCustomElementsWithWidgets,
+  getArrayOfAllWidgetRootElemStreams: getArrayOfAllWidgetRootElemStreams,
+  checkRootVTreeNotCustomElement: checkRootVTreeNotCustomElement,
+  makeDiffAndPatchToElement$: makeDiffAndPatchToElement$,
+  getRenderRootElem: getRenderRootElem,
+  renderRawRootElem$: renderRawRootElem$,
+  makeInteraction$: makeInteraction$,
+  publishConnectRootElem$: publishConnectRootElem$,
+
+  render: render
+};
+
+},{"./custom-elements":111,"rx":58,"virtual-dom":75,"virtual-dom/diff":73,"virtual-dom/patch":83}],113:[function(require,module,exports){
+'use strict';
+var Rx = require('rx');
+var toHTML = require('vdom-to-html');
+
+var _require = require('./custom-elements');
+
+var replaceCustomElementsWithSomething = _require.replaceCustomElementsWithSomething;
+
+var _require2 = require('../stream');
+
+var createStream = _require2.createStream;
+
+require('string.prototype.endswith');
+
+function makePropertiesProxyFromVTree(vtree) {
+  return {
+    get: function get(streamName) {
+      if (!streamName.endsWith('$')) {
+        throw new Error('Custom element property stream accessed from props.get() must ' + 'be named ending with $ symbol.');
+      }
+      var propertyName = streamName.slice(0, -1);
+      return Rx.Observable.just(vtree.properties[propertyName]);
+    }
+  };
+}
+
+/**
+ * Converts a tree of VirtualNode|Observable<VirtualNode> into Observable<VirtualNode>.
+ */
+function transposeVTree(vtree) {
+  if (typeof vtree.subscribe === 'function') {
+    return vtree;
+  } else if (vtree.type === 'VirtualText') {
+    return Rx.Observable.just(vtree);
+  } else if (vtree.type === 'VirtualNode' && Array.isArray(vtree.children) && vtree.children.length > 0) {
+    /* jshint: -W117 */
+    return Rx.Observable.combineLatest(vtree.children.map(transposeVTree), function () {
+      for (var _len = arguments.length, arr = Array(_len), _key = 0; _key < _len; _key++) {
+        arr[_key] = arguments[_key];
+      }
+
+      vtree.children = arr;
+      return vtree;
+    });
+    /* jshint: +W117 */
+  } else if (vtree.type === 'VirtualNode') {
+    return Rx.Observable.just(vtree);
+  } else {
+    throw new Error('Handle this case please');
+  }
+}
+
+function replaceCustomElementsWithVTree$(vtree) {
+  return replaceCustomElementsWithSomething(vtree, function (vtree, WidgetClass) {
+    var vtree$ = createStream(function (vtree$) {
+      return convertCustomElementsToVTree(vtree$.last());
+    });
+    var props = makePropertiesProxyFromVTree(vtree);
+    WidgetClass.definitionFn(vtree$, props);
+    return vtree$;
+  });
+}
+
+function convertCustomElementsToVTree(vtree$) {
+  // jshint ignore:line
+  return vtree$.map(replaceCustomElementsWithVTree$).flatMap(transposeVTree);
+}
+
+function renderAsHTML(vtree$) {
+  return convertCustomElementsToVTree(vtree$.last()).map(function (vtree) {
     return toHTML(vtree);
   });
 }
 
-function registerCustomElement(tagName, definitionFn) {
-  if (typeof tagName !== 'string' || typeof definitionFn !== 'function') {
-    throw new Error('registerCustomElement requires parameters `tagName` and ' + '`definitionFn`.');
-  }
-  tagName = tagName.toUpperCase();
-  if (CustomElementsRegistry.has(tagName)) {
-    throw new Error('Cannot register custom element `' + tagName + '` ' + 'for the DOMUser because that tagName is already registered.');
-  }
-
-  var WidgetClass = CustomElements.makeConstructor();
-  WidgetClass.definitionFn = definitionFn;
-  WidgetClass.prototype.init = CustomElements.makeInit(tagName, definitionFn);
-  WidgetClass.prototype.update = CustomElements.makeUpdate();
-  CustomElementsRegistry.set(tagName, WidgetClass);
-}
-
-function unregisterAllCustomElements() {
-  CustomElementsRegistry.clear();
-}
-
 module.exports = {
-  render: render,
-  renderAsHTML$: renderAsHTML$,
-  registerCustomElement: registerCustomElement,
-  unregisterAllCustomElements: unregisterAllCustomElements
+  makePropertiesProxyFromVTree: makePropertiesProxyFromVTree,
+  replaceCustomElementsWithVTree$: replaceCustomElementsWithVTree$,
+  convertCustomElementsToVTree: convertCustomElementsToVTree,
+
+  renderAsHTML: renderAsHTML
 };
 
-},{"./custom-elements":107,"./stream":112,"es6-map":3,"rx":58,"string.prototype.endswith":59,"vdom-to-html":61,"virtual-dom":75,"virtual-dom/diff":73,"virtual-dom/patch":83}],112:[function(require,module,exports){
+},{"../stream":114,"./custom-elements":111,"rx":58,"string.prototype.endswith":59,"vdom-to-html":61}],114:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
 var InputProxy = require('./input-proxy');
@@ -14758,15 +14773,7 @@ function throwIfNotObservable(thing) {
 }
 
 function replicate(source, subject) {
-  if (typeof source === 'undefined') {
-    throw new Error('Cannot replicate() if source is undefined.');
-  }
-  return source.subscribe(function replicationOnNext(x) {
-    subject.onNext(x);
-  }, function replicationOnError(err) {
-    subject.onError(err);
-    console.error(err);
-  });
+  return source.subscribe(subject.asObserver());
 }
 
 function replicateAllInteraction$(input, proxy) {
@@ -14859,8 +14866,15 @@ function createStream(definitionFn) {
 }
 
 module.exports = {
+  throwIfNotObservable: throwIfNotObservable,
+  replicate: replicate,
+  replicateAllInteraction$: replicateAllInteraction$,
+  replicateAll: replicateAll,
+  makeInjectFn: makeInjectFn,
+  makeDisposeFn: makeDisposeFn,
+
   createStream: createStream
 };
 
-},{"./input-proxy":109,"rx":58}]},{},[108])(108)
+},{"./input-proxy":108,"rx":58}]},{},[107])(107)
 });

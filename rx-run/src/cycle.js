@@ -3,7 +3,9 @@ let VirtualDOM = require('virtual-dom');
 let Rx = require('rx');
 let Stream = require('./stream');
 let PropertyHook = require('./property-hook');
-let Rendering = require('./render');
+let CustomElements = require('./rendering/custom-elements');
+let RenderingDOM = require('./rendering/render-dom');
+let RenderingHTML = require('./rendering/render-html');
 
 var Cycle = {
   /**
@@ -40,10 +42,10 @@ var Cycle = {
    * with the property `interaction$()` attached to it.
    * @function render
    */
-  render: Rendering.render,
+  render: RenderingDOM.render,
 
   // TODO documentation
-  renderAsHTML: Rendering.renderAsHTML,
+  renderAsHTML: RenderingHTML.renderAsHTML,
 
   /**
    * Informs Cycle to recognize the given `tagName` as a custom element implemented
@@ -60,7 +62,7 @@ var Cycle = {
    * observables matching the custom element properties.
    * @function registerCustomElement
    */
-  registerCustomElement: Rendering.registerCustomElement,
+  registerCustomElement: CustomElements.registerCustomElement,
 
   /**
    * Returns a hook for manipulating an element from the real DOM. This is a helper for

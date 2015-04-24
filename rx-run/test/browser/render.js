@@ -2,7 +2,7 @@
 /* global describe, it, beforeEach */
 let assert = require('assert');
 let Cycle = require('../../src/cycle');
-let Rendering = require('../../src/render');
+let CustomElements = require('../../src/rendering/custom-elements');
 let Fixture89 = require('./fixtures/issue-89');
 let {Rx, h} = Cycle;
 
@@ -15,7 +15,7 @@ function createRenderTarget() {
 
 describe('Rendering', function () {
   beforeEach(function () {
-    Rendering.unregisterAllCustomElements();
+    CustomElements.unregisterAllCustomElements();
     let testDivs = Array.prototype.slice.call(document.querySelectorAll('.cycletest'));
     testDivs.forEach(function (x) {
       if (x.remove) {

@@ -1,16 +1,11 @@
 'use strict';
+let Rx = require('rx');
 let VDOM = {
   h: require('virtual-dom').h,
   diff: require('virtual-dom/diff'),
   patch: require('virtual-dom/patch')
 };
-let Rx = require('rx');
-let toHTML = require('vdom-to-html');
-let {createStream} = require('./stream');
-let CustomElements = require('./custom-elements');
-let Map = require('es6-map'); /* jshint: -W079 */
-let CustomElementsRegistry = new Map();
-require('string.prototype.endswith');
+let {replaceCustomElementsWithSomething} = require('./custom-elements');
 
 function isElement(obj) {
   return (
@@ -47,85 +42,10 @@ function isVTreeCustomElement(vtree) {
   return (vtree.type === 'Widget' && !!vtree._rootElem$);
 }
 
-function replaceCustomElementsWithSomething(vtree, customElementVTreeToSomething) {
-  // Silently ignore corner cases
-  if (!vtree || vtree.type === 'VirtualText') {
-    return vtree;
-  }
-  let tagName = (vtree.tagName || '').toUpperCase();
-  // Replace vtree itself
-  if (tagName && CustomElementsRegistry.has(tagName)) {
-    let WidgetClass = CustomElementsRegistry.get(tagName);
-    return customElementVTreeToSomething(vtree, WidgetClass);
-  }
-  // Or replace children recursively
-  if (Array.isArray(vtree.children)) {
-    for (let i = vtree.children.length - 1; i >= 0; i--) {
-      vtree.children[i] = replaceCustomElementsWithSomething(
-        vtree.children[i],
-        customElementVTreeToSomething
-      );
-    }
-  }
-  return vtree;
-}
-
 function replaceCustomElementsWithWidgets(vtree) {
   return replaceCustomElementsWithSomething(vtree,
     (vtree, WidgetClass) => new WidgetClass(vtree)
   );
-}
-
-/**
- * Converts a tree of VirtualNode|Observable<VirtualNode> into Observable<VirtualNode>.
- */
-function transposeVTree(vtree) {
-  if (typeof vtree.subscribe === 'function') {
-    return vtree;
-  } else if (vtree.type === 'VirtualText') {
-    return Rx.Observable.just(vtree);
-  } else if (vtree.type === 'VirtualNode' && Array.isArray(vtree.children) &&
-    vtree.children.length > 0)
-  {
-    /* jshint: -W117 */
-    return Rx.Observable.combineLatest(vtree.children.map(transposeVTree), (...arr) => {
-      vtree.children = arr;
-      return vtree;
-    });
-    /* jshint: +W117 */
-  } else if (vtree.type === 'VirtualNode') {
-    return Rx.Observable.just(vtree);
-  } else {
-    throw new Error('Handle this case please');
-  }
-}
-
-function makePropertiesProxyFromVTree(vtree) {
-  return {
-    get(streamName) {
-      if (!streamName.endsWith('$')) {
-        throw new Error('Custom element property stream accessed from props.get() must ' +
-          'be named ending with $ symbol.');
-      }
-      let propertyName = streamName.slice(0, -1);
-      return Rx.Observable.just(vtree.properties[propertyName]);
-    }
-  };
-}
-
-function replaceCustomElementsWithVTree$(vtree) {
-  return replaceCustomElementsWithSomething(vtree, function (vtree, WidgetClass) {
-    let vtree$ = createStream(vtree$ => convertCustomElementsToVTree(vtree$.last()));
-    let props = makePropertiesProxyFromVTree(vtree);
-    WidgetClass.definitionFn(vtree$, props);
-    return vtree$;
-  });
-}
-
-function convertCustomElementsToVTree(vtree$) { // jshint ignore:line
-  return vtree$
-    .map(replaceCustomElementsWithVTree$)
-    .flatMap(transposeVTree);
 }
 
 function getArrayOfAllWidgetRootElemStreams(vtree) {
@@ -219,11 +139,11 @@ function makeInteraction$(rootElem$) {
     choose: function choose(selector, eventName) {
       if (typeof selector !== 'string') {
         throw new Error('interaction$.choose() expects first argument to be a ' +
-        'string as a CSS selector');
+          'string as a CSS selector');
       }
       if (typeof eventName !== 'string') {
         throw new Error('interaction$.choose() expects second argument to be a ' +
-        'string representing the event type to listen for.');
+          'string representing the event type to listen for.');
       }
 
       //console.log(`%cchoose("${selector}", "${eventName}")`, 'color: #0000BB');
@@ -279,35 +199,18 @@ function render(vtree$, container) {
   return rootElem$;
 }
 
-function renderAsHTML(vtree$) {
-  return convertCustomElementsToVTree(vtree$.last()).map(vtree => toHTML(vtree));
-}
-
-function registerCustomElement(tagName, definitionFn) {
-  if (typeof tagName !== 'string' || typeof definitionFn !== 'function') {
-    throw new Error('registerCustomElement requires parameters `tagName` and ' +
-    '`definitionFn`.');
-  }
-  tagName = tagName.toUpperCase();
-  if (CustomElementsRegistry.has(tagName)) {
-    throw new Error('Cannot register custom element `' + tagName + '` ' +
-    'for the DOMUser because that tagName is already registered.');
-  }
-
-  let WidgetClass = CustomElements.makeConstructor();
-  WidgetClass.definitionFn = definitionFn;
-  WidgetClass.prototype.init = CustomElements.makeInit(tagName, definitionFn);
-  WidgetClass.prototype.update = CustomElements.makeUpdate();
-  CustomElementsRegistry.set(tagName, WidgetClass);
-}
-
-function unregisterAllCustomElements() {
-  CustomElementsRegistry.clear();
-}
-
 module.exports = {
-  render,
-  renderAsHTML,
-  registerCustomElement,
-  unregisterAllCustomElements
+  isElement,
+  fixRootElem$,
+  isVTreeCustomElement,
+  replaceCustomElementsWithWidgets,
+  getArrayOfAllWidgetRootElemStreams,
+  checkRootVTreeNotCustomElement,
+  makeDiffAndPatchToElement$,
+  getRenderRootElem,
+  renderRawRootElem$,
+  makeInteraction$,
+  publishConnectRootElem$,
+
+  render
 };
