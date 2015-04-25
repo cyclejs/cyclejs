@@ -165,6 +165,7 @@ Here are a couple of strong reasons:
 - [sinject, a dependency injection tool supporting Cycle's circular dependencies](https://github.com/cgeorg/sinject) by [@cgeorg](https://github.com/cgeorg)
 - [Slack trend searching written in Cycle.js](https://github.com/grozen/trends-cycle) by [@grozen](https://github.com/grozen)
 - [RxMarbles is written in Cycle.js](https://github.com/staltz/rxmarbles)
+- [An advanced Web Component built with Cycle.js](https://github.com/erykpiast/autocompleted-select) by [@erykpiast](https://github.com/erykpiast)
 
 ## Disclaimer
 
