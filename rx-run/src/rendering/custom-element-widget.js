@@ -1,6 +1,6 @@
 'use strict';
 let Rx = require('rx');
-let {createStream} = require('./stream');
+let {createStream, replicate} = require('../stream');
 require('string.prototype.endswith');
 
 function makeDispatchFunction(element, eventName) {
@@ -52,19 +52,25 @@ function subscribeDispatchersWhenRootChanges(widget, eventStreams) {
     });
 }
 
-class PropertiesProxy {
-  constructor() {
-    this.type = 'PropertiesProxy';
-    this.proxiedProps = {};
-  }
+function makePropertiesProxy() {
+  let proxiedProps = {};
+  return {
+    type: 'PropertiesProxy',
 
-  get(streamKey, distinctnessComparer = Rx.helpers.defaultComparer) {
-    if (typeof this.proxiedProps[streamKey] === 'undefined') {
-      this.proxiedProps[streamKey] = new Rx.Subject();
+    proxiedProps,
+
+    get(streamKey, distinctnessComparer = Rx.helpers.defaultComparer) {
+      if (!streamKey.endsWith('$')) {
+        throw new Error('Custom element property stream accessed from props.get() must ' +
+          'be named ending with $ symbol.');
+      }
+      if (typeof proxiedProps[streamKey] === 'undefined') {
+        proxiedProps[streamKey] = new Rx.Subject();
+      }
+      return proxiedProps[streamKey]
+        .distinctUntilChanged(Rx.helpers.identity, distinctnessComparer);
     }
-    return this.proxiedProps[streamKey]
-      .distinctUntilChanged(Rx.helpers.identity, distinctnessComparer);
-  }
+  };
 }
 
 function createContainerElement(tagName, vtreeProperties) {
@@ -73,10 +79,6 @@ function createContainerElement(tagName, vtreeProperties) {
   element.className = vtreeProperties.className || '';
   element.className += ' cycleCustomElement-' + tagName.toUpperCase();
   return element;
-}
-
-function replicate(origin, destination) {
-  origin.subscribe(elem => destination.onNext(elem));
 }
 
 function warnIfVTreeHasNoKey(vtree) {
@@ -107,13 +109,13 @@ function makeConstructor() {
 }
 
 function makeInit(tagName, definitionFn) {
-  let {render} = require('./render');
+  let {render} = require('./render-dom');
   return function initCustomElement() {
     //console.log('%cInit() custom element ' + tagName, 'color: #880088');
     let widget = this;
     let element = createContainerElement(tagName, widget.properties);
     element.cycleCustomElementRoot$ = createStream(vtree$ => render(vtree$, element));
-    element.cycleCustomElementProperties = new PropertiesProxy();
+    element.cycleCustomElementProperties = makePropertiesProxy();
     let eventStreams = definitionFn(
       element.cycleCustomElementRoot$,
       element.cycleCustomElementProperties
@@ -146,6 +148,14 @@ function makeUpdate() {
 }
 
 module.exports = {
+  makeDispatchFunction,
+  subscribeDispatchers,
+  subscribeDispatchersWhenRootChanges,
+  makePropertiesProxy,
+  createContainerElement,
+  warnIfVTreeHasNoKey,
+  throwIfVTreeHasPropertyChildren,
+
   makeConstructor,
   makeInit,
   makeUpdate
