@@ -183,10 +183,8 @@ number. After v1.0.0, we will follow [semver](http://semver.org/).
 
 - This project is a grateful recipient of the [Futurice Open Source sponsorship program](http://futurice.com/blog/sponsoring-free-time-open-source-activities).
 - [@dobrite](https://github.com/dobrite) for [boilerplate reduction ideas](https://github.com/staltz/cycle/issues/56).
-- [@erykpiast](https://github.com/erykpiast) for pull requests.
+- [@erykpiast](https://github.com/erykpiast) for pull requests and great ideas.
 
 ## LICENSE
 
 [The MIT License (MIT)](https://github.com/staltz/cycle/blob/master/LICENSE)
-
-<img src="http://i.imgur.com/IDayYJM.png" />
