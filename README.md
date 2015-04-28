@@ -27,6 +27,8 @@ DOM Rendering.
 * **Virtual DOM Rendering**: Views re-render completely whenever Models emit any data.
   The use of [virtual-dom](https://github.com/Matt-Esch/virtual-dom) keeps performance
   fast by patching the actual DOM with only the minimum necessary changes.
+* **Isomorphic**: there is just one more function you need to know in order to do 
+  server-side rendering. Otherwise [it's pretty simple and straightforward](https://github.com/staltz/cycle/releases/tag/v0.20.4).
 * **Work in progress**: API design is the current priority and might significantly evolve,
   performance and other issues are left aside before this gets stable.
 
