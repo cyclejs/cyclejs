@@ -11,7 +11,7 @@ DOM Rendering.
   data production from data consumption. As result, apps in Cycle have nothing comparable
   to imperative calls such as `setState()`, `forceUpdate()`, `replaceProps()`,
   `handleClick()`, etc.
-* **Unidirectional Dataflow**: Cycle is essentially a tool to build circular-dependent 
+* **Unidirectional Dataflow**: Cycle is essentially a tool to build circularly dependent 
   event streams. This enables any circular unidirectional architecture to be built easily.
   In particular, the Model-View-User-Intent architecture is easy to build with Cycle: data
   moves from Model to View, graphics move from View to User, User generates interaction
