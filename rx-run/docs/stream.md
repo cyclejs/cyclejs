@@ -60,9 +60,10 @@ convenient factory function.
 
 To apply the deferred input Observable technique, you create a Cycle *Stream* using the
 factory function `createStream()`. A Cycle Stream is a subclass of Rx.Observable, and 
-introduces one function: `inject(input)`. It is through this inject function that the 
-Stream will receives its "real" input Observable. The example in the previous section, 
-using Cycle Streams, is:
+introduces one function: `inject(input)`. Another suitable name for Stream would have
+been "InjectableObservable". It is through this inject function that the Stream will 
+receives its "real" input Observable. The example in the previous section, using Cycle 
+Streams, is:
 
 ```js
 function defineA$(b$) {
