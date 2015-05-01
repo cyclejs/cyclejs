@@ -1,16 +1,16 @@
+var customElements = new Cycle.CustomElementsRegistry();
+customElements.registerCustomElement('item', manyComponent);
 
-var manyUser = (function () {
-  var interaction$ = Cycle.createStream(function (vtree$) {
-    return Cycle.render(vtree$, '.js-container').interaction$;
-  });
+var manyIntent = manyIntentFactory();
+var manyModel = manyModelFactory(manyIntent);
+var manyView = manyViewFactory(manyModel);
 
-  return {
-    interaction$: interaction$,
-    inject: function inject(view) {
-      interaction$.inject(view.vtree$);
-      return view;
-    }
-  };
-})();
+var reactiveNode = Cycle.render(
+  manyView.vtree$,
+  '.js-container',
+  customElements
+);
 
-manyUser.inject(manyView).inject(manyModel).inject(manyIntent).inject(manyUser);
+manyIntent.interactionChooser(reactiveNode.interactions);
+
+reactiveNode.connect();
