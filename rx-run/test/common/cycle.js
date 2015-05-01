@@ -5,16 +5,12 @@ let Cycle = require('../../src/cycle');
 
 describe('Cycle', function () {
   describe('API', function () {
-    it('should have `createStream`', function () {
-      assert.strictEqual(typeof Cycle.createStream, 'function');
-    });
-
     it('should have `render`', function () {
       assert.strictEqual(typeof Cycle.render, 'function');
     });
 
-    it('should have `registerCustomElement`', function () {
-      assert.strictEqual(typeof Cycle.registerCustomElement, 'function');
+    it('should have `CustomElementsRegistry`', function () {
+      assert.strictEqual(typeof Cycle.CustomElementsRegistry, 'function');
     });
 
     it('should have `vdomPropHook`', function () {
