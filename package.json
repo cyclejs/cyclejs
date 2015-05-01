@@ -16,11 +16,10 @@
   ],
   "main": "lib/cycle.js",
   "dependencies": {
-    "es6-map": "^0.1.1",
     "rx": "2.5.2",
-    "string.prototype.endswith": "^0.2.0",
     "vdom-to-html": "^2.0.0",
-    "virtual-dom": "2.0.1"
+    "virtual-dom": "2.0.1",
+    "xtend": "^4.0.0"
   },
   "devDependencies": {
     "babel": "5.1.x",
