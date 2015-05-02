@@ -45,12 +45,12 @@ function isVTreeCustomElement(vtree) {
 }
 
 function renderRawRootElem(vtree$, domContainer, customElementsRegistry) {
-  let startNode = '##START##';
-  let rootElem$ = vtree$.startWith(startNode);
+  let startNode = VDOM.h();
+  let vtreePair$ = vtree$.startWith(startNode);
 
   if (customElementsRegistry) {
     // actually doOnNext because this only modifies source VNode
-    rootElem$ = rootElem$.map(function replaceCustomElements(vtree) {
+    vtreePair$ = vtreePair$.map(function replaceCustomElements(vtree) {
       if (vtree === startNode) {
         return vtree;
       }
@@ -64,27 +64,27 @@ function renderRawRootElem(vtree$, domContainer, customElementsRegistry) {
     });
   }
 
-  let renderRootElem = getRenderRootElem(domContainer);
-  let rootElem;
-
-  return rootElem$
+  vtreePair$ = vtreePair$
     .doOnNext(function checkRootVTreeNotCustomElement(vtree) {
       // flatMap combined observable.throw might be better
       if (isVTreeCustomElement(vtree)) {
         throw new Error('Illegal to use a Cycle custom element as the root of a View.');
       }
     })
-    .pairwise()
-    .map(function makePatch(vtreePair) {
-      if (vtreePair[0] === startNode) {
-        rootElem = VDOM.createElement(vtreePair[1]);
-        renderRootElem.appendChild(rootElem);
-        return rootElem;
-      }
-      rootElem = makeDiffAndPatchToElement(rootElem, vtreePair[0], vtreePair[1]);
-      return rootElem;
+    .pairwise();
+
+  return Rx.Observable.defer(function createRootElement() {
+    let renderRootElem = getRenderRootElem(domContainer);
+    let startElem = VDOM.createElement(startNode);
+    renderRootElem.appendChild(startElem);
+
+    return Rx.Observable.just(startElem);
+  }).merge(vtreePair$)
+    .scan(function makePatch(rootElem, vtreePair) {
+      return makeDiffAndPatchToElement(rootElem, vtreePair[0], vtreePair[1]);
     })
-    .publish();
+    .skip(1)
+    .replay(null, 1);
 }
 
 function makeInteraction(rootElem$) {
