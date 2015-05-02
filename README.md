@@ -28,12 +28,8 @@ The "many" example has also been rewritten.
 
 ## Why no Stream?
 
-- It's a mutable object
-- Inject has a lot of side-effects
-- It subscribes the observable which returned by definitionFn instantly
-
-Honestly, we don't really need stream. We've already had **subject** and
-**multicast**. Please take a look at my modified examples.
+Stream has been put back. While it is still not required for implementing
+renderer and for one using Cycle(modified).
 
 ## .
 
@@ -81,6 +77,9 @@ DOM Rendering.
 ## Example
 
 ```javascript
+import Cycle from 'cyclejs';
+let {Rx, h} = Cycle;
+
 let name$ = Cycle.createStream(function model(changeName$) {
   return changeName$.startWith('');
 });
@@ -93,10 +92,6 @@ let vtree$ = Cycle.createStream(function view(name$) {
       h('h1.header', `Hello ${name}`)
     ])
   );
-});
-
-let interaction$ = Cycle.createStream(function user(vtree$) {
-  return Cycle.render(vtree$, '.js-container').interaction$;
 });
 
 let changeName$ = Cycle.createStream(function intent(interactions) {
