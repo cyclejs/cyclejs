@@ -1,6 +1,6 @@
 ## Diff
 
-- **Removed stream**
+- **Removed dependency of stream for rendering**
 - Refactored all tests and all passed
 - 2x performance improvement in the "many" example
 - Cycle.render now returns a ConnectableObservable and the actual rendering
@@ -81,31 +81,32 @@ DOM Rendering.
 ## Example
 
 ```javascript
-import Cycle from 'cyclejs';
-let {Rx, h} = Cycle;
+let name$ = Cycle.createStream(function model(changeName$) {
+  return changeName$.startWith('');
+});
 
-// intent
-let changeNameSource$ = new Rx.Subject();
-// model
-let name$ = changeNameSource$
-  .map(ev => ev.target.value)
-  .startWith('');
-// view
-let vtree$ = name$.map(name =>
-  h('div', [
-    h('label', 'Name:'),
-    h('input.field', {attributes: {type: 'text'}}),
-    h('h1.header', `Hello ${name}`)
-  ])
-);
-// user
+let vtree$ = Cycle.createStream(function view(name$) {
+  return name$.map(name =>
+    h('div', [
+      h('label', 'Name:'),
+      h('input.field', {attributes: {type: 'text'}}),
+      h('h1.header', `Hello ${name}`)
+    ])
+  );
+});
+
+let interaction$ = Cycle.createStream(function user(vtree$) {
+  return Cycle.render(vtree$, '.js-container').interaction$;
+});
+
+let changeName$ = Cycle.createStream(function intent(interactions) {
+  return interactions.choose('.field', 'input').map(ev => ev.target.value);
+});
+
 let reactiveNode = Cycle.render(vtree$, '.js-container');
-// multicast interactions to changeNameSource$
-reactiveNode.interactions
-  .choose('.field', 'input')
-  .multicast(changeNameSource$)
-  .connect();
-// trigger the subscription of rendering
+
+vtree$.inject(name$).inject(changeName$).inject(reactiveNode.interactions);
+
 reactiveNode.connect();
 ```
 

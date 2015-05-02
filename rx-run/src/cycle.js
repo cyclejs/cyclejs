@@ -1,11 +1,13 @@
 'use strict';
 let VirtualDOM = require('virtual-dom');
 let Rx = require('rx');
+let createStream2 = require('./stream2');
 let PropertyHook = require('./property-hook');
 let CustomElements = require('./rendering/custom-element-widget');
 let RenderingDOM = require('./rendering/render');
 
 var Cycle = {
+  createStream: createStream2,
   /**
    * Renders an Observable of virtual DOM elements (`vtree$`) into the DOM element
    * indicated by `container`, which can be either a CSS selector or an actual element.
