@@ -1,75 +1,21 @@
 'use strict';
 let Rx = require('rx');
-let InputProxy = require('./input-proxy');
 
-function throwIfNotObservable(thing) {
-  if (typeof thing === 'undefined' || typeof thing.subscribe !== 'function') {
-    throw new Error('Stream function should always return an Rx.Observable.');
+class InjectableSubject extends Rx.ReplaySubject {
+  constructor(definitionFn) {
+    super(1);
+    this.definitionFn = definitionFn;
   }
-}
+  inject() {
+    this.onNext(this.definitionFn.apply(null, arguments));
 
-function replicate(source, subject) {
-  return source.subscribe(subject.asObserver());
-}
-
-function replicateAllInteraction$(input, proxy) {
-  let subscriptions = new Rx.CompositeDisposable();
-  let selectors = proxy._interaction$;
-  for (let selector in selectors) { if (selectors.hasOwnProperty(selector)) {
-    let elemEvents = selectors[selector];
-    for (let eventName in elemEvents) { if (elemEvents.hasOwnProperty(eventName)) {
-      let event$ = input.choose(selector, eventName);
-      if (event$ !== null) {
-        let subscription = replicate(event$, elemEvents[eventName]);
-        subscriptions.add(subscription);
-      }
-    }}
-  }}
-  return subscriptions;
-}
-
-function replicateAll(input, proxy) {
-  if (!input || !proxy) { return; }
-
-  if (typeof input.choose === 'function') {
-    return replicateAllInteraction$(input, proxy);
-  } else if (typeof input.subscribe === 'function' && proxy.type === 'InputProxy') {
-    return replicate(input, proxy);
-  } else {
-    throw new Error('Cycle Stream got injected with invalid inputs.');
-  }
-}
-
-function makeInjectFn(stream) {
-  return function inject() {
-    if (stream._wasInjected) {
-      console.warn('Stream has already been injected an input.');
-    }
-    if (stream._definitionFn.length !== arguments.length) {
-      console.warn('The call to inject() should provide the inputs that this ' +
-      'Stream expects according to its definition function.');
-    }
-    for (let i = 0; i < stream._definitionFn.length; i++) {
-      let subscription = replicateAll(arguments[i], stream._proxies[i]);
-      stream._subscription.add(subscription);
-    }
-    stream._wasInjected = true;
     if (arguments.length === 1) {
       return arguments[0];
-    } else if (arguments.length > 1) {
+    }
+    if (arguments.length > 1) {
       return Array.prototype.slice.call(arguments);
-    } else {
-      return null;
     }
-  };
-}
-
-function makeDisposeFn(stream) {
-  return function dispose() {
-    if (stream._subscription && typeof stream._subscription.dispose === 'function') {
-      stream._subscription.dispose();
-    }
-  };
+  }
 }
 
 function createStream(definitionFn) {
@@ -80,28 +26,24 @@ function createStream(definitionFn) {
     throw new Error('Cannot use `new` on `createStream()`, it is not a constructor.');
   }
 
-  let proxies = [];
-  for (let i = 0; i < definitionFn.length; i++) {
-    proxies[i] = new InputProxy();
-  }
-  let stream = definitionFn.apply({}, proxies);
-  throwIfNotObservable(stream);
-  stream._proxies = proxies;
-  stream._definitionFn = definitionFn;
-  stream._wasInjected = false;
-  stream._subscription = new Rx.CompositeDisposable();
-  stream.inject = makeInjectFn(stream);
-  stream.dispose = makeDisposeFn(stream);
-  return stream;
+  var subject = new InjectableSubject(definitionFn);
+  var observable = subject.flatMap(function flattenStream(obj) {
+    // isObservable
+    if (obj && typeof obj.subscribe === 'function') {
+      return obj;
+    }
+    return [obj];
+  });
+
+  observable.inject = function inject() {
+    return subject.inject.apply(subject, arguments);
+  };
+  observable.dispose = function dispose() {
+    return subject.dispose.call(subject);
+  };
+  // TODO: Add all other instance methods from observer and subject
+
+  return observable;
 }
 
-module.exports = {
-  throwIfNotObservable,
-  replicate,
-  replicateAllInteraction$,
-  replicateAll,
-  makeInjectFn,
-  makeDisposeFn,
-
-  createStream
-};
+module.exports = createStream;
