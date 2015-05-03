@@ -2,7 +2,7 @@
 /* global describe, it */
 let assert = require('assert');
 let Rx = require('rx');
-let createStream = require('../../src/stream2');
+let createStream = require('../../src/stream');
 
 describe('createStream', function () {
   it('should throw an error when given no arguments', function () {
