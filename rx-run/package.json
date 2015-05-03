@@ -26,8 +26,7 @@
     "babel": "5.1.x",
     "babelify": "6.0.x",
     "browserify": "9.0.8",
-    "jscs": "1.12.x",
-    "jshint": "2.7.x",
+    "eslint": "^0.20.0",
     "markdox": "0.1.8",
     "mocha": "2.2.4",
     "testem": "0.8.2",
@@ -37,8 +36,7 @@
     "node": ">=0.10.0"
   },
   "scripts": {
-    "jshint": "jshint src/",
-    "jscs": "jscs src/",
+    "eslint": "eslint --rulesdir eslint-rules src/",
     "test-common": "mocha --compilers js:babel/register test/common",
     "pretest-onlynode": "mkdir -p test/node",
     "test-onlynode": "mocha --compilers js:babel/register test/node",
