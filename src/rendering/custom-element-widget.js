@@ -22,18 +22,20 @@ function makeDispatchFunction(element, eventName) {
 function subscribeDispatchers(element, eventStreams) {
   if (!eventStreams || typeof eventStreams !== 'object') { return; }
 
-  var disposables = new Rx.CompositeDisposable();
-  for (let streamName in eventStreams) { if (eventStreams.hasOwnProperty(streamName)) {
-    if (streamName.endsWith('$') &&
-      typeof eventStreams[streamName].subscribe === 'function')
-    {
-      let eventName = streamName.slice(0, -1);
-      let disposable = eventStreams[streamName].subscribe(
-        makeDispatchFunction(element, eventName)
-      );
-      disposables.add(disposable);
+  let disposables = new Rx.CompositeDisposable();
+  for (let streamName in eventStreams) {
+    if (eventStreams.hasOwnProperty(streamName)) {
+      if (streamName.endsWith('$') &&
+        typeof eventStreams[streamName].subscribe === 'function')
+      {
+        let eventName = streamName.slice(0, -1);
+        let disposable = eventStreams[streamName].subscribe(
+          makeDispatchFunction(element, eventName)
+        );
+        disposables.add(disposable);
+      }
     }
-  }}
+  }
   return disposables;
 }
 
