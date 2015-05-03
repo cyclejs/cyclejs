@@ -1,13 +1,28 @@
 'use strict';
 let VirtualDOM = require('virtual-dom');
 let Rx = require('rx');
-let createStream2 = require('./stream2');
+let createStream = require('./stream');
 let PropertyHook = require('./property-hook');
 let CustomElements = require('./rendering/custom-element-widget');
 let RenderingDOM = require('./rendering/render');
+let applyToDOM = require('./rendering/apply-to-dom');
 
 var Cycle = {
-  createStream: createStream2,
+  /**
+   * Creates a Cycle Stream defined by `definitionFn`. A Stream is a subclass of
+   * Rx.Observable and implements "Injectable", so it contains the function
+   * `inject(...inputs)`. This function will synchronously return the same Observable as
+   * `definitionFn` returns (think IIFE: immediately-invoked function expression), but
+   * will use proxy inputs created internally. You should supply the real inputs later
+   * with inject(), and the proxy inputs will imitate the behavior of the real inputs.
+   *
+   * @param {Function} definitionFn a function taking Observables as input and outputting
+   * one Rx.Observable.
+   * @return {Rx.Observable} a Stream as defined by the return of `definitionFn`.
+   * @function createStream
+   */
+  createStream: createStream,
+
   /**
    * Renders an Observable of virtual DOM elements (`vtree$`) into the DOM element
    * indicated by `container`, which can be either a CSS selector or an actual element.
@@ -38,9 +53,13 @@ var Cycle = {
    * the virtual DOM element.
    * @function renderAsHTML
    */
+  // TODO: implementation
   // renderAsHTML: RenderingHTML.renderAsHTML,
 
+  // TODO: documentation
   CustomElementsRegistry: CustomElements.CustomElementsRegistry,
+  // TODO: documentation
+  applyToDOM: applyToDOM,
 
   /**
    * Returns a hook for manipulating an element from the real DOM. This is a helper for
