@@ -1,37 +1,48 @@
-var manyIntent = (function () {
-  var addItem$ = Cycle.createStream(function (interaction$) {
-    return Cycle.Rx.Observable.merge(
-      interaction$.choose('.add-one-btn', 'click').map(function () { return 1; }),
-      interaction$.choose('.add-many-btn', 'click').map(function () { return 1000; })
-    );
-  });
+function manyIntentFactory() {
+  var Subject = Cycle.Rx.Subject;
 
-  var changeColor$ = Cycle.createStream(function (interaction$) {
-    return interaction$.choose('.item', 'changeColor')
-      .map(function (ev) { return ev.data; });
-  });
+  var addOneBtnClick$ = new Subject();
+  var addManyBtnClick$ = new Subject();
+  var addItem$ = Cycle.Rx.Observable.merge(
+    addOneBtnClick$.map(function () { return 1; }),
+    addManyBtnClick$.map(function () { return 1000; })
+  );
 
-  var changeWidth$ = Cycle.createStream(function (interaction$) {
-    return interaction$.choose('.item', 'changeWidth')
-      .map(function (ev) { return ev.data; });
-  });
+  var changeColorSource$ = new Subject();
+  var changeColor$ = changeColorSource$
+    .map(function (ev) { return ev.data; });
 
-  var removeItem$ = Cycle.createStream(function (interaction$) {
-    return interaction$.choose('.item', 'destroy')
-      .map(function (ev) { return ev.data; });
-  });
+  var changeWidthSource$ = new Subject();
+  var changeWidth$ = changeWidthSource$
+    .map(function (ev) { return ev.data; });
+
+  var removeItemSource$ = new Subject();
+  var removeItem$ = removeItemSource$
+    .map(function (ev) { return ev.data; });
+
+  function interactionChooser(interactions) {
+    interactions.choose('.add-one-btn', 'click')
+      .multicast(addOneBtnClick$)
+      .connect();
+    interactions.choose('.add-many-btn', 'click')
+      .multicast(addManyBtnClick$)
+      .connect();
+    interactions.choose('.item', 'changeColor')
+      .multicast(changeColorSource$)
+      .connect();
+    interactions.choose('.item', 'changeWidth')
+      .multicast(changeWidthSource$)
+      .connect();
+    interactions.choose('.item', 'destroy')
+      .multicast(removeItemSource$)
+      .connect();
+  }
 
   return {
     addItem$: addItem$,
     changeColor$: changeColor$,
     changeWidth$: changeWidth$,
     removeItem$: removeItem$,
-    inject: function inject(user) {
-      addItem$.inject(user.interaction$);
-      changeColor$.inject(user.interaction$);
-      changeWidth$.inject(user.interaction$);
-      removeItem$.inject(user.interaction$);
-      return user;
-    }
+    interactionChooser: interactionChooser
   };
-})();
+}

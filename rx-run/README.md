@@ -1,3 +1,38 @@
+## Diff
+
+- **Removed dependency of stream for rendering**
+- Refactored all tests and all passed
+- 2x performance improvement in the "many" example
+- Cycle.render now returns a ConnectableObservable and the actual rendering
+  happens after the invocation of connect
+- Renamed interaction$ to interactions because it is not an observable
+- Cycle.registerCustomElement has been removed and now we
+  have CustomElementsRegistry
+- Definition of custom-elements is no longer global and has to be provided to
+  render method by using CustomElementsRegistry
+- Properties observable for custom-element is no longer filtered
+  by distinctUntilChanged
+- Events for custom-elements must catch errors properly or the exception will
+  be thrown globally
+- Removed circular reference between custom-element-widget and render
+- Solved all shareReplay workarounds for tests
+- Removed dependencies of "es6-map" and "string.prototype.endswith"
+- Added a new dependency "xtend"
+- "render-html" has not been implemented yet
+- Proposal: choose() uses querySelector instead of querySelectorAll, and add
+  chooseAll() using querySelectorAll
+
+Examples in this README have been rewritten to be compatible with this fork.
+
+The "many" example has also been rewritten.
+
+## Why no Stream?
+
+Stream has been put back. While it is still not required for implementing
+renderer and for one using Cycle(modified).
+
+## .
+
 <h1>
 <img src="https://raw.github.com/staltz/cycle/master/logo.png" /> Cycle.js
 </h1>
@@ -11,23 +46,23 @@ DOM Rendering.
   data production from data consumption. As result, apps in Cycle have nothing comparable
   to imperative calls such as `setState()`, `forceUpdate()`, `replaceProps()`,
   `handleClick()`, etc.
-* **Unidirectional Dataflow**: Cycle is essentially a tool to build circularly dependent 
+* **Unidirectional Dataflow**: Cycle is essentially a tool to build circularly dependent
   event streams. This enables any circular unidirectional architecture to be built easily.
   In particular, the Model-View-User-Intent architecture is easy to build with Cycle: data
   moves from Model to View, graphics move from View to User, User generates interaction
   events, Intent interprets those events as "user intentions", and these are fed to the
-  Model. Model handles information, View handles display, User is yourself, and Intent 
-  handles interaction. They are tied together as a circular loop, each one reacting to 
+  Model. Model handles information, View handles display, User is yourself, and Intent
+  handles interaction. They are tied together as a circular loop, each one reacting to
   the preceding, but none is manipulating the others.
 * **Functions, not classes**: each object in the circular architecture is an event stream.
   Model, View, User and Intent are simply functions over event streams. These are the only
   concepts needed for building applications. Pure functional composition is the tool for
-  creating architectures in Cycle. Functions also facilitate automating tests, and allow 
+  creating architectures in Cycle. Functions also facilitate automating tests, and allow
   for a JavaScript programming style without the pitfalling `this`.
 * **Virtual DOM Rendering**: Views re-render completely whenever Models emit any data.
   The use of [virtual-dom](https://github.com/Matt-Esch/virtual-dom) keeps performance
   fast by patching the actual DOM with only the minimum necessary changes.
-* **Isomorphic**: there is just one more function you need to know in order to do 
+* **Isomorphic**: there is just one more function you need to know in order to do
   server-side rendering. Otherwise [it's pretty simple and straightforward](https://github.com/staltz/cycle/releases/tag/v0.20.4).
 * **Work in progress**: API design is the current priority and might significantly evolve,
   performance and other issues are left aside before this gets stable.
@@ -46,7 +81,7 @@ import Cycle from 'cyclejs';
 let {Rx, h} = Cycle;
 
 let name$ = Cycle.createStream(function model(changeName$) {
-  return Rx.Observable.just('').merge(changeName$);
+  return changeName$.startWith('');
 });
 
 let vtree$ = Cycle.createStream(function view(name$) {
@@ -59,21 +94,21 @@ let vtree$ = Cycle.createStream(function view(name$) {
   );
 });
 
-let interaction$ = Cycle.createStream(function user(vtree$) {
-  return Cycle.render(vtree$, '.js-container').interaction$;
+let changeName$ = Cycle.createStream(function intent(interactions) {
+  return interactions.choose('.field', 'input').map(ev => ev.target.value);
 });
 
-let changeName$ = Cycle.createStream(function intent(interaction$) {
-  return interaction$.choose('.field', 'input').map(ev => ev.target.value);
-});
+let reactiveNode = Cycle.render(vtree$, '.js-container');
 
-name$.inject(changeName$).inject(interaction$).inject(vtree$).inject(name$);
+vtree$.inject(name$).inject(changeName$).inject(reactiveNode.interactions);
+
+reactiveNode.connect();
 ```
 
 Notice that each of the 4 streams takes its preceding neighbour stream as input, hence the
 circularly-dependent streams. Model, View, and Intent are functions. The User is also a
-function: it takes vtree$ as input, renders them to the DOM into `.js-container`, and 
-outputs interaction event streams that can be accessed through 
+function: it takes vtree$ as input, renders them to the DOM into `.js-container`, and
+outputs interaction event streams that can be accessed through
 `interaction$.choose(selector, eventName)`. At the bottom, `inject()` ties everything
 together, pointing each stream to its appropriate input.
 
@@ -84,24 +119,24 @@ to 4 streams and 4 functions. In fact, the code above can be refactored to be mo
 import Cycle from 'cyclejs';
 let {Rx, h} = Cycle;
 
-let vtree$ = Cycle.createStream(function computer(interaction$) {
-  return interaction$.choose('.field', 'input')
-    .map(ev => ev.target.value)
-    .startWith('')
-    .map(name =>
-      h('div', [
-        h('label', 'Name:'),
-        h('input.field', {attributes: {type: 'text'}}),
-        h('h1.header', `Hello ${name}`)
-      ])
-    );
-});
+let changeNameSource$ = new Rx.Subject();
+let vtree$ = changeNameSource$
+  .map(ev => ev.target.value)
+  .startWith('')
+  .map(name => h('div', [
+    h('label', 'Name:'),
+    h('input.field', {attributes: {type: 'text'}}),
+    h('h1.header', `Hello ${name}`)
+  ]));
 
-let interaction$ = Cycle.createStream(function user(vtree$) {
-  return Cycle.render(vtree$, '.js-container').interaction$;
-});
-
-interaction$.inject(vtree$).inject(interaction$);
+let reactiveNode = Cycle.render(vtree$, '.js-container');
+// multicast interactions to changeNameSource$
+reactiveNode.interactions
+  .choose('.field', 'input')
+  .multicast(changeNameSource$)
+  .connect();
+// trigger the subscription of rendering
+reactiveNode.connect();
 ```
 
 For advanced examples, check out [TodoMVC implemented in Cycle.js](https://github.com/staltz/todomvc-cycle) and [RxMarbles](https://github.com/staltz/rxmarbles).
@@ -116,15 +151,15 @@ or
 
 ## Learn more
 
-Model-View-User-Intent is an architecture similar to Flux, and Virtual DOM Rendering is 
-inspired by React, however there are several differences worth paying attention. Read the 
+Model-View-User-Intent is an architecture similar to Flux, and Virtual DOM Rendering is
+inspired by React, however there are several differences worth paying attention. Read the
 [seminal blog post that lead to the creation of Cycle.js](http://futurice.com/blog/reactive-mvc-and-the-virtual-dom).
-One can create any type of circular architecture, including variants of Flux where Store, 
+One can create any type of circular architecture, including variants of Flux where Store,
 Controller-View, and Action are functions, similarly to Model-View-User-Intent.
 
 Cycle.js has [virtual-dom](https://github.com/Matt-Esch/virtual-dom) and [RxJS](https://github.com/Reactive-Extensions/RxJS)
-as hard dependencies. It is a small "glue" framework providing helpers for building 
-circular architectures properly with those technologies. Cycle.js's code itself is still 
+as hard dependencies. It is a small "glue" framework providing helpers for building
+circular architectures properly with those technologies. Cycle.js's code itself is still
 under 600 lines of code only.
 
 ## Why?
@@ -146,7 +181,7 @@ Here are a couple of strong reasons:
   to what you expect, a View in Cycle.js does not directly render anything to the browser.
   Instead, it just outputs virtual DOM elements. This allows for testing without depending
   on the DOM, besides other benefits such as being able to hypothetically swap the DOM
-  renderer with a Canvas renderer or a Cocoa UI tree renderer or whatever other target 
+  renderer with a Canvas renderer or a Cocoa UI tree renderer or whatever other target
   you wish.
 - **Great unit testability.** Everything is a JavaScript function or an Rx.Observable,
   so testing is mostly a matter of feeding input and inspecting the output.
