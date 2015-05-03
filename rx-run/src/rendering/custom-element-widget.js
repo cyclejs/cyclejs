@@ -62,19 +62,19 @@ function createWidgetClass(tagName, definitionFn, registry) {
     throwIfVTreeHasPropertyChildren(vtree);
     this.key = vtree.key;
     this.vtree = vtree;
-    this.subscriptions = null;
-    this.vtreeSubject$ = null;
+    this.disposables = null;
+    this.propsSubject$ = null;
   }
   ObservableWidget.prototype.type = 'Widget';
   ObservableWidget.prototype.init = function init() {
     let props = extend(this.vtree.properties, {
       children: this.vtree.children
     });
-    this.subscriptions = new Rx.CompositeDisposable();
-    this.vtreeSubject$ = new Rx.BehaviorSubject(props);
+    this.disposables = new Rx.CompositeDisposable();
+    this.propsSubject$ = new Rx.BehaviorSubject(props);
     let rootElemProxy$ = new Rx.Subject();
     let interactions = makeInteraction(rootElemProxy$);
-    let customElement = definitionFn(this.vtreeSubject$, interactions);
+    let customElement = definitionFn(this.propsSubject$, interactions);
 
     throwIfInvalidCustomElementDefinition(customElement);
 
@@ -91,33 +91,35 @@ function createWidgetClass(tagName, definitionFn, registry) {
           throw new Error(eventName + ' must be an Observable object.');
         }
         let onNext = makeDispatchFunction(container, eventName.replace(/\$$/, ''));
-        this.subscriptions.add(event$.subscribe(onNext));
+        this.disposables.add(event$.subscribe(onNext));
       }
     }
 
-    this.subscriptions.add(reactiveNode
+    this.disposables.add(reactiveNode
       .rootElem$
       .multicast(rootElemProxy$)
       .connect());
-    this.subscriptions.add(reactiveNode.connect());
+    this.disposables.add(reactiveNode.connect());
+    this.disposables.add(this.propsSubject$);
+    this.disposables.add(rootElemProxy$);
 
     return container;
   };
   ObservableWidget.prototype.update = function update(previous) {
-    this.vtreeSubject$ = previous.vtreeSubject$;
-    if (this.vtreeSubject$) {
+    this.propsSubject$ = previous.propsSubject$;
+    if (this.propsSubject$) {
       let props = extend(this.vtree.properties, {
         children: this.vtree.children
       });
-      this.vtreeSubject$.onNext(props);
+      this.propsSubject$.onNext(props);
     }
   };
   ObservableWidget.prototype.destroy = function destroy() {
-    if (this.vtreeSubject$) {
-      this.vtreeSubject$.onCompleted();
+    if (this.propsSubject$) {
+      this.propsSubject$.onCompleted();
     }
-    if (this.subscriptions) {
-      this.subscriptions.dispose();
+    if (this.disposables) {
+      this.disposables.dispose();
     }
   };
 
