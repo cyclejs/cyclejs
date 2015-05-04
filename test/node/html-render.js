@@ -20,9 +20,10 @@ describe('renderAsHTML()', function () {
   });
 
   it('should render a simple nested custom element as HTML', function (done) {
-    Cycle.registerCustomElement('myelement', function (rootElem$) {
-      let vtree$ = Rx.Observable.just(h('h3.myelementclass')).shareReplay(1);
-      rootElem$.inject(vtree$);
+    Cycle.registerCustomElement('myelement', function () {
+      return {
+        vtree$: Rx.Observable.just(h('h3.myelementclass'))
+      };
     });
     var vtree$ = Rx.Observable.just(
       h('div.test-element', [
@@ -41,15 +42,17 @@ describe('renderAsHTML()', function () {
   });
 
   it('should render double nested custom elements as HTML', function (done) {
-    Cycle.registerCustomElement('myelement', function (rootElem$) {
-      let vtree$ = Rx.Observable.just(h('h3.myelementclass')).shareReplay(1);
-      rootElem$.inject(vtree$);
+    Cycle.registerCustomElement('myelement', function () {
+      return {
+        vtree$: Rx.Observable.just(h('h3.myelementclass'))
+      };
     });
-    Cycle.registerCustomElement('nice-element', function (rootElem$) {
-      let vtree$ = Rx.Observable.just(h('div.a-nice-element', [
-        String('foobar'), h('myelement')
-      ])).shareReplay(1);
-      rootElem$.inject(vtree$);
+    Cycle.registerCustomElement('nice-element', function () {
+      return {
+        vtree$: Rx.Observable.just(h('div.a-nice-element', [
+          String('foobar'), h('myelement')
+        ]))
+      };
     });
     var vtree$ = Rx.Observable.just(h('div.test-element', [h('nice-element')]));
     let html$ = Cycle.renderAsHTML(vtree$);
@@ -64,11 +67,11 @@ describe('renderAsHTML()', function () {
   });
 
   it('should render a nested custom element with props as HTML', function (done) {
-    Cycle.registerCustomElement('myelement', function (rootElem$, props) {
-      let vtree$ = props.get('foobar$')
-        .map(foobar => h('h3.myelementclass', String(foobar).toUpperCase()))
-        .shareReplay(1);
-      rootElem$.inject(vtree$);
+    Cycle.registerCustomElement('myelement', function (interactions, props) {
+      return {
+        vtree$: props.get('foobar')
+          .map(foobar => h('h3.myelementclass', String(foobar).toUpperCase()))
+      };
     });
     var vtree$ = Rx.Observable.just(
       h('div.test-element', [
@@ -87,13 +90,15 @@ describe('renderAsHTML()', function () {
   });
 
   it('should render a complex custom element tree as HTML', function (done) {
-    Cycle.registerCustomElement('x-foo', function (rootElem$) {
-      let vtree$ = Rx.Observable.just(h('h1.fooclass')).shareReplay(1);
-      rootElem$.inject(vtree$);
+    Cycle.registerCustomElement('x-foo', function () {
+      return {
+        vtree$: Rx.Observable.just(h('h1.fooclass'))
+      };
     });
-    Cycle.registerCustomElement('x-bar', function (rootElem$) {
-      let vtree$ = Rx.Observable.just(h('h2.barclass')).shareReplay(1);
-      rootElem$.inject(vtree$);
+    Cycle.registerCustomElement('x-bar', function () {
+      return {
+        vtree$: Rx.Observable.just(h('h2.barclass'))
+      };
     });
     var vtree$ = Rx.Observable.just(
       h('.test-element', [

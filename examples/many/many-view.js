@@ -1,4 +1,4 @@
-function manyViewFactory(manyModel) {
+function manyView(items$) {
   var h = Cycle.h;
 
   function vrenderPerfButton() {
@@ -9,7 +9,7 @@ function manyViewFactory(manyModel) {
       var t1 = performance.now();
       console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
     }
-    return h('button.perf-btn', { onclick: run }, 'Benchmark');
+    return h('button.perf-btn', {onclick: run}, 'Benchmark');
   }
 
   function vrenderTopButtons() {
@@ -21,7 +21,7 @@ function manyViewFactory(manyModel) {
   }
 
   function vrenderItem(itemData) {
-    return h('item.item', {
+    return h('many-item.item', {
       itemid: itemData.id,
       color:  itemData.color,
       width:  itemData.width,
@@ -29,15 +29,11 @@ function manyViewFactory(manyModel) {
     });
   }
 
-  var vtree$ = manyModel.items$
+  return items$
     .map(function (itemsData) {
       return h('div.everything', {}, [
         vrenderTopButtons(),
         itemsData.map(vrenderItem)
       ]);
     });
-
-  return {
-    vtree$: vtree$
-  }
 }

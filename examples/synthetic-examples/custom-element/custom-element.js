@@ -1,166 +1,55 @@
 var h = Cycle.h;
 var Rx = Cycle.Rx;
 
-Cycle.registerCustomElement('ticker', function (rootElem$, props) {
-  var model = (function () {
-    var color$ = Cycle.createStream(function (color$, stop$) {
-      return Rx.Observable.merge(
-        color$.takeUntil(stop$),
-        stop$.map(function () { return '#FF0000'; })
-      );
-    });
-
-    var x$ = Cycle.createStream(function (stop$) {
-      return Rx.Observable.interval(50).startWith(0).takeUntil(stop$);
-    });
-    var y$ = Cycle.createStream(function (stop$) {
-      return Rx.Observable.interval(100).startWith(0).takeUntil(stop$);
-    });
-
-    return {
-      color$: color$,
-      x$: x$,
-      y$: y$,
-      inject: function inject(props, intent) {
-        color$.inject(props.get('color$'), intent.stop$);
-        x$.inject(intent.stop$);
-        y$.inject(intent.stop$);
-        return [props, intent];
-      }
-    };
-  })();
-
-  var view = (function () {
-    var vtree$ = Cycle.createStream(function (color$, x$, y$) {
-      return Rx.Observable.combineLatest(color$, x$, y$, function (color, x, y) {
-        return h('div.ticker', {
-          style: {color: color, backgroundColor: '#ECECEC'}
-        }, [
-          h('h4', 'x' + x + ' ' + color),
-          h('h1', 'Y' + y + ' ' + color),
-          h('button.remove-btn', {onclick: 'removeClick$'}, 'Remove')
-        ]);
-      });
-    });
-
-    return {
-      vtree$: vtree$,
-      inject: function inject(model) {
-        vtree$.inject(model.color$, model.x$, model.y$);
-        return model;
-      }
-    };
-  })();
-
-  var user = (function () {
-    return {
-      interaction$: rootElem$.interaction$,
-      inject: function inject(view) {
-        rootElem$.inject(view.vtree$);
-        return view;
-      }
-    };
-  })();
-
-  var intent = (function () {
-    var removeClicks$ = Cycle.createStream(function (interaction$) {
-      return interaction$.choose('.remove-btn', 'click');
-    });
-    var stop$ = removeClicks$.map(function () { return 'stop'; });
-    var remove$ = removeClicks$.map(function () { return 'remove'; }).delay(500);
-
-    return {
-      stop$: stop$,
-      remove$: remove$,
-      inject: function inject(user) {
-        removeClicks$.inject(user.interaction$);
-        return user;
-      }
-    };
-  })();
-
-  user.inject(view).inject(model).inject(props, intent)[1].inject(user);
-
-  return {
-    remove$: intent.remove$
-  };
-});
-
-var model = (function () {
-  function makeRandomColor() {
-    var hexColor = Math.floor(Math.random() * 16777215).toString(16);
-    while (hexColor.length < 6) {
-      hexColor = '0' + hexColor;
-    }
-    hexColor = '#' + hexColor;
-    return hexColor;
-  }
-
-  var color$ = Rx.Observable.interval(1000)
-    .map(makeRandomColor)
-    .startWith('#000000');
-
-  var tickerExists$ = Cycle.createStream(function (removeTicker$) {
-    return Rx.Observable.just(true)
-      .merge(removeTicker$.map(function () { return false; }));
-  });
-
-  return {
-    color$: color$,
-    tickerExists$: tickerExists$,
-    inject: function inject(intent) {
-      tickerExists$.inject(intent.removeTicker$);
-      return intent;
-    }
-  };
-})();
-
-var view = (function () {
-  var vtree$ = Cycle.createStream(function (color$, tickerExists$) {
-    return Rx.Observable.combineLatest(color$, tickerExists$,
-      function (color, tickerExists) {
-        return h('div#the-view', [
-          tickerExists ? h('ticker.ticker', {key: 1, color: color}) : null
-        ]);
-      }
-    );
+Cycle.registerCustomElement('ticker', function (interactions, props) {
+  var removeClicks$ = interactions.get('.remove-btn', 'click').share();
+  var stop$ = removeClicks$.map(function () { return 'stop'; });
+  var remove$ = removeClicks$.map(function () { return 'remove'; }).delay(500);
+  var color$ = Rx.Observable.merge(
+    props.get('color').takeUntil(stop$),
+    stop$.map(function () { return '#FF0000'; })
+  );
+  var x$ = Rx.Observable.interval(50).startWith(0).takeUntil(stop$);
+  var y$ = Rx.Observable.interval(100).startWith(0).takeUntil(stop$);
+  var vtree$ = Rx.Observable.combineLatest(color$, x$, y$, function (color, x, y) {
+    return h('div.ticker', {
+      style: {color: color, backgroundColor: '#ECECEC'}
+    }, [
+      h('h4', 'x' + x + ' ' + color),
+      h('h1', 'Y' + y + ' ' + color),
+      h('button.remove-btn', {onclick: 'removeClick$'}, 'Remove')
+    ]);
   });
 
   return {
     vtree$: vtree$,
-    inject: function inject(model) {
-      vtree$.inject(model.color$, model.tickerExists$);
-      return model;
-    }
+    remove$: remove$
   };
-})();
+});
 
-var user = (function () {
-  var interaction$ = Cycle.createStream(function (vtree$) {
-    return Cycle.render(vtree$, '.js-container').interaction$;
-  });
+function makeRandomColor() {
+  var hexColor = Math.floor(Math.random() * 16777215).toString(16);
+  while (hexColor.length < 6) {
+    hexColor = '0' + hexColor;
+  }
+  hexColor = '#' + hexColor;
+  return hexColor;
+}
 
-  return {
-    interaction$: interaction$,
-    inject: function inject(view) {
-      interaction$.inject(view.vtree$);
-      return view;
+function computer(interactions) {
+  var removeTicker$ = interactions.get('.ticker', 'remove');
+  var color$ = Rx.Observable.interval(1000)
+    .map(makeRandomColor)
+    .startWith('#000000');
+  var tickerExists$ = Rx.Observable.just(true)
+    .merge(removeTicker$.map(function () { return false; }));
+  return Rx.Observable.combineLatest(color$, tickerExists$,
+    function (color, tickerExists) {
+      return h('div#the-view', [
+        tickerExists ? h('ticker.ticker', {key: 1, color: color}) : null
+      ]);
     }
-  };
-})();
+  );
+}
 
-var intent = (function () {
-  var removeTicker$ = Cycle.createStream(function (interaction$) {
-    return interaction$.choose('.ticker', 'remove');
-  });
-
-  return {
-    removeTicker$: removeTicker$,
-    inject: function inject(user) {
-      removeTicker$.inject(user.interaction$);
-      return user;
-    }
-  };
-})();
-
-user.inject(view).inject(model).inject(intent).inject(user);
+Cycle.applyToDOM('.js-container', computer);
