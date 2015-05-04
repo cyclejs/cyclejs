@@ -1,48 +1,21 @@
-function manyIntentFactory() {
-  var Subject = Cycle.Rx.Subject;
-
-  var addOneBtnClick$ = new Subject();
-  var addManyBtnClick$ = new Subject();
+function manyIntent(interactions) {
+  var addOneBtnClick$ = interactions.get('.add-one-btn', 'click');
+  var addManyBtnClick$ = interactions.get('.add-many-btn', 'click');
   var addItem$ = Cycle.Rx.Observable.merge(
     addOneBtnClick$.map(function () { return 1; }),
     addManyBtnClick$.map(function () { return 1000; })
   );
-
-  var changeColorSource$ = new Subject();
-  var changeColor$ = changeColorSource$
+  var changeColor$ = interactions.get('.item', 'changeColor')
     .map(function (ev) { return ev.data; });
-
-  var changeWidthSource$ = new Subject();
-  var changeWidth$ = changeWidthSource$
+  var changeWidth$ = interactions.get('.item', 'changeWidth')
     .map(function (ev) { return ev.data; });
-
-  var removeItemSource$ = new Subject();
-  var removeItem$ = removeItemSource$
+  var removeItem$ = interactions.get('.item', 'destroy')
     .map(function (ev) { return ev.data; });
-
-  function interactionChooser(interactions) {
-    interactions.choose('.add-one-btn', 'click')
-      .multicast(addOneBtnClick$)
-      .connect();
-    interactions.choose('.add-many-btn', 'click')
-      .multicast(addManyBtnClick$)
-      .connect();
-    interactions.choose('.item', 'changeColor')
-      .multicast(changeColorSource$)
-      .connect();
-    interactions.choose('.item', 'changeWidth')
-      .multicast(changeWidthSource$)
-      .connect();
-    interactions.choose('.item', 'destroy')
-      .multicast(removeItemSource$)
-      .connect();
-  }
 
   return {
     addItem$: addItem$,
     changeColor$: changeColor$,
     changeWidth$: changeWidth$,
-    removeItem$: removeItem$,
-    interactionChooser: interactionChooser
+    removeItem$: removeItem$
   };
 }

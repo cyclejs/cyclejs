@@ -1,4 +1,4 @@
-function manyModelFactory(manyIntent) {
+function manyModel(intentions) {
   function createRandomItem() {
     var hexColor = Math.floor(Math.random() * 16777215).toString(16);
     while (hexColor.length < 6) {
@@ -13,7 +13,7 @@ function manyModelFactory(manyIntent) {
     return {id: index, color: item.color, width: item.width};
   }
 
-  var addItemMod$ = manyIntent.addItem$.map(function (amount) {
+  var addItemMod$ = intentions.addItem$.map(function (amount) {
     var newItems = [];
     for (var i = 0; i < amount; i++) {
       newItems.push(createRandomItem());
@@ -23,36 +23,32 @@ function manyModelFactory(manyIntent) {
     };
   });
 
-  var removeItemMod$ = manyIntent.removeItem$.map(function (id) {
+  var removeItemMod$ = intentions.removeItem$.map(function (id) {
     return function (listItems) {
       return listItems.filter(function (item) { return item.id !== id; })
         .map(reassignId);
     };
   });
 
-  var colorChangedMod$ = manyIntent.changeColor$.map(function (x) {
+  var colorChangedMod$ = intentions.changeColor$.map(function (x) {
     return function (listItems) {
       listItems[x.id].color = x.color;
       return listItems;
     };
   });
 
-  var widthChangedMod$ = manyIntent.changeWidth$.map(function (x) {
+  var widthChangedMod$ = intentions.changeWidth$.map(function (x) {
     return function (listItems) {
       listItems[x.id].width = x.width;
       return listItems;
     };
   });
 
-  var items$ = Cycle.Rx.Observable.merge(
+  return Cycle.Rx.Observable.merge(
       addItemMod$, removeItemMod$, colorChangedMod$, widthChangedMod$
     )
     .startWith([{id: 0, color: 'red', width: 300}])
     .scan(function (listItems, modification) {
       return modification(listItems);
     });
-
-  return {
-    items$: items$
-  };
 }

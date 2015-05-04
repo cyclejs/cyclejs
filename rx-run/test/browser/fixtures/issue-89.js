@@ -2,17 +2,18 @@
 let Cycle = require('../../../src/cycle');
 let {Rx, h} = Cycle;
 
-function myelement(props$) {
+function myelement(interactions, props) {
   return {
-    vtree$: props$.map(props => {
-      console.log(props.content);
-      return h('h3.myelementclass', String(props.content));
-    })
+    vtree$: props.get('content')
+      .map(content => h('h3.myelementclass', content))
   };
 }
 
 function makeModelNumber$() {
-  return Rx.Observable.of(123, 456).controlled();
+  return Rx.Observable.merge(
+    Rx.Observable.just(123).delay(50),
+    Rx.Observable.just(456).delay(400)
+  );
 }
 
 function viewWithContainerFn(number$) {

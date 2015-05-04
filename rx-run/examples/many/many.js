@@ -1,16 +1,5 @@
-var customElements = new Cycle.CustomElementsRegistry();
-customElements.registerCustomElement('item', manyComponent);
+Cycle.registerCustomElement('many-item', manyComponent);
 
-var manyIntent = manyIntentFactory();
-var manyModel = manyModelFactory(manyIntent);
-var manyView = manyViewFactory(manyModel);
-
-var reactiveNode = Cycle.render(
-  manyView.vtree$,
-  '.js-container',
-  customElements
-);
-
-manyIntent.interactionChooser(reactiveNode.interactions);
-
-reactiveNode.connect();
+Cycle.applyToDOM('.js-container', function computer(interactions) {
+  return manyView(manyModel(manyIntent(interactions)));
+});

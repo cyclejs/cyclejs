@@ -1,28 +1,13 @@
 'use strict';
 let VirtualDOM = require('virtual-dom');
 let Rx = require('rx');
-let createStream = require('./stream');
 let PropertyHook = require('./property-hook');
-let CustomElements = require('./rendering/custom-element-widget');
-let RenderingDOM = require('./rendering/render');
-let applyToDOM = require('./rendering/apply-to-dom');
+let CustomElements = require('./rendering/custom-elements');
+let RenderingDOM = require('./rendering/render-dom');
+let RenderingHTML = require('./rendering/render-html');
 
 var Cycle = {
-  /**
-   * Creates a Cycle Stream defined by `definitionFn`. A Stream is a subclass of
-   * Rx.Observable and implements "Injectable", so it contains the function
-   * `inject(...inputs)`. This function will synchronously return the same Observable as
-   * `definitionFn` returns (think IIFE: immediately-invoked function expression), but
-   * will use proxy inputs created internally. You should supply the real inputs later
-   * with inject(), and the proxy inputs will imitate the behavior of the real inputs.
-   *
-   * @param {Function} definitionFn a function taking Observables as input and outputting
-   * one Rx.Observable.
-   * @return {Rx.Observable} a Stream as defined by the return of `definitionFn`.
-   * @function createStream
-   */
-  createStream: createStream,
-
+  // TODO
   /**
    * Renders an Observable of virtual DOM elements (`vtree$`) into the DOM element
    * indicated by `container`, which can be either a CSS selector or an actual element.
@@ -40,7 +25,7 @@ var Cycle = {
    * rendering, with the property `interaction$` attached to it.
    * @function render
    */
-  render: RenderingDOM.render,
+  applyToDOM: RenderingDOM.applyToDOM,
 
   /**
    * Converts a given Observable of virtual DOM elements (`vtree$`) into an Observable
@@ -53,13 +38,24 @@ var Cycle = {
    * the virtual DOM element.
    * @function renderAsHTML
    */
-  // TODO: implementation
-  // renderAsHTML: RenderingHTML.renderAsHTML,
+  renderAsHTML: RenderingHTML.renderAsHTML,
 
-  // TODO: documentation
-  CustomElementsRegistry: CustomElements.CustomElementsRegistry,
-  // TODO: documentation
-  applyToDOM: applyToDOM,
+  /**
+   * Informs Cycle to recognize the given `tagName` as a custom element implemented
+   * as `dataFlowNode` whenever `tagName` is used in VTrees in a View rendered to a
+   * DOMUser.
+   * The given `dataFlowNode` must export a `vtree$` Observable. If the `dataFlowNode`
+   * expects Observable `foo$` as input, then the custom element's attribute named `foo`
+   * will be injected automatically into `foo$`.
+   *
+   * @param {String} tagName a name for identifying the custom element.
+   * @param {Function} definitionFn the implementation for the custom element. This
+   * function takes two arguments: `User`, and `Properties`. Use `User` to inject into an
+   * Intent and to be injected a View. `Properties` is a DataFlowNode containing
+   * observables matching the custom element properties.
+   * @function registerCustomElement
+   */
+  registerCustomElement: CustomElements.registerCustomElement,
 
   /**
    * Returns a hook for manipulating an element from the real DOM. This is a helper for

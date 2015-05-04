@@ -1,15 +1,11 @@
-var h = Cycle.h;
+'use strict';
 
-function model(refreshData$) {
-  return refreshData$
+function userInterface(interactions) {
+  return interactions.get('.box', 'click')
     .map(function () { return Math.round(Math.random() * 1000); })
-    .startWith(135);
-}
-
-function view(data$) {
-  return data$
+    .startWith(135)
     .map(function (data) {
-      return h('div.box', {
+      return Cycle.h('div.box', {
         style: {
           margin: '10px',
           background: '#ececec',
@@ -21,34 +17,5 @@ function view(data$) {
     });
 }
 
-function createUser(container) {
-  return function user(vtree$) {
-    return Cycle.render(vtree$, container).interaction$;
-  };
-}
-
-function intent(interaction$) {
-  return interaction$.choose('.box', 'click').map(function () { return 'x'; });
-}
-
-var fooName$ = Cycle.createStream(model);
-var fooVtree$ = Cycle.createStream(view);
-var fooInteraction$ = Cycle.createStream(createUser('.js-container1'));
-var fooChangeName$ = Cycle.createStream(intent);
-
-var barName$ = Cycle.createStream(model);
-var barVtree$ = Cycle.createStream(view);
-var barInteraction$ = Cycle.createStream(createUser('.js-container2'));
-var barChangeName$ = Cycle.createStream(intent);
-
-fooInteraction$
-  .inject(fooVtree$)
-  .inject(fooName$)
-  .inject(fooChangeName$)
-  .inject(fooInteraction$);
-
-barInteraction$
-  .inject(barVtree$)
-  .inject(barName$)
-  .inject(barChangeName$)
-  .inject(barInteraction$);
+Cycle.applyToDOM('.js-container1', userInterface);
+Cycle.applyToDOM('.js-container2', userInterface);
