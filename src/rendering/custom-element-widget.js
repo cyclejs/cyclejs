@@ -19,33 +19,31 @@ function makeDispatchFunction(element, eventName) {
 
 function subscribeDispatchers(element) {
   let {customEvents} = element.cycleCustomElementMetadata;
-  let disposables = new Rx.CompositeDisposable();
+  let dispatcherObservables = [];
   for (let streamName in customEvents) { if (customEvents.hasOwnProperty(streamName)) {
     if (/\$$/.test(streamName) &&
       streamName !== 'vtree$' &&
       typeof customEvents[streamName].subscribe === 'function')
     {
       let eventName = streamName.slice(0, -1);
-      let disposable = customEvents[streamName].subscribe(
+      let obs = customEvents[streamName].doOnNext(
         makeDispatchFunction(element, eventName)
       );
-      disposables.add(disposable);
+      dispatcherObservables.push(obs);
     }
   }}
-  return disposables;
+  return dispatcherObservables;
 }
 
 function subscribeDispatchersWhenRootChanges(metadata) {
-  metadata.rootElem$
+  return metadata.rootElem$
     .distinctUntilChanged(Rx.helpers.identity,
       (x, y) => (x && y && x.isEqualNode && x.isEqualNode(y))
     )
-    .subscribe(function (rootElem) {
-      if (metadata.eventDispatchingSubscription) {
-        metadata.eventDispatchingSubscription.dispose();
-      }
-      metadata.eventDispatchingSubscription = subscribeDispatchers(rootElem);
-    });
+    .flatMapLatest(function (rootElem) {
+      return Rx.Observable.merge(subscribeDispatchers(rootElem));
+    })
+    .subscribe();
 }
 
 function makePropertiesProxy() {
@@ -99,6 +97,8 @@ function makeConstructor() {
     this.properties.children = vtree.children;
     this.key = vtree.key;
     this.isCustomElementWidget = true;
+    this.disposable = null;
+    this.cycleCustomElementMetadata = null;
   };
 }
 
@@ -107,18 +107,24 @@ function makeInit(tagName, definitionFn) {
   return function initCustomElement() {
     //console.log('%cInit() custom element ' + tagName, 'color: #880088');
     let widget = this;
+    widget.disposable = new Rx.CompositeDisposable();
+
     let element = createContainerElement(tagName, widget.properties);
     let propertiesProxy = makePropertiesProxy();
     let domUI = applyToDOM(element, definitionFn, propertiesProxy);
     element.cycleCustomElementMetadata = {
       propertiesProxy,
       rootElem$: domUI.rootElem$,
-      customEvents: domUI.customEvents,
-      eventDispatchingSubscription: false
+      customEvents: domUI.customEvents
     };
-    element.eventDispatchingSubscription = subscribeDispatchers(element);
-    subscribeDispatchersWhenRootChanges(element.cycleCustomElementMetadata);
+    let eventDispatchingSubscription = subscribeDispatchersWhenRootChanges(
+      element.cycleCustomElementMetadata
+    );
     widget.update(null, element);
+
+    widget.disposable.add(domUI);
+    widget.disposable.add(eventDispatchingSubscription);
+
     return element;
   };
 }
@@ -141,6 +147,9 @@ function validatePropertiesProxyInMetadata(element, fnName) {
 
 function makeUpdate() {
   return function updateCustomElement(previous, element) {
+    if (previous) {
+      this.disposable = previous.disposable;
+    }
     validatePropertiesProxyInMetadata(element, 'update()');
 
     //console.log('%cupdate() custom element ' + element.className, 'color: #880088');
@@ -150,6 +159,17 @@ function makeUpdate() {
         proxiedProps[prop].onNext(this.properties[prop]);
       }
     }}
+  };
+}
+
+function makeDestroy() {
+  return function destroyCustomElement(element) {
+    let proxiedProps = element.cycleCustomElementMetadata.propertiesProxy;
+    for (let prop in proxiedProps) { if (proxiedProps.hasOwnProperty(prop)) {
+      this.disposable.add(proxiedProps[prop]);
+    }}
+
+    this.disposable.dispose();
   };
 }
 
@@ -164,5 +184,6 @@ module.exports = {
 
   makeConstructor,
   makeInit,
-  makeUpdate
+  makeUpdate,
+  makeDestroy
 };
