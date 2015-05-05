@@ -99,6 +99,7 @@ function makeConstructor() {
     this.properties.children = vtree.children;
     this.key = vtree.key;
     this.isCustomElementWidget = true;
+    this.rootElem$ = new Rx.ReplaySubject(1);
   };
 }
 
@@ -116,6 +117,7 @@ function makeInit(tagName, definitionFn) {
       customEvents: domUI.customEvents,
       eventDispatchingSubscription: false
     };
+    domUI.rootElem$.subscribe(widget.rootElem$.asObserver());
     element.eventDispatchingSubscription = subscribeDispatchers(element);
     subscribeDispatchersWhenRootChanges(element.cycleCustomElementMetadata);
     widget.update(null, element);

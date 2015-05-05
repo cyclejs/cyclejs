@@ -14020,23 +14020,6 @@ var RenderingDOM = require('./rendering/render-dom');
 var RenderingHTML = require('./rendering/render-html');
 
 var Cycle = {
-  /**
-   * Creates a Cycle Stream defined by `definitionFn`. A Stream is a subclass of
-   * Rx.Observable and implements "Injectable", so it contains the function
-   * `inject(...inputs)`. This function will synchronously return the same Observable as
-   * `definitionFn` returns (think IIFE: immediately-invoked function expression), but
-   * will use proxy inputs created internally. You should supply the real inputs later
-   * with inject(), and the proxy inputs will imitate the behavior of the real inputs.
-   *
-   * @param {Function} definitionFn a function taking Observables as input and outputting
-   * one Rx.Observable.
-   * @return {Rx.Observable} a Stream as defined by the return of `definitionFn`.
-   * @function createStream
-   */
-  //createStream: function createStream(definitionFn) {
-  //  return Stream.createStream(definitionFn);
-  //},
-
   // TODO
   /**
    * Renders an Observable of virtual DOM elements (`vtree$`) into the DOM element
@@ -14150,8 +14133,8 @@ var Rx = require('rx');
 
 function makeDispatchFunction(element, eventName) {
   return function dispatchCustomEvent(evData) {
-    //console.log('%cdispatchCustomEvent ' + eventName,
-    //  'background-color: #CCCCFF; color: black');
+    // TODO
+    console.log('%cdispatchCustomEvent ' + eventName, 'background-color: #CCCCFF; color: black');
     var event;
     try {
       event = new Event(eventName);
@@ -14233,8 +14216,8 @@ function throwIfVTreeHasPropertyChildren(vtree) {
 
 function makeConstructor() {
   return function customElementConstructor(vtree) {
-    //console.log('%cnew (constructor) custom element ' + vtree.tagName,
-    //  'color: #880088');
+    // TODO
+    console.log('%cnew (constructor) custom element ' + vtree.tagName, 'color: #880088');
     warnIfVTreeHasNoKey(vtree);
     throwIfVTreeHasPropertyChildren(vtree);
     this.type = 'Widget';
@@ -14286,7 +14269,8 @@ function makeUpdate() {
   return function updateCustomElement(previous, element) {
     validatePropertiesProxyInMetadata(element, 'update()');
 
-    //console.log('%cupdate() custom element ' + element.className, 'color: #880088');
+    // TODO
+    console.log('%cupdate() custom element ' + element.className, 'color: #880088');
     var proxiedProps = element.cycleCustomElementMetadata.propertiesProxy;
     for (var prop in proxiedProps) {
       if (proxiedProps.hasOwnProperty(prop)) {
@@ -14388,18 +14372,19 @@ function isElement(obj) {
 function fixRootElem$(rawRootElem$, domContainer) {
   // Create rootElem stream and automatic className correction
   var originalClasses = (domContainer.className || '').trim().split(/\s+/);
-  //console.log('%coriginalClasses: ' + originalClasses, 'color: lightgray');
+  // TODO
+  console.log('%coriginalClasses: ' + originalClasses, 'color: lightgray');
   return rawRootElem$.map(function fixRootElemClassName(rootElem) {
     var previousClasses = rootElem.className.trim().split(/\s+/);
     var missingClasses = originalClasses.filter(function (clss) {
       return previousClasses.indexOf(clss) < 0;
     });
-    //console.log('%cfixRootElemClassName(), missingClasses: ' + missingClasses,
-    //  'color: lightgray');
+    // TODO
+    console.log('%cfixRootElemClassName(), missingClasses: ' + missingClasses, 'color: lightgray');
     rootElem.className = previousClasses.concat(missingClasses).join(' ');
-    //console.log('%c  result: ' + rootElem.className, 'color: lightgray');
-    //console.log('%cEmit rootElem$ ' + rootElem.tagName + '.' + rootElem.className,
-    //  'color: #009988');
+    // TODO
+    console.log('%c  result: ' + rootElem.className, 'color: lightgray');
+    console.log('%cEmit rootElem$ ' + rootElem.tagName + '.' + rootElem.className, 'color: #009988');
     return rootElem;
   }).replay(null, 1);
 }
@@ -14448,16 +14433,19 @@ function makeDiffAndPatchToElement$(rootElem) {
 
     var arrayOfAll = getArrayOfAllWidgetRootElemStreams(newVTree);
     var rootElemAfterChildren$ = Rx.Observable.combineLatest(arrayOfAll, function () {
-      //console.log('%cEmit rawRootElem$ (1) ', 'color: #008800');
+      // TODO
+      console.log('%cEmit rawRootElem$ (1) ', 'color: #008800');
       return rootElem;
     }).first();
     var cycleCustomElementMetadata = rootElem.cycleCustomElementMetadata;
     try {
-      //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
-      //let k = isCustomElement ? ' is custom element ' : ' is top level';
-      //console.log('%cVDOM diff and patch START' + k, 'color: #636300');
+      // TODO
+      var isCustomElement = !!rootElem.cycleCustomElementMetadata;
+      var k = isCustomElement ? ' is custom element ' : ' is top level';
+      console.log('%cVDOM diff and patch START' + k, 'color: #636300');
       rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
-      //console.log('%cVDOM diff and patch END' + k, 'color: #636300');
+      // TODO
+      console.log('%cVDOM diff and patch END' + k, 'color: #636300');
     } catch (err) {
       console.error(err);
     }
@@ -14465,7 +14453,8 @@ function makeDiffAndPatchToElement$(rootElem) {
       rootElem.cycleCustomElementMetadata = cycleCustomElementMetadata;
     }
     if (arrayOfAll.length === 0) {
-      //console.log('%cEmit rawRootElem$ (2)', 'color: #008800');
+      // TODO
+      console.log('%cEmit rawRootElem$ (2)', 'color: #008800');
       return Rx.Observable.just(rootElem);
     } else {
       return rootElemAfterChildren$;
@@ -14501,26 +14490,29 @@ function makeInteractions(rootElem$) {
         throw new Error('interactions.get() expects second argument to be a ' + 'string representing the event type to listen for.');
       }
 
-      //console.log(`%cget("${selector}", "${eventName}")`, 'color: #0000BB');
+      // TODO
+      console.log('%cget("' + selector + '", "' + eventName + '")', 'color: #0000BB');
       return rootElem$.flatMapLatest(function flatMapDOMUserEventStream(rootElem) {
         if (!rootElem) {
           return Rx.Observable.empty();
         }
-        //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
-        //console.log('%cget("' + selector + '", "' + eventName + '") flatMapper' +
-        //  (isCustomElement ? ' for a custom element' : ' for top-level View'),
-        //  'color: #0000BB');
+        // TODO
+        var isCustomElement = !!rootElem.cycleCustomElementMetadata;
+        console.log('%cget("' + selector + '", "' + eventName + '") flatMapper' + (isCustomElement ? ' for a custom element' : ' for top-level View'), 'color: #0000BB');
         var klass = selector.replace('.', '');
         if (rootElem.className.search(new RegExp('\\b' + klass + '\\b')) >= 0) {
-          //console.log('%c  Good return. (A)', 'color:#0000BB');
+          // TODO
+          console.log('%c  Good return. (A)', 'color:#0000BB');
           return Rx.Observable.fromEvent(rootElem, eventName);
         }
         var targetElements = rootElem.querySelectorAll(selector);
         if (targetElements && targetElements.length > 0) {
-          //console.log('%c  Good return. (B)', 'color:#0000BB');
+          // TODO
+          console.log('%c  Good return. (B)', 'color:#0000BB');
           return Rx.Observable.fromEvent(targetElements, eventName);
         } else {
-          //console.log('%c  returning empty!', 'color: #0000BB');
+          // TODO
+          console.log('%c  returning empty!', 'color: #0000BB');
           return Rx.Observable.empty();
         }
       });
