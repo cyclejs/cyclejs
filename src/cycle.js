@@ -1,9 +1,9 @@
 'use strict';
 let VirtualDOM = require('virtual-dom');
 let Rx = require('rx');
-let CustomElements = require('./rendering/custom-elements');
-let RenderingDOM = require('./rendering/render-dom');
-let RenderingHTML = require('./rendering/render-html');
+let CustomElements = require('./custom-elements');
+let RenderingDOM = require('./render-dom');
+let RenderingHTML = require('./render-html');
 
 var Cycle = {
   // TODO
