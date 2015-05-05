@@ -17,10 +17,6 @@ describe('Cycle', function () {
       assert.strictEqual(typeof Cycle.registerCustomElement, 'function');
     });
 
-    it('should have `vdomPropHook`', function () {
-      assert.strictEqual(typeof Cycle.vdomPropHook, 'function');
-    });
-
     it('should have a shortcut to Rx', function () {
       assert.strictEqual(typeof Cycle.Rx, 'object');
     });
