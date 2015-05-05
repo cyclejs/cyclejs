@@ -41,6 +41,7 @@ function registerCustomElement(tagName, definitionFn) {
   WidgetClass.definitionFn = definitionFn;
   WidgetClass.prototype.init = CustomElementWidget.makeInit(tagName, definitionFn);
   WidgetClass.prototype.update = CustomElementWidget.makeUpdate();
+  WidgetClass.prototype.destroy = CustomElementWidget.makeDestroy();
   CustomElementsRegistry.set(tagName, WidgetClass);
 }
 
