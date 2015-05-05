@@ -83,15 +83,13 @@ function makeDiffAndPatchToElement$(rootElem) {
       })
       .first();
     let cycleCustomElementMetadata = rootElem.cycleCustomElementMetadata;
-    try {
-      //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
-      //let k = isCustomElement ? ' is custom element ' : ' is top level';
-      //console.log('%cVDOM diff and patch START' + k, 'color: #636300');
-      rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
-      //console.log('%cVDOM diff and patch END' + k, 'color: #636300');
-    } catch (err) {
-      console.error(err);
-    }
+
+    //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
+    //let k = isCustomElement ? ' is custom element ' : ' is top level';
+    //console.log('%cVDOM diff and patch START' + k, 'color: #636300');
+    rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
+    //console.log('%cVDOM diff and patch END' + k, 'color: #636300');
+
     if (!!cycleCustomElementMetadata) {
       rootElem.cycleCustomElementMetadata = cycleCustomElementMetadata;
     }
