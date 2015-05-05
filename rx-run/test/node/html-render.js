@@ -3,7 +3,7 @@
 let assert = require('assert');
 let Cycle = require('../../src/cycle');
 let {Rx, h} = Cycle;
-let CustomElements = require('../../src/rendering/custom-elements');
+let CustomElements = require('../../src/custom-elements');
 
 describe('renderAsHTML()', function () {
   beforeEach(function () {

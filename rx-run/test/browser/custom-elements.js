@@ -2,7 +2,7 @@
 /* global describe, it, beforeEach */
 let assert = require('assert');
 let Cycle = require('../../src/cycle');
-let CustomElements = require('../../src/rendering/custom-elements');
+let CustomElements = require('../../src/custom-elements');
 let {Rx, h} = Cycle;
 
 function createRenderTarget() {
