@@ -161,7 +161,24 @@ function makeInteractions(rootElem$) {
   };
 }
 
-// TODO refactor me
+function digestDefinitionFnOutput(output) {
+  let vtree$;
+  let customEvents = {};
+  if (typeof output.subscribe === 'function') {
+    vtree$ = output;
+  } else if (output.hasOwnProperty('vtree$') &&
+    typeof output.vtree$.subscribe === 'function')
+  {
+    vtree$ = output.vtree$;
+    customEvents = output;
+  } else {
+    throw new Error('definitionFn given to applyToDOM must return an ' +
+      'Observable of virtual DOM elements, or an object containing such ' +
+      'Observable named as `vtree$`');
+  }
+  return {vtree$, customEvents};
+}
+
 function applyToDOM(container, definitionFn, props = null) {
   // Find and prepare the container
   let domContainer = (typeof container === 'string') ?
@@ -177,20 +194,8 @@ function applyToDOM(container, definitionFn, props = null) {
   let rawRootElem$ = renderRawRootElem$(proxyVTree$$.mergeAll(), domContainer);
   let rootElem$ = fixRootElem$(rawRootElem$, domContainer);
   let interactions = makeInteractions(rootElem$);
-  let definitionOutput = definitionFn(interactions, props);
-  let vtree$;
-  let customEvents = {};
-  if (typeof definitionOutput.subscribe === 'function') {
-    vtree$ = definitionOutput;
-  } else if (definitionOutput.hasOwnProperty('vtree$')) {
-    vtree$ = definitionOutput.vtree$;
-    customEvents = definitionOutput;
-  } else {
-    // TODO test me
-    throw new Error('definitionFn given to applyToDOM must return an ' +
-      'Observable of virtual DOM elements, or an object containing such ' +
-      'Observable named as `vtree$`');
-  }
+  let output = definitionFn(interactions, props);
+  let {vtree$, customEvents} = digestDefinitionFnOutput(output);
   let subscription = rootElem$.connect();
   proxyVTree$$.onNext(vtree$.shareReplay(1));
   proxyVTree$$.onCompleted();
@@ -213,6 +218,7 @@ module.exports = {
   getRenderRootElem,
   renderRawRootElem$,
   makeInteractions,
+  digestDefinitionFnOutput,
 
   applyToDOM
 };
