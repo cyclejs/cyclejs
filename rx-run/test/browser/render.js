@@ -60,6 +60,12 @@ describe('Rendering', function () {
       }, /Cannot render into unknown element/);
     });
 
+    it('should throw if definitionFn returns bad output', function () {
+      assert.throws(function () {
+        Cycle.applyToDOM(createRenderTarget(), () => ({}));
+      }, /definitionFn given to applyToDOM must return an Observable of/);
+    });
+
     it('should not accept a number as input', function () {
       assert.throws(function () {
         Cycle.applyToDOM(123);
