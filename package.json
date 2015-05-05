@@ -16,6 +16,7 @@
   ],
   "main": "lib/cycle.js",
   "dependencies": {
+    "es6-map": "^0.1.1",
     "rx": "2.5.2",
     "vdom-to-html": "^2.0.0",
     "virtual-dom": "2.0.1"
