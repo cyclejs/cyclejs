@@ -383,4 +383,37 @@ describe('Custom Elements', function () {
       done();
     }, 500);
   });
+
+  it('should emit events even when dynamically evolving', function (done) {
+    // Make simple custom element
+    Cycle.registerCustomElement('myelement', function () {
+      // Here the vtree changes from <h3> to <button>, the myevent should
+      // be emitted on <button> and not from the original <h3>.
+      return {
+        vtree$: Rx.Observable.merge(
+          Rx.Observable.just(h('h3.myelementclass', 'foo')),
+          Rx.Observable.just(h('button.myelementclass', 'bar')).delay(50)
+        ),
+        myevent$: Rx.Observable.just(123).delay(300)
+      };
+    });
+    // Use the custom element
+    let vtree$ = Rx.Observable.just(
+      h('div.toplevel', [
+        h('myelement.eventsource', {key: 1})
+      ])
+    );
+    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
+    domUI.interactions.get('.eventsource', 'myevent').subscribe(function (x) {
+      debugger;
+      assert.strictEqual(x.data, 123);
+      domUI.dispose();
+      done();
+    });
+    // Make assertions
+    let myElement = document.querySelector('.myelementclass');
+    assert.notStrictEqual(myElement, null);
+    assert.notStrictEqual(typeof myElement, 'undefined');
+    assert.strictEqual(myElement.tagName, 'H3');
+  });
 });

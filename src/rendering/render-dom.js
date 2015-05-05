@@ -48,10 +48,9 @@ function replaceCustomElementsWithWidgets(vtree) {
   );
 }
 
-// TODO remove? obsolete? vtree._rootElem$ doesn't exist
 function getArrayOfAllWidgetRootElemStreams(vtree) {
-  if (vtree.type === 'Widget' && vtree._rootElem$) {
-    return [vtree._rootElem$];
+  if (vtree.type === 'Widget' && vtree.rootElem$) {
+    return [vtree.rootElem$];
   }
   // Or replace children recursively
   let array = [];
@@ -80,18 +79,13 @@ function makeDiffAndPatchToElement$(rootElem) {
       .combineLatest(arrayOfAll, () => {
         //console.log('%cEmit rawRootElem$ (1) ', 'color: #008800');
         return rootElem;
-      })
-      .first();
+      });
     let cycleCustomElementMetadata = rootElem.cycleCustomElementMetadata;
-    try {
-      //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
-      //let k = isCustomElement ? ' is custom element ' : ' is top level';
-      //console.log('%cVDOM diff and patch START' + k, 'color: #636300');
-      rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
-      //console.log('%cVDOM diff and patch END' + k, 'color: #636300');
-    } catch (err) {
-      console.error(err);
-    }
+    //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
+    //let k = isCustomElement ? ' is custom element ' : ' is top level';
+    //console.log('%cVDOM diff and patch START' + k, 'color: #636300');
+    rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
+    //console.log('%cVDOM diff and patch END' + k, 'color: #636300');
     if (!!cycleCustomElementMetadata) {
       rootElem.cycleCustomElementMetadata = cycleCustomElementMetadata;
     }
