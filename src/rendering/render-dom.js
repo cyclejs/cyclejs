@@ -188,7 +188,8 @@ function applyToDOM(container, definitionFn, props = null) {
   let customEvents = {};
   if (typeof definitionOutput.subscribe === 'function') {
     vtree$ = definitionOutput;
-  } else if (definitionOutput.hasOwnProperty('vtree$')) {
+  } else if (definitionOutput.hasOwnProperty('vtree$') &&
+             typeof definitionOutput.vtree$.subscribe === 'function') {
     vtree$ = definitionOutput.vtree$;
     customEvents = definitionOutput;
   } else {
