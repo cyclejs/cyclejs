@@ -1,7 +1,6 @@
 'use strict';
 let VirtualDOM = require('virtual-dom');
 let Rx = require('rx');
-let PropertyHook = require('./property-hook');
 let CustomElements = require('./rendering/custom-elements');
 let RenderingDOM = require('./rendering/render-dom');
 let RenderingHTML = require('./rendering/render-html');
@@ -56,20 +55,6 @@ var Cycle = {
    * @function registerCustomElement
    */
   registerCustomElement: CustomElements.registerCustomElement,
-
-  /**
-   * Returns a hook for manipulating an element from the real DOM. This is a helper for
-   * creating VTrees in Views. Useful for calling `focus()` on the DOM element, or doing
-   * similar mutations.
-   *
-   * See https://github.com/Raynos/mercury/blob/master/docs/faq.md for more details.
-   *
-   * @param {Function} fn a function with two arguments: `element`, `property`.
-   * @return {PropertyHook} a hook
-   */
-  vdomPropHook: function (fn) {
-    return new PropertyHook(fn);
-  },
 
   /**
    * A shortcut to the root object of [RxJS](https://github.com/Reactive-Extensions/RxJS).
