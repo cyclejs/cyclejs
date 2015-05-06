@@ -1,71 +1,15 @@
-## Diff
-
-- **Removed dependency of stream for rendering**
-- Refactored all tests and all passed
-- 2x performance improvement in the "many" example
-- Cycle.render now returns a ConnectableObservable and the actual rendering
-  happens after the invocation of connect
-- Renamed interaction$ to interactions because it is not an observable
-- Cycle.registerCustomElement has been removed and now we
-  have CustomElementsRegistry
-- Definition of custom-elements is no longer global and has to be provided to
-  render method by using CustomElementsRegistry
-- Properties observable for custom-element is no longer filtered
-  by distinctUntilChanged
-- Events for custom-elements must catch errors properly or the exception will
-  be thrown globally
-- Removed circular reference between custom-element-widget and render
-- Solved all shareReplay workarounds for tests
-- Removed dependencies of "es6-map" and "string.prototype.endswith"
-- Added a new dependency "xtend"
-- "render-html" has not been implemented yet
-- Proposal: choose() uses querySelector instead of querySelectorAll, and add
-  chooseAll() using querySelectorAll
-
-Examples in this README have been rewritten to be compatible with this fork.
-
-The "many" example has also been rewritten.
-
-## Why no Stream?
-
-Stream has been put back. While it is still not required for implementing
-renderer and for one using Cycle(modified).
-
-## .
-
 <h1>
 <img src="https://raw.github.com/staltz/cycle/master/logo.png" /> Cycle.js
 </h1>
 
-> A web application framework using the Reactive Model-View-Intent architecture and Virtual
-DOM Rendering.
+> Cycle.js is a reactive and functional web application framework, where the user is a function, the computer is a function, and Human-Computer Interaction is a fixed point equation over reactive event streams.
 
-* **Honestly Reactive**: the building blocks in Cycle are event-driven and [RxJS](https://github.com/Reactive-Extensions/RxJS)
-  is a hard dependency, which simplifies all code related to events, asynchrony, and
-  errors. Structuring the app with RxJS also separates concerns, because Rx decouples
-  data production from data consumption. As result, apps in Cycle have nothing comparable
-  to imperative calls such as `setState()`, `forceUpdate()`, `replaceProps()`,
-  `handleClick()`, etc.
-* **Unidirectional Dataflow**: Cycle is essentially a tool to build circularly dependent
-  event streams. This enables any circular unidirectional architecture to be built easily.
-  In particular, the Model-View-User-Intent architecture is easy to build with Cycle: data
-  moves from Model to View, graphics move from View to User, User generates interaction
-  events, Intent interprets those events as "user intentions", and these are fed to the
-  Model. Model handles information, View handles display, User is yourself, and Intent
-  handles interaction. They are tied together as a circular loop, each one reacting to
-  the preceding, but none is manipulating the others.
-* **Functions, not classes**: each object in the circular architecture is an event stream.
-  Model, View, User and Intent are simply functions over event streams. These are the only
-  concepts needed for building applications. Pure functional composition is the tool for
-  creating architectures in Cycle. Functions also facilitate automating tests, and allow
-  for a JavaScript programming style without the pitfalling `this`.
-* **Virtual DOM Rendering**: Views re-render completely whenever Models emit any data.
-  The use of [virtual-dom](https://github.com/Matt-Esch/virtual-dom) keeps performance
-  fast by patching the actual DOM with only the minimum necessary changes.
-* **Isomorphic**: there is just one more function you need to know in order to do
-  server-side rendering. Otherwise [it's pretty simple and straightforward](https://github.com/staltz/cycle/releases/tag/v0.20.4).
-* **Work in progress**: API design is the current priority and might significantly evolve,
-  performance and other issues are left aside before this gets stable.
+* **Honestly Reactive**: the building blocks in Cycle are Observables from [RxJS](https://github.com/Reactive-Extensions/RxJS), which simplifies all code related to events, asynchrony, and errors. Structuring the app with RxJS also separates concerns, because Rx decouples data production from data consumption. As result, apps in Cycle have nothing comparable to imperative calls such as `setState()`, `forceUpdate()`, `replaceProps()`, `handleClick()`, etc.
+* **Functional Unidirectional Dataflow**: Cycle's core abstraction is Human-Computer Interaction modelled as an interplay between two pure functions: `user()` and `computer()`. The computer outputs what the user takes as input, and vice-versa, leading to the fixed point equation `x = user(computer(x))`. This is what we call "Functional Unidirectional Dataflow", and as an app developer you only need to specify the `computer()` function.
+* **Functions, not classes**: the `computer()` function takes Observables as input, and outputs one Observable. To architecture your app, you only need to split the `computer()` into functions over Observables. Pure functional composition is the tool for creating architectures in Cycle. Functions also facilitate automating tests, and allow for a JavaScript programming style without the pitfalling `this`.
+* **Virtual DOM Rendering**: the `computer()` function should output an Observable of "Virtual DOM Elements" from the [virtual-dom](https://github.com/Matt-Esch/virtual-dom) library, to keep performance fast by patching the actual DOM with only the minimum necessary changes.
+* **Isomorphic**: there is just one more function you need to know in order to do server-side rendering. Otherwise [it's pretty simple and straightforward](https://github.com/staltz/cycle/releases/tag/v0.20.4).
+* **Work in progress**: API design is the current priority and might significantly evolve, performance and other issues are left aside before this gets stable.
 
 [![npm version](https://badge.fury.io/js/cyclejs.svg)](http://badge.fury.io/js/cyclejs)
 [![Bower version](https://badge.fury.io/bo/cycle.svg)](http://badge.fury.io/bo/cycle)
@@ -78,66 +22,27 @@ DOM Rendering.
 
 ```javascript
 import Cycle from 'cyclejs';
-let {Rx, h} = Cycle;
+let {h} = Cycle;
 
-let name$ = Cycle.createStream(function model(changeName$) {
-  return changeName$.startWith('');
-});
+function computer(interactions) {
+  return interactions.get('.myinput', 'input')
+    .map(ev => ev.target.value)
+    .startWith('')
+    .map(name =>
+      h('div', [
+        h('label', 'Name:'),
+        h('input.myinput', {attributes: {type: 'text'}}),
+        h('hr'),
+        h('h1', 'Hello ' + name)
+      ])
+    });
+}
 
-let vtree$ = Cycle.createStream(function view(name$) {
-  return name$.map(name =>
-    h('div', [
-      h('label', 'Name:'),
-      h('input.field', {attributes: {type: 'text'}}),
-      h('h1.header', `Hello ${name}`)
-    ])
-  );
-});
-
-let changeName$ = Cycle.createStream(function intent(interactions) {
-  return interactions.choose('.field', 'input').map(ev => ev.target.value);
-});
-
-let reactiveNode = Cycle.render(vtree$, '.js-container');
-
-vtree$.inject(name$).inject(changeName$).inject(reactiveNode.interactions);
-
-reactiveNode.connect();
+Cycle.applyToDOM('.js-container', computer);
 ```
 
-Notice that each of the 4 streams takes its preceding neighbour stream as input, hence the
-circularly-dependent streams. Model, View, and Intent are functions. The User is also a
-function: it takes vtree$ as input, renders them to the DOM into `.js-container`, and
-outputs interaction event streams that can be accessed through
-`interaction$.choose(selector, eventName)`. At the bottom, `inject()` ties everything
-together, pointing each stream to its appropriate input.
-
-Because this code uses pure functions (model, view, user, intent), we are not constrained
-to 4 streams and 4 functions. In fact, the code above can be refactored to be more concise:
-
-```js
-import Cycle from 'cyclejs';
-let {Rx, h} = Cycle;
-
-let changeNameSource$ = new Rx.Subject();
-let vtree$ = changeNameSource$
-  .map(ev => ev.target.value)
-  .startWith('')
-  .map(name => h('div', [
-    h('label', 'Name:'),
-    h('input.field', {attributes: {type: 'text'}}),
-    h('h1.header', `Hello ${name}`)
-  ]));
-
-let reactiveNode = Cycle.render(vtree$, '.js-container');
-// multicast interactions to changeNameSource$
-reactiveNode.interactions
-  .choose('.field', 'input')
-  .multicast(changeNameSource$)
-  .connect();
-// trigger the subscription of rendering
-reactiveNode.connect();
-```
+The input of the `computer` is `interactions`, a collection containing all possible
+user interaction events happening on elements on the DOM, which you can query using `interactions.get(selector, eventType)`. Function `applyToDOM` will take your `computer` function and plug it with the `user` function and solve the fixed point equation `vtree$ == computer(user(vtree$))`, where `vtree$` is an Observable of virtual DOM elements, the output of the `computer`. The result of this is Human-Computer Interaction, i.e. your UI program, happening under the container element selected by `'.js-container'`.
 
 For advanced examples, check out [TodoMVC implemented in Cycle.js](https://github.com/staltz/todomvc-cycle) and [RxMarbles](https://github.com/staltz/rxmarbles).
 
@@ -151,44 +56,28 @@ or
 
 ## Learn more
 
-Model-View-User-Intent is an architecture similar to Flux, and Virtual DOM Rendering is
-inspired by React, however there are several differences worth paying attention. Read the
-[seminal blog post that lead to the creation of Cycle.js](http://futurice.com/blog/reactive-mvc-and-the-virtual-dom).
-One can create any type of circular architecture, including variants of Flux where Store,
-Controller-View, and Action are functions, similarly to Model-View-User-Intent.
+The computer function is normally refactored as a composition of other functions, of which the Model-View-Intent (MVI) composition is a useful one, but far from being the only one. In other words:
 
-Cycle.js has [virtual-dom](https://github.com/Matt-Esch/virtual-dom) and [RxJS](https://github.com/Reactive-Extensions/RxJS)
-as hard dependencies. It is a small "glue" framework providing helpers for building
-circular architectures properly with those technologies. Cycle.js's code itself is still
-under 600 lines of code only.
+```js
+function computer(interactions) {
+  return view(model(intent(interactions)));
+}
+```
+
+Model-View-Intent is an architecture similar to Flux, and Virtual DOM Rendering is inspired by React, however there are several differences worth paying attention. Read the [seminal blog post that lead to the creation of Cycle.js](http://futurice.com/blog/reactive-mvc-and-the-virtual-dom). One can create any type of circular architecture, including variants of Flux where Store, Controller-View, and Action are functions, similarly to Model-View-Intent.
+
+Cycle also supports custom elements ("components"), and the abstraction here is to emulate web components as close as possible. Eventually, web component emulation will be replaced with actual web components implemented through Cycle.js.
+
+Cycle.js has [virtual-dom](https://github.com/Matt-Esch/virtual-dom) and [RxJS](https://github.com/Reactive-Extensions/RxJS) as hard dependencies. It is a small "glue" framework providing helpers for building circular architectures properly with those technologies. Cycle.js's code itself is still under 600 lines of code only.
 
 ## Why?
 
-Why would you use Cycle.js instead of other web frameworks such as Angular and React/Flux?
-Here are a couple of strong reasons:
+Why would you use Cycle.js instead of other web frameworks such as Angular and React/Flux? Here are a couple of strong reasons:
 
-- **The only (yet) 100% reactive frontend framework.** The truth is, if you really wanted
-  to apply reactive programming everywhere in a single page app, you would have no other
-  choice than Cycle. This is not yet another Flux library. I built it because it doesn't
-  exist elsewhere. I want to structure apps as observable event streams as much as possible,
-  while minimizing the use of `subscribe`, side effects, and `this`.
-- **Separation of concerns.** The reactive pattern for circular architectures makes it
-  possible for no module to have functions such as `updateSomething()` which inherently
-  create coupling. You can write code with single responsibilities throughout. For
-  instance, the View just takes model data and renders virtual elements, it doesn't even
-  have callbacks to handle events. Views aren't even aware of events (click, input, etc)
-  that can happen on them. Additionally, Rendering is separated from View. Contrary
-  to what you expect, a View in Cycle.js does not directly render anything to the browser.
-  Instead, it just outputs virtual DOM elements. This allows for testing without depending
-  on the DOM, besides other benefits such as being able to hypothetically swap the DOM
-  renderer with a Canvas renderer or a Cocoa UI tree renderer or whatever other target
-  you wish.
-- **Great unit testability.** Everything is a JavaScript function or an Rx.Observable,
-  so testing is mostly a matter of feeding input and inspecting the output.
-- **Welcomes immutable and stateless programming.** Cycle.js is built for, in
-  combination with RxJS, a programming style that favors immutability and statelessness.
-  This allows code to be clearer and less prone to bugs. Apps written in Cycle.js are
-  `this`-less. See it for yourself, `this` cannot be found in [Cycle.js TodoMVC](https://github.com/staltz/todomvc-cycle/tree/master/js).
+- **The only (yet) 100% reactive frontend framework.** The truth is, if you really wanted to apply reactive programming everywhere in a single page app, you would have no other choice than Cycle. This is not yet another Flux library. I built it because it doesn't exist elsewhere. I want to structure apps as observable event streams as much as possible, while minimizing the use of `subscribe`, side effects, and `this`.
+- **Sliceability.** Most frameworks claim to provide Separation of Concerns, but often they prescribe rigid containers where to place your code: Models, Views, Controllers, Components, Routes, Services, Dispatcher, Store, Actions, Templates, etc. Cycle has none of that. Instead, pure functions over immutable Observables and data structures (such as from [mori](https://swannodette.github.io/mori/) and [Immutable.js](https://facebook.github.io/immutable-js/)) allow you to *slice* your program wherever you wish. Plus, the reactive pattern makes it possible for no module to have functions such as `a.updateSomethingIn(b)` which inherently create coupling between `a` and `b`. You can write code with single responsibilities throughout. For instance, the View function in MVI just takes model data and renders virtual elements, it doesn't even have callbacks to handle events. Views aren't even aware of events (click, input, etc) that can happen on them. Additionally, Rendering is separated from View. Because it just outputs virtual DOM elements, it allows for testing without depending on the DOM. Other benefits include being able to swap the DOM renderer with a Canvas renderer or a Cocoa UI tree renderer or whatever other target you wish.
+- **Great unit testability.** Everything is a JavaScript function or an Rx.Observable, so testing is mostly a matter of feeding input and inspecting the output.
+- **Welcomes immutable and stateless programming.** Cycle.js is built for, in combination with RxJS and immutable data structure libraries, a programming style that favors immutability and statelessness. This allows code to be clearer and less prone to bugs. Apps written in Cycle.js are `this`-less. See it for yourself, `this` cannot be found in [Cycle.js TodoMVC](https://github.com/staltz/todomvc-cycle/tree/master/js).
 
 ## Community
 
@@ -208,13 +97,9 @@ Here are a couple of strong reasons:
 
 ### Work in progress
 
-Cycle.js is in alpha mode, many changes to the API will likely occur before v1.0 is released.
-Use this framework only for experiments before that. PS: we don't want to stay as alpha
-forever, either. ;)
+Cycle.js is in alpha mode, many changes to the API will likely occur before v1.0 is released. Use this framework only for experiments before that. PS: we don't want to stay as alpha forever, either. ;)
 
-Prior to v1.0.0, the versions will follow the convention: improvements that break backwards
-compatibility increment the minor number, any other improvements will increment the patch
-number. After v1.0.0, we will follow [semver](http://semver.org/).
+Prior to v1.0.0, the versions will follow the convention: improvements that break backwards compatibility increment the minor number, any other improvements will increment the patch number. After v1.0.0, we will follow [semver](http://semver.org/).
 
 ## Acknowledgements
 
