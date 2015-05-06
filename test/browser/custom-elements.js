@@ -420,4 +420,89 @@ describe('Custom Elements', function () {
     assert.notStrictEqual(typeof myElement, 'undefined');
     assert.strictEqual(myElement.tagName, 'H3');
   });
+
+  it('should dispose vtree$ after destruction', function () {
+    let log = [];
+    let number$ = Rx.Observable.range(1, 2).controlled();
+    let customElementSwitch$ = Rx.Observable.range(0, 2).controlled();
+    // Make simple custom element
+    Cycle.registerCustomElement('myelement', function () {
+      return {
+        vtree$: number$
+          .do(i => log.push(i))
+          .map(i => h('h3.myelementclass', String(i)))
+      };
+    });
+    // Use the custom element
+    let vtree$ = customElementSwitch$.map(theSwitch => {
+      return theSwitch === 0
+        ? h('div.toplevel', [h('myelement', {key: 1})])
+        : h('div.toplevel', []);
+    })
+    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
+    // Make assertions
+    customElementSwitch$.request(1);
+    number$.request(1);
+    let myElement = document.querySelector('.myelementclass');
+    assert.notStrictEqual(myElement, null);
+    assert.notStrictEqual(typeof myElement, 'undefined');
+    assert.strictEqual(myElement.tagName, 'H3');
+    assert.strictEqual(log.length, 1);
+
+    // Destroy the element
+    customElementSwitch$.request(1);
+    // Try to trigger onNext of myelement's vtree$
+    number$.request(1);
+    let destroyedElement = document.querySelector('.myelementclass');
+    assert.strictEqual(destroyedElement, null);
+    assert.notStrictEqual(log.length, 2);
+    domUI.dispose();
+  });
+
+  it('should not emit events after destruction', function () {
+    let log = [];
+    let number$ = Rx.Observable.range(1, 3).controlled();
+    let customElementSwitch$ = Rx.Observable.range(0, 2).controlled();
+    // Make simple custom element
+    Cycle.registerCustomElement('myelement', function () {
+      return {
+        vtree$: Rx.Observable.just(h('h3.myelementclass')),
+        myevent$: number$.do(i => log.push(i))
+      };
+    });
+    // Use the custom element
+    let vtree$ = customElementSwitch$.map(theSwitch => {
+      return theSwitch === 0
+        ? h('div.toplevel', [h('myelement', {key: 1})])
+        : h('div.toplevel', []);
+    })
+    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
+    // Make assertions
+    customElementSwitch$.request(1);
+    let myElement = document.querySelector('.myelementclass');
+    assert.notStrictEqual(myElement, null);
+    assert.notStrictEqual(typeof myElement, 'undefined');
+    assert.strictEqual(myElement.tagName, 'H3');
+
+    Rx.Observable.fromEvent(myElement, 'myevent')
+      .take(3)
+      .subscribe(function (ev){
+        assert.notStrictEqual(ev.data, 3);
+      });
+
+    // Trigger the event
+    number$.request(1);
+    number$.request(1);
+
+    // Destroy the element
+    customElementSwitch$.request(1);
+    let destroyedElement = document.querySelector('.myelementclass');
+    assert.strictEqual(destroyedElement, null);
+
+    // Trigger event after the element has been destroyed
+    number$.request(1);
+    assert.notStrictEqual(log.length, 3);
+
+    domUI.dispose();
+  });
 });
