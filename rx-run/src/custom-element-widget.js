@@ -36,7 +36,7 @@ function subscribeDispatchers(element) {
 }
 
 function subscribeDispatchersWhenRootChanges(metadata) {
-  metadata.rootElem$
+  return metadata.rootElem$
     .distinctUntilChanged(Rx.helpers.identity,
       (x, y) => (x && y && x.isEqualNode && x.isEqualNode(y))
     )
@@ -100,6 +100,7 @@ function makeConstructor() {
     this.key = vtree.key;
     this.isCustomElementWidget = true;
     this.rootElem$ = new Rx.ReplaySubject(1);
+    this.disposables = new Rx.CompositeDisposable();
   };
 }
 
@@ -123,8 +124,17 @@ function makeInit(tagName, definitionFn) {
       eventDispatchingSubscription: false
     };
     element.eventDispatchingSubscription = subscribeDispatchers(element);
-    subscribeDispatchersWhenRootChanges(element.cycleCustomElementMetadata);
+    widget.disposables.add(
+      element.eventDispatchingSubscription
+    );
+    widget.disposables.add(
+      subscribeDispatchersWhenRootChanges(element.cycleCustomElementMetadata)
+    );
     widget.update(null, element);
+
+    widget.disposables.add(domUI);
+    widget.disposables.add(widget.rootElem$);
+
     return element;
   };
 }
@@ -147,6 +157,13 @@ function validatePropertiesProxyInMetadata(element, fnName) {
 
 function makeUpdate() {
   return function updateCustomElement(previous, element) {
+    if (previous) {
+      this.disposables = previous.disposables;
+      // This is a new rootElem$ which is not being used by init(),
+      // but used by render-dom for creating rootElemAfterChildren$.
+      this.rootElem$.onNext(null);
+      this.rootElem$.onCompleted();
+    }
     validatePropertiesProxyInMetadata(element, 'update()');
 
     //console.log('%cupdate() custom element ' + element.className, 'color: #880088');
@@ -156,6 +173,27 @@ function makeUpdate() {
         proxiedProps[prop].onNext(this.properties[prop]);
       }
     }}
+  };
+}
+
+function makeDestroy() {
+  return function destroyCustomElement(element) {
+    // Dispose propertiesProxy
+    let proxiedProps = element.cycleCustomElementMetadata.propertiesProxy;
+    for (let prop in proxiedProps) { if (proxiedProps.hasOwnProperty(prop)) {
+      this.disposables.add(proxiedProps[prop]);
+    }}
+
+    if (element.cycleCustomElementMetadata.eventDispatchingSubscription) {
+      // This subscription has to be disposed.
+      // Because disposing subscribeDispatchersWhenRootChanges only
+      // is not enough.
+      this.disposables.add(
+        element.cycleCustomElementMetadata.eventDispatchingSubscription
+      );
+    }
+
+    this.disposables.dispose();
   };
 }
 
@@ -170,5 +208,6 @@ module.exports = {
 
   makeConstructor,
   makeInit,
-  makeUpdate
+  makeUpdate,
+  makeDestroy
 };
