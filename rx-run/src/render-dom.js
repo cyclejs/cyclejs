@@ -198,7 +198,9 @@ function applyToDOM(container, definitionFn, observer = null, props = null) {
   let output = definitionFn(interactions, props);
   let {vtree$, customEvents} = digestDefinitionFnOutput(output);
   let connection = rootElem$.connect();
-  let subscription = observer ? rootElem$.subscribe(observer) : rootElem$.subscribe();
+  let subscription = observer ?
+    rootElem$.subscribe(observer) :
+    rootElem$.subscribe();
   proxyVTree$$.onNext(vtree$.shareReplay(1));
   proxyVTree$$.onCompleted();
 
