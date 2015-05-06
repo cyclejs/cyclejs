@@ -14012,129 +14012,12 @@ function appendPatch(apply, patch) {
 
 },{"../vnode/handle-thunk":94,"../vnode/is-thunk":95,"../vnode/is-vnode":97,"../vnode/is-vtext":98,"../vnode/is-widget":99,"../vnode/vpatch":102,"./diff-props":104,"x-is-array":81}],106:[function(require,module,exports){
 'use strict';
-var VirtualDOM = require('virtual-dom');
-var Rx = require('rx');
-var PropertyHook = require('./property-hook');
-var CustomElements = require('./rendering/custom-elements');
-var RenderingDOM = require('./rendering/render-dom');
-var RenderingHTML = require('./rendering/render-html');
-
-var Cycle = {
-  // TODO
-  /**
-   * Renders an Observable of virtual DOM elements (`vtree$`) into the DOM element
-   * indicated by `container`, which can be either a CSS selector or an actual element.
-   * Returns an Observable of real DOM element, with a special property attached to it
-   * called `interaction$`. This `interaction$` is a theoretical Observable containing all
-   * possible events happening on all elements which were rendered. You must query it
-   * with `interaction$.choose(selector, eventName)` in order to get an Observable of
-   * interactions of type `eventName` happening on the element identified by `selector`.
-   * Example: `interaction$.choose('.mybutton', 'click').subscribe( ... )`
-   *
-   * @param {Rx.Observable} vtree$ Observable of virtual DOM elements.
-   * @param {(String|HTMLElement)} container the DOM selector for the element (or the
-   * element itself) to contain the rendering of the VTrees.
-   * @return {Rx.Observable} an Observable emitting the root DOM element for this
-   * rendering, with the property `interaction$` attached to it.
-   * @function render
-   */
-  applyToDOM: RenderingDOM.applyToDOM,
-
-  /**
-   * Converts a given Observable of virtual DOM elements (`vtree$`) into an Observable
-   * of corresponding HTML strings (`html$`). The provided `vtree$` must complete (must
-   * call onCompleted on its observers) in finite time, otherwise the output `html$` will
-   * never emit an HTML string.
-   *
-   * @param {Rx.Observable} vtree$ Observable of virtual DOM elements.
-   * @return {Rx.Observable} an Observable emitting a string as the HTML renderization of
-   * the virtual DOM element.
-   * @function renderAsHTML
-   */
-  renderAsHTML: RenderingHTML.renderAsHTML,
-
-  /**
-   * Informs Cycle to recognize the given `tagName` as a custom element implemented
-   * as `dataFlowNode` whenever `tagName` is used in VTrees in a View rendered to a
-   * DOMUser.
-   * The given `dataFlowNode` must export a `vtree$` Observable. If the `dataFlowNode`
-   * expects Observable `foo$` as input, then the custom element's attribute named `foo`
-   * will be injected automatically into `foo$`.
-   *
-   * @param {String} tagName a name for identifying the custom element.
-   * @param {Function} definitionFn the implementation for the custom element. This
-   * function takes two arguments: `User`, and `Properties`. Use `User` to inject into an
-   * Intent and to be injected a View. `Properties` is a DataFlowNode containing
-   * observables matching the custom element properties.
-   * @function registerCustomElement
-   */
-  registerCustomElement: CustomElements.registerCustomElement,
-
-  /**
-   * Returns a hook for manipulating an element from the real DOM. This is a helper for
-   * creating VTrees in Views. Useful for calling `focus()` on the DOM element, or doing
-   * similar mutations.
-   *
-   * See https://github.com/Raynos/mercury/blob/master/docs/faq.md for more details.
-   *
-   * @param {Function} fn a function with two arguments: `element`, `property`.
-   * @return {PropertyHook} a hook
-   */
-  vdomPropHook: function vdomPropHook(fn) {
-    return new PropertyHook(fn);
-  },
-
-  /**
-   * A shortcut to the root object of [RxJS](https://github.com/Reactive-Extensions/RxJS).
-   * @name Rx
-   */
-  Rx: Rx,
-
-  /**
-   * A shortcut to [virtual-hyperscript](
-   * https://github.com/Matt-Esch/virtual-dom/tree/master/virtual-hyperscript).
-   * This is a helper for creating VTrees in Views.
-   * @name h
-   */
-  h: VirtualDOM.h
-};
-
-module.exports = Cycle;
-
-},{"./property-hook":107,"./rendering/custom-elements":109,"./rendering/render-dom":110,"./rendering/render-html":111,"rx":58,"virtual-dom":74}],107:[function(require,module,exports){
-'use strict';
-
-var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var PropertyHook = (function () {
-  function PropertyHook(fn) {
-    _classCallCheck(this, PropertyHook);
-
-    this.fn = fn;
-  }
-
-  _createClass(PropertyHook, [{
-    key: 'hook',
-    value: function hook() {
-      this.fn.apply(this, arguments);
-    }
-  }]);
-
-  return PropertyHook;
-})();
-
-module.exports = PropertyHook;
-
-},{}],108:[function(require,module,exports){
-'use strict';
 var Rx = require('rx');
 
 function makeDispatchFunction(element, eventName) {
   return function dispatchCustomEvent(evData) {
-    // TODO
-    console.log('%cdispatchCustomEvent ' + eventName, 'background-color: #CCCCFF; color: black');
+    //console.log('%cdispatchCustomEvent ' + eventName,
+    //  'background-color: #CCCCFF; color: black');
     var event;
     try {
       event = new Event(eventName);
@@ -14216,8 +14099,8 @@ function throwIfVTreeHasPropertyChildren(vtree) {
 
 function makeConstructor() {
   return function customElementConstructor(vtree) {
-    // TODO
-    console.log('%cnew (constructor) custom element ' + vtree.tagName, 'color: #880088');
+    //console.log('%cnew (constructor) custom element ' + vtree.tagName,
+    //  'color: #880088');
     warnIfVTreeHasNoKey(vtree);
     throwIfVTreeHasPropertyChildren(vtree);
     this.type = 'Widget';
@@ -14225,6 +14108,7 @@ function makeConstructor() {
     this.properties.children = vtree.children;
     this.key = vtree.key;
     this.isCustomElementWidget = true;
+    this.rootElem$ = new Rx.ReplaySubject(1);
   };
 }
 
@@ -14238,7 +14122,7 @@ function makeInit(tagName, definitionFn) {
     var widget = this;
     var element = createContainerElement(tagName, widget.properties);
     var propertiesProxy = makePropertiesProxy();
-    var domUI = applyToDOM(element, definitionFn, propertiesProxy);
+    var domUI = applyToDOM(element, definitionFn, widget.rootElem$.asObserver(), propertiesProxy);
     element.cycleCustomElementMetadata = {
       propertiesProxy: propertiesProxy,
       rootElem$: domUI.rootElem$,
@@ -14269,8 +14153,7 @@ function makeUpdate() {
   return function updateCustomElement(previous, element) {
     validatePropertiesProxyInMetadata(element, 'update()');
 
-    // TODO
-    console.log('%cupdate() custom element ' + element.className, 'color: #880088');
+    //console.log('%cupdate() custom element ' + element.className, 'color: #880088');
     var proxiedProps = element.cycleCustomElementMetadata.propertiesProxy;
     for (var prop in proxiedProps) {
       if (proxiedProps.hasOwnProperty(prop)) {
@@ -14296,7 +14179,7 @@ module.exports = {
   makeUpdate: makeUpdate
 };
 
-},{"./render-dom":110,"rx":58}],109:[function(require,module,exports){
+},{"./render-dom":109,"rx":58}],107:[function(require,module,exports){
 'use strict';
 var CustomElementWidget = require('./custom-element-widget');
 var Map = require('es6-map'); /* jshint: -W079 */
@@ -14348,7 +14231,92 @@ module.exports = {
   unregisterAllCustomElements: unregisterAllCustomElements
 };
 
-},{"./custom-element-widget":108,"es6-map":3}],110:[function(require,module,exports){
+},{"./custom-element-widget":106,"es6-map":3}],108:[function(require,module,exports){
+'use strict';
+var VirtualDOM = require('virtual-dom');
+var Rx = require('rx');
+var CustomElements = require('./custom-elements');
+var RenderingDOM = require('./render-dom');
+var RenderingHTML = require('./render-html');
+
+var Cycle = {
+  /**
+   * Takes a `computer` function which outputs an Observable of virtual DOM
+   * elements, and renders that into the DOM element indicated by `container`,
+   * which can be either a CSS selector or an actual element. At the same time,
+   * provides the `interactions` input to the `computer` function, which is a
+   * collection of all possible events happening on all elements which were
+   * rendered. You must query this collection with
+   * `interactions.get(selector, eventName)` in order to get an Observable of
+   * interactions of type `eventName` happening on the element identified by
+   * `selector`.
+   * Example: `interactions.get('.mybutton', 'click').map(ev => ...)`
+   *
+   * @param {(String|HTMLElement)} container the DOM selector for the element
+   * (or the element itself) to contain the rendering of the VTrees.
+   * @param {Function} computer a function that takes `interactions` as input
+   * and outputs an Observable of virtual DOM elements.
+   * @return {Object} an object containing properties `rootElem$`, `interactions`,
+   * `dispose()` that can be used for debugging or testing.
+   * @function applyToDOM
+   */
+  applyToDOM: RenderingDOM.applyToDOM,
+
+  /**
+   * Converts a given Observable of virtual DOM elements (`vtree$`) into an
+   * Observable of corresponding HTML strings (`html$`). The provided `vtree$`
+   * must complete (must call onCompleted on its observers) in finite time,
+   * otherwise the output `html$` will never emit an HTML string.
+   *
+   * @param {Rx.Observable} vtree$ Observable of virtual DOM elements.
+   * @return {Rx.Observable} an Observable emitting a string as the HTML
+   * renderization of the virtual DOM element.
+   * @function renderAsHTML
+   */
+  renderAsHTML: RenderingHTML.renderAsHTML,
+
+  /**
+   * Informs Cycle to recognize the given `tagName` as a custom element
+   * implemented as the given function whenever `tagName` is used in VTrees
+   * rendered in the context of some parent (in `applyToDOM` or in other custom
+   * elements).
+   * The given `definitionFn` function takes two parameters as input, in this order:
+   * `interactions` and `properties`. The former works just like it does in the
+   * `computer` function given to `applyToDOM`, and the later contains
+   * Observables representing properties of the custom element, given from the
+   * parent context. `properties.get('foo')` will return the Observable `foo$`.
+   *
+   * The `definitionFn` must output an object containing the property `vtree$`
+   * as an Observable. If the output object contains other Observables, then
+   * they are treated as custom events of the custom element.
+   *
+   * @param {String} tagName a name for identifying the custom element.
+   * @param {Function} definitionFn the implementation for the custom element.
+   * This function takes two arguments: `interactions`, and `properties`, and
+   * should output an object of Observables.
+   * @function registerCustomElement
+   */
+  registerCustomElement: CustomElements.registerCustomElement,
+
+  /**
+   * A shortcut to the root object of [RxJS](https://github.com/Reactive-Extensions/RxJS).
+   * @name Rx
+   */
+  Rx: Rx,
+
+  /**
+   * A shortcut to [virtual-hyperscript](
+   * https://github.com/Matt-Esch/virtual-dom/tree/master/virtual-hyperscript).
+   * This is a helper for creating VTrees in Views.
+   * @name h
+   */
+  h: VirtualDOM.h
+};
+
+module.exports = Cycle;
+
+},{"./custom-elements":107,"./render-dom":109,"./render-html":110,"rx":58,"virtual-dom":74}],109:[function(require,module,exports){
+/* jshint maxparams: 4 */
 'use strict';
 
 var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } };
@@ -14372,19 +14340,18 @@ function isElement(obj) {
 function fixRootElem$(rawRootElem$, domContainer) {
   // Create rootElem stream and automatic className correction
   var originalClasses = (domContainer.className || '').trim().split(/\s+/);
-  // TODO
-  console.log('%coriginalClasses: ' + originalClasses, 'color: lightgray');
+  //console.log('%coriginalClasses: ' + originalClasses, 'color: lightgray');
   return rawRootElem$.map(function fixRootElemClassName(rootElem) {
     var previousClasses = rootElem.className.trim().split(/\s+/);
     var missingClasses = originalClasses.filter(function (clss) {
       return previousClasses.indexOf(clss) < 0;
     });
-    // TODO
-    console.log('%cfixRootElemClassName(), missingClasses: ' + missingClasses, 'color: lightgray');
+    //console.log('%cfixRootElemClassName(), missingClasses: ' + missingClasses,
+    //  'color: lightgray');
     rootElem.className = previousClasses.concat(missingClasses).join(' ');
-    // TODO
-    console.log('%c  result: ' + rootElem.className, 'color: lightgray');
-    console.log('%cEmit rootElem$ ' + rootElem.tagName + '.' + rootElem.className, 'color: #009988');
+    //console.log('%c  result: ' + rootElem.className, 'color: lightgray');
+    //console.log('%cEmit rootElem$ ' + rootElem.tagName + '.' + rootElem.className,
+    //  'color: #009988');
     return rootElem;
   }).replay(null, 1);
 }
@@ -14399,10 +14366,9 @@ function replaceCustomElementsWithWidgets(vtree) {
   });
 }
 
-// TODO remove? obsolete? vtree._rootElem$ doesn't exist
 function getArrayOfAllWidgetRootElemStreams(vtree) {
-  if (vtree.type === 'Widget' && vtree._rootElem$) {
-    return [vtree._rootElem$];
+  if (vtree.type === 'Widget' && vtree.rootElem$) {
+    return [vtree.rootElem$];
   }
   // Or replace children recursively
   var array = [];
@@ -14433,28 +14399,20 @@ function makeDiffAndPatchToElement$(rootElem) {
 
     var arrayOfAll = getArrayOfAllWidgetRootElemStreams(newVTree);
     var rootElemAfterChildren$ = Rx.Observable.combineLatest(arrayOfAll, function () {
-      // TODO
-      console.log('%cEmit rawRootElem$ (1) ', 'color: #008800');
+      //console.log('%cEmit rawRootElem$ (1) ', 'color: #008800');
       return rootElem;
-    }).first();
+    });
     var cycleCustomElementMetadata = rootElem.cycleCustomElementMetadata;
-    try {
-      // TODO
-      var isCustomElement = !!rootElem.cycleCustomElementMetadata;
-      var k = isCustomElement ? ' is custom element ' : ' is top level';
-      console.log('%cVDOM diff and patch START' + k, 'color: #636300');
-      rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
-      // TODO
-      console.log('%cVDOM diff and patch END' + k, 'color: #636300');
-    } catch (err) {
-      console.error(err);
-    }
+    //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
+    //let k = isCustomElement ? ' is custom element ' : ' is top level';
+    //console.log('%cVDOM diff and patch START' + k, 'color: #636300');
+    rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
+    //console.log('%cVDOM diff and patch END' + k, 'color: #636300');
     if (!!cycleCustomElementMetadata) {
       rootElem.cycleCustomElementMetadata = cycleCustomElementMetadata;
     }
     if (arrayOfAll.length === 0) {
-      // TODO
-      console.log('%cEmit rawRootElem$ (2)', 'color: #008800');
+      //console.log('%cEmit rawRootElem$ (2)', 'color: #008800');
       return Rx.Observable.just(rootElem);
     } else {
       return rootElemAfterChildren$;
@@ -14490,29 +14448,26 @@ function makeInteractions(rootElem$) {
         throw new Error('interactions.get() expects second argument to be a ' + 'string representing the event type to listen for.');
       }
 
-      // TODO
-      console.log('%cget("' + selector + '", "' + eventName + '")', 'color: #0000BB');
+      //console.log(`%cget("${selector}", "${eventName}")`, 'color: #0000BB');
       return rootElem$.flatMapLatest(function flatMapDOMUserEventStream(rootElem) {
         if (!rootElem) {
           return Rx.Observable.empty();
         }
-        // TODO
-        var isCustomElement = !!rootElem.cycleCustomElementMetadata;
-        console.log('%cget("' + selector + '", "' + eventName + '") flatMapper' + (isCustomElement ? ' for a custom element' : ' for top-level View'), 'color: #0000BB');
+        //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
+        //console.log('%cget("' + selector + '", "' + eventName + '") flatMapper' +
+        //  (isCustomElement ? ' for a custom element' : ' for top-level View'),
+        //  'color: #0000BB');
         var klass = selector.replace('.', '');
         if (rootElem.className.search(new RegExp('\\b' + klass + '\\b')) >= 0) {
-          // TODO
-          console.log('%c  Good return. (A)', 'color:#0000BB');
+          //console.log('%c  Good return. (A)', 'color:#0000BB');
           return Rx.Observable.fromEvent(rootElem, eventName);
         }
         var targetElements = rootElem.querySelectorAll(selector);
         if (targetElements && targetElements.length > 0) {
-          // TODO
-          console.log('%c  Good return. (B)', 'color:#0000BB');
+          //console.log('%c  Good return. (B)', 'color:#0000BB');
           return Rx.Observable.fromEvent(targetElements, eventName);
         } else {
-          // TODO
-          console.log('%c  returning empty!', 'color: #0000BB');
+          //console.log('%c  returning empty!', 'color: #0000BB');
           return Rx.Observable.empty();
         }
       });
@@ -14520,9 +14475,23 @@ function makeInteractions(rootElem$) {
   };
 }
 
-// TODO refactor me
+function digestDefinitionFnOutput(output) {
+  var vtree$ = undefined;
+  var customEvents = {};
+  if (typeof output.subscribe === 'function') {
+    vtree$ = output;
+  } else if (output.hasOwnProperty('vtree$') && typeof output.vtree$.subscribe === 'function') {
+    vtree$ = output.vtree$;
+    customEvents = output;
+  } else {
+    throw new Error('definitionFn given to applyToDOM must return an ' + 'Observable of virtual DOM elements, or an object containing such ' + 'Observable named as `vtree$`');
+  }
+  return { vtree$: vtree$, customEvents: customEvents };
+}
+
 function applyToDOM(container, definitionFn) {
-  var props = arguments[2] === undefined ? null : arguments[2];
+  var observer = arguments[2] === undefined ? null : arguments[2];
+  var props = arguments[3] === undefined ? null : arguments[3];
 
   // Find and prepare the container
   var domContainer = typeof container === 'string' ? document.querySelector(container) : container;
@@ -14536,23 +14505,24 @@ function applyToDOM(container, definitionFn) {
   var rawRootElem$ = renderRawRootElem$(proxyVTree$$.mergeAll(), domContainer);
   var rootElem$ = fixRootElem$(rawRootElem$, domContainer);
   var interactions = makeInteractions(rootElem$);
-  var definitionOutput = definitionFn(interactions, props);
-  var vtree$ = undefined;
-  var customEvents = {};
-  if (typeof definitionOutput.subscribe === 'function') {
-    vtree$ = definitionOutput;
-  } else if (definitionOutput.hasOwnProperty('vtree$')) {
-    vtree$ = definitionOutput.vtree$;
-    customEvents = definitionOutput;
-  } else {
-    // TODO test me
-    throw new Error('definitionFn given to applyToDOM must return an ' + 'Observable of virtual DOM elements, or an object containing such ' + 'Observable named as `vtree$`');
-  }
-  var subscription = rootElem$.connect();
+  var output = definitionFn(interactions, props);
+
+  var _digestDefinitionFnOutput = digestDefinitionFnOutput(output);
+
+  var vtree$ = _digestDefinitionFnOutput.vtree$;
+  var customEvents = _digestDefinitionFnOutput.customEvents;
+
+  var connection = rootElem$.connect();
+  var subscription = observer ? rootElem$.subscribe(observer) : rootElem$.subscribe();
   proxyVTree$$.onNext(vtree$.shareReplay(1));
   proxyVTree$$.onCompleted();
+
   return {
-    dispose: subscription.dispose.bind(subscription),
+    dispose: function dispose() {
+      subscription.dispose();
+      connection.dispose();
+      proxyVTree$$.dispose();
+    },
     rootElem$: rootElem$,
     interactions: interactions,
     customEvents: customEvents
@@ -14570,11 +14540,12 @@ module.exports = {
   getRenderRootElem: getRenderRootElem,
   renderRawRootElem$: renderRawRootElem$,
   makeInteractions: makeInteractions,
+  digestDefinitionFnOutput: digestDefinitionFnOutput,
 
   applyToDOM: applyToDOM
 };
 
-},{"./custom-elements":109,"rx":58,"virtual-dom":74,"virtual-dom/diff":72,"virtual-dom/patch":82}],111:[function(require,module,exports){
+},{"./custom-elements":107,"rx":58,"virtual-dom":74,"virtual-dom/diff":72,"virtual-dom/patch":82}],110:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
 var toHTML = require('vdom-to-html');
@@ -14661,5 +14632,5 @@ module.exports = {
   renderAsHTML: renderAsHTML
 };
 
-},{"./custom-elements":109,"rx":58,"vdom-to-html":60}]},{},[106])(106)
+},{"./custom-elements":107,"rx":58,"vdom-to-html":60}]},{},[108])(108)
 });
