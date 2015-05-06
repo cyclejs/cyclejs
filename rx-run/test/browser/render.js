@@ -152,14 +152,17 @@ describe('Rendering', function () {
       Cycle.registerCustomElement('myelement', Fixture89.myelement);
       let number$ = Fixture89.makeModelNumber$();
       let vtree$ = Fixture89.viewWithoutContainerFn(number$);
-      let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
-
-      domUI.rootElem$.subscribe(() => {}, (err) => {
-        let errMsg = 'Illegal to use a Cycle custom element as the root of a View.';
-        assert.strictEqual(err.message, errMsg);
-        domUI.dispose();
-        done();
-      });
+      let observer = Rx.Observer.create(
+        () => {},
+        (err) => {
+          let errMsg = 'Illegal to use a Cycle custom element as the root of a View.';
+          assert.strictEqual(err.message, errMsg);
+          // TODO: cannot dispose because applyToDOM has not yet completed.
+          // domUI.dispose();
+          done();
+        }
+      );
+      let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$, observer);
     });
   });
 });
