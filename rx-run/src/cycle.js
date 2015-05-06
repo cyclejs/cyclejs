@@ -6,52 +6,60 @@ let RenderingDOM = require('./render-dom');
 let RenderingHTML = require('./render-html');
 
 var Cycle = {
-  // TODO
   /**
-   * Renders an Observable of virtual DOM elements (`vtree$`) into the DOM element
-   * indicated by `container`, which can be either a CSS selector or an actual element.
-   * Returns an Observable of real DOM element, with a special property attached to it
-   * called `interaction$`. This `interaction$` is a theoretical Observable containing all
-   * possible events happening on all elements which were rendered. You must query it
-   * with `interaction$.choose(selector, eventName)` in order to get an Observable of
-   * interactions of type `eventName` happening on the element identified by `selector`.
-   * Example: `interaction$.choose('.mybutton', 'click').subscribe( ... )`
+   * Takes a `computer` function which outputs an Observable of virtual DOM 
+   * elements, and renders that into the DOM element indicated by `container`, 
+   * which can be either a CSS selector or an actual element. At the same time,
+   * provides the `interactions` input to the `computer` function, which is a
+   * collection of all possible events happening on all elements which were
+   * rendered. You must query this collection with 
+   * `interactions.get(selector, eventName)` in order to get an Observable of
+   * interactions of type `eventName` happening on the element identified by 
+   * `selector`.
+   * Example: `interactions.get('.mybutton', 'click').map(ev => ...)`
    *
-   * @param {Rx.Observable} vtree$ Observable of virtual DOM elements.
-   * @param {(String|HTMLElement)} container the DOM selector for the element (or the
-   * element itself) to contain the rendering of the VTrees.
-   * @return {Rx.Observable} an Observable emitting the root DOM element for this
-   * rendering, with the property `interaction$` attached to it.
-   * @function render
+   * @param {(String|HTMLElement)} container the DOM selector for the element 
+   * (or the element itself) to contain the rendering of the VTrees.
+   * @param {Function} computer a function that takes `interactions` as input
+   * and outputs an Observable of virtual DOM elements.
+   * @return {Object} an object containing properties `rootElem$`, `interactions`, 
+   * `dispose()` that can be used for debugging or testing.
+   * @function applyToDOM
    */
   applyToDOM: RenderingDOM.applyToDOM,
 
   /**
-   * Converts a given Observable of virtual DOM elements (`vtree$`) into an Observable
-   * of corresponding HTML strings (`html$`). The provided `vtree$` must complete (must
-   * call onCompleted on its observers) in finite time, otherwise the output `html$` will
-   * never emit an HTML string.
+   * Converts a given Observable of virtual DOM elements (`vtree$`) into an 
+   * Observable of corresponding HTML strings (`html$`). The provided `vtree$` 
+   * must complete (must call onCompleted on its observers) in finite time, 
+   * otherwise the output `html$` will never emit an HTML string.
    *
    * @param {Rx.Observable} vtree$ Observable of virtual DOM elements.
-   * @return {Rx.Observable} an Observable emitting a string as the HTML renderization of
-   * the virtual DOM element.
+   * @return {Rx.Observable} an Observable emitting a string as the HTML 
+   * renderization of the virtual DOM element.
    * @function renderAsHTML
    */
   renderAsHTML: RenderingHTML.renderAsHTML,
 
   /**
-   * Informs Cycle to recognize the given `tagName` as a custom element implemented
-   * as `dataFlowNode` whenever `tagName` is used in VTrees in a View rendered to a
-   * DOMUser.
-   * The given `dataFlowNode` must export a `vtree$` Observable. If the `dataFlowNode`
-   * expects Observable `foo$` as input, then the custom element's attribute named `foo`
-   * will be injected automatically into `foo$`.
+   * Informs Cycle to recognize the given `tagName` as a custom element 
+   * implemented as the given function whenever `tagName` is used in VTrees
+   * rendered in the context of some parent (in `applyToDOM` or in other custom 
+   * elements).
+   * The given `definitionFn` function takes two parameters as input, in this order: 
+   * `interactions` and `properties`. The former works just like it does in the
+   * `computer` function given to `applyToDOM`, and the later contains 
+   * Observables representing properties of the custom element, given from the
+   * parent context. `properties.get('foo')` will return the Observable `foo$`.
+   *
+   * The `definitionFn` must output an object containing the property `vtree$` 
+   * as an Observable. If the output object contains other Observables, then
+   * they are treated as custom events of the custom element.
    *
    * @param {String} tagName a name for identifying the custom element.
-   * @param {Function} definitionFn the implementation for the custom element. This
-   * function takes two arguments: `User`, and `Properties`. Use `User` to inject into an
-   * Intent and to be injected a View. `Properties` is a DataFlowNode containing
-   * observables matching the custom element properties.
+   * @param {Function} definitionFn the implementation for the custom element. 
+   * This function takes two arguments: `interactions`, and `properties`, and
+   * should output an object of Observables.
    * @function registerCustomElement
    */
   registerCustomElement: CustomElements.registerCustomElement,
