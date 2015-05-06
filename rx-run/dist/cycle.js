@@ -14047,7 +14047,7 @@ function subscribeDispatchers(element) {
 }
 
 function subscribeDispatchersWhenRootChanges(metadata) {
-  metadata.rootElem$.distinctUntilChanged(Rx.helpers.identity, function (x, y) {
+  return metadata.rootElem$.distinctUntilChanged(Rx.helpers.identity, function (x, y) {
     return x && y && x.isEqualNode && x.isEqualNode(y);
   }).subscribe(function (rootElem) {
     if (metadata.eventDispatchingSubscription) {
@@ -14109,6 +14109,7 @@ function makeConstructor() {
     this.key = vtree.key;
     this.isCustomElementWidget = true;
     this.rootElem$ = new Rx.ReplaySubject(1);
+    this.disposables = new Rx.CompositeDisposable();
   };
 }
 
@@ -14129,8 +14130,11 @@ function makeInit(tagName, definitionFn) {
       customEvents: domUI.customEvents,
       eventDispatchingSubscription: false
     };
-    element.eventDispatchingSubscription = subscribeDispatchers(element);
-    subscribeDispatchersWhenRootChanges(element.cycleCustomElementMetadata);
+    element.cycleCustomElementMetadata.eventDispatchingSubscription = subscribeDispatchers(element);
+    widget.disposables.add(element.cycleCustomElementMetadata.eventDispatchingSubscription);
+    widget.disposables.add(subscribeDispatchersWhenRootChanges(element.cycleCustomElementMetadata));
+    widget.disposables.add(domUI);
+    widget.disposables.add(widget.rootElem$);
     widget.update(null, element);
     return element;
   };
@@ -14151,6 +14155,13 @@ function validatePropertiesProxyInMetadata(element, fnName) {
 
 function makeUpdate() {
   return function updateCustomElement(previous, element) {
+    if (previous) {
+      this.disposables = previous.disposables;
+      // This is a new rootElem$ which is not being used by init(),
+      // but used by render-dom for creating rootElemAfterChildren$.
+      this.rootElem$.onNext(null);
+      this.rootElem$.onCompleted();
+    }
     validatePropertiesProxyInMetadata(element, 'update()');
 
     //console.log('%cupdate() custom element ' + element.className, 'color: #880088');
@@ -14165,6 +14176,25 @@ function makeUpdate() {
   };
 }
 
+function makeDestroy() {
+  return function destroyCustomElement(element) {
+    // Dispose propertiesProxy
+    var proxiedProps = element.cycleCustomElementMetadata.propertiesProxy;
+    for (var prop in proxiedProps) {
+      if (proxiedProps.hasOwnProperty(prop)) {
+        this.disposables.add(proxiedProps[prop]);
+      }
+    }
+    if (element.cycleCustomElementMetadata.eventDispatchingSubscription) {
+      // This subscription has to be disposed.
+      // Because disposing subscribeDispatchersWhenRootChanges only
+      // is not enough.
+      this.disposables.add(element.cycleCustomElementMetadata.eventDispatchingSubscription);
+    }
+    this.disposables.dispose();
+  };
+}
+
 module.exports = {
   makeDispatchFunction: makeDispatchFunction,
   subscribeDispatchers: subscribeDispatchers,
@@ -14176,7 +14206,8 @@ module.exports = {
 
   makeConstructor: makeConstructor,
   makeInit: makeInit,
-  makeUpdate: makeUpdate
+  makeUpdate: makeUpdate,
+  makeDestroy: makeDestroy
 };
 
 },{"./render-dom":109,"rx":58}],107:[function(require,module,exports){
@@ -14218,6 +14249,7 @@ function registerCustomElement(tagName, definitionFn) {
   WidgetClass.definitionFn = definitionFn;
   WidgetClass.prototype.init = CustomElementWidget.makeInit(tagName, definitionFn);
   WidgetClass.prototype.update = CustomElementWidget.makeUpdate();
+  WidgetClass.prototype.destroy = CustomElementWidget.makeDestroy();
   CustomElementsRegistry.set(tagName, WidgetClass);
 }
 

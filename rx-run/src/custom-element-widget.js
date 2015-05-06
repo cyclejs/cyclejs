@@ -123,18 +123,17 @@ function makeInit(tagName, definitionFn) {
       customEvents: domUI.customEvents,
       eventDispatchingSubscription: false
     };
-    element.eventDispatchingSubscription = subscribeDispatchers(element);
+    element.cycleCustomElementMetadata.eventDispatchingSubscription =
+      subscribeDispatchers(element);
     widget.disposables.add(
-      element.eventDispatchingSubscription
+      element.cycleCustomElementMetadata.eventDispatchingSubscription
     );
     widget.disposables.add(
       subscribeDispatchersWhenRootChanges(element.cycleCustomElementMetadata)
     );
-    widget.update(null, element);
-
     widget.disposables.add(domUI);
     widget.disposables.add(widget.rootElem$);
-
+    widget.update(null, element);
     return element;
   };
 }
@@ -183,7 +182,6 @@ function makeDestroy() {
     for (let prop in proxiedProps) { if (proxiedProps.hasOwnProperty(prop)) {
       this.disposables.add(proxiedProps[prop]);
     }}
-
     if (element.cycleCustomElementMetadata.eventDispatchingSubscription) {
       // This subscription has to be disposed.
       // Because disposing subscribeDispatchersWhenRootChanges only
@@ -192,7 +190,6 @@ function makeDestroy() {
         element.cycleCustomElementMetadata.eventDispatchingSubscription
       );
     }
-
     this.disposables.dispose();
   };
 }
