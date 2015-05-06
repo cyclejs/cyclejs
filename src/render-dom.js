@@ -1,3 +1,4 @@
+/* jshint maxparams: 4 */
 'use strict';
 let Rx = require('rx');
 let VDOM = {
@@ -179,7 +180,7 @@ function digestDefinitionFnOutput(output) {
   return {vtree$, customEvents};
 }
 
-function applyToDOM(container, definitionFn, props = null) {
+function applyToDOM(container, definitionFn, observer = null, props = null) {
   // Find and prepare the container
   let domContainer = (typeof container === 'string') ?
     document.querySelector(container) :
@@ -196,11 +197,17 @@ function applyToDOM(container, definitionFn, props = null) {
   let interactions = makeInteractions(rootElem$);
   let output = definitionFn(interactions, props);
   let {vtree$, customEvents} = digestDefinitionFnOutput(output);
-  let subscription = rootElem$.connect();
+  let connection = rootElem$.connect();
+  let subscription = observer ? rootElem$.subscribe(observer) : rootElem$.subscribe();
   proxyVTree$$.onNext(vtree$.shareReplay(1));
   proxyVTree$$.onCompleted();
+
   return {
-    dispose: subscription.dispose.bind(subscription),
+    dispose: function dispose() {
+      subscription.dispose();
+      connection.dispose();
+      proxyVTree$$.dispose();
+    },
     rootElem$,
     interactions,
     customEvents

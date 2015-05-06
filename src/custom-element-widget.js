@@ -110,14 +110,18 @@ function makeInit(tagName, definitionFn) {
     let widget = this;
     let element = createContainerElement(tagName, widget.properties);
     let propertiesProxy = makePropertiesProxy();
-    let domUI = applyToDOM(element, definitionFn, propertiesProxy);
+    let domUI = applyToDOM(
+      element,
+      definitionFn,
+      widget.rootElem$.asObserver(),
+      propertiesProxy
+    );
     element.cycleCustomElementMetadata = {
       propertiesProxy,
       rootElem$: domUI.rootElem$,
       customEvents: domUI.customEvents,
       eventDispatchingSubscription: false
     };
-    domUI.rootElem$.subscribe(widget.rootElem$.asObserver());
     element.eventDispatchingSubscription = subscribeDispatchers(element);
     subscribeDispatchersWhenRootChanges(element.cycleCustomElementMetadata);
     widget.update(null, element);

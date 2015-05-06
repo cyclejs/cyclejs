@@ -223,7 +223,7 @@ describe('Custom Elements', function () {
       };
     });
     // Make VNode with a string as child
-    let vtree$ = Rx.Observable.just(h('myelement'));
+    let vtree$ = Rx.Observable.just(h('div', h('myelement')));
     let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
     console = realConsole;
     assert.strictEqual(warnMessages.length, 1);
@@ -332,15 +332,19 @@ describe('Custom Elements', function () {
     let vtree$ = Rx.Observable.just(h('div.toplevel', [
       h('myelement', {children: 123})
     ]));
-    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
-    domUI.rootElem$.subscribe(() => {}, function (err) {
-      assert.strictEqual(err.message, 'Custom element should not have property ' +
-        '`children`. This is reserved for children elements nested into this ' +
-        'custom element.'
-      );
-      domUI.dispose();
-      done();
-    });
+    let observer = Rx.Observer.create(
+      () => {},
+      (err) => {
+        assert.strictEqual(err.message, 'Custom element should not have property ' +
+          '`children`. This is reserved for children elements nested into this ' +
+          'custom element.'
+        );
+        // TODO: cannot dispose because applyToDOM has not yet completed.
+        // domUI.dispose();
+        done();
+      }
+    );
+    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$, observer);
   });
 
   it('should recognize changes on a mutable collection given as props', function (done) {
