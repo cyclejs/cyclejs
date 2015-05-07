@@ -4,7 +4,7 @@ let express = require('express');
 let browserify = require('browserify');
 let serialize = require('serialize-javascript');
 let {Rx, h} = Cycle;
-let {computer} = require('./app');
+let {makeComputerFn} = require('./app');
 
 function wrapVTreeWithHTMLBoilerplate(vtree, context, clientBundle) {
   return h('html', [
@@ -23,10 +23,9 @@ function prependHTML5Doctype(html) {
   return `<!doctype html>${html}`;
 }
 
-function makeEmptyInteraction$() {
+function makeEmptyInteractions() {
   return {
-    subscribe() { },
-    choose() {
+    get() {
       return Rx.Observable.empty();
     }
   };
@@ -64,7 +63,8 @@ server.use(function (req, res) {
   console.log(`req: ${req.method} ${req.url}`);
 
   let context$ = Rx.Observable.just({route: req.url});
-  let vtree$ = computer(context$, makeEmptyInteraction$())
+  let computer = makeComputerFn(context$);
+  let vtree$ = computer(makeEmptyInteractions())
     .combineLatest(context$, clientBundle$, wrapVTreeWithHTMLBoilerplate);
   let html$ = Cycle.renderAsHTML(vtree$).map(prependHTML5Doctype);
   html$.subscribe(html => res.send(html));

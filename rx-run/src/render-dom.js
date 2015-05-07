@@ -1,3 +1,4 @@
+/* jshint maxparams: 4 */
 'use strict';
 let Rx = require('rx');
 let VDOM = {
@@ -35,11 +36,11 @@ function fixRootElem$(rawRootElem$, domContainer) {
       //  'color: #009988');
       return rootElem;
     })
-    .shareReplay(1);
+    .replay(null, 1);
 }
 
 function isVTreeCustomElement(vtree) {
-  return (vtree.type === 'Widget' && !!vtree._rootElem$);
+  return (vtree.type === 'Widget' && vtree.isCustomElementWidget);
 }
 
 function replaceCustomElementsWithWidgets(vtree) {
@@ -49,8 +50,8 @@ function replaceCustomElementsWithWidgets(vtree) {
 }
 
 function getArrayOfAllWidgetRootElemStreams(vtree) {
-  if (vtree.type === 'Widget' && vtree._rootElem$) {
-    return [vtree._rootElem$];
+  if (vtree.type === 'Widget' && vtree.rootElem$) {
+    return [vtree.rootElem$];
   }
   // Or replace children recursively
   let array = [];
@@ -79,22 +80,15 @@ function makeDiffAndPatchToElement$(rootElem) {
       .combineLatest(arrayOfAll, () => {
         //console.log('%cEmit rawRootElem$ (1) ', 'color: #008800');
         return rootElem;
-      })
-      .first();
-    let cycleCustomElementRoot$ = rootElem.cycleCustomElementRoot$;
-    let cycleCustomElementProperties = rootElem.cycleCustomElementProperties;
-    try {
-      //console.log('%cVDOM diff and patch START', 'color: #636300');
-      rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
-      //console.log('%cVDOM diff and patch END', 'color: #636300');
-    } catch (err) {
-      console.error(err);
-    }
-    if (!!cycleCustomElementRoot$) {
-      rootElem.cycleCustomElementRoot$ = cycleCustomElementRoot$;
-    }
-    if (!!cycleCustomElementProperties) {
-      rootElem.cycleCustomElementProperties = cycleCustomElementProperties;
+      });
+    let cycleCustomElementMetadata = rootElem.cycleCustomElementMetadata;
+    //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
+    //let k = isCustomElement ? ' is custom element ' : ' is top level';
+    //console.log('%cVDOM diff and patch START' + k, 'color: #636300');
+    rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
+    //console.log('%cVDOM diff and patch END' + k, 'color: #636300');
+    if (!!cycleCustomElementMetadata) {
+      rootElem.cycleCustomElementMetadata = cycleCustomElementMetadata;
     }
     if (arrayOfAll.length === 0) {
       //console.log('%cEmit rawRootElem$ (2)', 'color: #008800');
@@ -129,30 +123,25 @@ function renderRawRootElem$(vtree$, domContainer) {
     .startWith(rootElem);
 }
 
-function makeInteraction$(rootElem$) {
+function makeInteractions(rootElem$) {
   return {
-    subscribe: function subscribe() {
-      throw new Error('Cannot subscribe to interaction$ without first calling ' +
-        'choose(selector, eventName)'
-      );
-    },
-    choose: function choose(selector, eventName) {
+    get: function get(selector, eventName) {
       if (typeof selector !== 'string') {
-        throw new Error('interaction$.choose() expects first argument to be a ' +
+        throw new Error('interactions.get() expects first argument to be a ' +
           'string as a CSS selector');
       }
       if (typeof eventName !== 'string') {
-        throw new Error('interaction$.choose() expects second argument to be a ' +
+        throw new Error('interactions.get() expects second argument to be a ' +
           'string representing the event type to listen for.');
       }
 
-      //console.log(`%cchoose("${selector}", "${eventName}")`, 'color: #0000BB');
+      //console.log(`%cget("${selector}", "${eventName}")`, 'color: #0000BB');
       return rootElem$.flatMapLatest(function flatMapDOMUserEventStream(rootElem) {
         if (!rootElem) {
           return Rx.Observable.empty();
         }
-        //let isCustomElement = !!rootElem.cycleCustomElementDOMUser;
-        //console.log('%cchoose("' + selector + '", "' + eventName + '") flatMapper' +
+        //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
+        //console.log('%cget("' + selector + '", "' + eventName + '") flatMapper' +
         //  (isCustomElement ? ' for a custom element' : ' for top-level View'),
         //  'color: #0000BB');
         let klass = selector.replace('.', '');
@@ -173,15 +162,25 @@ function makeInteraction$(rootElem$) {
   };
 }
 
-function publishConnectRootElem$(rootElem$) {
-  let subscription = rootElem$.publish().connect();
-  rootElem$.dispose = function dispose() {
-    subscription.dispose();
-  };
-  return rootElem$;
+function digestDefinitionFnOutput(output) {
+  let vtree$;
+  let customEvents = {};
+  if (typeof output.subscribe === 'function') {
+    vtree$ = output;
+  } else if (output.hasOwnProperty('vtree$') &&
+    typeof output.vtree$.subscribe === 'function')
+  {
+    vtree$ = output.vtree$;
+    customEvents = output;
+  } else {
+    throw new Error('definitionFn given to applyToDOM must return an ' +
+      'Observable of virtual DOM elements, or an object containing such ' +
+      'Observable named as `vtree$`');
+  }
+  return {vtree$, customEvents};
 }
 
-function render(vtree$, container) {
+function applyToDOM(container, definitionFn, observer = null, props = null) {
   // Find and prepare the container
   let domContainer = (typeof container === 'string') ?
     document.querySelector(container) :
@@ -192,11 +191,29 @@ function render(vtree$, container) {
   } else if (!isElement(domContainer)) {
     throw new Error('Given container is not a DOM element neither a selector string.');
   }
-  let rawRootElem$ = renderRawRootElem$(vtree$, domContainer);
+  let proxyVTree$$ = new Rx.AsyncSubject();
+  let rawRootElem$ = renderRawRootElem$(proxyVTree$$.mergeAll(), domContainer);
   let rootElem$ = fixRootElem$(rawRootElem$, domContainer);
-  rootElem$.interaction$ = makeInteraction$(rootElem$);
-  rootElem$ = publishConnectRootElem$(rootElem$);
-  return rootElem$;
+  let interactions = makeInteractions(rootElem$);
+  let output = definitionFn(interactions, props);
+  let {vtree$, customEvents} = digestDefinitionFnOutput(output);
+  let connection = rootElem$.connect();
+  let subscription = observer ?
+    rootElem$.subscribe(observer) :
+    rootElem$.subscribe();
+  proxyVTree$$.onNext(vtree$.shareReplay(1));
+  proxyVTree$$.onCompleted();
+
+  return {
+    dispose: function dispose() {
+      subscription.dispose();
+      connection.dispose();
+      proxyVTree$$.dispose();
+    },
+    rootElem$,
+    interactions,
+    customEvents
+  };
 }
 
 module.exports = {
@@ -209,8 +226,8 @@ module.exports = {
   makeDiffAndPatchToElement$,
   getRenderRootElem,
   renderRawRootElem$,
-  makeInteraction$,
-  publishConnectRootElem$,
+  makeInteractions,
+  digestDefinitionFnOutput,
 
-  render
+  applyToDOM
 };
