@@ -14,3 +14,5 @@ lib/
 # Misc
 ignore
 npm-debug.log
+ts/*
+!ts/cycle.d.ts
