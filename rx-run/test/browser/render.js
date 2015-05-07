@@ -162,7 +162,7 @@ describe('Rendering', function () {
           done();
         }
       );
-      let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$, observer);
+      let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$, {observer});
     });
   });
 });

@@ -22,8 +22,8 @@ var Cycle = {
    * (or the element itself) to contain the rendering of the VTrees.
    * @param {Function} computer a function that takes `interactions` as input
    * and outputs an Observable of virtual DOM elements.
-   * @return {Object} an object containing properties `rootElem$`, `interactions`,
-   * `dispose()` that can be used for debugging or testing.
+   * @return {Object} an object containing properties `rootElem$`,
+   * `interactions`, `dispose()` that can be used for debugging or testing.
    * @function applyToDOM
    */
   applyToDOM: RenderingDOM.applyToDOM,
@@ -46,9 +46,9 @@ var Cycle = {
    * implemented as the given function whenever `tagName` is used in VTrees
    * rendered in the context of some parent (in `applyToDOM` or in other custom
    * elements).
-   * The given `definitionFn` function takes two parameters as input, in this order:
-   * `interactions` and `properties`. The former works just like it does in the
-   * `computer` function given to `applyToDOM`, and the later contains
+   * The given `definitionFn` function takes two parameters as input, in this
+   * order: `interactions` and `properties`. The former works just like it does
+   * in the `computer` function given to `applyToDOM`, and the later contains
    * Observables representing properties of the custom element, given from the
    * parent context. `properties.get('foo')` will return the Observable `foo$`.
    *
@@ -65,7 +65,8 @@ var Cycle = {
   registerCustomElement: CustomElements.registerCustomElement,
 
   /**
-   * A shortcut to the root object of [RxJS](https://github.com/Reactive-Extensions/RxJS).
+   * A shortcut to the root object of
+   * [RxJS](https://github.com/Reactive-Extensions/RxJS).
    * @name Rx
    */
   Rx: Rx,
