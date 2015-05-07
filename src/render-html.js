@@ -12,7 +12,8 @@ function makePropertiesProxyFromVTree(vtree) {
 }
 
 /**
- * Converts a tree of VirtualNode|Observable<VirtualNode> into Observable<VirtualNode>.
+ * Converts a tree of VirtualNode|Observable<VirtualNode> into
+ * Observable<VirtualNode>.
  */
 function transposeVTree(vtree) {
   if (typeof vtree.subscribe === 'function') {
@@ -22,12 +23,11 @@ function transposeVTree(vtree) {
   } else if (vtree.type === 'VirtualNode' && Array.isArray(vtree.children) &&
     vtree.children.length > 0)
   {
-    /* jshint: -W117 */
-    return Rx.Observable.combineLatest(vtree.children.map(transposeVTree), (...arr) => {
-      vtree.children = arr;
-      return vtree;
-    });
-    /* jshint: +W117 */
+    return Rx.Observable
+      .combineLatest(vtree.children.map(transposeVTree), (...arr) => {
+        vtree.children = arr;
+        return vtree;
+      });
   } else if (vtree.type === 'VirtualNode') {
     return Rx.Observable.just(vtree);
   } else {
@@ -44,15 +44,18 @@ function makeEmptyInteractions() {
 }
 
 function replaceCustomElementsWithVTree$(vtree) {
-  return replaceCustomElementsWithSomething(vtree, function (vtree, WidgetClass) {
-    let interactions = makeEmptyInteractions();
-    let props = makePropertiesProxyFromVTree(vtree);
-    let output = WidgetClass.definitionFn(interactions, props);
-    return convertCustomElementsToVTree(output.vtree$.last());
-  });
+  return replaceCustomElementsWithSomething(vtree,
+    function toVTree$(_vtree, WidgetClass) {
+      let interactions = makeEmptyInteractions();
+      let props = makePropertiesProxyFromVTree(_vtree);
+      let output = WidgetClass.definitionFn(interactions, props);
+      /*eslint-disable no-use-before-define */
+      return convertCustomElementsToVTree(output.vtree$.last());
+      /*eslint-enable no-use-before-define */
+    });
 }
 
-function convertCustomElementsToVTree(vtree$) { // jshint ignore:line
+function convertCustomElementsToVTree(vtree$) {
   return vtree$
     .map(replaceCustomElementsWithVTree$)
     .flatMap(transposeVTree);
@@ -64,10 +67,11 @@ function renderAsHTML(input) {
   if (typeof input === 'function') {
     computerFn = input;
     vtree$ = computerFn(makeEmptyInteractions());
-  } else if (typeof input.subscribe === 'function'){
+  } else if (typeof input.subscribe === 'function') {
     vtree$ = input;
   }
-  return convertCustomElementsToVTree(vtree$.last()).map(vtree => toHTML(vtree));
+  return convertCustomElementsToVTree(vtree$.last())
+    .map(vtree => toHTML(vtree));
 }
 
 module.exports = {

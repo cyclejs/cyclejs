@@ -20,13 +20,13 @@ function makeDispatchFunction(element, eventName) {
 function subscribeDispatchers(element) {
   let {customEvents} = element.cycleCustomElementMetadata;
   let disposables = new Rx.CompositeDisposable();
-  for (let streamName in customEvents) { if (customEvents.hasOwnProperty(streamName)) {
-    if (/\$$/.test(streamName) &&
-      streamName !== 'vtree$' &&
-      typeof customEvents[streamName].subscribe === 'function')
+  for (let name in customEvents) { if (customEvents.hasOwnProperty(name)) {
+    if (/\$$/.test(name) &&
+      name !== 'vtree$' &&
+      typeof customEvents[name].subscribe === 'function')
     {
-      let eventName = streamName.slice(0, -1);
-      let disposable = customEvents[streamName].subscribe(
+      let eventName = name.slice(0, -1);
+      let disposable = customEvents[name].subscribe(
         makeDispatchFunction(element, eventName)
       );
       disposables.add(disposable);
@@ -40,7 +40,7 @@ function subscribeDispatchersWhenRootChanges(metadata) {
     .distinctUntilChanged(Rx.helpers.identity,
       (x, y) => (x && y && x.isEqualNode && x.isEqualNode(y))
     )
-    .subscribe(function (rootElem) {
+    .subscribe(function resubscribeDispatchers(rootElem) {
       if (metadata.eventDispatchingSubscription) {
         metadata.eventDispatchingSubscription.dispose();
       }
@@ -77,14 +77,15 @@ function createContainerElement(tagName, vtreeProperties) {
 
 function warnIfVTreeHasNoKey(vtree) {
   if (typeof vtree.key === 'undefined') {
-    console.warn('Missing `key` property for Cycle custom element ' + vtree.tagName);
+    console.warn('Missing `key` property for Cycle custom element ' +
+      vtree.tagName);
   }
 }
 
 function throwIfVTreeHasPropertyChildren(vtree) {
   if (typeof vtree.properties.children !== 'undefined') {
-    throw new Error('Custom element should not have property `children`. This is ' +
-      'reserved for children elements nested into this custom element.');
+    throw new Error('Custom element should not have property `children`. ' +
+      'It is reserved for children elements nested into this custom element.');
   }
 }
 
@@ -111,12 +112,10 @@ function makeInit(tagName, definitionFn) {
     let widget = this;
     let element = createContainerElement(tagName, widget.properties);
     let propertiesProxy = makePropertiesProxy();
-    let domUI = applyToDOM(
-      element,
-      definitionFn,
-      widget.rootElem$.asObserver(),
-      propertiesProxy
-    );
+    let domUI = applyToDOM(element, definitionFn, {
+        observer: widget.rootElem$.asObserver(),
+        props: propertiesProxy
+    });
     element.cycleCustomElementMetadata = {
       propertiesProxy,
       rootElem$: domUI.rootElem$,
@@ -165,7 +164,7 @@ function makeUpdate() {
     }
     validatePropertiesProxyInMetadata(element, 'update()');
 
-    //console.log('%cupdate() custom element ' + element.className, 'color: #880088');
+    //console.log(`%cupdate() custom el ${element.className}`,'color: #880088');
     let proxiedProps = element.cycleCustomElementMetadata.propertiesProxy;
     for (let prop in proxiedProps) { if (proxiedProps.hasOwnProperty(prop)) {
       if (this.properties.hasOwnProperty(prop)) {
@@ -177,6 +176,7 @@ function makeUpdate() {
 
 function makeDestroy() {
   return function destroyCustomElement(element) {
+    //console.log(`%cdestroy() custom el ${element.className}`, 'color: #808');
     // Dispose propertiesProxy
     let proxiedProps = element.cycleCustomElementMetadata.propertiesProxy;
     for (let prop in proxiedProps) { if (proxiedProps.hasOwnProperty(prop)) {

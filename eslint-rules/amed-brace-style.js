@@ -1,9 +1,6 @@
 'use strict';
 
-module.exports = function(context) {
-  var style = context.options[0] || '1tbs';
-  var params = context.options[1] || {};
-
+module.exports = function amedBraceStyleRule(context) {
   var OPEN_MESSAGE = 'Opening curly brace does not appear on the same line ' +
     'as controlling statement.';
   var BODY_MESSAGE = 'Statement inside of curly braces should be on next line.';
@@ -11,8 +8,8 @@ module.exports = function(context) {
     'as the subsequent block.';
   var CLOSE_MESSAGE_SINGLE = 'Closing curly brace should be on the same line ' +
     'as opening curly brace or on the line after the previous block.';
-  var CLOSE_MESSAGE_STROUSTRUP = 'Closing curly brace appears on the same ' +
-    'line as the subsequent block.';
+  var MULTILINE_IF_NEXT_LINE_CURLY = 'Multiline if statement must have ' +
+    'opening curly brace on the next line';
 
   //--------------------------------------------------------------------------
   // Helpers
@@ -49,17 +46,29 @@ module.exports = function(context) {
   function checkBlock() {
     var blockProperties = arguments;
 
-    return function(node) {
-      [].forEach.call(blockProperties, function(blockProp) {
-        var block = node[blockProp], previousToken, curlyToken, curlyTokenEnd, curlyTokensOnSameLine;
+    return function _checkBlock(node) {
+      [].forEach.call(blockProperties, function checkBlockForProp(blockProp) {
+        var block = node[blockProp];
+        var previousToken;
+        var curlyToken;
+        var curlyTokenEnd;
+        var curlyTokensOnSameLine;
 
         if (isBlock(block)) {
           previousToken = context.getTokenBefore(block);
           curlyToken = context.getFirstToken(block);
           curlyTokenEnd = context.getLastToken(block);
-          curlyTokensOnSameLine = curlyToken.loc.start.line === curlyTokenEnd.loc.start.line;
+          curlyTokensOnSameLine =
+            curlyToken.loc.start.line === curlyTokenEnd.loc.start.line;
 
-          if (previousToken.loc.start.line !== curlyToken.loc.start.line) {
+          if (ifStatementIsMultilineAndCurlyOnSeparateLine(node)) {
+            var consequentFirstToken = context.getFirstToken(node.consequent);
+            if (consequentFirstToken.loc.start.line !== node.test.loc.end.line + 1) {
+              context.report(node, MULTILINE_IF_NEXT_LINE_CURLY);
+            }
+          }
+          if (previousToken.loc.start.line !== curlyToken.loc.start.line &&
+            !ifStatementIsMultilineAndCurlyOnSeparateLine(node)) {
             context.report(node, OPEN_MESSAGE);
           } else if (block.body.length > 0) {
             if (curlyToken.loc.start.line === block.body[0].loc.start.line && !curlyTokensOnSameLine) {
@@ -84,33 +93,24 @@ module.exports = function(context) {
       curlyTokenEnd = context.getLastToken(block);
       curlyTokensOnSameLine = curlyToken.loc.start.line === curlyTokenEnd.loc.start.line;
 
-      console.log('');
-      console.log('--> block:');
-      console.dir(block);
-      console.log('--> previousToken:');
-      console.dir(previousToken);
-      console.log('--> curlyToken:');
-      console.dir(curlyToken);
-      console.log('--> curlyTokenEnd:');
-      console.dir(curlyTokenEnd);
-      console.log('--> curlyTokensOnSameLine:');
-      console.dir(curlyTokensOnSameLine);
-
       if (previousToken.loc.start.line !== curlyToken.loc.start.line) {
         context.report(node, OPEN_MESSAGE);
       } else if (block.body.length) {
-        if (curlyToken.loc.start.line === block.body[0].loc.start.line && !curlyTokensOnSameLine) {
-          console.log('x1');
+        if (curlyToken.loc.start.line === block.body[0].loc.start.line
+        && !curlyTokensOnSameLine && block.body[0].type !== 'IfStatement') {
           context.report(block.body[0], BODY_MESSAGE);
         } else if (curlyTokenEnd.loc.start.line === block.body[block.body.length - 1].loc.start.line && !curlyTokensOnSameLine) {
-          console.log('x2');
           context.report(block.body[block.body.length - 1], CLOSE_MESSAGE_SINGLE);
         }
       } else if (block.body.length && curlyToken.loc.start.line === block.body[0].loc.start.line) {
-        console.log('x3');
         context.report(block.body[0], BODY_MESSAGE);
       }
     }
+  }
+
+  function ifStatementIsMultilineAndCurlyOnSeparateLine(node) {
+    return node.type === 'IfStatement' &&
+      node.test.loc.start.line < node.test.loc.end.line;
   }
 
   /**
@@ -133,7 +133,6 @@ module.exports = function(context) {
 
       if (alternateIsBlock || alternateIsIfBlock) {
         tokens = context.getTokensBefore(node.alternate, 2);
-        console.dir(tokens);
 
         if (tokens[0].loc.start.line !== tokens[1].loc.start.line
           && isCurlyPunctuator(tokens[0]))
@@ -157,14 +156,8 @@ module.exports = function(context) {
 
     if (isBlock(node.finalizer)) {
       tokens = context.getTokensBefore(node.finalizer, 2);
-      if (style === '1tbs') {
-        if (tokens[0].loc.start.line !== tokens[1].loc.start.line) {
-          context.report(node.finalizer, CLOSE_MESSAGE);
-        }
-      } else if (style === 'stroustrup') {
-        if (tokens[0].loc.start.line === tokens[1].loc.start.line) {
-          context.report(node.finalizer, CLOSE_MESSAGE_STROUSTRUP);
-        }
+      if (tokens[0].loc.start.line !== tokens[1].loc.start.line) {
+        context.report(node.finalizer, CLOSE_MESSAGE);
       }
     }
   }
@@ -182,14 +175,8 @@ module.exports = function(context) {
     checkBlock('body')(node);
 
     if (isBlock(node.body)) {
-      if (style === '1tbs') {
-        if (previousToken.loc.start.line !== firstToken.loc.start.line) {
-          context.report(node, CLOSE_MESSAGE);
-        }
-      } else if (style === 'stroustrup') {
-        if (previousToken.loc.start.line === firstToken.loc.start.line) {
-          context.report(node, CLOSE_MESSAGE_STROUSTRUP);
-        }
+      if (previousToken.loc.start.line !== firstToken.loc.start.line) {
+        context.report(node, CLOSE_MESSAGE);
       }
     }
   }

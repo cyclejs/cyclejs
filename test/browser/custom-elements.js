@@ -336,7 +336,7 @@ describe('Custom Elements', function () {
       () => {},
       (err) => {
         assert.strictEqual(err.message, 'Custom element should not have property ' +
-          '`children`. This is reserved for children elements nested into this ' +
+          '`children`. It is reserved for children elements nested into this ' +
           'custom element.'
         );
         // TODO: cannot dispose because applyToDOM has not yet completed.
@@ -344,7 +344,7 @@ describe('Custom Elements', function () {
         done();
       }
     );
-    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$, observer);
+    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$, {observer});
   });
 
   it('should recognize changes on a mutable collection given as props', function (done) {
@@ -409,7 +409,6 @@ describe('Custom Elements', function () {
     );
     let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
     domUI.interactions.get('.eventsource', 'myevent').subscribe(function (x) {
-      debugger;
       assert.strictEqual(x.data, 123);
       domUI.dispose();
       done();

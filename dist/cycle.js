@@ -14066,11 +14066,11 @@ function subscribeDispatchers(element) {
   var customEvents = element.cycleCustomElementMetadata.customEvents;
 
   var disposables = new Rx.CompositeDisposable();
-  for (var streamName in customEvents) {
-    if (customEvents.hasOwnProperty(streamName)) {
-      if (/\$$/.test(streamName) && streamName !== 'vtree$' && typeof customEvents[streamName].subscribe === 'function') {
-        var eventName = streamName.slice(0, -1);
-        var disposable = customEvents[streamName].subscribe(makeDispatchFunction(element, eventName));
+  for (var _name in customEvents) {
+    if (customEvents.hasOwnProperty(_name)) {
+      if (/\$$/.test(_name) && _name !== 'vtree$' && typeof customEvents[_name].subscribe === 'function') {
+        var eventName = _name.slice(0, -1);
+        var disposable = customEvents[_name].subscribe(makeDispatchFunction(element, eventName));
         disposables.add(disposable);
       }
     }
@@ -14081,7 +14081,7 @@ function subscribeDispatchers(element) {
 function subscribeDispatchersWhenRootChanges(metadata) {
   return metadata.rootElem$.distinctUntilChanged(Rx.helpers.identity, function (x, y) {
     return x && y && x.isEqualNode && x.isEqualNode(y);
-  }).subscribe(function (rootElem) {
+  }).subscribe(function resubscribeDispatchers(rootElem) {
     if (metadata.eventDispatchingSubscription) {
       metadata.eventDispatchingSubscription.dispose();
     }
@@ -14125,7 +14125,7 @@ function warnIfVTreeHasNoKey(vtree) {
 
 function throwIfVTreeHasPropertyChildren(vtree) {
   if (typeof vtree.properties.children !== 'undefined') {
-    throw new Error('Custom element should not have property `children`. This is ' + 'reserved for children elements nested into this custom element.');
+    throw new Error('Custom element should not have property `children`. ' + 'It is reserved for children elements nested into this custom element.');
   }
 }
 
@@ -14155,7 +14155,10 @@ function makeInit(tagName, definitionFn) {
     var widget = this;
     var element = createContainerElement(tagName, widget.properties);
     var propertiesProxy = makePropertiesProxy();
-    var domUI = applyToDOM(element, definitionFn, widget.rootElem$.asObserver(), propertiesProxy);
+    var domUI = applyToDOM(element, definitionFn, {
+      observer: widget.rootElem$.asObserver(),
+      props: propertiesProxy
+    });
     element.cycleCustomElementMetadata = {
       propertiesProxy: propertiesProxy,
       rootElem$: domUI.rootElem$,
@@ -14196,7 +14199,7 @@ function makeUpdate() {
     }
     validatePropertiesProxyInMetadata(element, 'update()');
 
-    //console.log('%cupdate() custom element ' + element.className, 'color: #880088');
+    //console.log(`%cupdate() custom el ${element.className}`,'color: #880088');
     var proxiedProps = element.cycleCustomElementMetadata.propertiesProxy;
     for (var prop in proxiedProps) {
       if (proxiedProps.hasOwnProperty(prop)) {
@@ -14210,6 +14213,7 @@ function makeUpdate() {
 
 function makeDestroy() {
   return function destroyCustomElement(element) {
+    //console.log(`%cdestroy() custom el ${element.className}`, 'color: #808');
     // Dispose propertiesProxy
     var proxiedProps = element.cycleCustomElementMetadata.propertiesProxy;
     for (var prop in proxiedProps) {
@@ -14245,10 +14249,10 @@ module.exports = {
 },{"./render-dom":108,"rx":58}],107:[function(require,module,exports){
 'use strict';
 var CustomElementWidget = require('./custom-element-widget');
-var Map = require('es6-map'); /* jshint: -W079 */
+var Map = Map || require('es6-map'); // eslint-disable-line no-native-reassign
 var CustomElementsRegistry = new Map();
 
-function replaceCustomElementsWithSomething(vtree, customElementVTreeToSomething) {
+function replaceCustomElementsWithSomething(vtree, toSomethingFn) {
   // Silently ignore corner cases
   if (!vtree || vtree.type === 'VirtualText') {
     return vtree;
@@ -14257,22 +14261,22 @@ function replaceCustomElementsWithSomething(vtree, customElementVTreeToSomething
   // Replace vtree itself
   if (tagName && CustomElementsRegistry.has(tagName)) {
     var WidgetClass = CustomElementsRegistry.get(tagName);
-    return customElementVTreeToSomething(vtree, WidgetClass);
+    return toSomethingFn(vtree, WidgetClass);
   }
   // Or replace children recursively
   if (Array.isArray(vtree.children)) {
     for (var i = vtree.children.length - 1; i >= 0; i--) {
-      vtree.children[i] = replaceCustomElementsWithSomething(vtree.children[i], customElementVTreeToSomething);
+      vtree.children[i] = replaceCustomElementsWithSomething(vtree.children[i], toSomethingFn);
     }
   }
   return vtree;
 }
 
-function registerCustomElement(tagName, definitionFn) {
-  if (typeof tagName !== 'string' || typeof definitionFn !== 'function') {
+function registerCustomElement(givenTagName, definitionFn) {
+  if (typeof givenTagName !== 'string' || typeof definitionFn !== 'function') {
     throw new Error('registerCustomElement requires parameters `tagName` and ' + '`definitionFn`.');
   }
-  tagName = tagName.toUpperCase();
+  var tagName = givenTagName.toUpperCase();
   if (CustomElementsRegistry.has(tagName)) {
     throw new Error('Cannot register custom element `' + tagName + '` ' + 'for the DOMUser because that tagName is already registered.');
   }
@@ -14326,12 +14330,12 @@ function fixRootElem$(rawRootElem$, domContainer) {
     var missingClasses = originalClasses.filter(function (clss) {
       return previousClasses.indexOf(clss) < 0;
     });
-    //console.log('%cfixRootElemClassName(), missingClasses: ' + missingClasses,
-    //  'color: lightgray');
+    //console.log('%cfixRootElemClassName(), missingClasses: ' +
+    //  missingClasses, 'color: lightgray');
     rootElem.className = previousClasses.concat(missingClasses).join(' ');
     //console.log('%c  result: ' + rootElem.className, 'color: lightgray');
-    //console.log('%cEmit rootElem$ ' + rootElem.tagName + '.' + rootElem.className,
-    //  'color: #009988');
+    //console.log('%cEmit rootElem$ ' + rootElem.tagName + '.' +
+    //  rootElem.className, 'color: #009988');
     return rootElem;
   }).replay(null, 1);
 }
@@ -14341,8 +14345,8 @@ function isVTreeCustomElement(vtree) {
 }
 
 function replaceCustomElementsWithWidgets(vtree) {
-  return replaceCustomElementsWithSomething(vtree, function (vtree, WidgetClass) {
-    return new WidgetClass(vtree);
+  return replaceCustomElementsWithSomething(vtree, function (_vtree, WidgetClass) {
+    return new WidgetClass(_vtree);
   });
 }
 
@@ -14362,7 +14366,7 @@ function getArrayOfAllWidgetRootElemStreams(vtree) {
 
 function checkRootVTreeNotCustomElement(vtree) {
   if (isVTreeCustomElement(vtree)) {
-    throw new Error('Illegal to use a Cycle custom element as the root of a View.');
+    throw new Error('Illegal to use a Cycle custom element as the root of ' + 'a View.');
   }
 }
 
@@ -14386,9 +14390,11 @@ function makeDiffAndPatchToElement$(rootElem) {
     //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
     //let k = isCustomElement ? ' is custom element ' : ' is top level';
     //console.log('%cVDOM diff and patch START' + k, 'color: #636300');
+    /* eslint-disable */
     rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
+    /* eslint-enable */
     //console.log('%cVDOM diff and patch END' + k, 'color: #636300');
-    if (!!cycleCustomElementMetadata) {
+    if (cycleCustomElementMetadata) {
       rootElem.cycleCustomElementMetadata = cycleCustomElementMetadata;
     }
     if (arrayOfAll.length === 0) {
@@ -14429,12 +14435,12 @@ function makeInteractions(rootElem$) {
       }
 
       //console.log(`%cget("${selector}", "${eventName}")`, 'color: #0000BB');
-      return rootElem$.flatMapLatest(function flatMapDOMUserEventStream(rootElem) {
+      return rootElem$.flatMapLatest(function rootElemToEvent$(rootElem) {
         if (!rootElem) {
           return Rx.Observable.empty();
         }
         //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
-        //console.log('%cget("' + selector + '", "' + eventName + '") flatMapper' +
+        //console.log(`%cget('${selector}', '${eventName}') flatMapper` +
         //  (isCustomElement ? ' for a custom element' : ' for top-level View'),
         //  'color: #0000BB');
         var klass = selector.replace('.', '');
@@ -14470,8 +14476,12 @@ function digestDefinitionFnOutput(output) {
 }
 
 function applyToDOM(container, definitionFn) {
-  var observer = arguments[2] === undefined ? null : arguments[2];
-  var props = arguments[3] === undefined ? null : arguments[3];
+  var _ref3 = arguments[2] === undefined ? {} : arguments[2];
+
+  var _ref3$observer = _ref3.observer;
+  var observer = _ref3$observer === undefined ? null : _ref3$observer;
+  var _ref3$props = _ref3.props;
+  var props = _ref3$props === undefined ? null : _ref3$props;
 
   // Find and prepare the container
   var domContainer = typeof container === 'string' ? document.querySelector(container) : container;
@@ -14479,7 +14489,7 @@ function applyToDOM(container, definitionFn) {
   if (typeof container === 'string' && domContainer === null) {
     throw new Error('Cannot render into unknown element \'' + container + '\'');
   } else if (!isElement(domContainer)) {
-    throw new Error('Given container is not a DOM element neither a selector string.');
+    throw new Error('Given container is not a DOM element neither a selector ' + 'string.');
   }
   var proxyVTree$$ = new Rx.AsyncSubject();
   var rawRootElem$ = renderRawRootElem$(proxyVTree$$.mergeAll(), domContainer);
@@ -14543,7 +14553,8 @@ function makePropertiesProxyFromVTree(vtree) {
 }
 
 /**
- * Converts a tree of VirtualNode|Observable<VirtualNode> into Observable<VirtualNode>.
+ * Converts a tree of VirtualNode|Observable<VirtualNode> into
+ * Observable<VirtualNode>.
  */
 function transposeVTree(vtree) {
   if (typeof vtree.subscribe === 'function') {
@@ -14551,7 +14562,6 @@ function transposeVTree(vtree) {
   } else if (vtree.type === 'VirtualText') {
     return Rx.Observable.just(vtree);
   } else if (vtree.type === 'VirtualNode' && Array.isArray(vtree.children) && vtree.children.length > 0) {
-    /* jshint: -W117 */
     return Rx.Observable.combineLatest(vtree.children.map(transposeVTree), function () {
       for (var _len = arguments.length, arr = Array(_len), _key = 0; _key < _len; _key++) {
         arr[_key] = arguments[_key];
@@ -14560,7 +14570,6 @@ function transposeVTree(vtree) {
       vtree.children = arr;
       return vtree;
     });
-    /* jshint: +W117 */
   } else if (vtree.type === 'VirtualNode') {
     return Rx.Observable.just(vtree);
   } else {
@@ -14577,16 +14586,17 @@ function makeEmptyInteractions() {
 }
 
 function replaceCustomElementsWithVTree$(vtree) {
-  return replaceCustomElementsWithSomething(vtree, function (vtree, WidgetClass) {
+  return replaceCustomElementsWithSomething(vtree, function toVTree$(_vtree, WidgetClass) {
     var interactions = makeEmptyInteractions();
-    var props = makePropertiesProxyFromVTree(vtree);
+    var props = makePropertiesProxyFromVTree(_vtree);
     var output = WidgetClass.definitionFn(interactions, props);
+    /*eslint-disable no-use-before-define */
     return convertCustomElementsToVTree(output.vtree$.last());
+    /*eslint-enable no-use-before-define */
   });
 }
 
 function convertCustomElementsToVTree(vtree$) {
-  // jshint ignore:line
   return vtree$.map(replaceCustomElementsWithVTree$).flatMap(transposeVTree);
 }
 
@@ -14637,8 +14647,8 @@ var Cycle = {
    * (or the element itself) to contain the rendering of the VTrees.
    * @param {Function} computer a function that takes `interactions` as input
    * and outputs an Observable of virtual DOM elements.
-   * @return {Object} an object containing properties `rootElem$`, `interactions`,
-   * `dispose()` that can be used for debugging or testing.
+   * @return {Object} an object containing properties `rootElem$`,
+   * `interactions`, `dispose()` that can be used for debugging or testing.
    * @function applyToDOM
    */
   applyToDOM: RenderingDOM.applyToDOM,
@@ -14661,9 +14671,9 @@ var Cycle = {
    * implemented as the given function whenever `tagName` is used in VTrees
    * rendered in the context of some parent (in `applyToDOM` or in other custom
    * elements).
-   * The given `definitionFn` function takes two parameters as input, in this order:
-   * `interactions` and `properties`. The former works just like it does in the
-   * `computer` function given to `applyToDOM`, and the later contains
+   * The given `definitionFn` function takes two parameters as input, in this
+   * order: `interactions` and `properties`. The former works just like it does
+   * in the `computer` function given to `applyToDOM`, and the later contains
    * Observables representing properties of the custom element, given from the
    * parent context. `properties.get('foo')` will return the Observable `foo$`.
    *
@@ -14680,7 +14690,8 @@ var Cycle = {
   registerCustomElement: CustomElements.registerCustomElement,
 
   /**
-   * A shortcut to the root object of [RxJS](https://github.com/Reactive-Extensions/RxJS).
+   * A shortcut to the root object of
+   * [RxJS](https://github.com/Reactive-Extensions/RxJS).
    * @name Rx
    */
   Rx: Rx,
