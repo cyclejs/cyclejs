@@ -1,6 +1,6 @@
 {
   "name": "cyclejs",
-  "version": "0.20.4",
+  "version": "0.21.0",
   "author": "Andre Staltz",
   "description": "An honestly reactive framework for web user interfaces",
   "license": "MIT",
@@ -16,20 +16,19 @@
   ],
   "main": "lib/cycle.js",
   "dependencies": {
-    "es6-map": "^0.1.1",
     "rx": "2.5.2",
-    "string.prototype.endswith": "^0.2.0",
-    "vdom-to-html": "^2.0.0",
-    "virtual-dom": "2.0.1"
+    "virtual-dom": "2.0.1",
+    "es6-map": "0.1.1",
+    "vdom-to-html": "^2.0.0"
   },
   "devDependencies": {
-    "babel": "5.1.x",
+    "babel": "5.2.x",
     "babelify": "6.0.x",
-    "browserify": "9.0.8",
     "eslint": "^0.20.0",
+    "browserify": "10.1.1",
     "markdox": "0.1.8",
     "mocha": "2.2.4",
-    "testem": "0.8.2",
+    "testem": "0.8.3",
     "uglify-js": "2.4.20"
   },
   "engines": {

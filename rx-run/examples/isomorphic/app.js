@@ -30,35 +30,32 @@ function renderAboutPage() {
   ]);
 }
 
-function computer(context$, interaction$) {
-  let routeFromClick$ = interaction$.choose('.link', 'click')
-    .doOnNext(ev => ev.preventDefault())
-    .map(ev => ev.currentTarget.attributes.href.value);
+function makeComputerFn(context$) {
+  return function computer(interactions) {
+    let routeFromClick$ = interactions.get('.link', 'click')
+      .doOnNext(ev => ev.preventDefault())
+      .map(ev => ev.currentTarget.attributes.href.value);
 
-  let ongoingContext$ = context$
-    .merge(routeFromClick$).scan((acc, x) => {
-      acc.route = x;
-      return acc;
-    });
+    let ongoingContext$ = context$
+      .merge(routeFromClick$).scan((acc, x) => {
+        acc.route = x;
+        return acc;
+      });
 
-  return ongoingContext$
-    .map(({route}) => {
-      if (typeof window !== 'undefined') {
-        window.history.pushState(null, '', route);
-      }
-      switch (route) {
-        case '/': return renderHomePage();
-        case '/about': return renderAboutPage();
-        default: return h('div', `Unknown page ${route}`);
-      }
-    });
-}
-
-function human(vtree$) {
-  return Cycle.render(vtree$, '.app-container').interaction$;
+    return ongoingContext$
+      .map(({route}) => {
+        if (typeof window !== 'undefined') {
+          window.history.pushState(null, '', route);
+        }
+        switch (route) {
+          case '/': return renderHomePage();
+          case '/about': return renderAboutPage();
+          default: return h('div', `Unknown page ${route}`);
+        }
+      });
+  }
 }
 
 module.exports = {
-  computer,
-  human
+  makeComputerFn
 };

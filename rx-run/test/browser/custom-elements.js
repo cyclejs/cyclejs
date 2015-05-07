@@ -2,7 +2,7 @@
 /* global describe, it, beforeEach */
 let assert = require('assert');
 let Cycle = require('../../src/cycle');
-let CustomElements = require('../../src/rendering/custom-elements');
+let CustomElements = require('../../src/custom-elements');
 let {Rx, h} = Cycle;
 
 function createRenderTarget() {
@@ -68,43 +68,47 @@ describe('Custom Elements', function () {
 
   it('should recognize and create simple element that is registered', function () {
     // Make simple custom element
-    Cycle.registerCustomElement('myelement', function (rootElem$) {
-      // TODO these tests should not require shareReplay(1)! Remove and fix src/
-      let vtree$ = Rx.Observable.just(h('h3.myelementclass')).shareReplay(1);
-      rootElem$.inject(vtree$);
+    Cycle.registerCustomElement('myelement', function () {
+      return {
+        vtree$: Rx.Observable.just(h('h3.myelementclass'))
+      };
     });
     // Use the custom element
     let vtree$ = Rx.Observable.just(h('div.toplevel', [h('myelement', {key: 1})]));
-    let rootElem$ = Cycle.render(vtree$, createRenderTarget());
+    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
     // Make assertions
     let myElement = document.querySelector('.myelementclass');
     assert.notStrictEqual(myElement, null);
     assert.notStrictEqual(typeof myElement, 'undefined');
     assert.strictEqual(myElement.tagName, 'H3');
-    rootElem$.dispose();
+    domUI.dispose();
   });
 
   it('should render inner state and properties independently', function (done) {
     // Make custom element with internal state, and properties as input
-    Cycle.registerCustomElement('myelement', function (rootElem$, props) {
+    Cycle.registerCustomElement('myelement', function (interactions, props) {
       let number$ = Rx.Observable.interval(10).take(9);
-      let vtree$ = Rx.Observable
-        .combineLatest(props.get('color$'), number$, function (color, number) {
-          return h('h3.stateful-element',
-            {style: {'color': color}},
-            String(number)
-          );
-        });
-      rootElem$.inject(vtree$);
+      return {
+        vtree$: Rx.Observable
+          .combineLatest(props.get('color'), number$, function (color, number) {
+            return h('h3.stateful-element',
+              {style: {'color': color}},
+              String(number)
+            );
+          })
+      };
     });
     // Use the custom element
-    let color$ = Rx.Observable.just('#00FF00').delay(50).startWith('#FF0000');
-    let vtree$ = color$.map(color =>
-      h('div', [
-        h('myelement', {key: 1, 'color': color})
-      ])
-    );
-    let rootElem$ = Cycle.render(vtree$, createRenderTarget());
+    function definitionFn() {
+      return Rx.Observable.just('#00FF00').delay(50)
+        .startWith('#FF0000')
+        .map(color =>
+          h('div', [
+            h('myelement', {key: 1, 'color': color})
+          ])
+        );
+    }
+    let domUI = Cycle.applyToDOM(createRenderTarget(), definitionFn);
     // Make assertions
     setTimeout(function () {
       let myElement = document.querySelector('.stateful-element');
@@ -113,21 +117,23 @@ describe('Custom Elements', function () {
       assert.strictEqual(myElement.tagName, 'H3');
       assert.strictEqual(myElement.textContent, '8');
       assert.strictEqual(myElement.style.color, 'rgb(0, 255, 0)');
-      rootElem$.dispose();
+      domUI.dispose();
       done();
     }, 500);
   });
 
   it('should recognize and create two unrelated elements', function () {
     // Make the first custom element
-    Cycle.registerCustomElement('myelement1', function (rootElem$) {
-      // TODO these tests should not require shareReplay(1)! Remove and fix src/
-      rootElem$.inject(Rx.Observable.just(h('h1.myelement1class')).shareReplay(1));
+    Cycle.registerCustomElement('myelement1', function () {
+      return {
+        vtree$: Rx.Observable.just(h('h1.myelement1class'))
+      };
     });
     // Make the second custom element
-    Cycle.registerCustomElement('myelement2', function (rootElem$) {
-      // TODO these tests should not require shareReplay(1)! Remove and fix src/
-      rootElem$.inject(Rx.Observable.just(h('h2.myelement2class')).shareReplay(1));
+    Cycle.registerCustomElement('myelement2', function () {
+      return {
+        vtree$: Rx.Observable.just(h('h2.myelement2class'))
+      };
     });
     // Use the custom elements
     let vtree$ = Rx.Observable.just(
@@ -135,7 +141,7 @@ describe('Custom Elements', function () {
         h('myelement1'), h('myelement2')
       ])
     );
-    let rootElem$ = Cycle.render(vtree$, createRenderTarget());
+    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
     // Make assertions
     let myElement1 = document.querySelector('.myelement1class');
     let myElement2 = document.querySelector('.myelement2class');
@@ -145,42 +151,42 @@ describe('Custom Elements', function () {
     assert.notStrictEqual(myElement2, null);
     assert.notStrictEqual(typeof myElement2, 'undefined');
     assert.strictEqual(myElement2.tagName, 'H2');
-    rootElem$.dispose();
+    domUI.dispose();
   });
 
   it('should recognize and create a nested custom elements', function () {
     // Make the inner custom element
-    Cycle.registerCustomElement('inner', function (rootElem$) {
-      // TODO these tests should not require shareReplay(1)! Remove and fix src/
-      rootElem$.inject(Rx.Observable.just(h('h3.innerClass')).shareReplay(1));
+    Cycle.registerCustomElement('inner', function () {
+      return {
+        vtree$: Rx.Observable.just(h('h3.innerClass'))
+      };
     });
     // Make the outer custom element
-    Cycle.registerCustomElement('outer', function (rootElem$) {
-      // TODO these tests should not require shareReplay(1)! Remove and fix src/
-      rootElem$.inject(Rx.Observable.just(
-        h('div.outerClass', [
-          h('inner', {key: 1})
-        ])
-      ).shareReplay(1));
+    Cycle.registerCustomElement('outer', function () {
+      return {
+        vtree$: Rx.Observable.just(
+          h('div.outerClass', [
+            h('inner', {key: 1})
+          ])
+        )
+      };
     });
     // Use the custom elements
     let vtree$ = Rx.Observable.just(h('div', [h('outer', {key: 2})]));
-    let rootElem$ = Cycle.render(vtree$, createRenderTarget());
+    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
     // Make assertions
     let innerElement = document.querySelector('.innerClass');
     assert.notStrictEqual(innerElement, null);
     assert.notStrictEqual(typeof innerElement, 'undefined');
     assert.strictEqual(innerElement.tagName, 'H3');
-    rootElem$.dispose();
+    domUI.dispose();
   });
 
   it('should catch interaction events coming from custom element', function (done) {
     // Make simple custom element
-    Cycle.registerCustomElement('myelement', function (rootElem$) {
-      // TODO these tests should not require shareReplay(1)! Remove and fix src/
-      let vtree$ = Rx.Observable.just(h('h3.myelementclass', 'foobar')).shareReplay(1);
-      rootElem$.inject(vtree$);
+    Cycle.registerCustomElement('myelement', function () {
       return {
+        vtree$: Rx.Observable.just(h('h3.myelementclass', 'foobar')),
         myevent$: Rx.Observable.just(123).delay(300)
       };
     });
@@ -188,15 +194,12 @@ describe('Custom Elements', function () {
     let vtree$ = Rx.Observable.just(h('div.toplevel', [
       h('myelement.eventsource', {key: 1})
     ]));
-    let rootElem$ = Cycle.createStream(function (vtree$) {
-      return Cycle.render(vtree$, createRenderTarget());
-    });
-    rootElem$.interaction$.choose('.eventsource', 'myevent').subscribe(function (x) {
+    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
+    domUI.interactions.get('.eventsource', 'myevent').subscribe(x => {
       assert.strictEqual(x.data, 123);
-      rootElem$.dispose();
+      domUI.dispose();
       done();
     });
-    rootElem$.inject(vtree$);
     // Make assertions
     let myElement = document.querySelector('.myelementclass');
     assert.notStrictEqual(myElement, null);
@@ -214,79 +217,72 @@ describe('Custom Elements', function () {
       warn: (msg) => warnMessages.push(msg)
     };
     // Make simple custom element
-    Cycle.registerCustomElement('myelement', function (rootElem$) {
-      let vtree$ = Rx.Observable.just(h('h3.myelementclass'));
-      rootElem$.inject(vtree$);
+    Cycle.registerCustomElement('myelement', function () {
+      return {
+        vtree$: Rx.Observable.just(h('h3.myelementclass'))
+      };
     });
     // Make VNode with a string as child
-    let vtree$ = Rx.Observable.just(h('myelement'));
-    let rootElem$ = Cycle.render(vtree$, createRenderTarget());
+    let vtree$ = Rx.Observable.just(h('div', h('myelement')));
+    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
     console = realConsole;
     assert.strictEqual(warnMessages.length, 1);
     assert.strictEqual(warnMessages[0],
       'Missing `key` property for Cycle custom element MYELEMENT'
     );
-    rootElem$.dispose();
+    domUI.dispose();
   });
 
   it('should not fail when examining VirtualText on replaceCustomElements', function () {
     // Make simple custom element
-    Cycle.registerCustomElement('myelement', function (rootElem$) {
-      let vtree$ = Rx.Observable.just(h('h3.myelementclass')).shareReplay(1);
-      rootElem$.inject(vtree$);
+    Cycle.registerCustomElement('myelement', function () {
+      return {
+        vtree$: Rx.Observable.just(h('h3.myelementclass'))
+      };
     });
     // Make VNode with a string as child
     let vtree$ = Rx.Observable.just(h('h1', 'This will be a VirtualText'));
     // Make assertions
     assert.doesNotThrow(function () {
-      let rootElem$ = Cycle.render(vtree$, createRenderTarget());
-      rootElem$.dispose();
+      let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
+      domUI.dispose();
     });
   });
 
   it('should not miss custom events from a list of custom elements #87', function (done) {
     // Make custom element
-    Cycle.registerCustomElement('slider', function (rootElem$, props) {
-      let id$ = Cycle.createStream(propsId$ => propsId$.shareReplay(1));
-      let vtree$ = Cycle.createStream(id$ =>
-        id$.map((id) => h('h3.internalslider', String(id))).shareReplay(1)
-      );
-      let remove$ = rootElem$.interaction$.choose('.internalslider', 'click')
+    Cycle.registerCustomElement('slider', function (interactions, props) {
+      let remove$ = interactions.get('.internalslider', 'click')
         .map(() => true);
-      rootElem$.inject(vtree$).inject(id$).inject(props.get('id$'));
+      let id$ = props.get('id').shareReplay(1);
+      let vtree$ = id$
+        .map(id => h('h3.internalslider', String(id)));
       return {
-        remove$: remove$.withLatestFrom(id$, (_, id) => id)
+        vtree$: vtree$,
+        remove$: remove$.withLatestFrom(id$, (r, id) => id)
       };
     });
 
-    // Make MVUI
-    let items$ = Cycle.createStream(remove$ =>
-      Rx.Observable
-      .merge(
-        Rx.Observable.just([{id: 23}]).delay(50),
-        Rx.Observable.just([{id: 23}, {id: 45}]).delay(100)
-      )
-      .merge(remove$)
-      .scan((items, x) => {
-        if (typeof x === 'object') {
-          return x;
-        } else {
-          return items.filter((item) => item.id !== x);
-        }
-      })
-    );
+    function computer(interactions) {
+      return Rx.Observable
+        .merge(
+          Rx.Observable.just([{id: 23}]).delay(50),
+          Rx.Observable.just([{id: 23}, {id: 45}]).delay(100),
+          interactions.get('.slider', 'remove').map(event => event.data)
+        )
+        .scan((items, x) => {
+          if (typeof x === 'object') {
+            return x;
+          } else {
+            return items.filter((item) => item.id !== x);
+          }
+        })
+        .map(items =>
+          h('div.allSliders', items.map(item => h('slider.slider', {id: item.id})))
+        );
+    }
 
-    let vtree$ = items$
-      .map((items) =>
-        h('div.allSliders', items.map(item => h('slider.slider', {id: item.id})))
-      ).shareReplay(1);
-
-    let rootElem$ = Cycle.render(vtree$, createRenderTarget());
-
-    let remove$ = rootElem$.interaction$.choose('.slider', 'remove')
-      .map(event => event.data);
-
-    items$.inject(remove$);
+    let domUI = Cycle.applyToDOM(createRenderTarget(), computer);
 
     // Simulate clicks
     setTimeout(() => document.querySelector('.internalslider').click(), 200);
@@ -296,18 +292,19 @@ describe('Custom Elements', function () {
     setTimeout(() => {
       let sliders = document.querySelectorAll('.internalslider');
       assert.strictEqual(sliders.length, 0);
-      rootElem$.dispose();
+      domUI.dispose();
       done();
     }, 500);
   });
 
-  it('should recognize nested vtree as properties.get(\'children$\')', function () {
+  it('should recognize nested vtree as properties.get(\'children\')', function () {
     // Make simple custom element
-    Cycle.registerCustomElement('simple-wrapper', function (rootElem$, properties) {
-      let vtree$ = properties.get('children$').map(children =>
-        h('div.wrapper', children)
-      );
-      rootElem$.inject(vtree$);
+    Cycle.registerCustomElement('simple-wrapper', function (interactions, props) {
+      return {
+        vtree$: props.get('children').map(children => {
+          return h('div.wrapper', children);
+        })
+      };
     });
     // Use the custom element
     let vtree$ = Rx.Observable.just(h('div.toplevel', [
@@ -315,56 +312,59 @@ describe('Custom Elements', function () {
         h('h1', 'Hello'), h('h2', 'World')
       ])
     ]));
-    let rootElem$ = Cycle.render(vtree$, createRenderTarget());
+    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
     // Make assertions
     let wrapper = document.querySelector('.wrapper');
     assert.notStrictEqual(wrapper, null);
     assert.notStrictEqual(typeof wrapper, 'undefined');
     assert.strictEqual(wrapper.tagName, 'DIV');
-    rootElem$.dispose();
+    domUI.dispose();
   });
 
   it('should throw error if children property is explicitly used', function (done) {
     // Make simple custom element
-    Cycle.registerCustomElement('myelement', function (rootElem$) {
-      let vtree$ = Rx.Observable.just(h('h3.myelementclass'));
-      rootElem$.inject(vtree$);
+    Cycle.registerCustomElement('myelement', function () {
+      return {
+        vtree$: Rx.Observable.just(h('h3.myelementclass'))
+      };
     });
     // Use the custom element
     let vtree$ = Rx.Observable.just(h('div.toplevel', [
       h('myelement', {children: 123})
     ]));
-    let rootElem$ = Cycle.createStream(function (vtree$) {
-      return Cycle.render(vtree$, createRenderTarget());
-    });
-    rootElem$.subscribe(() => {}, function (err) {
-      assert.strictEqual(err.message, 'Custom element should not have property ' +
-        '`children`. This is reserved for children elements nested into this ' +
-        'custom element.'
-      );
-      done();
-    });
-    rootElem$.inject(vtree$);
+    let observer = Rx.Observer.create(
+      () => {},
+      (err) => {
+        assert.strictEqual(err.message, 'Custom element should not have property ' +
+          '`children`. This is reserved for children elements nested into this ' +
+          'custom element.'
+        );
+        // TODO: cannot dispose because applyToDOM has not yet completed.
+        // domUI.dispose();
+        done();
+      }
+    );
+    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$, observer);
   });
 
   it('should recognize changes on a mutable collection given as props', function (done) {
-    Cycle.registerCustomElement('x-element', function (rootElem$, props) {
-      let vtree$ = props.get('list$', (x, y) => false).map((list) =>
-        h('div', [
-          h('ol', list.map((value) => h('li.test-item', null, value)))
-        ]));
-      rootElem$.inject(vtree$);
+    Cycle.registerCustomElement('x-element', function (interactions, props) {
+      return {
+        vtree$: props.get('list', () => false).map(list =>
+          h('div', [
+            h('ol', list.map(value => h('li.test-item', null, value)))
+          ]))
+      };
     });
 
     let counter = 0;
-    let vtree$ = Cycle.createStream(function (interaction$) {
-      let clickMod$ = interaction$.choose('.button', 'click')
+    function computer(interactions) {
+      let clickMod$ = interactions.get('.button', 'click')
         .map(() => `item${++counter}`)
-        .map(random => data => {
+        .map(random => function mod(data) {
           data.push(random);
           return data;
         });
-
       return clickMod$
         .startWith([])
         .scan((data, modifier) => modifier(data))
@@ -372,13 +372,10 @@ describe('Custom Elements', function () {
           h('button.button', 'add new item'),
           h('x-element', {key: 0, list: data})
         ]));
-    });
+    }
 
-    let interaction$ = Cycle.createStream(function user(vtree$) {
-      return Cycle.render(vtree$, createRenderTarget()).interaction$;
-    });
+    let domUI = Cycle.applyToDOM(createRenderTarget(), computer);
 
-    interaction$.inject(vtree$).inject(interaction$);
     setTimeout(() => document.querySelector('.button').click(), 100);
     setTimeout(() => document.querySelector('.button').click(), 200);
     setTimeout(() => {
@@ -386,8 +383,126 @@ describe('Custom Elements', function () {
       assert.strictEqual(items.length, 2);
       assert.strictEqual(items[0].textContent, 'item1');
       assert.strictEqual(items[1].textContent, 'item2');
-      interaction$.dispose();
+      domUI.dispose();
       done();
     }, 500);
+  });
+
+  it('should emit events even when dynamically evolving', function (done) {
+    // Make simple custom element
+    Cycle.registerCustomElement('myelement', function () {
+      // Here the vtree changes from <h3> to <button>, the myevent should
+      // be emitted on <button> and not from the original <h3>.
+      return {
+        vtree$: Rx.Observable.merge(
+          Rx.Observable.just(h('h3.myelementclass', 'foo')),
+          Rx.Observable.just(h('button.myelementclass', 'bar')).delay(50)
+        ),
+        myevent$: Rx.Observable.just(123).delay(300)
+      };
+    });
+    // Use the custom element
+    let vtree$ = Rx.Observable.just(
+      h('div.toplevel', [
+        h('myelement.eventsource', {key: 1})
+      ])
+    );
+    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
+    domUI.interactions.get('.eventsource', 'myevent').subscribe(function (x) {
+      debugger;
+      assert.strictEqual(x.data, 123);
+      domUI.dispose();
+      done();
+    });
+    // Make assertions
+    let myElement = document.querySelector('.myelementclass');
+    assert.notStrictEqual(myElement, null);
+    assert.notStrictEqual(typeof myElement, 'undefined');
+    assert.strictEqual(myElement.tagName, 'H3');
+  });
+
+  it('should dispose vtree$ after destruction', function () {
+    let log = [];
+    let number$ = Rx.Observable.range(1, 2).controlled();
+    let customElementSwitch$ = Rx.Observable.range(0, 2).controlled();
+    // Make simple custom element
+    Cycle.registerCustomElement('myelement', function () {
+      return {
+        vtree$: number$
+          .do(i => log.push(i))
+          .map(i => h('h3.myelementclass', String(i)))
+      };
+    });
+    // Use the custom element
+    let vtree$ = customElementSwitch$.map(theSwitch => {
+      return theSwitch === 0
+        ? h('div.toplevel', [h('myelement', {key: 1})])
+        : h('div.toplevel', []);
+    })
+    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
+    // Make assertions
+    customElementSwitch$.request(1);
+    number$.request(1);
+    let myElement = document.querySelector('.myelementclass');
+    assert.notStrictEqual(myElement, null);
+    assert.notStrictEqual(typeof myElement, 'undefined');
+    assert.strictEqual(myElement.tagName, 'H3');
+    assert.strictEqual(log.length, 1);
+
+    // Destroy the element
+    customElementSwitch$.request(1);
+    // Try to trigger onNext of myelement's vtree$
+    number$.request(1);
+    let destroyedElement = document.querySelector('.myelementclass');
+    assert.strictEqual(destroyedElement, null);
+    assert.notStrictEqual(log.length, 2);
+    domUI.dispose();
+  });
+
+  it('should not emit events after destruction', function () {
+    let log = [];
+    let number$ = Rx.Observable.range(1, 3).controlled();
+    let customElementSwitch$ = Rx.Observable.range(0, 2).controlled();
+    // Make simple custom element
+    Cycle.registerCustomElement('myelement', function () {
+      return {
+        vtree$: Rx.Observable.just(h('h3.myelementclass')),
+        myevent$: number$.do(i => log.push(i))
+      };
+    });
+    // Use the custom element
+    let vtree$ = customElementSwitch$.map(theSwitch => {
+      return theSwitch === 0
+        ? h('div.toplevel', [h('myelement', {key: 1})])
+        : h('div.toplevel', []);
+    })
+    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
+    // Make assertions
+    customElementSwitch$.request(1);
+    let myElement = document.querySelector('.myelementclass');
+    assert.notStrictEqual(myElement, null);
+    assert.notStrictEqual(typeof myElement, 'undefined');
+    assert.strictEqual(myElement.tagName, 'H3');
+
+    Rx.Observable.fromEvent(myElement, 'myevent')
+      .take(3)
+      .subscribe(function (ev){
+        assert.notStrictEqual(ev.data, 3);
+      });
+
+    // Trigger the event
+    number$.request(1);
+    number$.request(1);
+
+    // Destroy the element
+    customElementSwitch$.request(1);
+    let destroyedElement = document.querySelector('.myelementclass');
+    assert.strictEqual(destroyedElement, null);
+
+    // Trigger event after the element has been destroyed
+    number$.request(1);
+    assert.notStrictEqual(log.length, 3);
+
+    domUI.dispose();
   });
 });
