@@ -22,7 +22,7 @@
     "vdom-to-html": "^2.0.0"
   },
   "devDependencies": {
-    "babel": "5.1.x",
+    "babel": "5.2.x",
     "babelify": "6.0.x",
     "browserify": "9.0.8",
     "jscs": "1.12.x",
