@@ -106,6 +106,7 @@ Prior to v1.0.0, the versions will follow the convention: improvements that brea
 - This project is a grateful recipient of the [Futurice Open Source sponsorship program](http://futurice.com/blog/sponsoring-free-time-open-source-activities).
 - [@dobrite](https://github.com/dobrite) for [boilerplate reduction ideas](https://github.com/staltz/cycle/issues/56).
 - [@erykpiast](https://github.com/erykpiast) for pull requests and great ideas.
+- [@pH200](https://github.com/pH200) for pull requests and amazing contributions.
 
 ## LICENSE
 
