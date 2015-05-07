@@ -92,6 +92,7 @@ Why would you use Cycle.js instead of other web frameworks such as Angular and R
 - [Slack trend searching written in Cycle.js](https://github.com/grozen/trends-cycle) by [@grozen](https://github.com/grozen)
 - [RxMarbles is written in Cycle.js](https://github.com/staltz/rxmarbles)
 - [An advanced Web Component built with Cycle.js](https://github.com/erykpiast/autocompleted-select) by [@erykpiast](https://github.com/erykpiast)
+- [Cycle-React](https://github.com/pH200/cycle-react) use React instead of virtual-dom with a Cycle-like API, by [https://github.com/pH200](pH200)
 
 ## Disclaimer
 
