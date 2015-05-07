@@ -2,17 +2,10 @@
 let Rx = require('rx');
 let toHTML = require('vdom-to-html');
 let {replaceCustomElementsWithSomething} = require('./custom-elements');
-let {createStream} = require('../stream');
-require('string.prototype.endswith');
 
 function makePropertiesProxyFromVTree(vtree) {
   return {
-    get(streamName) {
-      if (!streamName.endsWith('$')) {
-        throw new Error('Custom element property stream accessed from props.get() must ' +
-          'be named ending with $ symbol.');
-      }
-      let propertyName = streamName.slice(0, -1);
+    get(propertyName) {
       return Rx.Observable.just(vtree.properties[propertyName]);
     }
   };
@@ -38,16 +31,24 @@ function transposeVTree(vtree) {
   } else if (vtree.type === 'VirtualNode') {
     return Rx.Observable.just(vtree);
   } else {
-    throw new Error('Handle this case please');
+    throw new Error('Unhandled case in transposeVTree()');
   }
+}
+
+function makeEmptyInteractions() {
+  return {
+    get() {
+      return Rx.Observable.empty();
+    }
+  };
 }
 
 function replaceCustomElementsWithVTree$(vtree) {
   return replaceCustomElementsWithSomething(vtree, function (vtree, WidgetClass) {
-    let vtree$ = createStream(vtree$ => convertCustomElementsToVTree(vtree$.last()));
+    let interactions = makeEmptyInteractions();
     let props = makePropertiesProxyFromVTree(vtree);
-    WidgetClass.definitionFn(vtree$, props);
-    return vtree$;
+    let output = WidgetClass.definitionFn(interactions, props);
+    return convertCustomElementsToVTree(output.vtree$.last());
   });
 }
 
@@ -57,7 +58,15 @@ function convertCustomElementsToVTree(vtree$) { // jshint ignore:line
     .flatMap(transposeVTree);
 }
 
-function renderAsHTML(vtree$) {
+function renderAsHTML(input) {
+  let vtree$;
+  let computerFn;
+  if (typeof input === 'function') {
+    computerFn = input;
+    vtree$ = computerFn(makeEmptyInteractions());
+  } else if (typeof input.subscribe === 'function'){
+    vtree$ = input;
+  }
   return convertCustomElementsToVTree(vtree$.last()).map(vtree => toHTML(vtree));
 }
 

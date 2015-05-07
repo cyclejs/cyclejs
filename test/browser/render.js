@@ -2,7 +2,7 @@
 /* global describe, it, beforeEach */
 let assert = require('assert');
 let Cycle = require('../../src/cycle');
-let CustomElements = require('../../src/rendering/custom-elements');
+let CustomElements = require('../../src/custom-elements');
 let Fixture89 = require('./fixtures/issue-89');
 let {Rx, h} = Cycle;
 
@@ -24,57 +24,52 @@ describe('Rendering', function () {
     });
   });
 
-  describe('Cycle.render', function () {
+  describe('Cycle.applyToDOM', function () {
     it('should accept a DOM element as input', function () {
       let element = createRenderTarget();
-      let rootElem$;
+      let subscription;
       assert.doesNotThrow(function () {
-        rootElem$ = Cycle.render(Rx.Observable.empty(), element);
+        subscription = Cycle.applyToDOM(element, () => Rx.Observable.empty());
       });
-      rootElem$.dispose();
+      subscription.dispose();
     });
 
     it('should accept a DocumentFragment as input', function () {
       let element = document.createDocumentFragment();
-      let rootElem$;
+      let subscription;
       assert.doesNotThrow(function () {
-        rootElem$ = Cycle.render(Rx.Observable.empty(), element);
+        subscription = Cycle.applyToDOM(element, () => Rx.Observable.empty());
       });
-      rootElem$.dispose();
+      subscription.dispose();
     });
 
     it('should accept a string selector to an existing element as input', function () {
       let id = 'testShouldAcceptSelectorToExisting';
       let element = createRenderTarget();
       element.id = id;
-      let rootElem$;
+      let subscription;
       assert.doesNotThrow(function () {
-        rootElem$ = Cycle.render(Rx.Observable.empty(), '#' + id);
+        subscription = Cycle.applyToDOM('#' + id, () => Rx.Observable.empty());
       });
-      rootElem$.dispose();
+      subscription.dispose();
     });
 
     it('should not accept a selector to an unknown element as input', function () {
       assert.throws(function () {
-        Cycle.render(Rx.Observable.empty(), '#nonsenseIdToNothing');
+        Cycle.applyToDOM('#nonsenseIdToNothing', () => Rx.Observable.empty());
       }, /Cannot render into unknown element/);
+    });
+
+    it('should throw if definitionFn returns bad output', function () {
+      assert.throws(function () {
+        Cycle.applyToDOM(createRenderTarget(), () => ({}));
+      }, /definitionFn given to applyToDOM must return an Observable of/);
     });
 
     it('should not accept a number as input', function () {
       assert.throws(function () {
-        Cycle.render(123);
+        Cycle.applyToDOM(123);
       }, /Given container is not a DOM element neither a selector string/);
-    });
-  });
-
-  describe('rootElem$', function () {
-    it('should have `interaction$` stream', function () {
-      let rootElem$ = Cycle.render(Rx.Observable.empty(), createRenderTarget());
-      assert.strictEqual(typeof rootElem$.interaction$, 'object');
-      assert.strictEqual(typeof rootElem$.interaction$.subscribe, 'function');
-      assert.strictEqual(typeof rootElem$.interaction$.choose, 'function');
-      assert.strictEqual(rootElem$.interaction$.choose.length, 2);
-      rootElem$.dispose();
     });
 
     it('should convert a simple virtual-dom <select> to DOM element', function () {
@@ -83,32 +78,24 @@ describe('Rendering', function () {
         h('option', {value: 'bar'}, 'Bar'),
         h('option', {value: 'baz'}, 'Baz')
       ]));
-      let rootElem$ = Cycle.render(vtree$, createRenderTarget());
+      let subscription = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
       let selectEl = document.querySelector('.my-class');
       assert.notStrictEqual(selectEl, null);
       assert.notStrictEqual(typeof selectEl, 'undefined');
       assert.strictEqual(selectEl.tagName, 'SELECT');
-      rootElem$.dispose();
+      subscription.dispose();
     });
 
     it('should catch interaction events coming from wrapped View', function (done) {
       // Make a View reactively imitating another View
       let vtree$ = Rx.Observable.just(h('h3.myelementclass', 'Foobar'));
-      let wrapper$ = Cycle.createStream(function (vtree$) {
-        // TODO these tests should not require shareReplay(1)! Remove and fix src/
-        return vtree$.shareReplay(1);
-      });
-      let rootElem$ = Cycle.createStream(function (vtree$) {
-        return Cycle.render(vtree$, createRenderTarget());
-      });
-      rootElem$.interaction$.choose('.myelementclass', 'click').subscribe(function (ev) {
+      let wrapper$ = vtree$.flatMap(vtree => Rx.Observable.just(vtree));
+      let subscription = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
+      subscription.interactions.get('.myelementclass', 'click').subscribe(ev => {
         assert.strictEqual(ev.type, 'click');
         assert.strictEqual(ev.target.innerHTML, 'Foobar');
         done();
       });
-      rootElem$
-        .inject(wrapper$)
-        .inject(vtree$);
       // Make assertions
       let myElement = document.querySelector('.myelementclass');
       assert.notStrictEqual(myElement, null);
@@ -117,17 +104,14 @@ describe('Rendering', function () {
       assert.doesNotThrow(function () {
         myElement.click();
       });
-      rootElem$.dispose();
+      subscription.dispose();
     });
 
-    it('should allow subscribing to interaction$ after injection', function (done) {
-      let rootElem$ = Cycle.createStream(function (vtree$) {
-        return Cycle.render(vtree$, createRenderTarget());
-      });
+    it('should allow subscribing to interactions', function (done) {
       // Make a View reactively imitating another View
       let vtree$ = Rx.Observable.just(h('h3.myelementclass', 'Foobar'));
-      rootElem$.inject(vtree$);
-      rootElem$.interaction$.choose('.myelementclass', 'click').subscribe(function (ev) {
+      let subscription = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
+      subscription.interactions.get('.myelementclass', 'click').subscribe(ev => {
         assert.strictEqual(ev.type, 'click');
         assert.strictEqual(ev.target.innerHTML, 'Foobar');
         done();
@@ -145,9 +129,8 @@ describe('Rendering', function () {
     it('should accept a view wrapping a custom element (#89)', function (done) {
       Cycle.registerCustomElement('myelement', Fixture89.myelement);
       let number$ = Fixture89.makeModelNumber$();
-      // TODO these tests should not require shareReplay(1)! Remove and fix src/
-      let vtree$ = Fixture89.viewWithContainerFn(number$).shareReplay(1);
-      let rootElem$ = Cycle.render(vtree$, createRenderTarget());
+      let vtree$ = Fixture89.viewWithContainerFn(number$);
+      let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
 
       setTimeout(() => {
         let myelement = document.querySelector('.myelementclass');
@@ -160,27 +143,26 @@ describe('Rendering', function () {
         assert.notStrictEqual(myelement, null);
         assert.strictEqual(myelement.tagName, 'H3');
         assert.strictEqual(myelement.innerHTML, '456');
-        rootElem$.dispose();
+        domUI.dispose();
         done();
-      }, 300);
+      }, 500);
     });
 
     it('should reject a view with custom element as the root of vtree$', function (done) {
       Cycle.registerCustomElement('myelement', Fixture89.myelement);
       let number$ = Fixture89.makeModelNumber$();
-      // TODO these tests should not require shareReplay(1)! Remove and fix src/
-      let vtree$ = Fixture89.viewWithoutContainerFn(number$).shareReplay(1);
-      let rootElem$ = Cycle.createStream(function (vtree$) {
-        return Cycle.render(vtree$, createRenderTarget());
-      });
-
-      rootElem$.subscribe(() => {}, (err) => {
-        let errMsg = 'Illegal to use a Cycle custom element as the root of a View.';
-        assert.strictEqual(err.message, errMsg);
-        rootElem$.dispose();
-        done();
-      });
-      rootElem$.inject(vtree$);
+      let vtree$ = Fixture89.viewWithoutContainerFn(number$);
+      let observer = Rx.Observer.create(
+        () => {},
+        (err) => {
+          let errMsg = 'Illegal to use a Cycle custom element as the root of a View.';
+          assert.strictEqual(err.message, errMsg);
+          // TODO: cannot dispose because applyToDOM has not yet completed.
+          // domUI.dispose();
+          done();
+        }
+      );
+      let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$, observer);
     });
   });
 });
