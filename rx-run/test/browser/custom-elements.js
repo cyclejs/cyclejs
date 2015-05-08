@@ -122,6 +122,41 @@ describe('Custom Elements', function () {
     }, 500);
   });
 
+  it('should have Observable properties object as props.get(\'*\')', function (done) {
+    // Make custom element
+    Cycle.registerCustomElement('myelement', function (interactions, props) {
+      return {
+        vtree$: props.get('*').map(propsObj => {
+          assert.strictEqual(typeof propsObj, 'object');
+          assert.notStrictEqual(propsObj, null);
+          assert.strictEqual(propsObj.color, '#FF0000');
+          assert.strictEqual(propsObj.content, 'Hello world');
+          return h('h3.inner-element',
+            {style: {color: propsObj.color}},
+            String(propsObj.content)
+          );
+        })
+      };
+    });
+    let vtree$ = Rx.Observable.just(
+      h('div', [
+        h('myelement', {color: '#FF0000', content: 'Hello world'})
+      ])
+    );
+    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
+    // Make assertions
+    setTimeout(function () {
+      let myElement = document.querySelector('.inner-element');
+      assert.notStrictEqual(myElement, null);
+      assert.notStrictEqual(typeof myElement, 'undefined');
+      assert.strictEqual(myElement.tagName, 'H3');
+      assert.strictEqual(myElement.textContent, 'Hello world');
+      assert.strictEqual(myElement.style.color, 'rgb(255, 0, 0)');
+      domUI.dispose();
+      done();
+    }, 150);
+  });
+
   it('should recognize and create two unrelated elements', function () {
     // Make the first custom element
     Cycle.registerCustomElement('myelement1', function () {
