@@ -166,6 +166,9 @@ function makeUpdate() {
 
     //console.log(`%cupdate() custom el ${element.className}`,'color: #880088');
     let proxiedProps = element.cycleCustomElementMetadata.propertiesProxy;
+    if (proxiedProps.hasOwnProperty('*')) {
+      proxiedProps['*'].onNext(this.properties);
+    }
     for (let prop in proxiedProps) { if (proxiedProps.hasOwnProperty(prop)) {
       if (this.properties.hasOwnProperty(prop)) {
         proxiedProps[prop].onNext(this.properties[prop]);
