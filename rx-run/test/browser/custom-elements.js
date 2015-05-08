@@ -62,7 +62,7 @@ describe('Custom Elements', function () {
       let result = Cycle.registerCustomElement('myelement', function () {
         return {};
       });
-      assert.strictEqual(result, undefined);
+      assert.strictEqual(typeof result, 'undefined');
     });
   });
 
@@ -437,7 +437,7 @@ describe('Custom Elements', function () {
       return theSwitch === 0
         ? h('div.toplevel', [h('myelement', {key: 1})])
         : h('div.toplevel', []);
-    })
+    });
     let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
     // Make assertions
     customElementSwitch$.request(1);
@@ -474,7 +474,7 @@ describe('Custom Elements', function () {
       return theSwitch === 0
         ? h('div.toplevel', [h('myelement', {key: 1})])
         : h('div.toplevel', []);
-    })
+    });
     let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
     // Make assertions
     customElementSwitch$.request(1);
