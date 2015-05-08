@@ -35,7 +35,7 @@ function computer(interactions) {
         h('hr'),
         h('h1', 'Hello ' + name)
       ])
-    });
+    );
 }
 
 Cycle.applyToDOM('.js-container', computer);
