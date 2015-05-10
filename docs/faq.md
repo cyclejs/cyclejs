@@ -34,6 +34,22 @@ function computer(interactions) {
 }
 ```
 
+## I don't like to use classname-based selectors, reminds me of jQuery.
+
+That's not a question, but it's frequently said. The immediate concern with `interactions.get(selector, eventType)` is that it creates coupling between rendering and event handling. If you rename the className of the element, you need to rename the selector in `interactions.get()`.
+
+To address the former, the abstraction in Cycle does not create coupling between rendering and event handling, because often for buttons and other clickable elements, there is *inherent* coupling between rendering (how it looks) and event handling (how it works). Other web frameworks deal with this by inlining the event handling callback in the rendering, e.g. `<button onclick=function(ev) { alert('clicked'); } />`. This does not remove inherent coupling. Instead, it colocates, for convenience, those two responsibilities.
+
+To address the latter concern, if you would have `<button onclick=myClickHandler />` and you would want to rename `myClickHandler`, you would have to do that both inside `<button ... />` and at the location where `myClickHandler` is defined. This is the same situation with Cycle. Both Cycle and traditional approaches have the same issue with regard to renaming/refactoring.
+
+That said, Cycle's abstraction for UIs is that of a conversation between the user and the computer. While the conversation abstraction accurately represents what happens in user interfaces at the level of devices and hardware, it does not always match the abstraction that users and developers expect with some UI widgets. 
+
+For instance, with a button, the user's and the developer's intuitive abstraction is that of a physical button which sinks when pressed and pops back when released. On the other hand, the actual implementation of a button widget is a cycle: screen displays unpressed button -> user sees the button -> user interacts with the touch sensors -> touch signals are associated with an (x,y) position by the hardware -> DOM does event bubbling and catching to detect which element was pressed -> button was detected -> button's pressed state is displayed on the screen -> user sees that, etc. Notice how the DOM needs to perform event bubbling and catching in order to associate an otherwise arbitrary user interaction event with an intent specific to the button element. Contrary to what a common user would expect, the touch sensors are not directly associated to the DOM button element.
+
+Most web frameworks support the abstraction of physical touch because it is intuitive to humans, but at the core, all interaction with the computer is in the form of a cycle. Touch in Physics has two parties: button and finger, but it is regarded as **one single** phenomenon: collision between two bodies. On the contrary, in a conversation abstraction, interaction is regarded as **two phenomena**: what is spoken by party A and what is spoken by party B. This is how Cycle.js introduces **two** pieces of code to handle a single *expected* phenomena. In the conversation abstraction, this represents a "mention". When the computer displays a button, it is speaking "<button>". When the user clicks that button, it is answering the computer "click on <button>", mentioning what was just spoken by the computer. Notice that in this conversation, "<button>" is mentioned twice. It is not possible to keep the conversation abstraction while avoiding "mentions". So while it will feel like duplicate code, the two phenomena needed for some kinds of interactions in Cycle.js happen because both sides of the interaction need to mention the same subject.
+
+This might or might not be a problem for your application's architecture. All Software Engineering decisions have tradeoffs, and Cycle.js drops the advantages of the physical touch abstraction in favor of the benefits of cyclic interactions.
+
 ## Aren't View and Intent tightly coupled to each other?
 
 Model-View-Intent is an architecture to separate the concerns in user interfaces. Often, there are 3 concerns for any UI: there is information inside the computer (Model), information is translated into user language (View), the user's interactions are interpreted as intentions to affect the computer's information (Intent). In MVI, each of those concerns is expressed as function. You should only be concerned about inputs and outputs.
