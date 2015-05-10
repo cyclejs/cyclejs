@@ -33,7 +33,7 @@
     "max-depth": [2, 5],
     "complexity": [1, 8],
     "indent": [2, 2],
-    "no-trailing-spaces": 2,
+    "no-trailing-spaces": [2, {"skipBlankLines": false}],
     "one-var": [2, "never"],
     "func-names": 2,
     "key-spacing": [2, {
@@ -103,6 +103,7 @@
     "max-params": [1, 3],
     "no-var": true,
     "semi": 2,
+    "dot-location": [2, "property"],
     // Project specific rules
     "amed-brace-style": 2
   }
