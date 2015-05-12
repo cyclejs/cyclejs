@@ -1,6 +1,6 @@
 {
   "name": "cyclejs",
-  "version": "0.21.1",
+  "version": "0.21.2",
   "author": "Andre Staltz",
   "description": "An honestly reactive framework for web user interfaces",
   "license": "MIT",
