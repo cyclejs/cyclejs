@@ -24,5 +24,9 @@ describe('Cycle', function () {
     it('should have a shortcut to virtual-hyperscript', function () {
       assert.strictEqual(typeof Cycle.h, 'function');
     });
+
+    it('should have a shortcut to virtual-dom\'s svg', function () {
+      assert.strictEqual(typeof Cycle.svg, 'function');
+    });
   });
 });
