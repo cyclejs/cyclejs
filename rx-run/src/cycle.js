@@ -1,5 +1,6 @@
 'use strict';
 let VirtualDOM = require('virtual-dom');
+let svg = require('virtual-dom/virtual-hyperscript/svg');
 let Rx = require('rx');
 let CustomElements = require('./custom-elements');
 let RenderingDOM = require('./render-dom');
@@ -77,7 +78,13 @@ var Cycle = {
    * This is a helper for creating VTrees in Views.
    * @name h
    */
-  h: VirtualDOM.h
+  h: VirtualDOM.h,
+
+  /**
+   * A shortcut to the svg hyperscript function.
+   * @name svg
+   */
+  svg: svg
 };
 
 module.exports = Cycle;
