@@ -42,7 +42,7 @@
     "test-node": "npm run test-common && npm run test-onlynode",
     "test-browser": "testem",
     "test": "npm run eslint && npm run test-node && npm run test-browser",
-    "travis-test": "npm run eslint && npm run test-node",
+    "travis-test": "npm run eslint && npm run test-node && testem ci -l Firefox",
     "browserify": "browserify src/cycle.js -t babelify --standalone Cycle --outfile dist/cycle.js",
     "uglify": "uglifyjs dist/cycle.js -o dist/cycle.min.js",
     "dist": "npm run browserify && npm run uglify",

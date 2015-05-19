@@ -8,7 +8,7 @@
 node_modules
 
 # Generated
-test/browser/page/tests-bundle.js
+tests-bundle.js
 lib/
 
 # Misc
