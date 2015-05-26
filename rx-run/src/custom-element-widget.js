@@ -12,7 +12,7 @@ function makeDispatchFunction(element, eventName) {
       event = document.createEvent('Event');
       event.initEvent(eventName, true, true);
     }
-    event.data = evData;
+    event.detail = evData;
     element.dispatchEvent(event);
   };
 }
