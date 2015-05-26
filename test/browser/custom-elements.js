@@ -230,8 +230,8 @@ describe('Custom Elements', function () {
       h('myelement.eventsource', {key: 1})
     ]));
     let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
-    domUI.interactions.get('.eventsource', 'myevent').subscribe(x => {
-      assert.strictEqual(x.data, 123);
+    domUI.interactions.get('.eventsource', 'myevent').subscribe(ev => {
+      assert.strictEqual(ev.detail, 123);
       domUI.dispose();
       done();
     });
@@ -303,7 +303,7 @@ describe('Custom Elements', function () {
         .merge(
           Rx.Observable.just([{id: 23}]).delay(50),
           Rx.Observable.just([{id: 23}, {id: 45}]).delay(100),
-          interactions.get('.slider', 'remove').map(event => event.data)
+          interactions.get('.slider', 'remove').map(event => event.detail)
         )
         .scan((items, x) => {
           if (typeof x === 'object') {
@@ -443,8 +443,8 @@ describe('Custom Elements', function () {
       ])
     );
     let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
-    domUI.interactions.get('.eventsource', 'myevent').subscribe(function (x) {
-      assert.strictEqual(x.data, 123);
+    domUI.interactions.get('.eventsource', 'myevent').subscribe(function (ev) {
+      assert.strictEqual(ev.detail, 123);
       domUI.dispose();
       done();
     });
@@ -520,8 +520,8 @@ describe('Custom Elements', function () {
 
     Rx.Observable.fromEvent(myElement, 'myevent')
       .take(3)
-      .subscribe(function (ev){
-        assert.notStrictEqual(ev.data, 3);
+      .subscribe(function (ev) {
+        assert.notStrictEqual(ev.detail, 3);
       });
 
     // Trigger the event
