@@ -7,13 +7,13 @@ var h = Cycle.h;
 // - Whether Model streams internal to a custom element can be used in the custom
 //   element's return object. E.g. model.foo$.
 
-Cycle.registerCustomElement('inner-elem', function (interactions, props) {
-  var refreshData$ = interactions.get('.innerRoot', 'click')
+function innerElem(ext) {
+  var refreshData$ = ext.get('dom', '.innerRoot', 'click')
     .map(function () { return 'x'; }).share();
-  var foo$ = props.get('foo');
+  var foo$ = ext.get('props', 'foo');
   var content$ = refreshData$
     .map(function () { return Math.round(Math.random() * 1000); })
-    .merge(props.get('content'))
+    .merge(ext.get('props', 'content'))
     .shareReplay(1);
   var vtree$ = content$
     .map(function (content) {
@@ -29,14 +29,16 @@ Cycle.registerCustomElement('inner-elem', function (interactions, props) {
     });
 
   return {
-    vtree$: vtree$,
-    wasRefreshed$: refreshData$.delay(500).share(),
-    contentOnRefresh$: refreshData$
-      .withLatestFrom(content$, function (x, y) { return y; }),
-    fooOnRefresh$: refreshData$
-      .withLatestFrom(foo$, function (x, y) { return y; })
+    dom: vtree$,
+    events: {
+      wasRefreshed: refreshData$.delay(500).share(),
+      contentOnRefresh: refreshData$
+        .withLatestFrom(content$, function (x, y) { return y; }),
+      fooOnRefresh: refreshData$
+        .withLatestFrom(foo$, function (x, y) { return y; })
+    }
   };
-});
+}
 
 function makeRandomColor() {
   var hexColor = Math.floor(Math.random() * 16777215).toString(16);
@@ -47,8 +49,8 @@ function makeRandomColor() {
   return hexColor;
 }
 
-function computer(interactions) {
-  return interactions.get('.inner', 'wasRefreshed')
+function app(ext) {
+  var vtree$ = ext.get('dom', '.inner', 'wasRefreshed')
     .map(makeRandomColor)
     .startWith('#000000')
     .map(function (color) {
@@ -62,17 +64,24 @@ function computer(interactions) {
           h('p', {style: {color: color}}, String(color)),
           h('p', '(Please check also the logs)')]);
     });
+  return {
+    dom: vtree$
+  };
 }
 
-var domUI = Cycle.applyToDOM('.js-container', computer);
+var interaction = Cycle.run(app, {
+  dom: Cycle.makeDOMAdapter('.js-container', {'inner-elem': innerElem})
+});
+var appOutput = interaction[0];
+var adaptersOutput = interaction[1];
 
 console.info('You should see both \'foo: ...\' and \'content: ...\' ' +
   'logs every time you click on the inner box.'
 );
-domUI.interactions.get('.inner', 'fooOnRefresh').subscribe(function (ev) {
-  console.log('foo: ' + ev.data);
+adaptersOutput.get('dom', '.inner', 'fooOnRefresh').subscribe(function (ev) {
+  console.log('foo: ' + ev.detail);
 });
-domUI.interactions.get('.inner', 'contentOnRefresh').subscribe(function (ev) {
-  console.log('content: ' + ev.data);
+adaptersOutput.get('dom', '.inner', 'contentOnRefresh').subscribe(function (ev) {
+  console.log('content: ' + ev.detail);
 });
 

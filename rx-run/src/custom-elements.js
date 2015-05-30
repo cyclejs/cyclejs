@@ -1,17 +1,16 @@
 'use strict';
-let CustomElementWidget = require('./custom-element-widget');
+let {makeWidgetClass} = require('./custom-element-widget');
 let Map = Map || require('es6-map'); // eslint-disable-line no-native-reassign
-let CustomElementsRegistry = new Map();
 
-function replaceCustomElementsWithSomething(vtree, toSomethingFn) {
+function replaceCustomElementsWithSomething(vtree, registry, toSomethingFn) {
   // Silently ignore corner cases
   if (!vtree || vtree.type === 'VirtualText') {
     return vtree;
   }
   let tagName = (vtree.tagName || '').toUpperCase();
   // Replace vtree itself
-  if (tagName && CustomElementsRegistry.has(tagName)) {
-    let WidgetClass = CustomElementsRegistry.get(tagName);
+  if (tagName && registry.has(tagName)) {
+    let WidgetClass = registry.get(tagName);
     return toSomethingFn(vtree, WidgetClass);
   }
   // Or replace children recursively
@@ -19,6 +18,7 @@ function replaceCustomElementsWithSomething(vtree, toSomethingFn) {
     for (let i = vtree.children.length - 1; i >= 0; i--) {
       vtree.children[i] = replaceCustomElementsWithSomething(
         vtree.children[i],
+        registry,
         toSomethingFn
       );
     }
@@ -26,33 +26,18 @@ function replaceCustomElementsWithSomething(vtree, toSomethingFn) {
   return vtree;
 }
 
-function registerCustomElement(givenTagName, definitionFn) {
-  if (typeof givenTagName !== 'string' || typeof definitionFn !== 'function') {
-    throw new Error('registerCustomElement requires parameters `tagName` and ' +
-      '`definitionFn`.');
-  }
-  let tagName = givenTagName.toUpperCase();
-  if (CustomElementsRegistry.has(tagName)) {
-    throw new Error('Cannot register custom element `' + tagName + '` ' +
-      'for the DOMUser because that tagName is already registered.');
-  }
-
-  let WidgetClass = CustomElementWidget.makeConstructor();
-  WidgetClass.definitionFn = definitionFn;
-  WidgetClass.prototype.init = CustomElementWidget.makeInit(
-    tagName, definitionFn
-  );
-  WidgetClass.prototype.update = CustomElementWidget.makeUpdate();
-  WidgetClass.prototype.destroy = CustomElementWidget.makeDestroy();
-  CustomElementsRegistry.set(tagName, WidgetClass);
-}
-
-function unregisterAllCustomElements() {
-  CustomElementsRegistry.clear();
+function makeCustomElementsRegistry(definitions) {
+  let registry = new Map();
+  for (let tagName in definitions) { if (definitions.hasOwnProperty(tagName)) {
+    registry.set(
+      tagName.toUpperCase(),
+      makeWidgetClass(tagName, definitions[tagName])
+    );
+  }}
+  return registry;
 }
 
 module.exports = {
   replaceCustomElementsWithSomething,
-  registerCustomElement,
-  unregisterAllCustomElements
+  makeCustomElementsRegistry
 };

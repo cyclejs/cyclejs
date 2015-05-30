@@ -14423,7 +14423,14 @@ function appendPatch(apply, patch) {
 
 },{"../vnode/handle-thunk":96,"../vnode/is-thunk":97,"../vnode/is-vnode":99,"../vnode/is-vtext":100,"../vnode/is-widget":101,"../vnode/vpatch":104,"./diff-props":106,"x-is-array":81}],108:[function(require,module,exports){
 'use strict';
+
+function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
 var Rx = require('rx');
+var ALL_PROPS = '*';
+var DOM_ADAPTER_NAME = 'dom';
+var PROPS_ADAPTER_NAME = 'props';
+var EVENTS_SINK_NAME = 'events';
 
 function makeDispatchFunction(element, eventName) {
   return function dispatchCustomEvent(evData) {
@@ -14447,9 +14454,8 @@ function subscribeDispatchers(element) {
   var disposables = new Rx.CompositeDisposable();
   for (var _name in customEvents) {
     if (customEvents.hasOwnProperty(_name)) {
-      if (/\$$/.test(_name) && _name !== 'vtree$' && typeof customEvents[_name].subscribe === 'function') {
-        var eventName = _name.slice(0, -1);
-        var disposable = customEvents[_name].subscribe(makeDispatchFunction(element, eventName));
+      if (typeof customEvents[_name].subscribe === 'function') {
+        var disposable = customEvents[_name].subscribe(makeDispatchFunction(element, _name));
         disposables.add(disposable);
       }
     }
@@ -14468,16 +14474,25 @@ function subscribeDispatchersWhenRootChanges(metadata) {
   });
 }
 
-function makePropertiesProxy() {
-  var propertiesProxy = {};
-  Object.defineProperty(propertiesProxy, 'type', {
+function subscribeEventDispatchingSink(element, widget) {
+  element.cycleCustomElementMetadata.eventDispatchingSubscription = subscribeDispatchers(element);
+  widget.disposables.add(element.cycleCustomElementMetadata.eventDispatchingSubscription);
+  widget.disposables.add(subscribeDispatchersWhenRootChanges(element.cycleCustomElementMetadata));
+}
+
+function makePropertiesAdapter() {
+  var propertiesAdapter = {};
+  var defaultComparer = Rx.helpers.defaultComparer;
+  Object.defineProperty(propertiesAdapter, 'type', {
     enumerable: false,
-    value: 'PropertiesProxy'
+    value: 'PropertiesAdapter'
   });
-  Object.defineProperty(propertiesProxy, 'get', {
+  // TODO Test get() with no params should return all props as an object stream
+  Object.defineProperty(propertiesAdapter, 'get', {
     enumerable: false,
-    value: function get(streamKey) {
-      var comparer = arguments[1] === undefined ? Rx.helpers.defaultComparer : arguments[1];
+    value: function get() {
+      var streamKey = arguments[0] === undefined ? ALL_PROPS : arguments[0];
+      var comparer = arguments[1] === undefined ? defaultComparer : arguments[1];
 
       if (typeof this[streamKey] === 'undefined') {
         this[streamKey] = new Rx.ReplaySubject(1);
@@ -14485,7 +14500,7 @@ function makePropertiesProxy() {
       return this[streamKey].distinctUntilChanged(Rx.helpers.identity, comparer);
     }
   });
-  return propertiesProxy;
+  return propertiesAdapter;
 }
 
 function createContainerElement(tagName, vtreeProperties) {
@@ -14508,8 +14523,26 @@ function throwIfVTreeHasPropertyChildren(vtree) {
   }
 }
 
+function makeCustomElementInput(domOutput, propertiesAdapter) {
+  return {
+    get: function get(adapterName) {
+      for (var _len = arguments.length, params = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        params[_key - 1] = arguments[_key];
+      }
+
+      if (adapterName === DOM_ADAPTER_NAME) {
+        return domOutput.get.apply(null, params);
+      } else if (adapterName === PROPS_ADAPTER_NAME) {
+        return propertiesAdapter.get.apply(propertiesAdapter, params);
+      } else {
+        throw new Error('No such internal adapter named \'' + adapterName + '\' for ' + ('custom elements. Use \'' + DOM_ADAPTER_NAME + '\' or ')(_taggedTemplateLiteral(['\'', '\' instead.'], ['\'', '\' instead.']), PROPS_ADAPTER_NAME));
+      }
+    }
+  };
+}
+
 function makeConstructor() {
-  return function customElementConstructor(vtree) {
+  return function customElementConstructor(vtree, customElementsRegistry) {
     //console.log('%cnew (constructor) custom element ' + vtree.tagName,
     //  'color: #880088');
     warnIfVTreeHasNoKey(vtree);
@@ -14519,42 +14552,66 @@ function makeConstructor() {
     this.properties.children = vtree.children;
     this.key = vtree.key;
     this.isCustomElementWidget = true;
-    this.rootElem$ = new Rx.ReplaySubject(1);
+    this.customElementsRegistry = customElementsRegistry;
+    this.firstRootElem$ = new Rx.ReplaySubject(1);
     this.disposables = new Rx.CompositeDisposable();
   };
+}
+
+function validateDefFnOutput(defFnOutput) {
+  if (typeof defFnOutput !== 'object') {
+    throw new Error('Custom element definition function should output an ' + 'object.');
+  }
+  if (typeof defFnOutput.dom === 'undefined') {
+    throw new Error('Custom element definition function should output an ' + 'object containing `dom`.');
+  }
+  if (typeof defFnOutput.dom.subscribe !== 'function') {
+    throw new Error('Custom element definition function should output an ' + 'object containing an Observable of VTree, named `dom`.');
+  }
+  for (var _name2 in defFnOutput) {
+    if (defFnOutput.hasOwnProperty(_name2)) {
+      if (_name2 !== DOM_ADAPTER_NAME && _name2 !== EVENTS_SINK_NAME) {
+        throw new Error('Unknown \'' + _name2 + '\' found on custom element definition ' + 'function\'s output.');
+      }
+    }
+  }
 }
 
 function makeInit(tagName, definitionFn) {
   var _require = require('./render-dom');
 
-  var applyToDOM = _require.applyToDOM;
+  var makeDOMAdapterWithRegistry = _require.makeDOMAdapterWithRegistry;
 
   return function initCustomElement() {
     //console.log('%cInit() custom element ' + tagName, 'color: #880088');
     var widget = this;
+    var registry = widget.customElementsRegistry;
     var element = createContainerElement(tagName, widget.properties);
-    var propertiesProxy = makePropertiesProxy();
-    var domUI = applyToDOM(element, definitionFn, {
-      observer: widget.rootElem$.asObserver(),
-      props: propertiesProxy
-    });
+    var proxyVTree$$ = new Rx.AsyncSubject();
+    var domAdapter = makeDOMAdapterWithRegistry(element, registry);
+    var propertiesAdapter = makePropertiesAdapter();
+    var domOutput = domAdapter(proxyVTree$$.mergeAll());
+    var defFnInput = makeCustomElementInput(domOutput, propertiesAdapter);
+    var defFnOutput = definitionFn(defFnInput);
+    validateDefFnOutput(defFnOutput);
+    proxyVTree$$.onNext(defFnOutput.dom.shareReplay(1));
+    proxyVTree$$.onCompleted();
+    domOutput.get(':root').subscribe(widget.firstRootElem$.asObserver());
     element.cycleCustomElementMetadata = {
-      propertiesProxy: propertiesProxy,
-      rootElem$: domUI.rootElem$,
-      customEvents: domUI.customEvents,
+      propertiesAdapter: propertiesAdapter,
+      rootElem$: domOutput.get(':root'),
+      customEvents: defFnOutput.events,
       eventDispatchingSubscription: false
     };
-    element.cycleCustomElementMetadata.eventDispatchingSubscription = subscribeDispatchers(element);
-    widget.disposables.add(element.cycleCustomElementMetadata.eventDispatchingSubscription);
-    widget.disposables.add(subscribeDispatchersWhenRootChanges(element.cycleCustomElementMetadata));
-    widget.disposables.add(domUI);
-    widget.disposables.add(widget.rootElem$);
+    subscribeEventDispatchingSink(element, widget);
+    //widget.disposables.add(domOutput.someDisposable); // TODO?
+    widget.disposables.add(widget.firstRootElem$);
     widget.update(null, element);
     return element;
   };
 }
 
-function validatePropertiesProxyInMetadata(element, fnName) {
+function validatePropertiesAdapterInMetadata(element, fnName) {
   if (!element) {
     throw new Error('Missing DOM element when calling ' + fnName + ' on custom ' + 'element Widget.');
   }
@@ -14562,127 +14619,195 @@ function validatePropertiesProxyInMetadata(element, fnName) {
     throw new Error('Missing custom element metadata on DOM element when ' + 'calling ' + fnName + ' on custom element Widget.');
   }
   var metadata = element.cycleCustomElementMetadata;
-  if (metadata.propertiesProxy.type !== 'PropertiesProxy') {
-    throw new Error('Custom element metadata\'s propertiesProxy type is ' + 'invalid: ' + metadata.propertiesProxy.type + '.');
+  if (metadata.propertiesAdapter.type !== 'PropertiesAdapter') {
+    throw new Error('Custom element metadata\'s propertiesAdapter type is ' + 'invalid: ' + metadata.propertiesAdapter.type + '.');
   }
 }
 
-function makeUpdate() {
-  return function updateCustomElement(previous, element) {
-    if (previous) {
-      this.disposables = previous.disposables;
-      // This is a new rootElem$ which is not being used by init(),
-      // but used by render-dom for creating rootElemAfterChildren$.
-      this.rootElem$.onNext(null);
-      this.rootElem$.onCompleted();
-    }
-    validatePropertiesProxyInMetadata(element, 'update()');
+function updateCustomElement(previous, element) {
+  if (previous) {
+    this.disposables = previous.disposables;
+    this.firstRootElem$.onNext(0);
+    this.firstRootElem$.onCompleted();
+  }
+  validatePropertiesAdapterInMetadata(element, 'update()');
 
-    //console.log(`%cupdate() custom el ${element.className}`,'color: #880088');
-    var proxiedProps = element.cycleCustomElementMetadata.propertiesProxy;
-    if (proxiedProps.hasOwnProperty('*')) {
-      proxiedProps['*'].onNext(this.properties);
-    }
-    for (var prop in proxiedProps) {
-      if (proxiedProps.hasOwnProperty(prop)) {
-        if (this.properties.hasOwnProperty(prop)) {
-          proxiedProps[prop].onNext(this.properties[prop]);
-        }
+  //console.log(`%cupdate() ${element.className}`, 'color: #880088');
+  var propsAdapter = element.cycleCustomElementMetadata.propertiesAdapter;
+  if (propsAdapter.hasOwnProperty(ALL_PROPS)) {
+    propsAdapter[ALL_PROPS].onNext(this.properties);
+  }
+  for (var prop in propsAdapter) {
+    if (propsAdapter.hasOwnProperty(prop)) {
+      if (this.properties.hasOwnProperty(prop)) {
+        propsAdapter[prop].onNext(this.properties[prop]);
       }
     }
-  };
+  }
 }
 
-function makeDestroy() {
-  return function destroyCustomElement(element) {
-    //console.log(`%cdestroy() custom el ${element.className}`, 'color: #808');
-    // Dispose propertiesProxy
-    var proxiedProps = element.cycleCustomElementMetadata.propertiesProxy;
-    for (var prop in proxiedProps) {
-      if (proxiedProps.hasOwnProperty(prop)) {
-        this.disposables.add(proxiedProps[prop]);
-      }
+function destroyCustomElement(element) {
+  //console.log(`%cdestroy() custom el ${element.className}`, 'color: #808');
+  // Dispose propertiesAdapter
+  var propsAdapter = element.cycleCustomElementMetadata.propertiesAdapter;
+  for (var prop in propsAdapter) {
+    if (propsAdapter.hasOwnProperty(prop)) {
+      this.disposables.add(propsAdapter[prop]);
     }
-    if (element.cycleCustomElementMetadata.eventDispatchingSubscription) {
-      // This subscription has to be disposed.
-      // Because disposing subscribeDispatchersWhenRootChanges only
-      // is not enough.
-      this.disposables.add(element.cycleCustomElementMetadata.eventDispatchingSubscription);
-    }
-    this.disposables.dispose();
-  };
+  }
+  if (element.cycleCustomElementMetadata.eventDispatchingSubscription) {
+    // This subscription has to be disposed.
+    // Because disposing subscribeDispatchersWhenRootChanges only
+    // is not enough.
+    this.disposables.add(element.cycleCustomElementMetadata.eventDispatchingSubscription);
+  }
+  this.disposables.dispose();
+}
+
+function makeWidgetClass(tagName, definitionFn) {
+  if (typeof tagName !== 'string' || typeof definitionFn !== 'function') {
+    throw new Error('registerCustomElement requires parameters `tagName` and ' + '`definitionFn`.');
+  }
+
+  var WidgetClass = makeConstructor();
+  WidgetClass.definitionFn = definitionFn; // needed by renderAsHTML
+  WidgetClass.prototype.init = makeInit(tagName, definitionFn);
+  WidgetClass.prototype.update = updateCustomElement;
+  WidgetClass.prototype.destroy = destroyCustomElement;
+  return WidgetClass;
 }
 
 module.exports = {
   makeDispatchFunction: makeDispatchFunction,
   subscribeDispatchers: subscribeDispatchers,
   subscribeDispatchersWhenRootChanges: subscribeDispatchersWhenRootChanges,
-  makePropertiesProxy: makePropertiesProxy,
+  makePropertiesAdapter: makePropertiesAdapter,
   createContainerElement: createContainerElement,
   warnIfVTreeHasNoKey: warnIfVTreeHasNoKey,
   throwIfVTreeHasPropertyChildren: throwIfVTreeHasPropertyChildren,
-
   makeConstructor: makeConstructor,
   makeInit: makeInit,
-  makeUpdate: makeUpdate,
-  makeDestroy: makeDestroy
+  updateCustomElement: updateCustomElement,
+  destroyCustomElement: destroyCustomElement,
+
+  makeWidgetClass: makeWidgetClass
 };
 
-},{"./render-dom":110,"rx":58}],109:[function(require,module,exports){
+},{"./render-dom":111,"rx":58}],109:[function(require,module,exports){
 'use strict';
-var CustomElementWidget = require('./custom-element-widget');
-var Map = Map || require('es6-map'); // eslint-disable-line no-native-reassign
-var CustomElementsRegistry = new Map();
 
-function replaceCustomElementsWithSomething(vtree, toSomethingFn) {
+var _require = require('./custom-element-widget');
+
+var makeWidgetClass = _require.makeWidgetClass;
+
+var Map = Map || require('es6-map'); // eslint-disable-line no-native-reassign
+
+function replaceCustomElementsWithSomething(vtree, registry, toSomethingFn) {
   // Silently ignore corner cases
   if (!vtree || vtree.type === 'VirtualText') {
     return vtree;
   }
   var tagName = (vtree.tagName || '').toUpperCase();
   // Replace vtree itself
-  if (tagName && CustomElementsRegistry.has(tagName)) {
-    var WidgetClass = CustomElementsRegistry.get(tagName);
+  if (tagName && registry.has(tagName)) {
+    var WidgetClass = registry.get(tagName);
     return toSomethingFn(vtree, WidgetClass);
   }
   // Or replace children recursively
   if (Array.isArray(vtree.children)) {
     for (var i = vtree.children.length - 1; i >= 0; i--) {
-      vtree.children[i] = replaceCustomElementsWithSomething(vtree.children[i], toSomethingFn);
+      vtree.children[i] = replaceCustomElementsWithSomething(vtree.children[i], registry, toSomethingFn);
     }
   }
   return vtree;
 }
 
-function registerCustomElement(givenTagName, definitionFn) {
-  if (typeof givenTagName !== 'string' || typeof definitionFn !== 'function') {
-    throw new Error('registerCustomElement requires parameters `tagName` and ' + '`definitionFn`.');
+function makeCustomElementsRegistry(definitions) {
+  var registry = new Map();
+  for (var tagName in definitions) {
+    if (definitions.hasOwnProperty(tagName)) {
+      registry.set(tagName.toUpperCase(), makeWidgetClass(tagName, definitions[tagName]));
+    }
   }
-  var tagName = givenTagName.toUpperCase();
-  if (CustomElementsRegistry.has(tagName)) {
-    throw new Error('Cannot register custom element `' + tagName + '` ' + 'for the DOMUser because that tagName is already registered.');
-  }
-
-  var WidgetClass = CustomElementWidget.makeConstructor();
-  WidgetClass.definitionFn = definitionFn;
-  WidgetClass.prototype.init = CustomElementWidget.makeInit(tagName, definitionFn);
-  WidgetClass.prototype.update = CustomElementWidget.makeUpdate();
-  WidgetClass.prototype.destroy = CustomElementWidget.makeDestroy();
-  CustomElementsRegistry.set(tagName, WidgetClass);
-}
-
-function unregisterAllCustomElements() {
-  CustomElementsRegistry.clear();
+  return registry;
 }
 
 module.exports = {
   replaceCustomElementsWithSomething: replaceCustomElementsWithSomething,
-  registerCustomElement: registerCustomElement,
-  unregisterAllCustomElements: unregisterAllCustomElements
+  makeCustomElementsRegistry: makeCustomElementsRegistry
 };
 
 },{"./custom-element-widget":108,"es6-map":3}],110:[function(require,module,exports){
-/* jshint maxparams: 4 */
+'use strict';
+var Rx = require('rx');
+
+function makeAdapterInputProxies(adapters) {
+  var inputProxies = {};
+  for (var _name in adapters) {
+    if (adapters.hasOwnProperty(_name)) {
+      inputProxies[_name] = new Rx.AsyncSubject(); // a higher-order Observable
+    }
+  }
+  return inputProxies;
+}
+
+function callAdapters(adapters, inputs) {
+  var outputs = {};
+  for (var _name2 in adapters) {
+    if (adapters.hasOwnProperty(_name2)) {
+      outputs[_name2] = adapters[_name2](inputs[_name2].mergeAll());
+    }
+  }
+  return outputs;
+}
+
+function makeGet(adapterOutputs) {
+  return function get(adapterName) {
+    for (var _len = arguments.length, params = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      params[_key - 1] = arguments[_key];
+    }
+
+    if (!adapterOutputs.hasOwnProperty(adapterName)) {
+      throw new Error('get(' + adapterName + ', ...) failed, no adapter function ' + ('named ' + adapterName + ' was found for this Cycle execution.'));
+    }
+
+    var adapterOutput = adapterOutputs[adapterName];
+    if (typeof adapterOutput.subscribe === 'function') {
+      return adapterOutput; // is an Observable
+    } else if (typeof adapterOutput === 'object' && typeof adapterOutput.get === 'function') {
+      return adapterOutputs[adapterName].get.apply(null, params);
+    } else if (typeof adapterOutput === 'object' && params.length > 0 && typeof params[0] === 'string' && adapterOutput.hasOwnProperty(params[0])) {
+      return adapterOutputs[adapterName][params[0]];
+    } else {
+      throw new Error('get(' + adapterName + ', ...) failed because adapter was ' + 'not able to process parameters. Report this bug to the adapter ' + 'function author.');
+    }
+  };
+}
+
+function replicateMany(original, imitators) {
+  for (var _name3 in original) {
+    if (original.hasOwnProperty(_name3)) {
+      if (imitators.hasOwnProperty(_name3)) {
+        imitators[_name3].onNext(original[_name3].shareReplay(1));
+        imitators[_name3].onCompleted();
+      }
+    }
+  }
+}
+
+function run(app, adapters) {
+  // TODO Preconditions
+  var adapterInputProxies = makeAdapterInputProxies(adapters);
+  var adapterOutputs = callAdapters(adapters, adapterInputProxies);
+  var appInput = { get: makeGet(adapterOutputs) };
+  var appOutput = app(appInput);
+  replicateMany(appOutput, adapterInputProxies);
+  return [appOutput, appInput]; // TODO test this
+}
+
+module.exports = run;
+
+},{"rx":58}],111:[function(require,module,exports){
 'use strict';
 
 function _slicedToArray(arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }
@@ -14697,6 +14822,7 @@ var VDOM = {
 var _require = require('./custom-elements');
 
 var replaceCustomElementsWithSomething = _require.replaceCustomElementsWithSomething;
+var makeCustomElementsRegistry = _require.makeCustomElementsRegistry;
 
 function isElement(obj) {
   return typeof HTMLElement === 'object' ? obj instanceof HTMLElement || obj instanceof DocumentFragment : //DOM2
@@ -14726,21 +14852,23 @@ function isVTreeCustomElement(vtree) {
   return vtree.type === 'Widget' && vtree.isCustomElementWidget;
 }
 
-function replaceCustomElementsWithWidgets(vtree) {
-  return replaceCustomElementsWithSomething(vtree, function (_vtree, WidgetClass) {
-    return new WidgetClass(_vtree);
-  });
+function makeReplaceCustomElementsWithWidgets(customElementsRegistry) {
+  return function replaceCustomElementsWithWidgets(vtree) {
+    return replaceCustomElementsWithSomething(vtree, customElementsRegistry, function (_vtree, WidgetClass) {
+      return new WidgetClass(_vtree, customElementsRegistry);
+    });
+  };
 }
 
-function getArrayOfAllWidgetRootElemStreams(vtree) {
-  if (vtree.type === 'Widget' && vtree.rootElem$) {
-    return [vtree.rootElem$];
+function getArrayOfAllWidgetFirstRootElem$(vtree) {
+  if (vtree.type === 'Widget' && vtree.firstRootElem$) {
+    return [vtree.firstRootElem$];
   }
   // Or replace children recursively
   var array = [];
   if (Array.isArray(vtree.children)) {
     for (var i = vtree.children.length - 1; i >= 0; i--) {
-      array = array.concat(getArrayOfAllWidgetRootElemStreams(vtree.children[i]));
+      array = array.concat(getArrayOfAllWidgetFirstRootElem$(vtree.children[i]));
     }
   }
   return array;
@@ -14763,9 +14891,9 @@ function makeDiffAndPatchToElement$(rootElem) {
       return Rx.Observable.empty();
     }
 
-    var arrayOfAll = getArrayOfAllWidgetRootElemStreams(newVTree);
-    var rootElemAfterChildren$ = Rx.Observable.combineLatest(arrayOfAll, function () {
-      //console.log('%cEmit rawRootElem$ (1) ', 'color: #008800');
+    var waitForChildrenStreams = getArrayOfAllWidgetFirstRootElem$(newVTree);
+    var rootElemAfterChildrenFirstRootElem$ = Rx.Observable.combineLatest(waitForChildrenStreams, function () {
+      //console.log('%crawRootElem$ emits. (1) ', 'color: #008800');
       return rootElem;
     });
     var cycleCustomElementMetadata = rootElem.cycleCustomElementMetadata;
@@ -14779,11 +14907,12 @@ function makeDiffAndPatchToElement$(rootElem) {
     if (cycleCustomElementMetadata) {
       rootElem.cycleCustomElementMetadata = cycleCustomElementMetadata;
     }
-    if (arrayOfAll.length === 0) {
-      //console.log('%cEmit rawRootElem$ (2)', 'color: #008800');
+    if (waitForChildrenStreams.length === 0) {
+      //console.log('%crawRootElem$ emits. (2)', 'color: #008800');
       return Rx.Observable.just(rootElem);
     } else {
-      return rootElemAfterChildren$;
+      //console.log('%crawRootElem$ waiting for children.', 'color: #008800');
+      return rootElemAfterChildrenFirstRootElem$;
     }
   };
 }
@@ -14800,46 +14929,54 @@ function getRenderRootElem(domContainer) {
   return rootElem;
 }
 
-function renderRawRootElem$(vtree$, domContainer) {
+function renderRawRootElem$(vtree$, domContainer, customElementsRegistry) {
   var rootElem = getRenderRootElem(domContainer);
   var diffAndPatchToElement$ = makeDiffAndPatchToElement$(rootElem);
-  return vtree$.startWith(VDOM.h()).map(replaceCustomElementsWithWidgets).doOnNext(checkRootVTreeNotCustomElement).pairwise().flatMap(diffAndPatchToElement$).startWith(rootElem);
+  return vtree$.startWith(VDOM.h()).map(makeReplaceCustomElementsWithWidgets(customElementsRegistry)).doOnNext(checkRootVTreeNotCustomElement).pairwise().flatMap(diffAndPatchToElement$).startWith(rootElem);
 }
 
-function makeInteractions(rootElem$) {
-  return {
-    get: function get(selector, eventName) {
-      if (typeof selector !== 'string') {
-        throw new Error('interactions.get() expects first argument to be a ' + 'string as a CSS selector');
-      }
-      if (typeof eventName !== 'string') {
-        throw new Error('interactions.get() expects second argument to be a ' + 'string representing the event type to listen for.');
-      }
-
-      //console.log(`%cget("${selector}", "${eventName}")`, 'color: #0000BB');
-      return rootElem$.flatMapLatest(function rootElemToEvent$(rootElem) {
-        if (!rootElem) {
-          return Rx.Observable.empty();
-        }
-        //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
-        //console.log(`%cget('${selector}', '${eventName}') flatMapper` +
-        //  (isCustomElement ? ' for a custom element' : ' for top-level View'),
-        //  'color: #0000BB');
-        var klass = selector.replace('.', '');
-        if (rootElem.className.search(new RegExp('\\b' + klass + '\\b')) >= 0) {
-          //console.log('%c  Good return. (A)', 'color:#0000BB');
-          return Rx.Observable.fromEvent(rootElem, eventName);
-        }
-        var targetElements = rootElem.querySelectorAll(selector);
-        if (targetElements && targetElements.length > 0) {
-          //console.log('%c  Good return. (B)', 'color:#0000BB');
-          return Rx.Observable.fromEvent(targetElements, eventName);
-        } else {
-          //console.log('%c  returning empty!', 'color: #0000BB');
-          return Rx.Observable.empty();
-        }
-      });
+function makeRootElemToEvent$(selector, eventName) {
+  return function rootElemToEvent$(rootElem) {
+    if (!rootElem) {
+      return Rx.Observable.empty();
     }
+    //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
+    //console.log(`%cget('${selector}', '${eventName}') flatMapper` +
+    //  (isCustomElement ? ' for a custom element' : ' for top-level View'),
+    //  'color: #0000BB');
+    var klass = selector.replace('.', '');
+    if (rootElem.className.search(new RegExp('\\b' + klass + '\\b')) >= 0) {
+      //console.log('%c  Good return. (A)', 'color:#0000BB');
+      //console.log(rootElem);
+      return Rx.Observable.fromEvent(rootElem, eventName);
+    }
+    var targetElements = rootElem.querySelectorAll(selector);
+    if (targetElements && targetElements.length > 0) {
+      //console.log('%c  Good return. (B)', 'color:#0000BB');
+      //console.log(targetElements);
+      return Rx.Observable.fromEvent(targetElements, eventName);
+    } else {
+      //console.log('%c  returning empty!', 'color: #0000BB');
+      return Rx.Observable.empty();
+    }
+  };
+}
+
+function makeGet(rootElem$) {
+  return function get(selector, eventName) {
+    if (typeof selector !== 'string') {
+      throw new Error('DOM adapter\'s get() expects first argument to be a ' + 'string as a CSS selector');
+    }
+    if (selector.trim() === ':root') {
+      // TODO test this
+      return rootElem$;
+    }
+    if (typeof eventName !== 'string') {
+      throw new Error('DOM adapter\'s get() expects second argument to be a ' + 'string representing the event type to listen for.');
+    }
+
+    //console.log(`%cget("${selector}", "${eventName}")`, 'color: #0000BB');
+    return rootElem$.flatMapLatest(makeRootElemToEvent$(selector, eventName));
   };
 }
 
@@ -14857,13 +14994,21 @@ function digestDefinitionFnOutput(output) {
   return { vtree$: vtree$, customEvents: customEvents };
 }
 
-function applyToDOM(container, definitionFn) {
-  var _ref3 = arguments[2] === undefined ? {} : arguments[2];
+function makeDOMAdapterWithRegistry(container, CERegistry) {
+  return function domAdapter(vtree$) {
+    var rawRootElem$ = renderRawRootElem$(vtree$, container, CERegistry);
+    var rootElem$ = fixRootElem$(rawRootElem$, container);
+    var output = {
+      get: makeGet(rootElem$)
+      // TODO dispose???
+    };
+    rootElem$.connect(); // TODO save subscription, for disposal?
+    return output;
+  };
+}
 
-  var _ref3$observer = _ref3.observer;
-  var observer = _ref3$observer === undefined ? null : _ref3$observer;
-  var _ref3$props = _ref3.props;
-  var props = _ref3$props === undefined ? null : _ref3$props;
+function makeDOMAdapter(container) {
+  var customElementDefinitions = arguments[1] === undefined ? {} : arguments[1];
 
   // Find and prepare the container
   var domContainer = typeof container === 'string' ? document.querySelector(container) : container;
@@ -14873,51 +15018,30 @@ function applyToDOM(container, definitionFn) {
   } else if (!isElement(domContainer)) {
     throw new Error('Given container is not a DOM element neither a selector ' + 'string.');
   }
-  var proxyVTree$$ = new Rx.AsyncSubject();
-  var rawRootElem$ = renderRawRootElem$(proxyVTree$$.mergeAll(), domContainer);
-  var rootElem$ = fixRootElem$(rawRootElem$, domContainer);
-  var interactions = makeInteractions(rootElem$);
-  var output = definitionFn(interactions, props);
 
-  var _digestDefinitionFnOutput = digestDefinitionFnOutput(output);
-
-  var vtree$ = _digestDefinitionFnOutput.vtree$;
-  var customEvents = _digestDefinitionFnOutput.customEvents;
-
-  var connection = rootElem$.connect();
-  var subscription = observer ? rootElem$.subscribe(observer) : rootElem$.subscribe();
-  proxyVTree$$.onNext(vtree$.shareReplay(1));
-  proxyVTree$$.onCompleted();
-
-  return {
-    dispose: function dispose() {
-      subscription.dispose();
-      connection.dispose();
-      proxyVTree$$.dispose();
-    },
-    rootElem$: rootElem$,
-    interactions: interactions,
-    customEvents: customEvents
-  };
+  var registry = makeCustomElementsRegistry(customElementDefinitions);
+  return makeDOMAdapterWithRegistry(domContainer, registry);
 }
 
 module.exports = {
   isElement: isElement,
   fixRootElem$: fixRootElem$,
   isVTreeCustomElement: isVTreeCustomElement,
-  replaceCustomElementsWithWidgets: replaceCustomElementsWithWidgets,
-  getArrayOfAllWidgetRootElemStreams: getArrayOfAllWidgetRootElemStreams,
+  makeReplaceCustomElementsWithWidgets: makeReplaceCustomElementsWithWidgets,
+  getArrayOfAllWidgetFirstRootElem$: getArrayOfAllWidgetFirstRootElem$,
   checkRootVTreeNotCustomElement: checkRootVTreeNotCustomElement,
   makeDiffAndPatchToElement$: makeDiffAndPatchToElement$,
   getRenderRootElem: getRenderRootElem,
   renderRawRootElem$: renderRawRootElem$,
-  makeInteractions: makeInteractions,
+  makeGet: makeGet,
   digestDefinitionFnOutput: digestDefinitionFnOutput,
+  makeDOMAdapterWithRegistry: makeDOMAdapterWithRegistry,
 
-  applyToDOM: applyToDOM
+  //applyToDOM,
+  makeDOMAdapter: makeDOMAdapter
 };
 
-},{"./custom-elements":109,"rx":58,"virtual-dom":74,"virtual-dom/diff":72,"virtual-dom/patch":82}],111:[function(require,module,exports){
+},{"./custom-elements":109,"rx":58,"virtual-dom":74,"virtual-dom/diff":72,"virtual-dom/patch":82}],112:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
 var toHTML = require('vdom-to-html');
@@ -14982,7 +15106,7 @@ function convertCustomElementsToVTree(vtree$) {
   return vtree$.map(replaceCustomElementsWithVTree$).flatMap(transposeVTree);
 }
 
-function renderAsHTML(input) {
+function renderAsHTML(input, customElementDefinitions) {
   var vtree$ = undefined;
   var computerFn = undefined;
   if (typeof input === 'function') {
@@ -15004,7 +15128,7 @@ module.exports = {
   renderAsHTML: renderAsHTML
 };
 
-},{"./custom-elements":109,"rx":58,"vdom-to-html":60}],112:[function(require,module,exports){
+},{"./custom-elements":109,"rx":58,"vdom-to-html":60}],113:[function(require,module,exports){
 'use strict';
 var VirtualDOM = require('virtual-dom');
 var svg = require('virtual-dom/virtual-hyperscript/svg');
@@ -15012,6 +15136,7 @@ var Rx = require('rx');
 var CustomElements = require('./custom-elements');
 var RenderingDOM = require('./render-dom');
 var RenderingHTML = require('./render-html');
+var run = require('./execution');
 
 var Cycle = {
   /**
@@ -15072,6 +15197,10 @@ var Cycle = {
    */
   registerCustomElement: CustomElements.registerCustomElement,
 
+  run: run,
+
+  makeDOMAdapter: RenderingDOM.makeDOMAdapter,
+
   /**
    * A shortcut to the root object of
    * [RxJS](https://github.com/Reactive-Extensions/RxJS).
@@ -15096,5 +15225,5 @@ var Cycle = {
 
 module.exports = Cycle;
 
-},{"./custom-elements":109,"./render-dom":110,"./render-html":111,"rx":58,"virtual-dom":74,"virtual-dom/virtual-hyperscript/svg":95}]},{},[112])(112)
+},{"./custom-elements":109,"./execution":110,"./render-dom":111,"./render-html":112,"rx":58,"virtual-dom":74,"virtual-dom/virtual-hyperscript/svg":95}]},{},[113])(113)
 });

@@ -61,7 +61,7 @@ function convertCustomElementsToVTree(vtree$) {
     .flatMap(transposeVTree);
 }
 
-function renderAsHTML(input) {
+function renderAsHTML(input, customElementDefinitions) {
   let vtree$;
   let computerFn;
   if (typeof input === 'function') {
