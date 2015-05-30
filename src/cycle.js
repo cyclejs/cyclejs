@@ -5,6 +5,7 @@ let Rx = require('rx');
 let CustomElements = require('./custom-elements');
 let RenderingDOM = require('./render-dom');
 let RenderingHTML = require('./render-html');
+let run = require('./execution');
 
 var Cycle = {
   /**
@@ -64,6 +65,10 @@ var Cycle = {
    * @function registerCustomElement
    */
   registerCustomElement: CustomElements.registerCustomElement,
+
+  run: run,
+
+  makeDOMAdapter: RenderingDOM.makeDOMAdapter,
 
   /**
    * A shortcut to the root object of
