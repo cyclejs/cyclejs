@@ -6,32 +6,40 @@ let {Rx, h} = Cycle;
 let CustomElements = require('../../src/web/custom-elements');
 
 describe('renderAsHTML()', function () {
-  beforeEach(function () {
-    CustomElements.unregisterAllCustomElements();
-  });
+  //beforeEach(function () {
+  //  CustomElements.unregisterAllCustomElements();
+  //});
 
   it('should output HTML when given a simple vtree stream', function (done) {
-    let vtree$ = Rx.Observable.just(h('div.test-element', ['Foobar']));
-    let html$ = Cycle.renderAsHTML(vtree$);
-    html$.subscribe(function (html) {
+    function app() {
+      return {
+        html: Rx.Observable.just(h('div.test-element', ['Foobar']))
+      };
+    }
+    let [appOutput, htmlOutput] = Cycle.run(app, {
+      html: Cycle.makeHTMLAdapter()
+    });
+    htmlOutput.get('html').subscribe(function (html) {
       assert.strictEqual(html, '<div class="test-element">Foobar</div>');
       done();
     });
   });
 
   it('should render a simple nested custom element as HTML', function (done) {
-    Cycle.registerCustomElement('myelement', function () {
+    function myElement() {
       return {
-        vtree$: Rx.Observable.just(h('h3.myelementclass'))
+        dom: Rx.Observable.just(h('h3.myelementclass'))
       };
+    }
+    function app() {
+      return {
+        dom: Rx.Observable.just(h('div.test-element', [h('my-element')]))
+      };
+    }
+    let [appOutput, htmlOutput] = Cycle.run(app, {
+      dom: Cycle.makeHTMLAdapter({'my-element': myElement})
     });
-    var vtree$ = Rx.Observable.just(
-      h('div.test-element', [
-        h('myelement')
-      ])
-    );
-    let html$ = Cycle.renderAsHTML(vtree$);
-    html$.subscribe(function (html) {
+    htmlOutput.get('dom').subscribe(function (html) {
       assert.strictEqual(html,
         '<div class="test-element">' +
           '<h3 class="myelementclass"></h3>' +
@@ -42,44 +50,64 @@ describe('renderAsHTML()', function () {
   });
 
   it('should render double nested custom elements as HTML', function (done) {
-    Cycle.registerCustomElement('myelement', function () {
+    function myElement() {
       return {
-        vtree$: Rx.Observable.just(h('h3.myelementclass'))
+        html: Rx.Observable.just(h('h3.myelementclass'))
       };
-    });
-    Cycle.registerCustomElement('nice-element', function () {
+    }
+    function niceElement() {
       return {
-        vtree$: Rx.Observable.just(h('div.a-nice-element', [
-          String('foobar'), h('myelement')
+        html: Rx.Observable.just(h('div.a-nice-element', [
+          String('foobar'), h('my-element')
         ]))
       };
-    });
-    var vtree$ = Rx.Observable.just(h('div.test-element', [h('nice-element')]));
-    let html$ = Cycle.renderAsHTML(vtree$);
+    }
+    function app() {
+      return {
+        html: Rx.Observable.just(h('div.test-element', [h('nice-element')]))
+      };
+    }
+    let customElements = {
+      'my-element': myElement,
+      'nice-element': niceElement
+    };
+    let html$ = Cycle.run(app, {
+      html: Cycle.makeHTMLAdapter(customElements)
+    })[1].get('html');
+
     html$.subscribe(function (html) {
       assert.strictEqual(html,
         '<div class="test-element">' +
-          '<div class="a-nice-element">foobar<h3 class="myelementclass"></h3></div>' +
+          '<div class="a-nice-element">' +
+            'foobar<h3 class="myelementclass"></h3>' +
+          '</div>' +
         '</div>'
       );
       done();
     });
   });
 
-  it('should render a nested custom element with props as HTML', function (done) {
-    Cycle.registerCustomElement('myelement', function (interactions, props) {
+  it('should HTML-render a nested custom element with props', function (done) {
+    function myElement(ext) {
       return {
-        vtree$: props.get('foobar')
+        DOM: ext.get('props', 'foobar')
           .map(foobar => h('h3.myelementclass', String(foobar).toUpperCase()))
       };
+    }
+    function app() {
+      return {
+        DOM: Rx.Observable.just(
+          h('div.test-element', [
+            h('my-element', {foobar: 'yes'})
+          ])
+        )
+      };
+    }
+    let [appOutput, htmlOutput] = Cycle.run(app, {
+      DOM: Cycle.makeHTMLAdapter({'my-element': myElement})
     });
-    var vtree$ = Rx.Observable.just(
-      h('div.test-element', [
-        h('myelement', {foobar: 'yes'})
-      ])
-    );
-    let html$ = Cycle.renderAsHTML(vtree$);
-    html$.subscribe(function (html) {
+
+    htmlOutput.get('DOM').subscribe(function (html) {
       assert.strictEqual(html,
         '<div class="test-element">' +
           '<h3 class="myelementclass">YES</h3>' +
@@ -90,34 +118,44 @@ describe('renderAsHTML()', function () {
   });
 
   it('should render a complex custom element tree as HTML', function (done) {
-    Cycle.registerCustomElement('x-foo', function () {
+    function xFoo() {
       return {
-        vtree$: Rx.Observable.just(h('h1.fooclass'))
+        html: Rx.Observable.just(h('h1.fooclass'))
       };
-    });
-    Cycle.registerCustomElement('x-bar', function () {
+    }
+    function xBar() {
       return {
-        vtree$: Rx.Observable.just(h('h2.barclass'))
+        html: Rx.Observable.just(h('h2.barclass'))
       };
-    });
-    var vtree$ = Rx.Observable.just(
-      h('.test-element', [
-        h('div', [
-          h('h2.a', 'a'),
-          h('h4.b', 'b'),
-          h('x-foo')
-        ]),
-        h('div', [
-          h('h3.c', 'c'),
-          h('div', [
-            h('p.d', 'd'),
-            h('x-bar')
+    }
+    function app() {
+      return {
+        html: Rx.Observable.just(
+          h('.test-element', [
+            h('div', [
+              h('h2.a', 'a'),
+              h('h4.b', 'b'),
+              h('x-foo')
+            ]),
+            h('div', [
+              h('h3.c', 'c'),
+              h('div', [
+                h('p.d', 'd'),
+                h('x-bar')
+              ])
+            ])
           ])
-        ])
-      ])
-    );
-    let html$ = Cycle.renderAsHTML(vtree$);
-    html$.subscribe(function (html) {
+        )
+      };
+    }
+    let [appOutput, htmlOutput] = Cycle.run(app, {
+      html: Cycle.makeHTMLAdapter({
+        'x-foo': xFoo,
+        'x-bar': xBar
+      })
+    });
+
+    htmlOutput.get('html').subscribe(function (html) {
       assert.strictEqual(html,
         '<div class="test-element">' +
           '<div>' +
