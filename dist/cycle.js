@@ -14434,8 +14434,7 @@ var EVENTS_SINK_NAME = 'events';
 
 function makeDispatchFunction(element, eventName) {
   return function dispatchCustomEvent(evData) {
-    //console.log('%cdispatchCustomEvent ' + eventName,
-    //  'background-color: #CCCCFF; color: black');
+    console.log('%cdispatchCustomEvent ' + eventName, 'background-color: #CCCCFF; color: black');
     var event;
     try {
       event = new Event(eventName);
@@ -14583,7 +14582,7 @@ function makeInit(tagName, definitionFn) {
   var makeDOMAdapterWithRegistry = _require.makeDOMAdapterWithRegistry;
 
   return function initCustomElement() {
-    //console.log('%cInit() custom element ' + tagName, 'color: #880088');
+    console.log('%cInit() custom element ' + tagName, 'color: #880088');
     var widget = this;
     var registry = widget.customElementsRegistry;
     var element = createContainerElement(tagName, widget.properties);
@@ -14591,15 +14590,16 @@ function makeInit(tagName, definitionFn) {
     var domAdapter = makeDOMAdapterWithRegistry(element, registry);
     var propertiesAdapter = makePropertiesAdapter();
     var domOutput = domAdapter(proxyVTree$$.mergeAll());
+    var rootElem$ = domOutput.get(':root');
     var defFnInput = makeCustomElementInput(domOutput, propertiesAdapter);
     var defFnOutput = definitionFn(defFnInput);
     validateDefFnOutput(defFnOutput);
     proxyVTree$$.onNext(defFnOutput.dom.shareReplay(1));
     proxyVTree$$.onCompleted();
-    domOutput.get(':root').subscribe(widget.firstRootElem$.asObserver());
+    rootElem$.subscribe(widget.firstRootElem$.asObserver());
     element.cycleCustomElementMetadata = {
       propertiesAdapter: propertiesAdapter,
-      rootElem$: domOutput.get(':root'),
+      rootElem$: rootElem$,
       customEvents: defFnOutput.events,
       eventDispatchingSubscription: false
     };
@@ -14625,14 +14625,16 @@ function validatePropertiesAdapterInMetadata(element, fnName) {
 }
 
 function updateCustomElement(previous, element) {
+  var rootElem$ = element.cycleCustomElementMetadata.rootElem$;
   if (previous) {
     this.disposables = previous.disposables;
-    this.firstRootElem$.onNext(0);
-    this.firstRootElem$.onCompleted();
+    rootElem$.subscribe(this.firstRootElem$.asObserver());
+    //this.firstRootElem$.onNext(0);
+    //this.firstRootElem$.onCompleted();
   }
   validatePropertiesAdapterInMetadata(element, 'update()');
 
-  //console.log(`%cupdate() ${element.className}`, 'color: #880088');
+  console.log('%cupdate() ' + element.className, 'color: #880088');
   var propsAdapter = element.cycleCustomElementMetadata.propertiesAdapter;
   if (propsAdapter.hasOwnProperty(ALL_PROPS)) {
     propsAdapter[ALL_PROPS].onNext(this.properties);
@@ -14892,27 +14894,27 @@ function makeDiffAndPatchToElement$(rootElem) {
       return Rx.Observable.empty();
     }
 
+    var isCustomElement = !!rootElem.cycleCustomElementMetadata;
+    var k = isCustomElement ? ' is custom element ' : ' is top level';
     var waitForChildrenStreams = getArrayOfAllWidgetFirstRootElem$(newVTree);
     var rootElemAfterChildrenFirstRootElem$ = Rx.Observable.combineLatest(waitForChildrenStreams, function () {
-      //console.log('%crawRootElem$ emits. (1) ', 'color: #008800');
+      console.log('%crawRootElem$ emits. (1)' + k, 'color: #008800');
       return rootElem;
     });
     var cycleCustomElementMetadata = rootElem.cycleCustomElementMetadata;
-    //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
-    //let k = isCustomElement ? ' is custom element ' : ' is top level';
-    //console.log('%cVDOM diff and patch START' + k, 'color: #636300');
+    console.log('%cVDOM diff and patch START' + k, 'color: #636300');
     /* eslint-disable */
     rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
     /* eslint-enable */
-    //console.log('%cVDOM diff and patch END' + k, 'color: #636300');
+    console.log('%cVDOM diff and patch END' + k, 'color: #636300');
     if (cycleCustomElementMetadata) {
       rootElem.cycleCustomElementMetadata = cycleCustomElementMetadata;
     }
     if (waitForChildrenStreams.length === 0) {
-      //console.log('%crawRootElem$ emits. (2)', 'color: #008800');
+      console.log('%crawRootElem$ emits. (2)' + k, 'color: #008800');
       return Rx.Observable.just(rootElem);
     } else {
-      //console.log('%crawRootElem$ waiting for children.', 'color: #008800');
+      console.log('%crawRootElem$ waiting for children.' + k, 'color: #008800');
       return rootElemAfterChildrenFirstRootElem$;
     }
   };
@@ -14941,23 +14943,21 @@ function makeRootElemToEvent$(selector, eventName) {
     if (!rootElem) {
       return Rx.Observable.empty();
     }
-    //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
-    //console.log(`%cget('${selector}', '${eventName}') flatMapper` +
-    //  (isCustomElement ? ' for a custom element' : ' for top-level View'),
-    //  'color: #0000BB');
+    var isCustomElement = !!rootElem.cycleCustomElementMetadata;
+    console.log('%cget(\'' + selector + '\', \'' + eventName + '\') flatMapper' + (isCustomElement ? ' for a custom element' : ' for top-level View'), 'color: #0000BB');
     var klass = selector.replace('.', '');
     if (rootElem.className.search(new RegExp('\\b' + klass + '\\b')) >= 0) {
-      //console.log('%c  Good return. (A)', 'color:#0000BB');
-      //console.log(rootElem);
+      console.log('%c  Good return. (A)', 'color:#0000BB');
+      console.log(rootElem);
       return Rx.Observable.fromEvent(rootElem, eventName);
     }
     var targetElements = rootElem.querySelectorAll(selector);
     if (targetElements && targetElements.length > 0) {
-      //console.log('%c  Good return. (B)', 'color:#0000BB');
-      //console.log(targetElements);
+      console.log('%c  Good return. (B)', 'color:#0000BB');
+      console.log(targetElements);
       return Rx.Observable.fromEvent(targetElements, eventName);
     } else {
-      //console.log('%c  returning empty!', 'color: #0000BB');
+      console.log('%c  returning empty!', 'color: #0000BB');
       return Rx.Observable.empty();
     }
   };
@@ -15136,7 +15136,6 @@ module.exports = {
   makeReplaceCustomElementsWithVTree$: makeReplaceCustomElementsWithVTree$,
   convertCustomElementsToVTree: convertCustomElementsToVTree,
 
-  //renderAsHTML,
   makeHTMLAdapter: makeHTMLAdapter
 };
 
@@ -15171,7 +15170,9 @@ var Cycle = {
    * `interactions`, `dispose()` that can be used for debugging or testing.
    * @function applyToDOM
    */
-  applyToDOM: RenderingDOM.applyToDOM,
+  run: run, // TODO write docs
+
+  makeDOMAdapter: RenderingDOM.makeDOMAdapter, // TODO write docs
 
   /**
    * Converts a given Observable of virtual DOM elements (`vtree$`) into an
@@ -15184,7 +15185,7 @@ var Cycle = {
    * renderization of the virtual DOM element.
    * @function renderAsHTML
    */
-  //renderAsHTML: RenderingHTML.renderAsHTML,
+  makeHTMLAdapter: RenderingHTML.makeHTMLAdapter, // TODO write docs
 
   /**
    * Informs Cycle to recognize the given `tagName` as a custom element
@@ -15207,12 +15208,8 @@ var Cycle = {
    * should output an object of Observables.
    * @function registerCustomElement
    */
-  registerCustomElement: CustomElements.registerCustomElement,
-
-  run: run,
-
-  makeDOMAdapter: RenderingDOM.makeDOMAdapter,
-  makeHTMLAdapter: RenderingHTML.makeHTMLAdapter,
+  //registerCustomElement: CustomElements.registerCustomElement,
+  // TODO deprecated. Do something about it
 
   /**
    * A shortcut to the root object of

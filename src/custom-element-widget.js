@@ -167,15 +167,16 @@ function makeInit(tagName, definitionFn) {
     let domAdapter = makeDOMAdapterWithRegistry(element, registry);
     let propertiesAdapter = makePropertiesAdapter();
     let domOutput = domAdapter(proxyVTree$$.mergeAll());
+    let rootElem$ = domOutput.get(':root');
     let defFnInput = makeCustomElementInput(domOutput, propertiesAdapter);
     let defFnOutput = definitionFn(defFnInput);
     validateDefFnOutput(defFnOutput);
     proxyVTree$$.onNext(defFnOutput.dom.shareReplay(1));
     proxyVTree$$.onCompleted();
-    domOutput.get(':root').subscribe(widget.firstRootElem$.asObserver());
+    rootElem$.subscribe(widget.firstRootElem$.asObserver());
     element.cycleCustomElementMetadata = {
       propertiesAdapter,
-      rootElem$: domOutput.get(':root'),
+      rootElem$,
       customEvents: defFnOutput.events,
       eventDispatchingSubscription: false
     };
