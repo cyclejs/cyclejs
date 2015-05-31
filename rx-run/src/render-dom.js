@@ -236,6 +236,5 @@ module.exports = {
   digestDefinitionFnOutput,
   makeDOMAdapterWithRegistry,
 
-  //applyToDOM,
   makeDOMAdapter
 };

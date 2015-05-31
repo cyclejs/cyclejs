@@ -28,7 +28,9 @@ var Cycle = {
    * `interactions`, `dispose()` that can be used for debugging or testing.
    * @function applyToDOM
    */
-  applyToDOM: RenderingDOM.applyToDOM,
+  run, // TODO write docs
+
+  makeDOMAdapter: RenderingDOM.makeDOMAdapter, // TODO write docs
 
   /**
    * Converts a given Observable of virtual DOM elements (`vtree$`) into an
@@ -41,7 +43,7 @@ var Cycle = {
    * renderization of the virtual DOM element.
    * @function renderAsHTML
    */
-  renderAsHTML: RenderingHTML.renderAsHTML,
+  makeHTMLAdapter: RenderingHTML.makeHTMLAdapter, // TODO write docs
 
   /**
    * Informs Cycle to recognize the given `tagName` as a custom element
@@ -64,11 +66,8 @@ var Cycle = {
    * should output an object of Observables.
    * @function registerCustomElement
    */
-  registerCustomElement: CustomElements.registerCustomElement,
-
-  run: run,
-
-  makeDOMAdapter: RenderingDOM.makeDOMAdapter,
+  //registerCustomElement: CustomElements.registerCustomElement,
+  // TODO deprecated. Do something about it
 
   /**
    * A shortcut to the root object of

@@ -14689,6 +14689,7 @@ module.exports = {
   makeInit: makeInit,
   updateCustomElement: updateCustomElement,
   destroyCustomElement: destroyCustomElement,
+  makeCustomElementInput: makeCustomElementInput,
 
   makeWidgetClass: makeWidgetClass
 };
@@ -15037,7 +15038,6 @@ module.exports = {
   digestDefinitionFnOutput: digestDefinitionFnOutput,
   makeDOMAdapterWithRegistry: makeDOMAdapterWithRegistry,
 
-  //applyToDOM,
   makeDOMAdapter: makeDOMAdapter
 };
 
@@ -15049,8 +15049,13 @@ var toHTML = require('vdom-to-html');
 var _require = require('./custom-elements');
 
 var replaceCustomElementsWithSomething = _require.replaceCustomElementsWithSomething;
+var makeCustomElementsRegistry = _require.makeCustomElementsRegistry;
 
-function makePropertiesProxyFromVTree(vtree) {
+var _require2 = require('./custom-element-widget');
+
+var makeCustomElementInput = _require2.makeCustomElementInput;
+
+function makePropertiesAdapterFromVTree(vtree) {
   return {
     get: function get(propertyName) {
       return Rx.Observable.just(vtree.properties[propertyName]);
@@ -15083,52 +15088,59 @@ function transposeVTree(vtree) {
   }
 }
 
-function makeEmptyInteractions() {
-  return {
-    get: function get() {
-      return Rx.Observable.empty();
-    }
+function makeReplaceCustomElementsWithVTree$(customElementsRegistry) {
+  return function replaceCustomElementsWithVTree$(vtree) {
+    return replaceCustomElementsWithSomething(vtree, customElementsRegistry, function toVTree$(_vtree, WidgetClass) {
+      var interactions = { get: function get() {
+          return Rx.Observable.empty();
+        } };
+      var props = makePropertiesAdapterFromVTree(_vtree);
+      var input = makeCustomElementInput(interactions, props);
+      var output = WidgetClass.definitionFn(input);
+      /*eslint-disable no-use-before-define */
+      return convertCustomElementsToVTree(output.vtree$.last());
+      /*eslint-enable no-use-before-define */
+    });
   };
 }
 
-function replaceCustomElementsWithVTree$(vtree) {
-  return replaceCustomElementsWithSomething(vtree, function toVTree$(_vtree, WidgetClass) {
-    var interactions = makeEmptyInteractions();
-    var props = makePropertiesProxyFromVTree(_vtree);
-    var output = WidgetClass.definitionFn(interactions, props);
-    /*eslint-disable no-use-before-define */
-    return convertCustomElementsToVTree(output.vtree$.last());
-    /*eslint-enable no-use-before-define */
-  });
+function convertCustomElementsToVTree(vtree$, customElementsRegistry) {
+  return vtree$.map(makeReplaceCustomElementsWithVTree$(customElementsRegistry)).flatMap(transposeVTree);
 }
 
-function convertCustomElementsToVTree(vtree$) {
-  return vtree$.map(replaceCustomElementsWithVTree$).flatMap(transposeVTree);
-}
+function makeHTMLAdapter() {
+  var customElementDefinitions = arguments[0] === undefined ? {} : arguments[0];
 
-function renderAsHTML(input, customElementDefinitions) {
-  var vtree$ = undefined;
-  var computerFn = undefined;
-  if (typeof input === 'function') {
-    computerFn = input;
-    vtree$ = computerFn(makeEmptyInteractions());
-  } else if (typeof input.subscribe === 'function') {
-    vtree$ = input;
-  }
-  return convertCustomElementsToVTree(vtree$.last()).map(function (vtree) {
-    return toHTML(vtree);
-  });
+  var registry = makeCustomElementsRegistry(customElementDefinitions);
+  return function htmlAdapter(vtree$) {
+    return {
+      get: function get() {
+        for (var _len2 = arguments.length, params = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+          params[_key2] = arguments[_key2];
+        }
+
+        if (params.length === 0) {
+          return convertCustomElementsToVTree(vtree$.last(), registry).map(function (vtree) {
+            return toHTML(vtree);
+          });
+        } else {
+          return Rx.Observable.empty();
+        }
+      }
+    };
+  };
 }
 
 module.exports = {
-  makePropertiesProxyFromVTree: makePropertiesProxyFromVTree,
-  replaceCustomElementsWithVTree$: replaceCustomElementsWithVTree$,
+  makePropertiesAdapterFromVTree: makePropertiesAdapterFromVTree,
+  makeReplaceCustomElementsWithVTree$: makeReplaceCustomElementsWithVTree$,
   convertCustomElementsToVTree: convertCustomElementsToVTree,
 
-  renderAsHTML: renderAsHTML
+  //renderAsHTML,
+  makeHTMLAdapter: makeHTMLAdapter
 };
 
-},{"./custom-elements":109,"rx":58,"vdom-to-html":60}],113:[function(require,module,exports){
+},{"./custom-element-widget":108,"./custom-elements":109,"rx":58,"vdom-to-html":60}],113:[function(require,module,exports){
 'use strict';
 var VirtualDOM = require('virtual-dom');
 var svg = require('virtual-dom/virtual-hyperscript/svg');
@@ -15172,7 +15184,7 @@ var Cycle = {
    * renderization of the virtual DOM element.
    * @function renderAsHTML
    */
-  renderAsHTML: RenderingHTML.renderAsHTML,
+  //renderAsHTML: RenderingHTML.renderAsHTML,
 
   /**
    * Informs Cycle to recognize the given `tagName` as a custom element
@@ -15200,6 +15212,7 @@ var Cycle = {
   run: run,
 
   makeDOMAdapter: RenderingDOM.makeDOMAdapter,
+  makeHTMLAdapter: RenderingHTML.makeHTMLAdapter,
 
   /**
    * A shortcut to the root object of

@@ -1,6 +1,14 @@
 'use strict';
 let Cycle = require('../../lib/cycle');
-let {makeComputerFn} = require('./app');
+let {app} = require('./app');
 
-let context$ = Cycle.Rx.Observable.just(window.appContext);
-Cycle.applyToDOM('.app-container', makeComputerFn(context$));
+function contextAdapter() {
+  return {
+    get: () => Cycle.Rx.Observable.just(window.appContext)
+  };
+}
+
+Cycle.run(app, {
+  dom: Cycle.makeDOMAdapter('.app-container'),
+  context: contextAdapter
+});

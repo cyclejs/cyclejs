@@ -267,6 +267,7 @@ module.exports = {
   makeInit,
   updateCustomElement,
   destroyCustomElement,
+  makeCustomElementInput,
 
   makeWidgetClass
 };
