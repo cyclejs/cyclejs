@@ -1,5 +1,5 @@
 'use strict';
-let Cycle = require('../../lib/cycle');
+let Cycle = require('../../lib/core/cycle');
 let {h} = Cycle;
 
 function renderMenu() {

@@ -14423,6 +14423,76 @@ function appendPatch(apply, patch) {
 
 },{"../vnode/handle-thunk":96,"../vnode/is-thunk":97,"../vnode/is-vnode":99,"../vnode/is-vtext":100,"../vnode/is-widget":101,"../vnode/vpatch":104,"./diff-props":106,"x-is-array":81}],108:[function(require,module,exports){
 'use strict';
+var Rx = require('rx');
+
+function makeAdapterInputProxies(adapters) {
+  var inputProxies = {};
+  for (var _name in adapters) {
+    if (adapters.hasOwnProperty(_name)) {
+      inputProxies[_name] = new Rx.AsyncSubject(); // a higher-order Observable
+    }
+  }
+  return inputProxies;
+}
+
+function callAdapters(adapters, inputs) {
+  var outputs = {};
+  for (var _name2 in adapters) {
+    if (adapters.hasOwnProperty(_name2)) {
+      outputs[_name2] = adapters[_name2](inputs[_name2].mergeAll());
+    }
+  }
+  return outputs;
+}
+
+function makeGet(adapterOutputs) {
+  return function get(adapterName) {
+    for (var _len = arguments.length, params = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      params[_key - 1] = arguments[_key];
+    }
+
+    if (!adapterOutputs.hasOwnProperty(adapterName)) {
+      throw new Error('get(' + adapterName + ', ...) failed, no adapter function ' + ('named ' + adapterName + ' was found for this Cycle execution.'));
+    }
+
+    var adapterOutput = adapterOutputs[adapterName];
+    if (typeof adapterOutput.subscribe === 'function') {
+      return adapterOutput; // is an Observable
+    } else if (typeof adapterOutput === 'object' && typeof adapterOutput.get === 'function') {
+      return adapterOutputs[adapterName].get.apply(null, params);
+    } else if (typeof adapterOutput === 'object' && params.length > 0 && typeof params[0] === 'string' && adapterOutput.hasOwnProperty(params[0])) {
+      return adapterOutputs[adapterName][params[0]];
+    } else {
+      throw new Error('get(' + adapterName + ', ...) failed because adapter was ' + 'not able to process parameters. Report this bug to the adapter ' + 'function author.');
+    }
+  };
+}
+
+function replicateMany(original, imitators) {
+  for (var _name3 in original) {
+    if (original.hasOwnProperty(_name3)) {
+      if (imitators.hasOwnProperty(_name3)) {
+        imitators[_name3].onNext(original[_name3].shareReplay(1));
+        imitators[_name3].onCompleted();
+      }
+    }
+  }
+}
+
+function run(app, adapters) {
+  // TODO Preconditions
+  var adapterInputProxies = makeAdapterInputProxies(adapters);
+  var adapterOutputs = callAdapters(adapters, adapterInputProxies);
+  var appInput = { get: makeGet(adapterOutputs) };
+  var appOutput = app(appInput);
+  replicateMany(appOutput, adapterInputProxies);
+  return [appOutput, appInput]; // TODO test this
+}
+
+module.exports = run;
+
+},{"rx":58}],109:[function(require,module,exports){
+'use strict';
 
 function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
@@ -14434,7 +14504,8 @@ var EVENTS_SINK_NAME = 'events';
 
 function makeDispatchFunction(element, eventName) {
   return function dispatchCustomEvent(evData) {
-    console.log('%cdispatchCustomEvent ' + eventName, 'background-color: #CCCCFF; color: black');
+    //console.log('%cdispatchCustomEvent ' + eventName,
+    //  'background-color: #CCCCFF; color: black');
     var event;
     try {
       event = new Event(eventName);
@@ -14582,7 +14653,7 @@ function makeInit(tagName, definitionFn) {
   var makeDOMAdapterWithRegistry = _require.makeDOMAdapterWithRegistry;
 
   return function initCustomElement() {
-    console.log('%cInit() custom element ' + tagName, 'color: #880088');
+    //console.log('%cInit() custom element ' + tagName, 'color: #880088');
     var widget = this;
     var registry = widget.customElementsRegistry;
     var element = createContainerElement(tagName, widget.properties);
@@ -14625,16 +14696,14 @@ function validatePropertiesAdapterInMetadata(element, fnName) {
 }
 
 function updateCustomElement(previous, element) {
-  var rootElem$ = element.cycleCustomElementMetadata.rootElem$;
   if (previous) {
     this.disposables = previous.disposables;
-    rootElem$.subscribe(this.firstRootElem$.asObserver());
-    //this.firstRootElem$.onNext(0);
-    //this.firstRootElem$.onCompleted();
+    this.firstRootElem$.onNext(0);
+    this.firstRootElem$.onCompleted();
   }
   validatePropertiesAdapterInMetadata(element, 'update()');
 
-  console.log('%cupdate() ' + element.className, 'color: #880088');
+  //console.log(`%cupdate() ${element.className}`, 'color: #880088');
   var propsAdapter = element.cycleCustomElementMetadata.propertiesAdapter;
   if (propsAdapter.hasOwnProperty(ALL_PROPS)) {
     propsAdapter[ALL_PROPS].onNext(this.properties);
@@ -14696,7 +14765,7 @@ module.exports = {
   makeWidgetClass: makeWidgetClass
 };
 
-},{"./render-dom":111,"rx":58}],109:[function(require,module,exports){
+},{"./render-dom":111,"rx":58}],110:[function(require,module,exports){
 'use strict';
 
 var _require = require('./custom-element-widget');
@@ -14740,77 +14809,7 @@ module.exports = {
   makeCustomElementsRegistry: makeCustomElementsRegistry
 };
 
-},{"./custom-element-widget":108,"es6-map":3}],110:[function(require,module,exports){
-'use strict';
-var Rx = require('rx');
-
-function makeAdapterInputProxies(adapters) {
-  var inputProxies = {};
-  for (var _name in adapters) {
-    if (adapters.hasOwnProperty(_name)) {
-      inputProxies[_name] = new Rx.AsyncSubject(); // a higher-order Observable
-    }
-  }
-  return inputProxies;
-}
-
-function callAdapters(adapters, inputs) {
-  var outputs = {};
-  for (var _name2 in adapters) {
-    if (adapters.hasOwnProperty(_name2)) {
-      outputs[_name2] = adapters[_name2](inputs[_name2].mergeAll());
-    }
-  }
-  return outputs;
-}
-
-function makeGet(adapterOutputs) {
-  return function get(adapterName) {
-    for (var _len = arguments.length, params = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      params[_key - 1] = arguments[_key];
-    }
-
-    if (!adapterOutputs.hasOwnProperty(adapterName)) {
-      throw new Error('get(' + adapterName + ', ...) failed, no adapter function ' + ('named ' + adapterName + ' was found for this Cycle execution.'));
-    }
-
-    var adapterOutput = adapterOutputs[adapterName];
-    if (typeof adapterOutput.subscribe === 'function') {
-      return adapterOutput; // is an Observable
-    } else if (typeof adapterOutput === 'object' && typeof adapterOutput.get === 'function') {
-      return adapterOutputs[adapterName].get.apply(null, params);
-    } else if (typeof adapterOutput === 'object' && params.length > 0 && typeof params[0] === 'string' && adapterOutput.hasOwnProperty(params[0])) {
-      return adapterOutputs[adapterName][params[0]];
-    } else {
-      throw new Error('get(' + adapterName + ', ...) failed because adapter was ' + 'not able to process parameters. Report this bug to the adapter ' + 'function author.');
-    }
-  };
-}
-
-function replicateMany(original, imitators) {
-  for (var _name3 in original) {
-    if (original.hasOwnProperty(_name3)) {
-      if (imitators.hasOwnProperty(_name3)) {
-        imitators[_name3].onNext(original[_name3].shareReplay(1));
-        imitators[_name3].onCompleted();
-      }
-    }
-  }
-}
-
-function run(app, adapters) {
-  // TODO Preconditions
-  var adapterInputProxies = makeAdapterInputProxies(adapters);
-  var adapterOutputs = callAdapters(adapters, adapterInputProxies);
-  var appInput = { get: makeGet(adapterOutputs) };
-  var appOutput = app(appInput);
-  replicateMany(appOutput, adapterInputProxies);
-  return [appOutput, appInput]; // TODO test this
-}
-
-module.exports = run;
-
-},{"rx":58}],111:[function(require,module,exports){
+},{"./custom-element-widget":109,"es6-map":3}],111:[function(require,module,exports){
 'use strict';
 
 function _slicedToArray(arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }
@@ -14894,27 +14893,27 @@ function makeDiffAndPatchToElement$(rootElem) {
       return Rx.Observable.empty();
     }
 
-    var isCustomElement = !!rootElem.cycleCustomElementMetadata;
-    var k = isCustomElement ? ' is custom element ' : ' is top level';
+    //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
+    //let k = isCustomElement ? ' is custom element ' : ' is top level';
     var waitForChildrenStreams = getArrayOfAllWidgetFirstRootElem$(newVTree);
     var rootElemAfterChildrenFirstRootElem$ = Rx.Observable.combineLatest(waitForChildrenStreams, function () {
-      console.log('%crawRootElem$ emits. (1)' + k, 'color: #008800');
+      //console.log('%crawRootElem$ emits. (1)' + k, 'color: #008800');
       return rootElem;
     });
     var cycleCustomElementMetadata = rootElem.cycleCustomElementMetadata;
-    console.log('%cVDOM diff and patch START' + k, 'color: #636300');
+    //console.log('%cVDOM diff and patch START' + k, 'color: #636300');
     /* eslint-disable */
     rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
     /* eslint-enable */
-    console.log('%cVDOM diff and patch END' + k, 'color: #636300');
+    //console.log('%cVDOM diff and patch END' + k, 'color: #636300');
     if (cycleCustomElementMetadata) {
       rootElem.cycleCustomElementMetadata = cycleCustomElementMetadata;
     }
     if (waitForChildrenStreams.length === 0) {
-      console.log('%crawRootElem$ emits. (2)' + k, 'color: #008800');
+      //console.log('%crawRootElem$ emits. (2)' + k, 'color: #008800');
       return Rx.Observable.just(rootElem);
     } else {
-      console.log('%crawRootElem$ waiting for children.' + k, 'color: #008800');
+      //console.log('%crawRootElem$ waiting children.' + k, 'color: #008800');
       return rootElemAfterChildrenFirstRootElem$;
     }
   };
@@ -14943,21 +14942,23 @@ function makeRootElemToEvent$(selector, eventName) {
     if (!rootElem) {
       return Rx.Observable.empty();
     }
-    var isCustomElement = !!rootElem.cycleCustomElementMetadata;
-    console.log('%cget(\'' + selector + '\', \'' + eventName + '\') flatMapper' + (isCustomElement ? ' for a custom element' : ' for top-level View'), 'color: #0000BB');
+    //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
+    //console.log(`%cget('${selector}', '${eventName}') flatMapper` +
+    //  (isCustomElement ? ' for a custom element' : ' for top-level View'),
+    //  'color: #0000BB');
     var klass = selector.replace('.', '');
     if (rootElem.className.search(new RegExp('\\b' + klass + '\\b')) >= 0) {
-      console.log('%c  Good return. (A)', 'color:#0000BB');
-      console.log(rootElem);
+      //console.log('%c  Good return. (A)', 'color:#0000BB');
+      //console.log(rootElem);
       return Rx.Observable.fromEvent(rootElem, eventName);
     }
     var targetElements = rootElem.querySelectorAll(selector);
     if (targetElements && targetElements.length > 0) {
-      console.log('%c  Good return. (B)', 'color:#0000BB');
-      console.log(targetElements);
+      //console.log('%c  Good return. (B)', 'color:#0000BB');
+      //console.log(targetElements);
       return Rx.Observable.fromEvent(targetElements, eventName);
     } else {
-      console.log('%c  returning empty!', 'color: #0000BB');
+      //console.log('%c  returning empty!', 'color: #0000BB');
       return Rx.Observable.empty();
     }
   };
@@ -15041,7 +15042,7 @@ module.exports = {
   makeDOMAdapter: makeDOMAdapter
 };
 
-},{"./custom-elements":109,"rx":58,"virtual-dom":74,"virtual-dom/diff":72,"virtual-dom/patch":82}],112:[function(require,module,exports){
+},{"./custom-elements":110,"rx":58,"virtual-dom":74,"virtual-dom/diff":72,"virtual-dom/patch":82}],112:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
 var toHTML = require('vdom-to-html');
@@ -15139,15 +15140,21 @@ module.exports = {
   makeHTMLAdapter: makeHTMLAdapter
 };
 
-},{"./custom-element-widget":108,"./custom-elements":109,"rx":58,"vdom-to-html":60}],113:[function(require,module,exports){
+},{"./custom-element-widget":109,"./custom-elements":110,"rx":58,"vdom-to-html":60}],113:[function(require,module,exports){
 'use strict';
 var VirtualDOM = require('virtual-dom');
 var svg = require('virtual-dom/virtual-hyperscript/svg');
 var Rx = require('rx');
-var CustomElements = require('./custom-elements');
-var RenderingDOM = require('./render-dom');
-var RenderingHTML = require('./render-html');
-var run = require('./execution');
+
+var _require = require('../web/render-dom');
+
+var makeDOMAdapter = _require.makeDOMAdapter;
+
+var _require2 = require('../web/render-html');
+
+var makeHTMLAdapter = _require2.makeHTMLAdapter;
+
+var run = require('./run');
 
 var Cycle = {
   /**
@@ -15172,7 +15179,7 @@ var Cycle = {
    */
   run: run, // TODO write docs
 
-  makeDOMAdapter: RenderingDOM.makeDOMAdapter, // TODO write docs
+  makeDOMAdapter: makeDOMAdapter, // TODO write docs
 
   /**
    * Converts a given Observable of virtual DOM elements (`vtree$`) into an
@@ -15185,7 +15192,7 @@ var Cycle = {
    * renderization of the virtual DOM element.
    * @function renderAsHTML
    */
-  makeHTMLAdapter: RenderingHTML.makeHTMLAdapter, // TODO write docs
+  makeHTMLAdapter: makeHTMLAdapter, // TODO write docs
 
   /**
    * Informs Cycle to recognize the given `tagName` as a custom element
@@ -15235,5 +15242,5 @@ var Cycle = {
 
 module.exports = Cycle;
 
-},{"./custom-elements":109,"./execution":110,"./render-dom":111,"./render-html":112,"rx":58,"virtual-dom":74,"virtual-dom/virtual-hyperscript/svg":95}]},{},[113])(113)
+},{"../web/render-dom":111,"../web/render-html":112,"./run":108,"rx":58,"virtual-dom":74,"virtual-dom/virtual-hyperscript/svg":95}]},{},[113])(113)
 });

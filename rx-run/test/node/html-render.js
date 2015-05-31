@@ -1,9 +1,9 @@
 'use strict';
 /* global describe, it, beforeEach */
 let assert = require('assert');
-let Cycle = require('../../src/cycle');
+let Cycle = require('../../src/core/cycle');
 let {Rx, h} = Cycle;
-let CustomElements = require('../../src/custom-elements');
+let CustomElements = require('../../src/web/custom-elements');
 
 describe('renderAsHTML()', function () {
   beforeEach(function () {

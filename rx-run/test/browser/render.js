@@ -1,8 +1,8 @@
 'use strict';
 /* global describe, it, beforeEach */
 let assert = require('assert');
-let Cycle = require('../../src/cycle');
-let CustomElements = require('../../src/custom-elements');
+let Cycle = require('../../src/core/cycle');
+let CustomElements = require('../../src/web/custom-elements');
 let Fixture89 = require('./fixtures/issue-89');
 let {Rx, h} = Cycle;
 

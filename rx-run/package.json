@@ -45,7 +45,7 @@
     "posttest-browser": "rm test/browser/page/tests-bundle.js",
     "test": "npm run eslint && npm run test-node && npm run test-browser",
     "travis-test": "npm run eslint && npm run test-node",
-    "browserify": "browserify src/cycle.js -t babelify --standalone Cycle --outfile dist/cycle.js",
+    "browserify": "browserify src/core/cycle.js -t babelify --standalone Cycle --outfile dist/cycle.js",
     "uglify": "uglifyjs dist/cycle.js -o dist/cycle.min.js",
     "dist": "npm run browserify && npm run uglify",
     "docs": "node ./scripts/make-api-docs.js",
