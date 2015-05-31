@@ -14498,7 +14498,6 @@ function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defi
 
 var Rx = require('rx');
 var ALL_PROPS = '*';
-var DOM_ADAPTER_NAME = 'dom';
 var PROPS_ADAPTER_NAME = 'props';
 var EVENTS_SINK_NAME = 'events';
 
@@ -14593,26 +14592,26 @@ function throwIfVTreeHasPropertyChildren(vtree) {
   }
 }
 
-function makeCustomElementInput(domOutput, propertiesAdapter) {
+function makeCustomElementInput(domOutput, propertiesAdapter, domAdapterName) {
   return {
     get: function get(adapterName) {
       for (var _len = arguments.length, params = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
         params[_key - 1] = arguments[_key];
       }
 
-      if (adapterName === DOM_ADAPTER_NAME) {
+      if (adapterName === domAdapterName) {
         return domOutput.get.apply(null, params);
       } else if (adapterName === PROPS_ADAPTER_NAME) {
         return propertiesAdapter.get.apply(propertiesAdapter, params);
       } else {
-        throw new Error('No such internal adapter named \'' + adapterName + '\' for ' + ('custom elements. Use \'' + DOM_ADAPTER_NAME + '\' or ')(_taggedTemplateLiteral(['\'', '\' instead.'], ['\'', '\' instead.']), PROPS_ADAPTER_NAME));
+        throw new Error('No such internal adapter named \'' + adapterName + '\' for ' + ('custom elements. Use \'' + domAdapterName + '\' or ')(_taggedTemplateLiteral(['\'', '\' instead.'], ['\'', '\' instead.']), PROPS_ADAPTER_NAME));
       }
     }
   };
 }
 
 function makeConstructor() {
-  return function customElementConstructor(vtree, customElementsRegistry) {
+  return function customElementConstructor(vtree, CERegistry, adapterName) {
     //console.log('%cnew (constructor) custom element ' + vtree.tagName,
     //  'color: #880088');
     warnIfVTreeHasNoKey(vtree);
@@ -14622,25 +14621,26 @@ function makeConstructor() {
     this.properties.children = vtree.children;
     this.key = vtree.key;
     this.isCustomElementWidget = true;
-    this.customElementsRegistry = customElementsRegistry;
+    this.customElementsRegistry = CERegistry;
+    this.adapterName = adapterName;
     this.firstRootElem$ = new Rx.ReplaySubject(1);
     this.disposables = new Rx.CompositeDisposable();
   };
 }
 
-function validateDefFnOutput(defFnOutput) {
+function validateDefFnOutput(defFnOutput, domAdapterName) {
   if (typeof defFnOutput !== 'object') {
     throw new Error('Custom element definition function should output an ' + 'object.');
   }
-  if (typeof defFnOutput.dom === 'undefined') {
-    throw new Error('Custom element definition function should output an ' + 'object containing `dom`.');
+  if (typeof defFnOutput[domAdapterName] === 'undefined') {
+    throw new Error('Custom element definition function should output an ' + ('object containing \'' + domAdapterName + '\'.'));
   }
-  if (typeof defFnOutput.dom.subscribe !== 'function') {
-    throw new Error('Custom element definition function should output an ' + 'object containing an Observable of VTree, named `dom`.');
+  if (typeof defFnOutput[domAdapterName].subscribe !== 'function') {
+    throw new Error('Custom element definition function should output an ' + ('object containing an Observable of VTree, named \'' + domAdapterName + '\'.'));
   }
   for (var _name2 in defFnOutput) {
     if (defFnOutput.hasOwnProperty(_name2)) {
-      if (_name2 !== DOM_ADAPTER_NAME && _name2 !== EVENTS_SINK_NAME) {
+      if (_name2 !== domAdapterName && _name2 !== EVENTS_SINK_NAME) {
         throw new Error('Unknown \'' + _name2 + '\' found on custom element definition ' + 'function\'s output.');
       }
     }
@@ -14655,6 +14655,7 @@ function makeInit(tagName, definitionFn) {
   return function initCustomElement() {
     //console.log('%cInit() custom element ' + tagName, 'color: #880088');
     var widget = this;
+    var adapterName = widget.adapterName;
     var registry = widget.customElementsRegistry;
     var element = createContainerElement(tagName, widget.properties);
     var proxyVTree$$ = new Rx.AsyncSubject();
@@ -14662,10 +14663,10 @@ function makeInit(tagName, definitionFn) {
     var propertiesAdapter = makePropertiesAdapter();
     var domOutput = domAdapter(proxyVTree$$.mergeAll());
     var rootElem$ = domOutput.get(':root');
-    var defFnInput = makeCustomElementInput(domOutput, propertiesAdapter);
+    var defFnInput = makeCustomElementInput(domOutput, propertiesAdapter, adapterName);
     var defFnOutput = definitionFn(defFnInput);
-    validateDefFnOutput(defFnOutput);
-    proxyVTree$$.onNext(defFnOutput.dom.shareReplay(1));
+    validateDefFnOutput(defFnOutput, adapterName);
+    proxyVTree$$.onNext(defFnOutput[adapterName].shareReplay(1));
     proxyVTree$$.onCompleted();
     rootElem$.subscribe(widget.firstRootElem$.asObserver());
     element.cycleCustomElementMetadata = {
@@ -14854,10 +14855,10 @@ function isVTreeCustomElement(vtree) {
   return vtree.type === 'Widget' && vtree.isCustomElementWidget;
 }
 
-function makeReplaceCustomElementsWithWidgets(customElementsRegistry) {
+function makeReplaceCustomElementsWithWidgets(CERegistry, adapterName) {
   return function replaceCustomElementsWithWidgets(vtree) {
-    return replaceCustomElementsWithSomething(vtree, customElementsRegistry, function (_vtree, WidgetClass) {
-      return new WidgetClass(_vtree, customElementsRegistry);
+    return replaceCustomElementsWithSomething(vtree, CERegistry, function (_vtree, WidgetClass) {
+      return new WidgetClass(_vtree, CERegistry, adapterName);
     });
   };
 }
@@ -14931,10 +14932,10 @@ function getRenderRootElem(domContainer) {
   return rootElem;
 }
 
-function renderRawRootElem$(vtree$, domContainer, customElementsRegistry) {
+function renderRawRootElem$(vtree$, domContainer, CERegistry, adapterName) {
   var rootElem = getRenderRootElem(domContainer);
   var diffAndPatchToElement$ = makeDiffAndPatchToElement$(rootElem);
-  return vtree$.startWith(VDOM.h()).map(makeReplaceCustomElementsWithWidgets(customElementsRegistry)).doOnNext(checkRootVTreeNotCustomElement).pairwise().flatMap(diffAndPatchToElement$).startWith(rootElem);
+  return vtree$.startWith(VDOM.h()).map(makeReplaceCustomElementsWithWidgets(CERegistry, adapterName)).doOnNext(checkRootVTreeNotCustomElement).pairwise().flatMap(diffAndPatchToElement$).startWith(rootElem);
 }
 
 function makeRootElemToEvent$(selector, eventName) {
@@ -14997,8 +14998,8 @@ function digestDefinitionFnOutput(output) {
 }
 
 function makeDOMAdapterWithRegistry(container, CERegistry) {
-  return function domAdapter(vtree$) {
-    var rawRootElem$ = renderRawRootElem$(vtree$, container, CERegistry);
+  return function domAdapter(vtree$, adapterName) {
+    var rawRootElem$ = renderRawRootElem$(vtree$, container, CERegistry, adapterName);
     var rootElem$ = fixRootElem$(rawRootElem$, container);
     var output = {
       get: makeGet(rootElem$)
@@ -15089,24 +15090,25 @@ function transposeVTree(vtree) {
   }
 }
 
-function makeReplaceCustomElementsWithVTree$(ceRegistry, adapterName) {
+function makeReplaceCustomElementsWithVTree$(CERegistry, adapterName) {
   return function replaceCustomElementsWithVTree$(vtree) {
-    return replaceCustomElementsWithSomething(vtree, ceRegistry, function toVTree$(_vtree, WidgetClass) {
+    return replaceCustomElementsWithSomething(vtree, CERegistry, function toVTree$(_vtree, WidgetClass) {
       var interactions = { get: function get() {
           return Rx.Observable.empty();
         } };
       var props = makePropertiesAdapterFromVTree(_vtree);
       var input = makeCustomElementInput(interactions, props);
       var output = WidgetClass.definitionFn(input);
+      var vtree$ = output[adapterName].last();
       /*eslint-disable no-use-before-define */
-      return convertCustomElementsToVTree(output[adapterName].last(), ceRegistry, adapterName);
+      return convertCustomElementsToVTree(vtree$, CERegistry, adapterName);
       /*eslint-enable no-use-before-define */
     });
   };
 }
 
-function convertCustomElementsToVTree(vtree$, ceRegistry, adapterName) {
-  return vtree$.map(makeReplaceCustomElementsWithVTree$(ceRegistry, adapterName)).flatMap(transposeVTree);
+function convertCustomElementsToVTree(vtree$, CERegistry, adapterName) {
+  return vtree$.map(makeReplaceCustomElementsWithVTree$(CERegistry, adapterName)).flatMap(transposeVTree);
 }
 
 function makeHTMLAdapter() {
@@ -15114,7 +15116,7 @@ function makeHTMLAdapter() {
 
   var registry = makeCustomElementsRegistry(customElementDefinitions);
   return function htmlAdapter(vtree$, adapterName) {
-    var vtree1$ = vtree$.last();
+    var vtreeLast$ = vtree$.last();
     return {
       get: function get() {
         for (var _len2 = arguments.length, params = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
@@ -15122,7 +15124,7 @@ function makeHTMLAdapter() {
         }
 
         if (params.length === 0) {
-          return convertCustomElementsToVTree(vtree1$, registry, adapterName).map(function (vtree) {
+          return convertCustomElementsToVTree(vtreeLast$, registry, adapterName).map(function (vtree) {
             return toHTML(vtree);
           });
         } else {

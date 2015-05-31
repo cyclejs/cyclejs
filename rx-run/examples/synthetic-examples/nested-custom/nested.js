@@ -8,7 +8,7 @@ var h = Cycle.h;
 //   element's return object. E.g. model.foo$.
 
 function innerElem(ext) {
-  var refreshData$ = ext.get('dom', '.innerRoot', 'click').share();
+  var refreshData$ = ext.get('UI', '.innerRoot', 'click').share();
   var foo$ = ext.get('props', 'foo');
   var content$ = refreshData$
     .map(function () { return Math.round(Math.random() * 1000); })
@@ -28,7 +28,7 @@ function innerElem(ext) {
     });
 
   return {
-    dom: vtree$,
+    UI: vtree$,
     events: {
       wasRefreshed: refreshData$.delay(500).share(),
       contentOnRefresh: refreshData$
@@ -49,7 +49,7 @@ function makeRandomColor() {
 }
 
 function app(ext) {
-  var vtree$ = ext.get('dom', '.inner', 'wasRefreshed')
+  var vtree$ = ext.get('UI', '.inner', 'wasRefreshed')
     .map(makeRandomColor)
     .startWith('#000000')
     .map(function (color) {
@@ -64,12 +64,12 @@ function app(ext) {
           h('p', '(Please check also the logs)')]);
     });
   return {
-    dom: vtree$
+    UI: vtree$
   };
 }
 
 var interaction = Cycle.run(app, {
-  dom: Cycle.makeDOMAdapter('.js-container', {'inner-elem': innerElem})
+  UI: Cycle.makeDOMAdapter('.js-container', {'inner-elem': innerElem})
 });
 var appOutput = interaction[0];
 var adaptersOutput = interaction[1];
@@ -77,10 +77,10 @@ var adaptersOutput = interaction[1];
 console.info('You should see both \'foo: ...\' and \'content: ...\' ' +
   'logs every time you click on the inner box.'
 );
-adaptersOutput.get('dom', '.inner', 'fooOnRefresh').subscribe(function (ev) {
+adaptersOutput.get('UI', '.inner', 'fooOnRefresh').subscribe(function (ev) {
   console.log('foo: ' + ev.detail);
 });
-adaptersOutput.get('dom', '.inner', 'contentOnRefresh').subscribe(function (ev) {
+adaptersOutput.get('UI', '.inner', 'contentOnRefresh').subscribe(function (ev) {
   console.log('content: ' + ev.detail);
 });
 
