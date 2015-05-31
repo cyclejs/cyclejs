@@ -42,10 +42,10 @@ function isVTreeCustomElement(vtree) {
   return (vtree.type === 'Widget' && vtree.isCustomElementWidget);
 }
 
-function makeReplaceCustomElementsWithWidgets(customElementsRegistry) {
+function makeReplaceCustomElementsWithWidgets(CERegistry, adapterName) {
   return function replaceCustomElementsWithWidgets(vtree) {
-    return replaceCustomElementsWithSomething(vtree, customElementsRegistry,
-      (_vtree, WidgetClass) => new WidgetClass(_vtree, customElementsRegistry)
+    return replaceCustomElementsWithSomething(vtree, CERegistry,
+      (_vtree, WidgetClass) => new WidgetClass(_vtree, CERegistry, adapterName)
     );
   };
 }
@@ -116,12 +116,12 @@ function getRenderRootElem(domContainer) {
   return rootElem;
 }
 
-function renderRawRootElem$(vtree$, domContainer, customElementsRegistry) {
+function renderRawRootElem$(vtree$, domContainer, CERegistry, adapterName) {
   let rootElem = getRenderRootElem(domContainer);
   let diffAndPatchToElement$ = makeDiffAndPatchToElement$(rootElem);
   return vtree$
     .startWith(VDOM.h())
-    .map(makeReplaceCustomElementsWithWidgets(customElementsRegistry))
+    .map(makeReplaceCustomElementsWithWidgets(CERegistry, adapterName))
     .doOnNext(checkRootVTreeNotCustomElement)
     .pairwise()
     .flatMap(diffAndPatchToElement$)
@@ -193,8 +193,10 @@ function digestDefinitionFnOutput(output) {
 }
 
 function makeDOMAdapterWithRegistry(container, CERegistry) {
-  return function domAdapter(vtree$) {
-    let rawRootElem$ = renderRawRootElem$(vtree$, container, CERegistry);
+  return function domAdapter(vtree$, adapterName) {
+    let rawRootElem$ = renderRawRootElem$(
+      vtree$, container, CERegistry, adapterName
+    );
     let rootElem$ = fixRootElem$(rawRootElem$, container);
     let output = {
       get: makeGet(rootElem$)

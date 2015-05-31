@@ -1,7 +1,6 @@
 'use strict';
 let Rx = require('rx');
 const ALL_PROPS = '*';
-const DOM_ADAPTER_NAME = 'dom';
 const PROPS_ADAPTER_NAME = 'props';
 const EVENTS_SINK_NAME = 'events';
 
@@ -102,16 +101,16 @@ function throwIfVTreeHasPropertyChildren(vtree) {
   }
 }
 
-function makeCustomElementInput(domOutput, propertiesAdapter) {
+function makeCustomElementInput(domOutput, propertiesAdapter, domAdapterName) {
   return {
     get(adapterName, ...params) {
-      if (adapterName === DOM_ADAPTER_NAME) {
+      if (adapterName === domAdapterName) {
         return domOutput.get.apply(null, params);
       } else if (adapterName === PROPS_ADAPTER_NAME) {
         return propertiesAdapter.get.apply(propertiesAdapter, params);
       } else {
         throw new Error(`No such internal adapter named '${adapterName}' for ` +
-          `custom elements. Use '${DOM_ADAPTER_NAME}' or `
+          `custom elements. Use '${domAdapterName}' or `
             `'${PROPS_ADAPTER_NAME}' instead.`);
       }
     }
@@ -119,7 +118,7 @@ function makeCustomElementInput(domOutput, propertiesAdapter) {
 }
 
 function makeConstructor() {
-  return function customElementConstructor(vtree, customElementsRegistry) {
+  return function customElementConstructor(vtree, CERegistry, adapterName) {
     //console.log('%cnew (constructor) custom element ' + vtree.tagName,
     //  'color: #880088');
     warnIfVTreeHasNoKey(vtree);
@@ -129,27 +128,28 @@ function makeConstructor() {
     this.properties.children = vtree.children;
     this.key = vtree.key;
     this.isCustomElementWidget = true;
-    this.customElementsRegistry = customElementsRegistry;
+    this.customElementsRegistry = CERegistry;
+    this.adapterName = adapterName;
     this.firstRootElem$ = new Rx.ReplaySubject(1);
     this.disposables = new Rx.CompositeDisposable();
   };
 }
 
-function validateDefFnOutput(defFnOutput) {
+function validateDefFnOutput(defFnOutput, domAdapterName) {
   if (typeof defFnOutput !== 'object') {
     throw new Error('Custom element definition function should output an ' +
       'object.');
   }
-  if (typeof defFnOutput.dom === 'undefined') {
-    throw new Error('Custom element definition function should output an ' +
-      'object containing `dom`.');
+  if (typeof defFnOutput[domAdapterName] === 'undefined') {
+    throw new Error(`Custom element definition function should output an ` +
+      `object containing '${domAdapterName}'.`);
   }
-  if (typeof defFnOutput.dom.subscribe !== 'function') {
-    throw new Error('Custom element definition function should output an ' +
-      'object containing an Observable of VTree, named `dom`.');
+  if (typeof defFnOutput[domAdapterName].subscribe !== 'function') {
+    throw new Error(`Custom element definition function should output an ` +
+      `object containing an Observable of VTree, named '${domAdapterName}'.`);
   }
   for (let name in defFnOutput) { if (defFnOutput.hasOwnProperty(name)) {
-    if (name !== DOM_ADAPTER_NAME && name !== EVENTS_SINK_NAME) {
+    if (name !== domAdapterName && name !== EVENTS_SINK_NAME) {
       throw new Error(`Unknown '${name}' found on custom element definition ` +
         `function's output.`);
     }
@@ -161,6 +161,7 @@ function makeInit(tagName, definitionFn) {
   return function initCustomElement() {
     //console.log('%cInit() custom element ' + tagName, 'color: #880088');
     let widget = this;
+    let adapterName = widget.adapterName;
     let registry = widget.customElementsRegistry;
     let element = createContainerElement(tagName, widget.properties);
     let proxyVTree$$ = new Rx.AsyncSubject();
@@ -168,10 +169,12 @@ function makeInit(tagName, definitionFn) {
     let propertiesAdapter = makePropertiesAdapter();
     let domOutput = domAdapter(proxyVTree$$.mergeAll());
     let rootElem$ = domOutput.get(':root');
-    let defFnInput = makeCustomElementInput(domOutput, propertiesAdapter);
+    let defFnInput = makeCustomElementInput(
+      domOutput, propertiesAdapter, adapterName
+    );
     let defFnOutput = definitionFn(defFnInput);
-    validateDefFnOutput(defFnOutput);
-    proxyVTree$$.onNext(defFnOutput.dom.shareReplay(1));
+    validateDefFnOutput(defFnOutput, adapterName);
+    proxyVTree$$.onNext(defFnOutput[adapterName].shareReplay(1));
     proxyVTree$$.onCompleted();
     rootElem$.subscribe(widget.firstRootElem$.asObserver());
     element.cycleCustomElementMetadata = {
