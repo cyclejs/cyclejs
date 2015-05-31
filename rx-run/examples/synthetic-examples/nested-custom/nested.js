@@ -8,8 +8,7 @@ var h = Cycle.h;
 //   element's return object. E.g. model.foo$.
 
 function innerElem(ext) {
-  var refreshData$ = ext.get('dom', '.innerRoot', 'click')
-    .map(function () { return 'x'; }).share();
+  var refreshData$ = ext.get('dom', '.innerRoot', 'click').share();
   var foo$ = ext.get('props', 'foo');
   var content$ = refreshData$
     .map(function () { return Math.round(Math.random() * 1000); })

@@ -77,15 +77,15 @@ function makeDiffAndPatchToElement$(rootElem) {
   return function diffAndPatchToElement$([oldVTree, newVTree]) {
     if (typeof newVTree === 'undefined') { return Rx.Observable.empty(); }
 
+    //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
+    //let k = isCustomElement ? ' is custom element ' : ' is top level';
     let waitForChildrenStreams = getArrayOfAllWidgetFirstRootElem$(newVTree);
     let rootElemAfterChildrenFirstRootElem$ = Rx.Observable
       .combineLatest(waitForChildrenStreams, () => {
-        //console.log('%crawRootElem$ emits. (1) ', 'color: #008800');
+        //console.log('%crawRootElem$ emits. (1)' + k, 'color: #008800');
         return rootElem;
       });
     let cycleCustomElementMetadata = rootElem.cycleCustomElementMetadata;
-    //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
-    //let k = isCustomElement ? ' is custom element ' : ' is top level';
     //console.log('%cVDOM diff and patch START' + k, 'color: #636300');
     /* eslint-disable */
     rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
@@ -95,10 +95,10 @@ function makeDiffAndPatchToElement$(rootElem) {
       rootElem.cycleCustomElementMetadata = cycleCustomElementMetadata;
     }
     if (waitForChildrenStreams.length === 0) {
-      //console.log('%crawRootElem$ emits. (2)', 'color: #008800');
+      //console.log('%crawRootElem$ emits. (2)' + k, 'color: #008800');
       return Rx.Observable.just(rootElem);
     } else {
-      //console.log('%crawRootElem$ waiting for children.', 'color: #008800');
+      //console.log('%crawRootElem$ waiting children.' + k, 'color: #008800');
       return rootElemAfterChildrenFirstRootElem$;
     }
   };
@@ -138,7 +138,7 @@ function makeRootElemToEvent$(selector, eventName) {
     //  (isCustomElement ? ' for a custom element' : ' for top-level View'),
     //  'color: #0000BB');
     let klass = selector.replace('.', '');
-    if (rootElem.className.search(new RegExp('\\b' + klass + '\\b')) >= 0) {
+    if (rootElem.className.search(new RegExp(`\\b${klass}\\b`)) >= 0) {
       //console.log('%c  Good return. (A)', 'color:#0000BB');
       //console.log(rootElem);
       return Rx.Observable.fromEvent(rootElem, eventName);
