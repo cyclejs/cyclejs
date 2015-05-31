@@ -1,13 +1,13 @@
 'use strict';
 let Rx = require('rx');
 let toHTML = require('vdom-to-html');
-let {replaceCustomElementsWithSomething} = require('./custom-elements');
+let {replaceCustomElementsWithSomething, makeCustomElementsRegistry} =
+  require('./custom-elements');
+let {makeCustomElementInput} = require('./custom-element-widget');
 
-function makePropertiesProxyFromVTree(vtree) {
+function makePropertiesAdapterFromVTree(vtree) {
   return {
-    get(propertyName) {
-      return Rx.Observable.just(vtree.properties[propertyName]);
-    }
+    get: (propertyName) => Rx.Observable.just(vtree.properties[propertyName])
   };
 }
 
@@ -35,49 +35,47 @@ function transposeVTree(vtree) {
   }
 }
 
-function makeEmptyInteractions() {
-  return {
-    get() {
-      return Rx.Observable.empty();
-    }
+function makeReplaceCustomElementsWithVTree$(customElementsRegistry) {
+  return function replaceCustomElementsWithVTree$(vtree) {
+    return replaceCustomElementsWithSomething(vtree, customElementsRegistry,
+      function toVTree$(_vtree, WidgetClass) {
+        let interactions = {get: () => Rx.Observable.empty()};
+        let props = makePropertiesAdapterFromVTree(_vtree);
+        let input = makeCustomElementInput(interactions, props);
+        let output = WidgetClass.definitionFn(input);
+        /*eslint-disable no-use-before-define */
+        return convertCustomElementsToVTree(output.vtree$.last());
+        /*eslint-enable no-use-before-define */
+      });
   };
 }
 
-function replaceCustomElementsWithVTree$(vtree) {
-  return replaceCustomElementsWithSomething(vtree,
-    function toVTree$(_vtree, WidgetClass) {
-      let interactions = makeEmptyInteractions();
-      let props = makePropertiesProxyFromVTree(_vtree);
-      let output = WidgetClass.definitionFn(interactions, props);
-      /*eslint-disable no-use-before-define */
-      return convertCustomElementsToVTree(output.vtree$.last());
-      /*eslint-enable no-use-before-define */
-    });
-}
-
-function convertCustomElementsToVTree(vtree$) {
+function convertCustomElementsToVTree(vtree$, customElementsRegistry) {
   return vtree$
-    .map(replaceCustomElementsWithVTree$)
+    .map(makeReplaceCustomElementsWithVTree$(customElementsRegistry))
     .flatMap(transposeVTree);
 }
 
-function renderAsHTML(input, customElementDefinitions) {
-  let vtree$;
-  let computerFn;
-  if (typeof input === 'function') {
-    computerFn = input;
-    vtree$ = computerFn(makeEmptyInteractions());
-  } else if (typeof input.subscribe === 'function') {
-    vtree$ = input;
-  }
-  return convertCustomElementsToVTree(vtree$.last())
-    .map(vtree => toHTML(vtree));
+function makeHTMLAdapter(customElementDefinitions = {}) {
+  let registry = makeCustomElementsRegistry(customElementDefinitions);
+  return function htmlAdapter(vtree$) {
+    return {
+      get(...params) {
+        if (params.length === 0) {
+          return convertCustomElementsToVTree(vtree$.last(), registry)
+            .map(vtree => toHTML(vtree));
+        } else {
+          return Rx.Observable.empty();
+        }
+      }
+    };
+  };
 }
 
 module.exports = {
-  makePropertiesProxyFromVTree,
-  replaceCustomElementsWithVTree$,
+  makePropertiesAdapterFromVTree,
+  makeReplaceCustomElementsWithVTree$,
   convertCustomElementsToVTree,
 
-  renderAsHTML
+  makeHTMLAdapter
 };
