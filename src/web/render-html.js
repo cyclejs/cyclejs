@@ -35,34 +35,39 @@ function transposeVTree(vtree) {
   }
 }
 
-function makeReplaceCustomElementsWithVTree$(customElementsRegistry) {
+function makeReplaceCustomElementsWithVTree$(ceRegistry, adapterName) {
   return function replaceCustomElementsWithVTree$(vtree) {
-    return replaceCustomElementsWithSomething(vtree, customElementsRegistry,
+    return replaceCustomElementsWithSomething(vtree, ceRegistry,
       function toVTree$(_vtree, WidgetClass) {
         let interactions = {get: () => Rx.Observable.empty()};
         let props = makePropertiesAdapterFromVTree(_vtree);
         let input = makeCustomElementInput(interactions, props);
         let output = WidgetClass.definitionFn(input);
         /*eslint-disable no-use-before-define */
-        return convertCustomElementsToVTree(output.vtree$.last());
+        return convertCustomElementsToVTree(
+          output[adapterName].last(),
+          ceRegistry,
+          adapterName
+        );
         /*eslint-enable no-use-before-define */
       });
   };
 }
 
-function convertCustomElementsToVTree(vtree$, customElementsRegistry) {
+function convertCustomElementsToVTree(vtree$, ceRegistry, adapterName) {
   return vtree$
-    .map(makeReplaceCustomElementsWithVTree$(customElementsRegistry))
+    .map(makeReplaceCustomElementsWithVTree$(ceRegistry, adapterName))
     .flatMap(transposeVTree);
 }
 
 function makeHTMLAdapter(customElementDefinitions = {}) {
   let registry = makeCustomElementsRegistry(customElementDefinitions);
-  return function htmlAdapter(vtree$) {
+  return function htmlAdapter(vtree$, adapterName) {
+    let vtree1$ = vtree$.last();
     return {
       get(...params) {
         if (params.length === 0) {
-          return convertCustomElementsToVTree(vtree$.last(), registry)
+          return convertCustomElementsToVTree(vtree1$, registry, adapterName)
             .map(vtree => toHTML(vtree));
         } else {
           return Rx.Observable.empty();

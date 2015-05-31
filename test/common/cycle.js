@@ -5,16 +5,16 @@ let Cycle = require('../../src/core/cycle');
 
 describe('Cycle', function () {
   describe('API', function () {
-    it('should have `applyToDOM`', function () {
-      assert.strictEqual(typeof Cycle.applyToDOM, 'function');
+    it('should have `run`', function () {
+      assert.strictEqual(typeof Cycle.run, 'function');
     });
 
-    it('should have `renderAsHTML`', function () {
-      assert.strictEqual(typeof Cycle.renderAsHTML, 'function');
+    it('should have `makeDOMAdapter`', function () {
+      assert.strictEqual(typeof Cycle.makeDOMAdapter, 'function');
     });
 
-    it('should have `registerCustomElement`', function () {
-      assert.strictEqual(typeof Cycle.registerCustomElement, 'function');
+    it('should have `makeHTMLAdapter`', function () {
+      assert.strictEqual(typeof Cycle.makeHTMLAdapter, 'function');
     });
 
     it('should have a shortcut to Rx', function () {

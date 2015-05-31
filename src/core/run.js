@@ -12,7 +12,7 @@ function makeAdapterInputProxies(adapters) {
 function callAdapters(adapters, inputs) {
   let outputs = {};
   for (let name in adapters) { if (adapters.hasOwnProperty(name)) {
-    outputs[name] = adapters[name](inputs[name].mergeAll());
+    outputs[name] = adapters[name](inputs[name].mergeAll(), name);
   }}
   return outputs;
 }

@@ -14439,7 +14439,7 @@ function callAdapters(adapters, inputs) {
   var outputs = {};
   for (var _name2 in adapters) {
     if (adapters.hasOwnProperty(_name2)) {
-      outputs[_name2] = adapters[_name2](inputs[_name2].mergeAll());
+      outputs[_name2] = adapters[_name2](inputs[_name2].mergeAll(), _name2);
     }
   }
   return outputs;
@@ -15089,9 +15089,9 @@ function transposeVTree(vtree) {
   }
 }
 
-function makeReplaceCustomElementsWithVTree$(customElementsRegistry) {
+function makeReplaceCustomElementsWithVTree$(ceRegistry, adapterName) {
   return function replaceCustomElementsWithVTree$(vtree) {
-    return replaceCustomElementsWithSomething(vtree, customElementsRegistry, function toVTree$(_vtree, WidgetClass) {
+    return replaceCustomElementsWithSomething(vtree, ceRegistry, function toVTree$(_vtree, WidgetClass) {
       var interactions = { get: function get() {
           return Rx.Observable.empty();
         } };
@@ -15099,21 +15099,22 @@ function makeReplaceCustomElementsWithVTree$(customElementsRegistry) {
       var input = makeCustomElementInput(interactions, props);
       var output = WidgetClass.definitionFn(input);
       /*eslint-disable no-use-before-define */
-      return convertCustomElementsToVTree(output.vtree$.last());
+      return convertCustomElementsToVTree(output[adapterName].last(), ceRegistry, adapterName);
       /*eslint-enable no-use-before-define */
     });
   };
 }
 
-function convertCustomElementsToVTree(vtree$, customElementsRegistry) {
-  return vtree$.map(makeReplaceCustomElementsWithVTree$(customElementsRegistry)).flatMap(transposeVTree);
+function convertCustomElementsToVTree(vtree$, ceRegistry, adapterName) {
+  return vtree$.map(makeReplaceCustomElementsWithVTree$(ceRegistry, adapterName)).flatMap(transposeVTree);
 }
 
 function makeHTMLAdapter() {
   var customElementDefinitions = arguments[0] === undefined ? {} : arguments[0];
 
   var registry = makeCustomElementsRegistry(customElementDefinitions);
-  return function htmlAdapter(vtree$) {
+  return function htmlAdapter(vtree$, adapterName) {
+    var vtree1$ = vtree$.last();
     return {
       get: function get() {
         for (var _len2 = arguments.length, params = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
@@ -15121,7 +15122,7 @@ function makeHTMLAdapter() {
         }
 
         if (params.length === 0) {
-          return convertCustomElementsToVTree(vtree$.last(), registry).map(function (vtree) {
+          return convertCustomElementsToVTree(vtree1$, registry, adapterName).map(function (vtree) {
             return toHTML(vtree);
           });
         } else {
