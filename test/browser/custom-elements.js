@@ -66,7 +66,6 @@ describe('Custom Elements', function () {
 
   it('should render inner state and properties independently', function (done) {
     // Make custom element with internal state, and properties as input
-    //Cycle.registerCustomElement('myelement', function (interactions, props) {
     function myElementDef(ext) {
       let number$ = Rx.Observable.interval(10).take(9);
       return {

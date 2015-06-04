@@ -6,10 +6,6 @@ let {Rx, h} = Cycle;
 let CustomElements = require('../../src/web/custom-elements');
 
 describe('renderAsHTML()', function () {
-  //beforeEach(function () {
-  //  CustomElements.unregisterAllCustomElements();
-  //});
-
   it('should output HTML when given a simple vtree stream', function (done) {
     function app() {
       return {
