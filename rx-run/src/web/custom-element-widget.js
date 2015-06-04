@@ -65,7 +65,6 @@ function makePropertiesAdapter() {
     enumerable: false,
     value: 'PropertiesAdapter'
   });
-  // TODO Test get() with no params should return all props as an object stream
   Object.defineProperty(propertiesAdapter, 'get', {
     enumerable: false,
     value: function get(streamKey = ALL_PROPS, comparer = defaultComparer) {
@@ -167,7 +166,7 @@ function makeInit(tagName, definitionFn) {
     let proxyVTree$$ = new Rx.AsyncSubject();
     let domAdapter = makeDOMAdapterWithRegistry(element, registry);
     let propertiesAdapter = makePropertiesAdapter();
-    let domOutput = domAdapter(proxyVTree$$.mergeAll());
+    let domOutput = domAdapter(proxyVTree$$.mergeAll(), adapterName);
     let rootElem$ = domOutput.get(':root');
     let defFnInput = makeCustomElementInput(
       domOutput, propertiesAdapter, adapterName
@@ -186,6 +185,7 @@ function makeInit(tagName, definitionFn) {
     subscribeEventDispatchingSink(element, widget);
     //widget.disposables.add(domOutput.someDisposable); // TODO?
     widget.disposables.add(widget.firstRootElem$);
+    widget.disposables.add(proxyVTree$$);
     widget.update(null, element);
     return element;
   };
@@ -246,9 +246,9 @@ function destroyCustomElement(element) {
 }
 
 function makeWidgetClass(tagName, definitionFn) {
-  if (typeof tagName !== 'string' || typeof definitionFn !== 'function') {
-    throw new Error('registerCustomElement requires parameters `tagName` and ' +
-      '`definitionFn`.');
+  if (typeof definitionFn !== 'function') {
+    throw new Error('A custom element definition given to the DOM adapter ' +
+      'should be a function.');
   }
 
   let WidgetClass = makeConstructor();

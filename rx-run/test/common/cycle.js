@@ -29,4 +29,14 @@ describe('Cycle', function () {
       assert.strictEqual(typeof Cycle.svg, 'function');
     });
   });
+
+  describe('run()', function () {
+    it.skip('should return app output and adapters output', function () {
+      assert.fail(); // TODO
+    });
+
+    it.skip('should return a disposable adapters output', function () {
+      assert.fail(); // TODO
+    });
+  });
 });

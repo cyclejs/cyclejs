@@ -2,9 +2,9 @@
 let Cycle = require('../../../src/core/cycle');
 let {Rx, h} = Cycle;
 
-function myelement(interactions, props) {
+function myElement(ext) {
   return {
-    vtree$: props.get('content')
+    dom: ext.get('props', 'content')
       .map(content => h('h3.myelementclass', content))
   };
 }
@@ -19,19 +19,19 @@ function makeModelNumber$() {
 function viewWithContainerFn(number$) {
   return number$.map(number =>
     h('div', [
-      h('myelement', {content: String(number)})
+      h('my-element', {content: String(number)})
     ])
   );
 }
 
 function viewWithoutContainerFn(number$) {
   return number$.map(number =>
-    h('myelement', {content: String(number)})
+    h('my-element', {content: String(number)})
   );
 }
 
 module.exports = {
-  myelement,
+  myElement,
   makeModelNumber$,
   viewWithContainerFn,
   viewWithoutContainerFn

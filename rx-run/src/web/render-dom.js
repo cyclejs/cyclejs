@@ -174,26 +174,16 @@ function makeGet(rootElem$) {
   };
 }
 
-function digestDefinitionFnOutput(output) {
-  let vtree$;
-  let customEvents = {};
-  if (typeof output.subscribe === 'function') {
-    vtree$ = output;
-  } else if (output.hasOwnProperty('vtree$') &&
-    typeof output.vtree$.subscribe === 'function')
-  {
-    vtree$ = output.vtree$;
-    customEvents = output;
-  } else {
-    throw new Error('definitionFn given to applyToDOM must return an ' +
-      'Observable of virtual DOM elements, or an object containing such ' +
-      'Observable named as `vtree$`');
+function validateAdapterInput(vtree$) {
+  if (!vtree$ || typeof vtree$.subscribe !== 'function') {
+    throw new Error('The DOMAdapter function expects as input an ' +
+      'Observable of virtual DOM elements');
   }
-  return {vtree$, customEvents};
 }
 
 function makeDOMAdapterWithRegistry(container, CERegistry) {
   return function domAdapter(vtree$, adapterName) {
+    validateAdapterInput(vtree$);
     let rawRootElem$ = renderRawRootElem$(
       vtree$, container, CERegistry, adapterName
     );
@@ -235,7 +225,7 @@ module.exports = {
   getRenderRootElem,
   renderRawRootElem$,
   makeGet,
-  digestDefinitionFnOutput,
+  validateAdapterInput,
   makeDOMAdapterWithRegistry,
 
   makeDOMAdapter
