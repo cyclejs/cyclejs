@@ -140,7 +140,6 @@ describe('Rendering', function () {
     });
 
     it('should accept a view wrapping a custom element (#89)', function (done) {
-      //Cycle.registerCustomElement('myelement', Fixture89.myelement);
       function app() {
         let number$ = Fixture89.makeModelNumber$();
         return {
