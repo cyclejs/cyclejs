@@ -45,6 +45,17 @@ function makeGet(adapterOutputs) {
   };
 }
 
+function makeDispose() {
+  return function dispose() {}; // TODO implement this!
+}
+
+function makeAppInput(adapterInputProxies, adapterOutputs) {
+  return {
+    get: makeGet(adapterOutputs),
+    dispose: makeDispose(adapterInputProxies, adapterOutputs)
+  };
+}
+
 function replicateMany(original, imitators) {
   for (let name in original) { if (original.hasOwnProperty(name)) {
     if (imitators.hasOwnProperty(name)) {
@@ -58,7 +69,7 @@ function run(app, adapters) {
   // TODO Preconditions
   let adapterInputProxies = makeAdapterInputProxies(adapters);
   let adapterOutputs = callAdapters(adapters, adapterInputProxies);
-  let appInput = {get: makeGet(adapterOutputs)};
+  let appInput = makeAppInput(adapterInputProxies, adapterOutputs);
   let appOutput = app(appInput);
   replicateMany(appOutput, adapterInputProxies);
   return [appOutput, appInput]; // TODO test this
