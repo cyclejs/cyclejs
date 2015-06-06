@@ -187,12 +187,11 @@ function makeDOMDriverWithRegistry(container, CERegistry) {
       vtree$, container, CERegistry, driverName
     );
     let rootElem$ = fixRootElem$(rawRootElem$, container);
-    let output = {
-      get: makeGet(rootElem$)
-      // TODO dispose???
+    let disposable = rootElem$.connect();
+    return {
+      get: makeGet(rootElem$),
+      dispose: disposable.dispose.bind(disposable)
     };
-    rootElem$.connect(); // TODO save subscription, for disposal?
-    return output;
   };
 }
 
