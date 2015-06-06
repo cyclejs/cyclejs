@@ -55,7 +55,7 @@ function app(ext) {
 }
 
 Cycle.run(app, {
-  dom: Cycle.makeDOMAdapter('.js-container', {
+  dom: Cycle.makeDOMDriver('.js-container', {
     'my-ticker': tickerCustomElement
   })
 });

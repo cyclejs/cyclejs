@@ -2,8 +2,8 @@
 let VirtualDOM = require('virtual-dom');
 let svg = require('virtual-dom/virtual-hyperscript/svg');
 let Rx = require('rx');
-let {makeDOMAdapter} = require('../web/render-dom');
-let {makeHTMLAdapter} = require('../web/render-html');
+let {makeDOMDriver} = require('../web/render-dom');
+let {makeHTMLDriver} = require('../web/render-html');
 let run = require('./run');
 
 var Cycle = {
@@ -29,7 +29,7 @@ var Cycle = {
    */
   run, // TODO write docs
 
-  makeDOMAdapter, // TODO write docs
+  makeDOMDriver, // TODO write docs
 
   /**
    * Converts a given Observable of virtual DOM elements (`vtree$`) into an
@@ -42,7 +42,7 @@ var Cycle = {
    * renderization of the virtual DOM element.
    * @function renderAsHTML
    */
-  makeHTMLAdapter, // TODO write docs
+  makeHTMLDriver, // TODO write docs
 
   /**
    * Informs Cycle to recognize the given `tagName` as a custom element

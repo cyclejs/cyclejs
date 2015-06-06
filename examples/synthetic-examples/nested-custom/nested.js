@@ -69,18 +69,17 @@ function app(ext) {
 }
 
 var interaction = Cycle.run(app, {
-  UI: Cycle.makeDOMAdapter('.js-container', {'inner-elem': innerElem})
+  UI: Cycle.makeDOMDriver('.js-container', {'inner-elem': innerElem})
 });
-var appOutput = interaction[0];
-var adaptersOutput = interaction[1];
+var responses = interaction[1];
 
 console.info('You should see both \'foo: ...\' and \'content: ...\' ' +
   'logs every time you click on the inner box.'
 );
-adaptersOutput.get('UI', '.inner', 'fooOnRefresh').subscribe(function (ev) {
+responses.get('UI', '.inner', 'fooOnRefresh').subscribe(function (ev) {
   console.log('foo: ' + ev.detail);
 });
-adaptersOutput.get('UI', '.inner', 'contentOnRefresh').subscribe(function (ev) {
+responses.get('UI', '.inner', 'contentOnRefresh').subscribe(function (ev) {
   console.log('content: ' + ev.detail);
 });
 
