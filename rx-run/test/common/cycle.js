@@ -31,6 +31,24 @@ describe('Cycle', function () {
   });
 
   describe('run()', function () {
+    it('should throw if first argument is not a function', function () {
+      assert.throws(() => {
+        Cycle.run('not a function');
+      }, /First argument given to Cycle\.run\(\) must be the `app` function/i);
+    });
+
+    it('should throw if second argument is not an object', function () {
+      assert.throws(() => {
+        Cycle.run(() => {}, 'not an object');
+      }, /Second argument given to Cycle\.run\(\) must be an object with driver functions/i);
+    });
+
+    it('should throw if second argument is an empty object', function () {
+      assert.throws(() => {
+        Cycle.run(() => {}, {});
+      }, /Second argument given to Cycle\.run\(\) must be an object with at least one/i);
+    });
+
     it('should return requests object and responses object', function () {
       function app(ext) {
         return {

@@ -70,8 +70,29 @@ function replicateMany(original, imitators) {
   }}
 }
 
+function isObjectEmpty(obj) {
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 function run(app, drivers) {
-  // TODO Preconditions
+  if (typeof app !== 'function') {
+    throw new Error('First argument given to Cycle.run() must be the `app` ' +
+      'function.');
+  }
+  if (typeof drivers !== 'object' || drivers === null) {
+    throw new Error('Second argument given to Cycle.run() must be an object ' +
+      'with driver functions as properties.');
+  }
+  if (isObjectEmpty(drivers)) {
+    throw new Error('Second argument given to Cycle.run() must be an object ' +
+      'with at least one driver function declared as a property.');
+  }
+
   let requestProxies = makeRequestProxies(drivers);
   let rawResponses = callDrivers(drivers, requestProxies);
   let responses = makeAppInput(requestProxies, rawResponses);
