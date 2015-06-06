@@ -8,65 +8,70 @@ let run = require('./run');
 
 var Cycle = {
   /**
-   * Takes a `computer` function which outputs an Observable of virtual DOM
-   * elements, and renders that into the DOM element indicated by `container`,
-   * which can be either a CSS selector or an actual element. At the same time,
-   * provides the `interactions` input to the `computer` function, which is a
-   * collection of all possible events happening on all elements which were
-   * rendered. You must query this collection with
-   * `interactions.get(selector, eventName)` in order to get an Observable of
-   * interactions of type `eventName` happening on the element identified by
-   * `selector`.
-   * Example: `interactions.get('.mybutton', 'click').map(ev => ...)`
+   * Takes an `app` function and circularly connects it to the given collection
+   * of driver functions.
+   *
+   * The `app` function expects a collection of "driver response" Observables as
+   * input, and should return a collection of "driver request" Observables.
+   * The driver response collection can be queried using a getter function:
+   * `responses.get(driverName, ...params)`, returns an Observable. The
+   * structure of `params` is defined by the API of the corresponding
+   * `driverName`. The driver request collection should be a simple object where
+   * keys match the driver names used by `responses.get()` and defined on the
+   * second parameter given to `run()`.
+   *
+   * @param {Function} app a function that takes `responses` as input
+   * and outputs a collection of `requests` Observables.
+   * @param {Object} drivers an object where keys are driver names and values
+   * are driver functions.
+   * @return {Array} an array where the first object is the collection of driver
+   * requests, and the second objet is the collection of driver responses, that
+   * can be used for debugging or testing.
+   * @function run
+   */
+  run,
+
+  /**
+   * A factory for the DOM driver function. Takes a `container` to define the
+   * target on the existing DOM which this driver will operate on. All custom
+   * elements which this driver can detect should be given as the second
+   * parameter.
    *
    * @param {(String|HTMLElement)} container the DOM selector for the element
    * (or the element itself) to contain the rendering of the VTrees.
-   * @param {Function} computer a function that takes `interactions` as input
-   * and outputs an Observable of virtual DOM elements.
-   * @return {Object} an object containing properties `rootElem$`,
-   * `interactions`, `dispose()` that can be used for debugging or testing.
-   * @function applyToDOM
+   * @param {Object} a collection of custom element definitions. The key of each
+   * property should be the tag name of the custom element, and the value should
+   * be a function defining the implementation of the custom element. This
+   * function follows the same contract as the top-most `app` function: input
+   * are driver responses, output are requests to drivers.
+   * @return {Function} the DOM driver function. The function expects an
+   * Observable of VTree as input, and outputs the response object for this
+   * driver, containing functions `get()` and `dispose()` that can be used for
+   * debugging and testing.
+   * @function makeDOMDriver
    */
-  run, // TODO write docs
-
-  makeDOMDriver, // TODO write docs
+  makeDOMDriver,
 
   /**
-   * Converts a given Observable of virtual DOM elements (`vtree$`) into an
-   * Observable of corresponding HTML strings (`html$`). The provided `vtree$`
-   * must complete (must call onCompleted on its observers) in finite time,
-   * otherwise the output `html$` will never emit an HTML string.
+   * A factory for the HTML driver function. Takes the registry object of all
+   * custom elements as the only parameter. The HTML driver function will use
+   * the custom element registry to detect custom element on the VTree and apply
+   * their implementations.
    *
-   * @param {Rx.Observable} vtree$ Observable of virtual DOM elements.
-   * @return {Rx.Observable} an Observable emitting a string as the HTML
-   * renderization of the virtual DOM element.
+   * @param {Object} a collection of custom element definitions. The key of each
+   * property should be the tag name of the custom element, and the value should
+   * be a function defining the implementation of the custom element. This
+   * function follows the same contract as the top-most `app` function: input
+   * are driver responses, output are requests to drivers.
+   * @return {Function} the HTML driver function. The function expects an
+   * Observable of Virtual DOM elements as input, and outputs the response
+   * object for this driver, containing functions `get()` and `dispose()` that
+   * can be used for debugging and testing. To get the Observable of strings as
+   * the HTML renderization of the virtual DOM elements, call simply
+   * `get(htmlDriverName)` on the responses object returned by Cycle.run();
    * @function renderAsHTML
    */
-  makeHTMLDriver, // TODO write docs
-
-  /**
-   * Informs Cycle to recognize the given `tagName` as a custom element
-   * implemented as the given function whenever `tagName` is used in VTrees
-   * rendered in the context of some parent (in `applyToDOM` or in other custom
-   * elements).
-   * The given `definitionFn` function takes two parameters as input, in this
-   * order: `interactions` and `properties`. The former works just like it does
-   * in the `computer` function given to `applyToDOM`, and the later contains
-   * Observables representing properties of the custom element, given from the
-   * parent context. `properties.get('foo')` will return the Observable `foo$`.
-   *
-   * The `definitionFn` must output an object containing the property `vtree$`
-   * as an Observable. If the output object contains other Observables, then
-   * they are treated as custom events of the custom element.
-   *
-   * @param {String} tagName a name for identifying the custom element.
-   * @param {Function} definitionFn the implementation for the custom element.
-   * This function takes two arguments: `interactions`, and `properties`, and
-   * should output an object of Observables.
-   * @function registerCustomElement
-   */
-  //registerCustomElement: CustomElements.registerCustomElement,
-  // TODO deprecated. Do something about it
+  makeHTMLDriver,
 
   /**
    * A shortcut to the root object of
