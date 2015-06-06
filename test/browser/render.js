@@ -67,7 +67,7 @@ describe('Rendering', function () {
       }, /The DOMAdapter function expects as input an Observable of virtual/);
     });
 
-    it('should convert a simple virtual-dom <select> to DOM element', function () {
+    it('should convert a simple virtual-dom <select> to DOM element', function (done) {
       function app() {
         return {
           dom: Rx.Observable.just(h('select.my-class', [
@@ -77,14 +77,17 @@ describe('Rendering', function () {
           ]))
         };
       }
-      let [left, right] = Cycle.run(app, {
+      let [requests, responses] = Cycle.run(app, {
         dom: Cycle.makeDOMAdapter(createRenderTarget())
       });
-      let selectEl = document.querySelector('.my-class');
-      assert.notStrictEqual(selectEl, null);
-      assert.notStrictEqual(typeof selectEl, 'undefined');
-      assert.strictEqual(selectEl.tagName, 'SELECT');
-      right.dispose();
+      responses.get('dom', ':root').first().subscribe(function () {
+        let selectEl = document.querySelector('.my-class');
+        assert.notStrictEqual(selectEl, null);
+        assert.notStrictEqual(typeof selectEl, 'undefined');
+        assert.strictEqual(selectEl.tagName, 'SELECT');
+        responses.dispose();
+        done();
+      });
     });
 
     it('should catch interaction events coming from wrapped View', function (done) {
@@ -94,23 +97,25 @@ describe('Rendering', function () {
           dom: Rx.Observable.just(h('h3.myelementclass', 'Foobar'))
         };
       }
-      let [appOutput, adaptersOutput] = Cycle.run(app, {
+      let [requests, responses] = Cycle.run(app, {
         dom: Cycle.makeDOMAdapter(createRenderTarget())
       });
-      adaptersOutput.get('dom', '.myelementclass', 'click').subscribe(ev => {
+      // Make assertions
+      responses.get('dom', '.myelementclass', 'click').subscribe(ev => {
         assert.strictEqual(ev.type, 'click');
         assert.strictEqual(ev.target.innerHTML, 'Foobar');
+        responses.dispose();
         done();
       });
-      // Make assertions
-      let myElement = document.querySelector('.myelementclass');
-      assert.notStrictEqual(myElement, null);
-      assert.notStrictEqual(typeof myElement, 'undefined');
-      assert.strictEqual(myElement.tagName, 'H3');
-      assert.doesNotThrow(function () {
-        myElement.click();
+      responses.get('dom', ':root').first().subscribe(function () {
+        let myElement = document.querySelector('.myelementclass');
+        assert.notStrictEqual(myElement, null);
+        assert.notStrictEqual(typeof myElement, 'undefined');
+        assert.strictEqual(myElement.tagName, 'H3');
+        assert.doesNotThrow(function () {
+          myElement.click();
+        });
       });
-      adaptersOutput.dispose();
     });
 
     it('should allow subscribing to interactions', function (done) {
@@ -120,22 +125,24 @@ describe('Rendering', function () {
           dom: Rx.Observable.just(h('h3.myelementclass', 'Foobar'))
         };
       }
-      let [appOutput, adaptersOutput] = Cycle.run(app, {
+      let [requests, responses] = Cycle.run(app, {
         dom: Cycle.makeDOMAdapter(createRenderTarget())
       });
-      adaptersOutput.get('dom', '.myelementclass', 'click').subscribe(ev => {
+      responses.get('dom', '.myelementclass', 'click').subscribe(ev => {
         assert.strictEqual(ev.type, 'click');
         assert.strictEqual(ev.target.innerHTML, 'Foobar');
-        adaptersOutput.dispose();
+        responses.dispose();
         done();
       });
       // Make assertions
-      let myElement = document.querySelector('.myelementclass');
-      assert.notStrictEqual(myElement, null);
-      assert.notStrictEqual(typeof myElement, 'undefined');
-      assert.strictEqual(myElement.tagName, 'H3');
-      assert.doesNotThrow(function () {
-        myElement.click();
+      responses.get('dom', ':root').first().subscribe(function () {
+        let myElement = document.querySelector('.myelementclass');
+        assert.notStrictEqual(myElement, null);
+        assert.notStrictEqual(typeof myElement, 'undefined');
+        assert.strictEqual(myElement.tagName, 'H3');
+        assert.doesNotThrow(function () {
+          myElement.click();
+        });
       });
     });
 
@@ -146,30 +153,28 @@ describe('Rendering', function () {
           dom: Fixture89.viewWithContainerFn(number$)
         };
       }
-      let [appOutput, adaptersOutput] = Cycle.run(app, {
+      let [requests, responses] = Cycle.run(app, {
         dom: Cycle.makeDOMAdapter(createRenderTarget(), {
           'my-element': Fixture89.myElement
         })
       });
 
-      setTimeout(() => {
-        let myelement = document.querySelector('.myelementclass');
-        assert.notStrictEqual(myelement, null);
-        assert.strictEqual(myelement.tagName, 'H3');
-        assert.strictEqual(myelement.innerHTML, '123');
-      }, 100);
-      setTimeout(() => {
-        let myelement = document.querySelector('.myelementclass');
-        assert.notStrictEqual(myelement, null);
-        assert.strictEqual(myelement.tagName, 'H3');
-        assert.strictEqual(myelement.innerHTML, '456');
-        adaptersOutput.dispose();
-        done();
-      }, 500);
-    });
-
-    it.skip('should not work after has been disposed', function (done) {
-      assert.fail(); // TODO
+      responses.get('dom', ':root').first().subscribe(function () {
+        setTimeout(() => {
+          let myelement = document.querySelector('.myelementclass');
+          assert.notStrictEqual(myelement, null);
+          assert.strictEqual(myelement.tagName, 'H3');
+          assert.strictEqual(myelement.innerHTML, '123');
+        }, 100);
+        setTimeout(() => {
+          let myelement = document.querySelector('.myelementclass');
+          assert.notStrictEqual(myelement, null);
+          assert.strictEqual(myelement.tagName, 'H3');
+          assert.strictEqual(myelement.innerHTML, '456');
+          responses.dispose();
+          done();
+        }, 500);
+      });
     });
 
     it('should reject a view with custom element as the root of vtree$', function (done) {
@@ -179,21 +184,44 @@ describe('Rendering', function () {
           dom: Fixture89.viewWithoutContainerFn(number$)
         };
       }
-      let [appOutput, adaptersOutput] = Cycle.run(app, {
+      let [requests, responses] = Cycle.run(app, {
         dom: Cycle.makeDOMAdapter(createRenderTarget(), {
           'my-element': Fixture89.myElement
         })
       });
-      let observer = Rx.Observer.create(
-        () => {},
-        (err) => {
-          let errMsg = 'Illegal to use a Cycle custom element as the root of a View.';
-          assert.strictEqual(err.message, errMsg);
-          adaptersOutput.dispose();
+      responses.get('dom', ':root').subscribeOnError(function (err) {
+        assert.strictEqual(err.message,
+          'Illegal to use a Cycle custom element as the root of a View.'
+        );
+        responses.dispose();
+        done();
+      });
+    });
+
+    it('should not work after has been disposed', function (done) {
+      let number$ = Rx.Observable.range(1, 3)
+        .concatMap(x => Rx.Observable.just(x).delay(50));
+      function app() {
+        return {
+          dom: number$.map(number =>
+              h('h3.target', String(number))
+          )
+        };
+      }
+      let [requests, responses] = Cycle.run(app, {
+        dom: Cycle.makeDOMAdapter(createRenderTarget())
+      });
+      responses.get('dom', ':root').subscribe(function () {
+        let selectEl = document.querySelector('.target');
+        assert.notStrictEqual(selectEl, null);
+        assert.notStrictEqual(typeof selectEl, 'undefined');
+        assert.strictEqual(selectEl.tagName, 'H3');
+        assert.notStrictEqual(selectEl.innerHTML, '3');
+        if (selectEl.innerHTML === '2') {
+          responses.dispose();
           done();
         }
-      );
-      adaptersOutput.get('dom', ':root').subscribe(observer);
+      });
     });
   });
 });

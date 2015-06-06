@@ -4,7 +4,7 @@ let Map = Map || require('es6-map'); // eslint-disable-line no-native-reassign
 
 function replaceCustomElementsWithSomething(vtree, registry, toSomethingFn) {
   // Silently ignore corner cases
-  if (!vtree || vtree.type === 'VirtualText') {
+  if (!vtree) {
     return vtree;
   }
   let tagName = (vtree.tagName || '').toUpperCase();
