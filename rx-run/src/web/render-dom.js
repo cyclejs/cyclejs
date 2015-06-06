@@ -160,7 +160,7 @@ function makeGet(rootElem$) {
       throw new Error('DOM driver\'s get() expects first argument to be a ' +
         'string as a CSS selector');
     }
-    if (selector.trim() === ':root') { // TODO test this
+    if (selector.trim() === ':root') {
       return rootElem$;
     }
     if (typeof eventName !== 'string') {

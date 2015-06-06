@@ -67,6 +67,30 @@ describe('Rendering', function () {
       }, /The DOM driver function expects as input an Observable of virtual/);
     });
 
+    it('should have Observable `:root` in response', function (done) {
+      function app() {
+        return {
+          dom: Rx.Observable.just(
+            h('div.top-most', [
+              h('p', 'Foo'),
+              h('span', 'Bar')
+            ])
+          )
+        };
+      }
+      let [requests, responses] = Cycle.run(app, {
+        dom: Cycle.makeDOMDriver(createRenderTarget())
+      });
+      responses.get('dom', ':root').first().subscribe(function (root) {
+        let classNameRegex = /top\-most/;
+        assert.strictEqual(root.tagName, 'DIV');
+        assert.notStrictEqual(classNameRegex.exec(root.className), null);
+        assert.strictEqual(classNameRegex.exec(root.className)[0], 'top-most');
+        responses.dispose();
+        done();
+      });
+    });
+
     it('should convert a simple virtual-dom <select> to DOM element', function (done) {
       function app() {
         return {
