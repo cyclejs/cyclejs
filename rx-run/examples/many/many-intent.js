@@ -6,11 +6,11 @@ function manyIntent(interactions) {
     addManyBtnClick$.map(function () { return 1000; })
   );
   var changeColor$ = interactions.get('.item', 'changeColor')
-    .map(function (ev) { return ev.data; });
+    .map(function (ev) { return ev.detail; });
   var changeWidth$ = interactions.get('.item', 'changeWidth')
-    .map(function (ev) { return ev.data; });
+    .map(function (ev) { return ev.detail; });
   var removeItem$ = interactions.get('.item', 'destroy')
-    .map(function (ev) { return ev.data; });
+    .map(function (ev) { return ev.detail; });
 
   return {
     addItem$: addItem$,
