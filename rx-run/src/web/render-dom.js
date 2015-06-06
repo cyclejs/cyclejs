@@ -124,8 +124,7 @@ function renderRawRootElem$(vtree$, domContainer, CERegistry, adapterName) {
     .map(makeReplaceCustomElementsWithWidgets(CERegistry, adapterName))
     .doOnNext(checkRootVTreeNotCustomElement)
     .pairwise()
-    .flatMap(diffAndPatchToElement$)
-    .startWith(rootElem);
+    .flatMap(diffAndPatchToElement$);
 }
 
 function makeRootElemToEvent$(selector, eventName) {

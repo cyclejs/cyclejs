@@ -31,12 +31,42 @@ describe('Cycle', function () {
   });
 
   describe('run()', function () {
-    it.skip('should return app output and adapters output', function () {
-      assert.fail(); // TODO
+    it('should return app output and adapters output', function () {
+      function app(ext) {
+        return {
+          other: ext.get('other').take(1).startWith('a')
+        };
+      }
+      function adapter() {
+        return {
+          get: () => Cycle.Rx.Observable.just('b')
+        };
+      }
+      let [left, right] = Cycle.run(app, {other: adapter});
+      assert.strictEqual(typeof left, 'object');
+      assert.strictEqual(typeof left.other.subscribe, 'function');
+      assert.strictEqual(typeof right, 'object');
+      assert.strictEqual(typeof right.get, 'function');
+      assert.strictEqual(typeof right.get('other').subscribe, 'function');
     });
 
-    it.skip('should return a disposable adapters output', function () {
-      assert.fail(); // TODO
+    it('should return a disposable adapters output', function (done) {
+      function app(res) {
+        return {
+          other: res.get('other').take(6).map(x => String(x)).startWith('a')
+        };
+      }
+      function adapter(req) {
+        return {
+          get: () => req.map(x => x.charCodeAt(0))
+        };
+      }
+      let [requests, responses] = Cycle.run(app, {other: adapter});
+      responses.get('other').subscribe(x => {
+        assert.strictEqual(x, 97);
+        responses.dispose();
+        done();
+      });
     });
   });
 });

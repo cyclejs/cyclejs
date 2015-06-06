@@ -14425,55 +14425,71 @@ function appendPatch(apply, patch) {
 'use strict';
 var Rx = require('rx');
 
-function makeAdapterInputProxies(adapters) {
-  var inputProxies = {};
+function makeRequestProxies(adapters) {
+  var requestProxies = {};
   for (var _name in adapters) {
     if (adapters.hasOwnProperty(_name)) {
-      inputProxies[_name] = new Rx.AsyncSubject(); // a higher-order Observable
+      requestProxies[_name] = new Rx.ReplaySubject(1);
     }
   }
-  return inputProxies;
+  return requestProxies;
 }
 
-function callAdapters(adapters, inputs) {
-  var outputs = {};
+function callAdapters(adapters, requestProxies) {
+  var responses = {};
   for (var _name2 in adapters) {
     if (adapters.hasOwnProperty(_name2)) {
-      outputs[_name2] = adapters[_name2](inputs[_name2].mergeAll(), _name2);
+      responses[_name2] = adapters[_name2](requestProxies[_name2], _name2);
     }
   }
-  return outputs;
+  return responses;
 }
 
-function makeGet(adapterOutputs) {
+function makeGet(rawResponses) {
   return function get(adapterName) {
     for (var _len = arguments.length, params = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
       params[_key - 1] = arguments[_key];
     }
 
-    if (!adapterOutputs.hasOwnProperty(adapterName)) {
+    if (!rawResponses.hasOwnProperty(adapterName)) {
       throw new Error('get(' + adapterName + ', ...) failed, no adapter function ' + ('named ' + adapterName + ' was found for this Cycle execution.'));
     }
 
-    var adapterOutput = adapterOutputs[adapterName];
-    if (typeof adapterOutput.subscribe === 'function') {
-      return adapterOutput; // is an Observable
-    } else if (typeof adapterOutput === 'object' && typeof adapterOutput.get === 'function') {
-      return adapterOutputs[adapterName].get.apply(null, params);
-    } else if (typeof adapterOutput === 'object' && params.length > 0 && typeof params[0] === 'string' && adapterOutput.hasOwnProperty(params[0])) {
-      return adapterOutputs[adapterName][params[0]];
+    var adapterResponse = rawResponses[adapterName];
+    if (typeof adapterResponse.subscribe === 'function') {
+      return adapterResponse; // is an Observable
+    } else if (typeof adapterResponse === 'object' && typeof adapterResponse.get === 'function') {
+      return rawResponses[adapterName].get.apply(null, params);
+    } else if (typeof adapterResponse === 'object' && params.length > 0 && typeof params[0] === 'string' && adapterResponse.hasOwnProperty(params[0])) {
+      return rawResponses[adapterName][params[0]];
     } else {
       throw new Error('get(' + adapterName + ', ...) failed because adapter was ' + 'not able to process parameters. Report this bug to the adapter ' + 'function author.');
     }
   };
 }
 
+function makeDispose(requestProxies) {
+  return function dispose() {
+    for (var x in requestProxies) {
+      if (requestProxies.hasOwnProperty(x)) {
+        requestProxies[x].dispose();
+      }
+    }
+  };
+}
+
+function makeAppInput(requestProxies, rawResponses) {
+  return {
+    get: makeGet(rawResponses),
+    dispose: makeDispose(requestProxies)
+  };
+}
+
 function replicateMany(original, imitators) {
   for (var _name3 in original) {
     if (original.hasOwnProperty(_name3)) {
-      if (imitators.hasOwnProperty(_name3)) {
-        imitators[_name3].onNext(original[_name3].shareReplay(1));
-        imitators[_name3].onCompleted();
+      if (imitators.hasOwnProperty(_name3) && !imitators[_name3].isDisposed) {
+        original[_name3].subscribe(imitators[_name3].asObserver());
       }
     }
   }
@@ -14481,12 +14497,14 @@ function replicateMany(original, imitators) {
 
 function run(app, adapters) {
   // TODO Preconditions
-  var adapterInputProxies = makeAdapterInputProxies(adapters);
-  var adapterOutputs = callAdapters(adapters, adapterInputProxies);
-  var appInput = { get: makeGet(adapterOutputs) };
-  var appOutput = app(appInput);
-  replicateMany(appOutput, adapterInputProxies);
-  return [appOutput, appInput]; // TODO test this
+  var requestProxies = makeRequestProxies(adapters);
+  var rawResponses = callAdapters(adapters, requestProxies);
+  var responses = makeAppInput(requestProxies, rawResponses);
+  var requests = app(responses);
+  setTimeout(function () {
+    return replicateMany(requests, requestProxies);
+  }, 1);
+  return [requests, responses];
 }
 
 module.exports = run;
@@ -14556,7 +14574,6 @@ function makePropertiesAdapter() {
     enumerable: false,
     value: 'PropertiesAdapter'
   });
-  // TODO Test get() with no params should return all props as an object stream
   Object.defineProperty(propertiesAdapter, 'get', {
     enumerable: false,
     value: function get() {
@@ -14661,7 +14678,7 @@ function makeInit(tagName, definitionFn) {
     var proxyVTree$$ = new Rx.AsyncSubject();
     var domAdapter = makeDOMAdapterWithRegistry(element, registry);
     var propertiesAdapter = makePropertiesAdapter();
-    var domOutput = domAdapter(proxyVTree$$.mergeAll());
+    var domOutput = domAdapter(proxyVTree$$.mergeAll(), adapterName);
     var rootElem$ = domOutput.get(':root');
     var defFnInput = makeCustomElementInput(domOutput, propertiesAdapter, adapterName);
     var defFnOutput = definitionFn(defFnInput);
@@ -14678,6 +14695,7 @@ function makeInit(tagName, definitionFn) {
     subscribeEventDispatchingSink(element, widget);
     //widget.disposables.add(domOutput.someDisposable); // TODO?
     widget.disposables.add(widget.firstRootElem$);
+    widget.disposables.add(proxyVTree$$);
     widget.update(null, element);
     return element;
   };
@@ -14737,8 +14755,8 @@ function destroyCustomElement(element) {
 }
 
 function makeWidgetClass(tagName, definitionFn) {
-  if (typeof tagName !== 'string' || typeof definitionFn !== 'function') {
-    throw new Error('registerCustomElement requires parameters `tagName` and ' + '`definitionFn`.');
+  if (typeof definitionFn !== 'function') {
+    throw new Error('A custom element definition given to the DOM adapter ' + 'should be a function.');
   }
 
   var WidgetClass = makeConstructor();
@@ -14777,7 +14795,7 @@ var Map = Map || require('es6-map'); // eslint-disable-line no-native-reassign
 
 function replaceCustomElementsWithSomething(vtree, registry, toSomethingFn) {
   // Silently ignore corner cases
-  if (!vtree || vtree.type === 'VirtualText') {
+  if (!vtree) {
     return vtree;
   }
   var tagName = (vtree.tagName || '').toUpperCase();
@@ -14935,7 +14953,7 @@ function getRenderRootElem(domContainer) {
 function renderRawRootElem$(vtree$, domContainer, CERegistry, adapterName) {
   var rootElem = getRenderRootElem(domContainer);
   var diffAndPatchToElement$ = makeDiffAndPatchToElement$(rootElem);
-  return vtree$.startWith(VDOM.h()).map(makeReplaceCustomElementsWithWidgets(CERegistry, adapterName)).doOnNext(checkRootVTreeNotCustomElement).pairwise().flatMap(diffAndPatchToElement$).startWith(rootElem);
+  return vtree$.startWith(VDOM.h()).map(makeReplaceCustomElementsWithWidgets(CERegistry, adapterName)).doOnNext(checkRootVTreeNotCustomElement).pairwise().flatMap(diffAndPatchToElement$);
 }
 
 function makeRootElemToEvent$(selector, eventName) {
@@ -14983,22 +15001,15 @@ function makeGet(rootElem$) {
   };
 }
 
-function digestDefinitionFnOutput(output) {
-  var vtree$ = undefined;
-  var customEvents = {};
-  if (typeof output.subscribe === 'function') {
-    vtree$ = output;
-  } else if (output.hasOwnProperty('vtree$') && typeof output.vtree$.subscribe === 'function') {
-    vtree$ = output.vtree$;
-    customEvents = output;
-  } else {
-    throw new Error('definitionFn given to applyToDOM must return an ' + 'Observable of virtual DOM elements, or an object containing such ' + 'Observable named as `vtree$`');
+function validateAdapterInput(vtree$) {
+  if (!vtree$ || typeof vtree$.subscribe !== 'function') {
+    throw new Error('The DOMAdapter function expects as input an ' + 'Observable of virtual DOM elements');
   }
-  return { vtree$: vtree$, customEvents: customEvents };
 }
 
 function makeDOMAdapterWithRegistry(container, CERegistry) {
   return function domAdapter(vtree$, adapterName) {
+    validateAdapterInput(vtree$);
     var rawRootElem$ = renderRawRootElem$(vtree$, container, CERegistry, adapterName);
     var rootElem$ = fixRootElem$(rawRootElem$, container);
     var output = {
@@ -15037,7 +15048,7 @@ module.exports = {
   getRenderRootElem: getRenderRootElem,
   renderRawRootElem$: renderRawRootElem$,
   makeGet: makeGet,
-  digestDefinitionFnOutput: digestDefinitionFnOutput,
+  validateAdapterInput: validateAdapterInput,
   makeDOMAdapterWithRegistry: makeDOMAdapterWithRegistry,
 
   makeDOMAdapter: makeDOMAdapter
