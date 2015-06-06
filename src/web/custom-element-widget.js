@@ -166,26 +166,26 @@ function makeInit(tagName, definitionFn) {
     let proxyVTree$$ = new Rx.AsyncSubject();
     let domDriver = makeDOMDriverWithRegistry(element, registry);
     let propertiesDriver = makePropertiesDriver();
-    let domOutput = domDriver(proxyVTree$$.mergeAll(), driverName);
-    let rootElem$ = domOutput.get(':root');
+    let domResponse = domDriver(proxyVTree$$.mergeAll(), driverName);
+    let rootElem$ = domResponse.get(':root');
     let defFnInput = makeCustomElementInput(
-      domOutput, propertiesDriver, driverName
+      domResponse, propertiesDriver, driverName
     );
-    let defFnOutput = definitionFn(defFnInput);
-    validateDefFnOutput(defFnOutput, driverName);
-    proxyVTree$$.onNext(defFnOutput[driverName].shareReplay(1));
+    let requests = definitionFn(defFnInput);
+    validateDefFnOutput(requests, driverName);
+    proxyVTree$$.onNext(requests[driverName].shareReplay(1));
     proxyVTree$$.onCompleted();
     rootElem$.subscribe(widget.firstRootElem$.asObserver());
     element.cycleCustomElementMetadata = {
       propertiesDriver,
       rootElem$,
-      customEvents: defFnOutput.events,
+      customEvents: requests.events,
       eventDispatchingSubscription: false
     };
     subscribeEventDispatchingSink(element, widget);
-    //widget.disposables.add(domOutput.someDisposable); // TODO?
     widget.disposables.add(widget.firstRootElem$);
     widget.disposables.add(proxyVTree$$);
+    widget.disposables.add(domResponse);
     widget.update(null, element);
     return element;
   };

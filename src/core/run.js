@@ -45,11 +45,16 @@ function makeGet(rawResponses) {
   };
 }
 
-function makeDispose(requestProxies) {
+function makeDispose(requestProxies, rawResponses) {
   return function dispose() {
-    for (let x in requestProxies) {
-      if (requestProxies.hasOwnProperty(x)) {
-        requestProxies[x].dispose();
+    for (let x in requestProxies) { if (requestProxies.hasOwnProperty(x)) {
+      requestProxies[x].dispose();
+    }}
+    for (let name in rawResponses) {
+      if (rawResponses.hasOwnProperty(name) &&
+        typeof rawResponses[name].dispose === 'function')
+      {
+        rawResponses[name].dispose();
       }
     }
   };
@@ -58,7 +63,7 @@ function makeDispose(requestProxies) {
 function makeAppInput(requestProxies, rawResponses) {
   return {
     get: makeGet(rawResponses),
-    dispose: makeDispose(requestProxies)
+    dispose: makeDispose(requestProxies, rawResponses)
   };
 }
 
