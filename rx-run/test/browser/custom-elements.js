@@ -22,18 +22,18 @@ describe('Custom Elements', function () {
       });
   });
 
-  describe('Registry on makeDOMAdapter', function () {
+  describe('Registry on makeDOMDriver', function () {
     it('should throw error if definitionFn is not a function', function () {
       let element = createRenderTarget();
       assert.throws(function () {
-        Cycle.makeDOMAdapter(element, {'my-elem': 123});
-      }, /definition given to the DOM adapter should be a function/i);
+        Cycle.makeDOMDriver(element, {'my-elem': 123});
+      }, /definition given to the DOM driver should be a function/i);
     });
 
     it('should not throw error if given correct parameters', function () {
       let element = createRenderTarget();
       assert.doesNotThrow(function () {
-        Cycle.makeDOMAdapter(element, {'my-elem': function myElem() {}});
+        Cycle.makeDOMDriver(element, {'my-elem': function myElem() {}});
       });
     });
   });
@@ -52,7 +52,7 @@ describe('Custom Elements', function () {
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMAdapter(createRenderTarget(), {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
@@ -92,7 +92,7 @@ describe('Custom Elements', function () {
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMAdapter(createRenderTarget(), {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
@@ -135,7 +135,7 @@ describe('Custom Elements', function () {
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMAdapter(createRenderTarget(), {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
@@ -178,7 +178,7 @@ describe('Custom Elements', function () {
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMAdapter(createRenderTarget(), {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
@@ -219,7 +219,7 @@ describe('Custom Elements', function () {
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMAdapter(createRenderTarget(), {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element1': myElementDef1,
         'my-element2': myElementDef2
       })
@@ -263,7 +263,7 @@ describe('Custom Elements', function () {
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMAdapter(createRenderTarget(), {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
         'inner-element': innerElementDef,
         'outer-element': outerElementDef
       })
@@ -298,7 +298,7 @@ describe('Custom Elements', function () {
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMAdapter(createRenderTarget(), {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
@@ -342,7 +342,7 @@ describe('Custom Elements', function () {
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMAdapter(createRenderTarget(), {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
@@ -372,7 +372,7 @@ describe('Custom Elements', function () {
     }
     // Make assertions
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMAdapter(createRenderTarget(), {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
@@ -421,7 +421,7 @@ describe('Custom Elements', function () {
     }
 
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMAdapter(createRenderTarget(), {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
         'slider-elem': sliderDef
       })
     });
@@ -462,7 +462,7 @@ describe('Custom Elements', function () {
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMAdapter(createRenderTarget(), {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
         'simple-wrapper': simpleWrapperDef
       })
     });
@@ -493,7 +493,7 @@ describe('Custom Elements', function () {
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMAdapter(createRenderTarget(), {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
@@ -537,7 +537,7 @@ describe('Custom Elements', function () {
     }
 
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMAdapter(createRenderTarget(), {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
         'x-element': xElementDef
       })
     });
@@ -582,7 +582,7 @@ describe('Custom Elements', function () {
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMAdapter(createRenderTarget(), {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
@@ -625,7 +625,7 @@ describe('Custom Elements', function () {
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMAdapter(createRenderTarget(), {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
@@ -674,7 +674,7 @@ describe('Custom Elements', function () {
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMAdapter(createRenderTarget(), {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });

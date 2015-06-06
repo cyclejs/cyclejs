@@ -1,45 +1,45 @@
 'use strict';
 let Rx = require('rx');
 
-function makeRequestProxies(adapters) {
+function makeRequestProxies(drivers) {
   let requestProxies = {};
-  for (let name in adapters) { if (adapters.hasOwnProperty(name)) {
+  for (let name in drivers) { if (drivers.hasOwnProperty(name)) {
     requestProxies[name] = new Rx.ReplaySubject(1);
   }}
   return requestProxies;
 }
 
-function callAdapters(adapters, requestProxies) {
+function callDrivers(drivers, requestProxies) {
   let responses = {};
-  for (let name in adapters) { if (adapters.hasOwnProperty(name)) {
-    responses[name] = adapters[name](requestProxies[name], name);
+  for (let name in drivers) { if (drivers.hasOwnProperty(name)) {
+    responses[name] = drivers[name](requestProxies[name], name);
   }}
   return responses;
 }
 
 function makeGet(rawResponses) {
-  return function get(adapterName, ...params) {
-    if (!rawResponses.hasOwnProperty(adapterName)) {
-      throw new Error(`get(${adapterName}, ...) failed, no adapter function ` +
-        `named ${adapterName} was found for this Cycle execution.`);
+  return function get(driverName, ...params) {
+    if (!rawResponses.hasOwnProperty(driverName)) {
+      throw new Error(`get(${driverName}, ...) failed, no driver function ` +
+        `named ${driverName} was found for this Cycle execution.`);
     }
 
-    let adapterResponse = rawResponses[adapterName];
-    if (typeof adapterResponse.subscribe === 'function') {
-      return adapterResponse; // is an Observable
-    } else if (typeof adapterResponse === 'object' &&
-      typeof adapterResponse.get === 'function')
+    let driverResponse = rawResponses[driverName];
+    if (typeof driverResponse.subscribe === 'function') {
+      return driverResponse; // is an Observable
+    } else if (typeof driverResponse === 'object' &&
+      typeof driverResponse.get === 'function')
     {
-      return rawResponses[adapterName].get.apply(null, params);
-    } else if (typeof adapterResponse === 'object' &&
+      return rawResponses[driverName].get.apply(null, params);
+    } else if (typeof driverResponse === 'object' &&
       params.length > 0 &&
       typeof params[0] === 'string' &&
-      adapterResponse.hasOwnProperty(params[0]))
+      driverResponse.hasOwnProperty(params[0]))
     {
-      return rawResponses[adapterName][params[0]];
+      return rawResponses[driverName][params[0]];
     } else {
-      throw new Error(`get(${adapterName}, ...) failed because adapter was ` +
-        `not able to process parameters. Report this bug to the adapter ` +
+      throw new Error(`get(${driverName}, ...) failed because driver was ` +
+        `not able to process parameters. Report this bug to the driver ` +
         `function author.`);
     }
   };
@@ -70,10 +70,10 @@ function replicateMany(original, imitators) {
   }}
 }
 
-function run(app, adapters) {
+function run(app, drivers) {
   // TODO Preconditions
-  let requestProxies = makeRequestProxies(adapters);
-  let rawResponses = callAdapters(adapters, requestProxies);
+  let requestProxies = makeRequestProxies(drivers);
+  let rawResponses = callDrivers(drivers, requestProxies);
   let responses = makeAppInput(requestProxies, rawResponses);
   let requests = app(responses);
   setTimeout(() => replicateMany(requests, requestProxies), 1);

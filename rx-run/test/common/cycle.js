@@ -9,12 +9,12 @@ describe('Cycle', function () {
       assert.strictEqual(typeof Cycle.run, 'function');
     });
 
-    it('should have `makeDOMAdapter`', function () {
-      assert.strictEqual(typeof Cycle.makeDOMAdapter, 'function');
+    it('should have `makeDOMDriver`', function () {
+      assert.strictEqual(typeof Cycle.makeDOMDriver, 'function');
     });
 
-    it('should have `makeHTMLAdapter`', function () {
-      assert.strictEqual(typeof Cycle.makeHTMLAdapter, 'function');
+    it('should have `makeHTMLDriver`', function () {
+      assert.strictEqual(typeof Cycle.makeHTMLDriver, 'function');
     });
 
     it('should have a shortcut to Rx', function () {
@@ -31,18 +31,18 @@ describe('Cycle', function () {
   });
 
   describe('run()', function () {
-    it('should return app output and adapters output', function () {
+    it('should return requests object and responses object', function () {
       function app(ext) {
         return {
           other: ext.get('other').take(1).startWith('a')
         };
       }
-      function adapter() {
+      function driver() {
         return {
           get: () => Cycle.Rx.Observable.just('b')
         };
       }
-      let [left, right] = Cycle.run(app, {other: adapter});
+      let [left, right] = Cycle.run(app, {other: driver});
       assert.strictEqual(typeof left, 'object');
       assert.strictEqual(typeof left.other.subscribe, 'function');
       assert.strictEqual(typeof right, 'object');
@@ -50,18 +50,18 @@ describe('Cycle', function () {
       assert.strictEqual(typeof right.get('other').subscribe, 'function');
     });
 
-    it('should return a disposable adapters output', function (done) {
+    it('should return a disposable drivers output', function (done) {
       function app(res) {
         return {
           other: res.get('other').take(6).map(x => String(x)).startWith('a')
         };
       }
-      function adapter(req) {
+      function driver(req) {
         return {
           get: () => req.map(x => x.charCodeAt(0))
         };
       }
-      let [requests, responses] = Cycle.run(app, {other: adapter});
+      let [requests, responses] = Cycle.run(app, {other: driver});
       responses.get('other').subscribe(x => {
         assert.strictEqual(x, 97);
         responses.dispose();

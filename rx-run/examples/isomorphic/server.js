@@ -35,8 +35,8 @@ function wrapAppResultWithBoilerplate(appFn, context$, bundle$) {
   };
 }
 
-function makeContextAdapter(context$) {
-  return function contextAdapter() {
+function makeContextDriver(context$) {
+  return function contextDriver() {
     return {
       get: () => context$
     };
@@ -75,11 +75,11 @@ server.use(function (req, res) {
 
   let context$ = Rx.Observable.just({route: req.url});
   let wrappedAppFn = wrapAppResultWithBoilerplate(app, context$, clientBundle$);
-  let [appOutput, adaptersOutput] = Cycle.run(wrappedAppFn, {
-    dom: Cycle.makeHTMLAdapter(),
-    context: makeContextAdapter(context$)
+  let [requests, responses] = Cycle.run(wrappedAppFn, {
+    dom: Cycle.makeHTMLDriver(),
+    context: makeContextDriver(context$)
   });
-  let html$ = adaptersOutput.get('dom').map(prependHTML5Doctype);
+  let html$ = responses.get('dom').map(prependHTML5Doctype);
   html$.subscribe(html => res.send(html));
 });
 

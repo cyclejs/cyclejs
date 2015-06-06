@@ -42,10 +42,10 @@ function isVTreeCustomElement(vtree) {
   return (vtree.type === 'Widget' && vtree.isCustomElementWidget);
 }
 
-function makeReplaceCustomElementsWithWidgets(CERegistry, adapterName) {
+function makeReplaceCustomElementsWithWidgets(CERegistry, driverName) {
   return function replaceCustomElementsWithWidgets(vtree) {
     return replaceCustomElementsWithSomething(vtree, CERegistry,
-      (_vtree, WidgetClass) => new WidgetClass(_vtree, CERegistry, adapterName)
+      (_vtree, WidgetClass) => new WidgetClass(_vtree, CERegistry, driverName)
     );
   };
 }
@@ -116,12 +116,12 @@ function getRenderRootElem(domContainer) {
   return rootElem;
 }
 
-function renderRawRootElem$(vtree$, domContainer, CERegistry, adapterName) {
+function renderRawRootElem$(vtree$, domContainer, CERegistry, driverName) {
   let rootElem = getRenderRootElem(domContainer);
   let diffAndPatchToElement$ = makeDiffAndPatchToElement$(rootElem);
   return vtree$
     .startWith(VDOM.h())
-    .map(makeReplaceCustomElementsWithWidgets(CERegistry, adapterName))
+    .map(makeReplaceCustomElementsWithWidgets(CERegistry, driverName))
     .doOnNext(checkRootVTreeNotCustomElement)
     .pairwise()
     .flatMap(diffAndPatchToElement$);
@@ -157,14 +157,14 @@ function makeRootElemToEvent$(selector, eventName) {
 function makeGet(rootElem$) {
   return function get(selector, eventName) {
     if (typeof selector !== 'string') {
-      throw new Error('DOM adapter\'s get() expects first argument to be a ' +
+      throw new Error('DOM driver\'s get() expects first argument to be a ' +
         'string as a CSS selector');
     }
     if (selector.trim() === ':root') { // TODO test this
       return rootElem$;
     }
     if (typeof eventName !== 'string') {
-      throw new Error('DOM adapter\'s get() expects second argument to be a ' +
+      throw new Error('DOM driver\'s get() expects second argument to be a ' +
         'string representing the event type to listen for.');
     }
 
@@ -173,18 +173,18 @@ function makeGet(rootElem$) {
   };
 }
 
-function validateAdapterInput(vtree$) {
+function validateDOMDriverInput(vtree$) {
   if (!vtree$ || typeof vtree$.subscribe !== 'function') {
-    throw new Error('The DOMAdapter function expects as input an ' +
+    throw new Error('The DOM driver function expects as input an ' +
       'Observable of virtual DOM elements');
   }
 }
 
-function makeDOMAdapterWithRegistry(container, CERegistry) {
-  return function domAdapter(vtree$, adapterName) {
-    validateAdapterInput(vtree$);
+function makeDOMDriverWithRegistry(container, CERegistry) {
+  return function domDriver(vtree$, driverName) {
+    validateDOMDriverInput(vtree$);
     let rawRootElem$ = renderRawRootElem$(
-      vtree$, container, CERegistry, adapterName
+      vtree$, container, CERegistry, driverName
     );
     let rootElem$ = fixRootElem$(rawRootElem$, container);
     let output = {
@@ -196,7 +196,7 @@ function makeDOMAdapterWithRegistry(container, CERegistry) {
   };
 }
 
-function makeDOMAdapter(container, customElementDefinitions = {}) {
+function makeDOMDriver(container, customElementDefinitions = {}) {
   // Find and prepare the container
   let domContainer = (typeof container === 'string') ?
     document.querySelector(container) :
@@ -210,7 +210,7 @@ function makeDOMAdapter(container, customElementDefinitions = {}) {
   }
 
   let registry = makeCustomElementsRegistry(customElementDefinitions);
-  return makeDOMAdapterWithRegistry(domContainer, registry);
+  return makeDOMDriverWithRegistry(domContainer, registry);
 }
 
 module.exports = {
@@ -224,8 +224,8 @@ module.exports = {
   getRenderRootElem,
   renderRawRootElem$,
   makeGet,
-  validateAdapterInput,
-  makeDOMAdapterWithRegistry,
+  validateDOMDriverInput,
+  makeDOMDriverWithRegistry,
 
-  makeDOMAdapter
+  makeDOMDriver
 };

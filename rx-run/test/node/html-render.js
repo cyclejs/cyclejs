@@ -13,7 +13,7 @@ describe('renderAsHTML()', function () {
       };
     }
     let [appOutput, htmlOutput] = Cycle.run(app, {
-      html: Cycle.makeHTMLAdapter()
+      html: Cycle.makeHTMLDriver()
     });
     htmlOutput.get('html').subscribe(function (html) {
       assert.strictEqual(html, '<div class="test-element">Foobar</div>');
@@ -33,7 +33,7 @@ describe('renderAsHTML()', function () {
       };
     }
     let [appOutput, htmlOutput] = Cycle.run(app, {
-      dom: Cycle.makeHTMLAdapter({'my-element': myElement})
+      dom: Cycle.makeHTMLDriver({'my-element': myElement})
     });
     htmlOutput.get('dom').subscribe(function (html) {
       assert.strictEqual(html,
@@ -68,7 +68,7 @@ describe('renderAsHTML()', function () {
       'nice-element': niceElement
     };
     let html$ = Cycle.run(app, {
-      html: Cycle.makeHTMLAdapter(customElements)
+      html: Cycle.makeHTMLDriver(customElements)
     })[1].get('html');
 
     html$.subscribe(function (html) {
@@ -100,7 +100,7 @@ describe('renderAsHTML()', function () {
       };
     }
     let [appOutput, htmlOutput] = Cycle.run(app, {
-      DOM: Cycle.makeHTMLAdapter({'my-element': myElement})
+      DOM: Cycle.makeHTMLDriver({'my-element': myElement})
     });
 
     htmlOutput.get('DOM').subscribe(function (html) {
@@ -145,7 +145,7 @@ describe('renderAsHTML()', function () {
       };
     }
     let [appOutput, htmlOutput] = Cycle.run(app, {
-      html: Cycle.makeHTMLAdapter({
+      html: Cycle.makeHTMLDriver({
         'x-foo': xFoo,
         'x-bar': xBar
       })

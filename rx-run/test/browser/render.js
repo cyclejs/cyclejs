@@ -22,18 +22,18 @@ describe('Rendering', function () {
       });
   });
 
-  describe('makeDOMAdapter', function () {
+  describe('makeDOMDriver', function () {
     it('should accept a DOM element as input', function () {
       let element = createRenderTarget();
       assert.doesNotThrow(function () {
-        Cycle.makeDOMAdapter(element);
+        Cycle.makeDOMDriver(element);
       });
     });
 
     it('should accept a DocumentFragment as input', function () {
       let element = document.createDocumentFragment();
       assert.doesNotThrow(function () {
-        Cycle.makeDOMAdapter(element);
+        Cycle.makeDOMDriver(element);
       });
     });
 
@@ -42,29 +42,29 @@ describe('Rendering', function () {
       let element = createRenderTarget();
       element.id = id;
       assert.doesNotThrow(function () {
-        Cycle.makeDOMAdapter('#' + id);
+        Cycle.makeDOMDriver('#' + id);
       });
     });
 
     it('should not accept a selector to an unknown element as input', function () {
       assert.throws(function () {
-        Cycle.makeDOMAdapter('#nonsenseIdToNothing');
+        Cycle.makeDOMDriver('#nonsenseIdToNothing');
       }, /Cannot render into unknown element/);
     });
 
     it('should not accept a number as input', function () {
       assert.throws(function () {
-        Cycle.makeDOMAdapter(123);
+        Cycle.makeDOMDriver(123);
       }, /Given container is not a DOM element neither a selector string/);
     });
   });
 
-  describe('DOMAdapter', function () {
+  describe('DOM Driver', function () {
     it('should throw if input is not an Observable<VTree>', function () {
-      let domAdapter = Cycle.makeDOMAdapter(createRenderTarget());
+      let domDriver = Cycle.makeDOMDriver(createRenderTarget());
       assert.throws(function () {
-        domAdapter({});
-      }, /The DOMAdapter function expects as input an Observable of virtual/);
+        domDriver({});
+      }, /The DOM driver function expects as input an Observable of virtual/);
     });
 
     it('should convert a simple virtual-dom <select> to DOM element', function (done) {
@@ -78,7 +78,7 @@ describe('Rendering', function () {
         };
       }
       let [requests, responses] = Cycle.run(app, {
-        dom: Cycle.makeDOMAdapter(createRenderTarget())
+        dom: Cycle.makeDOMDriver(createRenderTarget())
       });
       responses.get('dom', ':root').first().subscribe(function () {
         let selectEl = document.querySelector('.my-class');
@@ -98,7 +98,7 @@ describe('Rendering', function () {
         };
       }
       let [requests, responses] = Cycle.run(app, {
-        dom: Cycle.makeDOMAdapter(createRenderTarget())
+        dom: Cycle.makeDOMDriver(createRenderTarget())
       });
       // Make assertions
       responses.get('dom', '.myelementclass', 'click').subscribe(ev => {
@@ -126,7 +126,7 @@ describe('Rendering', function () {
         };
       }
       let [requests, responses] = Cycle.run(app, {
-        dom: Cycle.makeDOMAdapter(createRenderTarget())
+        dom: Cycle.makeDOMDriver(createRenderTarget())
       });
       responses.get('dom', '.myelementclass', 'click').subscribe(ev => {
         assert.strictEqual(ev.type, 'click');
@@ -154,7 +154,7 @@ describe('Rendering', function () {
         };
       }
       let [requests, responses] = Cycle.run(app, {
-        dom: Cycle.makeDOMAdapter(createRenderTarget(), {
+        dom: Cycle.makeDOMDriver(createRenderTarget(), {
           'my-element': Fixture89.myElement
         })
       });
@@ -185,7 +185,7 @@ describe('Rendering', function () {
         };
       }
       let [requests, responses] = Cycle.run(app, {
-        dom: Cycle.makeDOMAdapter(createRenderTarget(), {
+        dom: Cycle.makeDOMDriver(createRenderTarget(), {
           'my-element': Fixture89.myElement
         })
       });
@@ -209,7 +209,7 @@ describe('Rendering', function () {
         };
       }
       let [requests, responses] = Cycle.run(app, {
-        dom: Cycle.makeDOMAdapter(createRenderTarget())
+        dom: Cycle.makeDOMDriver(createRenderTarget())
       });
       responses.get('dom', ':root').subscribe(function () {
         let selectEl = document.querySelector('.target');

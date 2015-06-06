@@ -5,7 +5,7 @@ let {replaceCustomElementsWithSomething, makeCustomElementsRegistry} =
   require('./custom-elements');
 let {makeCustomElementInput} = require('./custom-element-widget');
 
-function makePropertiesAdapterFromVTree(vtree) {
+function makePropertiesDriverFromVTree(vtree) {
   return {
     get: (propertyName) => Rx.Observable.just(vtree.properties[propertyName])
   };
@@ -35,36 +35,36 @@ function transposeVTree(vtree) {
   }
 }
 
-function makeReplaceCustomElementsWithVTree$(CERegistry, adapterName) {
+function makeReplaceCustomElementsWithVTree$(CERegistry, driverName) {
   return function replaceCustomElementsWithVTree$(vtree) {
     return replaceCustomElementsWithSomething(vtree, CERegistry,
       function toVTree$(_vtree, WidgetClass) {
         let interactions = {get: () => Rx.Observable.empty()};
-        let props = makePropertiesAdapterFromVTree(_vtree);
+        let props = makePropertiesDriverFromVTree(_vtree);
         let input = makeCustomElementInput(interactions, props);
         let output = WidgetClass.definitionFn(input);
-        let vtree$ = output[adapterName].last();
+        let vtree$ = output[driverName].last();
         /*eslint-disable no-use-before-define */
-        return convertCustomElementsToVTree(vtree$, CERegistry, adapterName);
+        return convertCustomElementsToVTree(vtree$, CERegistry, driverName);
         /*eslint-enable no-use-before-define */
       });
   };
 }
 
-function convertCustomElementsToVTree(vtree$, CERegistry, adapterName) {
+function convertCustomElementsToVTree(vtree$, CERegistry, driverName) {
   return vtree$
-    .map(makeReplaceCustomElementsWithVTree$(CERegistry, adapterName))
+    .map(makeReplaceCustomElementsWithVTree$(CERegistry, driverName))
     .flatMap(transposeVTree);
 }
 
-function makeHTMLAdapter(customElementDefinitions = {}) {
+function makeHTMLDriver(customElementDefinitions = {}) {
   let registry = makeCustomElementsRegistry(customElementDefinitions);
-  return function htmlAdapter(vtree$, adapterName) {
+  return function htmlDriver(vtree$, driverName) {
     let vtreeLast$ = vtree$.last();
     return {
       get(...params) {
         if (params.length === 0) {
-          return convertCustomElementsToVTree(vtreeLast$, registry, adapterName)
+          return convertCustomElementsToVTree(vtreeLast$, registry, driverName)
             .map(vtree => toHTML(vtree));
         } else {
           return Rx.Observable.empty();
@@ -75,9 +75,9 @@ function makeHTMLAdapter(customElementDefinitions = {}) {
 }
 
 module.exports = {
-  makePropertiesAdapterFromVTree,
+  makePropertiesDriverFromVTree,
   makeReplaceCustomElementsWithVTree$,
   convertCustomElementsToVTree,
 
-  makeHTMLAdapter
+  makeHTMLDriver
 };

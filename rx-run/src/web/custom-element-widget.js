@@ -1,7 +1,7 @@
 'use strict';
 let Rx = require('rx');
 const ALL_PROPS = '*';
-const PROPS_ADAPTER_NAME = 'props';
+const PROPS_DRIVER_NAME = 'props';
 const EVENTS_SINK_NAME = 'events';
 
 function makeDispatchFunction(element, eventName) {
@@ -58,14 +58,14 @@ function subscribeEventDispatchingSink(element, widget) {
   );
 }
 
-function makePropertiesAdapter() {
-  let propertiesAdapter = {};
+function makePropertiesDriver() {
+  let propertiesDriver = {};
   let defaultComparer = Rx.helpers.defaultComparer;
-  Object.defineProperty(propertiesAdapter, 'type', {
+  Object.defineProperty(propertiesDriver, 'type', {
     enumerable: false,
-    value: 'PropertiesAdapter'
+    value: 'PropertiesDriver'
   });
-  Object.defineProperty(propertiesAdapter, 'get', {
+  Object.defineProperty(propertiesDriver, 'get', {
     enumerable: false,
     value: function get(streamKey = ALL_PROPS, comparer = defaultComparer) {
       if (typeof this[streamKey] === 'undefined') {
@@ -75,7 +75,7 @@ function makePropertiesAdapter() {
         .distinctUntilChanged(Rx.helpers.identity, comparer);
     }
   });
-  return propertiesAdapter;
+  return propertiesDriver;
 }
 
 function createContainerElement(tagName, vtreeProperties) {
@@ -100,24 +100,24 @@ function throwIfVTreeHasPropertyChildren(vtree) {
   }
 }
 
-function makeCustomElementInput(domOutput, propertiesAdapter, domAdapterName) {
+function makeCustomElementInput(domOutput, propertiesDriver, domDriverName) {
   return {
-    get(adapterName, ...params) {
-      if (adapterName === domAdapterName) {
+    get(driverName, ...params) {
+      if (driverName === domDriverName) {
         return domOutput.get.apply(null, params);
-      } else if (adapterName === PROPS_ADAPTER_NAME) {
-        return propertiesAdapter.get.apply(propertiesAdapter, params);
+      } else if (driverName === PROPS_DRIVER_NAME) {
+        return propertiesDriver.get.apply(propertiesDriver, params);
       } else {
-        throw new Error(`No such internal adapter named '${adapterName}' for ` +
-          `custom elements. Use '${domAdapterName}' or `
-            `'${PROPS_ADAPTER_NAME}' instead.`);
+        throw new Error(`No such internal driver named '${driverName}' for ` +
+          `custom elements. Use '${domDriverName}' or ` +
+          `'${PROPS_DRIVER_NAME}' instead.`);
       }
     }
   };
 }
 
 function makeConstructor() {
-  return function customElementConstructor(vtree, CERegistry, adapterName) {
+  return function customElementConstructor(vtree, CERegistry, driverName) {
     //console.log('%cnew (constructor) custom element ' + vtree.tagName,
     //  'color: #880088');
     warnIfVTreeHasNoKey(vtree);
@@ -128,27 +128,27 @@ function makeConstructor() {
     this.key = vtree.key;
     this.isCustomElementWidget = true;
     this.customElementsRegistry = CERegistry;
-    this.adapterName = adapterName;
+    this.driverName = driverName;
     this.firstRootElem$ = new Rx.ReplaySubject(1);
     this.disposables = new Rx.CompositeDisposable();
   };
 }
 
-function validateDefFnOutput(defFnOutput, domAdapterName) {
+function validateDefFnOutput(defFnOutput, domDriverName) {
   if (typeof defFnOutput !== 'object') {
     throw new Error('Custom element definition function should output an ' +
       'object.');
   }
-  if (typeof defFnOutput[domAdapterName] === 'undefined') {
+  if (typeof defFnOutput[domDriverName] === 'undefined') {
     throw new Error(`Custom element definition function should output an ` +
-      `object containing '${domAdapterName}'.`);
+      `object containing '${domDriverName}'.`);
   }
-  if (typeof defFnOutput[domAdapterName].subscribe !== 'function') {
+  if (typeof defFnOutput[domDriverName].subscribe !== 'function') {
     throw new Error(`Custom element definition function should output an ` +
-      `object containing an Observable of VTree, named '${domAdapterName}'.`);
+      `object containing an Observable of VTree, named '${domDriverName}'.`);
   }
   for (let name in defFnOutput) { if (defFnOutput.hasOwnProperty(name)) {
-    if (name !== domAdapterName && name !== EVENTS_SINK_NAME) {
+    if (name !== domDriverName && name !== EVENTS_SINK_NAME) {
       throw new Error(`Unknown '${name}' found on custom element definition ` +
         `function's output.`);
     }
@@ -156,28 +156,28 @@ function validateDefFnOutput(defFnOutput, domAdapterName) {
 }
 
 function makeInit(tagName, definitionFn) {
-  let {makeDOMAdapterWithRegistry} = require('./render-dom');
+  let {makeDOMDriverWithRegistry} = require('./render-dom');
   return function initCustomElement() {
     //console.log('%cInit() custom element ' + tagName, 'color: #880088');
     let widget = this;
-    let adapterName = widget.adapterName;
+    let driverName = widget.driverName;
     let registry = widget.customElementsRegistry;
     let element = createContainerElement(tagName, widget.properties);
     let proxyVTree$$ = new Rx.AsyncSubject();
-    let domAdapter = makeDOMAdapterWithRegistry(element, registry);
-    let propertiesAdapter = makePropertiesAdapter();
-    let domOutput = domAdapter(proxyVTree$$.mergeAll(), adapterName);
+    let domDriver = makeDOMDriverWithRegistry(element, registry);
+    let propertiesDriver = makePropertiesDriver();
+    let domOutput = domDriver(proxyVTree$$.mergeAll(), driverName);
     let rootElem$ = domOutput.get(':root');
     let defFnInput = makeCustomElementInput(
-      domOutput, propertiesAdapter, adapterName
+      domOutput, propertiesDriver, driverName
     );
     let defFnOutput = definitionFn(defFnInput);
-    validateDefFnOutput(defFnOutput, adapterName);
-    proxyVTree$$.onNext(defFnOutput[adapterName].shareReplay(1));
+    validateDefFnOutput(defFnOutput, driverName);
+    proxyVTree$$.onNext(defFnOutput[driverName].shareReplay(1));
     proxyVTree$$.onCompleted();
     rootElem$.subscribe(widget.firstRootElem$.asObserver());
     element.cycleCustomElementMetadata = {
-      propertiesAdapter,
+      propertiesDriver,
       rootElem$,
       customEvents: defFnOutput.events,
       eventDispatchingSubscription: false
@@ -191,7 +191,7 @@ function makeInit(tagName, definitionFn) {
   };
 }
 
-function validatePropertiesAdapterInMetadata(element, fnName) {
+function validatePropertiesDriverInMetadata(element, fnName) {
   if (!element) {
     throw new Error(`Missing DOM element when calling ${fnName} on custom ` +
       'element Widget.');
@@ -201,9 +201,9 @@ function validatePropertiesAdapterInMetadata(element, fnName) {
       'calling ' + fnName + ' on custom element Widget.');
   }
   let metadata = element.cycleCustomElementMetadata;
-  if (metadata.propertiesAdapter.type !== 'PropertiesAdapter') {
-    throw new Error('Custom element metadata\'s propertiesAdapter type is ' +
-      'invalid: ' + metadata.propertiesAdapter.type + '.');
+  if (metadata.propertiesDriver.type !== 'PropertiesDriver') {
+    throw new Error('Custom element metadata\'s propertiesDriver type is ' +
+      'invalid: ' + metadata.propertiesDriver.type + '.');
   }
 }
 
@@ -213,26 +213,26 @@ function updateCustomElement(previous, element) {
     this.firstRootElem$.onNext(0);
     this.firstRootElem$.onCompleted();
   }
-  validatePropertiesAdapterInMetadata(element, 'update()');
+  validatePropertiesDriverInMetadata(element, 'update()');
 
   //console.log(`%cupdate() ${element.className}`, 'color: #880088');
-  let propsAdapter = element.cycleCustomElementMetadata.propertiesAdapter;
-  if (propsAdapter.hasOwnProperty(ALL_PROPS)) {
-    propsAdapter[ALL_PROPS].onNext(this.properties);
+  let propsDriver = element.cycleCustomElementMetadata.propertiesDriver;
+  if (propsDriver.hasOwnProperty(ALL_PROPS)) {
+    propsDriver[ALL_PROPS].onNext(this.properties);
   }
-  for (let prop in propsAdapter) { if (propsAdapter.hasOwnProperty(prop)) {
+  for (let prop in propsDriver) { if (propsDriver.hasOwnProperty(prop)) {
     if (this.properties.hasOwnProperty(prop)) {
-      propsAdapter[prop].onNext(this.properties[prop]);
+      propsDriver[prop].onNext(this.properties[prop]);
     }
   }}
 }
 
 function destroyCustomElement(element) {
   //console.log(`%cdestroy() custom el ${element.className}`, 'color: #808');
-  // Dispose propertiesAdapter
-  let propsAdapter = element.cycleCustomElementMetadata.propertiesAdapter;
-  for (let prop in propsAdapter) { if (propsAdapter.hasOwnProperty(prop)) {
-    this.disposables.add(propsAdapter[prop]);
+  // Dispose propertiesDriver
+  let propsDriver = element.cycleCustomElementMetadata.propertiesDriver;
+  for (let prop in propsDriver) { if (propsDriver.hasOwnProperty(prop)) {
+    this.disposables.add(propsDriver[prop]);
   }}
   if (element.cycleCustomElementMetadata.eventDispatchingSubscription) {
     // This subscription has to be disposed.
@@ -247,7 +247,7 @@ function destroyCustomElement(element) {
 
 function makeWidgetClass(tagName, definitionFn) {
   if (typeof definitionFn !== 'function') {
-    throw new Error('A custom element definition given to the DOM adapter ' +
+    throw new Error('A custom element definition given to the DOM driver ' +
       'should be a function.');
   }
 
@@ -263,7 +263,7 @@ module.exports = {
   makeDispatchFunction,
   subscribeDispatchers,
   subscribeDispatchersWhenRootChanges,
-  makePropertiesAdapter,
+  makePropertiesDriver,
   createContainerElement,
   warnIfVTreeHasNoKey,
   throwIfVTreeHasPropertyChildren,
