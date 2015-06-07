@@ -1,6 +1,16 @@
 {
-  "test_page": "test/browser/page/index.html",
+  "framework": "mocha",
+  "serve_files": [
+    "tests-bundle.js"
+  ],
+  "src_files": [
+    "test/browser/*.js",
+    "test/common/*.js"
+  ],
+  "before_tests": "browserify test/browser/index.js -d -t babelify -o tests-bundle.js",
+  "on_exit": "rm tests-bundle.js",
   "launch_in_dev": [
-    "Chrome"
+    "Chrome",
+    "PhantomJS"
   ]
 }
