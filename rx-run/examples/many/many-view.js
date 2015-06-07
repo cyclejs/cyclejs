@@ -23,17 +23,18 @@ function manyView(items$) {
   function vrenderItem(itemData) {
     return h('many-item.item', {
       itemid: itemData.id,
-      color:  itemData.color,
-      width:  itemData.width,
+      color: itemData.color,
+      width: itemData.width,
       key: itemData.id
     });
   }
 
-  return items$
-    .map(function (itemsData) {
+  return {
+    dom: items$.map(function (itemsData) {
       return h('div.everything', {}, [
         vrenderTopButtons(),
         itemsData.map(vrenderItem)
       ]);
-    });
+    })
+  };
 }
