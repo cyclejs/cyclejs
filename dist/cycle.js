@@ -14425,54 +14425,59 @@ function appendPatch(apply, patch) {
 'use strict';
 var Rx = require('rx');
 
-function makeRequestProxies(adapters) {
+function makeRequestProxies(drivers) {
   var requestProxies = {};
-  for (var _name in adapters) {
-    if (adapters.hasOwnProperty(_name)) {
+  for (var _name in drivers) {
+    if (drivers.hasOwnProperty(_name)) {
       requestProxies[_name] = new Rx.ReplaySubject(1);
     }
   }
   return requestProxies;
 }
 
-function callAdapters(adapters, requestProxies) {
+function callDrivers(drivers, requestProxies) {
   var responses = {};
-  for (var _name2 in adapters) {
-    if (adapters.hasOwnProperty(_name2)) {
-      responses[_name2] = adapters[_name2](requestProxies[_name2], _name2);
+  for (var _name2 in drivers) {
+    if (drivers.hasOwnProperty(_name2)) {
+      responses[_name2] = drivers[_name2](requestProxies[_name2], _name2);
     }
   }
   return responses;
 }
 
 function makeGet(rawResponses) {
-  return function get(adapterName) {
+  return function get(driverName) {
     for (var _len = arguments.length, params = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
       params[_key - 1] = arguments[_key];
     }
 
-    if (!rawResponses.hasOwnProperty(adapterName)) {
-      throw new Error('get(' + adapterName + ', ...) failed, no adapter function ' + ('named ' + adapterName + ' was found for this Cycle execution.'));
+    if (!rawResponses.hasOwnProperty(driverName)) {
+      throw new Error('get(' + driverName + ', ...) failed, no driver function ' + ('named ' + driverName + ' was found for this Cycle execution.'));
     }
 
-    var adapterResponse = rawResponses[adapterName];
-    if (typeof adapterResponse.subscribe === 'function') {
-      return adapterResponse; // is an Observable
-    } else if (typeof adapterResponse === 'object' && typeof adapterResponse.get === 'function') {
-      return rawResponses[adapterName].get.apply(null, params);
-    } else if (typeof adapterResponse === 'object' && params.length > 0 && typeof params[0] === 'string' && adapterResponse.hasOwnProperty(params[0])) {
-      return rawResponses[adapterName][params[0]];
+    var driverResponse = rawResponses[driverName];
+    if (typeof driverResponse.subscribe === 'function') {
+      return driverResponse; // is an Observable
+    } else if (typeof driverResponse === 'object' && typeof driverResponse.get === 'function') {
+      return rawResponses[driverName].get.apply(null, params);
+    } else if (typeof driverResponse === 'object' && params.length > 0 && typeof params[0] === 'string' && driverResponse.hasOwnProperty(params[0])) {
+      return rawResponses[driverName][params[0]];
     } else {
-      throw new Error('get(' + adapterName + ', ...) failed because adapter was ' + 'not able to process parameters. Report this bug to the adapter ' + 'function author.');
+      throw new Error('get(' + driverName + ', ...) failed because driver was ' + 'not able to process parameters. Report this bug to the driver ' + 'function author.');
     }
   };
 }
 
-function makeDispose(requestProxies) {
+function makeDispose(requestProxies, rawResponses) {
   return function dispose() {
     for (var x in requestProxies) {
       if (requestProxies.hasOwnProperty(x)) {
         requestProxies[x].dispose();
+      }
+    }
+    for (var _name3 in rawResponses) {
+      if (rawResponses.hasOwnProperty(_name3) && typeof rawResponses[_name3].dispose === 'function') {
+        rawResponses[_name3].dispose();
       }
     }
   };
@@ -14481,24 +14486,42 @@ function makeDispose(requestProxies) {
 function makeAppInput(requestProxies, rawResponses) {
   return {
     get: makeGet(rawResponses),
-    dispose: makeDispose(requestProxies)
+    dispose: makeDispose(requestProxies, rawResponses)
   };
 }
 
 function replicateMany(original, imitators) {
-  for (var _name3 in original) {
-    if (original.hasOwnProperty(_name3)) {
-      if (imitators.hasOwnProperty(_name3) && !imitators[_name3].isDisposed) {
-        original[_name3].subscribe(imitators[_name3].asObserver());
+  for (var _name4 in original) {
+    if (original.hasOwnProperty(_name4)) {
+      if (imitators.hasOwnProperty(_name4) && !imitators[_name4].isDisposed) {
+        original[_name4].subscribe(imitators[_name4].asObserver());
       }
     }
   }
 }
 
-function run(app, adapters) {
-  // TODO Preconditions
-  var requestProxies = makeRequestProxies(adapters);
-  var rawResponses = callAdapters(adapters, requestProxies);
+function isObjectEmpty(obj) {
+  for (var key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function run(app, drivers) {
+  if (typeof app !== 'function') {
+    throw new Error('First argument given to Cycle.run() must be the `app` ' + 'function.');
+  }
+  if (typeof drivers !== 'object' || drivers === null) {
+    throw new Error('Second argument given to Cycle.run() must be an object ' + 'with driver functions as properties.');
+  }
+  if (isObjectEmpty(drivers)) {
+    throw new Error('Second argument given to Cycle.run() must be an object ' + 'with at least one driver function declared as a property.');
+  }
+
+  var requestProxies = makeRequestProxies(drivers);
+  var rawResponses = callDrivers(drivers, requestProxies);
   var responses = makeAppInput(requestProxies, rawResponses);
   var requests = app(responses);
   setTimeout(function () {
@@ -14511,12 +14534,9 @@ module.exports = run;
 
 },{"rx":58}],109:[function(require,module,exports){
 'use strict';
-
-function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
-
 var Rx = require('rx');
 var ALL_PROPS = '*';
-var PROPS_ADAPTER_NAME = 'props';
+var PROPS_DRIVER_NAME = 'props';
 var EVENTS_SINK_NAME = 'events';
 
 function makeDispatchFunction(element, eventName) {
@@ -14567,14 +14587,14 @@ function subscribeEventDispatchingSink(element, widget) {
   widget.disposables.add(subscribeDispatchersWhenRootChanges(element.cycleCustomElementMetadata));
 }
 
-function makePropertiesAdapter() {
-  var propertiesAdapter = {};
+function makePropertiesDriver() {
+  var propertiesDriver = {};
   var defaultComparer = Rx.helpers.defaultComparer;
-  Object.defineProperty(propertiesAdapter, 'type', {
+  Object.defineProperty(propertiesDriver, 'type', {
     enumerable: false,
-    value: 'PropertiesAdapter'
+    value: 'PropertiesDriver'
   });
-  Object.defineProperty(propertiesAdapter, 'get', {
+  Object.defineProperty(propertiesDriver, 'get', {
     enumerable: false,
     value: function get() {
       var streamKey = arguments[0] === undefined ? ALL_PROPS : arguments[0];
@@ -14586,7 +14606,7 @@ function makePropertiesAdapter() {
       return this[streamKey].distinctUntilChanged(Rx.helpers.identity, comparer);
     }
   });
-  return propertiesAdapter;
+  return propertiesDriver;
 }
 
 function createContainerElement(tagName, vtreeProperties) {
@@ -14609,26 +14629,26 @@ function throwIfVTreeHasPropertyChildren(vtree) {
   }
 }
 
-function makeCustomElementInput(domOutput, propertiesAdapter, domAdapterName) {
+function makeCustomElementInput(domOutput, propertiesDriver, domDriverName) {
   return {
-    get: function get(adapterName) {
+    get: function get(driverName) {
       for (var _len = arguments.length, params = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
         params[_key - 1] = arguments[_key];
       }
 
-      if (adapterName === domAdapterName) {
+      if (driverName === domDriverName) {
         return domOutput.get.apply(null, params);
-      } else if (adapterName === PROPS_ADAPTER_NAME) {
-        return propertiesAdapter.get.apply(propertiesAdapter, params);
+      } else if (driverName === PROPS_DRIVER_NAME) {
+        return propertiesDriver.get.apply(propertiesDriver, params);
       } else {
-        throw new Error('No such internal adapter named \'' + adapterName + '\' for ' + ('custom elements. Use \'' + domAdapterName + '\' or ')(_taggedTemplateLiteral(['\'', '\' instead.'], ['\'', '\' instead.']), PROPS_ADAPTER_NAME));
+        throw new Error('No such internal driver named \'' + driverName + '\' for ' + ('custom elements. Use \'' + domDriverName + '\' or ') + ('\'' + PROPS_DRIVER_NAME + '\' instead.'));
       }
     }
   };
 }
 
 function makeConstructor() {
-  return function customElementConstructor(vtree, CERegistry, adapterName) {
+  return function customElementConstructor(vtree, CERegistry, driverName) {
     //console.log('%cnew (constructor) custom element ' + vtree.tagName,
     //  'color: #880088');
     warnIfVTreeHasNoKey(vtree);
@@ -14639,25 +14659,25 @@ function makeConstructor() {
     this.key = vtree.key;
     this.isCustomElementWidget = true;
     this.customElementsRegistry = CERegistry;
-    this.adapterName = adapterName;
+    this.driverName = driverName;
     this.firstRootElem$ = new Rx.ReplaySubject(1);
     this.disposables = new Rx.CompositeDisposable();
   };
 }
 
-function validateDefFnOutput(defFnOutput, domAdapterName) {
+function validateDefFnOutput(defFnOutput, domDriverName) {
   if (typeof defFnOutput !== 'object') {
     throw new Error('Custom element definition function should output an ' + 'object.');
   }
-  if (typeof defFnOutput[domAdapterName] === 'undefined') {
-    throw new Error('Custom element definition function should output an ' + ('object containing \'' + domAdapterName + '\'.'));
+  if (typeof defFnOutput[domDriverName] === 'undefined') {
+    throw new Error('Custom element definition function should output an ' + ('object containing \'' + domDriverName + '\'.'));
   }
-  if (typeof defFnOutput[domAdapterName].subscribe !== 'function') {
-    throw new Error('Custom element definition function should output an ' + ('object containing an Observable of VTree, named \'' + domAdapterName + '\'.'));
+  if (typeof defFnOutput[domDriverName].subscribe !== 'function') {
+    throw new Error('Custom element definition function should output an ' + ('object containing an Observable of VTree, named \'' + domDriverName + '\'.'));
   }
   for (var _name2 in defFnOutput) {
     if (defFnOutput.hasOwnProperty(_name2)) {
-      if (_name2 !== domAdapterName && _name2 !== EVENTS_SINK_NAME) {
+      if (_name2 !== domDriverName && _name2 !== EVENTS_SINK_NAME) {
         throw new Error('Unknown \'' + _name2 + '\' found on custom element definition ' + 'function\'s output.');
       }
     }
@@ -14667,41 +14687,41 @@ function validateDefFnOutput(defFnOutput, domAdapterName) {
 function makeInit(tagName, definitionFn) {
   var _require = require('./render-dom');
 
-  var makeDOMAdapterWithRegistry = _require.makeDOMAdapterWithRegistry;
+  var makeDOMDriverWithRegistry = _require.makeDOMDriverWithRegistry;
 
   return function initCustomElement() {
     //console.log('%cInit() custom element ' + tagName, 'color: #880088');
     var widget = this;
-    var adapterName = widget.adapterName;
+    var driverName = widget.driverName;
     var registry = widget.customElementsRegistry;
     var element = createContainerElement(tagName, widget.properties);
     var proxyVTree$$ = new Rx.AsyncSubject();
-    var domAdapter = makeDOMAdapterWithRegistry(element, registry);
-    var propertiesAdapter = makePropertiesAdapter();
-    var domOutput = domAdapter(proxyVTree$$.mergeAll(), adapterName);
-    var rootElem$ = domOutput.get(':root');
-    var defFnInput = makeCustomElementInput(domOutput, propertiesAdapter, adapterName);
-    var defFnOutput = definitionFn(defFnInput);
-    validateDefFnOutput(defFnOutput, adapterName);
-    proxyVTree$$.onNext(defFnOutput[adapterName].shareReplay(1));
+    var domDriver = makeDOMDriverWithRegistry(element, registry);
+    var propertiesDriver = makePropertiesDriver();
+    var domResponse = domDriver(proxyVTree$$.mergeAll(), driverName);
+    var rootElem$ = domResponse.get(':root');
+    var defFnInput = makeCustomElementInput(domResponse, propertiesDriver, driverName);
+    var requests = definitionFn(defFnInput);
+    validateDefFnOutput(requests, driverName);
+    proxyVTree$$.onNext(requests[driverName].shareReplay(1));
     proxyVTree$$.onCompleted();
     rootElem$.subscribe(widget.firstRootElem$.asObserver());
     element.cycleCustomElementMetadata = {
-      propertiesAdapter: propertiesAdapter,
+      propertiesDriver: propertiesDriver,
       rootElem$: rootElem$,
-      customEvents: defFnOutput.events,
+      customEvents: requests.events,
       eventDispatchingSubscription: false
     };
     subscribeEventDispatchingSink(element, widget);
-    //widget.disposables.add(domOutput.someDisposable); // TODO?
     widget.disposables.add(widget.firstRootElem$);
     widget.disposables.add(proxyVTree$$);
+    widget.disposables.add(domResponse);
     widget.update(null, element);
     return element;
   };
 }
 
-function validatePropertiesAdapterInMetadata(element, fnName) {
+function validatePropertiesDriverInMetadata(element, fnName) {
   if (!element) {
     throw new Error('Missing DOM element when calling ' + fnName + ' on custom ' + 'element Widget.');
   }
@@ -14709,8 +14729,8 @@ function validatePropertiesAdapterInMetadata(element, fnName) {
     throw new Error('Missing custom element metadata on DOM element when ' + 'calling ' + fnName + ' on custom element Widget.');
   }
   var metadata = element.cycleCustomElementMetadata;
-  if (metadata.propertiesAdapter.type !== 'PropertiesAdapter') {
-    throw new Error('Custom element metadata\'s propertiesAdapter type is ' + 'invalid: ' + metadata.propertiesAdapter.type + '.');
+  if (metadata.propertiesDriver.type !== 'PropertiesDriver') {
+    throw new Error('Custom element metadata\'s propertiesDriver type is ' + 'invalid: ' + metadata.propertiesDriver.type + '.');
   }
 }
 
@@ -14720,17 +14740,17 @@ function updateCustomElement(previous, element) {
     this.firstRootElem$.onNext(0);
     this.firstRootElem$.onCompleted();
   }
-  validatePropertiesAdapterInMetadata(element, 'update()');
+  validatePropertiesDriverInMetadata(element, 'update()');
 
   //console.log(`%cupdate() ${element.className}`, 'color: #880088');
-  var propsAdapter = element.cycleCustomElementMetadata.propertiesAdapter;
-  if (propsAdapter.hasOwnProperty(ALL_PROPS)) {
-    propsAdapter[ALL_PROPS].onNext(this.properties);
+  var propsDriver = element.cycleCustomElementMetadata.propertiesDriver;
+  if (propsDriver.hasOwnProperty(ALL_PROPS)) {
+    propsDriver[ALL_PROPS].onNext(this.properties);
   }
-  for (var prop in propsAdapter) {
-    if (propsAdapter.hasOwnProperty(prop)) {
+  for (var prop in propsDriver) {
+    if (propsDriver.hasOwnProperty(prop)) {
       if (this.properties.hasOwnProperty(prop)) {
-        propsAdapter[prop].onNext(this.properties[prop]);
+        propsDriver[prop].onNext(this.properties[prop]);
       }
     }
   }
@@ -14738,11 +14758,11 @@ function updateCustomElement(previous, element) {
 
 function destroyCustomElement(element) {
   //console.log(`%cdestroy() custom el ${element.className}`, 'color: #808');
-  // Dispose propertiesAdapter
-  var propsAdapter = element.cycleCustomElementMetadata.propertiesAdapter;
-  for (var prop in propsAdapter) {
-    if (propsAdapter.hasOwnProperty(prop)) {
-      this.disposables.add(propsAdapter[prop]);
+  // Dispose propertiesDriver
+  var propsDriver = element.cycleCustomElementMetadata.propertiesDriver;
+  for (var prop in propsDriver) {
+    if (propsDriver.hasOwnProperty(prop)) {
+      this.disposables.add(propsDriver[prop]);
     }
   }
   if (element.cycleCustomElementMetadata.eventDispatchingSubscription) {
@@ -14756,7 +14776,7 @@ function destroyCustomElement(element) {
 
 function makeWidgetClass(tagName, definitionFn) {
   if (typeof definitionFn !== 'function') {
-    throw new Error('A custom element definition given to the DOM adapter ' + 'should be a function.');
+    throw new Error('A custom element definition given to the DOM driver ' + 'should be a function.');
   }
 
   var WidgetClass = makeConstructor();
@@ -14771,7 +14791,7 @@ module.exports = {
   makeDispatchFunction: makeDispatchFunction,
   subscribeDispatchers: subscribeDispatchers,
   subscribeDispatchersWhenRootChanges: subscribeDispatchersWhenRootChanges,
-  makePropertiesAdapter: makePropertiesAdapter,
+  makePropertiesDriver: makePropertiesDriver,
   createContainerElement: createContainerElement,
   warnIfVTreeHasNoKey: warnIfVTreeHasNoKey,
   throwIfVTreeHasPropertyChildren: throwIfVTreeHasPropertyChildren,
@@ -14873,10 +14893,10 @@ function isVTreeCustomElement(vtree) {
   return vtree.type === 'Widget' && vtree.isCustomElementWidget;
 }
 
-function makeReplaceCustomElementsWithWidgets(CERegistry, adapterName) {
+function makeReplaceCustomElementsWithWidgets(CERegistry, driverName) {
   return function replaceCustomElementsWithWidgets(vtree) {
     return replaceCustomElementsWithSomething(vtree, CERegistry, function (_vtree, WidgetClass) {
-      return new WidgetClass(_vtree, CERegistry, adapterName);
+      return new WidgetClass(_vtree, CERegistry, driverName);
     });
   };
 }
@@ -14950,10 +14970,10 @@ function getRenderRootElem(domContainer) {
   return rootElem;
 }
 
-function renderRawRootElem$(vtree$, domContainer, CERegistry, adapterName) {
+function renderRawRootElem$(vtree$, domContainer, CERegistry, driverName) {
   var rootElem = getRenderRootElem(domContainer);
   var diffAndPatchToElement$ = makeDiffAndPatchToElement$(rootElem);
-  return vtree$.startWith(VDOM.h()).map(makeReplaceCustomElementsWithWidgets(CERegistry, adapterName)).doOnNext(checkRootVTreeNotCustomElement).pairwise().flatMap(diffAndPatchToElement$);
+  return vtree$.startWith(VDOM.h()).map(makeReplaceCustomElementsWithWidgets(CERegistry, driverName)).doOnNext(checkRootVTreeNotCustomElement).pairwise().flatMap(diffAndPatchToElement$);
 }
 
 function makeRootElemToEvent$(selector, eventName) {
@@ -14986,14 +15006,13 @@ function makeRootElemToEvent$(selector, eventName) {
 function makeGet(rootElem$) {
   return function get(selector, eventName) {
     if (typeof selector !== 'string') {
-      throw new Error('DOM adapter\'s get() expects first argument to be a ' + 'string as a CSS selector');
+      throw new Error('DOM driver\'s get() expects first argument to be a ' + 'string as a CSS selector');
     }
     if (selector.trim() === ':root') {
-      // TODO test this
       return rootElem$;
     }
     if (typeof eventName !== 'string') {
-      throw new Error('DOM adapter\'s get() expects second argument to be a ' + 'string representing the event type to listen for.');
+      throw new Error('DOM driver\'s get() expects second argument to be a ' + 'string representing the event type to listen for.');
     }
 
     //console.log(`%cget("${selector}", "${eventName}")`, 'color: #0000BB');
@@ -15001,27 +15020,26 @@ function makeGet(rootElem$) {
   };
 }
 
-function validateAdapterInput(vtree$) {
+function validateDOMDriverInput(vtree$) {
   if (!vtree$ || typeof vtree$.subscribe !== 'function') {
-    throw new Error('The DOMAdapter function expects as input an ' + 'Observable of virtual DOM elements');
+    throw new Error('The DOM driver function expects as input an ' + 'Observable of virtual DOM elements');
   }
 }
 
-function makeDOMAdapterWithRegistry(container, CERegistry) {
-  return function domAdapter(vtree$, adapterName) {
-    validateAdapterInput(vtree$);
-    var rawRootElem$ = renderRawRootElem$(vtree$, container, CERegistry, adapterName);
+function makeDOMDriverWithRegistry(container, CERegistry) {
+  return function domDriver(vtree$, driverName) {
+    validateDOMDriverInput(vtree$);
+    var rawRootElem$ = renderRawRootElem$(vtree$, container, CERegistry, driverName);
     var rootElem$ = fixRootElem$(rawRootElem$, container);
-    var output = {
-      get: makeGet(rootElem$)
-      // TODO dispose???
+    var disposable = rootElem$.connect();
+    return {
+      get: makeGet(rootElem$),
+      dispose: disposable.dispose.bind(disposable)
     };
-    rootElem$.connect(); // TODO save subscription, for disposal?
-    return output;
   };
 }
 
-function makeDOMAdapter(container) {
+function makeDOMDriver(container) {
   var customElementDefinitions = arguments[1] === undefined ? {} : arguments[1];
 
   // Find and prepare the container
@@ -15034,7 +15052,7 @@ function makeDOMAdapter(container) {
   }
 
   var registry = makeCustomElementsRegistry(customElementDefinitions);
-  return makeDOMAdapterWithRegistry(domContainer, registry);
+  return makeDOMDriverWithRegistry(domContainer, registry);
 }
 
 module.exports = {
@@ -15048,10 +15066,10 @@ module.exports = {
   getRenderRootElem: getRenderRootElem,
   renderRawRootElem$: renderRawRootElem$,
   makeGet: makeGet,
-  validateAdapterInput: validateAdapterInput,
-  makeDOMAdapterWithRegistry: makeDOMAdapterWithRegistry,
+  validateDOMDriverInput: validateDOMDriverInput,
+  makeDOMDriverWithRegistry: makeDOMDriverWithRegistry,
 
-  makeDOMAdapter: makeDOMAdapter
+  makeDOMDriver: makeDOMDriver
 };
 
 },{"./custom-elements":110,"rx":58,"virtual-dom":74,"virtual-dom/diff":72,"virtual-dom/patch":82}],112:[function(require,module,exports){
@@ -15068,7 +15086,7 @@ var _require2 = require('./custom-element-widget');
 
 var makeCustomElementInput = _require2.makeCustomElementInput;
 
-function makePropertiesAdapterFromVTree(vtree) {
+function makePropertiesDriverFromVTree(vtree) {
   return {
     get: function get(propertyName) {
       return Rx.Observable.just(vtree.properties[propertyName]);
@@ -15101,32 +15119,32 @@ function transposeVTree(vtree) {
   }
 }
 
-function makeReplaceCustomElementsWithVTree$(CERegistry, adapterName) {
+function makeReplaceCustomElementsWithVTree$(CERegistry, driverName) {
   return function replaceCustomElementsWithVTree$(vtree) {
     return replaceCustomElementsWithSomething(vtree, CERegistry, function toVTree$(_vtree, WidgetClass) {
       var interactions = { get: function get() {
           return Rx.Observable.empty();
         } };
-      var props = makePropertiesAdapterFromVTree(_vtree);
+      var props = makePropertiesDriverFromVTree(_vtree);
       var input = makeCustomElementInput(interactions, props);
       var output = WidgetClass.definitionFn(input);
-      var vtree$ = output[adapterName].last();
+      var vtree$ = output[driverName].last();
       /*eslint-disable no-use-before-define */
-      return convertCustomElementsToVTree(vtree$, CERegistry, adapterName);
+      return convertCustomElementsToVTree(vtree$, CERegistry, driverName);
       /*eslint-enable no-use-before-define */
     });
   };
 }
 
-function convertCustomElementsToVTree(vtree$, CERegistry, adapterName) {
-  return vtree$.map(makeReplaceCustomElementsWithVTree$(CERegistry, adapterName)).flatMap(transposeVTree);
+function convertCustomElementsToVTree(vtree$, CERegistry, driverName) {
+  return vtree$.map(makeReplaceCustomElementsWithVTree$(CERegistry, driverName)).flatMap(transposeVTree);
 }
 
-function makeHTMLAdapter() {
+function makeHTMLDriver() {
   var customElementDefinitions = arguments[0] === undefined ? {} : arguments[0];
 
   var registry = makeCustomElementsRegistry(customElementDefinitions);
-  return function htmlAdapter(vtree$, adapterName) {
+  return function htmlDriver(vtree$, driverName) {
     var vtreeLast$ = vtree$.last();
     return {
       get: function get() {
@@ -15135,7 +15153,7 @@ function makeHTMLAdapter() {
         }
 
         if (params.length === 0) {
-          return convertCustomElementsToVTree(vtreeLast$, registry, adapterName).map(function (vtree) {
+          return convertCustomElementsToVTree(vtreeLast$, registry, driverName).map(function (vtree) {
             return toHTML(vtree);
           });
         } else {
@@ -15147,11 +15165,11 @@ function makeHTMLAdapter() {
 }
 
 module.exports = {
-  makePropertiesAdapterFromVTree: makePropertiesAdapterFromVTree,
+  makePropertiesDriverFromVTree: makePropertiesDriverFromVTree,
   makeReplaceCustomElementsWithVTree$: makeReplaceCustomElementsWithVTree$,
   convertCustomElementsToVTree: convertCustomElementsToVTree,
 
-  makeHTMLAdapter: makeHTMLAdapter
+  makeHTMLDriver: makeHTMLDriver
 };
 
 },{"./custom-element-widget":109,"./custom-elements":110,"rx":58,"vdom-to-html":60}],113:[function(require,module,exports){
@@ -15162,75 +15180,80 @@ var Rx = require('rx');
 
 var _require = require('../web/render-dom');
 
-var makeDOMAdapter = _require.makeDOMAdapter;
+var makeDOMDriver = _require.makeDOMDriver;
 
 var _require2 = require('../web/render-html');
 
-var makeHTMLAdapter = _require2.makeHTMLAdapter;
+var makeHTMLDriver = _require2.makeHTMLDriver;
 
 var run = require('./run');
 
 var Cycle = {
   /**
-   * Takes a `computer` function which outputs an Observable of virtual DOM
-   * elements, and renders that into the DOM element indicated by `container`,
-   * which can be either a CSS selector or an actual element. At the same time,
-   * provides the `interactions` input to the `computer` function, which is a
-   * collection of all possible events happening on all elements which were
-   * rendered. You must query this collection with
-   * `interactions.get(selector, eventName)` in order to get an Observable of
-   * interactions of type `eventName` happening on the element identified by
-   * `selector`.
-   * Example: `interactions.get('.mybutton', 'click').map(ev => ...)`
+   * Takes an `app` function and circularly connects it to the given collection
+   * of driver functions.
+   *
+   * The `app` function expects a collection of "driver response" Observables as
+   * input, and should return a collection of "driver request" Observables.
+   * The driver response collection can be queried using a getter function:
+   * `responses.get(driverName, ...params)`, returns an Observable. The
+   * structure of `params` is defined by the API of the corresponding
+   * `driverName`. The driver request collection should be a simple object where
+   * keys match the driver names used by `responses.get()` and defined on the
+   * second parameter given to `run()`.
+   *
+   * @param {Function} app a function that takes `responses` as input
+   * and outputs a collection of `requests` Observables.
+   * @param {Object} drivers an object where keys are driver names and values
+   * are driver functions.
+   * @return {Array} an array where the first object is the collection of driver
+   * requests, and the second objet is the collection of driver responses, that
+   * can be used for debugging or testing.
+   * @function run
+   */
+  run: run,
+
+  /**
+   * A factory for the DOM driver function. Takes a `container` to define the
+   * target on the existing DOM which this driver will operate on. All custom
+   * elements which this driver can detect should be given as the second
+   * parameter.
    *
    * @param {(String|HTMLElement)} container the DOM selector for the element
    * (or the element itself) to contain the rendering of the VTrees.
-   * @param {Function} computer a function that takes `interactions` as input
-   * and outputs an Observable of virtual DOM elements.
-   * @return {Object} an object containing properties `rootElem$`,
-   * `interactions`, `dispose()` that can be used for debugging or testing.
-   * @function applyToDOM
+   * @param {Object} a collection of custom element definitions. The key of each
+   * property should be the tag name of the custom element, and the value should
+   * be a function defining the implementation of the custom element. This
+   * function follows the same contract as the top-most `app` function: input
+   * are driver responses, output are requests to drivers.
+   * @return {Function} the DOM driver function. The function expects an
+   * Observable of VTree as input, and outputs the response object for this
+   * driver, containing functions `get()` and `dispose()` that can be used for
+   * debugging and testing.
+   * @function makeDOMDriver
    */
-  run: run, // TODO write docs
-
-  makeDOMAdapter: makeDOMAdapter, // TODO write docs
+  makeDOMDriver: makeDOMDriver,
 
   /**
-   * Converts a given Observable of virtual DOM elements (`vtree$`) into an
-   * Observable of corresponding HTML strings (`html$`). The provided `vtree$`
-   * must complete (must call onCompleted on its observers) in finite time,
-   * otherwise the output `html$` will never emit an HTML string.
+   * A factory for the HTML driver function. Takes the registry object of all
+   * custom elements as the only parameter. The HTML driver function will use
+   * the custom element registry to detect custom element on the VTree and apply
+   * their implementations.
    *
-   * @param {Rx.Observable} vtree$ Observable of virtual DOM elements.
-   * @return {Rx.Observable} an Observable emitting a string as the HTML
-   * renderization of the virtual DOM element.
+   * @param {Object} a collection of custom element definitions. The key of each
+   * property should be the tag name of the custom element, and the value should
+   * be a function defining the implementation of the custom element. This
+   * function follows the same contract as the top-most `app` function: input
+   * are driver responses, output are requests to drivers.
+   * @return {Function} the HTML driver function. The function expects an
+   * Observable of Virtual DOM elements as input, and outputs the response
+   * object for this driver, containing functions `get()` and `dispose()` that
+   * can be used for debugging and testing. To get the Observable of strings as
+   * the HTML renderization of the virtual DOM elements, call simply
+   * `get(htmlDriverName)` on the responses object returned by Cycle.run();
    * @function renderAsHTML
    */
-  makeHTMLAdapter: makeHTMLAdapter, // TODO write docs
-
-  /**
-   * Informs Cycle to recognize the given `tagName` as a custom element
-   * implemented as the given function whenever `tagName` is used in VTrees
-   * rendered in the context of some parent (in `applyToDOM` or in other custom
-   * elements).
-   * The given `definitionFn` function takes two parameters as input, in this
-   * order: `interactions` and `properties`. The former works just like it does
-   * in the `computer` function given to `applyToDOM`, and the later contains
-   * Observables representing properties of the custom element, given from the
-   * parent context. `properties.get('foo')` will return the Observable `foo$`.
-   *
-   * The `definitionFn` must output an object containing the property `vtree$`
-   * as an Observable. If the output object contains other Observables, then
-   * they are treated as custom events of the custom element.
-   *
-   * @param {String} tagName a name for identifying the custom element.
-   * @param {Function} definitionFn the implementation for the custom element.
-   * This function takes two arguments: `interactions`, and `properties`, and
-   * should output an object of Observables.
-   * @function registerCustomElement
-   */
-  //registerCustomElement: CustomElements.registerCustomElement,
-  // TODO deprecated. Do something about it
+  makeHTMLDriver: makeHTMLDriver,
 
   /**
    * A shortcut to the root object of
