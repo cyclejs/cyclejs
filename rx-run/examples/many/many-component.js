@@ -30,19 +30,19 @@ function manyComponent(ext) {
         h('button.remove-btn', {attributes: {'data-item-id': id}}, 'Remove')
       ]);
     });
-  var destroy$ = ext.get('dom', '.remove-btn', 'click')
+  var destroy$ = ext.get('DOM', '.remove-btn', 'click')
     .withLatestFrom(id$, function (ev, id) { return id; });
-  var changeColor$ = ext.get('dom', '.color-field', 'input')
+  var changeColor$ = ext.get('DOM', '.color-field', 'input')
     .withLatestFrom(id$, function (ev, id) {
       return {id: id, color: ev.currentTarget.value};
     });
-  var changeWidth$ = ext.get('dom', '.width-slider', 'input')
+  var changeWidth$ = ext.get('DOM', '.width-slider', 'input')
     .withLatestFrom(id$, function (ev, id) {
       return {id: id, width: parseInt(ev.currentTarget.value)};
     });
 
   return {
-    dom: vtree$,
+    DOM: vtree$,
     events: {
       destroy: destroy$,
       changeColor: changeColor$,

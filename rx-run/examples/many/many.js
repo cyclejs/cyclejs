@@ -3,7 +3,7 @@ function app(ext) {
 }
 
 Cycle.run(app, {
-  dom: Cycle.makeDOMDriver('.js-container', {
+  DOM: Cycle.makeDOMDriver('.js-container', {
     'many-item': manyComponent
   })
 });

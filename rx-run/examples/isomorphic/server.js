@@ -25,12 +25,12 @@ function prependHTML5Doctype(html) {
 
 function wrapAppResultWithBoilerplate(appFn, context$, bundle$) {
   return function wrappedAppFn(ext) {
-    let vtree$ = appFn(ext).dom;
+    let vtree$ = appFn(ext).DOM;
     let wrappedVTree$ = Rx.Observable.combineLatest(vtree$, context$, bundle$,
       wrapVTreeWithHTMLBoilerplate
     );
     return {
-      dom: wrappedVTree$
+      DOM: wrappedVTree$
     };
   };
 }
@@ -76,10 +76,10 @@ server.use(function (req, res) {
   let context$ = Rx.Observable.just({route: req.url});
   let wrappedAppFn = wrapAppResultWithBoilerplate(app, context$, clientBundle$);
   let [requests, responses] = Cycle.run(wrappedAppFn, {
-    dom: Cycle.makeHTMLDriver(),
+    DOM: Cycle.makeHTMLDriver(),
     context: makeContextDriver(context$)
   });
-  let html$ = responses.get('dom').map(prependHTML5Doctype);
+  let html$ = responses.get('DOM').map(prependHTML5Doctype);
   html$.subscribe(html => res.send(html));
 });
 
