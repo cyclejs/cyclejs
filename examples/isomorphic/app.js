@@ -31,7 +31,7 @@ function renderAboutPage() {
 }
 
 function app(ext) {
-  let routeFromClick$ = ext.get('dom', '.link', 'click')
+  let routeFromClick$ = ext.get('DOM', '.link', 'click')
     .doOnNext(ev => ev.preventDefault())
     .map(ev => ev.currentTarget.attributes.href.value);
 
@@ -54,7 +54,7 @@ function app(ext) {
     });
 
   return {
-    dom: vtree$
+    DOM: vtree$
   };
 }
 

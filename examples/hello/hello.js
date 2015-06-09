@@ -3,7 +3,7 @@ var h = Cycle.h;
 
 function app(ext) {
   return {
-    dom: ext.get('dom', '.myinput', 'input')
+    DOM: ext.get('DOM', '.myinput', 'input')
       .map(function (ev) { return ev.target.value; })
       .startWith('')
       .map(function (name) {
@@ -18,5 +18,5 @@ function app(ext) {
 }
 
 Cycle.run(app, {
-  dom: Cycle.makeDOMDriver('.js-container')
+  DOM: Cycle.makeDOMDriver('.js-container')
 });

@@ -9,6 +9,6 @@ function contextDriver() {
 }
 
 Cycle.run(app, {
-  dom: Cycle.makeDOMDriver('.app-container'),
+  DOM: Cycle.makeDOMDriver('.app-container'),
   context: contextDriver
 });

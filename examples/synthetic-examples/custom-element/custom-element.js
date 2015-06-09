@@ -2,7 +2,7 @@ var h = Cycle.h;
 var Rx = Cycle.Rx;
 
 function tickerCustomElement(ext) {
-  var removeClicks$ = ext.get('dom', '.remove-btn', 'click').share();
+  var removeClicks$ = ext.get('DOM', '.remove-btn', 'click').share();
   var stop$ = removeClicks$.map(function () { return 'stop'; });
   var remove$ = removeClicks$.map(function () { return 'remove'; }).delay(500);
   var color$ = Rx.Observable.merge(
@@ -22,7 +22,7 @@ function tickerCustomElement(ext) {
   });
 
   return {
-    dom: vtree$,
+    DOM: vtree$,
     events: {remove: remove$}
   };
 }
@@ -37,14 +37,14 @@ function makeRandomColor() {
 }
 
 function app(ext) {
-  var removeTicker$ = ext.get('dom', '.ticker', 'remove');
+  var removeTicker$ = ext.get('DOM', '.ticker', 'remove');
   var color$ = Rx.Observable.interval(1000)
     .map(makeRandomColor)
     .startWith('#000000');
   var tickerExists$ = Rx.Observable.just(true)
     .merge(removeTicker$.map(function () { return false; }));
   return {
-    dom: Rx.Observable.combineLatest(color$, tickerExists$,
+    DOM: Rx.Observable.combineLatest(color$, tickerExists$,
       function (color, tickerExists) {
         return h('div#the-view', [
           tickerExists ? h('my-ticker.ticker', {key: 1, color: color}) : null
@@ -55,7 +55,7 @@ function app(ext) {
 }
 
 Cycle.run(app, {
-  dom: Cycle.makeDOMDriver('.js-container', {
+  DOM: Cycle.makeDOMDriver('.js-container', {
     'my-ticker': tickerCustomElement
   })
 });

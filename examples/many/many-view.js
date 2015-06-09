@@ -30,7 +30,7 @@ function manyView(items$) {
   }
 
   return {
-    dom: items$.map(function (itemsData) {
+    DOM: items$.map(function (itemsData) {
       return h('div.everything', {}, [
         vrenderTopButtons(),
         itemsData.map(vrenderItem)
