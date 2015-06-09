@@ -1,8 +1,8 @@
 'use strict';
 /* global describe, it, beforeEach */
 let assert = require('assert');
-let Cycle = require('../../src/cycle');
-let CustomElements = require('../../src/custom-elements');
+let Cycle = require('../../src/core/cycle');
+let CustomElements = require('../../src/web/custom-elements');
 let {Rx, h} = Cycle;
 
 function createRenderTarget() {
@@ -14,101 +14,88 @@ function createRenderTarget() {
 
 describe('Custom Elements', function () {
   beforeEach(function () {
-    CustomElements.unregisterAllCustomElements();
-    let testDivs = Array.prototype.slice.call(document.querySelectorAll('.cycletest'));
-    testDivs.forEach(function (x) {
-      if (x.remove) {
-        x.remove();
-      }
-    });
+    Array.prototype.slice.call(document.querySelectorAll('.cycletest'))
+      .forEach(function (x) {
+        if (x.remove) {
+          x.remove();
+        }
+      });
   });
 
-  describe('registerCustomElement', function () {
-    it('should throw error if given no parameters', function () {
+  describe('Registry on makeDOMDriver', function () {
+    it('should throw error if definitionFn is not a function', function () {
+      let element = createRenderTarget();
       assert.throws(function () {
-        Cycle.registerCustomElement();
-      }, /requires parameters/i);
+        Cycle.makeDOMDriver(element, {'my-elem': 123});
+      }, /definition given to the DOM driver should be a function/i);
     });
 
-    it('should throw error if given only string (for tagName)', function () {
-      assert.throws(function () {
-        Cycle.registerCustomElement('myelement');
-      }, /requires parameters/i);
-    });
-
-    it('should throw error if given only definitionFn', function () {
-      assert.throws(function () {
-        Cycle.registerCustomElement(function () { return {}; });
-      }, /requires parameters/i);
-    });
-
-    it('should not throw error if given correct and basic parameters', function () {
+    it('should not throw error if given correct parameters', function () {
+      let element = createRenderTarget();
       assert.doesNotThrow(function () {
-        Cycle.registerCustomElement('myelement', function () {
-          return {};
-        });
+        Cycle.makeDOMDriver(element, {'my-elem': function myElem() {}});
       });
-    });
-
-    it('should not allow duplicate registered custom elements', function () {
-      let definitionFn = function () { return {}; };
-      Cycle.registerCustomElement('myelement', definitionFn);
-      assert.throws(function () {
-        Cycle.registerCustomElement('myelement', definitionFn);
-      }, /already registered/i);
-    });
-
-    it('should return nothing', function () {
-      let result = Cycle.registerCustomElement('myelement', function () {
-        return {};
-      });
-      assert.strictEqual(typeof result, 'undefined');
     });
   });
 
-  it('should recognize and create simple element that is registered', function () {
+  it('should recognize and create simple element that is registered', function (done) {
     // Make simple custom element
-    Cycle.registerCustomElement('myelement', function () {
+    function myElementDef() {
       return {
-        vtree$: Rx.Observable.just(h('h3.myelementclass'))
+        dom: Rx.Observable.just(h('h3.myelementclass'))
       };
-    });
+    }
     // Use the custom element
-    let vtree$ = Rx.Observable.just(h('div.toplevel', [h('myelement', {key: 1})]));
-    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
+    function app() {
+      return {
+        dom: Rx.Observable.just(h('div.toplevel', [h('my-element', {key: 1})]))
+      };
+    }
+    let [requests, responses] = Cycle.run(app, {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+        'my-element': myElementDef
+      })
+    });
     // Make assertions
-    let myElement = document.querySelector('.myelementclass');
-    assert.notStrictEqual(myElement, null);
-    assert.notStrictEqual(typeof myElement, 'undefined');
-    assert.strictEqual(myElement.tagName, 'H3');
-    domUI.dispose();
+    responses.get('dom', ':root').first().subscribe(function (root) {
+      let myElement = root.querySelector('.myelementclass');
+      assert.notStrictEqual(myElement, null);
+      assert.notStrictEqual(typeof myElement, 'undefined');
+      assert.strictEqual(myElement.tagName, 'H3');
+      responses.dispose();
+      done();
+    });
   });
 
   it('should render inner state and properties independently', function (done) {
     // Make custom element with internal state, and properties as input
-    Cycle.registerCustomElement('myelement', function (interactions, props) {
+    function myElementDef(ext) {
       let number$ = Rx.Observable.interval(10).take(9);
       return {
-        vtree$: Rx.Observable
-          .combineLatest(props.get('color'), number$, function (color, number) {
-            return h('h3.stateful-element',
-              {style: {'color': color}},
-              String(number)
-            );
-          })
+        dom: Rx.Observable.combineLatest(ext.get('props', 'color'), number$,
+          function (color, number) {
+            return h('h3.stateful-element', {style: {color}}, String(number));
+          }
+        )
       };
-    });
-    // Use the custom element
-    function definitionFn() {
-      return Rx.Observable.just('#00FF00').delay(50)
-        .startWith('#FF0000')
-        .map(color =>
-          h('div', [
-            h('myelement', {key: 1, 'color': color})
-          ])
-        );
     }
-    let domUI = Cycle.applyToDOM(createRenderTarget(), definitionFn);
+    // Use the custom element
+    function app() {
+      return {
+        dom: Rx.Observable.just('#00FF00').delay(50)
+          .startWith('#FF0000')
+          .map(color =>
+            h('div', [
+              h('my-element', {key: 1, 'color': color})
+            ])
+        )
+      };
+    }
+    let [requests, responses] = Cycle.run(app, {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+        'my-element': myElementDef
+      })
+    });
     // Make assertions
     setTimeout(function () {
       let myElement = document.querySelector('.stateful-element');
@@ -117,16 +104,16 @@ describe('Custom Elements', function () {
       assert.strictEqual(myElement.tagName, 'H3');
       assert.strictEqual(myElement.textContent, '8');
       assert.strictEqual(myElement.style.color, 'rgb(0, 255, 0)');
-      domUI.dispose();
+      responses.dispose();
       done();
     }, 500);
   });
 
-  it('should have Observable properties object as props.get(\'*\')', function (done) {
+  it('should have Observable properties object as get(\'props\', \'*\')', function (done) {
     // Make custom element
-    Cycle.registerCustomElement('myelement', function (interactions, props) {
+    function myElementDef(ext) {
       return {
-        vtree$: props.get('*').map(propsObj => {
+        dom: ext.get('props', '*').map(propsObj => {
           assert.strictEqual(typeof propsObj, 'object');
           assert.notStrictEqual(propsObj, null);
           assert.strictEqual(propsObj.color, '#FF0000');
@@ -137,112 +124,203 @@ describe('Custom Elements', function () {
           );
         })
       };
+    }
+    function app() {
+      return {
+        dom: Rx.Observable.just(
+          h('div', [
+            h('my-element', {color: '#FF0000', content: 'Hello world'})
+          ])
+        )
+      };
+    }
+    let [requests, responses] = Cycle.run(app, {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+        'my-element': myElementDef
+      })
     });
-    let vtree$ = Rx.Observable.just(
-      h('div', [
-        h('myelement', {color: '#FF0000', content: 'Hello world'})
-      ])
-    );
-    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
     // Make assertions
-    setTimeout(function () {
-      let myElement = document.querySelector('.inner-element');
+    responses.get('dom', ':root').first().subscribe(function (root) {
+      let myElement = root.querySelector('.inner-element');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
       assert.strictEqual(myElement.tagName, 'H3');
       assert.strictEqual(myElement.textContent, 'Hello world');
       assert.strictEqual(myElement.style.color, 'rgb(255, 0, 0)');
-      domUI.dispose();
+      responses.dispose();
       done();
-    }, 150);
+    });
   });
 
-  it('should recognize and create two unrelated elements', function () {
-    // Make the first custom element
-    Cycle.registerCustomElement('myelement1', function () {
+  it('should have Observable properties object as get(\'props\')', function (done) {
+    // Make custom element
+    function myElementDef(ext) {
       return {
-        vtree$: Rx.Observable.just(h('h1.myelement1class'))
+        dom: ext.get('props').map(propsObj => {
+          assert.strictEqual(typeof propsObj, 'object');
+          assert.notStrictEqual(propsObj, null);
+          assert.strictEqual(propsObj.color, '#FF0000');
+          assert.strictEqual(propsObj.content, 'Hello world');
+          return h('h3.inner-element',
+            {style: {color: propsObj.color}},
+            String(propsObj.content)
+          );
+        })
       };
-    });
-    // Make the second custom element
-    Cycle.registerCustomElement('myelement2', function () {
+    }
+    function app() {
       return {
-        vtree$: Rx.Observable.just(h('h2.myelement2class'))
-      };
-    });
-    // Use the custom elements
-    let vtree$ = Rx.Observable.just(
-      h('div', [
-        h('myelement1'), h('myelement2')
-      ])
-    );
-    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
-    // Make assertions
-    let myElement1 = document.querySelector('.myelement1class');
-    let myElement2 = document.querySelector('.myelement2class');
-    assert.notStrictEqual(myElement1, null);
-    assert.notStrictEqual(typeof myElement1, 'undefined');
-    assert.strictEqual(myElement1.tagName, 'H1');
-    assert.notStrictEqual(myElement2, null);
-    assert.notStrictEqual(typeof myElement2, 'undefined');
-    assert.strictEqual(myElement2.tagName, 'H2');
-    domUI.dispose();
-  });
-
-  it('should recognize and create a nested custom elements', function () {
-    // Make the inner custom element
-    Cycle.registerCustomElement('inner', function () {
-      return {
-        vtree$: Rx.Observable.just(h('h3.innerClass'))
-      };
-    });
-    // Make the outer custom element
-    Cycle.registerCustomElement('outer', function () {
-      return {
-        vtree$: Rx.Observable.just(
-          h('div.outerClass', [
-            h('inner', {key: 1})
+        dom: Rx.Observable.just(
+          h('div', [
+            h('my-element', {color: '#FF0000', content: 'Hello world'})
           ])
         )
       };
+    }
+    let [requests, responses] = Cycle.run(app, {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+        'my-element': myElementDef
+      })
     });
-    // Use the custom elements
-    let vtree$ = Rx.Observable.just(h('div', [h('outer', {key: 2})]));
-    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
     // Make assertions
-    let innerElement = document.querySelector('.innerClass');
-    assert.notStrictEqual(innerElement, null);
-    assert.notStrictEqual(typeof innerElement, 'undefined');
-    assert.strictEqual(innerElement.tagName, 'H3');
-    domUI.dispose();
-  });
-
-  it('should catch interaction events coming from custom element', function (done) {
-    // Make simple custom element
-    Cycle.registerCustomElement('myelement', function () {
-      return {
-        vtree$: Rx.Observable.just(h('h3.myelementclass', 'foobar')),
-        myevent$: Rx.Observable.just(123).delay(300)
-      };
-    });
-    // Use the custom element
-    let vtree$ = Rx.Observable.just(h('div.toplevel', [
-      h('myelement.eventsource', {key: 1})
-    ]));
-    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
-    domUI.interactions.get('.eventsource', 'myevent').subscribe(ev => {
-      assert.strictEqual(ev.detail, 123);
-      domUI.dispose();
+    responses.get('dom', ':root').first().subscribe(function (root) {
+      let myElement = root.querySelector('.inner-element');
+      assert.notStrictEqual(myElement, null);
+      assert.notStrictEqual(typeof myElement, 'undefined');
+      assert.strictEqual(myElement.tagName, 'H3');
+      assert.strictEqual(myElement.textContent, 'Hello world');
+      assert.strictEqual(myElement.style.color, 'rgb(255, 0, 0)');
+      responses.dispose();
       done();
     });
-    // Make assertions
-    let myElement = document.querySelector('.myelementclass');
-    assert.notStrictEqual(myElement, null);
-    assert.notStrictEqual(typeof myElement, 'undefined');
-    assert.strictEqual(myElement.tagName, 'H3');
   });
 
-  it('should warn when custom element is used with no key', function () {
+  it('should recognize and create two unrelated elements', function (done) {
+    // Make the first custom element
+    function myElementDef1() {
+      return {
+        dom: Rx.Observable.just(h('h1.myelement1class'))
+      };
+    }
+    // Make the second custom element
+    function myElementDef2() {
+      return {
+        dom: Rx.Observable.just(h('h2.myelement2class'))
+      };
+    }
+    // Use the custom elements
+    function app() {
+      return {
+        dom: Rx.Observable.just(
+          h('div', [
+            h('my-element1'), h('my-element2')
+          ])
+        )
+      };
+    }
+    let [requests, responses] = Cycle.run(app, {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+        'my-element1': myElementDef1,
+        'my-element2': myElementDef2
+      })
+    });
+    // Make assertions
+    responses.get('dom', ':root').first().subscribe(function (root) {
+      let myElement1 = root.querySelector('.myelement1class');
+      let myElement2 = root.querySelector('.myelement2class');
+      assert.notStrictEqual(myElement1, null);
+      assert.notStrictEqual(typeof myElement1, 'undefined');
+      assert.strictEqual(myElement1.tagName, 'H1');
+      assert.notStrictEqual(myElement2, null);
+      assert.notStrictEqual(typeof myElement2, 'undefined');
+      assert.strictEqual(myElement2.tagName, 'H2');
+      responses.dispose();
+      done();
+    });
+  });
+
+  it('should recognize and create a nested custom elements', function (done) {
+    // Make the inner custom element
+    function innerElementDef() {
+      return {
+        dom: Rx.Observable.just(h('h3.innerClass'))
+      };
+    }
+    // Make the outer custom element
+    function outerElementDef() {
+      return {
+        dom: Rx.Observable.just(
+          h('div.outerClass', [
+            h('inner-element', {key: 1})
+          ])
+        )
+      };
+    }
+    // Use the custom elements
+    function app() {
+      return {
+        dom: Rx.Observable.just(h('div', [h('outer-element', {key: 2})]))
+      };
+    }
+    let [requests, responses] = Cycle.run(app, {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+        'inner-element': innerElementDef,
+        'outer-element': outerElementDef
+      })
+    });
+    // Make assertions
+    responses.get('dom', ':root').first().subscribe(function (root) {
+      let innerElement = root.querySelector('.innerClass');
+      assert.notStrictEqual(innerElement, null);
+      assert.notStrictEqual(typeof innerElement, 'undefined');
+      assert.strictEqual(innerElement.tagName, 'H3');
+      responses.dispose();
+      done();
+    });
+  });
+
+  it('should catch custom element\'s interaction events', function (done) {
+    // Make simple custom element
+    function myElementDef() {
+      return {
+        dom: Rx.Observable.just(h('h3.myelementclass', 'foobar')),
+        events: {
+          myevent: Rx.Observable.just(123).delay(300)
+        }
+      };
+    }
+    // Use the custom element
+    function app() {
+      return {
+        dom: Rx.Observable.just(h('div.toplevel', [
+          h('my-element.eventsource', {key: 1})
+        ]))
+      };
+    }
+    let [requests, responses] = Cycle.run(app, {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+        'my-element': myElementDef
+      })
+    });
+    // Make assertions
+    Rx.Observable.combineLatest(
+      responses.get('dom', ':root').first(),
+      responses.get('dom', '.eventsource', 'myevent'),
+      (root, event) => ({root, event})
+    )
+    .subscribe(({root, event}) => {
+      assert.strictEqual(event.type, 'myevent');
+      assert.strictEqual(event.detail, 123);
+      let myElement = root.querySelector('.myelementclass');
+      assert.notStrictEqual(myElement, null);
+      assert.notStrictEqual(typeof myElement, 'undefined');
+      assert.strictEqual(myElement.tagName, 'H3');
+      responses.dispose();
+      done();
+    });
+  });
+
+  it('should warn when custom element is used with no key', function (done) {
     let realConsole = console;
     let warnMessages = [];
     let noop = () => {};
@@ -252,291 +330,387 @@ describe('Custom Elements', function () {
       warn: (msg) => warnMessages.push(msg)
     };
     // Make simple custom element
-    Cycle.registerCustomElement('myelement', function () {
+    function myElementDef() {
       return {
-        vtree$: Rx.Observable.just(h('h3.myelementclass'))
+        dom: Rx.Observable.just(h('h3.myelementclass'))
       };
-    });
-    // Make VNode with a string as child
-    let vtree$ = Rx.Observable.just(h('div', h('myelement')));
-    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
-    console = realConsole;
-    assert.strictEqual(warnMessages.length, 1);
-    assert.strictEqual(warnMessages[0],
-      'Missing `key` property for Cycle custom element MYELEMENT'
-    );
-    domUI.dispose();
-  });
-
-  it('should not fail when examining VirtualText on replaceCustomElements', function () {
-    // Make simple custom element
-    Cycle.registerCustomElement('myelement', function () {
-      return {
-        vtree$: Rx.Observable.just(h('h3.myelementclass'))
-      };
-    });
-    // Make VNode with a string as child
-    let vtree$ = Rx.Observable.just(h('h1', 'This will be a VirtualText'));
-    // Make assertions
-    assert.doesNotThrow(function () {
-      let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
-      domUI.dispose();
-    });
-  });
-
-  it('should not miss custom events from a list of custom elements #87', function (done) {
-    // Make custom element
-    Cycle.registerCustomElement('slider', function (interactions, props) {
-      let remove$ = interactions.get('.internalslider', 'click')
-        .map(() => true);
-      let id$ = props.get('id').shareReplay(1);
-      let vtree$ = id$
-        .map(id => h('h3.internalslider', String(id)));
-      return {
-        vtree$: vtree$,
-        remove$: remove$.withLatestFrom(id$, (r, id) => id)
-      };
-    });
-
-    function computer(interactions) {
-      return Rx.Observable
-        .merge(
-          Rx.Observable.just([{id: 23}]).delay(50),
-          Rx.Observable.just([{id: 23}, {id: 45}]).delay(100),
-          interactions.get('.slider', 'remove').map(event => event.detail)
-        )
-        .scan((items, x) => {
-          if (typeof x === 'object') {
-            return x;
-          } else {
-            return items.filter((item) => item.id !== x);
-          }
-        })
-        .map(items =>
-          h('div.allSliders', items.map(item => h('slider.slider', {id: item.id})))
-        );
     }
+    // Make VNode with a string as child
+    function app() {
+      return {
+        dom: Rx.Observable.just(h('div', h('my-element')))
+      };
+    }
+    let [requests, responses] = Cycle.run(app, {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+        'my-element': myElementDef
+      })
+    });
+    responses.get('dom', ':root').first().subscribe(function () {
+      console = realConsole;
+      assert.strictEqual(warnMessages.length, 1);
+      assert.strictEqual(warnMessages[0],
+        'Missing `key` property for Cycle custom element MY-ELEMENT'
+      );
+      responses.dispose();
+      done();
+    });
+  });
 
-    let domUI = Cycle.applyToDOM(createRenderTarget(), computer);
-
-    // Simulate clicks
-    setTimeout(() => document.querySelector('.internalslider').click(), 200);
-    setTimeout(() => document.querySelector('.internalslider').click(), 300);
-
-    // Make assertion
+  it('should not fail when finds VirtualText in replaceCustomElements', function (done) {
+    // Make simple custom element
+    function myElementDef() {
+      return {
+        dom: Rx.Observable.just(h('h3.myelementclass'))
+      };
+    }
+    // Make VNode with a string as child
+    function app() {
+      return {
+        dom: Rx.Observable.just(h('h1', 'This will be a VirtualText'))
+      };
+    }
+    // Make assertions
+    let [requests, responses] = Cycle.run(app, {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+        'my-element': myElementDef
+      })
+    });
+    responses.get('dom', ':root').subscribeOnError(err => {
+      assert.fail(null, null, err);
+    });
     setTimeout(() => {
-      let sliders = document.querySelectorAll('.internalslider');
-      assert.strictEqual(sliders.length, 0);
-      domUI.dispose();
+      responses.dispose();
       done();
     }, 500);
   });
 
-  it('should recognize nested vtree as properties.get(\'children\')', function () {
-    // Make simple custom element
-    Cycle.registerCustomElement('simple-wrapper', function (interactions, props) {
+  it('should not miss custom events from a list of custom elements #87', function (done) {
+    // Make custom element
+    function sliderDef(ext) {
+      let remove$ = ext.get('dom', '.internalslider', 'click').map(() => true);
+      let id$ = ext.get('props', 'id').shareReplay(1);
+      let vtree$ = id$.map(id => h('h3.internalslider', String(id)));
       return {
-        vtree$: props.get('children').map(children => {
+        dom: vtree$,
+        events: {
+          remove: remove$.withLatestFrom(id$, (r, id) => id)
+        }
+      };
+    }
+
+    function app(ext) {
+      return {
+        dom: Rx.Observable
+          .merge(
+            Rx.Observable.just([{id: 23}]),
+            Rx.Observable.just([{id: 23}, {id: 45}]).delay(50),
+            ext.get('dom', '.slider', 'remove').map(event => event.detail)
+          )
+          .scan((items, x) => {
+            if (typeof x === 'object') {
+              return x;
+            } else {
+              return items.filter((item) => item.id !== x);
+            }
+          })
+          .map(items =>
+            h('div.allSliders', items.map(item => h('slider-elem.slider', {id: item.id})))
+          )
+      };
+    }
+
+    let [requests, responses] = Cycle.run(app, {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+        'slider-elem': sliderDef
+      })
+    });
+
+    responses.get('dom', ':root').first().subscribe(function (root) {
+      debugger;
+      // Simulate clicks
+      setTimeout(() => root.querySelector('.internalslider').click(), 200);
+      setTimeout(() => root.querySelector('.internalslider').click(), 300);
+
+      // Make assertion
+      setTimeout(() => {
+        let sliders = root.querySelectorAll('.internalslider');
+        assert.strictEqual(sliders.length, 0);
+        responses.dispose();
+        done();
+      }, 500);
+    });
+  });
+
+  it('should recognize nested vtree as properties.get(\'children\')', function (done) {
+    // Make simple custom element
+    function simpleWrapperDef(ext) {
+      return {
+        dom: ext.get('props', 'children').map(children => {
           return h('div.wrapper', children);
         })
       };
-    });
+    }
     // Use the custom element
-    let vtree$ = Rx.Observable.just(h('div.toplevel', [
-      h('simple-wrapper', [
-        h('h1', 'Hello'), h('h2', 'World')
-      ])
-    ]));
-    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
+    function app() {
+      return {
+        dom: Rx.Observable.just(h('div.toplevel', [
+          h('simple-wrapper', [
+            h('h1', 'Hello'), h('h2', 'World')
+          ])
+        ]))
+      };
+    }
+    let [requests, responses] = Cycle.run(app, {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+        'simple-wrapper': simpleWrapperDef
+      })
+    });
     // Make assertions
-    let wrapper = document.querySelector('.wrapper');
-    assert.notStrictEqual(wrapper, null);
-    assert.notStrictEqual(typeof wrapper, 'undefined');
-    assert.strictEqual(wrapper.tagName, 'DIV');
-    domUI.dispose();
+    responses.get('dom', ':root').first().subscribe(function (root) {
+      let wrapper = root.querySelector('.wrapper');
+      assert.notStrictEqual(wrapper, null);
+      assert.notStrictEqual(typeof wrapper, 'undefined');
+      assert.strictEqual(wrapper.tagName, 'DIV');
+      responses.dispose();
+      done();
+    });
   });
 
   it('should throw error if children property is explicitly used', function (done) {
     // Make simple custom element
-    Cycle.registerCustomElement('myelement', function () {
+    function myElementDef() {
       return {
-        vtree$: Rx.Observable.just(h('h3.myelementclass'))
+        dom: Rx.Observable.just(h('h3.myelementclass'))
       };
-    });
+    }
     // Use the custom element
-    let vtree$ = Rx.Observable.just(h('div.toplevel', [
-      h('myelement', {children: 123})
-    ]));
-    let observer = Rx.Observer.create(
-      () => {},
-      (err) => {
-        assert.strictEqual(err.message, 'Custom element should not have property ' +
-          '`children`. It is reserved for children elements nested into this ' +
-          'custom element.'
-        );
-        // TODO: cannot dispose because applyToDOM has not yet completed.
-        // domUI.dispose();
-        done();
-      }
-    );
-    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$, {observer});
+    function app() {
+      return {
+        dom: Rx.Observable.just(h('div.toplevel', [
+          h('my-element', {children: 123})
+        ]))
+      };
+    }
+    let [requests, responses] = Cycle.run(app, {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+        'my-element': myElementDef
+      })
+    });
+    responses.get('dom', ':root').subscribeOnError((err) => {
+      assert.strictEqual(err.message, 'Custom element should not have ' +
+        'property `children`. It is reserved for children elements nested ' +
+        'into this custom element.'
+      );
+      responses.dispose();
+      done();
+    });
   });
 
   it('should recognize changes on a mutable collection given as props', function (done) {
-    Cycle.registerCustomElement('x-element', function (interactions, props) {
+    function xElementDef(ext) {
       return {
-        vtree$: props.get('list', () => false).map(list =>
+        dom: ext.get('props', 'list', () => false).map(list =>
           h('div', [
             h('ol', list.map(value => h('li.test-item', null, value)))
           ]))
       };
-    });
+    }
 
     let counter = 0;
-    function computer(interactions) {
-      let clickMod$ = interactions.get('.button', 'click')
+    function app(ext) {
+      let clickMod$ = ext.get('dom', '.button', 'click')
         .map(() => `item${++counter}`)
         .map(random => function mod(data) {
           data.push(random);
           return data;
         });
-      return clickMod$
-        .startWith([])
-        .scan((data, modifier) => modifier(data))
-        .map(data => h('.root', [
-          h('button.button', 'add new item'),
-          h('x-element', {key: 0, list: data})
-        ]));
+      return {
+        dom: clickMod$
+          .startWith([])
+          .scan((data, modifier) => modifier(data))
+          .map(data => h('.root', [
+            h('button.button', 'add new item'),
+            h('x-element', {key: 0, list: data})
+          ]))
+      };
     }
 
-    let domUI = Cycle.applyToDOM(createRenderTarget(), computer);
+    let [requests, responses] = Cycle.run(app, {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+        'x-element': xElementDef
+      })
+    });
 
-    setTimeout(() => document.querySelector('.button').click(), 100);
-    setTimeout(() => document.querySelector('.button').click(), 200);
-    setTimeout(() => {
-      let items = document.querySelectorAll('li.test-item');
-      assert.strictEqual(items.length, 2);
-      assert.strictEqual(items[0].textContent, 'item1');
-      assert.strictEqual(items[1].textContent, 'item2');
-      domUI.dispose();
-      done();
-    }, 500);
+    responses.get('dom', ':root').first().subscribe(function (root) {
+      setTimeout(() => root.querySelector('.button').click(), 100);
+      setTimeout(() => root.querySelector('.button').click(), 200);
+      setTimeout(() => {
+        let items = root.querySelectorAll('li.test-item');
+        assert.strictEqual(items.length, 2);
+        assert.strictEqual(items[0].textContent, 'item1');
+        assert.strictEqual(items[1].textContent, 'item2');
+        responses.dispose();
+        done();
+      }, 500);
+    });
   });
 
   it('should emit events even when dynamically evolving', function (done) {
     // Make simple custom element
-    Cycle.registerCustomElement('myelement', function () {
+    function myElementDef() {
       // Here the vtree changes from <h3> to <button>, the myevent should
       // be emitted on <button> and not from the original <h3>.
       return {
-        vtree$: Rx.Observable.merge(
+        dom: Rx.Observable.merge(
           Rx.Observable.just(h('h3.myelementclass', 'foo')),
           Rx.Observable.just(h('button.myelementclass', 'bar')).delay(50)
         ),
-        myevent$: Rx.Observable.just(123).delay(300)
+        events: {
+          myevent: Rx.Observable.just(123).delay(300)
+        }
       };
-    });
+    }
     // Use the custom element
-    let vtree$ = Rx.Observable.just(
-      h('div.toplevel', [
-        h('myelement.eventsource', {key: 1})
-      ])
-    );
-    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
-    domUI.interactions.get('.eventsource', 'myevent').subscribe(function (ev) {
-      assert.strictEqual(ev.detail, 123);
-      domUI.dispose();
-      done();
+    function app() {
+      return {
+        dom: Rx.Observable.just(
+          h('div.toplevel', [
+            h('my-element.eventsource', {key: 1})
+          ])
+        )
+      };
+    }
+    let [requests, responses] = Cycle.run(app, {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+        'my-element': myElementDef
+      })
     });
     // Make assertions
-    let myElement = document.querySelector('.myelementclass');
-    assert.notStrictEqual(myElement, null);
-    assert.notStrictEqual(typeof myElement, 'undefined');
-    assert.strictEqual(myElement.tagName, 'H3');
+    responses.get('dom', ':root').first().subscribe(function (root) {
+      let myElement = root.querySelector('.myelementclass');
+      assert.notStrictEqual(myElement, null);
+      assert.notStrictEqual(typeof myElement, 'undefined');
+      assert.strictEqual(myElement.tagName, 'H3');
+    });
+    responses.get('dom', '.eventsource', 'myevent').subscribe(function (event) {
+      assert.strictEqual(event.type, 'myevent');
+      assert.strictEqual(event.detail, 123);
+      assert.strictEqual(event.target.tagName, 'BUTTON');
+      responses.dispose();
+      done();
+    });
   });
 
-  it('should dispose vtree$ after destruction', function () {
+  it('should dispose vtree$ after destruction', function (done) {
     let log = [];
     let number$ = Rx.Observable.range(1, 2).controlled();
     let customElementSwitch$ = Rx.Observable.range(0, 2).controlled();
     // Make simple custom element
-    Cycle.registerCustomElement('myelement', function () {
+    function myElementDef() {
       return {
-        vtree$: number$
+        dom: number$
           .do(i => log.push(i))
           .map(i => h('h3.myelementclass', String(i)))
       };
-    });
+    }
     // Use the custom element
-    let vtree$ = customElementSwitch$.map(theSwitch => {
-      return theSwitch === 0
-        ? h('div.toplevel', [h('myelement', {key: 1})])
-        : h('div.toplevel', []);
+    function app() {
+      return {
+        dom: customElementSwitch$.map(theSwitch => {
+          return theSwitch === 0
+            ? h('div.toplevel', [h('my-element', {key: 1})])
+            : h('div.toplevel', []);
+        })
+      };
+    }
+    let [requests, responses] = Cycle.run(app, {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+        'my-element': myElementDef
+      })
     });
-    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
     // Make assertions
+    responses.get('dom', ':root').first().subscribe(function (root) {
+      let myElement = root.querySelector('.myelementclass');
+      assert.notStrictEqual(myElement, null);
+      assert.notStrictEqual(typeof myElement, 'undefined');
+      assert.strictEqual(myElement.tagName, 'H3');
+      assert.strictEqual(log.length, 1);
+      // Destroy the element
+      customElementSwitch$.request(1);
+    });
+    responses.get('dom', ':root').skip(1).subscribe(function (root) {
+      let destroyedElement = root.querySelector('.myelementclass');
+      assert.strictEqual(destroyedElement, null);
+      assert.notStrictEqual(log.length, 2);
+      responses.dispose();
+      done();
+    });
     customElementSwitch$.request(1);
     number$.request(1);
-    let myElement = document.querySelector('.myelementclass');
-    assert.notStrictEqual(myElement, null);
-    assert.notStrictEqual(typeof myElement, 'undefined');
-    assert.strictEqual(myElement.tagName, 'H3');
-    assert.strictEqual(log.length, 1);
-
-    // Destroy the element
-    customElementSwitch$.request(1);
-    // Try to trigger onNext of myelement's vtree$
-    number$.request(1);
-    let destroyedElement = document.querySelector('.myelementclass');
-    assert.strictEqual(destroyedElement, null);
-    assert.notStrictEqual(log.length, 2);
-    domUI.dispose();
   });
 
-  it('should not emit events after destruction', function () {
+  it('should not emit events after destruction', function (done) {
     let log = [];
     let number$ = Rx.Observable.range(1, 3).controlled();
     let customElementSwitch$ = Rx.Observable.range(0, 2).controlled();
     // Make simple custom element
-    Cycle.registerCustomElement('myelement', function () {
+    function myElementDef() {
       return {
-        vtree$: Rx.Observable.just(h('h3.myelementclass')),
-        myevent$: number$.do(i => log.push(i))
+        dom: Rx.Observable.just(h('h3.myelementclass')),
+        events: {
+          myevent: number$.do(i => log.push(i))
+        }
       };
-    });
+    }
     // Use the custom element
-    let vtree$ = customElementSwitch$.map(theSwitch => {
-      return theSwitch === 0
-        ? h('div.toplevel', [h('myelement', {key: 1})])
-        : h('div.toplevel', []);
+    function app() {
+      return {
+        dom: customElementSwitch$.map(theSwitch => {
+          return theSwitch === 0
+            ? h('div.toplevel', [h('my-element', {key: 1})])
+            : h('div.toplevel', []);
+        })
+      };
+    }
+    let [requests, responses] = Cycle.run(app, {
+      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+        'my-element': myElementDef
+      })
     });
-    let domUI = Cycle.applyToDOM(createRenderTarget(), () => vtree$);
     // Make assertions
+    let myEventDisposable;
+    responses.get('dom', ':root').first().subscribe(function (root) {
+      let myElement = root.querySelector('.myelementclass');
+      assert.notStrictEqual(myElement, null);
+      assert.notStrictEqual(typeof myElement, 'undefined');
+      assert.strictEqual(myElement.tagName, 'H3');
+
+      myEventDisposable = Rx.Observable.fromEvent(myElement, 'myevent')
+        .take(3)
+        .subscribe(function (ev) {
+          assert.notStrictEqual(ev.detail, 3);
+        });
+
+      // Trigger the event
+      number$.request(1);
+      number$.request(1);
+
+      // Destroy the element
+      customElementSwitch$.request(1);
+    });
+    responses.get('dom', ':root').skip(1).subscribe(function (root) {
+      let destroyedElement = root.querySelector('.myelementclass');
+      assert.strictEqual(destroyedElement, null);
+
+      // Trigger event after the element has been destroyed
+      number$.request(1);
+      assert.notStrictEqual(log.length, 3);
+
+      responses.dispose();
+      myEventDisposable.dispose();
+      done();
+    });
     customElementSwitch$.request(1);
-    let myElement = document.querySelector('.myelementclass');
-    assert.notStrictEqual(myElement, null);
-    assert.notStrictEqual(typeof myElement, 'undefined');
-    assert.strictEqual(myElement.tagName, 'H3');
-
-    Rx.Observable.fromEvent(myElement, 'myevent')
-      .take(3)
-      .subscribe(function (ev) {
-        assert.notStrictEqual(ev.detail, 3);
-      });
-
-    // Trigger the event
-    number$.request(1);
-    number$.request(1);
-
-    // Destroy the element
-    customElementSwitch$.request(1);
-    let destroyedElement = document.querySelector('.myelementclass');
-    assert.strictEqual(destroyedElement, null);
-
-    // Trigger event after the element has been destroyed
-    number$.request(1);
-    assert.notStrictEqual(log.length, 3);
-
-    domUI.dispose();
   });
 });

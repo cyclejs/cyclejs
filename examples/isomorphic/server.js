@@ -1,10 +1,10 @@
 'use strict';
-let Cycle = require('../../lib/cycle');
+let Cycle = require('../../lib/core/cycle');
 let express = require('express');
 let browserify = require('browserify');
 let serialize = require('serialize-javascript');
 let {Rx, h} = Cycle;
-let {makeComputerFn} = require('./app');
+let {app} = require('./app');
 
 function wrapVTreeWithHTMLBoilerplate(vtree, context, clientBundle) {
   return h('html', [
@@ -23,11 +23,23 @@ function prependHTML5Doctype(html) {
   return `<!doctype html>${html}`;
 }
 
-function makeEmptyInteractions() {
-  return {
-    get() {
-      return Rx.Observable.empty();
-    }
+function wrapAppResultWithBoilerplate(appFn, context$, bundle$) {
+  return function wrappedAppFn(ext) {
+    let vtree$ = appFn(ext).DOM;
+    let wrappedVTree$ = Rx.Observable.combineLatest(vtree$, context$, bundle$,
+      wrapVTreeWithHTMLBoilerplate
+    );
+    return {
+      DOM: wrappedVTree$
+    };
+  };
+}
+
+function makeContextDriver(context$) {
+  return function contextDriver() {
+    return {
+      get: () => context$
+    };
   };
 }
 
@@ -59,14 +71,15 @@ server.use(function (req, res) {
     res.end();
     return;
   }
-
   console.log(`req: ${req.method} ${req.url}`);
 
   let context$ = Rx.Observable.just({route: req.url});
-  let computer = makeComputerFn(context$);
-  let vtree$ = computer(makeEmptyInteractions())
-    .combineLatest(context$, clientBundle$, wrapVTreeWithHTMLBoilerplate);
-  let html$ = Cycle.renderAsHTML(vtree$).map(prependHTML5Doctype);
+  let wrappedAppFn = wrapAppResultWithBoilerplate(app, context$, clientBundle$);
+  let [requests, responses] = Cycle.run(wrappedAppFn, {
+    DOM: Cycle.makeHTMLDriver(),
+    context: makeContextDriver(context$)
+  });
+  let html$ = responses.get('DOM').map(prependHTML5Doctype);
   html$.subscribe(html => res.send(html));
 });
 

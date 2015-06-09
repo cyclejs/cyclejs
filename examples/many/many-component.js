@@ -1,9 +1,9 @@
 var h = Cycle.h;
 
-function manyComponent(interactions, props) {
-  var id$ = props.get('itemid').shareReplay(1);
-  var color$ = props.get('color').startWith('#888').shareReplay(1);
-  var width$ = props.get('width').startWith(200).shareReplay(1);
+function manyComponent(ext) {
+  var id$ = ext.get('props', 'itemid').shareReplay(1);
+  var color$ = ext.get('props', 'color').startWith('#888').shareReplay(1);
+  var width$ = ext.get('props', 'width').startWith(200).shareReplay(1);
   var vtree$ = Cycle.Rx.Observable
     .combineLatest(id$, color$, width$, function (id, color, width) {
       var style = {
@@ -30,21 +30,23 @@ function manyComponent(interactions, props) {
         h('button.remove-btn', {attributes: {'data-item-id': id}}, 'Remove')
       ]);
     });
-  var destroy$ = interactions.get('.remove-btn', 'click')
-      .withLatestFrom(id$, function (ev, id) { return id; });
-  var changeColor$ = interactions.get('.color-field', 'input')
-      .withLatestFrom(id$, function (ev, id) {
-        return {id: id, color: ev.currentTarget.value};
-      });
-  var changeWidth$ = interactions.get('.width-slider', 'input')
-      .withLatestFrom(id$, function (ev, id) {
-        return {id: id, width: parseInt(ev.currentTarget.value)};
-      });
+  var destroy$ = ext.get('DOM', '.remove-btn', 'click')
+    .withLatestFrom(id$, function (ev, id) { return id; });
+  var changeColor$ = ext.get('DOM', '.color-field', 'input')
+    .withLatestFrom(id$, function (ev, id) {
+      return {id: id, color: ev.currentTarget.value};
+    });
+  var changeWidth$ = ext.get('DOM', '.width-slider', 'input')
+    .withLatestFrom(id$, function (ev, id) {
+      return {id: id, width: parseInt(ev.currentTarget.value)};
+    });
 
   return {
-    vtree$: vtree$,
-    destroy$: destroy$,
-    changeColor$: changeColor$,
-    changeWidth$: changeWidth$
+    DOM: vtree$,
+    events: {
+      destroy: destroy$,
+      changeColor: changeColor$,
+      changeWidth: changeWidth$
+    }
   };
 }

@@ -1,5 +1,9 @@
-Cycle.registerCustomElement('many-item', manyComponent);
+function main(ext) {
+  return manyView(manyModel(manyIntent(ext)));
+}
 
-Cycle.applyToDOM('.js-container', function computer(interactions) {
-  return manyView(manyModel(manyIntent(interactions)));
+Cycle.run(main, {
+  DOM: Cycle.makeDOMDriver('.js-container', {
+    'many-item': manyComponent
+  })
 });
