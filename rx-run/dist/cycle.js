@@ -14425,6 +14425,120 @@ function appendPatch(apply, patch) {
 'use strict';
 var Rx = require('rx');
 
+function makeRequestProxies(drivers) {
+  var requestProxies = {};
+  for (var _name in drivers) {
+    if (drivers.hasOwnProperty(_name)) {
+      requestProxies[_name] = new Rx.ReplaySubject(1);
+    }
+  }
+  return requestProxies;
+}
+
+function callDrivers(drivers, requestProxies) {
+  var responses = {};
+  for (var _name2 in drivers) {
+    if (drivers.hasOwnProperty(_name2)) {
+      responses[_name2] = drivers[_name2](requestProxies[_name2], _name2);
+    }
+  }
+  return responses;
+}
+
+function makeGet(rawResponses) {
+  return function get(driverName) {
+    for (var _len = arguments.length, params = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      params[_key - 1] = arguments[_key];
+    }
+
+    if (!rawResponses.hasOwnProperty(driverName)) {
+      throw new Error('get(' + driverName + ', ...) failed, no driver function ' + ('named ' + driverName + ' was found for this Cycle execution.'));
+    }
+
+    var driverResponse = rawResponses[driverName];
+    if (typeof driverResponse.subscribe === 'function') {
+      return driverResponse; // is an Observable
+    } else if (typeof driverResponse === 'object' && typeof driverResponse.get === 'function') {
+      return rawResponses[driverName].get.apply(null, params);
+    } else if (typeof driverResponse === 'object' && params.length > 0 && typeof params[0] === 'string' && driverResponse.hasOwnProperty(params[0])) {
+      return rawResponses[driverName][params[0]];
+    } else {
+      throw new Error('get(' + driverName + ', ...) failed because driver was ' + 'not able to process parameters. Report this bug to the driver ' + 'function author.');
+    }
+  };
+}
+
+function makeDispose(requestProxies, rawResponses) {
+  return function dispose() {
+    for (var x in requestProxies) {
+      if (requestProxies.hasOwnProperty(x)) {
+        requestProxies[x].dispose();
+      }
+    }
+    for (var _name3 in rawResponses) {
+      if (rawResponses.hasOwnProperty(_name3) && typeof rawResponses[_name3].dispose === 'function') {
+        rawResponses[_name3].dispose();
+      }
+    }
+  };
+}
+
+function makeAppInput(requestProxies, rawResponses) {
+  return {
+    get: makeGet(rawResponses),
+    dispose: makeDispose(requestProxies, rawResponses)
+  };
+}
+
+function replicateMany(original, imitators) {
+  for (var _name4 in original) {
+    if (original.hasOwnProperty(_name4)) {
+      if (imitators.hasOwnProperty(_name4) && !imitators[_name4].isDisposed) {
+        original[_name4].subscribe(imitators[_name4].asObserver());
+      }
+    }
+  }
+}
+
+function isObjectEmpty(obj) {
+  for (var key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function run(app, drivers) {
+  if (typeof app !== 'function') {
+    throw new Error('First argument given to Cycle.run() must be the `app` ' + 'function.');
+  }
+  if (typeof drivers !== 'object' || drivers === null) {
+    throw new Error('Second argument given to Cycle.run() must be an object ' + 'with driver functions as properties.');
+  }
+  if (isObjectEmpty(drivers)) {
+    throw new Error('Second argument given to Cycle.run() must be an object ' + 'with at least one driver function declared as a property.');
+  }
+
+  var requestProxies = makeRequestProxies(drivers);
+  var rawResponses = callDrivers(drivers, requestProxies);
+  var responses = makeAppInput(requestProxies, rawResponses);
+  var requests = app(responses);
+  setTimeout(function () {
+    return replicateMany(requests, requestProxies);
+  }, 1);
+  return [requests, responses];
+}
+
+module.exports = run;
+
+},{"rx":58}],109:[function(require,module,exports){
+'use strict';
+var Rx = require('rx');
+var ALL_PROPS = '*';
+var PROPS_DRIVER_NAME = 'props';
+var EVENTS_SINK_NAME = 'events';
+
 function makeDispatchFunction(element, eventName) {
   return function dispatchCustomEvent(evData) {
     //console.log('%cdispatchCustomEvent ' + eventName,
@@ -14447,9 +14561,8 @@ function subscribeDispatchers(element) {
   var disposables = new Rx.CompositeDisposable();
   for (var _name in customEvents) {
     if (customEvents.hasOwnProperty(_name)) {
-      if (/\$$/.test(_name) && _name !== 'vtree$' && typeof customEvents[_name].subscribe === 'function') {
-        var eventName = _name.slice(0, -1);
-        var disposable = customEvents[_name].subscribe(makeDispatchFunction(element, eventName));
+      if (typeof customEvents[_name].subscribe === 'function') {
+        var disposable = customEvents[_name].subscribe(makeDispatchFunction(element, _name));
         disposables.add(disposable);
       }
     }
@@ -14468,16 +14581,24 @@ function subscribeDispatchersWhenRootChanges(metadata) {
   });
 }
 
-function makePropertiesProxy() {
-  var propertiesProxy = {};
-  Object.defineProperty(propertiesProxy, 'type', {
+function subscribeEventDispatchingSink(element, widget) {
+  element.cycleCustomElementMetadata.eventDispatchingSubscription = subscribeDispatchers(element);
+  widget.disposables.add(element.cycleCustomElementMetadata.eventDispatchingSubscription);
+  widget.disposables.add(subscribeDispatchersWhenRootChanges(element.cycleCustomElementMetadata));
+}
+
+function makePropertiesDriver() {
+  var propertiesDriver = {};
+  var defaultComparer = Rx.helpers.defaultComparer;
+  Object.defineProperty(propertiesDriver, 'type', {
     enumerable: false,
-    value: 'PropertiesProxy'
+    value: 'PropertiesDriver'
   });
-  Object.defineProperty(propertiesProxy, 'get', {
+  Object.defineProperty(propertiesDriver, 'get', {
     enumerable: false,
-    value: function get(streamKey) {
-      var comparer = arguments[1] === undefined ? Rx.helpers.defaultComparer : arguments[1];
+    value: function get() {
+      var streamKey = arguments[0] === undefined ? ALL_PROPS : arguments[0];
+      var comparer = arguments[1] === undefined ? defaultComparer : arguments[1];
 
       if (typeof this[streamKey] === 'undefined') {
         this[streamKey] = new Rx.ReplaySubject(1);
@@ -14485,7 +14606,7 @@ function makePropertiesProxy() {
       return this[streamKey].distinctUntilChanged(Rx.helpers.identity, comparer);
     }
   });
-  return propertiesProxy;
+  return propertiesDriver;
 }
 
 function createContainerElement(tagName, vtreeProperties) {
@@ -14508,8 +14629,26 @@ function throwIfVTreeHasPropertyChildren(vtree) {
   }
 }
 
+function makeCustomElementInput(domOutput, propertiesDriver, domDriverName) {
+  return {
+    get: function get(driverName) {
+      for (var _len = arguments.length, params = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        params[_key - 1] = arguments[_key];
+      }
+
+      if (driverName === domDriverName) {
+        return domOutput.get.apply(null, params);
+      } else if (driverName === PROPS_DRIVER_NAME) {
+        return propertiesDriver.get.apply(propertiesDriver, params);
+      } else {
+        throw new Error('No such internal driver named \'' + driverName + '\' for ' + ('custom elements. Use \'' + domDriverName + '\' or ') + ('\'' + PROPS_DRIVER_NAME + '\' instead.'));
+      }
+    }
+  };
+}
+
 function makeConstructor() {
-  return function customElementConstructor(vtree) {
+  return function customElementConstructor(vtree, CERegistry, driverName) {
     //console.log('%cnew (constructor) custom element ' + vtree.tagName,
     //  'color: #880088');
     warnIfVTreeHasNoKey(vtree);
@@ -14519,42 +14658,70 @@ function makeConstructor() {
     this.properties.children = vtree.children;
     this.key = vtree.key;
     this.isCustomElementWidget = true;
-    this.rootElem$ = new Rx.ReplaySubject(1);
+    this.customElementsRegistry = CERegistry;
+    this.driverName = driverName;
+    this.firstRootElem$ = new Rx.ReplaySubject(1);
     this.disposables = new Rx.CompositeDisposable();
   };
+}
+
+function validateDefFnOutput(defFnOutput, domDriverName) {
+  if (typeof defFnOutput !== 'object') {
+    throw new Error('Custom element definition function should output an ' + 'object.');
+  }
+  if (typeof defFnOutput[domDriverName] === 'undefined') {
+    throw new Error('Custom element definition function should output an ' + ('object containing \'' + domDriverName + '\'.'));
+  }
+  if (typeof defFnOutput[domDriverName].subscribe !== 'function') {
+    throw new Error('Custom element definition function should output an ' + ('object containing an Observable of VTree, named \'' + domDriverName + '\'.'));
+  }
+  for (var _name2 in defFnOutput) {
+    if (defFnOutput.hasOwnProperty(_name2)) {
+      if (_name2 !== domDriverName && _name2 !== EVENTS_SINK_NAME) {
+        throw new Error('Unknown \'' + _name2 + '\' found on custom element definition ' + 'function\'s output.');
+      }
+    }
+  }
 }
 
 function makeInit(tagName, definitionFn) {
   var _require = require('./render-dom');
 
-  var applyToDOM = _require.applyToDOM;
+  var makeDOMDriverWithRegistry = _require.makeDOMDriverWithRegistry;
 
   return function initCustomElement() {
     //console.log('%cInit() custom element ' + tagName, 'color: #880088');
     var widget = this;
+    var driverName = widget.driverName;
+    var registry = widget.customElementsRegistry;
     var element = createContainerElement(tagName, widget.properties);
-    var propertiesProxy = makePropertiesProxy();
-    var domUI = applyToDOM(element, definitionFn, {
-      observer: widget.rootElem$.asObserver(),
-      props: propertiesProxy
-    });
+    var proxyVTree$$ = new Rx.AsyncSubject();
+    var domDriver = makeDOMDriverWithRegistry(element, registry);
+    var propertiesDriver = makePropertiesDriver();
+    var domResponse = domDriver(proxyVTree$$.mergeAll(), driverName);
+    var rootElem$ = domResponse.get(':root');
+    var defFnInput = makeCustomElementInput(domResponse, propertiesDriver, driverName);
+    var requests = definitionFn(defFnInput);
+    validateDefFnOutput(requests, driverName);
+    proxyVTree$$.onNext(requests[driverName].shareReplay(1));
+    proxyVTree$$.onCompleted();
+    rootElem$.subscribe(widget.firstRootElem$.asObserver());
     element.cycleCustomElementMetadata = {
-      propertiesProxy: propertiesProxy,
-      rootElem$: domUI.rootElem$,
-      customEvents: domUI.customEvents,
+      propertiesDriver: propertiesDriver,
+      rootElem$: rootElem$,
+      customEvents: requests.events,
       eventDispatchingSubscription: false
     };
-    element.cycleCustomElementMetadata.eventDispatchingSubscription = subscribeDispatchers(element);
-    widget.disposables.add(element.cycleCustomElementMetadata.eventDispatchingSubscription);
-    widget.disposables.add(subscribeDispatchersWhenRootChanges(element.cycleCustomElementMetadata));
-    widget.disposables.add(domUI);
-    widget.disposables.add(widget.rootElem$);
+    subscribeEventDispatchingSink(element, widget);
+    widget.disposables.add(widget.firstRootElem$);
+    widget.disposables.add(proxyVTree$$);
+    widget.disposables.add(domResponse);
     widget.update(null, element);
     return element;
   };
 }
 
-function validatePropertiesProxyInMetadata(element, fnName) {
+function validatePropertiesDriverInMetadata(element, fnName) {
   if (!element) {
     throw new Error('Missing DOM element when calling ' + fnName + ' on custom ' + 'element Widget.');
   }
@@ -14562,127 +14729,126 @@ function validatePropertiesProxyInMetadata(element, fnName) {
     throw new Error('Missing custom element metadata on DOM element when ' + 'calling ' + fnName + ' on custom element Widget.');
   }
   var metadata = element.cycleCustomElementMetadata;
-  if (metadata.propertiesProxy.type !== 'PropertiesProxy') {
-    throw new Error('Custom element metadata\'s propertiesProxy type is ' + 'invalid: ' + metadata.propertiesProxy.type + '.');
+  if (metadata.propertiesDriver.type !== 'PropertiesDriver') {
+    throw new Error('Custom element metadata\'s propertiesDriver type is ' + 'invalid: ' + metadata.propertiesDriver.type + '.');
   }
 }
 
-function makeUpdate() {
-  return function updateCustomElement(previous, element) {
-    if (previous) {
-      this.disposables = previous.disposables;
-      // This is a new rootElem$ which is not being used by init(),
-      // but used by render-dom for creating rootElemAfterChildren$.
-      this.rootElem$.onNext(null);
-      this.rootElem$.onCompleted();
-    }
-    validatePropertiesProxyInMetadata(element, 'update()');
+function updateCustomElement(previous, element) {
+  if (previous) {
+    this.disposables = previous.disposables;
+    this.firstRootElem$.onNext(0);
+    this.firstRootElem$.onCompleted();
+  }
+  validatePropertiesDriverInMetadata(element, 'update()');
 
-    //console.log(`%cupdate() custom el ${element.className}`,'color: #880088');
-    var proxiedProps = element.cycleCustomElementMetadata.propertiesProxy;
-    if (proxiedProps.hasOwnProperty('*')) {
-      proxiedProps['*'].onNext(this.properties);
-    }
-    for (var prop in proxiedProps) {
-      if (proxiedProps.hasOwnProperty(prop)) {
-        if (this.properties.hasOwnProperty(prop)) {
-          proxiedProps[prop].onNext(this.properties[prop]);
-        }
+  //console.log(`%cupdate() ${element.className}`, 'color: #880088');
+  var propsDriver = element.cycleCustomElementMetadata.propertiesDriver;
+  if (propsDriver.hasOwnProperty(ALL_PROPS)) {
+    propsDriver[ALL_PROPS].onNext(this.properties);
+  }
+  for (var prop in propsDriver) {
+    if (propsDriver.hasOwnProperty(prop)) {
+      if (this.properties.hasOwnProperty(prop)) {
+        propsDriver[prop].onNext(this.properties[prop]);
       }
     }
-  };
+  }
 }
 
-function makeDestroy() {
-  return function destroyCustomElement(element) {
-    //console.log(`%cdestroy() custom el ${element.className}`, 'color: #808');
-    // Dispose propertiesProxy
-    var proxiedProps = element.cycleCustomElementMetadata.propertiesProxy;
-    for (var prop in proxiedProps) {
-      if (proxiedProps.hasOwnProperty(prop)) {
-        this.disposables.add(proxiedProps[prop]);
-      }
+function destroyCustomElement(element) {
+  //console.log(`%cdestroy() custom el ${element.className}`, 'color: #808');
+  // Dispose propertiesDriver
+  var propsDriver = element.cycleCustomElementMetadata.propertiesDriver;
+  for (var prop in propsDriver) {
+    if (propsDriver.hasOwnProperty(prop)) {
+      this.disposables.add(propsDriver[prop]);
     }
-    if (element.cycleCustomElementMetadata.eventDispatchingSubscription) {
-      // This subscription has to be disposed.
-      // Because disposing subscribeDispatchersWhenRootChanges only
-      // is not enough.
-      this.disposables.add(element.cycleCustomElementMetadata.eventDispatchingSubscription);
-    }
-    this.disposables.dispose();
-  };
+  }
+  if (element.cycleCustomElementMetadata.eventDispatchingSubscription) {
+    // This subscription has to be disposed.
+    // Because disposing subscribeDispatchersWhenRootChanges only
+    // is not enough.
+    this.disposables.add(element.cycleCustomElementMetadata.eventDispatchingSubscription);
+  }
+  this.disposables.dispose();
+}
+
+function makeWidgetClass(tagName, definitionFn) {
+  if (typeof definitionFn !== 'function') {
+    throw new Error('A custom element definition given to the DOM driver ' + 'should be a function.');
+  }
+
+  var WidgetClass = makeConstructor();
+  WidgetClass.definitionFn = definitionFn; // needed by renderAsHTML
+  WidgetClass.prototype.init = makeInit(tagName, definitionFn);
+  WidgetClass.prototype.update = updateCustomElement;
+  WidgetClass.prototype.destroy = destroyCustomElement;
+  return WidgetClass;
 }
 
 module.exports = {
   makeDispatchFunction: makeDispatchFunction,
   subscribeDispatchers: subscribeDispatchers,
   subscribeDispatchersWhenRootChanges: subscribeDispatchersWhenRootChanges,
-  makePropertiesProxy: makePropertiesProxy,
+  makePropertiesDriver: makePropertiesDriver,
   createContainerElement: createContainerElement,
   warnIfVTreeHasNoKey: warnIfVTreeHasNoKey,
   throwIfVTreeHasPropertyChildren: throwIfVTreeHasPropertyChildren,
-
   makeConstructor: makeConstructor,
   makeInit: makeInit,
-  makeUpdate: makeUpdate,
-  makeDestroy: makeDestroy
+  updateCustomElement: updateCustomElement,
+  destroyCustomElement: destroyCustomElement,
+  makeCustomElementInput: makeCustomElementInput,
+
+  makeWidgetClass: makeWidgetClass
 };
 
-},{"./render-dom":110,"rx":58}],109:[function(require,module,exports){
+},{"./render-dom":111,"rx":58}],110:[function(require,module,exports){
 'use strict';
-var CustomElementWidget = require('./custom-element-widget');
-var Map = Map || require('es6-map'); // eslint-disable-line no-native-reassign
-var CustomElementsRegistry = new Map();
 
-function replaceCustomElementsWithSomething(vtree, toSomethingFn) {
+var _require = require('./custom-element-widget');
+
+var makeWidgetClass = _require.makeWidgetClass;
+
+var Map = Map || require('es6-map'); // eslint-disable-line no-native-reassign
+
+function replaceCustomElementsWithSomething(vtree, registry, toSomethingFn) {
   // Silently ignore corner cases
-  if (!vtree || vtree.type === 'VirtualText') {
+  if (!vtree) {
     return vtree;
   }
   var tagName = (vtree.tagName || '').toUpperCase();
   // Replace vtree itself
-  if (tagName && CustomElementsRegistry.has(tagName)) {
-    var WidgetClass = CustomElementsRegistry.get(tagName);
+  if (tagName && registry.has(tagName)) {
+    var WidgetClass = registry.get(tagName);
     return toSomethingFn(vtree, WidgetClass);
   }
   // Or replace children recursively
   if (Array.isArray(vtree.children)) {
     for (var i = vtree.children.length - 1; i >= 0; i--) {
-      vtree.children[i] = replaceCustomElementsWithSomething(vtree.children[i], toSomethingFn);
+      vtree.children[i] = replaceCustomElementsWithSomething(vtree.children[i], registry, toSomethingFn);
     }
   }
   return vtree;
 }
 
-function registerCustomElement(givenTagName, definitionFn) {
-  if (typeof givenTagName !== 'string' || typeof definitionFn !== 'function') {
-    throw new Error('registerCustomElement requires parameters `tagName` and ' + '`definitionFn`.');
+function makeCustomElementsRegistry(definitions) {
+  var registry = new Map();
+  for (var tagName in definitions) {
+    if (definitions.hasOwnProperty(tagName)) {
+      registry.set(tagName.toUpperCase(), makeWidgetClass(tagName, definitions[tagName]));
+    }
   }
-  var tagName = givenTagName.toUpperCase();
-  if (CustomElementsRegistry.has(tagName)) {
-    throw new Error('Cannot register custom element `' + tagName + '` ' + 'for the DOMUser because that tagName is already registered.');
-  }
-
-  var WidgetClass = CustomElementWidget.makeConstructor();
-  WidgetClass.definitionFn = definitionFn;
-  WidgetClass.prototype.init = CustomElementWidget.makeInit(tagName, definitionFn);
-  WidgetClass.prototype.update = CustomElementWidget.makeUpdate();
-  WidgetClass.prototype.destroy = CustomElementWidget.makeDestroy();
-  CustomElementsRegistry.set(tagName, WidgetClass);
-}
-
-function unregisterAllCustomElements() {
-  CustomElementsRegistry.clear();
+  return registry;
 }
 
 module.exports = {
   replaceCustomElementsWithSomething: replaceCustomElementsWithSomething,
-  registerCustomElement: registerCustomElement,
-  unregisterAllCustomElements: unregisterAllCustomElements
+  makeCustomElementsRegistry: makeCustomElementsRegistry
 };
 
-},{"./custom-element-widget":108,"es6-map":3}],110:[function(require,module,exports){
-/* jshint maxparams: 4 */
+},{"./custom-element-widget":109,"es6-map":3}],111:[function(require,module,exports){
 'use strict';
 
 function _slicedToArray(arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }
@@ -14697,6 +14863,7 @@ var VDOM = {
 var _require = require('./custom-elements');
 
 var replaceCustomElementsWithSomething = _require.replaceCustomElementsWithSomething;
+var makeCustomElementsRegistry = _require.makeCustomElementsRegistry;
 
 function isElement(obj) {
   return typeof HTMLElement === 'object' ? obj instanceof HTMLElement || obj instanceof DocumentFragment : //DOM2
@@ -14726,21 +14893,23 @@ function isVTreeCustomElement(vtree) {
   return vtree.type === 'Widget' && vtree.isCustomElementWidget;
 }
 
-function replaceCustomElementsWithWidgets(vtree) {
-  return replaceCustomElementsWithSomething(vtree, function (_vtree, WidgetClass) {
-    return new WidgetClass(_vtree);
-  });
+function makeReplaceCustomElementsWithWidgets(CERegistry, driverName) {
+  return function replaceCustomElementsWithWidgets(vtree) {
+    return replaceCustomElementsWithSomething(vtree, CERegistry, function (_vtree, WidgetClass) {
+      return new WidgetClass(_vtree, CERegistry, driverName);
+    });
+  };
 }
 
-function getArrayOfAllWidgetRootElemStreams(vtree) {
-  if (vtree.type === 'Widget' && vtree.rootElem$) {
-    return [vtree.rootElem$];
+function getArrayOfAllWidgetFirstRootElem$(vtree) {
+  if (vtree.type === 'Widget' && vtree.firstRootElem$) {
+    return [vtree.firstRootElem$];
   }
   // Or replace children recursively
   var array = [];
   if (Array.isArray(vtree.children)) {
     for (var i = vtree.children.length - 1; i >= 0; i--) {
-      array = array.concat(getArrayOfAllWidgetRootElemStreams(vtree.children[i]));
+      array = array.concat(getArrayOfAllWidgetFirstRootElem$(vtree.children[i]));
     }
   }
   return array;
@@ -14763,14 +14932,14 @@ function makeDiffAndPatchToElement$(rootElem) {
       return Rx.Observable.empty();
     }
 
-    var arrayOfAll = getArrayOfAllWidgetRootElemStreams(newVTree);
-    var rootElemAfterChildren$ = Rx.Observable.combineLatest(arrayOfAll, function () {
-      //console.log('%cEmit rawRootElem$ (1) ', 'color: #008800');
+    //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
+    //let k = isCustomElement ? ' is custom element ' : ' is top level';
+    var waitForChildrenStreams = getArrayOfAllWidgetFirstRootElem$(newVTree);
+    var rootElemAfterChildrenFirstRootElem$ = Rx.Observable.combineLatest(waitForChildrenStreams, function () {
+      //console.log('%crawRootElem$ emits. (1)' + k, 'color: #008800');
       return rootElem;
     });
     var cycleCustomElementMetadata = rootElem.cycleCustomElementMetadata;
-    //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
-    //let k = isCustomElement ? ' is custom element ' : ' is top level';
     //console.log('%cVDOM diff and patch START' + k, 'color: #636300');
     /* eslint-disable */
     rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
@@ -14779,11 +14948,12 @@ function makeDiffAndPatchToElement$(rootElem) {
     if (cycleCustomElementMetadata) {
       rootElem.cycleCustomElementMetadata = cycleCustomElementMetadata;
     }
-    if (arrayOfAll.length === 0) {
-      //console.log('%cEmit rawRootElem$ (2)', 'color: #008800');
+    if (waitForChildrenStreams.length === 0) {
+      //console.log('%crawRootElem$ emits. (2)' + k, 'color: #008800');
       return Rx.Observable.just(rootElem);
     } else {
-      return rootElemAfterChildren$;
+      //console.log('%crawRootElem$ waiting children.' + k, 'color: #008800');
+      return rootElemAfterChildrenFirstRootElem$;
     }
   };
 }
@@ -14800,70 +14970,77 @@ function getRenderRootElem(domContainer) {
   return rootElem;
 }
 
-function renderRawRootElem$(vtree$, domContainer) {
+function renderRawRootElem$(vtree$, domContainer, CERegistry, driverName) {
   var rootElem = getRenderRootElem(domContainer);
   var diffAndPatchToElement$ = makeDiffAndPatchToElement$(rootElem);
-  return vtree$.startWith(VDOM.h()).map(replaceCustomElementsWithWidgets).doOnNext(checkRootVTreeNotCustomElement).pairwise().flatMap(diffAndPatchToElement$).startWith(rootElem);
+  return vtree$.startWith(VDOM.h()).map(makeReplaceCustomElementsWithWidgets(CERegistry, driverName)).doOnNext(checkRootVTreeNotCustomElement).pairwise().flatMap(diffAndPatchToElement$);
 }
 
-function makeInteractions(rootElem$) {
-  return {
-    get: function get(selector, eventName) {
-      if (typeof selector !== 'string') {
-        throw new Error('interactions.get() expects first argument to be a ' + 'string as a CSS selector');
-      }
-      if (typeof eventName !== 'string') {
-        throw new Error('interactions.get() expects second argument to be a ' + 'string representing the event type to listen for.');
-      }
-
-      //console.log(`%cget("${selector}", "${eventName}")`, 'color: #0000BB');
-      return rootElem$.flatMapLatest(function rootElemToEvent$(rootElem) {
-        if (!rootElem) {
-          return Rx.Observable.empty();
-        }
-        //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
-        //console.log(`%cget('${selector}', '${eventName}') flatMapper` +
-        //  (isCustomElement ? ' for a custom element' : ' for top-level View'),
-        //  'color: #0000BB');
-        var klass = selector.replace('.', '');
-        if (rootElem.className.search(new RegExp('\\b' + klass + '\\b')) >= 0) {
-          //console.log('%c  Good return. (A)', 'color:#0000BB');
-          return Rx.Observable.fromEvent(rootElem, eventName);
-        }
-        var targetElements = rootElem.querySelectorAll(selector);
-        if (targetElements && targetElements.length > 0) {
-          //console.log('%c  Good return. (B)', 'color:#0000BB');
-          return Rx.Observable.fromEvent(targetElements, eventName);
-        } else {
-          //console.log('%c  returning empty!', 'color: #0000BB');
-          return Rx.Observable.empty();
-        }
-      });
+function makeRootElemToEvent$(selector, eventName) {
+  return function rootElemToEvent$(rootElem) {
+    if (!rootElem) {
+      return Rx.Observable.empty();
+    }
+    //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
+    //console.log(`%cget('${selector}', '${eventName}') flatMapper` +
+    //  (isCustomElement ? ' for a custom element' : ' for top-level View'),
+    //  'color: #0000BB');
+    var klass = selector.replace('.', '');
+    if (rootElem.className.search(new RegExp('\\b' + klass + '\\b')) >= 0) {
+      //console.log('%c  Good return. (A)', 'color:#0000BB');
+      //console.log(rootElem);
+      return Rx.Observable.fromEvent(rootElem, eventName);
+    }
+    var targetElements = rootElem.querySelectorAll(selector);
+    if (targetElements && targetElements.length > 0) {
+      //console.log('%c  Good return. (B)', 'color:#0000BB');
+      //console.log(targetElements);
+      return Rx.Observable.fromEvent(targetElements, eventName);
+    } else {
+      //console.log('%c  returning empty!', 'color: #0000BB');
+      return Rx.Observable.empty();
     }
   };
 }
 
-function digestDefinitionFnOutput(output) {
-  var vtree$ = undefined;
-  var customEvents = {};
-  if (typeof output.subscribe === 'function') {
-    vtree$ = output;
-  } else if (output.hasOwnProperty('vtree$') && typeof output.vtree$.subscribe === 'function') {
-    vtree$ = output.vtree$;
-    customEvents = output;
-  } else {
-    throw new Error('definitionFn given to applyToDOM must return an ' + 'Observable of virtual DOM elements, or an object containing such ' + 'Observable named as `vtree$`');
-  }
-  return { vtree$: vtree$, customEvents: customEvents };
+function makeGet(rootElem$) {
+  return function get(selector, eventName) {
+    if (typeof selector !== 'string') {
+      throw new Error('DOM driver\'s get() expects first argument to be a ' + 'string as a CSS selector');
+    }
+    if (selector.trim() === ':root') {
+      return rootElem$;
+    }
+    if (typeof eventName !== 'string') {
+      throw new Error('DOM driver\'s get() expects second argument to be a ' + 'string representing the event type to listen for.');
+    }
+
+    //console.log(`%cget("${selector}", "${eventName}")`, 'color: #0000BB');
+    return rootElem$.flatMapLatest(makeRootElemToEvent$(selector, eventName));
+  };
 }
 
-function applyToDOM(container, definitionFn) {
-  var _ref3 = arguments[2] === undefined ? {} : arguments[2];
+function validateDOMDriverInput(vtree$) {
+  if (!vtree$ || typeof vtree$.subscribe !== 'function') {
+    throw new Error('The DOM driver function expects as input an ' + 'Observable of virtual DOM elements');
+  }
+}
 
-  var _ref3$observer = _ref3.observer;
-  var observer = _ref3$observer === undefined ? null : _ref3$observer;
-  var _ref3$props = _ref3.props;
-  var props = _ref3$props === undefined ? null : _ref3$props;
+function makeDOMDriverWithRegistry(container, CERegistry) {
+  return function domDriver(vtree$, driverName) {
+    validateDOMDriverInput(vtree$);
+    var rawRootElem$ = renderRawRootElem$(vtree$, container, CERegistry, driverName);
+    var rootElem$ = fixRootElem$(rawRootElem$, container);
+    var disposable = rootElem$.connect();
+    return {
+      get: makeGet(rootElem$),
+      dispose: disposable.dispose.bind(disposable)
+    };
+  };
+}
+
+function makeDOMDriver(container) {
+  var customElementDefinitions = arguments[1] === undefined ? {} : arguments[1];
 
   // Find and prepare the container
   var domContainer = typeof container === 'string' ? document.querySelector(container) : container;
@@ -14873,51 +15050,29 @@ function applyToDOM(container, definitionFn) {
   } else if (!isElement(domContainer)) {
     throw new Error('Given container is not a DOM element neither a selector ' + 'string.');
   }
-  var proxyVTree$$ = new Rx.AsyncSubject();
-  var rawRootElem$ = renderRawRootElem$(proxyVTree$$.mergeAll(), domContainer);
-  var rootElem$ = fixRootElem$(rawRootElem$, domContainer);
-  var interactions = makeInteractions(rootElem$);
-  var output = definitionFn(interactions, props);
 
-  var _digestDefinitionFnOutput = digestDefinitionFnOutput(output);
-
-  var vtree$ = _digestDefinitionFnOutput.vtree$;
-  var customEvents = _digestDefinitionFnOutput.customEvents;
-
-  var connection = rootElem$.connect();
-  var subscription = observer ? rootElem$.subscribe(observer) : rootElem$.subscribe();
-  proxyVTree$$.onNext(vtree$.shareReplay(1));
-  proxyVTree$$.onCompleted();
-
-  return {
-    dispose: function dispose() {
-      subscription.dispose();
-      connection.dispose();
-      proxyVTree$$.dispose();
-    },
-    rootElem$: rootElem$,
-    interactions: interactions,
-    customEvents: customEvents
-  };
+  var registry = makeCustomElementsRegistry(customElementDefinitions);
+  return makeDOMDriverWithRegistry(domContainer, registry);
 }
 
 module.exports = {
   isElement: isElement,
   fixRootElem$: fixRootElem$,
   isVTreeCustomElement: isVTreeCustomElement,
-  replaceCustomElementsWithWidgets: replaceCustomElementsWithWidgets,
-  getArrayOfAllWidgetRootElemStreams: getArrayOfAllWidgetRootElemStreams,
+  makeReplaceCustomElementsWithWidgets: makeReplaceCustomElementsWithWidgets,
+  getArrayOfAllWidgetFirstRootElem$: getArrayOfAllWidgetFirstRootElem$,
   checkRootVTreeNotCustomElement: checkRootVTreeNotCustomElement,
   makeDiffAndPatchToElement$: makeDiffAndPatchToElement$,
   getRenderRootElem: getRenderRootElem,
   renderRawRootElem$: renderRawRootElem$,
-  makeInteractions: makeInteractions,
-  digestDefinitionFnOutput: digestDefinitionFnOutput,
+  makeGet: makeGet,
+  validateDOMDriverInput: validateDOMDriverInput,
+  makeDOMDriverWithRegistry: makeDOMDriverWithRegistry,
 
-  applyToDOM: applyToDOM
+  makeDOMDriver: makeDOMDriver
 };
 
-},{"./custom-elements":109,"rx":58,"virtual-dom":74,"virtual-dom/diff":72,"virtual-dom/patch":82}],111:[function(require,module,exports){
+},{"./custom-elements":110,"rx":58,"virtual-dom":74,"virtual-dom/diff":72,"virtual-dom/patch":82}],112:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
 var toHTML = require('vdom-to-html');
@@ -14925,8 +15080,13 @@ var toHTML = require('vdom-to-html');
 var _require = require('./custom-elements');
 
 var replaceCustomElementsWithSomething = _require.replaceCustomElementsWithSomething;
+var makeCustomElementsRegistry = _require.makeCustomElementsRegistry;
 
-function makePropertiesProxyFromVTree(vtree) {
+var _require2 = require('./custom-element-widget');
+
+var makeCustomElementInput = _require2.makeCustomElementInput;
+
+function makePropertiesDriverFromVTree(vtree) {
   return {
     get: function get(propertyName) {
       return Rx.Observable.just(vtree.properties[propertyName]);
@@ -14959,118 +15119,141 @@ function transposeVTree(vtree) {
   }
 }
 
-function makeEmptyInteractions() {
-  return {
-    get: function get() {
-      return Rx.Observable.empty();
-    }
+function makeReplaceCustomElementsWithVTree$(CERegistry, driverName) {
+  return function replaceCustomElementsWithVTree$(vtree) {
+    return replaceCustomElementsWithSomething(vtree, CERegistry, function toVTree$(_vtree, WidgetClass) {
+      var interactions = { get: function get() {
+          return Rx.Observable.empty();
+        } };
+      var props = makePropertiesDriverFromVTree(_vtree);
+      var input = makeCustomElementInput(interactions, props);
+      var output = WidgetClass.definitionFn(input);
+      var vtree$ = output[driverName].last();
+      /*eslint-disable no-use-before-define */
+      return convertCustomElementsToVTree(vtree$, CERegistry, driverName);
+      /*eslint-enable no-use-before-define */
+    });
   };
 }
 
-function replaceCustomElementsWithVTree$(vtree) {
-  return replaceCustomElementsWithSomething(vtree, function toVTree$(_vtree, WidgetClass) {
-    var interactions = makeEmptyInteractions();
-    var props = makePropertiesProxyFromVTree(_vtree);
-    var output = WidgetClass.definitionFn(interactions, props);
-    /*eslint-disable no-use-before-define */
-    return convertCustomElementsToVTree(output.vtree$.last());
-    /*eslint-enable no-use-before-define */
-  });
+function convertCustomElementsToVTree(vtree$, CERegistry, driverName) {
+  return vtree$.map(makeReplaceCustomElementsWithVTree$(CERegistry, driverName)).flatMap(transposeVTree);
 }
 
-function convertCustomElementsToVTree(vtree$) {
-  return vtree$.map(replaceCustomElementsWithVTree$).flatMap(transposeVTree);
-}
+function makeHTMLDriver() {
+  var customElementDefinitions = arguments[0] === undefined ? {} : arguments[0];
 
-function renderAsHTML(input) {
-  var vtree$ = undefined;
-  var computerFn = undefined;
-  if (typeof input === 'function') {
-    computerFn = input;
-    vtree$ = computerFn(makeEmptyInteractions());
-  } else if (typeof input.subscribe === 'function') {
-    vtree$ = input;
-  }
-  return convertCustomElementsToVTree(vtree$.last()).map(function (vtree) {
-    return toHTML(vtree);
-  });
+  var registry = makeCustomElementsRegistry(customElementDefinitions);
+  return function htmlDriver(vtree$, driverName) {
+    var vtreeLast$ = vtree$.last();
+    return {
+      get: function get() {
+        for (var _len2 = arguments.length, params = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+          params[_key2] = arguments[_key2];
+        }
+
+        if (params.length === 0) {
+          return convertCustomElementsToVTree(vtreeLast$, registry, driverName).map(function (vtree) {
+            return toHTML(vtree);
+          });
+        } else {
+          return Rx.Observable.empty();
+        }
+      }
+    };
+  };
 }
 
 module.exports = {
-  makePropertiesProxyFromVTree: makePropertiesProxyFromVTree,
-  replaceCustomElementsWithVTree$: replaceCustomElementsWithVTree$,
+  makePropertiesDriverFromVTree: makePropertiesDriverFromVTree,
+  makeReplaceCustomElementsWithVTree$: makeReplaceCustomElementsWithVTree$,
   convertCustomElementsToVTree: convertCustomElementsToVTree,
 
-  renderAsHTML: renderAsHTML
+  makeHTMLDriver: makeHTMLDriver
 };
 
-},{"./custom-elements":109,"rx":58,"vdom-to-html":60}],112:[function(require,module,exports){
+},{"./custom-element-widget":109,"./custom-elements":110,"rx":58,"vdom-to-html":60}],113:[function(require,module,exports){
 'use strict';
 var VirtualDOM = require('virtual-dom');
 var svg = require('virtual-dom/virtual-hyperscript/svg');
 var Rx = require('rx');
-var CustomElements = require('./custom-elements');
-var RenderingDOM = require('./render-dom');
-var RenderingHTML = require('./render-html');
+
+var _require = require('../web/render-dom');
+
+var makeDOMDriver = _require.makeDOMDriver;
+
+var _require2 = require('../web/render-html');
+
+var makeHTMLDriver = _require2.makeHTMLDriver;
+
+var run = require('./run');
 
 var Cycle = {
   /**
-   * Takes a `computer` function which outputs an Observable of virtual DOM
-   * elements, and renders that into the DOM element indicated by `container`,
-   * which can be either a CSS selector or an actual element. At the same time,
-   * provides the `interactions` input to the `computer` function, which is a
-   * collection of all possible events happening on all elements which were
-   * rendered. You must query this collection with
-   * `interactions.get(selector, eventName)` in order to get an Observable of
-   * interactions of type `eventName` happening on the element identified by
-   * `selector`.
-   * Example: `interactions.get('.mybutton', 'click').map(ev => ...)`
+   * Takes an `app` function and circularly connects it to the given collection
+   * of driver functions.
+   *
+   * The `app` function expects a collection of "driver response" Observables as
+   * input, and should return a collection of "driver request" Observables.
+   * The driver response collection can be queried using a getter function:
+   * `responses.get(driverName, ...params)`, returns an Observable. The
+   * structure of `params` is defined by the API of the corresponding
+   * `driverName`. The driver request collection should be a simple object where
+   * keys match the driver names used by `responses.get()` and defined on the
+   * second parameter given to `run()`.
+   *
+   * @param {Function} app a function that takes `responses` as input
+   * and outputs a collection of `requests` Observables.
+   * @param {Object} drivers an object where keys are driver names and values
+   * are driver functions.
+   * @return {Array} an array where the first object is the collection of driver
+   * requests, and the second objet is the collection of driver responses, that
+   * can be used for debugging or testing.
+   * @function run
+   */
+  run: run,
+
+  /**
+   * A factory for the DOM driver function. Takes a `container` to define the
+   * target on the existing DOM which this driver will operate on. All custom
+   * elements which this driver can detect should be given as the second
+   * parameter.
    *
    * @param {(String|HTMLElement)} container the DOM selector for the element
    * (or the element itself) to contain the rendering of the VTrees.
-   * @param {Function} computer a function that takes `interactions` as input
-   * and outputs an Observable of virtual DOM elements.
-   * @return {Object} an object containing properties `rootElem$`,
-   * `interactions`, `dispose()` that can be used for debugging or testing.
-   * @function applyToDOM
+   * @param {Object} a collection of custom element definitions. The key of each
+   * property should be the tag name of the custom element, and the value should
+   * be a function defining the implementation of the custom element. This
+   * function follows the same contract as the top-most `app` function: input
+   * are driver responses, output are requests to drivers.
+   * @return {Function} the DOM driver function. The function expects an
+   * Observable of VTree as input, and outputs the response object for this
+   * driver, containing functions `get()` and `dispose()` that can be used for
+   * debugging and testing.
+   * @function makeDOMDriver
    */
-  applyToDOM: RenderingDOM.applyToDOM,
+  makeDOMDriver: makeDOMDriver,
 
   /**
-   * Converts a given Observable of virtual DOM elements (`vtree$`) into an
-   * Observable of corresponding HTML strings (`html$`). The provided `vtree$`
-   * must complete (must call onCompleted on its observers) in finite time,
-   * otherwise the output `html$` will never emit an HTML string.
+   * A factory for the HTML driver function. Takes the registry object of all
+   * custom elements as the only parameter. The HTML driver function will use
+   * the custom element registry to detect custom element on the VTree and apply
+   * their implementations.
    *
-   * @param {Rx.Observable} vtree$ Observable of virtual DOM elements.
-   * @return {Rx.Observable} an Observable emitting a string as the HTML
-   * renderization of the virtual DOM element.
+   * @param {Object} a collection of custom element definitions. The key of each
+   * property should be the tag name of the custom element, and the value should
+   * be a function defining the implementation of the custom element. This
+   * function follows the same contract as the top-most `app` function: input
+   * are driver responses, output are requests to drivers.
+   * @return {Function} the HTML driver function. The function expects an
+   * Observable of Virtual DOM elements as input, and outputs the response
+   * object for this driver, containing functions `get()` and `dispose()` that
+   * can be used for debugging and testing. To get the Observable of strings as
+   * the HTML renderization of the virtual DOM elements, call simply
+   * `get(htmlDriverName)` on the responses object returned by Cycle.run();
    * @function renderAsHTML
    */
-  renderAsHTML: RenderingHTML.renderAsHTML,
-
-  /**
-   * Informs Cycle to recognize the given `tagName` as a custom element
-   * implemented as the given function whenever `tagName` is used in VTrees
-   * rendered in the context of some parent (in `applyToDOM` or in other custom
-   * elements).
-   * The given `definitionFn` function takes two parameters as input, in this
-   * order: `interactions` and `properties`. The former works just like it does
-   * in the `computer` function given to `applyToDOM`, and the later contains
-   * Observables representing properties of the custom element, given from the
-   * parent context. `properties.get('foo')` will return the Observable `foo$`.
-   *
-   * The `definitionFn` must output an object containing the property `vtree$`
-   * as an Observable. If the output object contains other Observables, then
-   * they are treated as custom events of the custom element.
-   *
-   * @param {String} tagName a name for identifying the custom element.
-   * @param {Function} definitionFn the implementation for the custom element.
-   * This function takes two arguments: `interactions`, and `properties`, and
-   * should output an object of Observables.
-   * @function registerCustomElement
-   */
-  registerCustomElement: CustomElements.registerCustomElement,
+  makeHTMLDriver: makeHTMLDriver,
 
   /**
    * A shortcut to the root object of
@@ -15096,5 +15279,5 @@ var Cycle = {
 
 module.exports = Cycle;
 
-},{"./custom-elements":109,"./render-dom":110,"./render-html":111,"rx":58,"virtual-dom":74,"virtual-dom/virtual-hyperscript/svg":95}]},{},[112])(112)
+},{"../web/render-dom":111,"../web/render-html":112,"./run":108,"rx":58,"virtual-dom":74,"virtual-dom/virtual-hyperscript/svg":95}]},{},[113])(113)
 });

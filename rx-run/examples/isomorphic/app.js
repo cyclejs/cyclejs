@@ -1,5 +1,5 @@
 'use strict';
-let Cycle = require('../../lib/cycle');
+let Cycle = require('../../lib/core/cycle');
 let {h} = Cycle;
 
 function renderMenu() {
@@ -30,32 +30,34 @@ function renderAboutPage() {
   ]);
 }
 
-function makeComputerFn(context$) {
-  return function computer(interactions) {
-    let routeFromClick$ = interactions.get('.link', 'click')
-      .doOnNext(ev => ev.preventDefault())
-      .map(ev => ev.currentTarget.attributes.href.value);
+function app(ext) {
+  let routeFromClick$ = ext.get('DOM', '.link', 'click')
+    .doOnNext(ev => ev.preventDefault())
+    .map(ev => ev.currentTarget.attributes.href.value);
 
-    let ongoingContext$ = context$
-      .merge(routeFromClick$).scan((acc, x) => {
-        acc.route = x;
-        return acc;
-      });
+  let ongoingContext$ = ext.get('context')
+    .merge(routeFromClick$).scan((acc, x) => {
+      acc.route = x;
+      return acc;
+    });
 
-    return ongoingContext$
-      .map(({route}) => {
-        if (typeof window !== 'undefined') {
-          window.history.pushState(null, '', route);
-        }
-        switch (route) {
-          case '/': return renderHomePage();
-          case '/about': return renderAboutPage();
-          default: return h('div', `Unknown page ${route}`);
-        }
-      });
-  }
+  let vtree$ = ongoingContext$
+    .map(({route}) => {
+      if (typeof window !== 'undefined') {
+        window.history.pushState(null, '', route);
+      }
+      switch (route) {
+        case '/': return renderHomePage();
+        case '/about': return renderAboutPage();
+        default: return h('div', `Unknown page ${route}`);
+      }
+    });
+
+  return {
+    DOM: vtree$
+  };
 }
 
 module.exports = {
-  makeComputerFn
+  app
 };

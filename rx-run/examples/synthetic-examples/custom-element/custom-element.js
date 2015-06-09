@@ -1,12 +1,12 @@
 var h = Cycle.h;
 var Rx = Cycle.Rx;
 
-Cycle.registerCustomElement('ticker', function (interactions, props) {
-  var removeClicks$ = interactions.get('.remove-btn', 'click').share();
+function tickerCustomElement(ext) {
+  var removeClicks$ = ext.get('DOM', '.remove-btn', 'click').share();
   var stop$ = removeClicks$.map(function () { return 'stop'; });
   var remove$ = removeClicks$.map(function () { return 'remove'; }).delay(500);
   var color$ = Rx.Observable.merge(
-    props.get('color').takeUntil(stop$),
+    ext.get('props', 'color').takeUntil(stop$),
     stop$.map(function () { return '#FF0000'; })
   );
   var x$ = Rx.Observable.interval(50).startWith(0).takeUntil(stop$);
@@ -22,10 +22,10 @@ Cycle.registerCustomElement('ticker', function (interactions, props) {
   });
 
   return {
-    vtree$: vtree$,
-    remove$: remove$
+    DOM: vtree$,
+    events: {remove: remove$}
   };
-});
+}
 
 function makeRandomColor() {
   var hexColor = Math.floor(Math.random() * 16777215).toString(16);
@@ -36,20 +36,26 @@ function makeRandomColor() {
   return hexColor;
 }
 
-function computer(interactions) {
-  var removeTicker$ = interactions.get('.ticker', 'remove');
+function main(ext) {
+  var removeTicker$ = ext.get('DOM', '.ticker', 'remove');
   var color$ = Rx.Observable.interval(1000)
     .map(makeRandomColor)
     .startWith('#000000');
   var tickerExists$ = Rx.Observable.just(true)
     .merge(removeTicker$.map(function () { return false; }));
-  return Rx.Observable.combineLatest(color$, tickerExists$,
-    function (color, tickerExists) {
-      return h('div#the-view', [
-        tickerExists ? h('ticker.ticker', {key: 1, color: color}) : null
-      ]);
-    }
-  );
+  return {
+    DOM: Rx.Observable.combineLatest(color$, tickerExists$,
+      function (color, tickerExists) {
+        return h('div#the-view', [
+          tickerExists ? h('my-ticker.ticker', {key: 1, color: color}) : null
+        ]);
+      }
+    )
+  };
 }
 
-Cycle.applyToDOM('.js-container', computer);
+Cycle.run(main, {
+  DOM: Cycle.makeDOMDriver('.js-container', {
+    'my-ticker': tickerCustomElement
+  })
+});
