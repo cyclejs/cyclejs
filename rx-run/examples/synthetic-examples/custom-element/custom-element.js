@@ -36,7 +36,7 @@ function makeRandomColor() {
   return hexColor;
 }
 
-function app(ext) {
+function main(ext) {
   var removeTicker$ = ext.get('DOM', '.ticker', 'remove');
   var color$ = Rx.Observable.interval(1000)
     .map(makeRandomColor)
@@ -54,7 +54,7 @@ function app(ext) {
   };
 }
 
-Cycle.run(app, {
+Cycle.run(main, {
   DOM: Cycle.makeDOMDriver('.js-container', {
     'my-ticker': tickerCustomElement
   })
