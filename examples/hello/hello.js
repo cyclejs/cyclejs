@@ -1,7 +1,7 @@
 'use strict';
 var h = Cycle.h;
 
-function app(ext) {
+function main(ext) {
   return {
     DOM: ext.get('DOM', '.myinput', 'input')
       .map(function (ev) { return ev.target.value; })
@@ -17,6 +17,6 @@ function app(ext) {
   };
 }
 
-Cycle.run(app, {
+Cycle.run(main, {
   DOM: Cycle.makeDOMDriver('.js-container')
 });

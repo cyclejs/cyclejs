@@ -48,7 +48,7 @@ function makeRandomColor() {
   return hexColor;
 }
 
-function app(ext) {
+function main(ext) {
   var vtree$ = ext.get('UI', '.inner', 'wasRefreshed')
     .map(makeRandomColor)
     .startWith('#000000')
@@ -68,7 +68,7 @@ function app(ext) {
   };
 }
 
-var interaction = Cycle.run(app, {
+var interaction = Cycle.run(main, {
   UI: Cycle.makeDOMDriver('.js-container', {'inner-elem': innerElem})
 });
 var responses = interaction[1];
