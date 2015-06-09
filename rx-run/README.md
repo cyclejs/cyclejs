@@ -2,13 +2,12 @@
 <img src="https://raw.github.com/staltz/cycle/master/logo.png" /> Cycle.js
 </h1>
 
-> Cycle.js is a reactive and functional web application framework, where the user is a function, the computer is a function, and Human-Computer Interaction is a fixed point equation over reactive event streams.
+> Cycle.js is a reactive and functional JavaScript framework, where the user is a function, the computer is a function, and Human-Computer Interaction is a fixed point equation over reactive event streams.
 
 * **Honestly Reactive**: the building blocks in Cycle are Observables from [RxJS](https://github.com/Reactive-Extensions/RxJS), which simplifies all code related to events, asynchrony, and errors. Structuring the app with RxJS also separates concerns, because Rx decouples data production from data consumption. As result, apps in Cycle have nothing comparable to imperative calls such as `setState()`, `forceUpdate()`, `replaceProps()`, `handleClick()`, etc.
 * **Functional Unidirectional Dataflow**: Cycle's core abstraction is Human-Computer Interaction modelled as an interplay between two pure functions: `user()` and `computer()`. The computer outputs what the user takes as input, and vice-versa, leading to the fixed point equation `x = user(computer(x))`. This is what we call "Functional Unidirectional Dataflow", and as an app developer you only need to specify the `computer()` function.
-* **Functions, not classes**: the `computer()` function takes Observables as input, and outputs one Observable. To architecture your app, you only need to split the `computer()` into functions over Observables. Pure functional composition is the tool for creating architectures in Cycle. Functions also facilitate automating tests, and allow for a JavaScript programming style without the pitfalling `this`.
-* **Virtual DOM Rendering**: the `computer()` function should output an Observable of "Virtual DOM Elements" from the [virtual-dom](https://github.com/Matt-Esch/virtual-dom) library, to keep performance fast by patching the actual DOM with only the minimum necessary changes.
-* **Isomorphic**: there is just one more function you need to know in order to do server-side rendering. Otherwise [it's pretty simple and straightforward](https://github.com/staltz/cycle/releases/tag/v0.20.4).
+* **Functions, not classes**: the computer function (`main()`) takes Observables as input, and outputs Observables. To architecture your app, you only need to split the `main()` into functions over Observables. Pure functional composition is the tool for creating architectures in Cycle. Functions also facilitate automating tests, and allow for a JavaScript programming style without the pitfalling `this`.
+* **Virtual DOM Rendering**: the `main()` function should output an Observable of "Virtual DOM Elements" from the [virtual-dom](https://github.com/Matt-Esch/virtual-dom) library, to keep performance fast by patching the actual DOM with only the minimum necessary changes.
 * **Work in progress**: API design is the current priority and might significantly evolve, performance and other issues are left aside before this gets stable.
 
 [![npm version](https://badge.fury.io/js/cyclejs.svg)](http://badge.fury.io/js/cyclejs)
@@ -19,25 +18,29 @@
 import Cycle from 'cyclejs';
 let {h} = Cycle;
 
-function computer(interactions) {
-  return interactions.get('.myinput', 'input')
-    .map(ev => ev.target.value)
-    .startWith('')
-    .map(name =>
-      h('div', [
-        h('label', 'Name:'),
-        h('input.myinput', {attributes: {type: 'text'}}),
-        h('hr'),
-        h('h1', 'Hello ' + name)
-      ])
-    );
+function main(drivers) {
+  return {
+    DOM: drivers.get('DOM', '.myinput', 'input')
+      .map(ev => ev.target.value)
+      .startWith('')
+      .map(name =>
+        h('div', [
+          h('label', 'Name:'),
+          h('input.myinput', {attributes: {type: 'text'}}),
+          h('hr'),
+          h('h1', 'Hello ' + name)
+        ])
+      );
+  };
 }
 
-Cycle.applyToDOM('.js-container', computer);
+Cycle.run(main, {
+  DOM: Cycle.makeDOMDriver('.js-container')
+});
 ```
 
-The input of the `computer` is `interactions`, a collection containing all possible
-user interaction events happening on elements on the DOM, which you can query using `interactions.get(selector, eventType)`. Function `applyToDOM` will take your `computer` function and plug it with the `user` function and solve the fixed point equation `vtree$ == computer(user(vtree$))`, where `vtree$` is an Observable of virtual DOM elements, the output of the `computer`. The result of this is Human-Computer Interaction, i.e. your UI program, happening under the container element selected by `'.js-container'`.
+The input of `main` is `drivers`, a queryable collection of Observables from the "external world", containing for instance user events happening on elements on the DOM.
+`drivers.get('DOM', selector, eventType)` returns an Observable of `eventType` events happening on elements specified by `selector`. This goes through a series of RxJS operations to produce an Observable of virtual DOM elements, which is returned and tagged `DOM`. Function `Cycle.run()` will take your `main` function and circularly connect it to the specified "driver functions". The DOM driver function acts on behalf of the user: takes the tagged `DOM` Observable of virtual elements returned from `main()`, shows that on the screen as a side-effect, and outputs Observables of user interaction events. The result of this is Human-Computer Interaction, i.e. a dialogue between `main()` and the DOM driver function, happening under the container element selected by `'.js-container'`.
 
 For advanced examples, check out [TodoMVC implemented in Cycle.js](https://github.com/staltz/todomvc-cycle) and [RxMarbles](https://github.com/staltz/rxmarbles).
 
@@ -45,17 +48,13 @@ For advanced examples, check out [TodoMVC implemented in Cycle.js](https://githu
 
 `npm install cyclejs`
 
-or
-
-`bower install cycle`
-
 ## Learn more
 
-The computer function is normally refactored as a composition of other functions, of which the Model-View-Intent (MVI) composition is a useful one, but far from being the only one. In other words:
+The `main()` function is normally refactored as a composition of other functions, of which the Model-View-Intent (MVI) composition is a useful one, but far from being the only one. In other words:
 
 ```js
-function computer(interactions) {
-  return view(model(intent(interactions)));
+function main(drivers) {
+  return view(model(intent(drivers)));
 }
 ```
 
