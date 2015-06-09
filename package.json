@@ -22,8 +22,8 @@
     "vdom-to-html": "^2.0.0"
   },
   "devDependencies": {
-    "babel": "5.2.x",
-    "babelify": "6.0.x",
+    "babel": "5.5.x",
+    "babelify": "6.1.x",
     "eslint": "^0.21.0",
     "browserify": "10.1.1",
     "markdox": "0.1.8",
