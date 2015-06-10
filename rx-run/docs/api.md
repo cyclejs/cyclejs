@@ -3,7 +3,7 @@
 
 - [`run`](#run)
 - [`makeDOMDriver`](#makeDOMDriver)
-- [`renderAsHTML`](#renderAsHTML)
+- [`makeHTMLDriver`](#makeHTMLDriver)
 - [`Rx`](#Rx)
 - [`h`](#h)
 - [`svg`](#svg)
@@ -57,7 +57,7 @@ debugging and testing.
 
 - - -
 
-### <a id="renderAsHTML"></a> `renderAsHTML(a)`
+### <a id="makeHTMLDriver"></a> `makeHTMLDriver(a)`
 
 A factory for the HTML driver function. Takes the registry object of all
 custom elements as the only parameter. The HTML driver function will use
