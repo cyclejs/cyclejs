@@ -4,7 +4,7 @@ Join the Gitter chat room <br />[![Gitter](https://badges.gitter.im/Join%20Chat.
 
 ## What does the suffixed dollar sign `$` mean?
 
-The dollar sign `$` *suffixed* to a name is a hard convention to indicate that the variable is an Observable (instance of an RxJS Observable). Not only is it a naming helper to indicate types, it is also a required convention when working with custom elements. The following are examples of the former and the latter.
+The dollar sign `$` *suffixed* to a name is a soft convention to indicate that the variable is an Observable (instance of an RxJS Observable). It is a naming helper to indicate types.
 
 Suppose you have an Observable of VTree depending on an Observable of "lastname" string:
 ```javascript
@@ -12,27 +12,6 @@ var vtree$ = lastname$.map(lastname => h('h1', lastname));
 ```
 
 Notice that the function inside `map` takes `lastname` as argument, while the Observable is named `lastname$`. The naming convention indicates that `lastname` is the value being emitted by `lastname$`. In general, `foobar$` emits `foobar`. Without this convention, if `lastname$` would be named simply `lastname`, it would confuse readers about the types involved. Also, `lastname$` is succinct compared to alternatives like `lastnameObservable`, `lastnameStream`, or `lastnameObs`. This convention can also be extended to arrays: use plurality to indicate the type is an array. Example: `vtrees` is an array of `vtree`, but `vtree$` is an Observable of `vtree`.
-
-The suffixed dollar convention is required for custom elements. When you create a custom element with custom events, the custom event Observables must be suffixed with `$` but in the `interaction.get(selector, eventType)` function you provide the `eventType` without the `$` suffix. Example:
-
-```javascript
-Cycle.registerCustomElement('my-element', function myelement() {
-  return {
-    vtree$: Rx.Observable.just(h('h1', 'Hello world')),
-    myevent$: Rx.Observable.interval(1000) // notice suffix
-  };
-});
-
-function computer(interactions) {
-  return interactions.get('.target', 'myevent') // notice no suffix
-    .map(ev =>
-      h('div', [
-        h('my-element.target'),
-        h('h2', ev.data)
-      ])
-    );
-}
-```
 
 ## I don't like to use classname-based selectors, reminds me of jQuery.
 
