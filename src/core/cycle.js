@@ -69,7 +69,7 @@ var Cycle = {
    * can be used for debugging and testing. To get the Observable of strings as
    * the HTML renderization of the virtual DOM elements, call simply
    * `get(htmlDriverName)` on the responses object returned by Cycle.run();
-   * @function renderAsHTML
+   * @function makeHTMLDriver
    */
   makeHTMLDriver,
 
