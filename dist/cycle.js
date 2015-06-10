@@ -14751,6 +14751,113 @@ function appendPatch(apply, patch) {
 
 },{"../vnode/handle-thunk":96,"../vnode/is-thunk":97,"../vnode/is-vnode":99,"../vnode/is-vtext":100,"../vnode/is-widget":101,"../vnode/vpatch":104,"./diff-props":106,"x-is-array":81}],108:[function(require,module,exports){
 'use strict';
+var VirtualDOM = require('virtual-dom');
+var svg = require('virtual-dom/virtual-hyperscript/svg');
+var Rx = require('rx');
+
+var _require = require('../web/render-dom');
+
+var makeDOMDriver = _require.makeDOMDriver;
+
+var _require2 = require('../web/render-html');
+
+var makeHTMLDriver = _require2.makeHTMLDriver;
+
+var run = require('./run');
+
+var Cycle = {
+  /**
+   * Takes an `app` function and circularly connects it to the given collection
+   * of driver functions.
+   *
+   * The `app` function expects a collection of "driver response" Observables as
+   * input, and should return a collection of "driver request" Observables.
+   * The driver response collection can be queried using a getter function:
+   * `responses.get(driverName, ...params)`, returns an Observable. The
+   * structure of `params` is defined by the API of the corresponding
+   * `driverName`. The driver request collection should be a simple object where
+   * keys match the driver names used by `responses.get()` and defined on the
+   * second parameter given to `run()`.
+   *
+   * @param {Function} app a function that takes `responses` as input
+   * and outputs a collection of `requests` Observables.
+   * @param {Object} drivers an object where keys are driver names and values
+   * are driver functions.
+   * @return {Array} an array where the first object is the collection of driver
+   * requests, and the second objet is the collection of driver responses, that
+   * can be used for debugging or testing.
+   * @function run
+   */
+  run: run,
+
+  /**
+   * A factory for the DOM driver function. Takes a `container` to define the
+   * target on the existing DOM which this driver will operate on. All custom
+   * elements which this driver can detect should be given as the second
+   * parameter.
+   *
+   * @param {(String|HTMLElement)} container the DOM selector for the element
+   * (or the element itself) to contain the rendering of the VTrees.
+   * @param {Object} a collection of custom element definitions. The key of each
+   * property should be the tag name of the custom element, and the value should
+   * be a function defining the implementation of the custom element. This
+   * function follows the same contract as the top-most `app` function: input
+   * are driver responses, output are requests to drivers.
+   * @return {Function} the DOM driver function. The function expects an
+   * Observable of VTree as input, and outputs the response object for this
+   * driver, containing functions `get()` and `dispose()` that can be used for
+   * debugging and testing.
+   * @function makeDOMDriver
+   */
+  makeDOMDriver: makeDOMDriver,
+
+  /**
+   * A factory for the HTML driver function. Takes the registry object of all
+   * custom elements as the only parameter. The HTML driver function will use
+   * the custom element registry to detect custom element on the VTree and apply
+   * their implementations.
+   *
+   * @param {Object} a collection of custom element definitions. The key of each
+   * property should be the tag name of the custom element, and the value should
+   * be a function defining the implementation of the custom element. This
+   * function follows the same contract as the top-most `app` function: input
+   * are driver responses, output are requests to drivers.
+   * @return {Function} the HTML driver function. The function expects an
+   * Observable of Virtual DOM elements as input, and outputs the response
+   * object for this driver, containing functions `get()` and `dispose()` that
+   * can be used for debugging and testing. To get the Observable of strings as
+   * the HTML renderization of the virtual DOM elements, call simply
+   * `get(htmlDriverName)` on the responses object returned by Cycle.run();
+   * @function renderAsHTML
+   */
+  makeHTMLDriver: makeHTMLDriver,
+
+  /**
+   * A shortcut to the root object of
+   * [RxJS](https://github.com/Reactive-Extensions/RxJS).
+   * @name Rx
+   */
+  Rx: Rx,
+
+  /**
+   * A shortcut to [virtual-hyperscript](
+   * https://github.com/Matt-Esch/virtual-dom/tree/master/virtual-hyperscript).
+   * This is a helper for creating VTrees in Views.
+   * @name h
+   */
+  h: VirtualDOM.h,
+
+  /**
+   * A shortcut to the svg hyperscript function.
+   * @name svg
+   */
+  svg: svg
+};
+
+module.exports = Cycle;
+
+},{"../web/render-dom":112,"../web/render-html":113,"./run":109,"rx":58,"virtual-dom":74,"virtual-dom/virtual-hyperscript/svg":95}],109:[function(require,module,exports){
+'use strict';
 var Rx = require('rx');
 
 function makeRequestProxies(drivers) {
@@ -14860,7 +14967,7 @@ function run(app, drivers) {
 
 module.exports = run;
 
-},{"rx":58}],109:[function(require,module,exports){
+},{"rx":58}],110:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
 var ALL_PROPS = '*';
@@ -15132,7 +15239,7 @@ module.exports = {
   makeWidgetClass: makeWidgetClass
 };
 
-},{"./render-dom":111,"rx":58}],110:[function(require,module,exports){
+},{"./render-dom":112,"rx":58}],111:[function(require,module,exports){
 'use strict';
 
 var _require = require('./custom-element-widget');
@@ -15176,7 +15283,7 @@ module.exports = {
   makeCustomElementsRegistry: makeCustomElementsRegistry
 };
 
-},{"./custom-element-widget":109,"es6-map":3}],111:[function(require,module,exports){
+},{"./custom-element-widget":110,"es6-map":3}],112:[function(require,module,exports){
 'use strict';
 
 function _slicedToArray(arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }
@@ -15400,7 +15507,7 @@ module.exports = {
   makeDOMDriver: makeDOMDriver
 };
 
-},{"./custom-elements":110,"rx":58,"virtual-dom":74,"virtual-dom/diff":72,"virtual-dom/patch":82}],112:[function(require,module,exports){
+},{"./custom-elements":111,"rx":58,"virtual-dom":74,"virtual-dom/diff":72,"virtual-dom/patch":82}],113:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
 var toHTML = require('vdom-to-html');
@@ -15500,112 +15607,5 @@ module.exports = {
   makeHTMLDriver: makeHTMLDriver
 };
 
-},{"./custom-element-widget":109,"./custom-elements":110,"rx":58,"vdom-to-html":60}],113:[function(require,module,exports){
-'use strict';
-var VirtualDOM = require('virtual-dom');
-var svg = require('virtual-dom/virtual-hyperscript/svg');
-var Rx = require('rx');
-
-var _require = require('../web/render-dom');
-
-var makeDOMDriver = _require.makeDOMDriver;
-
-var _require2 = require('../web/render-html');
-
-var makeHTMLDriver = _require2.makeHTMLDriver;
-
-var run = require('./run');
-
-var Cycle = {
-  /**
-   * Takes an `app` function and circularly connects it to the given collection
-   * of driver functions.
-   *
-   * The `app` function expects a collection of "driver response" Observables as
-   * input, and should return a collection of "driver request" Observables.
-   * The driver response collection can be queried using a getter function:
-   * `responses.get(driverName, ...params)`, returns an Observable. The
-   * structure of `params` is defined by the API of the corresponding
-   * `driverName`. The driver request collection should be a simple object where
-   * keys match the driver names used by `responses.get()` and defined on the
-   * second parameter given to `run()`.
-   *
-   * @param {Function} app a function that takes `responses` as input
-   * and outputs a collection of `requests` Observables.
-   * @param {Object} drivers an object where keys are driver names and values
-   * are driver functions.
-   * @return {Array} an array where the first object is the collection of driver
-   * requests, and the second objet is the collection of driver responses, that
-   * can be used for debugging or testing.
-   * @function run
-   */
-  run: run,
-
-  /**
-   * A factory for the DOM driver function. Takes a `container` to define the
-   * target on the existing DOM which this driver will operate on. All custom
-   * elements which this driver can detect should be given as the second
-   * parameter.
-   *
-   * @param {(String|HTMLElement)} container the DOM selector for the element
-   * (or the element itself) to contain the rendering of the VTrees.
-   * @param {Object} a collection of custom element definitions. The key of each
-   * property should be the tag name of the custom element, and the value should
-   * be a function defining the implementation of the custom element. This
-   * function follows the same contract as the top-most `app` function: input
-   * are driver responses, output are requests to drivers.
-   * @return {Function} the DOM driver function. The function expects an
-   * Observable of VTree as input, and outputs the response object for this
-   * driver, containing functions `get()` and `dispose()` that can be used for
-   * debugging and testing.
-   * @function makeDOMDriver
-   */
-  makeDOMDriver: makeDOMDriver,
-
-  /**
-   * A factory for the HTML driver function. Takes the registry object of all
-   * custom elements as the only parameter. The HTML driver function will use
-   * the custom element registry to detect custom element on the VTree and apply
-   * their implementations.
-   *
-   * @param {Object} a collection of custom element definitions. The key of each
-   * property should be the tag name of the custom element, and the value should
-   * be a function defining the implementation of the custom element. This
-   * function follows the same contract as the top-most `app` function: input
-   * are driver responses, output are requests to drivers.
-   * @return {Function} the HTML driver function. The function expects an
-   * Observable of Virtual DOM elements as input, and outputs the response
-   * object for this driver, containing functions `get()` and `dispose()` that
-   * can be used for debugging and testing. To get the Observable of strings as
-   * the HTML renderization of the virtual DOM elements, call simply
-   * `get(htmlDriverName)` on the responses object returned by Cycle.run();
-   * @function renderAsHTML
-   */
-  makeHTMLDriver: makeHTMLDriver,
-
-  /**
-   * A shortcut to the root object of
-   * [RxJS](https://github.com/Reactive-Extensions/RxJS).
-   * @name Rx
-   */
-  Rx: Rx,
-
-  /**
-   * A shortcut to [virtual-hyperscript](
-   * https://github.com/Matt-Esch/virtual-dom/tree/master/virtual-hyperscript).
-   * This is a helper for creating VTrees in Views.
-   * @name h
-   */
-  h: VirtualDOM.h,
-
-  /**
-   * A shortcut to the svg hyperscript function.
-   * @name svg
-   */
-  svg: svg
-};
-
-module.exports = Cycle;
-
-},{"../web/render-dom":111,"../web/render-html":112,"./run":108,"rx":58,"virtual-dom":74,"virtual-dom/virtual-hyperscript/svg":95}]},{},[113])(113)
+},{"./custom-element-widget":110,"./custom-elements":111,"rx":58,"vdom-to-html":60}]},{},[108])(108)
 });

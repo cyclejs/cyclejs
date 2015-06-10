@@ -25,11 +25,11 @@
     "babel": "5.5.x",
     "babelify": "6.1.x",
     "eslint": "^0.22.1",
-    "browserify": "10.1.1",
+    "browserify": "10.2.4",
     "markdox": "0.1.8",
     "mocha": "2.2.4",
     "testem": "0.8.3",
-    "uglify-js": "2.4.20"
+    "uglify-js": "2.4.23"
   },
   "engines": {
     "node": ">=0.10.0"
