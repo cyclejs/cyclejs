@@ -39,7 +39,7 @@ var Cycle = {
    *
    * @param {(String|HTMLElement)} container the DOM selector for the element
    * (or the element itself) to contain the rendering of the VTrees.
-   * @param {Object} a collection of custom element definitions. The key of each
+   * @param {Object} customElements a collection of custom element definitions. The key of each
    * property should be the tag name of the custom element, and the value should
    * be a function defining the implementation of the custom element. This
    * function follows the same contract as the top-most `app` function: input
@@ -58,7 +58,7 @@ var Cycle = {
    * the custom element registry to detect custom element on the VTree and apply
    * their implementations.
    *
-   * @param {Object} a collection of custom element definitions. The key of each
+   * @param {Object} customElements a collection of custom element definitions. The key of each
    * property should be the tag name of the custom element, and the value should
    * be a function defining the implementation of the custom element. This
    * function follows the same contract as the top-most `app` function: input

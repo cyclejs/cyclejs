@@ -34,7 +34,7 @@ can be used for debugging or testing.
 
 - - -
 
-### <a id="makeDOMDriver"></a> `makeDOMDriver(container, a)`
+### <a id="makeDOMDriver"></a> `makeDOMDriver(container, customElements)`
 
 A factory for the DOM driver function. Takes a `container` to define the
 target on the existing DOM which this driver will operate on. All custom
@@ -44,7 +44,7 @@ parameter.
 #### Arguments:
 
 - `container :: String|HTMLElement` the DOM selector for the element (or the element itself) to contain the rendering of the VTrees.
-- `a :: Object` collection of custom element definitions. The key of each property should be the tag name of the custom element, and the value should
+- `customElements :: Object` a collection of custom element definitions. The key of each property should be the tag name of the custom element, and the value should
 be a function defining the implementation of the custom element. This
 function follows the same contract as the top-most `app` function: input
 are driver responses, output are requests to drivers.
@@ -57,7 +57,7 @@ debugging and testing.
 
 - - -
 
-### <a id="makeHTMLDriver"></a> `makeHTMLDriver(a)`
+### <a id="makeHTMLDriver"></a> `makeHTMLDriver(customElements)`
 
 A factory for the HTML driver function. Takes the registry object of all
 custom elements as the only parameter. The HTML driver function will use
@@ -66,7 +66,7 @@ their implementations.
 
 #### Arguments:
 
-- `a :: Object` collection of custom element definitions. The key of each property should be the tag name of the custom element, and the value should
+- `customElements :: Object` a collection of custom element definitions. The key of each property should be the tag name of the custom element, and the value should
 be a function defining the implementation of the custom element. This
 function follows the same contract as the top-most `app` function: input
 are driver responses, output are requests to drivers.
