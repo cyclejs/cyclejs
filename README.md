@@ -30,7 +30,7 @@ function main(drivers) {
           h('hr'),
           h('h1', 'Hello ' + name)
         ])
-      );
+      )
   };
 }
 
