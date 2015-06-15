@@ -35,14 +35,6 @@ function wrapAppResultWithBoilerplate(appFn, context$, bundle$) {
   };
 }
 
-function makeContextDriver(context$) {
-  return function contextDriver() {
-    return {
-      get: () => context$
-    };
-  };
-}
-
 let clientBundle$ = (() => {
   let replaySubject = new Rx.ReplaySubject(1);
   let bundleString = '';
@@ -77,9 +69,9 @@ server.use(function (req, res) {
   let wrappedAppFn = wrapAppResultWithBoilerplate(app, context$, clientBundle$);
   let [requests, responses] = Cycle.run(wrappedAppFn, {
     DOM: Cycle.makeHTMLDriver(),
-    context: makeContextDriver(context$)
+    context: () => context$
   });
-  let html$ = responses.get('DOM').map(prependHTML5Doctype);
+  let html$ = responses.DOM.get(':root').map(prependHTML5Doctype);
   html$.subscribe(html => res.send(html));
 });
 

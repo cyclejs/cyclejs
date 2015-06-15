@@ -3,7 +3,7 @@ var Rx = Cycle.Rx;
 
 function wrapperElementDef(ext) {
   return {
-    DOM: ext.get('props', 'children')
+    DOM: ext.props.get('children')
       .map(function (children) {
         return h('div.wrapper', {style: {backgroundColor: '#aaa'}}, children);
       })

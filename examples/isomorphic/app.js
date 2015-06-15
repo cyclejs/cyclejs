@@ -31,11 +31,11 @@ function renderAboutPage() {
 }
 
 function app(ext) {
-  let routeFromClick$ = ext.get('DOM', '.link', 'click')
+  let routeFromClick$ = ext.DOM.get('.link', 'click')
     .doOnNext(ev => ev.preventDefault())
     .map(ev => ev.currentTarget.attributes.href.value);
 
-  let ongoingContext$ = ext.get('context')
+  let ongoingContext$ = ext.context
     .merge(routeFromClick$).scan((acc, x) => {
       acc.route = x;
       return acc;

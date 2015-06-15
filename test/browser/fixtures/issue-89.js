@@ -4,7 +4,7 @@ let {Rx, h} = Cycle;
 
 function myElement(ext) {
   return {
-    dom: ext.get('props', 'content')
+    DOM: ext.props.get('content')
       .map(content => h('h3.myelementclass', content))
   };
 }

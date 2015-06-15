@@ -42,22 +42,22 @@ describe('Custom Elements', function () {
     // Make simple custom element
     function myElementDef() {
       return {
-        dom: Rx.Observable.just(h('h3.myelementclass'))
+        DOM: Rx.Observable.just(h('h3.myelementclass'))
       };
     }
     // Use the custom element
     function app() {
       return {
-        dom: Rx.Observable.just(h('div.toplevel', [h('my-element', {key: 1})]))
+        DOM: Rx.Observable.just(h('div.toplevel', [h('my-element', {key: 1})]))
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+      DOM: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
     // Make assertions
-    responses.get('dom', ':root').first().subscribe(function (root) {
+    responses.DOM.get(':root').first().subscribe(function (root) {
       let myElement = root.querySelector('.myelementclass');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
@@ -72,7 +72,7 @@ describe('Custom Elements', function () {
     function myElementDef(ext) {
       let number$ = Rx.Observable.interval(10).take(9);
       return {
-        dom: Rx.Observable.combineLatest(ext.get('props', 'color'), number$,
+        DOM: Rx.Observable.combineLatest(ext.props.get('color'), number$,
           function (color, number) {
             return h('h3.stateful-element', {style: {color}}, String(number));
           }
@@ -82,7 +82,7 @@ describe('Custom Elements', function () {
     // Use the custom element
     function app() {
       return {
-        dom: Rx.Observable.just('#00FF00').delay(50)
+        DOM: Rx.Observable.just('#00FF00').delay(50)
           .startWith('#FF0000')
           .map(color =>
             h('div', [
@@ -92,7 +92,7 @@ describe('Custom Elements', function () {
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+      DOM: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
@@ -113,7 +113,7 @@ describe('Custom Elements', function () {
     // Make custom element
     function myElementDef(ext) {
       return {
-        dom: ext.get('props', '*').map(propsObj => {
+        DOM: ext.props.get('*').map(propsObj => {
           assert.strictEqual(typeof propsObj, 'object');
           assert.notStrictEqual(propsObj, null);
           assert.strictEqual(propsObj.color, '#FF0000');
@@ -127,7 +127,7 @@ describe('Custom Elements', function () {
     }
     function app() {
       return {
-        dom: Rx.Observable.just(
+        DOM: Rx.Observable.just(
           h('div', [
             h('my-element', {color: '#FF0000', content: 'Hello world'})
           ])
@@ -135,12 +135,12 @@ describe('Custom Elements', function () {
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+      DOM: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
     // Make assertions
-    responses.get('dom', ':root').first().subscribe(function (root) {
+    responses.DOM.get(':root').first().subscribe(function (root) {
       let myElement = root.querySelector('.inner-element');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
@@ -152,25 +152,21 @@ describe('Custom Elements', function () {
     });
   });
 
-  it('should have Observable properties object as get(\'props\')', function (done) {
+  it('should throw if properties driver getter has no args', function (done) {
     // Make custom element
     function myElementDef(ext) {
       return {
-        dom: ext.get('props').map(propsObj => {
-          assert.strictEqual(typeof propsObj, 'object');
-          assert.notStrictEqual(propsObj, null);
-          assert.strictEqual(propsObj.color, '#FF0000');
-          assert.strictEqual(propsObj.content, 'Hello world');
-          return h('h3.inner-element',
+        DOM: ext.props.get().map(propsObj =>
+          h('h3.inner-element',
             {style: {color: propsObj.color}},
             String(propsObj.content)
-          );
-        })
+          )
+        )
       };
     }
     function app() {
       return {
-        dom: Rx.Observable.just(
+        DOM: Rx.Observable.just(
           h('div', [
             h('my-element', {color: '#FF0000', content: 'Hello world'})
           ])
@@ -178,40 +174,41 @@ describe('Custom Elements', function () {
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+      DOM: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
     // Make assertions
-    responses.get('dom', ':root').first().subscribe(function (root) {
-      let myElement = root.querySelector('.inner-element');
-      assert.notStrictEqual(myElement, null);
-      assert.notStrictEqual(typeof myElement, 'undefined');
-      assert.strictEqual(myElement.tagName, 'H3');
-      assert.strictEqual(myElement.textContent, 'Hello world');
-      assert.strictEqual(myElement.style.color, 'rgb(255, 0, 0)');
-      responses.dispose();
-      done();
-    });
+    responses.DOM.get(':root').first().subscribe(
+      function onNextHandler() {
+        assert.fail('DOM :root Observable should not emit onNext.');
+      },
+      function onErrorHandler(err) {
+        assert.strictEqual(err.message, 'Custom element driver `props.get()` ' +
+          'expects an argument in the getter.'
+        );
+        done();
+      }
+    );
   });
 
   it('should recognize and create two unrelated elements', function (done) {
     // Make the first custom element
     function myElementDef1() {
       return {
-        dom: Rx.Observable.just(h('h1.myelement1class'))
+        DOM: Rx.Observable.just(h('h1.myelement1class'))
       };
     }
     // Make the second custom element
     function myElementDef2() {
       return {
-        dom: Rx.Observable.just(h('h2.myelement2class'))
+        DOM: Rx.Observable.just(h('h2.myelement2class'))
       };
     }
     // Use the custom elements
     function app() {
       return {
-        dom: Rx.Observable.just(
+        DOM: Rx.Observable.just(
           h('div', [
             h('my-element1'), h('my-element2')
           ])
@@ -219,13 +216,13 @@ describe('Custom Elements', function () {
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+      DOM: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element1': myElementDef1,
         'my-element2': myElementDef2
       })
     });
     // Make assertions
-    responses.get('dom', ':root').first().subscribe(function (root) {
+    responses.DOM.get(':root').first().subscribe(function (root) {
       let myElement1 = root.querySelector('.myelement1class');
       let myElement2 = root.querySelector('.myelement2class');
       assert.notStrictEqual(myElement1, null);
@@ -243,13 +240,13 @@ describe('Custom Elements', function () {
     // Make the inner custom element
     function innerElementDef() {
       return {
-        dom: Rx.Observable.just(h('h3.innerClass'))
+        DOM: Rx.Observable.just(h('h3.innerClass'))
       };
     }
     // Make the outer custom element
     function outerElementDef() {
       return {
-        dom: Rx.Observable.just(
+        DOM: Rx.Observable.just(
           h('div.outerClass', [
             h('inner-element', {key: 1})
           ])
@@ -259,17 +256,17 @@ describe('Custom Elements', function () {
     // Use the custom elements
     function app() {
       return {
-        dom: Rx.Observable.just(h('div', [h('outer-element', {key: 2})]))
+        DOM: Rx.Observable.just(h('div', [h('outer-element', {key: 2})]))
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+      DOM: Cycle.makeDOMDriver(createRenderTarget(), {
         'inner-element': innerElementDef,
         'outer-element': outerElementDef
       })
     });
     // Make assertions
-    responses.get('dom', ':root').first().subscribe(function (root) {
+    responses.DOM.get(':root').first().subscribe(function (root) {
       let innerElement = root.querySelector('.innerClass');
       assert.notStrictEqual(innerElement, null);
       assert.notStrictEqual(typeof innerElement, 'undefined');
@@ -283,7 +280,7 @@ describe('Custom Elements', function () {
     // Make simple custom element
     function myElementDef() {
       return {
-        dom: Rx.Observable.just(h('h3.myelementclass', 'foobar')),
+        DOM: Rx.Observable.just(h('h3.myelementclass', 'foobar')),
         events: {
           myevent: Rx.Observable.just(123).delay(300)
         }
@@ -292,20 +289,20 @@ describe('Custom Elements', function () {
     // Use the custom element
     function app() {
       return {
-        dom: Rx.Observable.just(h('div.toplevel', [
+        DOM: Rx.Observable.just(h('div.toplevel', [
           h('my-element.eventsource', {key: 1})
         ]))
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+      DOM: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
     // Make assertions
     Rx.Observable.combineLatest(
-      responses.get('dom', ':root').first(),
-      responses.get('dom', '.eventsource', 'myevent'),
+      responses.DOM.get(':root').first(),
+      responses.DOM.get('.eventsource', 'myevent'),
       (root, event) => ({root, event})
     )
     .subscribe(({root, event}) => {
@@ -332,21 +329,21 @@ describe('Custom Elements', function () {
     // Make simple custom element
     function myElementDef() {
       return {
-        dom: Rx.Observable.just(h('h3.myelementclass'))
+        DOM: Rx.Observable.just(h('h3.myelementclass'))
       };
     }
     // Make VNode with a string as child
     function app() {
       return {
-        dom: Rx.Observable.just(h('div', h('my-element')))
+        DOM: Rx.Observable.just(h('div', h('my-element')))
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+      DOM: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
-    responses.get('dom', ':root').first().subscribe(function () {
+    responses.DOM.get(':root').first().subscribe(function () {
       console = realConsole;
       assert.strictEqual(warnMessages.length, 1);
       assert.strictEqual(warnMessages[0],
@@ -361,22 +358,22 @@ describe('Custom Elements', function () {
     // Make simple custom element
     function myElementDef() {
       return {
-        dom: Rx.Observable.just(h('h3.myelementclass'))
+        DOM: Rx.Observable.just(h('h3.myelementclass'))
       };
     }
     // Make VNode with a string as child
     function app() {
       return {
-        dom: Rx.Observable.just(h('h1', 'This will be a VirtualText'))
+        DOM: Rx.Observable.just(h('h1', 'This will be a VirtualText'))
       };
     }
     // Make assertions
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+      DOM: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
-    responses.get('dom', ':root').subscribeOnError(err => {
+    responses.DOM.get(':root').subscribeOnError(err => {
       assert.fail(null, null, err);
     });
     setTimeout(() => {
@@ -388,11 +385,11 @@ describe('Custom Elements', function () {
   it('should not miss custom events from a list of custom elements #87', function (done) {
     // Make custom element
     function sliderDef(ext) {
-      let remove$ = ext.get('dom', '.internalslider', 'click').map(() => true);
-      let id$ = ext.get('props', 'id').shareReplay(1);
+      let remove$ = ext.DOM.get('.internalslider', 'click').map(() => true);
+      let id$ = ext.props.get('id').shareReplay(1);
       let vtree$ = id$.map(id => h('h3.internalslider', String(id)));
       return {
-        dom: vtree$,
+        DOM: vtree$,
         events: {
           remove: remove$.withLatestFrom(id$, (r, id) => id)
         }
@@ -401,11 +398,11 @@ describe('Custom Elements', function () {
 
     function app(ext) {
       return {
-        dom: Rx.Observable
+        DOM: Rx.Observable
           .merge(
             Rx.Observable.just([{id: 23}]),
             Rx.Observable.just([{id: 23}, {id: 45}]).delay(50),
-            ext.get('dom', '.slider', 'remove').map(event => event.detail)
+            ext.DOM.get('.slider', 'remove').map(event => event.detail)
           )
           .scan((items, x) => {
             if (typeof x === 'object') {
@@ -421,12 +418,12 @@ describe('Custom Elements', function () {
     }
 
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+      DOM: Cycle.makeDOMDriver(createRenderTarget(), {
         'slider-elem': sliderDef
       })
     });
 
-    responses.get('dom', ':root').first().subscribe(function (root) {
+    responses.DOM.get(':root').first().subscribe(function (root) {
       debugger;
       // Simulate clicks
       setTimeout(() => root.querySelector('.internalslider').click(), 200);
@@ -446,7 +443,7 @@ describe('Custom Elements', function () {
     // Make simple custom element
     function simpleWrapperDef(ext) {
       return {
-        dom: ext.get('props', 'children').map(children => {
+        DOM: ext.props.get('children').map(children => {
           return h('div.wrapper', children);
         })
       };
@@ -454,7 +451,7 @@ describe('Custom Elements', function () {
     // Use the custom element
     function app() {
       return {
-        dom: Rx.Observable.just(h('div.toplevel', [
+        DOM: Rx.Observable.just(h('div.toplevel', [
           h('simple-wrapper', [
             h('h1', 'Hello'), h('h2', 'World')
           ])
@@ -462,12 +459,12 @@ describe('Custom Elements', function () {
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+      DOM: Cycle.makeDOMDriver(createRenderTarget(), {
         'simple-wrapper': simpleWrapperDef
       })
     });
     // Make assertions
-    responses.get('dom', ':root').first().subscribe(function (root) {
+    responses.DOM.get(':root').first().subscribe(function (root) {
       let wrapper = root.querySelector('.wrapper');
       assert.notStrictEqual(wrapper, null);
       assert.notStrictEqual(typeof wrapper, 'undefined');
@@ -481,23 +478,23 @@ describe('Custom Elements', function () {
     // Make simple custom element
     function myElementDef() {
       return {
-        dom: Rx.Observable.just(h('h3.myelementclass'))
+        DOM: Rx.Observable.just(h('h3.myelementclass'))
       };
     }
     // Use the custom element
     function app() {
       return {
-        dom: Rx.Observable.just(h('div.toplevel', [
+        DOM: Rx.Observable.just(h('div.toplevel', [
           h('my-element', {children: 123})
         ]))
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+      DOM: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
-    responses.get('dom', ':root').subscribeOnError((err) => {
+    responses.DOM.get(':root').subscribeOnError((err) => {
       assert.strictEqual(err.message, 'Custom element should not have ' +
         'property `children`. It is reserved for children elements nested ' +
         'into this custom element.'
@@ -510,7 +507,7 @@ describe('Custom Elements', function () {
   it('should recognize changes on a mutable collection given as props', function (done) {
     function xElementDef(ext) {
       return {
-        dom: ext.get('props', 'list', () => false).map(list =>
+        DOM: ext.props.get('list', () => false).map(list =>
           h('div', [
             h('ol', list.map(value => h('li.test-item', null, value)))
           ]))
@@ -519,14 +516,14 @@ describe('Custom Elements', function () {
 
     let counter = 0;
     function app(ext) {
-      let clickMod$ = ext.get('dom', '.button', 'click')
+      let clickMod$ = ext.DOM.get('.button', 'click')
         .map(() => `item${++counter}`)
         .map(random => function mod(data) {
           data.push(random);
           return data;
         });
       return {
-        dom: clickMod$
+        DOM: clickMod$
           .startWith([])
           .scan((data, modifier) => modifier(data))
           .map(data => h('.root', [
@@ -537,12 +534,12 @@ describe('Custom Elements', function () {
     }
 
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+      DOM: Cycle.makeDOMDriver(createRenderTarget(), {
         'x-element': xElementDef
       })
     });
 
-    responses.get('dom', ':root').first().subscribe(function (root) {
+    responses.DOM.get(':root').first().subscribe(function (root) {
       setTimeout(() => root.querySelector('.button').click(), 100);
       setTimeout(() => root.querySelector('.button').click(), 200);
       setTimeout(() => {
@@ -562,7 +559,7 @@ describe('Custom Elements', function () {
       // Here the vtree changes from <h3> to <button>, the myevent should
       // be emitted on <button> and not from the original <h3>.
       return {
-        dom: Rx.Observable.merge(
+        DOM: Rx.Observable.merge(
           Rx.Observable.just(h('h3.myelementclass', 'foo')),
           Rx.Observable.just(h('button.myelementclass', 'bar')).delay(50)
         ),
@@ -574,7 +571,7 @@ describe('Custom Elements', function () {
     // Use the custom element
     function app() {
       return {
-        dom: Rx.Observable.just(
+        DOM: Rx.Observable.just(
           h('div.toplevel', [
             h('my-element.eventsource', {key: 1})
           ])
@@ -582,18 +579,18 @@ describe('Custom Elements', function () {
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+      DOM: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
     // Make assertions
-    responses.get('dom', ':root').first().subscribe(function (root) {
+    responses.DOM.get(':root').first().subscribe(function (root) {
       let myElement = root.querySelector('.myelementclass');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
       assert.strictEqual(myElement.tagName, 'H3');
     });
-    responses.get('dom', '.eventsource', 'myevent').subscribe(function (event) {
+    responses.DOM.get('.eventsource', 'myevent').subscribe(function (event) {
       assert.strictEqual(event.type, 'myevent');
       assert.strictEqual(event.detail, 123);
       assert.strictEqual(event.target.tagName, 'BUTTON');
@@ -609,7 +606,7 @@ describe('Custom Elements', function () {
     // Make simple custom element
     function myElementDef() {
       return {
-        dom: number$
+        DOM: number$
           .do(i => log.push(i))
           .map(i => h('h3.myelementclass', String(i)))
       };
@@ -617,7 +614,7 @@ describe('Custom Elements', function () {
     // Use the custom element
     function app() {
       return {
-        dom: customElementSwitch$.map(theSwitch => {
+        DOM: customElementSwitch$.map(theSwitch => {
           return theSwitch === 0
             ? h('div.toplevel', [h('my-element', {key: 1})])
             : h('div.toplevel', []);
@@ -625,12 +622,12 @@ describe('Custom Elements', function () {
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+      DOM: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
     // Make assertions
-    responses.get('dom', ':root').first().subscribe(function (root) {
+    responses.DOM.get(':root').first().subscribe(function (root) {
       let myElement = root.querySelector('.myelementclass');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
@@ -639,7 +636,7 @@ describe('Custom Elements', function () {
       // Destroy the element
       customElementSwitch$.request(1);
     });
-    responses.get('dom', ':root').skip(1).subscribe(function (root) {
+    responses.DOM.get(':root').skip(1).subscribe(function (root) {
       let destroyedElement = root.querySelector('.myelementclass');
       assert.strictEqual(destroyedElement, null);
       assert.notStrictEqual(log.length, 2);
@@ -657,7 +654,7 @@ describe('Custom Elements', function () {
     // Make simple custom element
     function myElementDef() {
       return {
-        dom: Rx.Observable.just(h('h3.myelementclass')),
+        DOM: Rx.Observable.just(h('h3.myelementclass')),
         events: {
           myevent: number$.do(i => log.push(i))
         }
@@ -666,7 +663,7 @@ describe('Custom Elements', function () {
     // Use the custom element
     function app() {
       return {
-        dom: customElementSwitch$.map(theSwitch => {
+        DOM: customElementSwitch$.map(theSwitch => {
           return theSwitch === 0
             ? h('div.toplevel', [h('my-element', {key: 1})])
             : h('div.toplevel', []);
@@ -674,13 +671,13 @@ describe('Custom Elements', function () {
       };
     }
     let [requests, responses] = Cycle.run(app, {
-      dom: Cycle.makeDOMDriver(createRenderTarget(), {
+      DOM: Cycle.makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
     // Make assertions
     let myEventDisposable;
-    responses.get('dom', ':root').first().subscribe(function (root) {
+    responses.DOM.get(':root').first().subscribe(function (root) {
       let myElement = root.querySelector('.myelementclass');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
@@ -699,7 +696,7 @@ describe('Custom Elements', function () {
       // Destroy the element
       customElementSwitch$.request(1);
     });
-    responses.get('dom', ':root').skip(1).subscribe(function (root) {
+    responses.DOM.get(':root').skip(1).subscribe(function (root) {
       let destroyedElement = root.querySelector('.myelementclass');
       assert.strictEqual(destroyedElement, null);
 

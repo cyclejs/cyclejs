@@ -52,35 +52,32 @@ describe('Cycle', function () {
     it('should return requests object and responses object', function () {
       function app(ext) {
         return {
-          other: ext.get('other').take(1).startWith('a')
+          other: ext.other.take(1).startWith('a')
         };
       }
       function driver() {
-        return {
-          get: () => Cycle.Rx.Observable.just('b')
-        };
+        return Cycle.Rx.Observable.just('b');
       }
       let [left, right] = Cycle.run(app, {other: driver});
       assert.strictEqual(typeof left, 'object');
       assert.strictEqual(typeof left.other.subscribe, 'function');
       assert.strictEqual(typeof right, 'object');
-      assert.strictEqual(typeof right.get, 'function');
-      assert.strictEqual(typeof right.get('other').subscribe, 'function');
+      assert.notStrictEqual(typeof right.other, 'undefined');
+      assert.notStrictEqual(right.other, null);
+      assert.strictEqual(typeof right.other.subscribe, 'function');
     });
 
     it('should return a disposable drivers output', function (done) {
       function app(res) {
         return {
-          other: res.get('other').take(6).map(x => String(x)).startWith('a')
+          other: res.other.take(6).map(x => String(x)).startWith('a')
         };
       }
       function driver(req) {
-        return {
-          get: () => req.map(x => x.charCodeAt(0))
-        };
+        return req.map(x => x.charCodeAt(0));
       }
       let [requests, responses] = Cycle.run(app, {other: driver});
-      responses.get('other').subscribe(x => {
+      responses.other.subscribe(x => {
         assert.strictEqual(x, 97);
         responses.dispose();
         done();

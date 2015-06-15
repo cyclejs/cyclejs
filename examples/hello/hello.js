@@ -3,7 +3,7 @@ var h = Cycle.h;
 
 function main(ext) {
   return {
-    DOM: ext.get('DOM', '.myinput', 'input')
+    DOM: ext.DOM.get('.myinput', 'input')
       .map(function (ev) { return ev.target.value; })
       .startWith('')
       .map(function (name) {

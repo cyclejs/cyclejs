@@ -2,7 +2,7 @@
 
 function main(ext) {
   return {
-    DOM: ext.get('DOM', '.box', 'click')
+    DOM: ext.DOM.get('.box', 'click')
       .map(function () { return Math.round(Math.random() * 1000); })
       .startWith(135)
       .map(function (data) {
