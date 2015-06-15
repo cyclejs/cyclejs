@@ -20,7 +20,7 @@ let {h} = Cycle;
 
 function main(drivers) {
   return {
-    DOM: drivers.get('DOM', '.myinput', 'input')
+    DOM: drivers.DOM.get('.myinput', 'input')
       .map(ev => ev.target.value)
       .startWith('')
       .map(name =>
@@ -39,8 +39,8 @@ Cycle.run(main, {
 });
 ```
 
-The input of `main` is `drivers`, a queryable collection of Observables from the "external world", containing for instance user events happening on elements on the DOM.
-`drivers.get('DOM', selector, eventType)` returns an Observable of `eventType` events happening on elements specified by `selector`. This goes through a series of RxJS operations to produce an Observable of virtual DOM elements, which is returned and tagged `DOM`. Function `Cycle.run()` will take your `main` function and circularly connect it to the specified "driver functions". The DOM driver function acts on behalf of the user: takes the tagged `DOM` Observable of virtual elements returned from `main()`, shows that on the screen as a side-effect, and outputs Observables of user interaction events. The result of this is Human-Computer Interaction, i.e. a dialogue between `main()` and the DOM driver function, happening under the container element selected by `'.js-container'`.
+The input of `main` is `drivers`, a collection of Observables from the "external world", containing for instance user events happening on elements on the DOM.
+`drivers.DOM` is a queryable collection of Observable events happening from the DOM. Query it using a getter: `get(selector, eventType)` returns an Observable of `eventType` events happening on elements specified by `selector`. This goes through a series of RxJS operations to produce an Observable of virtual DOM elements, which is returned and tagged `DOM`. Function `Cycle.run()` will take your `main` function and circularly connect it to the specified "driver functions". The DOM driver function acts on behalf of the user: takes the tagged `DOM` Observable of virtual elements returned from `main()`, shows that on the screen as a side-effect, and outputs Observables of user interaction events. The result of this is Human-Computer Interaction, i.e. a dialogue between `main()` and the DOM driver function, happening under the container element selected by `'.js-container'`.
 
 For advanced examples, check out [TodoMVC implemented in Cycle.js](https://github.com/staltz/todomvc-cycle) and [RxMarbles](https://github.com/staltz/rxmarbles).
 

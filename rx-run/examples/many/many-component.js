@@ -1,9 +1,9 @@
 var h = Cycle.h;
 
 function manyComponent(ext) {
-  var id$ = ext.get('props', 'itemid').shareReplay(1);
-  var color$ = ext.get('props', 'color').startWith('#888').shareReplay(1);
-  var width$ = ext.get('props', 'width').startWith(200).shareReplay(1);
+  var id$ = ext.props.get('itemid').shareReplay(1);
+  var color$ = ext.props.get('color').startWith('#888').shareReplay(1);
+  var width$ = ext.props.get('width').startWith(200).shareReplay(1);
   var vtree$ = Cycle.Rx.Observable
     .combineLatest(id$, color$, width$, function (id, color, width) {
       var style = {
@@ -30,13 +30,13 @@ function manyComponent(ext) {
         h('button.remove-btn', {attributes: {'data-item-id': id}}, 'Remove')
       ]);
     });
-  var destroy$ = ext.get('DOM', '.remove-btn', 'click')
+  var destroy$ = ext.DOM.get('.remove-btn', 'click')
     .withLatestFrom(id$, function (ev, id) { return id; });
-  var changeColor$ = ext.get('DOM', '.color-field', 'input')
+  var changeColor$ = ext.DOM.get('.color-field', 'input')
     .withLatestFrom(id$, function (ev, id) {
       return {id: id, color: ev.currentTarget.value};
     });
-  var changeWidth$ = ext.get('DOM', '.width-slider', 'input')
+  var changeWidth$ = ext.DOM.get('.width-slider', 'input')
     .withLatestFrom(id$, function (ev, id) {
       return {id: id, width: parseInt(ev.currentTarget.value)};
     });

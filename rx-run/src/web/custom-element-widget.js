@@ -67,7 +67,11 @@ function makePropertiesDriver() {
   });
   Object.defineProperty(propertiesDriver, 'get', {
     enumerable: false,
-    value: function get(streamKey = ALL_PROPS, comparer = defaultComparer) {
+    value: function get(streamKey, comparer = defaultComparer) {
+      if (typeof streamKey === 'undefined') {
+        throw new Error('Custom element driver `props.get()` expects an ' +
+          'argument in the getter.');
+      }
       if (typeof this[streamKey] === 'undefined') {
         this[streamKey] = new Rx.ReplaySubject(1);
       }
@@ -102,17 +106,8 @@ function throwIfVTreeHasPropertyChildren(vtree) {
 
 function makeCustomElementInput(domOutput, propertiesDriver, domDriverName) {
   return {
-    get(driverName, ...params) {
-      if (driverName === domDriverName) {
-        return domOutput.get.apply(null, params);
-      } else if (driverName === PROPS_DRIVER_NAME) {
-        return propertiesDriver.get.apply(propertiesDriver, params);
-      } else {
-        throw new Error(`No such internal driver named '${driverName}' for ` +
-          `custom elements. Use '${domDriverName}' or ` +
-          `'${PROPS_DRIVER_NAME}' instead.`);
-      }
-    }
+    [domDriverName]: domOutput,
+    [PROPS_DRIVER_NAME]: propertiesDriver
   };
 }
 
@@ -271,7 +266,8 @@ module.exports = {
   makeInit,
   updateCustomElement,
   destroyCustomElement,
-  makeCustomElementInput,
 
+  ALL_PROPS,
+  makeCustomElementInput,
   makeWidgetClass
 };

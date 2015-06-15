@@ -2,11 +2,11 @@ var h = Cycle.h;
 var Rx = Cycle.Rx;
 
 function tickerCustomElement(ext) {
-  var removeClicks$ = ext.get('DOM', '.remove-btn', 'click').share();
+  var removeClicks$ = ext.DOM.get('.remove-btn', 'click').share();
   var stop$ = removeClicks$.map(function () { return 'stop'; });
   var remove$ = removeClicks$.map(function () { return 'remove'; }).delay(500);
   var color$ = Rx.Observable.merge(
-    ext.get('props', 'color').takeUntil(stop$),
+    ext.props.get('color').takeUntil(stop$),
     stop$.map(function () { return '#FF0000'; })
   );
   var x$ = Rx.Observable.interval(50).startWith(0).takeUntil(stop$);
@@ -37,7 +37,7 @@ function makeRandomColor() {
 }
 
 function main(ext) {
-  var removeTicker$ = ext.get('DOM', '.ticker', 'remove');
+  var removeTicker$ = ext.DOM.get('.ticker', 'remove');
   var color$ = Rx.Observable.interval(1000)
     .map(makeRandomColor)
     .startWith('#000000');

@@ -154,7 +154,7 @@ function makeRootElemToEvent$(selector, eventName) {
   };
 }
 
-function makeGet(rootElem$) {
+function makeResponseGetter(rootElem$) {
   return function get(selector, eventName) {
     if (typeof selector !== 'string') {
       throw new Error('DOM driver\'s get() expects first argument to be a ' +
@@ -189,7 +189,7 @@ function makeDOMDriverWithRegistry(container, CERegistry) {
     let rootElem$ = fixRootElem$(rawRootElem$, container);
     let disposable = rootElem$.connect();
     return {
-      get: makeGet(rootElem$),
+      get: makeResponseGetter(rootElem$),
       dispose: disposable.dispose.bind(disposable)
     };
   };
@@ -222,7 +222,7 @@ module.exports = {
   makeDiffAndPatchToElement$,
   getRenderRootElem,
   renderRawRootElem$,
-  makeGet,
+  makeResponseGetter,
   validateDOMDriverInput,
   makeDOMDriverWithRegistry,
 

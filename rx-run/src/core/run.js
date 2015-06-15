@@ -17,34 +17,6 @@ function callDrivers(drivers, requestProxies) {
   return responses;
 }
 
-function makeGet(rawResponses) {
-  return function get(driverName, ...params) {
-    if (!rawResponses.hasOwnProperty(driverName)) {
-      throw new Error(`get(${driverName}, ...) failed, no driver function ` +
-        `named ${driverName} was found for this Cycle execution.`);
-    }
-
-    let driverResponse = rawResponses[driverName];
-    if (typeof driverResponse.subscribe === 'function') {
-      return driverResponse; // is an Observable
-    } else if (typeof driverResponse === 'object' &&
-      typeof driverResponse.get === 'function')
-    {
-      return rawResponses[driverName].get.apply(null, params);
-    } else if (typeof driverResponse === 'object' &&
-      params.length > 0 &&
-      typeof params[0] === 'string' &&
-      driverResponse.hasOwnProperty(params[0]))
-    {
-      return rawResponses[driverName][params[0]];
-    } else {
-      throw new Error(`get(${driverName}, ...) failed because driver was ` +
-        `not able to process parameters. Report this bug to the driver ` +
-        `function author.`);
-    }
-  };
-}
-
 function makeDispose(requestProxies, rawResponses) {
   return function dispose() {
     for (let x in requestProxies) { if (requestProxies.hasOwnProperty(x)) {
@@ -61,10 +33,11 @@ function makeDispose(requestProxies, rawResponses) {
 }
 
 function makeAppInput(requestProxies, rawResponses) {
-  return {
-    get: makeGet(rawResponses),
-    dispose: makeDispose(requestProxies, rawResponses)
-  };
+  Object.defineProperty(rawResponses, 'dispose', {
+    enumerable: false,
+    value: makeDispose(requestProxies, rawResponses)
+  });
+  return rawResponses;
 }
 
 function replicateMany(original, imitators) {

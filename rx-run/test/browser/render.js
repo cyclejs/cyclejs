@@ -70,7 +70,7 @@ describe('Rendering', function () {
     it('should have Observable `:root` in response', function (done) {
       function app() {
         return {
-          dom: Rx.Observable.just(
+          DOM: Rx.Observable.just(
             h('div.top-most', [
               h('p', 'Foo'),
               h('span', 'Bar')
@@ -79,9 +79,9 @@ describe('Rendering', function () {
         };
       }
       let [requests, responses] = Cycle.run(app, {
-        dom: Cycle.makeDOMDriver(createRenderTarget())
+        DOM: Cycle.makeDOMDriver(createRenderTarget())
       });
-      responses.get('dom', ':root').first().subscribe(function (root) {
+      responses.DOM.get(':root').first().subscribe(root => {
         let classNameRegex = /top\-most/;
         assert.strictEqual(root.tagName, 'DIV');
         assert.notStrictEqual(classNameRegex.exec(root.className), null);
@@ -94,7 +94,7 @@ describe('Rendering', function () {
     it('should convert a simple virtual-dom <select> to DOM element', function (done) {
       function app() {
         return {
-          dom: Rx.Observable.just(h('select.my-class', [
+          DOM: Rx.Observable.just(h('select.my-class', [
             h('option', {value: 'foo'}, 'Foo'),
             h('option', {value: 'bar'}, 'Bar'),
             h('option', {value: 'baz'}, 'Baz')
@@ -102,9 +102,9 @@ describe('Rendering', function () {
         };
       }
       let [requests, responses] = Cycle.run(app, {
-        dom: Cycle.makeDOMDriver(createRenderTarget())
+        DOM: Cycle.makeDOMDriver(createRenderTarget())
       });
-      responses.get('dom', ':root').first().subscribe(function () {
+      responses.DOM.get(':root').first().subscribe(function () {
         let selectEl = document.querySelector('.my-class');
         assert.notStrictEqual(selectEl, null);
         assert.notStrictEqual(typeof selectEl, 'undefined');
@@ -118,20 +118,20 @@ describe('Rendering', function () {
       // Make a View reactively imitating another View
       function app() {
         return {
-          dom: Rx.Observable.just(h('h3.myelementclass', 'Foobar'))
+          DOM: Rx.Observable.just(h('h3.myelementclass', 'Foobar'))
         };
       }
       let [requests, responses] = Cycle.run(app, {
-        dom: Cycle.makeDOMDriver(createRenderTarget())
+        DOM: Cycle.makeDOMDriver(createRenderTarget())
       });
       // Make assertions
-      responses.get('dom', '.myelementclass', 'click').subscribe(ev => {
+      responses.DOM.get('.myelementclass', 'click').subscribe(ev => {
         assert.strictEqual(ev.type, 'click');
         assert.strictEqual(ev.target.innerHTML, 'Foobar');
         responses.dispose();
         done();
       });
-      responses.get('dom', ':root').first().subscribe(function () {
+      responses.DOM.get(':root').first().subscribe(function () {
         let myElement = document.querySelector('.myelementclass');
         assert.notStrictEqual(myElement, null);
         assert.notStrictEqual(typeof myElement, 'undefined');
@@ -146,20 +146,20 @@ describe('Rendering', function () {
       // Make a View reactively imitating another View
       function app() {
         return {
-          dom: Rx.Observable.just(h('h3.myelementclass', 'Foobar'))
+          DOM: Rx.Observable.just(h('h3.myelementclass', 'Foobar'))
         };
       }
       let [requests, responses] = Cycle.run(app, {
-        dom: Cycle.makeDOMDriver(createRenderTarget())
+        DOM: Cycle.makeDOMDriver(createRenderTarget())
       });
-      responses.get('dom', '.myelementclass', 'click').subscribe(ev => {
+      responses.DOM.get('.myelementclass', 'click').subscribe(ev => {
         assert.strictEqual(ev.type, 'click');
         assert.strictEqual(ev.target.innerHTML, 'Foobar');
         responses.dispose();
         done();
       });
       // Make assertions
-      responses.get('dom', ':root').first().subscribe(function () {
+      responses.DOM.get(':root').first().subscribe(function () {
         let myElement = document.querySelector('.myelementclass');
         assert.notStrictEqual(myElement, null);
         assert.notStrictEqual(typeof myElement, 'undefined');
@@ -174,16 +174,16 @@ describe('Rendering', function () {
       function app() {
         let number$ = Fixture89.makeModelNumber$();
         return {
-          dom: Fixture89.viewWithContainerFn(number$)
+          DOM: Fixture89.viewWithContainerFn(number$)
         };
       }
       let [requests, responses] = Cycle.run(app, {
-        dom: Cycle.makeDOMDriver(createRenderTarget(), {
+        DOM: Cycle.makeDOMDriver(createRenderTarget(), {
           'my-element': Fixture89.myElement
         })
       });
 
-      responses.get('dom', ':root').first().subscribe(function () {
+      responses.DOM.get(':root').first().subscribe(function () {
         setTimeout(() => {
           let myelement = document.querySelector('.myelementclass');
           assert.notStrictEqual(myelement, null);
@@ -205,15 +205,15 @@ describe('Rendering', function () {
       function app() {
         let number$ = Fixture89.makeModelNumber$();
         return {
-          dom: Fixture89.viewWithoutContainerFn(number$)
+          DOM: Fixture89.viewWithoutContainerFn(number$)
         };
       }
       let [requests, responses] = Cycle.run(app, {
-        dom: Cycle.makeDOMDriver(createRenderTarget(), {
+        DOM: Cycle.makeDOMDriver(createRenderTarget(), {
           'my-element': Fixture89.myElement
         })
       });
-      responses.get('dom', ':root').subscribeOnError(function (err) {
+      responses.DOM.get(':root').subscribeOnError(function (err) {
         assert.strictEqual(err.message,
           'Illegal to use a Cycle custom element as the root of a View.'
         );
@@ -227,15 +227,15 @@ describe('Rendering', function () {
         .concatMap(x => Rx.Observable.just(x).delay(50));
       function app() {
         return {
-          dom: number$.map(number =>
+          DOM: number$.map(number =>
               h('h3.target', String(number))
           )
         };
       }
       let [requests, responses] = Cycle.run(app, {
-        dom: Cycle.makeDOMDriver(createRenderTarget())
+        DOM: Cycle.makeDOMDriver(createRenderTarget())
       });
-      responses.get('dom', ':root').subscribe(function () {
+      responses.DOM.get(':root').subscribe(function () {
         let selectEl = document.querySelector('.target');
         assert.notStrictEqual(selectEl, null);
         assert.notStrictEqual(typeof selectEl, 'undefined');

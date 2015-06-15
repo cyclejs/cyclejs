@@ -3,11 +3,17 @@ let Rx = require('rx');
 let toHTML = require('vdom-to-html');
 let {replaceCustomElementsWithSomething, makeCustomElementsRegistry} =
   require('./custom-elements');
-let {makeCustomElementInput} = require('./custom-element-widget');
+let {makeCustomElementInput, ALL_PROPS} = require('./custom-element-widget');
 
 function makePropertiesDriverFromVTree(vtree) {
   return {
-    get: (propertyName) => Rx.Observable.just(vtree.properties[propertyName])
+    get: (propertyName) => {
+      if (propertyName === ALL_PROPS) {
+        return Rx.Observable.just(vtree.properties);
+      } else {
+        return Rx.Observable.just(vtree.properties[propertyName]);
+      }
+    }
   };
 }
 
@@ -57,20 +63,24 @@ function convertCustomElementsToVTree(vtree$, CERegistry, driverName) {
     .flatMap(transposeVTree);
 }
 
+function makeResponseGetter() {
+  return function get(selector) {
+    if (selector === ':root') {
+      return this;
+    } else {
+      return Rx.Observable.empty();
+    }
+  };
+}
+
 function makeHTMLDriver(customElementDefinitions = {}) {
   let registry = makeCustomElementsRegistry(customElementDefinitions);
   return function htmlDriver(vtree$, driverName) {
     let vtreeLast$ = vtree$.last();
-    return {
-      get(...params) {
-        if (params.length === 0) {
-          return convertCustomElementsToVTree(vtreeLast$, registry, driverName)
-            .map(vtree => toHTML(vtree));
-        } else {
-          return Rx.Observable.empty();
-        }
-      }
-    };
+    let output$ = convertCustomElementsToVTree(vtreeLast$, registry, driverName)
+      .map(vtree => toHTML(vtree));
+    output$.get = makeResponseGetter();
+    return output$;
   };
 }
 

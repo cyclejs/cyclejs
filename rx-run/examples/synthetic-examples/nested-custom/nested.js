@@ -8,11 +8,11 @@ var h = Cycle.h;
 //   element's return object. E.g. model.foo$.
 
 function innerElem(ext) {
-  var refreshData$ = ext.get('UI', '.innerRoot', 'click').share();
-  var foo$ = ext.get('props', 'foo');
+  var refreshData$ = ext.UI.get('.innerRoot', 'click').share();
+  var foo$ = ext.props.get('foo');
   var content$ = refreshData$
     .map(function () { return Math.round(Math.random() * 1000); })
-    .merge(ext.get('props', 'content'))
+    .merge(ext.props.get('content'))
     .shareReplay(1);
   var vtree$ = content$
     .map(function (content) {
@@ -49,7 +49,7 @@ function makeRandomColor() {
 }
 
 function main(ext) {
-  var vtree$ = ext.get('UI', '.inner', 'wasRefreshed')
+  var vtree$ = ext.UI.get('.inner', 'wasRefreshed')
     .map(makeRandomColor)
     .startWith('#000000')
     .map(function (color) {
@@ -76,10 +76,10 @@ var responses = interaction[1];
 console.info('You should see both \'foo: ...\' and \'content: ...\' ' +
   'logs every time you click on the inner box.'
 );
-responses.get('UI', '.inner', 'fooOnRefresh').subscribe(function (ev) {
+responses.UI.get('.inner', 'fooOnRefresh').subscribe(function (ev) {
   console.log('foo: ' + ev.detail);
 });
-responses.get('UI', '.inner', 'contentOnRefresh').subscribe(function (ev) {
+responses.UI.get('.inner', 'contentOnRefresh').subscribe(function (ev) {
   console.log('content: ' + ev.detail);
 });
 

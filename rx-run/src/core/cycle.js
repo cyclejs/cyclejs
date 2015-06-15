@@ -13,12 +13,9 @@ var Cycle = {
    *
    * The `app` function expects a collection of "driver response" Observables as
    * input, and should return a collection of "driver request" Observables.
-   * The driver response collection can be queried using a getter function:
-   * `responses.get(driverName, ...params)`, returns an Observable. The
-   * structure of `params` is defined by the API of the corresponding
-   * `driverName`. The driver request collection should be a simple object where
-   * keys match the driver names used by `responses.get()` and defined on the
-   * second parameter given to `run()`.
+   * A "collection of Observables" is a JavaScript object where
+   * keys match the driver names registered by the `drivers` object, and values
+   * are Observables or a collection of Observables.
    *
    * @param {Function} app a function that takes `responses` as input
    * and outputs a collection of `requests` Observables.
@@ -35,15 +32,19 @@ var Cycle = {
    * A factory for the DOM driver function. Takes a `container` to define the
    * target on the existing DOM which this driver will operate on. All custom
    * elements which this driver can detect should be given as the second
-   * parameter.
+   * parameter. The output of this driver is a collection of Observables queried
+   * by a getter function: `domDriverOutput.get(selector, eventType)` returns an
+   * Observable of events of `eventType` happening on the element determined by
+   * `selector`. Also, `domDriverOutput.get(':root')` returns an Observable of
+   * DOM element corresponding to the root (or container) of the app on the DOM.
    *
    * @param {(String|HTMLElement)} container the DOM selector for the element
    * (or the element itself) to contain the rendering of the VTrees.
-   * @param {Object} customElements a collection of custom element definitions. The key of each
-   * property should be the tag name of the custom element, and the value should
-   * be a function defining the implementation of the custom element. This
-   * function follows the same contract as the top-most `app` function: input
-   * are driver responses, output are requests to drivers.
+   * @param {Object} customElements a collection of custom element definitions.
+   * The key of each property should be the tag name of the custom element, and
+   * the value should be a function defining the implementation of the custom
+   * element. This function follows the same contract as the top-most `app`
+   * function: input are driver responses, output are requests to drivers.
    * @return {Function} the DOM driver function. The function expects an
    * Observable of VTree as input, and outputs the response object for this
    * driver, containing functions `get()` and `dispose()` that can be used for
@@ -58,17 +59,14 @@ var Cycle = {
    * the custom element registry to detect custom element on the VTree and apply
    * their implementations.
    *
-   * @param {Object} customElements a collection of custom element definitions. The key of each
-   * property should be the tag name of the custom element, and the value should
-   * be a function defining the implementation of the custom element. This
-   * function follows the same contract as the top-most `app` function: input
-   * are driver responses, output are requests to drivers.
+   * @param {Object} customElements a collection of custom element definitions.
+   * The key of each property should be the tag name of the custom element, and
+   * the value should be a function defining the implementation of the custom
+   * element. This function follows the same contract as the top-most `app`
+   * function: input are driver responses, output are requests to drivers.
    * @return {Function} the HTML driver function. The function expects an
-   * Observable of Virtual DOM elements as input, and outputs the response
-   * object for this driver, containing functions `get()` and `dispose()` that
-   * can be used for debugging and testing. To get the Observable of strings as
-   * the HTML renderization of the virtual DOM elements, call simply
-   * `get(htmlDriverName)` on the responses object returned by Cycle.run();
+   * Observable of Virtual DOM elements as input, and outputs an Observable of
+   * strings as the HTML renderization of the virtual DOM elements.
    * @function makeHTMLDriver
    */
   makeHTMLDriver,

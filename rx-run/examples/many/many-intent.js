@@ -1,15 +1,15 @@
 function manyIntent(ext) {
-  var addOneBtnClick$ = ext.get('DOM', '.add-one-btn', 'click');
-  var addManyBtnClick$ = ext.get('DOM', '.add-many-btn', 'click');
+  var addOneBtnClick$ = ext.DOM.get('.add-one-btn', 'click');
+  var addManyBtnClick$ = ext.DOM.get('.add-many-btn', 'click');
   var addItem$ = Cycle.Rx.Observable.merge(
     addOneBtnClick$.map(function () { return 1; }),
     addManyBtnClick$.map(function () { return 1000; })
   );
-  var changeColor$ = ext.get('DOM', '.item', 'changeColor')
+  var changeColor$ = ext.DOM.get('.item', 'changeColor')
     .map(function (ev) { return ev.detail; });
-  var changeWidth$ = ext.get('DOM', '.item', 'changeWidth')
+  var changeWidth$ = ext.DOM.get('.item', 'changeWidth')
     .map(function (ev) { return ev.detail; });
-  var removeItem$ = ext.get('DOM', '.item', 'destroy')
+  var removeItem$ = ext.DOM.get('.item', 'destroy')
     .map(function (ev) { return ev.detail; });
 
   return {

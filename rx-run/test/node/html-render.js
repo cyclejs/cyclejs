@@ -12,10 +12,25 @@ describe('renderAsHTML()', function () {
         html: Rx.Observable.just(h('div.test-element', ['Foobar']))
       };
     }
-    let [appOutput, htmlOutput] = Cycle.run(app, {
+    let [requests, responses] = Cycle.run(app, {
       html: Cycle.makeHTMLDriver()
     });
-    htmlOutput.get('html').subscribe(function (html) {
+    responses.html.subscribe(html => {
+      assert.strictEqual(html, '<div class="test-element">Foobar</div>');
+      done();
+    });
+  });
+
+  it('should output simple HTML Observable at `.get(\':root\')`', function (done) {
+    function app() {
+      return {
+        html: Rx.Observable.just(h('div.test-element', ['Foobar']))
+      };
+    }
+    let [requests, responses] = Cycle.run(app, {
+      html: Cycle.makeHTMLDriver()
+    });
+    responses.html.get(':root').subscribe(html => {
       assert.strictEqual(html, '<div class="test-element">Foobar</div>');
       done();
     });
@@ -24,18 +39,18 @@ describe('renderAsHTML()', function () {
   it('should render a simple nested custom element as HTML', function (done) {
     function myElement() {
       return {
-        dom: Rx.Observable.just(h('h3.myelementclass'))
+        DOM: Rx.Observable.just(h('h3.myelementclass'))
       };
     }
     function app() {
       return {
-        dom: Rx.Observable.just(h('div.test-element', [h('my-element')]))
+        DOM: Rx.Observable.just(h('div.test-element', [h('my-element')]))
       };
     }
-    let [appOutput, htmlOutput] = Cycle.run(app, {
-      dom: Cycle.makeHTMLDriver({'my-element': myElement})
+    let [requests, responses] = Cycle.run(app, {
+      DOM: Cycle.makeHTMLDriver({'my-element': myElement})
     });
-    htmlOutput.get('dom').subscribe(function (html) {
+    responses.DOM.subscribe(html => {
       assert.strictEqual(html,
         '<div class="test-element">' +
           '<h3 class="myelementclass"></h3>' +
@@ -69,9 +84,9 @@ describe('renderAsHTML()', function () {
     };
     let html$ = Cycle.run(app, {
       html: Cycle.makeHTMLDriver(customElements)
-    })[1].get('html');
+    })[1].html;
 
-    html$.subscribe(function (html) {
+    html$.subscribe(html => {
       assert.strictEqual(html,
         '<div class="test-element">' +
           '<div class="a-nice-element">' +
@@ -86,7 +101,7 @@ describe('renderAsHTML()', function () {
   it('should HTML-render a nested custom element with props', function (done) {
     function myElement(ext) {
       return {
-        DOM: ext.get('props', 'foobar')
+        DOM: ext.props.get('foobar')
           .map(foobar => h('h3.myelementclass', String(foobar).toUpperCase()))
       };
     }
@@ -99,14 +114,44 @@ describe('renderAsHTML()', function () {
         )
       };
     }
-    let [appOutput, htmlOutput] = Cycle.run(app, {
+    let [requests, responses] = Cycle.run(app, {
       DOM: Cycle.makeHTMLDriver({'my-element': myElement})
     });
 
-    htmlOutput.get('DOM').subscribe(function (html) {
+    responses.DOM.subscribe(html => {
       assert.strictEqual(html,
         '<div class="test-element">' +
           '<h3 class="myelementclass">YES</h3>' +
+        '</div>'
+      );
+      done();
+    });
+  });
+
+  it('should HTML-render a nested custom element with props (2)', function (done) {
+    function myElement(ext) {
+      return {
+        DOM: ext.props.get('*')
+          .map(props => h('h3.myelementclass', String(props.foobar).toUpperCase()))
+      };
+    }
+    function app() {
+      return {
+        DOM: Rx.Observable.just(
+          h('div.test-element', [
+            h('my-element', {foobar: 'yes'})
+          ])
+        )
+      };
+    }
+    let [requests, responses] = Cycle.run(app, {
+      DOM: Cycle.makeHTMLDriver({'my-element': myElement})
+    });
+
+    responses.DOM.subscribe(html => {
+      assert.strictEqual(html,
+        '<div class="test-element">' +
+        '<h3 class="myelementclass">YES</h3>' +
         '</div>'
       );
       done();
@@ -144,14 +189,14 @@ describe('renderAsHTML()', function () {
         )
       };
     }
-    let [appOutput, htmlOutput] = Cycle.run(app, {
+    let [requests, responses] = Cycle.run(app, {
       html: Cycle.makeHTMLDriver({
         'x-foo': xFoo,
         'x-bar': xBar
       })
     });
 
-    htmlOutput.get('html').subscribe(function (html) {
+    responses.html.subscribe(html => {
       assert.strictEqual(html,
         '<div class="test-element">' +
           '<div>' +
