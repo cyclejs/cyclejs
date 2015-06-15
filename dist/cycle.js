@@ -14957,7 +14957,7 @@ function makeDispatchFunction(element, eventName) {
   return function dispatchCustomEvent(evData) {
     //console.log('%cdispatchCustomEvent ' + eventName,
     //  'background-color: #CCCCFF; color: black');
-    var event;
+    var event = undefined;
     try {
       event = new Event(eventName);
     } catch (err) {
