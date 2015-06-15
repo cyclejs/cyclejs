@@ -6,7 +6,7 @@ let {makeDOMDriver} = require('../web/render-dom');
 let {makeHTMLDriver} = require('../web/render-html');
 let run = require('./run');
 
-var Cycle = {
+let Cycle = {
   /**
    * Takes an `app` function and circularly connects it to the given collection
    * of driver functions.

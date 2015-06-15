@@ -24,7 +24,7 @@
   "devDependencies": {
     "babel": "5.5.x",
     "babelify": "6.1.x",
-    "eslint": "^0.22.1",
+    "eslint": "^0.23.0",
     "browserify": "10.2.4",
     "markdox": "0.1.8",
     "mocha": "2.2.5",

@@ -101,7 +101,7 @@
     "valid-typeof": 2,
     "max-statements": [1, 30],
     "max-params": [1, 3],
-    "no-var": true,
+    "no-var": 2,
     "semi": 2,
     "dot-location": [2, "property"],
     // Project specific rules
