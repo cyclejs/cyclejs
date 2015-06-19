@@ -129,23 +129,24 @@ function makeConstructor() {
   };
 }
 
-function validateDefFnOutput(defFnOutput, domDriverName) {
+function validateDefFnOutput(defFnOutput, domDriverName, tagName) {
   if (typeof defFnOutput !== 'object') {
-    throw new Error('Custom element definition function should output an ' +
-      'object.');
+    throw new Error(`Custom element definition function for '${tagName}' ` +
+      ' should output an object.');
   }
   if (typeof defFnOutput[domDriverName] === 'undefined') {
-    throw new Error(`Custom element definition function should output an ` +
-      `object containing '${domDriverName}'.`);
+    throw new Error(`Custom element definition function for '${tagName}' ` +
+      `should output an object containing '${domDriverName}'.`);
   }
   if (typeof defFnOutput[domDriverName].subscribe !== 'function') {
-    throw new Error(`Custom element definition function should output an ` +
-      `object containing an Observable of VTree, named '${domDriverName}'.`);
+    throw new Error(`Custom element definition function for '${tagName}' ` +
+      `should output an object containing an Observable of VTree, named ` +
+      `'${domDriverName}'.`);
   }
   for (let name in defFnOutput) { if (defFnOutput.hasOwnProperty(name)) {
     if (name !== domDriverName && name !== EVENTS_SINK_NAME) {
-      throw new Error(`Unknown '${name}' found on custom element definition ` +
-        `function's output.`);
+      throw new Error(`Unknown '${name}' found on custom element ` +
+        `'${tagName}'s definition function's output.`);
     }
   }}
 }
@@ -167,7 +168,7 @@ function makeInit(tagName, definitionFn) {
       domResponse, propertiesDriver, driverName
     );
     let requests = definitionFn(defFnInput);
-    validateDefFnOutput(requests, driverName);
+    validateDefFnOutput(requests, driverName, tagName);
     proxyVTree$$.onNext(requests[driverName].shareReplay(1));
     proxyVTree$$.onCompleted();
     rootElem$.subscribe(widget.firstRootElem$.asObserver());
