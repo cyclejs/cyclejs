@@ -79,6 +79,12 @@ function makePropertiesDriver() {
         .distinctUntilChanged(Rx.helpers.identity, comparer);
     }
   });
+  Object.defineProperty(propertiesDriver, 'getAll', {
+    enumerable: false,
+    value: function getAll() {
+      return this.get('*');
+    }
+  });
   return propertiesDriver;
 }
 
