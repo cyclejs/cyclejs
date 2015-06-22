@@ -109,11 +109,54 @@ describe('Custom Elements', function () {
     }, 500);
   });
 
-  it('should have Observable properties object as get(\'props\', \'*\')', function (done) {
+  it('should have Observable properties object as props.get(\'*\')', function (done) {
     // Make custom element
     function myElementDef(ext) {
       return {
         DOM: ext.props.get('*').map(propsObj => {
+          assert.strictEqual(typeof propsObj, 'object');
+          assert.notStrictEqual(propsObj, null);
+          assert.strictEqual(propsObj.color, '#FF0000');
+          assert.strictEqual(propsObj.content, 'Hello world');
+          return h('h3.inner-element',
+            {style: {color: propsObj.color}},
+            String(propsObj.content)
+          );
+        })
+      };
+    }
+    function app() {
+      return {
+        DOM: Rx.Observable.just(
+          h('div', [
+            h('my-element', {color: '#FF0000', content: 'Hello world'})
+          ])
+        )
+      };
+    }
+    let [requests, responses] = Cycle.run(app, {
+      DOM: Cycle.makeDOMDriver(createRenderTarget(), {
+        'my-element': myElementDef
+      })
+    });
+    // Make assertions
+    responses.DOM.get(':root').first().subscribe(function (root) {
+      let myElement = root.querySelector('.inner-element');
+      assert.notStrictEqual(myElement, null);
+      assert.notStrictEqual(typeof myElement, 'undefined');
+      assert.strictEqual(myElement.tagName, 'H3');
+      assert.strictEqual(myElement.textContent, 'Hello world');
+      assert.strictEqual(myElement.style.color, 'rgb(255, 0, 0)');
+      responses.dispose();
+      done();
+    });
+  });
+
+  it('should have Observable properties object as props.getAll()', function (done) {
+    // Make custom element
+    function myElementDef(ext) {
+      return {
+        DOM: ext.props.getAll().map(propsObj => {
           assert.strictEqual(typeof propsObj, 'object');
           assert.notStrictEqual(propsObj, null);
           assert.strictEqual(propsObj.color, '#FF0000');
