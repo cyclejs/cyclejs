@@ -82,7 +82,7 @@ function makePropertiesDriver() {
   Object.defineProperty(propertiesDriver, 'getAll', {
     enumerable: false,
     value: function getAll() {
-      return this.get('*');
+      return this.get(ALL_PROPS);
     }
   });
   return propertiesDriver;
