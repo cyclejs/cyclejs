@@ -15022,6 +15022,12 @@ function makePropertiesDriver() {
       return this[streamKey].distinctUntilChanged(Rx.helpers.identity, comparer);
     }
   });
+  Object.defineProperty(propertiesDriver, 'getAll', {
+    enumerable: false,
+    value: function getAll() {
+      return this.get(ALL_PROPS);
+    }
+  });
   return propertiesDriver;
 }
 
@@ -15069,20 +15075,20 @@ function makeConstructor() {
   };
 }
 
-function validateDefFnOutput(defFnOutput, domDriverName) {
+function validateDefFnOutput(defFnOutput, domDriverName, tagName) {
   if (typeof defFnOutput !== 'object') {
-    throw new Error('Custom element definition function should output an ' + 'object.');
+    throw new Error('Custom element definition function for \'' + tagName + '\' ' + ' should output an object.');
   }
   if (typeof defFnOutput[domDriverName] === 'undefined') {
-    throw new Error('Custom element definition function should output an ' + ('object containing \'' + domDriverName + '\'.'));
+    throw new Error('Custom element definition function for \'' + tagName + '\' ' + ('should output an object containing \'' + domDriverName + '\'.'));
   }
   if (typeof defFnOutput[domDriverName].subscribe !== 'function') {
-    throw new Error('Custom element definition function should output an ' + ('object containing an Observable of VTree, named \'' + domDriverName + '\'.'));
+    throw new Error('Custom element definition function for \'' + tagName + '\' ' + 'should output an object containing an Observable of VTree, named ' + ('\'' + domDriverName + '\'.'));
   }
   for (var _name2 in defFnOutput) {
     if (defFnOutput.hasOwnProperty(_name2)) {
       if (_name2 !== domDriverName && _name2 !== EVENTS_SINK_NAME) {
-        throw new Error('Unknown \'' + _name2 + '\' found on custom element definition ' + 'function\'s output.');
+        throw new Error('Unknown \'' + _name2 + '\' found on custom element ' + ('\'' + tagName + '\'s definition function\'s output.'));
       }
     }
   }
@@ -15106,7 +15112,7 @@ function makeInit(tagName, definitionFn) {
     var rootElem$ = domResponse.get(':root');
     var defFnInput = makeCustomElementInput(domResponse, propertiesDriver, driverName);
     var requests = definitionFn(defFnInput);
-    validateDefFnOutput(requests, driverName);
+    validateDefFnOutput(requests, driverName, tagName);
     proxyVTree$$.onNext(requests[driverName].shareReplay(1));
     proxyVTree$$.onCompleted();
     rootElem$.subscribe(widget.firstRootElem$.asObserver());
