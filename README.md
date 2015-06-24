@@ -12,11 +12,16 @@
 
 [![npm version](https://badge.fury.io/js/cyclejs.svg)](http://badge.fury.io/js/cyclejs)
 
+#### [Cycle Web Drivers](https://github.com/cyclejs/cycle-web)
+
+*CycleWeb* is a small collection of Cycle drivers to enable interaction with the DOM. It includes a DOM Driver, an HTML Driver, both working on top of `virtual-dom`.
+
 ## Example
 
 ```javascript
-import Cycle from 'cyclejs';
-let {h} = Cycle;
+import Cycle from '@cycle/core';
+import CycleWeb from '@cycle/web';
+let {h} = CycleWeb;
 
 function main(drivers) {
   return {
@@ -35,7 +40,7 @@ function main(drivers) {
 }
 
 Cycle.run(main, {
-  DOM: Cycle.makeDOMDriver('.js-container')
+  DOM: CycleWeb.makeDOMDriver('.js-container')
 });
 ```
 
@@ -46,7 +51,7 @@ For advanced examples, check out [TodoMVC implemented in Cycle.js](https://githu
 
 ## Installing
 
-`npm install cyclejs`
+`npm install @cycle/core @cycle/web`
 
 ## Learn more
 
