@@ -27,7 +27,7 @@
     "vdom-to-html": "^2.0.0"
   },
   "devDependencies": {
-    "@cycle/core": "1.0.0",
+    "@cycle/core": "1.0.0-rc1",
     "babel": "5.5.x",
     "babelify": "6.1.x",
     "eslint": "^0.23.0",
