@@ -1,0 +1,7 @@
+languages:
+  JavaScript: true
+exclude_paths:
+- dist/*
+- scripts/*
+- examples/*
+- test/*

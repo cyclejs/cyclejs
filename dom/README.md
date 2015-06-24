@@ -10,7 +10,7 @@ A collection of Cycle drivers to enable interaction with the DOM. It includes a 
 
 - - -
 
-[![Build Status](https://travis-ci.org/staltz/cycle.svg?branch=master)](https://travis-ci.org/staltz/cycle)
-[![Code Climate](https://codeclimate.com/github/staltz/cycle/badges/gpa.svg)](https://codeclimate.com/github/staltz/cycle)
-[![Dependency Status](https://david-dm.org/staltz/cycle.svg)](https://david-dm.org/staltz/cycle)
-[![devDependency Status](https://david-dm.org/staltz/cycle/dev-status.svg)](https://david-dm.org/staltz/cycle#info=devDependencies)
+[![Build Status](https://travis-ci.org/cyclejs/cycle-web.svg?branch=master)](https://travis-ci.org/cyclejs/cycle-web)
+[![Code Climate](https://codeclimate.com/github/cyclejs/cycle-web/badges/gpa.svg)](https://codeclimate.com/github/cyclejs/cycle-web)
+[![Dependency Status](https://david-dm.org/cyclejs/cycle-web.svg)](https://david-dm.org/cyclejs/cycle-web)
+[![devDependency Status](https://david-dm.org/cyclejs/cycle-web/dev-status.svg)](https://david-dm.org/cyclejs/cycle-web#info=devDependencies)
