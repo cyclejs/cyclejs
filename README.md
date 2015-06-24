@@ -1,5 +1,5 @@
 <h1>
-<img src="https://raw.github.com/staltz/cycle/master/logo.png" /> Cycle.js
+<img src="https://raw.github.com/cyclejs/cycle-core/master/logo.png" /> Cycle.js
 </h1>
 
 > Cycle.js is a reactive and functional JavaScript framework, where the user is a function, the computer is a function, and Human-Computer Interaction is a fixed point equation over reactive event streams.
@@ -80,7 +80,7 @@ Why would you use Cycle.js instead of other web frameworks such as Angular and R
 
 ## Community
 
-* Ask "_how do I...?_" questions in Gitter: <br />[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/staltz/cycle?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+* Ask "_how do I...?_" questions in Gitter: <br />[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cyclejs/cycle-core?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 * Propose and discuss significant changes as a GitHub issues
 
 ### Resources
@@ -104,17 +104,17 @@ Prior to v1.0.0, the versions will follow the convention: improvements that brea
 ## Acknowledgements
 
 - This project is a grateful recipient of the [Futurice Open Source sponsorship program](http://futurice.com/blog/sponsoring-free-time-open-source-activities).
-- [@dobrite](https://github.com/dobrite) for [boilerplate reduction ideas](https://github.com/staltz/cycle/issues/56).
+- [@dobrite](https://github.com/dobrite) for [boilerplate reduction ideas](https://github.com/cyclejs/cycle-core/issues/56).
 - [@erykpiast](https://github.com/erykpiast) for pull requests and great ideas.
 - [@pH200](https://github.com/pH200) for pull requests and amazing contributions.
 
 ## LICENSE
 
-[The MIT License (MIT)](https://github.com/staltz/cycle/blob/master/LICENSE)
+[The MIT License (MIT)](https://github.com/cyclejs/cycle-core/blob/master/LICENSE)
 
 - - -
 
-[![Build Status](https://travis-ci.org/staltz/cycle.svg?branch=master)](https://travis-ci.org/staltz/cycle)
-[![Code Climate](https://codeclimate.com/github/staltz/cycle/badges/gpa.svg)](https://codeclimate.com/github/staltz/cycle)
-[![Dependency Status](https://david-dm.org/staltz/cycle.svg)](https://david-dm.org/staltz/cycle)
-[![devDependency Status](https://david-dm.org/staltz/cycle/dev-status.svg)](https://david-dm.org/staltz/cycle#info=devDependencies)
+[![Build Status](https://travis-ci.org/cyclejs/cycle-core.svg?branch=master)](https://travis-ci.org/cyclejs/cycle-core)
+[![Code Climate](https://codeclimate.com/github/cyclejs/cycle-core/badges/gpa.svg)](https://codeclimate.com/github/cyclejs/cycle-core)
+[![Dependency Status](https://david-dm.org/cyclejs/cycle-core.svg)](https://david-dm.org/cyclejs/cycle-core)
+[![devDependency Status](https://david-dm.org/cyclejs/cycle-core/dev-status.svg)](https://david-dm.org/cyclejs/cycle-core#info=devDependencies)
