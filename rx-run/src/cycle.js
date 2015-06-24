@@ -79,4 +79,34 @@ function run(app, drivers) {
   return [requests, responses];
 }
 
-module.exports = run;
+let Cycle = {
+  /**
+   * Takes an `app` function and circularly connects it to the given collection
+   * of driver functions.
+   *
+   * The `app` function expects a collection of "driver response" Observables as
+   * input, and should return a collection of "driver request" Observables.
+   * A "collection of Observables" is a JavaScript object where
+   * keys match the driver names registered by the `drivers` object, and values
+   * are Observables or a collection of Observables.
+   *
+   * @param {Function} app a function that takes `responses` as input
+   * and outputs a collection of `requests` Observables.
+   * @param {Object} drivers an object where keys are driver names and values
+   * are driver functions.
+   * @return {Array} an array where the first object is the collection of driver
+   * requests, and the second objet is the collection of driver responses, that
+   * can be used for debugging or testing.
+   * @function run
+   */
+  run,
+
+  /**
+   * A shortcut to the root object of
+   * [RxJS](https://github.com/Reactive-Extensions/RxJS).
+   * @name Rx
+   */
+  Rx: Rx
+};
+
+module.exports = Cycle;

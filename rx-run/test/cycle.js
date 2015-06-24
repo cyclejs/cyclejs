@@ -1,7 +1,7 @@
 'use strict';
 /* global describe, it */
 let assert = require('assert');
-let Cycle = require('../../src/core/cycle');
+let Cycle = require('../src/cycle');
 
 describe('Cycle', function () {
   describe('API', function () {
@@ -9,24 +9,8 @@ describe('Cycle', function () {
       assert.strictEqual(typeof Cycle.run, 'function');
     });
 
-    it('should have `makeDOMDriver`', function () {
-      assert.strictEqual(typeof Cycle.makeDOMDriver, 'function');
-    });
-
-    it('should have `makeHTMLDriver`', function () {
-      assert.strictEqual(typeof Cycle.makeHTMLDriver, 'function');
-    });
-
     it('should have a shortcut to Rx', function () {
       assert.strictEqual(typeof Cycle.Rx, 'object');
-    });
-
-    it('should have a shortcut to virtual-hyperscript', function () {
-      assert.strictEqual(typeof Cycle.h, 'function');
-    });
-
-    it('should have a shortcut to virtual-dom\'s svg', function () {
-      assert.strictEqual(typeof Cycle.svg, 'function');
     });
   });
 

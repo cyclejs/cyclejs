@@ -1,30 +1,34 @@
 {
-  "name": "cyclejs",
-  "version": "0.24.1",
+  "name": "@cycle/core",
+  "version": "1.0.0-rc1",
   "author": "Andre Staltz",
-  "description": "An honestly reactive framework for web user interfaces",
+  "description": "A fully reactive JavaScript framework for Human-Computer Interactio",
   "license": "MIT",
-  "homepage": "https://github.com/staltz/cycle",
-  "bugs": "https://github.com/staltz/cycle/issues",
+  "homepage": "https://cyclejs.github.io",
+  "bugs": "https://github.com/cyclejs/cycle-core/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/staltz/cycle"
+    "url": "https://github.com/cyclejs/cycle-core"
   },
   "keywords": [
+    "reactive",
+    "framework",
+    "rxjs",
+    "rx",
+    "unidirectional",
     "mvi",
     "virtual-dom"
   ],
-  "main": "lib/core/cycle.js",
+  "main": "lib/cycle.js",
   "dependencies": {
-    "rx": "2.5.3",
-    "virtual-dom": "2.0.1",
-    "es6-map": "0.1.1",
-    "vdom-to-html": "^2.0.0"
+    "rx": "2.5.3"
   },
   "devDependencies": {
     "babel": "5.5.x",
     "babelify": "6.1.x",
     "eslint": "^0.23.0",
+    "eslint-config-cycle": "1.0.x",
+    "eslint-plugin-cycle": "1.0.x",
     "browserify": "10.2.4",
     "markdox": "0.1.8",
     "mocha": "2.2.5",
@@ -35,17 +39,10 @@
     "node": ">=0.10.0"
   },
   "scripts": {
-    "eslint": "eslint --rulesdir eslint-rules src/",
-    "test-common": "mocha --compilers js:babel/register test/common",
-    "pretest-onlynode": "mkdir -p test/node",
-    "test-onlynode": "mocha --compilers js:babel/register test/node",
-    "test-node": "npm run test-common && npm run test-onlynode",
-    "test-browser": "testem",
-    "pretest-browser": "browserify test/browser/index.js -t babelify -o test/browser/page/tests-bundle.js",
-    "posttest-browser": "rm test/browser/page/tests-bundle.js",
-    "test": "npm run eslint && npm run test-node && npm run test-browser",
-    "travis-test": "npm run eslint && npm run test-node",
-    "browserify": "browserify src/core/cycle.js -t babelify --standalone Cycle --outfile dist/cycle.js",
+    "eslint": "eslint src/",
+    "mocha": "mocha --compilers js:babel/register test",
+    "test": "npm run eslint && npm run mocha",
+    "browserify": "browserify src/cycle.js -t babelify --standalone Cycle --outfile dist/cycle.js",
     "uglify": "uglifyjs dist/cycle.js -o dist/cycle.min.js",
     "dist": "npm run browserify && npm run uglify",
     "docs": "node ./scripts/make-api-docs.js",
