@@ -10,7 +10,7 @@
 * **Virtual DOM Rendering**: the `main()` function should output an Observable of "Virtual DOM Elements" from the [virtual-dom](https://github.com/Matt-Esch/virtual-dom) library, to keep performance fast by patching the actual DOM with only the minimum necessary changes.
 * **Work in progress**: API design is the current priority and might significantly evolve, performance and other issues are left aside before this gets stable.
 
-[![npm version](https://badge.fury.io/js/cyclejs.svg)](http://badge.fury.io/js/cyclejs)
+[![npm version](https://badge.fury.io/js/%40cycle%2Fcore.svg)](http://badge.fury.io/js/%40cycle%2Fcore)
 
 #### [Cycle Web Drivers](https://github.com/cyclejs/cycle-web)
 
