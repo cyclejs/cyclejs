@@ -1,0 +1,65 @@
+{
+  "name": "@cycle/web",
+  "version": "1.0.0",
+  "author": "Andre Staltz",
+  "description": "The standard DOM Driver for Cycle.js, based on virtual-dom, and other helpers",
+  "license": "MIT",
+  "homepage": "https://github.com/cyclejs/cycle-web",
+  "bugs": "https://github.com/cyclejs/cycle-web/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cyclejs/cycle-web"
+  },
+  "keywords": [
+    "reactive",
+    "framework",
+    "rxjs",
+    "rx",
+    "unidirectional",
+    "mvi",
+    "virtual-dom"
+  ],
+  "main": "lib/cycle-web.js",
+  "dependencies": {
+    "rx": "2.5.3",
+    "virtual-dom": "2.0.1",
+    "es6-map": "0.1.1",
+    "vdom-to-html": "^2.0.0"
+  },
+  "devDependencies": {
+    "@cycle/core": "1.0.0",
+    "babel": "5.5.x",
+    "babelify": "6.1.x",
+    "eslint": "^0.23.0",
+    "eslint-config-cycle": "1.0.x",
+    "eslint-plugin-cycle": "1.0.x",
+    "browserify": "10.2.4",
+    "markdox": "0.1.8",
+    "mocha": "2.2.5",
+    "testem": "0.8.3",
+    "uglify-js": "2.4.23"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "eslint": "eslint src/",
+    "test-node": "mocha --compilers js:babel/register test/node",
+    "test-browser": "testem",
+    "pretest-browser": "browserify test/browser/index.js -t babelify -o test/browser/page/tests-bundle.js",
+    "posttest-browser": "rm test/browser/page/tests-bundle.js",
+    "test": "npm run eslint && npm run test-node && npm run test-browser",
+    "travis-test": "npm run eslint && npm run test-node",
+    "browserify": "browserify src/cycle-web.js -t babelify --standalone CycleWeb --outfile dist/cycle-web.js",
+    "uglify": "uglifyjs dist/cycle-web.js -o dist/cycle-web.min.js",
+    "dist": "npm run browserify && npm run uglify",
+    "docs": "node ./scripts/make-api-docs.js",
+    "precompile-lib": "rm -rf lib/ && mkdir -p lib",
+    "compile-lib": "babel -d lib/ src/",
+    "prepublish": "npm run compile-lib",
+    "release": "npm run release-patch",
+    "release-patch": "git checkout master && npm run dist; git commit -a -m 'Build dist/'; npm version patch && git push origin master --tags && npm publish",
+    "release-minor": "git checkout master && npm run dist; git commit -a -m 'Build dist/'; npm version minor && git push origin master --tags && npm publish",
+    "release-major": "git checkout master && npm run dist; git commit -a -m 'Build dist/'; npm version major && git push origin master --tags && npm publish"
+  }
+}
