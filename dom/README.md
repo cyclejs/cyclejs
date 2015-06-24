@@ -4,6 +4,8 @@ A collection of Cycle drivers to enable interaction with the DOM. It includes a 
 
 [Read the docs](https://github.com/cyclejs/cycle-web/blob/master/docs/api.md) and check the examples.
 
+[![npm version](https://badge.fury.io/js/%40cycle%2Fweb.svg)](http://badge.fury.io/js/%40cycle%2Fweb)
+
 ## LICENSE
 
 [The MIT License (MIT)](https://github.com/cyclejs/cycle-web/blob/master/LICENSE)
