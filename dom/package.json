@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@cycle/core": "1.0.0-rc1",
-    "babel": "5.5.x",
+    "babel": "5.6.x",
     "babelify": "6.1.x",
     "eslint": "^0.23.0",
     "eslint-config-cycle": "1.0.x",
