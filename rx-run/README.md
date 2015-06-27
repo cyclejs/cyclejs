@@ -51,7 +51,7 @@ For advanced examples, check out [TodoMVC implemented in Cycle.js](https://githu
 
 ## Installing
 
-`npm install @cycle/core @cycle/web`
+`npm install @cycle/core@1.0.0-rc1 @cycle/web`
 
 ## Learn more
 
