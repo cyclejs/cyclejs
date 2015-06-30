@@ -12,7 +12,7 @@ Cycle *Core* is the minimum required tools you need for building applications. I
 
 `npm install @cycle/core`
 
-### I came here because I want to...
+## I came here because I want to...
 
 - Understand how Cycle.js works in general: go to http://cyclejs.github.io
 - Understand how Cycle *Core* itself works: read the [docs](https://github.com/cyclejs/cycle-core/blob/master/docs/api.md) and the [tests](https://github.com/cyclejs/cycle-core/tree/master/test)
