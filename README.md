@@ -29,3 +29,4 @@ Cycle *Core* is the minimum required tools you need for building applications. I
 [![Code Climate](https://codeclimate.com/github/cyclejs/cycle-core/badges/gpa.svg)](https://codeclimate.com/github/cyclejs/cycle-core)
 [![Dependency Status](https://david-dm.org/cyclejs/cycle-core.svg)](https://david-dm.org/cyclejs/cycle-core)
 [![devDependency Status](https://david-dm.org/cyclejs/cycle-core/dev-status.svg)](https://david-dm.org/cyclejs/cycle-core#info=devDependencies)
+[![JS.ORG](https://img.shields.io/badge/js.org-cycle-ffb400.svg?style=flat-square)](http://js.org)
