@@ -6,7 +6,11 @@
 
 Cycle *Core* is the minimum required tools you need for building applications. It is basically comprised of one single function, `Cycle.run(main, drivers)` and wraps RxJS as `Cycle.Rx`.
 
+## Installing
+
 [![npm version](https://badge.fury.io/js/%40cycle%2Fcore.svg)](http://badge.fury.io/js/%40cycle%2Fcore)
+
+`npm install @cycle/core`
 
 ### I came here because I want to...
 
@@ -14,10 +18,6 @@ Cycle *Core* is the minimum required tools you need for building applications. I
 - Understand how Cycle *Core* itself works: read the [docs](https://github.com/cyclejs/cycle-core/blob/master/docs/api.md) and the [tests](https://github.com/cyclejs/cycle-core/tree/master/test)
 - Contribute a new driver: [open an issue](https://github.com/cyclejs/cycle-core/issues)
 - File a bug report for anything Cycle-related: [open an issue](https://github.com/cyclejs/cycle-core/issues)
-
-## Installing
-
-`npm install @cycle/core`
 
 ## LICENSE
 
