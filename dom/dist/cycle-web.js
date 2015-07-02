@@ -15266,17 +15266,20 @@ module.exports = CycleWeb;
 
 var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
 
-var Rx = require('rx');
+var _require = require('@cycle/core');
+
+var Rx = _require.Rx;
+
 var VDOM = {
   h: require('virtual-dom').h,
   diff: require('virtual-dom/diff'),
   patch: require('virtual-dom/patch')
 };
 
-var _require = require('./custom-elements');
+var _require2 = require('./custom-elements');
 
-var replaceCustomElementsWithSomething = _require.replaceCustomElementsWithSomething;
-var makeCustomElementsRegistry = _require.makeCustomElementsRegistry;
+var replaceCustomElementsWithSomething = _require2.replaceCustomElementsWithSomething;
+var makeCustomElementsRegistry = _require2.makeCustomElementsRegistry;
 
 function isElement(obj) {
   return typeof HTMLElement === 'object' ? obj instanceof HTMLElement || obj instanceof DocumentFragment : //DOM2
@@ -15485,7 +15488,7 @@ module.exports = {
   makeDOMDriver: makeDOMDriver
 };
 
-},{"./custom-elements":110,"rx":59,"virtual-dom":75,"virtual-dom/diff":73,"virtual-dom/patch":83}],113:[function(require,module,exports){
+},{"./custom-elements":110,"@cycle/core":1,"virtual-dom":75,"virtual-dom/diff":73,"virtual-dom/patch":83}],113:[function(require,module,exports){
 'use strict';
 
 var _require = require('@cycle/core');
