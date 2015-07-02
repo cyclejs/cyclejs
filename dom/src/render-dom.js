@@ -1,5 +1,5 @@
 'use strict';
-let Rx = require('rx');
+let {Rx} = require('@cycle/core');
 let VDOM = {
   h: require('virtual-dom').h,
   diff: require('virtual-dom/diff'),
