@@ -21,13 +21,16 @@
   ],
   "main": "lib/cycle-web.js",
   "dependencies": {
-    "rx": "2.5.3",
     "virtual-dom": "2.0.1",
     "es6-map": "0.1.1",
     "vdom-to-html": "^2.0.0"
   },
+  "peerDependencies": {
+    "rx": "2.x.x"
+  },
   "devDependencies": {
-    "@cycle/core": "1.0.0-rc1",
+    "@cycle/core": "1.0.0",
+    "rx": "2.x.x",
     "babel": "5.6.x",
     "babelify": "6.1.x",
     "eslint": "^0.23.0",
