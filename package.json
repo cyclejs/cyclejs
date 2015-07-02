@@ -2,7 +2,7 @@
   "name": "@cycle/core",
   "version": "1.0.0",
   "author": "Andre Staltz",
-  "description": "A fully reactive JavaScript framework for Human-Computer Interactio",
+  "description": "A fully reactive JavaScript framework for Human-Computer Interaction",
   "license": "MIT",
   "homepage": "https://cyclejs.github.io",
   "bugs": "https://github.com/cyclejs/cycle-core/issues",
