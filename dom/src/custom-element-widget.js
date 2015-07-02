@@ -1,5 +1,5 @@
 'use strict';
-let Rx = require('rx');
+let {Rx} = require('@cycle/core');
 const ALL_PROPS = '*';
 const PROPS_DRIVER_NAME = 'props';
 const EVENTS_SINK_NAME = 'events';

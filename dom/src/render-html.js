@@ -1,5 +1,5 @@
 'use strict';
-let Rx = require('rx');
+let {Rx} = require('@cycle/core');
 let toHTML = require('vdom-to-html');
 let {replaceCustomElementsWithSomething, makeCustomElementsRegistry} =
   require('./custom-elements');
