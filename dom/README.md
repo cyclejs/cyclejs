@@ -8,7 +8,7 @@ A collection of Cycle drivers to enable interaction with the DOM. It includes a 
 
 ## Resources
 
-- [Hyperscript-helpers](https://www.npmjs.com/package/hyperscript-helpers) `npm install hyperscript-helpers`: create virtual DOM elements with `div({class: 'wrapper'}, [ h1('Header') ])` instead of `h('div.wrapper', [ h('h1', 'Header') ])`.
+- [Hyperscript-helpers](https://www.npmjs.com/package/hyperscript-helpers) **`npm install hyperscript-helpers`**: create virtual DOM elements with `div({class: 'wrapper'}, [ h1('Header') ])` instead of `h('div.wrapper', [ h('h1', 'Header') ])`.
 
 ## LICENSE
 
