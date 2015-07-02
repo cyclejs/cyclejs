@@ -6,6 +6,10 @@ A collection of Cycle drivers to enable interaction with the DOM. It includes a 
 
 [![npm version](https://badge.fury.io/js/%40cycle%2Fweb.svg)](http://badge.fury.io/js/%40cycle%2Fweb)
 
+## Resources
+
+- [Hyperscript-helpers](https://www.npmjs.com/package/hyperscript-helpers) `npm install hyperscript-helpers`: create virtual DOM elements with `div({class: 'wrapper'}, [ h1('Header') ])` instead of `h('div.wrapper', [ h('h1', 'Header') ])`.
+
 ## LICENSE
 
 [The MIT License (MIT)](https://github.com/cyclejs/cycle-web/blob/master/LICENSE)
