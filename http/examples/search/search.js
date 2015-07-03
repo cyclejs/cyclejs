@@ -13,7 +13,7 @@ function main(responses) {
 
   const vtree$ = responses.HTTP
     .filter(res$ => res$.request.indexOf(GITHUB_SEARCH_API) === 0)
-    .flatMap(x => x)
+    .mergeAll()
     .map(res => res.body.items)
     .startWith([])
     .map(results =>
