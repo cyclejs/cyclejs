@@ -1,0 +1,5 @@
+examples/
+ignore/
+.idea/
+*.sublime-project
+*.sublime-workspace
