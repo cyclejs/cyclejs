@@ -1,6 +1,6 @@
 import Cycle from '@cycle/core';
 import {h, makeDOMDriver} from '@cycle/web';
-import makeHTTPDriver from '@cycle/http';
+import {makeHTTPDriver} from '@cycle/http';
 
 function main(responses) {
   const GITHUB_SEARCH_API = 'https://api.github.com/search/repositories?q=';
