@@ -32,4 +32,4 @@ app.get('/error', function(req, res){
   res.status(500).send('boom');
 });
 
-app.listen(process.env.TEST_PORT);
+app.listen(process.env.ZUUL_PORT);

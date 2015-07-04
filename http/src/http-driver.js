@@ -22,7 +22,9 @@ function optionsToSuperagent({
   }
   const sanitizedMethod = method.toLowerCase();
   let request = superagent[sanitizedMethod](url);
-  request = request.redirects(redirects);
+  if (typeof request.redirects === 'function') {
+    request = request.redirects(redirects);
+  }
   request = request.type(type);
   if (send !== null) {
     request = request.send(send);

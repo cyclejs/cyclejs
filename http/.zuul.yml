@@ -1,0 +1,17 @@
+ui: mocha-bdd
+browserify:
+  - transform: babelify
+server: ./test/support/server.js
+browsers:
+  - name: chrome
+    version: latest
+  - name: firefox
+    version: latest
+  - name: safari
+    version: latest
+  - name: iphone
+    version: latest
+  - name: android
+    version: latest
+  - name: ie
+    version: 9..latest

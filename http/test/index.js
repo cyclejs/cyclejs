@@ -4,9 +4,17 @@ let assert = require('assert');
 let {makeHTTPDriver} = require('../src/index');
 let {Rx} = require('@cycle/core');
 
-process.env.TEST_PORT = 4123;
-require('./support/server');
-let uri = 'http://localhost:4123';
+var NODE = true;
+var uri = 'http://localhost:5000';
+if (typeof window !== 'undefined') {
+  NODE = false;
+  uri = '//' + window.location.host;
+}
+else {
+  process.env.ZUUL_PORT = 5000;
+  require('./support/server');
+  uri = 'http://localhost:5000';
+}
 
 describe('makeHTTPDriver', function () {
   it('should be a driver factory', function () {
