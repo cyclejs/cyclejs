@@ -25,7 +25,31 @@ const drivers = {
 Cycle.run(main, drivers);
 ```
 
-The Observable API inside `main`:
+Simple and normal use case:
+
+```js
+function main(responses) {
+  const HELLO_URL = 'http://localhost:8080/hello';
+  let request$ = Rx.Observable.just(HELLO_URL);
+  let vtree$ = responses.HTTP
+    .filter(res$ => res$.request === HELLO_URL)
+    .mergeAll()
+    .map(res => res.text) // We expect this to be "Hello World"
+    .startWith('Loading...')
+    .map(text =>
+      h('div.container', [
+        h('h1', text)
+      ])
+    );
+
+  return {
+    DOM: vtree$,
+    HTTP: request$
+  };
+}
+```
+
+A thorough guide to the Observable API inside `main`:
 
 ```js
 function main(responses) {
@@ -60,30 +84,6 @@ function main(responses) {
 
   return {
     HTTP: request$ // HTTP driver expects the request$ as input
-  };
-}
-```
-
-Simple and normal use case:
-
-```js
-function main(responses) {
-  const HELLO_URL = 'http://localhost:8080/hello';
-  let request$ = Rx.Observable.just(HELLO_URL);
-  let vtree$ = responses.HTTP
-    .filter(res$ => res$.request === HELLO_URL)
-    .mergeAll()
-    .map(res => res.text) // We expect this to be "Hello World"
-    .startWith('Loading...')
-    .map(text =>
-      h('div.container', [
-        h('h1', text)
-      ])
-    );
-
-  return {
-    DOM: vtree$,
-    HTTP: request$
   };
 }
 ```
