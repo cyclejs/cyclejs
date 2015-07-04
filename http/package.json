@@ -28,8 +28,8 @@
     "express": "~4.9.8",
     "markdox": "0.1.8",
     "mocha": "2.2.5",
-    "zuul": "~1.19.0",
-    "uglify-js": "2.4.23"
+    "uglify-js": "2.4.23",
+    "zuul": "^3.2.0"
   },
   "scripts": {
     "eslint": "eslint src/",
