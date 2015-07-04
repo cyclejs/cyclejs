@@ -1,8 +1,10 @@
 'use strict';
 /* global describe, it */
-let assert = require('assert');
-let {makeHTTPDriver} = require('../src/index');
-let {Rx} = require('@cycle/core');
+var assert = require('assert');
+var src = require('../lib/index');
+var Cycle = require('@cycle/core');
+var makeHTTPDriver = src.makeHTTPDriver;
+var Rx = Cycle.Rx;
 
 var NODE = true;
 var uri = 'http://localhost:5000';
@@ -19,16 +21,16 @@ else {
 describe('makeHTTPDriver', function () {
   it('should be a driver factory', function () {
     assert.strictEqual(typeof makeHTTPDriver, 'function');
-    let output = makeHTTPDriver();
+    var output = makeHTTPDriver();
     assert.strictEqual(typeof output, 'function');
   });
 });
 
 describe('HTTP Driver', function () {
-  it('should throw when request stream emits neither string nor object', (done) => {
-    let request$ = Rx.Observable.just(123);
-    let httpDriver = makeHTTPDriver();
-    let response$$ = httpDriver(request$);
+  it('should throw when request stream emits neither string nor object', function(done) {
+    var request$ = Rx.Observable.just(123);
+    var httpDriver = makeHTTPDriver();
+    var response$$ = httpDriver(request$);
     response$$.mergeAll().subscribe(
       function onNext() { assert.fail(); },
       function onError(err) {
@@ -40,10 +42,10 @@ describe('HTTP Driver', function () {
     );
   });
 
-  it('should throw when given options object without url string', (done) => {
-    let request$ = Rx.Observable.just({method: 'post'});
-    let httpDriver = makeHTTPDriver();
-    let response$$ = httpDriver(request$);
+  it('should throw when given options object without url string', function(done) {
+    var request$ = Rx.Observable.just({method: 'post'});
+    var httpDriver = makeHTTPDriver();
+    var response$$ = httpDriver(request$);
     response$$.mergeAll().subscribe(
       function onNext() { assert.fail(); },
       function onError(err) {
@@ -55,13 +57,13 @@ describe('HTTP Driver', function () {
     );
   });
 
-  it('should return response metastream when given a simple URL string', (done) => {
-    let request$ = Rx.Observable.just(uri + '/hello');
-    let httpDriver = makeHTTPDriver();
-    let response$$ = httpDriver(request$);
-    response$$.subscribe(response$ => {
+  it('should return response metastream when given a simple URL string', function(done) {
+    var request$ = Rx.Observable.just(uri + '/hello');
+    var httpDriver = makeHTTPDriver();
+    var response$$ = httpDriver(request$);
+    response$$.subscribe(function(response$) {
       assert.strictEqual(response$.request, uri + '/hello');
-      response$.subscribe(response => {
+      response$.subscribe(function(response) {
         assert.strictEqual(response.status, 200);
         assert.strictEqual(response.text, 'Hello World');
         done();
@@ -69,20 +71,20 @@ describe('HTTP Driver', function () {
     });
   });
 
-  it('should return response metastream when given simple options obj', (done) => {
-    let request$ = Rx.Observable.just({
+  it('should return response metastream when given simple options obj', function(done) {
+    var request$ = Rx.Observable.just({
       url: uri + '/pet',
       method: 'POST',
       send: {name: 'Woof', species: 'Dog'}
     });
-    let httpDriver = makeHTTPDriver();
-    let response$$ = httpDriver(request$);
-    response$$.subscribe(response$ => {
+    var httpDriver = makeHTTPDriver();
+    var response$$ = httpDriver(request$);
+    response$$.subscribe(function(response$) {
       assert.strictEqual(response$.request.url, uri + '/pet');
       assert.strictEqual(response$.request.method, 'POST');
       assert.strictEqual(response$.request.send.name, 'Woof');
       assert.strictEqual(response$.request.send.species, 'Dog');
-      response$.subscribe(response => {
+      response$.subscribe(function(response) {
         assert.strictEqual(response.status, 200);
         assert.strictEqual(response.text, 'added Woof the Dog');
         done();
@@ -90,20 +92,20 @@ describe('HTTP Driver', function () {
     });
   });
 
-  it('should return response metastream when given another options obj', (done) => {
-    let request$ = Rx.Observable.just({
+  it('should return response metastream when given another options obj', function(done) {
+    var request$ = Rx.Observable.just({
       url: uri + '/querystring',
       method: 'GET',
       query: {foo: 102030, bar: 'Pub'}
     });
-    let httpDriver = makeHTTPDriver();
-    let response$$ = httpDriver(request$);
-    response$$.subscribe(response$ => {
+    var httpDriver = makeHTTPDriver();
+    var response$$ = httpDriver(request$);
+    response$$.subscribe(function(response$) {
       assert.strictEqual(response$.request.url, uri + '/querystring');
       assert.strictEqual(response$.request.method, 'GET');
       assert.strictEqual(response$.request.query.foo, 102030);
       assert.strictEqual(response$.request.query.bar, 'Pub');
-      response$.subscribe(response => {
+      response$.subscribe(function(response) {
         assert.strictEqual(response.status, 200);
         assert.strictEqual(response.body.foo, '102030');
         assert.strictEqual(response.body.bar, 'Pub');
@@ -112,11 +114,11 @@ describe('HTTP Driver', function () {
     });
   });
 
-  it('should send 500 server errors to response$ onError', (done) => {
-    let request$ = Rx.Observable.just(uri + '/error');
-    let httpDriver = makeHTTPDriver();
-    let response$$ = httpDriver(request$);
-    response$$.subscribe(response$ => {
+  it('should send 500 server errors to response$ onError', function(done) {
+    var request$ = Rx.Observable.just(uri + '/error');
+    var httpDriver = makeHTTPDriver();
+    var response$$ = httpDriver(request$);
+    response$$.subscribe(function(response$) {
       assert.strictEqual(response$.request, uri + '/error');
       response$.subscribe(
         function onNext() { assert.fail(); },

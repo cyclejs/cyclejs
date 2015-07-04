@@ -1,6 +1,4 @@
 ui: mocha-bdd
-browserify:
-  - transform: babelify
 server: ./test/support/server.js
 browsers:
   - name: chrome
