@@ -1,11 +1,12 @@
 ui: mocha-bdd
 server: ./test/support/server.js
 browsers:
-  - name: chrome
-    version: latest
   - name: firefox
+    version: latest
+    platform: Mac 10.10
+  - name: chrome
     version: latest
   - name: safari
     version: latest
   - name: ie
-    version: 8..latest
+    version: 9..latest
