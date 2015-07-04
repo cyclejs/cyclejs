@@ -4,6 +4,8 @@ Work in progress.
 
 ## Browser support
 
+[![Sauce Test Status](https://saucelabs.com/buildstatus/cyclejs)](https://saucelabs.com/u/cyclejs-http)
+
 IE 8 is not supported because this library depends on [superagent](https://github.com/visionmedia/superagent), which knowingly doesn't support IE 8.
 
 - - -
