@@ -5,6 +5,10 @@
   "main": "lib/index.js",
   "author": "Andre Staltz",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cyclejs/cycle-http-driver"
+  },
   "dependencies": {
     "superagent": "^1.2.0"
   },
