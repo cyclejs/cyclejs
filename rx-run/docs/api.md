@@ -22,7 +22,7 @@ are Observables or a collection of Observables.
 
 #### Return:
 
-*(Array)* an array where the first object is the collection of driver requests, and the second objet is the collection of driver responses, that
+*(Array)* an array where the first object is the collection of driver requests, and the second object is the collection of driver responses, that
 can be used for debugging or testing.
 
 - - -

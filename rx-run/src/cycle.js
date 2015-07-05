@@ -95,7 +95,7 @@ let Cycle = {
    * @param {Object} drivers an object where keys are driver names and values
    * are driver functions.
    * @return {Array} an array where the first object is the collection of driver
-   * requests, and the second objet is the collection of driver responses, that
+   * requests, and the second object is the collection of driver responses, that
    * can be used for debugging or testing.
    * @function run
    */
