@@ -7,10 +7,13 @@ function main(responses) {
   let getRandomUser$ = responses.DOM.get('.get-random-user', 'click')
     .map(() => {
       let randomNum = Math.round(Math.random()*9)+1; // from 1 to 10
-      return USERS_URL + String(randomNum);
+      return {
+        url: USERS_URL + String(randomNum),
+        method: 'GET'
+      };
     });
   let user$ = responses.HTTP
-    .filter(res$ => res$.request.indexOf(USERS_URL) === 0)
+    .filter(res$ => res$.request.url.indexOf(USERS_URL) === 0)
     .mergeAll()
     .startWith(null);
   
