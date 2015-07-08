@@ -58,7 +58,7 @@ describe('Custom Elements', function () {
       })
     });
     // Make assertions
-    responses.DOM.get(':root').first().subscribe(function (root) {
+    responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
       let myElement = root.querySelector('.myelementclass');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
@@ -141,7 +141,7 @@ describe('Custom Elements', function () {
       })
     });
     // Make assertions
-    responses.DOM.get(':root').first().subscribe(function (root) {
+    responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
       let myElement = root.querySelector('.inner-element');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
@@ -184,7 +184,7 @@ describe('Custom Elements', function () {
       })
     });
     // Make assertions
-    responses.DOM.get(':root').first().subscribe(function (root) {
+    responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
       let myElement = root.querySelector('.inner-element');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
@@ -223,7 +223,7 @@ describe('Custom Elements', function () {
       })
     });
     // Make assertions
-    responses.DOM.get(':root').first().subscribe(
+    responses.DOM.get(':root').skip(1).take(1).subscribe(
       function onNextHandler() {
         assert.fail('DOM :root Observable should not emit onNext.');
       },
@@ -266,7 +266,7 @@ describe('Custom Elements', function () {
       })
     });
     // Make assertions
-    responses.DOM.get(':root').first().subscribe(function (root) {
+    responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
       let myElement1 = root.querySelector('.myelement1class');
       let myElement2 = root.querySelector('.myelement2class');
       assert.notStrictEqual(myElement1, null);
@@ -310,7 +310,7 @@ describe('Custom Elements', function () {
       })
     });
     // Make assertions
-    responses.DOM.get(':root').first().subscribe(function (root) {
+    responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
       let innerElement = root.querySelector('.innerClass');
       assert.notStrictEqual(innerElement, null);
       assert.notStrictEqual(typeof innerElement, 'undefined');
@@ -345,7 +345,7 @@ describe('Custom Elements', function () {
     });
     // Make assertions
     Rx.Observable.combineLatest(
-      responses.DOM.get(':root').first(),
+      responses.DOM.get(':root').skip(1).take(1),
       responses.DOM.get('.eventsource', 'myevent'),
       (root, event) => ({root, event})
     )
@@ -387,7 +387,7 @@ describe('Custom Elements', function () {
         'my-element': myElementDef
       })
     });
-    responses.DOM.get(':root').first().subscribe(function () {
+    responses.DOM.get(':root').skip(1).take(1).subscribe(function () {
       console = realConsole;
       assert.strictEqual(warnMessages.length, 1);
       assert.strictEqual(warnMessages[0],
@@ -467,7 +467,7 @@ describe('Custom Elements', function () {
       })
     });
 
-    responses.DOM.get(':root').first().subscribe(function (root) {
+    responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
       // Simulate clicks
       setTimeout(() => root.querySelector('.internalslider').click(), 200);
       setTimeout(() => root.querySelector('.internalslider').click(), 300);
@@ -507,7 +507,7 @@ describe('Custom Elements', function () {
       })
     });
     // Make assertions
-    responses.DOM.get(':root').first().subscribe(function (root) {
+    responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
       let wrapper = root.querySelector('.wrapper');
       assert.notStrictEqual(wrapper, null);
       assert.notStrictEqual(typeof wrapper, 'undefined');
@@ -582,7 +582,7 @@ describe('Custom Elements', function () {
       })
     });
 
-    responses.DOM.get(':root').first().subscribe(function (root) {
+    responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
       setTimeout(() => root.querySelector('.button').click(), 100);
       setTimeout(() => root.querySelector('.button').click(), 200);
       setTimeout(() => {
@@ -627,7 +627,7 @@ describe('Custom Elements', function () {
       })
     });
     // Make assertions
-    responses.DOM.get(':root').first().subscribe(function (root) {
+    responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
       let myElement = root.querySelector('.myelementclass');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
@@ -670,7 +670,7 @@ describe('Custom Elements', function () {
       })
     });
     // Make assertions
-    responses.DOM.get(':root').first().subscribe(function (root) {
+    responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
       let myElement = root.querySelector('.myelementclass');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
@@ -679,7 +679,7 @@ describe('Custom Elements', function () {
       // Destroy the element
       customElementSwitch$.request(1);
     });
-    responses.DOM.get(':root').skip(1).subscribe(function (root) {
+    responses.DOM.get(':root').skip(2).subscribe(function (root) {
       let destroyedElement = root.querySelector('.myelementclass');
       assert.strictEqual(destroyedElement, null);
       assert.notStrictEqual(log.length, 2);
@@ -720,7 +720,7 @@ describe('Custom Elements', function () {
     });
     // Make assertions
     let myEventDisposable;
-    responses.DOM.get(':root').first().subscribe(function (root) {
+    responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
       let myElement = root.querySelector('.myelementclass');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
@@ -739,7 +739,7 @@ describe('Custom Elements', function () {
       // Destroy the element
       customElementSwitch$.request(1);
     });
-    responses.DOM.get(':root').skip(1).subscribe(function (root) {
+    responses.DOM.get(':root').skip(2).subscribe(function (root) {
       let destroyedElement = root.querySelector('.myelementclass');
       assert.strictEqual(destroyedElement, null);
 

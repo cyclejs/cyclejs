@@ -93,6 +93,12 @@ function createContainerElement(tagName, vtreeProperties) {
   element.id = vtreeProperties.id || '';
   element.className = vtreeProperties.className || '';
   element.className += ' cycleCustomElement-' + tagName.toUpperCase();
+  element.cycleCustomElementMetadata = {
+    propertiesDriver: null,
+    rootElem$: null,
+    customEvents: null,
+    eventDispatchingSubscription: false
+  };
   return element;
 }
 

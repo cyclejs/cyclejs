@@ -3,7 +3,8 @@ let {Rx} = require('@cycle/core');
 let VDOM = {
   h: require('virtual-dom').h,
   diff: require('virtual-dom/diff'),
-  patch: require('virtual-dom/patch')
+  patch: require('virtual-dom/patch'),
+  parse: (typeof window !== 'undefined' ? require('vdom-parser') : () => {})
 };
 let {replaceCustomElementsWithSomething, makeCustomElementsRegistry} =
   require('./custom-elements');
@@ -73,13 +74,40 @@ function checkRootVTreeNotCustomElement(vtree) {
   }
 }
 
+function isRootForCustomElement(rootElem) {
+  return !!rootElem.cycleCustomElementMetadata;
+}
+
+function wrapTopLevelVTree(vtree, rootElem) {
+  if (isRootForCustomElement(rootElem)) {
+    return vtree;
+  }
+
+  const {id: vtreeId = ''} = vtree.properties;
+  const {className: vtreeClass = ''} = vtree.properties;
+  const sameId = vtreeId === rootElem.id;
+  const sameClass = vtreeClass === rootElem.className;
+  const sameTagName = vtree.tagName.toUpperCase() === rootElem.tagName;
+  if (sameId && sameClass && sameTagName) {
+    return vtree;
+  } else {
+    return VDOM.h(
+      rootElem.tagName,
+      {id: rootElem.id, className: rootElem.className},
+      [vtree]
+    );
+  }
+}
+
 function makeDiffAndPatchToElement$(rootElem) {
   return function diffAndPatchToElement$([oldVTree, newVTree]) {
     if (typeof newVTree === 'undefined') { return Rx.Observable.empty(); }
 
-    //let isCustomElement = !!rootElem.cycleCustomElementMetadata;
+    //let isCustomElement = isRootForCustomElement(rootElem);
     //let k = isCustomElement ? ' is custom element ' : ' is top level';
-    let waitForChildrenStreams = getArrayOfAllWidgetFirstRootElem$(newVTree);
+    let prevVTree = wrapTopLevelVTree(oldVTree, rootElem);
+    let nextVTree = wrapTopLevelVTree(newVTree, rootElem);
+    let waitForChildrenStreams = getArrayOfAllWidgetFirstRootElem$(nextVTree);
     let rootElemAfterChildrenFirstRootElem$ = Rx.Observable
       .combineLatest(waitForChildrenStreams, () => {
         //console.log('%crawRootElem$ emits. (1)' + k, 'color: #008800');
@@ -88,7 +116,7 @@ function makeDiffAndPatchToElement$(rootElem) {
     let cycleCustomElementMetadata = rootElem.cycleCustomElementMetadata;
     //console.log('%cVDOM diff and patch START' + k, 'color: #636300');
     /* eslint-disable */
-    rootElem = VDOM.patch(rootElem, VDOM.diff(oldVTree, newVTree));
+    rootElem = VDOM.patch(rootElem, VDOM.diff(prevVTree, nextVTree));
     /* eslint-enable */
     //console.log('%cVDOM diff and patch END' + k, 'color: #636300');
     if (cycleCustomElementMetadata) {
@@ -104,23 +132,10 @@ function makeDiffAndPatchToElement$(rootElem) {
   };
 }
 
-function getRenderRootElem(domContainer) {
-  let rootElem;
-  if (/cycleCustomElement-[^\b]+/.exec(domContainer.className) !== null) {
-    rootElem = domContainer;
-  } else {
-    rootElem = document.createElement('div');
-    domContainer.innerHTML = '';
-    domContainer.appendChild(rootElem);
-  }
-  return rootElem;
-}
-
 function renderRawRootElem$(vtree$, domContainer, CERegistry, driverName) {
-  let rootElem = getRenderRootElem(domContainer);
-  let diffAndPatchToElement$ = makeDiffAndPatchToElement$(rootElem);
+  let diffAndPatchToElement$ = makeDiffAndPatchToElement$(domContainer);
   return vtree$
-    .startWith(VDOM.h())
+    .startWith(VDOM.parse(domContainer))
     .map(makeReplaceCustomElementsWithWidgets(CERegistry, driverName))
     .doOnNext(checkRootVTreeNotCustomElement)
     .pairwise()
@@ -186,6 +201,9 @@ function makeDOMDriverWithRegistry(container, CERegistry) {
     let rawRootElem$ = renderRawRootElem$(
       vtree$, container, CERegistry, driverName
     );
+    if (!isRootForCustomElement(container)) {
+      rawRootElem$ = rawRootElem$.startWith(container);
+    }
     let rootElem$ = fixRootElem$(rawRootElem$, container);
     let disposable = rootElem$.connect();
     return {
@@ -218,9 +236,10 @@ module.exports = {
   isVTreeCustomElement,
   makeReplaceCustomElementsWithWidgets,
   getArrayOfAllWidgetFirstRootElem$,
+  isRootForCustomElement,
+  wrapTopLevelVTree,
   checkRootVTreeNotCustomElement,
   makeDiffAndPatchToElement$,
-  getRenderRootElem,
   renderRawRootElem$,
   makeResponseGetter,
   validateDOMDriverInput,

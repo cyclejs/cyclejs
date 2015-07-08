@@ -83,11 +83,12 @@ describe('Rendering', function () {
       let [requests, responses] = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
-      responses.DOM.get(':root').first().subscribe(root => {
+      responses.DOM.get(':root').skip(1).take(1).subscribe(root => {
         let classNameRegex = /top\-most/;
         assert.strictEqual(root.tagName, 'DIV');
-        assert.notStrictEqual(classNameRegex.exec(root.className), null);
-        assert.strictEqual(classNameRegex.exec(root.className)[0], 'top-most');
+        let child = root.children[0];
+        assert.notStrictEqual(classNameRegex.exec(child.className), null);
+        assert.strictEqual(classNameRegex.exec(child.className)[0], 'top-most');
         responses.dispose();
         done();
       });
@@ -106,7 +107,7 @@ describe('Rendering', function () {
       let [requests, responses] = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
-      responses.DOM.get(':root').first().subscribe(function () {
+      responses.DOM.get(':root').skip(1).take(1).subscribe(function () {
         let selectEl = document.querySelector('.my-class');
         assert.notStrictEqual(selectEl, null);
         assert.notStrictEqual(typeof selectEl, 'undefined');
@@ -133,7 +134,7 @@ describe('Rendering', function () {
         responses.dispose();
         done();
       });
-      responses.DOM.get(':root').first().subscribe(function () {
+      responses.DOM.get(':root').skip(1).take(1).subscribe(function () {
         let myElement = document.querySelector('.myelementclass');
         assert.notStrictEqual(myElement, null);
         assert.notStrictEqual(typeof myElement, 'undefined');
@@ -161,7 +162,7 @@ describe('Rendering', function () {
         done();
       });
       // Make assertions
-      responses.DOM.get(':root').first().subscribe(function () {
+      responses.DOM.get(':root').skip(1).take(1).subscribe(function () {
         let myElement = document.querySelector('.myelementclass');
         assert.notStrictEqual(myElement, null);
         assert.notStrictEqual(typeof myElement, 'undefined');
@@ -185,7 +186,7 @@ describe('Rendering', function () {
         })
       });
 
-      responses.DOM.get(':root').first().subscribe(function () {
+      responses.DOM.get(':root').skip(1).take(1).subscribe(function () {
         setTimeout(() => {
           let myelement = document.querySelector('.myelementclass');
           assert.notStrictEqual(myelement, null);
@@ -237,7 +238,7 @@ describe('Rendering', function () {
       let [requests, responses] = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
-      responses.DOM.get(':root').subscribe(function () {
+      responses.DOM.get(':root').skip(1).subscribe(function () {
         let selectEl = document.querySelector('.target');
         assert.notStrictEqual(selectEl, null);
         assert.notStrictEqual(typeof selectEl, 'undefined');

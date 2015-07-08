@@ -21,9 +21,10 @@
   ],
   "main": "lib/cycle-web.js",
   "dependencies": {
-    "virtual-dom": "2.0.1",
     "es6-map": "0.1.1",
-    "vdom-to-html": "^2.0.0"
+    "vdom-parser": "^1.0.2",
+    "vdom-to-html": "^2.0.0",
+    "virtual-dom": "2.0.1"
   },
   "peerDependencies": {
     "@cycle/core": "1.0.0"
