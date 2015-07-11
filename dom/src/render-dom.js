@@ -22,15 +22,17 @@ function isElement(obj) {
 function fixRootElem$(rawRootElem$, domContainer) {
   // Create rootElem stream and automatic className correction
   let originalClasses = (domContainer.className || '').trim().split(/\s+/);
+  let originalId = domContainer.id;
   //console.log('%coriginalClasses: ' + originalClasses, 'color: lightgray');
   return rawRootElem$
-    .map(function fixRootElemClassName(rootElem) {
+    .map(function fixRootElemClassNameAndId(rootElem) {
       let previousClasses = rootElem.className.trim().split(/\s+/);
       let missingClasses = originalClasses
         .filter(clss => previousClasses.indexOf(clss) < 0);
       //console.log('%cfixRootElemClassName(), missingClasses: ' +
       //  missingClasses, 'color: lightgray');
       rootElem.className = previousClasses.concat(missingClasses).join(' ');
+      rootElem.id = originalId;
       //console.log('%c  result: ' + rootElem.className, 'color: lightgray');
       //console.log('%cEmit rootElem$ ' + rootElem.tagName + '.' +
       //  rootElem.className, 'color: #009988');
