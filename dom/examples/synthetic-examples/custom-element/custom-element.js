@@ -2,7 +2,7 @@ var h = CycleWeb.h;
 var Rx = Cycle.Rx;
 
 function tickerCustomElement(ext) {
-  var removeClicks$ = ext.DOM.get('.remove-btn', 'click').share();
+  var removeClicks$ = ext.DOM.get('.remove-btn', 'click');
   var stop$ = removeClicks$.map(function () { return 'stop'; });
   var remove$ = removeClicks$.map(function () { return 'remove'; }).delay(500);
   var color$ = Rx.Observable.merge(

@@ -8,7 +8,7 @@ var h = CycleWeb.h;
 //   element's return object. E.g. model.foo$.
 
 function innerElem(ext) {
-  var refreshData$ = ext.UI.get('.innerRoot', 'click').share();
+  var refreshData$ = ext.UI.get('.innerRoot', 'click');
   var foo$ = ext.props.get('foo');
   var content$ = refreshData$
     .map(function () { return Math.round(Math.random() * 1000); })
@@ -30,7 +30,7 @@ function innerElem(ext) {
   return {
     UI: vtree$,
     events: {
-      wasRefreshed: refreshData$.delay(500).share(),
+      wasRefreshed: refreshData$.delay(500),
       contentOnRefresh: refreshData$
         .withLatestFrom(content$, function (x, y) { return y; }),
       fooOnRefresh: refreshData$

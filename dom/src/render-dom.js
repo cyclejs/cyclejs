@@ -184,7 +184,9 @@ function makeResponseGetter(rootElem$) {
     }
 
     //console.log(`%cget("${selector}", "${eventName}")`, 'color: #0000BB');
-    return rootElem$.flatMapLatest(makeRootElemToEvent$(selector, eventName));
+    return rootElem$
+      .flatMapLatest(makeRootElemToEvent$(selector, eventName))
+      .share();
   };
 }
 
