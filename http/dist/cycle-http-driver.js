@@ -12348,14 +12348,18 @@ function createResponse$(reqOptions) {
       return function () {}; // noop
     }
 
-    request.end(function (err, res) {
-      if (err) {
-        observer.onError(err);
-      } else {
-        observer.onNext(res);
-        observer.onCompleted();
-      }
-    });
+    try {
+      request.end(function (err, res) {
+        if (err) {
+          observer.onError(err);
+        } else {
+          observer.onNext(res);
+          observer.onCompleted();
+        }
+      });
+    } catch (err) {
+      observer.onError(err);
+    }
 
     return function onDispose() {
       request.abort();
