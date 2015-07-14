@@ -16,6 +16,7 @@ function main(responses) {
   let user$ = responses.HTTP
     .filter(res$ => res$.request.url.indexOf(USERS_URL) === 0)
     .mergeAll()
+    .map(res => res.body)
     .startWith(null);
   
   return {
