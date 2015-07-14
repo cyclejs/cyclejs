@@ -75,14 +75,18 @@ function createResponse$(reqOptions) {
       return () => {}; // noop
     }
 
-    request.end((err, res) => {
-      if (err) {
-        observer.onError(err);
-      } else {
-        observer.onNext(res);
-        observer.onCompleted();
-      }
-    });
+    try {
+      request.end((err, res) => {
+        if (err) {
+          observer.onError(err);
+        } else {
+          observer.onNext(res);
+          observer.onCompleted();
+        }
+      });
+    } catch (err) {
+      observer.onError(err);
+    }
 
     return function onDispose() {
       request.abort();
