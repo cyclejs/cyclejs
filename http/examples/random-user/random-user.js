@@ -12,6 +12,7 @@ function main(responses) {
         method: 'GET'
       };
     });
+
   let user$ = responses.HTTP
     .filter(res$ => res$.request.url.indexOf(USERS_URL) === 0)
     .mergeAll()
@@ -25,7 +26,7 @@ function main(responses) {
           h('h1.user-name', user.name)
       ])
     ),
-    HTTP: getRandomUser$;
+    HTTP: getRandomUser$
   };
 }
 
