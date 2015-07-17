@@ -1,6 +1,6 @@
 # Cycle JSONP Driver
 
-A [Cycle.js](http://cycle.js.org) [Driver](http://cycle.js.org/drivers.html) for making HTTP requests through the JSONP hack, based on the [jsonp](https://github.com/webmodules/jsonp) package.
+A [Cycle.js](http://cycle.js.org) [Driver](http://cycle.js.org/drivers.html) for making HTTP requests through the JSONP hack, based on the [jsonp](https://github.com/webmodules/jsonp) package. This package is small, hacky (as JSONP is too), and untested. Whenever possible, use proper server and client CORS solution with the [HTTP Driver](https://github.com/cyclejs/cycle-http-driver).
 
 ```
 npm install @cycle/jsonp
