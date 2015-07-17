@@ -22,7 +22,7 @@ DOM element corresponding to the root (or container) of the app on the DOM.
 - `container :: String|HTMLElement` the DOM selector for the element (or the element itself) to contain the rendering of the VTrees.
 - `customElements :: Object` a collection of custom element definitions. The key of each property should be the tag name of the custom element, and
 the value should be a function defining the implementation of the custom
-element. This function follows the same contract as the top-most `app`
+element. This function follows the same contract as the top-most `main`
 function: input are driver responses, output are requests to drivers.
 
 #### Return:
@@ -44,7 +44,7 @@ their implementations.
 
 - `customElements :: Object` a collection of custom element definitions. The key of each property should be the tag name of the custom element, and
 the value should be a function defining the implementation of the custom
-element. This function follows the same contract as the top-most `app`
+element. This function follows the same contract as the top-most `main`
 function: input are driver responses, output are requests to drivers.
 
 #### Return:

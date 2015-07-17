@@ -20,7 +20,7 @@ let CycleWeb = {
    * @param {Object} customElements a collection of custom element definitions.
    * The key of each property should be the tag name of the custom element, and
    * the value should be a function defining the implementation of the custom
-   * element. This function follows the same contract as the top-most `app`
+   * element. This function follows the same contract as the top-most `main`
    * function: input are driver responses, output are requests to drivers.
    * @return {Function} the DOM driver function. The function expects an
    * Observable of VTree as input, and outputs the response object for this
@@ -39,7 +39,7 @@ let CycleWeb = {
    * @param {Object} customElements a collection of custom element definitions.
    * The key of each property should be the tag name of the custom element, and
    * the value should be a function defining the implementation of the custom
-   * element. This function follows the same contract as the top-most `app`
+   * element. This function follows the same contract as the top-most `main`
    * function: input are driver responses, output are requests to drivers.
    * @return {Function} the HTML driver function. The function expects an
    * Observable of Virtual DOM elements as input, and outputs an Observable of
