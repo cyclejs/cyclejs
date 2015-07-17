@@ -1,0 +1,44 @@
+{
+  "name": "@cycle/jsonp",
+  "version": "1.0.0",
+  "description": "A Cycle.js Driver for making HTTP requests through JSONP",
+  "main": "lib/index.js",
+  "author": "Andre Staltz",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cyclejs/cycle-jsonp-driver"
+  },
+  "dependencies": {
+    "jsonp": "^0.2.0"
+  },
+  "peerDependencies": {
+    "@cycle/core": "1.x.x"
+  },
+  "devDependencies": {
+    "@cycle/core": "1.x.x",
+    "babel": "5.6.x",
+    "babelify": "6.1.x",
+    "browserify": "10.2.4",
+    "eslint": "^0.24.0",
+    "eslint-config-cycle": "1.0.x",
+    "eslint-plugin-cycle": "1.0.x",
+    "markdox": "0.1.9",
+    "uglify-js": "2.4.23"
+  },
+  "scripts": {
+    "eslint": "eslint src/",
+    "test": "npm run eslint",
+    "browserify": "browserify src/index.js -t babelify --standalone CycleJSONPDriver --outfile dist/cycle-jsonp-driver.js",
+    "uglify": "uglifyjs dist/cycle-jsonp-driver.js -o dist/cycle-jsonp-driver.min.js",
+    "precompile-lib": "rm -rf lib/ && mkdir -p lib",
+    "compile-lib": "babel -d lib/ src/",
+    "dist": "npm run browserify && npm run uglify",
+    "docs": "node ./scripts/make-api-docs.js",
+    "prepublish": "npm run compile-lib",
+    "release": "npm run release-patch",
+    "release-patch": "git checkout master && npm run dist; git commit -a -m 'Build dist/'; npm version patch && git push origin master --tags && npm publish --access=public",
+    "release-minor": "git checkout master && npm run dist; git commit -a -m 'Build dist/'; npm version minor && git push origin master --tags && npm publish --access=public",
+    "release-major": "git checkout master && npm run dist; git commit -a -m 'Build dist/'; npm version major && git push origin master --tags && npm publish --access=public"
+  }
+}
