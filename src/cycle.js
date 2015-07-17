@@ -57,9 +57,9 @@ function isObjectEmpty(obj) {
   return true;
 }
 
-function run(app, drivers) {
-  if (typeof app !== 'function') {
-    throw new Error('First argument given to Cycle.run() must be the `app` ' +
+function run(main, drivers) {
+  if (typeof main !== 'function') {
+    throw new Error('First argument given to Cycle.run() must be the `main` ' +
       'function.');
   }
   if (typeof drivers !== 'object' || drivers === null) {
@@ -74,23 +74,23 @@ function run(app, drivers) {
   let requestProxies = makeRequestProxies(drivers);
   let rawResponses = callDrivers(drivers, requestProxies);
   let responses = makeAppInput(requestProxies, rawResponses);
-  let requests = app(responses);
+  let requests = main(responses);
   setTimeout(() => replicateMany(requests, requestProxies), 1);
   return [requests, responses];
 }
 
 let Cycle = {
   /**
-   * Takes an `app` function and circularly connects it to the given collection
+   * Takes an `main` function and circularly connects it to the given collection
    * of driver functions.
    *
-   * The `app` function expects a collection of "driver response" Observables as
-   * input, and should return a collection of "driver request" Observables.
+   * The `main` function expects a collection of "driver response" Observables
+   * as input, and should return a collection of "driver request" Observables.
    * A "collection of Observables" is a JavaScript object where
    * keys match the driver names registered by the `drivers` object, and values
    * are Observables or a collection of Observables.
    *
-   * @param {Function} app a function that takes `responses` as input
+   * @param {Function} main a function that takes `responses` as input
    * and outputs a collection of `requests` Observables.
    * @param {Object} drivers an object where keys are driver names and values
    * are driver functions.

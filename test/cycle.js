@@ -18,7 +18,7 @@ describe('Cycle', function () {
     it('should throw if first argument is not a function', function () {
       assert.throws(() => {
         Cycle.run('not a function');
-      }, /First argument given to Cycle\.run\(\) must be the `app` function/i);
+      }, /First argument given to Cycle\.run\(\) must be the `main` function/i);
     });
 
     it('should throw if second argument is not an object', function () {
