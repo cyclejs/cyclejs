@@ -8,6 +8,33 @@ npm install @cycle/jsonp
 
 ## Usage
 
+```js
+function main(responses) {
+  // This API endpoint returns a JSON response
+  const HELLO_URL = 'http://localhost:8080/hello';
+  let request$ = Rx.Observable.just(HELLO_URL);
+  let vtree$ = responses.JSONP
+    .filter(res$ => res$.request === HELLO_URL)
+    .mergeAll()
+    .startWith({text: 'Loading...'})
+    .map(json =>
+      h('div.container', [
+        h('h1', json.text)
+      ])
+    );
+
+  return {
+    DOM: vtree$,
+    JSONP: request$
+  };
+}
+
+Cycle.run(main, {
+  DOM: makeDOMDriver('.js-container'),
+  JSONP: makeJSONPDriver()
+})
+```
+
 - - -
 
 [![Build Status](https://travis-ci.org/cyclejs/cycle-jsonp-driver.svg?branch=master)](https://travis-ci.org/cyclejs/cycle-jsonp-driver)
