@@ -4,12 +4,12 @@
 - [`run`](#run)
 - [`Rx`](#Rx)
 
-### <a id="run"></a> `run(app, drivers)`
+### <a id="run"></a> `run(main, drivers)`
 
-Takes an `app` function and circularly connects it to the given collection
+Takes an `main` function and circularly connects it to the given collection
 of driver functions.
 
-The `app` function expects a collection of "driver response" Observables as
+The `main` function expects a collection of "driver response" Observables as
 input, and should return a collection of "driver request" Observables.
 A "collection of Observables" is a JavaScript object where
 keys match the driver names registered by the `drivers` object, and values
@@ -17,7 +17,7 @@ are Observables or a collection of Observables.
 
 #### Arguments:
 
-- `app :: Function` a function that takes `responses` as input and outputs a collection of `requests` Observables.
+- `main :: Function` a function that takes `responses` as input and outputs a collection of `requests` Observables.
 - `drivers :: Object` an object where keys are driver names and values are driver functions.
 
 #### Return:
