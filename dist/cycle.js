@@ -10883,9 +10883,9 @@ function isObjectEmpty(obj) {
   return true;
 }
 
-function run(app, drivers) {
-  if (typeof app !== 'function') {
-    throw new Error('First argument given to Cycle.run() must be the `app` ' + 'function.');
+function run(main, drivers) {
+  if (typeof main !== 'function') {
+    throw new Error('First argument given to Cycle.run() must be the `main` ' + 'function.');
   }
   if (typeof drivers !== 'object' || drivers === null) {
     throw new Error('Second argument given to Cycle.run() must be an object ' + 'with driver functions as properties.');
@@ -10897,7 +10897,7 @@ function run(app, drivers) {
   var requestProxies = makeRequestProxies(drivers);
   var rawResponses = callDrivers(drivers, requestProxies);
   var responses = makeAppInput(requestProxies, rawResponses);
-  var requests = app(responses);
+  var requests = main(responses);
   setTimeout(function () {
     return replicateMany(requests, requestProxies);
   }, 1);
@@ -10906,21 +10906,21 @@ function run(app, drivers) {
 
 var Cycle = {
   /**
-   * Takes an `app` function and circularly connects it to the given collection
+   * Takes an `main` function and circularly connects it to the given collection
    * of driver functions.
    *
-   * The `app` function expects a collection of "driver response" Observables as
-   * input, and should return a collection of "driver request" Observables.
+   * The `main` function expects a collection of "driver response" Observables
+   * as input, and should return a collection of "driver request" Observables.
    * A "collection of Observables" is a JavaScript object where
    * keys match the driver names registered by the `drivers` object, and values
    * are Observables or a collection of Observables.
    *
-   * @param {Function} app a function that takes `responses` as input
+   * @param {Function} main a function that takes `responses` as input
    * and outputs a collection of `requests` Observables.
    * @param {Object} drivers an object where keys are driver names and values
    * are driver functions.
    * @return {Array} an array where the first object is the collection of driver
-   * requests, and the second objet is the collection of driver responses, that
+   * requests, and the second object is the collection of driver responses, that
    * can be used for debugging or testing.
    * @function run
    */
