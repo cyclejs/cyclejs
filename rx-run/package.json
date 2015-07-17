@@ -1,6 +1,6 @@
 {
   "name": "@cycle/core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Andre Staltz",
   "description": "A fully reactive JavaScript framework for Human-Computer Interaction",
   "license": "MIT",
