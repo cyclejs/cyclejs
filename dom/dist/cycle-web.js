@@ -15905,7 +15905,7 @@ var CycleWeb = {
    * @param {Object} customElements a collection of custom element definitions.
    * The key of each property should be the tag name of the custom element, and
    * the value should be a function defining the implementation of the custom
-   * element. This function follows the same contract as the top-most `app`
+   * element. This function follows the same contract as the top-most `main`
    * function: input are driver responses, output are requests to drivers.
    * @return {Function} the DOM driver function. The function expects an
    * Observable of VTree as input, and outputs the response object for this
@@ -15924,7 +15924,7 @@ var CycleWeb = {
    * @param {Object} customElements a collection of custom element definitions.
    * The key of each property should be the tag name of the custom element, and
    * the value should be a function defining the implementation of the custom
-   * element. This function follows the same contract as the top-most `app`
+   * element. This function follows the same contract as the top-most `main`
    * function: input are driver responses, output are requests to drivers.
    * @return {Function} the HTML driver function. The function expects an
    * Observable of Virtual DOM elements as input, and outputs an Observable of
@@ -15940,6 +15940,23 @@ var CycleWeb = {
    * @name h
    */
   h: VirtualDOM.h,
+
+  /**
+   * An adapter around virtual-hyperscript `h()` to allow JSX to be used easily
+   * with Babel. Place the [Babel configuration comment](
+   * http://babeljs.io/docs/advanced/transformers/other/react/) `@jsx hJSX` at 
+   * the top of the ES6 file, make sure you import `hJSX` with 
+   * `import {hJSX} from '@cycle/web'`, and then you can use JSX to create 
+   * VTrees.
+   * @name hJSX
+   */
+  hJSX: function hJSX(tag, attrs) {
+    for (var _len = arguments.length, children = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+      children[_key - 2] = arguments[_key];
+    }
+
+    return VirtualDOM.h(tag, attrs, children);
+  },
 
   /**
    * A shortcut to the svg hyperscript function.

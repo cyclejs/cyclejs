@@ -1,3 +1,4 @@
+/** @jsx hJSX */
 'use strict';
 /* global describe, it, beforeEach */
 let assert = require('assert');
@@ -5,7 +6,7 @@ let Cycle = require('@cycle/core');
 let CycleWeb = require('../../src/cycle-web');
 let Fixture89 = require('./fixtures/issue-89');
 let {Rx} = Cycle;
-let {h, makeDOMDriver} = CycleWeb;
+let {h, hJSX, makeDOMDriver} = CycleWeb;
 
 function createRenderTarget() {
   let element = document.createElement('div');
@@ -102,6 +103,31 @@ describe('Rendering', function () {
             h('option', {value: 'bar'}, 'Bar'),
             h('option', {value: 'baz'}, 'Baz')
           ]))
+        };
+      }
+      let [requests, responses] = Cycle.run(app, {
+        DOM: makeDOMDriver(createRenderTarget())
+      });
+      responses.DOM.get(':root').skip(1).take(1).subscribe(function () {
+        let selectEl = document.querySelector('.my-class');
+        assert.notStrictEqual(selectEl, null);
+        assert.notStrictEqual(typeof selectEl, 'undefined');
+        assert.strictEqual(selectEl.tagName, 'SELECT');
+        responses.dispose();
+        done();
+      });
+    });
+
+    it('should convert a simple virtual-dom <select> (JSX) to DOM element', function (done) {
+      function app() {
+        return {
+          DOM: Rx.Observable.just(
+            <select className="my-class">
+              <option value="foo">Foo</option>
+              <option value="bar">Bar</option>
+              <option value="baz">Baz</option>
+            </select>
+          )
         };
       }
       let [requests, responses] = Cycle.run(app, {

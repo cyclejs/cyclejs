@@ -1,34 +1,37 @@
+/** @jsx hJSX */
 'use strict';
 let Cycle = require('@cycle/core');
 let CycleWeb = require('../../lib/cycle-web');
-let {h} = CycleWeb;
+let {h, hJSX} = CycleWeb;
 
 function renderMenu() {
-  return h('ul', [
-    h('li', [
-      h('a.link', {href: '/'}, 'Home')
-    ]),
-    h('li', [
-      h('a.link', {href: '/about'}, 'About')
-    ])
-  ]);
+  return (
+    <ul>
+      <li><a className="link" href="/">Home</a></li>
+      <li><a className="link" href="/about">About</a></li>
+    </ul>
+  );
 }
 
 function renderHomePage() {
-  return h('section.home', [
-    h('h1', 'The homepage'),
-    h('p', 'Welcome to our spectacular web page with literally nothing special here.'),
-    renderMenu()
-  ]);
+  return (
+    <section className="home">
+      <h1>The homepage</h1>
+      <p>Welcome to our spectacular web page with literally nothing special here.</p>
+      {renderMenu()}
+    </section>
+  );
 }
 
 function renderAboutPage() {
-  return h('section.about', [
-    h('h1', 'Read more about us'),
-    h('p', 'This is the page where we describe ourselves.'),
-    h('p', 'In reality, I have no idea what I\'m doing.'),
-    renderMenu()
-  ]);
+  return (
+    <section className="about">
+      <h1>Read more about us</h1>
+      <p>This is the page where we describe ourselves.</p>
+      <p>Contact us</p>
+      {renderMenu()}
+    </section>
+  );
 }
 
 function app(ext) {
@@ -50,7 +53,7 @@ function app(ext) {
       switch (route) {
         case '/': return renderHomePage();
         case '/about': return renderAboutPage();
-        default: return h('div', `Unknown page ${route}`);
+        default: return (<div>Unknown page {route}</div>)
       }
     });
 

@@ -4,6 +4,7 @@
 - [`makeDOMDriver`](#makeDOMDriver)
 - [`makeHTMLDriver`](#makeHTMLDriver)
 - [`h`](#h)
+- [`hJSX`](#hJSX)
 - [`svg`](#svg)
 
 ### <a id="makeDOMDriver"></a> `makeDOMDriver(container, customElements)`
@@ -59,6 +60,17 @@ strings as the HTML renderization of the virtual DOM elements.
 A shortcut to [virtual-hyperscript](
 https://github.com/Matt-Esch/virtual-dom/tree/master/virtual-hyperscript).
 This is a helper for creating VTrees in Views.
+
+- - -
+
+### <a id="hJSX"></a> `hJSX()`
+
+An adapter around virtual-hyperscript `h()` to allow JSX to be used easily
+with Babel. Place the [Babel configuration comment](
+http://babeljs.io/docs/advanced/transformers/other/react/) `@jsx hJSX` at
+the top of the ES6 file, make sure you import `hJSX` with
+`import {hJSX} from '@cycle/web'`, and then you can use JSX to create
+VTrees.
 
 - - -
 
