@@ -1,8 +1,8 @@
 /** @jsx hJSX */
 'use strict';
 let Cycle = require('@cycle/core');
-let CycleWeb = require('../../lib/cycle-web');
-let {h, hJSX} = CycleWeb;
+let CycleDOM = require('../../lib/cycle-dom');
+let {h, hJSX} = CycleDOM;
 
 function renderMenu() {
   return (

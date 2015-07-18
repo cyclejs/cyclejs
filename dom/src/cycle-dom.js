@@ -4,7 +4,7 @@ let svg = require('virtual-dom/virtual-hyperscript/svg');
 let {makeDOMDriver} = require('./render-dom');
 let {makeHTMLDriver} = require('./render-html');
 
-let CycleWeb = {
+let CycleDOM = {
   /**
    * A factory for the DOM driver function. Takes a `container` to define the
    * target on the existing DOM which this driver will operate on. All custom
@@ -61,7 +61,7 @@ let CycleWeb = {
    * with Babel. Place the [Babel configuration comment](
    * http://babeljs.io/docs/advanced/transformers/other/react/) `@jsx hJSX` at
    * the top of the ES6 file, make sure you import `hJSX` with
-   * `import {hJSX} from '@cycle/web'`, and then you can use JSX to create
+   * `import {hJSX} from '@cycle/dom'`, and then you can use JSX to create
    * VTrees.
    * @name hJSX
    */
@@ -76,4 +76,4 @@ let CycleWeb = {
   svg: svg
 };
 
-module.exports = CycleWeb;
+module.exports = CycleDOM;

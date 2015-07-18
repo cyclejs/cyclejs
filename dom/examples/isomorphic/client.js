@@ -1,6 +1,6 @@
 'use strict';
 let Cycle = require('@cycle/core');
-let CycleWeb = require('../../lib/cycle-web');
+let {makeDOMDriver} = require('../../lib/cycle-dom');
 let {app} = require('./app');
 
 function clientSideApp(responses) {
@@ -10,6 +10,6 @@ function clientSideApp(responses) {
 }
 
 Cycle.run(clientSideApp, {
-  DOM: CycleWeb.makeDOMDriver('.app-container'),
+  DOM: makeDOMDriver('.app-container'),
   context: () => Cycle.Rx.Observable.just(window.appContext)
 });

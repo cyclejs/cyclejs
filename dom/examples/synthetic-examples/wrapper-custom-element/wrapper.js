@@ -1,5 +1,5 @@
 var Rx = Cycle.Rx;
-var h = CycleWeb.h;
+var h = CycleDOM.h;
 
 function wrapperElementDef(ext) {
   return {
@@ -23,7 +23,7 @@ function main() {
 }
 
 Cycle.run(main, {
-  DOM: CycleWeb.makeDOMDriver('.js-container', {
+  DOM: CycleDOM.makeDOMDriver('.js-container', {
     'wrapper-element': wrapperElementDef
   })
 });

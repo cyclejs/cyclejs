@@ -6,7 +6,7 @@ function main(ext) {
       .map(function () { return Math.round(Math.random() * 1000); })
       .startWith(135)
       .map(function (data) {
-        return CycleWeb.h('div.box', {
+        return CycleDOM.h('div.box', {
           style: {
             margin: '10px',
             background: '#ececec',
@@ -20,8 +20,8 @@ function main(ext) {
 }
 
 Cycle.run(main, {
-  DOM: CycleWeb.makeDOMDriver('.js-container1')
+  DOM: CycleDOM.makeDOMDriver('.js-container1')
 });
 Cycle.run(main, {
-  DOM: CycleWeb.makeDOMDriver('.js-container2')
+  DOM: CycleDOM.makeDOMDriver('.js-container2')
 });

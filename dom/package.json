@@ -1,14 +1,14 @@
 {
-  "name": "@cycle/web",
+  "name": "@cycle/dom",
   "version": "2.2.2",
   "author": "Andre Staltz",
   "description": "The standard DOM Driver for Cycle.js, based on virtual-dom, and other helpers",
   "license": "MIT",
-  "homepage": "https://github.com/cyclejs/cycle-web",
-  "bugs": "https://github.com/cyclejs/cycle-web/issues",
+  "homepage": "https://github.com/cyclejs/cycle-dom",
+  "bugs": "https://github.com/cyclejs/cycle-dom/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cyclejs/cycle-web"
+    "url": "https://github.com/cyclejs/cycle-dom"
   },
   "keywords": [
     "reactive",
@@ -19,7 +19,7 @@
     "mvi",
     "virtual-dom"
   ],
-  "main": "lib/cycle-web.js",
+  "main": "lib/cycle-dom.js",
   "dependencies": {
     "es6-map": "0.1.1",
     "vdom-parser": "^1.0.2",
@@ -54,8 +54,8 @@
     "posttest-browser": "rm test/browser/page/tests-bundle.js",
     "test": "npm run eslint && npm run test-node && npm run test-browser",
     "travis-test": "npm run eslint && npm run test-node",
-    "browserify": "browserify src/cycle-web.js -t babelify --standalone CycleWeb --outfile dist/cycle-web.js",
-    "uglify": "uglifyjs dist/cycle-web.js -o dist/cycle-web.min.js",
+    "browserify": "browserify src/cycle-dom.js -t babelify --standalone CycleDOM --outfile dist/cycle-dom.js",
+    "uglify": "uglifyjs dist/cycle-dom.js -o dist/cycle-dom.min.js",
     "dist": "npm run browserify && npm run uglify",
     "docs": "node ./scripts/make-api-docs.js",
     "precompile-lib": "rm -rf lib/ && mkdir -p lib",

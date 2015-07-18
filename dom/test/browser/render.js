@@ -3,10 +3,10 @@
 /* global describe, it, beforeEach */
 let assert = require('assert');
 let Cycle = require('@cycle/core');
-let CycleWeb = require('../../src/cycle-web');
+let CycleDOM = require('../../src/cycle-dom');
 let Fixture89 = require('./fixtures/issue-89');
 let {Rx} = Cycle;
-let {h, hJSX, makeDOMDriver} = CycleWeb;
+let {h, hJSX, makeDOMDriver} = CycleDOM;
 
 function createRenderTarget() {
   let element = document.createElement('div');

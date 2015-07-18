@@ -1,4 +1,4 @@
-var h = CycleWeb.h;
+var h = CycleDOM.h;
 var Rx = Cycle.Rx;
 
 function tickerCustomElement(ext) {
@@ -55,7 +55,7 @@ function main(ext) {
 }
 
 Cycle.run(main, {
-  DOM: CycleWeb.makeDOMDriver('.js-container', {
+  DOM: CycleDOM.makeDOMDriver('.js-container', {
     'my-ticker': tickerCustomElement
   })
 });

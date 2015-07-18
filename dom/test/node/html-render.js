@@ -2,9 +2,9 @@
 /* global describe, it, beforeEach */
 let assert = require('assert');
 let Cycle = require('@cycle/core');
-let CycleWeb = require('../../src/cycle-web');
+let CycleDOM = require('../../src/cycle-dom');
 let {Rx} = Cycle;
-let {h, makeHTMLDriver} = CycleWeb;
+let {h, makeHTMLDriver} = CycleDOM;
 
 describe('renderAsHTML()', function () {
   it('should output HTML when given a simple vtree stream', function (done) {

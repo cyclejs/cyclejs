@@ -1,5 +1,5 @@
 'use strict';
-var h = CycleWeb.h;
+var h = CycleDOM.h;
 
 function main(ext) {
   return {
@@ -18,5 +18,5 @@ function main(ext) {
 }
 
 Cycle.run(main, {
-  DOM: CycleWeb.makeDOMDriver('.js-container')
+  DOM: CycleDOM.makeDOMDriver('.js-container')
 });

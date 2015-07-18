@@ -1,4 +1,4 @@
-var h = CycleWeb.h;
+var h = CycleDOM.h;
 
 // This example tests 3 issues:
 // - Whether custom events from a custom element are caught by the parent View/User
@@ -69,7 +69,7 @@ function main(ext) {
 }
 
 var interaction = Cycle.run(main, {
-  UI: CycleWeb.makeDOMDriver('.js-container', {'inner-elem': innerElem})
+  UI: CycleDOM.makeDOMDriver('.js-container', {'inner-elem': innerElem})
 });
 var responses = interaction[1];
 

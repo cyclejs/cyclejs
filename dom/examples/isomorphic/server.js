@@ -1,11 +1,11 @@
 'use strict';
 let Cycle = require('@cycle/core');
-let CycleWeb = require('../../lib/cycle-web');
+let CycleDOM = require('../../lib/cycle-dom');
 let express = require('express');
 let browserify = require('browserify');
 let serialize = require('serialize-javascript');
 let {Rx} = Cycle;
-let {h} = CycleWeb;
+let {h, makeHTMLDriver} = CycleDOM;
 let {app} = require('./app');
 
 function wrapVTreeWithHTMLBoilerplate(vtree, context, clientBundle) {
@@ -70,7 +70,7 @@ server.use(function (req, res) {
   let context$ = Rx.Observable.just({route: req.url});
   let wrappedAppFn = wrapAppResultWithBoilerplate(app, context$, clientBundle$);
   let [requests, responses] = Cycle.run(wrappedAppFn, {
-    DOM: CycleWeb.makeHTMLDriver(),
+    DOM: makeHTMLDriver(),
     context: () => context$
   });
   let html$ = responses.DOM.get(':root').map(prependHTML5Doctype);

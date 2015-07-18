@@ -1,5 +1,5 @@
 function manyView(items$) {
-  var h = CycleWeb.h;
+  var h = CycleDOM.h;
 
   function vrenderPerfButton() {
     function run() {

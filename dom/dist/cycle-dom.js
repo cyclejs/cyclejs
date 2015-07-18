@@ -1,4 +1,4 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.CycleWeb = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.CycleDOM = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 var Rx = require('rx');
 
@@ -15889,7 +15889,7 @@ var _require2 = require('./render-html');
 
 var makeHTMLDriver = _require2.makeHTMLDriver;
 
-var CycleWeb = {
+var CycleDOM = {
   /**
    * A factory for the DOM driver function. Takes a `container` to define the
    * target on the existing DOM which this driver will operate on. All custom
@@ -15946,7 +15946,7 @@ var CycleWeb = {
    * with Babel. Place the [Babel configuration comment](
    * http://babeljs.io/docs/advanced/transformers/other/react/) `@jsx hJSX` at
    * the top of the ES6 file, make sure you import `hJSX` with
-   * `import {hJSX} from '@cycle/web'`, and then you can use JSX to create
+   * `import {hJSX} from '@cycle/dom'`, and then you can use JSX to create
    * VTrees.
    * @name hJSX
    */
@@ -15965,7 +15965,7 @@ var CycleWeb = {
   svg: svg
 };
 
-module.exports = CycleWeb;
+module.exports = CycleDOM;
 
 },{"./render-dom":115,"./render-html":116,"virtual-dom":78,"virtual-dom/virtual-hyperscript/svg":99}],115:[function(require,module,exports){
 'use strict';

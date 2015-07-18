@@ -1,4 +1,4 @@
-var h = CycleWeb.h;
+var h = CycleDOM.h;
 
 function manyComponent(ext) {
   var id$ = ext.props.get('itemid').shareReplay(1);
