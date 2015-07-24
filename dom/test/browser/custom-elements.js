@@ -361,43 +361,6 @@ describe('Custom Elements', function () {
     });
   });
 
-  it('should warn when custom element is used with no key', function (done) {
-    let realConsole = console;
-    let warnMessages = [];
-    let noop = () => {};
-    console = {
-      log: noop,
-      error: noop,
-      warn: (msg) => warnMessages.push(msg)
-    };
-    // Make simple custom element
-    function myElementDef() {
-      return {
-        DOM: Rx.Observable.just(h('h3.myelementclass'))
-      };
-    }
-    // Make VNode with a string as child
-    function app() {
-      return {
-        DOM: Rx.Observable.just(h('div', h('my-element')))
-      };
-    }
-    let [requests, responses] = Cycle.run(app, {
-      DOM: makeDOMDriver(createRenderTarget(), {
-        'my-element': myElementDef
-      })
-    });
-    responses.DOM.get(':root').skip(1).take(1).subscribe(function () {
-      console = realConsole;
-      assert.strictEqual(warnMessages.length, 1);
-      assert.strictEqual(warnMessages[0],
-        'Missing `key` property for Cycle custom element MY-ELEMENT'
-      );
-      responses.dispose();
-      done();
-    });
-  });
-
   it('should not fail when finds VirtualText in replaceCustomElements', function (done) {
     // Make simple custom element
     function myElementDef() {

@@ -102,13 +102,6 @@ function createContainerElement(tagName, vtreeProperties) {
   return element;
 }
 
-function warnIfVTreeHasNoKey(vtree) {
-  if (typeof vtree.key === 'undefined') {
-    console.warn('Missing `key` property for Cycle custom element ' +
-      vtree.tagName);
-  }
-}
-
 function throwIfVTreeHasPropertyChildren(vtree) {
   if (typeof vtree.properties.children !== 'undefined') {
     throw new Error('Custom element should not have property `children`. ' +
@@ -127,7 +120,6 @@ function makeConstructor() {
   return function customElementConstructor(vtree, CERegistry, driverName) {
     //console.log('%cnew (constructor) custom element ' + vtree.tagName,
     //  'color: #880088');
-    warnIfVTreeHasNoKey(vtree);
     throwIfVTreeHasPropertyChildren(vtree);
     this.type = 'Widget';
     this.properties = vtree.properties;
@@ -278,7 +270,6 @@ module.exports = {
   subscribeDispatchersWhenRootChanges,
   makePropertiesDriver,
   createContainerElement,
-  warnIfVTreeHasNoKey,
   throwIfVTreeHasPropertyChildren,
   makeConstructor,
   makeInit,
