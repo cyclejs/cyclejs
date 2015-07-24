@@ -108,8 +108,8 @@ describe('Rendering', function () {
       let [requests, responses] = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
-      responses.DOM.get(':root').skip(1).take(1).subscribe(function () {
-        let selectEl = document.querySelector('.my-class');
+      responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
+        let selectEl = root.querySelector('.my-class');
         assert.notStrictEqual(selectEl, null);
         assert.notStrictEqual(typeof selectEl, 'undefined');
         assert.strictEqual(selectEl.tagName, 'SELECT');
@@ -133,8 +133,8 @@ describe('Rendering', function () {
       let [requests, responses] = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
-      responses.DOM.get(':root').skip(1).take(1).subscribe(function () {
-        let selectEl = document.querySelector('.my-class');
+      responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
+        let selectEl = root.querySelector('.my-class');
         assert.notStrictEqual(selectEl, null);
         assert.notStrictEqual(typeof selectEl, 'undefined');
         assert.strictEqual(selectEl.tagName, 'SELECT');
@@ -156,12 +156,12 @@ describe('Rendering', function () {
       // Make assertions
       responses.DOM.get('.myelementclass', 'click').subscribe(ev => {
         assert.strictEqual(ev.type, 'click');
-        assert.strictEqual(ev.target.innerHTML, 'Foobar');
+        assert.strictEqual(ev.target.textContent, 'Foobar');
         responses.dispose();
         done();
       });
-      responses.DOM.get(':root').skip(1).take(1).subscribe(function () {
-        let myElement = document.querySelector('.myelementclass');
+      responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
+        let myElement = root.querySelector('.myelementclass');
         assert.notStrictEqual(myElement, null);
         assert.notStrictEqual(typeof myElement, 'undefined');
         assert.strictEqual(myElement.tagName, 'H3');
@@ -183,13 +183,13 @@ describe('Rendering', function () {
       });
       responses.DOM.get('.myelementclass', 'click').subscribe(ev => {
         assert.strictEqual(ev.type, 'click');
-        assert.strictEqual(ev.target.innerHTML, 'Foobar');
+        assert.strictEqual(ev.target.textContent, 'Foobar');
         responses.dispose();
         done();
       });
       // Make assertions
-      responses.DOM.get(':root').skip(1).take(1).subscribe(function () {
-        let myElement = document.querySelector('.myelementclass');
+      responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
+        let myElement = root.querySelector('.myelementclass');
         assert.notStrictEqual(myElement, null);
         assert.notStrictEqual(typeof myElement, 'undefined');
         assert.strictEqual(myElement.tagName, 'H3');
@@ -212,18 +212,18 @@ describe('Rendering', function () {
         })
       });
 
-      responses.DOM.get(':root').skip(1).take(1).subscribe(function () {
+      responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
         setTimeout(() => {
-          let myelement = document.querySelector('.myelementclass');
+          let myelement = root.querySelector('.myelementclass');
           assert.notStrictEqual(myelement, null);
           assert.strictEqual(myelement.tagName, 'H3');
-          assert.strictEqual(myelement.innerHTML, '123');
+          assert.strictEqual(myelement.textContent, '123');
         }, 100);
         setTimeout(() => {
-          let myelement = document.querySelector('.myelementclass');
+          let myelement = root.querySelector('.myelementclass');
           assert.notStrictEqual(myelement, null);
           assert.strictEqual(myelement.tagName, 'H3');
-          assert.strictEqual(myelement.innerHTML, '456');
+          assert.strictEqual(myelement.textContent, '456');
           responses.dispose();
           done();
         }, 500);
@@ -264,13 +264,13 @@ describe('Rendering', function () {
       let [requests, responses] = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
-      responses.DOM.get(':root').skip(1).subscribe(function () {
-        let selectEl = document.querySelector('.target');
+      responses.DOM.get(':root').skip(1).subscribe(function (root) {
+        let selectEl = root.querySelector('.target');
         assert.notStrictEqual(selectEl, null);
         assert.notStrictEqual(typeof selectEl, 'undefined');
         assert.strictEqual(selectEl.tagName, 'H3');
-        assert.notStrictEqual(selectEl.innerHTML, '3');
-        if (selectEl.innerHTML === '2') {
+        assert.notStrictEqual(selectEl.textContent, '3');
+        if (selectEl.textContent === '2') {
           responses.dispose();
           done();
         }
