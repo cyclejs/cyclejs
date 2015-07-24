@@ -6,6 +6,8 @@ A [Cycle.js](http://cycle.js.org) [Driver](http://cycle.js.org/drivers.html) for
 npm install @cycle/http
 ```
 
+[![npm version](https://badge.fury.io/js/%40cycle%2Fhttp.svg)](http://badge.fury.io/js/%40cycle%2Fhttp)
+
 ## Usage
 
 Basics:
