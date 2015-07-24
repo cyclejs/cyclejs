@@ -31,17 +31,18 @@
   },
   "devDependencies": {
     "@cycle/core": "1.0.x",
-    "rx": "2.x.x",
     "babel": "5.6.x",
     "babelify": "6.1.x",
+    "browserify": "10.2.4",
     "eslint": "^0.23.0",
     "eslint-config-cycle": "1.0.x",
     "eslint-plugin-cycle": "1.0.x",
-    "browserify": "10.2.4",
     "markdox": "0.1.8",
     "mocha": "2.2.5",
+    "rx": "2.x.x",
     "testem": "0.8.3",
-    "uglify-js": "2.4.23"
+    "uglify-js": "2.4.23",
+    "zuul": "^3.2.0"
   },
   "engines": {
     "node": ">=0.10.0"
@@ -50,10 +51,11 @@
     "eslint": "eslint src/",
     "test-node": "mocha --compilers js:babel/register test/node",
     "test-browser": "testem",
+    "test-zuul": "zuul --open --no-coverage --local 4000 -- test/browser/index.js",
     "pretest-browser": "browserify test/browser/index.js -t babelify -o test/browser/page/tests-bundle.js",
     "posttest-browser": "rm test/browser/page/tests-bundle.js",
     "test": "npm run eslint && npm run test-node && npm run test-browser",
-    "travis-test": "npm run eslint && npm run test-node",
+    "test-ci": "npm run eslint && npm run test-node && zuul --no-coverage -- test/browser/index.js",
     "browserify": "browserify src/cycle-dom.js -t babelify --standalone CycleDOM --outfile dist/cycle-dom.js",
     "uglify": "uglifyjs dist/cycle-dom.js -o dist/cycle-dom.min.js",
     "dist": "npm run browserify && npm run uglify",

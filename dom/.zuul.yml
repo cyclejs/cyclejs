@@ -1,0 +1,15 @@
+ui: mocha-bdd
+browserify:
+  - transform: babelify
+browsers:
+  - name: firefox
+    version: latest
+    platform: Mac 10.10
+  - name: opera
+    version: latest
+  - name: chrome
+    version: latest
+  - name: safari
+    version: latest
+  - name: ie
+    version: 9..latest

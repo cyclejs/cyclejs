@@ -11,6 +11,9 @@ node_modules
 test/browser/page/tests-bundle.js
 lib/
 
+# Secrets
+.zuulrc
+
 # Misc
 ignore
 npm-debug.log
