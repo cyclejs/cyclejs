@@ -7,6 +7,7 @@ browsers:
     platform: Mac 10.10
   - name: opera
     version: latest
+    platform: Mac 10.10
   - name: chrome
     version: latest
   - name: safari
