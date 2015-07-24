@@ -64,9 +64,9 @@ function isObjectEmpty(obj) {
   return true;
 }
 
-function run(app, drivers) {
-  if (typeof app !== 'function') {
-    throw new Error('First argument given to Cycle.run() must be the `app` ' + 'function.');
+function run(main, drivers) {
+  if (typeof main !== 'function') {
+    throw new Error('First argument given to Cycle.run() must be the `main` ' + 'function.');
   }
   if (typeof drivers !== 'object' || drivers === null) {
     throw new Error('Second argument given to Cycle.run() must be an object ' + 'with driver functions as properties.');
@@ -78,7 +78,7 @@ function run(app, drivers) {
   var requestProxies = makeRequestProxies(drivers);
   var rawResponses = callDrivers(drivers, requestProxies);
   var responses = makeAppInput(requestProxies, rawResponses);
-  var requests = app(responses);
+  var requests = main(responses);
   setTimeout(function () {
     return replicateMany(requests, requestProxies);
   }, 1);
@@ -87,21 +87,21 @@ function run(app, drivers) {
 
 var Cycle = {
   /**
-   * Takes an `app` function and circularly connects it to the given collection
+   * Takes an `main` function and circularly connects it to the given collection
    * of driver functions.
    *
-   * The `app` function expects a collection of "driver response" Observables as
-   * input, and should return a collection of "driver request" Observables.
+   * The `main` function expects a collection of "driver response" Observables
+   * as input, and should return a collection of "driver request" Observables.
    * A "collection of Observables" is a JavaScript object where
    * keys match the driver names registered by the `drivers` object, and values
    * are Observables or a collection of Observables.
    *
-   * @param {Function} app a function that takes `responses` as input
+   * @param {Function} main a function that takes `responses` as input
    * and outputs a collection of `requests` Observables.
    * @param {Object} drivers an object where keys are driver names and values
    * are driver functions.
    * @return {Array} an array where the first object is the collection of driver
-   * requests, and the second objet is the collection of driver responses, that
+   * requests, and the second object is the collection of driver responses, that
    * can be used for debugging or testing.
    * @function run
    */
@@ -12296,10 +12296,11 @@ module.exports = parser;
 /**
  * DOM/html string to vdom parser
  *
- * @param   Mixed   el  DOM element or html string 
- * @return  Object      VNode or VText
+ * @param   Mixed   el    DOM element or html string
+ * @param   String  attr  Attribute name that contains vdom key
+ * @return  Object        VNode or VText
  */
-function parser(el) {
+function parser(el, attr) {
 	// empty input fallback to empty text node
 	if (!el) {
 		return createNode(document.createTextNode(''));
@@ -12330,23 +12331,24 @@ function parser(el) {
 		throw new Error('invalid dom node', el);
 	}
 
-	return createNode(el);
+	return createNode(el, attr);
 }
 
 /**
  * Create vdom from dom node
  *
- * @param   Object  el  DOM element
- * @return  Object      VNode or VText
+ * @param   Object  el    DOM element
+ * @param   String  attr  Attribute name that contains vdom key
+ * @return  Object        VNode or VText
  */
-function createNode(el) {
+function createNode(el, attr) {
 	// html comment is not currently supported by virtual-dom
 	if (el.nodeType === 3) {
 		return createVirtualTextNode(el);
 
 	// cdata or doctype is not currently supported by virtual-dom
 	} else if (el.nodeType === 1 || el.nodeType === 9) {
-		return createVirtualDomNode(el);
+		return createVirtualDomNode(el, attr);
 	}
 
 	// default to empty text node
@@ -12366,29 +12368,34 @@ function createVirtualTextNode(el) {
 /**
  * Create vnode from dom node
  *
- * @param   Object  el  DOM element
- * @return  Object      VNode
+ * @param   Object  el    DOM element
+ * @param   String  attr  Attribute name that contains vdom key
+ * @return  Object        VNode
  */
-function createVirtualDomNode(el) {
+function createVirtualDomNode(el, attr) {
+	var ns = el.namespaceURI !== HTML_NAMESPACE ? el.namespaceURI : null;
+	var key = attr && el.getAttribute(attr) ? el.getAttribute(attr) : null;
+
 	return new VNode(
 		el.tagName
 		, createProperties(el)
-		, createChildren(el)
-		, null
-		, el.namespaceURI
+		, createChildren(el, attr)
+		, key
+		, ns
 	);
 }
 
 /**
  * Recursively create vdom
  *
- * @param   Object  el  Parent element
- * @return  Array       Child vnode or vtext
+ * @param   Object  el    Parent element
+ * @param   String  attr  Attribute name that contains vdom key
+ * @return  Array         Child vnode or vtext
  */
-function createChildren(el) {
+function createChildren(el, attr) {
 	var children = [];
 	for (var i = 0; i < el.childNodes.length; i++) {
-		children.push(createNode(el.childNodes[i]));
+		children.push(createNode(el.childNodes[i], attr));
 	};
 
 	return children;
@@ -15621,7 +15628,7 @@ function makePropertiesDriver() {
   Object.defineProperty(propertiesDriver, 'get', {
     enumerable: false,
     value: function get(streamKey) {
-      var comparer = arguments[1] === undefined ? defaultComparer : arguments[1];
+      var comparer = arguments.length <= 1 || arguments[1] === undefined ? defaultComparer : arguments[1];
 
       if (typeof streamKey === 'undefined') {
         throw new Error('Custom element driver `props.get()` expects an ' + 'argument in the getter.');
@@ -16173,7 +16180,7 @@ function makeDOMDriverWithRegistry(container, CERegistry) {
 }
 
 function makeDOMDriver(container) {
-  var customElementDefinitions = arguments[1] === undefined ? {} : arguments[1];
+  var customElementDefinitions = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
   // Find and prepare the container
   var domContainer = typeof container === 'string' ? document.querySelector(container) : container;
@@ -16294,7 +16301,7 @@ function makeResponseGetter() {
 }
 
 function makeHTMLDriver() {
-  var customElementDefinitions = arguments[0] === undefined ? {} : arguments[0];
+  var customElementDefinitions = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
   var registry = makeCustomElementsRegistry(customElementDefinitions);
   return function htmlDriver(vtree$, driverName) {
