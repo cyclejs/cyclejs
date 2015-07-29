@@ -15729,12 +15729,14 @@ function makeInit(tagName, definitionFn) {
     var propertiesDriver = makePropertiesDriver();
     var domResponse = domDriver(proxyVTree$, driverName);
     var rootElem$ = domResponse.get(':root');
+    rootElem$.subscribe(function (rootElem) {
+      // This is expected to happen before initCustomElement() returns `element`
+      element = rootElem;
+    });
     var defFnInput = makeCustomElementInput(domResponse, propertiesDriver, driverName);
     var requests = definitionFn(defFnInput);
     validateDefFnOutput(requests, driverName, tagName);
-    setTimeout(function () {
-      return widget.disposables.add(requests[driverName].subscribe(proxyVTree$.asObserver()));
-    }, 1);
+    widget.disposables.add(requests[driverName].subscribe(proxyVTree$.asObserver()));
     widget.disposables.add(rootElem$.subscribe(widget.firstRootElem$.asObserver()));
     element.cycleCustomElementMetadata = {
       propertiesDriver: propertiesDriver,
