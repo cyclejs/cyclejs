@@ -168,16 +168,18 @@ function makeInit(tagName, definitionFn) {
     let propertiesDriver = makePropertiesDriver();
     let domResponse = domDriver(proxyVTree$, driverName);
     let rootElem$ = domResponse.get(':root');
+    rootElem$.subscribe(rootElem => {
+      // This is expected to happen before initCustomElement() returns `element`
+      element = rootElem;
+    });
     let defFnInput = makeCustomElementInput(
       domResponse, propertiesDriver, driverName
     );
     let requests = definitionFn(defFnInput);
     validateDefFnOutput(requests, driverName, tagName);
-    setTimeout(() =>
-      widget.disposables.add(
-        requests[driverName].subscribe(proxyVTree$.asObserver())
-      )
-    , 1);
+    widget.disposables.add(
+      requests[driverName].subscribe(proxyVTree$.asObserver())
+    );
     widget.disposables.add(
       rootElem$.subscribe(widget.firstRootElem$.asObserver())
     );

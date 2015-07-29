@@ -320,6 +320,43 @@ describe('Custom Elements', function () {
     });
   });
 
+  it('should render custom element with a non-div top element', function (done) {
+    // Make simple custom element
+    function myElementDef({props}) {
+      return {
+        DOM: props.get('content').map(content => h('h3.myelementclass', content))
+      };
+    }
+    // Use the custom element
+    function app() {
+      return {
+        DOM: Rx.Observable.just(
+          h('div.toplevel', [
+            h('p', 'Before'),
+            h('my-element', {key: 1, content: 'Hello World'}),
+            h('p', 'After')
+          ])
+        )
+      };
+    }
+    let [requests, responses] = Cycle.run(app, {
+      DOM: makeDOMDriver(createRenderTarget(), {
+        'my-element': myElementDef
+      })
+    });
+    // Make assertions
+    responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
+      let myElement = root.querySelector('.myelementclass');
+      assert.notStrictEqual(myElement, null);
+      assert.notStrictEqual(typeof myElement, 'undefined');
+      assert.strictEqual(myElement.tagName, 'H3');
+      assert.strictEqual(myElement.textContent, 'Hello World');
+      responses.dispose();
+      done();
+    });
+  });
+
+
   it('should catch custom element\'s interaction events', function (done) {
     // Make simple custom element
     function myElementDef() {
