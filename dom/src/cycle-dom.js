@@ -1,8 +1,8 @@
 'use strict';
-let VirtualDOM = require('virtual-dom');
 let svg = require('virtual-dom/virtual-hyperscript/svg');
 let {makeDOMDriver} = require('./render-dom');
 let {makeHTMLDriver} = require('./render-html');
+let h = require('./virtual-hyperscript');
 
 let CycleDOM = {
   /**
@@ -54,7 +54,7 @@ let CycleDOM = {
    * This is a helper for creating VTrees in Views.
    * @name h
    */
-  h: VirtualDOM.h,
+  h,
 
   /**
    * An adapter around virtual-hyperscript `h()` to allow JSX to be used easily
@@ -66,7 +66,7 @@ let CycleDOM = {
    * @name hJSX
    */
   hJSX: function hJSX(tag, attrs, ...children) {
-    return VirtualDOM.h(tag, attrs, children);
+    return h(tag, attrs, children);
   },
 
   /**

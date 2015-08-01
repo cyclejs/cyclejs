@@ -1,13 +1,14 @@
 'use strict';
 let {Rx} = require('@cycle/core');
 let VDOM = {
-  h: require('virtual-dom').h,
+  h: require('./virtual-hyperscript'),
   diff: require('virtual-dom/diff'),
   patch: require('virtual-dom/patch'),
   parse: (typeof window !== 'undefined' ? require('vdom-parser') : () => {})
 };
 let {replaceCustomElementsWithSomething, makeCustomElementsRegistry} =
   require('./custom-elements');
+let {transposeVTree} = require('./transposition');
 
 function isElement(obj) {
   return (
@@ -137,6 +138,7 @@ function makeDiffAndPatchToElement$(rootElem) {
 function renderRawRootElem$(vtree$, domContainer, CERegistry, driverName) {
   let diffAndPatchToElement$ = makeDiffAndPatchToElement$(domContainer);
   return vtree$
+    .flatMapLatest(transposeVTree)
     .startWith(VDOM.parse(domContainer))
     .map(makeReplaceCustomElementsWithWidgets(CERegistry, driverName))
     .doOnNext(checkRootVTreeNotCustomElement)

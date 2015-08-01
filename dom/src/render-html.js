@@ -4,6 +4,7 @@ let toHTML = require('vdom-to-html');
 let {replaceCustomElementsWithSomething, makeCustomElementsRegistry} =
   require('./custom-elements');
 let {makeCustomElementInput, ALL_PROPS} = require('./custom-element-widget');
+let {transposeVTree} = require('./transposition');
 
 function makePropertiesDriverFromVTree(vtree) {
   return {
@@ -15,30 +16,6 @@ function makePropertiesDriverFromVTree(vtree) {
       }
     }
   };
-}
-
-/**
- * Converts a tree of VirtualNode|Observable<VirtualNode> into
- * Observable<VirtualNode>.
- */
-function transposeVTree(vtree) {
-  if (typeof vtree.subscribe === 'function') {
-    return vtree;
-  } else if (vtree.type === 'VirtualText') {
-    return Rx.Observable.just(vtree);
-  } else if (vtree.type === 'VirtualNode' && Array.isArray(vtree.children) &&
-    vtree.children.length > 0)
-  {
-    return Rx.Observable
-      .combineLatest(vtree.children.map(transposeVTree), (...arr) => {
-        vtree.children = arr;
-        return vtree;
-      });
-  } else if (vtree.type === 'VirtualNode') {
-    return Rx.Observable.just(vtree);
-  } else {
-    throw new Error('Unhandled case in transposeVTree()');
-  }
 }
 
 function makeReplaceCustomElementsWithVTree$(CERegistry, driverName) {
