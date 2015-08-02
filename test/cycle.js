@@ -2,6 +2,7 @@
 /* global describe, it */
 let assert = require('assert');
 let Cycle = require('../src/cycle');
+let sinon = require('sinon');
 
 describe('Cycle', function () {
   describe('API', function () {
@@ -66,6 +67,31 @@ describe('Cycle', function () {
         responses.dispose();
         done();
       });
+    });
+
+    it('should report errors from main() in the console', function (done) {
+      let sandbox = sinon.sandbox.create();
+      sandbox.stub(console, "error");
+
+      function main(responses) {
+        return {
+          other: responses.other.take(1).startWith('a').map(() => {
+            throw new Error('malfunction');
+          })
+        };
+      }
+      function driver() {
+        return Cycle.Rx.Observable.just('b');
+      }
+
+      Cycle.run(main, {other: driver});
+      setTimeout(() => {
+        sinon.assert.calledOnce(console.error);
+        sinon.assert.calledWithExactly(console.error, sinon.match("malfunction"));
+
+        sandbox.restore();
+        done();
+      }, 10);
     });
   });
 });
