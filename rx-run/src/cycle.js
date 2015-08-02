@@ -40,10 +40,19 @@ function makeAppInput(requestProxies, rawResponses) {
   return rawResponses;
 }
 
+function logToConsoleError(err) {
+  let target = err.stack || err;
+  if (console && console.error) {
+    console.error(target);
+  }
+}
+
 function replicateMany(original, imitators) {
   for (let name in original) { if (original.hasOwnProperty(name)) {
     if (imitators.hasOwnProperty(name) && !imitators[name].isDisposed) {
-      original[name].subscribe(imitators[name].asObserver());
+      original[name]
+        .doOnError(logToConsoleError)
+        .subscribe(imitators[name].asObserver());
     }
   }}
 }
