@@ -10864,11 +10864,18 @@ function makeAppInput(requestProxies, rawResponses) {
   return rawResponses;
 }
 
+function logToConsoleError(err) {
+  var target = err.stack || err;
+  if (console && console.error) {
+    console.error(target);
+  }
+}
+
 function replicateMany(original, imitators) {
   for (var _name4 in original) {
     if (original.hasOwnProperty(_name4)) {
       if (imitators.hasOwnProperty(_name4) && !imitators[_name4].isDisposed) {
-        original[_name4].subscribe(imitators[_name4].asObserver());
+        original[_name4].doOnError(logToConsoleError).subscribe(imitators[_name4].asObserver());
       }
     }
   }
