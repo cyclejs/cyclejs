@@ -10818,8 +10818,9 @@ process.umask = function() { return 0; };
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"_process":1}],3:[function(require,module,exports){
-'use strict';
-var Rx = require('rx');
+"use strict";
+
+var Rx = require("rx");
 
 function makeRequestProxies(drivers) {
   var requestProxies = {};
@@ -10849,7 +10850,7 @@ function makeDispose(requestProxies, rawResponses) {
       }
     }
     for (var _name3 in rawResponses) {
-      if (rawResponses.hasOwnProperty(_name3) && typeof rawResponses[_name3].dispose === 'function') {
+      if (rawResponses.hasOwnProperty(_name3) && typeof rawResponses[_name3].dispose === "function") {
         rawResponses[_name3].dispose();
       }
     }
@@ -10857,7 +10858,7 @@ function makeDispose(requestProxies, rawResponses) {
 }
 
 function makeAppInput(requestProxies, rawResponses) {
-  Object.defineProperty(rawResponses, 'dispose', {
+  Object.defineProperty(rawResponses, "dispose", {
     enumerable: false,
     value: makeDispose(requestProxies, rawResponses)
   });
@@ -10891,14 +10892,14 @@ function isObjectEmpty(obj) {
 }
 
 function run(main, drivers) {
-  if (typeof main !== 'function') {
-    throw new Error('First argument given to Cycle.run() must be the `main` ' + 'function.');
+  if (typeof main !== "function") {
+    throw new Error("First argument given to Cycle.run() must be the 'main' " + "function.");
   }
-  if (typeof drivers !== 'object' || drivers === null) {
-    throw new Error('Second argument given to Cycle.run() must be an object ' + 'with driver functions as properties.');
+  if (typeof drivers !== "object" || drivers === null) {
+    throw new Error("Second argument given to Cycle.run() must be an object " + "with driver functions as properties.");
   }
   if (isObjectEmpty(drivers)) {
-    throw new Error('Second argument given to Cycle.run() must be an object ' + 'with at least one driver function declared as a property.');
+    throw new Error("Second argument given to Cycle.run() must be an object " + "with at least one driver function declared as a property.");
   }
 
   var requestProxies = makeRequestProxies(drivers);
