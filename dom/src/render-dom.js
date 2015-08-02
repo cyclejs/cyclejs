@@ -30,7 +30,7 @@ function fixRootElem$(rawRootElem$, domContainer) {
       //console.log('%cfixRootElemClassName(), missingClasses: ' +
       //  missingClasses, 'color: lightgray')
       rootElem.className = previousClasses.concat(missingClasses).join(` `)
-      rootElem.id = originalId
+      if (originalId) { rootElem.id = originalId }
       //console.log('%c  result: ' + rootElem.className, 'color: lightgray')
       //console.log('%cEmit rootElem$ ' + rootElem.tagName + '.' +
       //  rootElem.className, 'color: #009988')
@@ -87,11 +87,10 @@ function wrapTopLevelVTree(vtree, rootElem) {
   if (sameId && sameClass && sameTagName) {
     return vtree
   }
-  /* eslint-disable no-undefined */
-  let id = rootElem.id// ? rootElem.id : undefined
-  let className = rootElem.className// ? rootElem.className : undefined
-  /* eslint-enable no-undefined */
-  return VDOM.h(rootElem.tagName, {id, className}, [vtree])
+  let attrs = {}
+  if (rootElem.id) { attrs.id = rootElem.id }
+  if (rootElem.className) { attrs.className = rootElem.className }
+  return VDOM.h(rootElem.tagName, attrs, [vtree])
 }
 
 function makeDiffAndPatchToElement$(rootElem) {

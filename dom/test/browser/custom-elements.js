@@ -320,6 +320,39 @@ describe('Custom Elements', function () {
     });
   });
 
+  it('should not render unwanted empty ids in elements', function (done) {
+    function myElementDef() {
+      return {
+        DOM: Rx.Observable.just(h('h3.myelementclass', 'Hello world'))
+      };
+    }
+    // Use the custom element
+    function app() {
+      return {
+        DOM: Rx.Observable.just(h('div.toplevel', [h('my-element', {key: 1})]))
+      };
+    }
+    let [requests, responses] = Cycle.run(app, {
+      DOM: makeDOMDriver(createRenderTarget(), {
+        'my-element': myElementDef
+      })
+    });
+    // Make assertions
+    responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
+      assert.notStrictEqual(root, null);
+      assert.notStrictEqual(typeof root, 'undefined');
+      assert.strictEqual(root.innerHTML,
+        '<div class="toplevel">' +
+          '<h3 class="myelementclass cycleCustomElement-MY-ELEMENT">' +
+            'Hello world' +
+          '</h3>'+
+        '</div>'
+      );
+      responses.dispose();
+      done();
+    });
+  });
+
   it('should render custom element with a non-div top element', function (done) {
     // Make simple custom element
     function myElementDef({props}) {
