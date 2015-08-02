@@ -15613,7 +15613,7 @@ function makePropertiesDriver() {
       var comparer = arguments.length <= 1 || arguments[1] === undefined ? defaultComparer : arguments[1];
 
       if (typeof streamKey === "undefined") {
-        throw new Error("Custom element driver 'props.get()' expects an " + "argument in the getter.");
+        throw new Error("Custom element driver `props.get()` expects an " + "argument in the getter.");
       }
       if (typeof this[streamKey] === "undefined") {
         this[streamKey] = new Rx.ReplaySubject(1);
@@ -15646,7 +15646,7 @@ function createContainerElement(tagName, vtreeProperties) {
 
 function throwIfVTreeHasPropertyChildren(vtree) {
   if (typeof vtree.properties.children !== "undefined") {
-    throw new Error("Custom element should not have property 'children'. " + "It is reserved for children elements nested into this custom element.");
+    throw new Error("Custom element should not have property `children`. " + "It is reserved for children elements nested into this custom element.");
   }
 }
 
@@ -15675,17 +15675,17 @@ function makeConstructor() {
 
 function validateDefFnOutput(defFnOutput, domDriverName, tagName) {
   if (typeof defFnOutput !== "object") {
-    throw new Error("Custom element definition function for '" + tagName + "' " + " should output an object.");
+    throw new Error("Custom element definition function for `" + tagName + "` " + " should output an object.");
   }
   if (typeof defFnOutput[domDriverName] === "undefined") {
-    throw new Error("Custom element definition function for '" + tagName + "' " + ("should output an object containing '" + domDriverName + "'."));
+    throw new Error("Custom element definition function for '" + tagName + "' " + ("should output an object containing `" + domDriverName + "`."));
   }
   if (typeof defFnOutput[domDriverName].subscribe !== "function") {
-    throw new Error("Custom element definition function for '" + tagName + "' " + "should output an object containing an Observable of VTree, named " + ("'" + domDriverName + "'."));
+    throw new Error("Custom element definition function for `" + tagName + "` " + "should output an object containing an Observable of VTree, named " + ("`" + domDriverName + "`."));
   }
   for (var _name2 in defFnOutput) {
     if (defFnOutput.hasOwnProperty(_name2) && _name2 !== domDriverName && _name2 !== EVENTS_SINK_NAME) {
-      throw new Error("Unknown '" + _name2 + "' found on custom element " + ("'" + tagName + "'s definition function's output."));
+      throw new Error("Unknown `" + _name2 + "` found on custom element " + ("`" + tagName + "`s definition function's output."));
     }
   }
 }
@@ -15732,14 +15732,14 @@ function makeInit(tagName, definitionFn) {
 
 function validatePropertiesDriverInMetadata(element, fnName) {
   if (!element) {
-    throw new Error("Missing DOM element when calling " + fnName + " on custom " + "element Widget.");
+    throw new Error("Missing DOM element when calling `" + fnName + "` on " + "custom element Widget.");
   }
   if (!element.cycleCustomElementMetadata) {
-    throw new Error("Missing custom element metadata on DOM element when " + ("calling " + fnName + " on custom element Widget."));
+    throw new Error("Missing custom element metadata on DOM element when " + ("calling `" + fnName + "` on custom element Widget."));
   }
   var metadata = element.cycleCustomElementMetadata;
   if (metadata.propertiesDriver.type !== "PropertiesDriver") {
-    throw new Error("Custom element metadata's propertiesDriver type is " + ("invalid: " + metadata.propertiesDriver.type + "."));
+    throw new Error("Custom element metadata's propertiesDriver type is " + ("invalid: `" + metadata.propertiesDriver.type + "`."));
   }
 }
 
@@ -15991,7 +15991,9 @@ function fixRootElem$(rawRootElem$, domContainer) {
     //console.log('%cfixRootElemClassName(), missingClasses: ' +
     //  missingClasses, 'color: lightgray')
     rootElem.className = previousClasses.concat(missingClasses).join(" ");
-    rootElem.id = originalId;
+    if (originalId) {
+      rootElem.id = originalId;
+    }
     //console.log('%c  result: ' + rootElem.className, 'color: lightgray')
     //console.log('%cEmit rootElem$ ' + rootElem.tagName + '.' +
     //  rootElem.className, 'color: #009988')
@@ -16051,11 +16053,14 @@ function wrapTopLevelVTree(vtree, rootElem) {
   if (sameId && sameClass && sameTagName) {
     return vtree;
   }
-  /* eslint-disable no-undefined */
-  var id = rootElem.id; // ? rootElem.id : undefined
-  var className = rootElem.className; // ? rootElem.className : undefined
-  /* eslint-enable no-undefined */
-  return VDOM.h(rootElem.tagName, { id: id, className: className }, [vtree]);
+  var attrs = {};
+  if (rootElem.id) {
+    attrs.id = rootElem.id;
+  }
+  if (rootElem.className) {
+    attrs.className = rootElem.className;
+  }
+  return VDOM.h(rootElem.tagName, attrs, [vtree]);
 }
 
 function makeDiffAndPatchToElement$(rootElem) {
@@ -16176,7 +16181,7 @@ function makeDOMDriver(container) {
   var domContainer = typeof container === "string" ? document.querySelector(container) : container;
   // Check pre-conditions
   if (typeof container === "string" && domContainer === null) {
-    throw new Error("Cannot render into unknown element '" + container + "'");
+    throw new Error("Cannot render into unknown element `" + container + "`");
   } else if (!isElement(domContainer)) {
     throw new Error("Given container is not a DOM element neither a selector " + "string.");
   }
