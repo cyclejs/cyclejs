@@ -1,4 +1,3 @@
-'use strict';
 /* eslint-disable */
 var isArray = require('virtual-dom/node_modules/x-is-array');
 

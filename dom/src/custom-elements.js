@@ -1,17 +1,16 @@
-'use strict';
-let {makeWidgetClass} = require('./custom-element-widget');
-let Map = Map || require('es6-map'); // eslint-disable-line no-native-reassign
+let {makeWidgetClass} = require(`./custom-element-widget`)
+let Map = Map || require(`es6-map`) // eslint-disable-line no-native-reassign
 
 function replaceCustomElementsWithSomething(vtree, registry, toSomethingFn) {
   // Silently ignore corner cases
   if (!vtree) {
-    return vtree;
+    return vtree
   }
-  let tagName = (vtree.tagName || '').toUpperCase();
+  let tagName = (vtree.tagName || ``).toUpperCase()
   // Replace vtree itself
   if (tagName && registry.has(tagName)) {
-    let WidgetClass = registry.get(tagName);
-    return toSomethingFn(vtree, WidgetClass);
+    let WidgetClass = registry.get(tagName)
+    return toSomethingFn(vtree, WidgetClass)
   }
   // Or replace children recursively
   if (Array.isArray(vtree.children)) {
@@ -20,24 +19,26 @@ function replaceCustomElementsWithSomething(vtree, registry, toSomethingFn) {
         vtree.children[i],
         registry,
         toSomethingFn
-      );
+      )
     }
   }
-  return vtree;
+  return vtree
 }
 
 function makeCustomElementsRegistry(definitions) {
-  let registry = new Map();
-  for (let tagName in definitions) { if (definitions.hasOwnProperty(tagName)) {
-    registry.set(
-      tagName.toUpperCase(),
-      makeWidgetClass(tagName, definitions[tagName])
-    );
-  }}
-  return registry;
+  let registry = new Map()
+  for (let tagName in definitions) {
+    if (definitions.hasOwnProperty(tagName)) {
+      registry.set(
+        tagName.toUpperCase(),
+        makeWidgetClass(tagName, definitions[tagName])
+      )
+    }
+  }
+  return registry
 }
 
 module.exports = {
   replaceCustomElementsWithSomething,
-  makeCustomElementsRegistry
-};
+  makeCustomElementsRegistry,
+}

@@ -1,8 +1,7 @@
-'use strict';
-let svg = require('virtual-dom/virtual-hyperscript/svg');
-let {makeDOMDriver} = require('./render-dom');
-let {makeHTMLDriver} = require('./render-html');
-let h = require('./virtual-hyperscript');
+let svg = require(`virtual-dom/virtual-hyperscript/svg`)
+let {makeDOMDriver} = require(`./render-dom`)
+let {makeHTMLDriver} = require(`./render-html`)
+let h = require(`./virtual-hyperscript`)
 
 let CycleDOM = {
   /**
@@ -66,14 +65,14 @@ let CycleDOM = {
    * @name hJSX
    */
   hJSX: function hJSX(tag, attrs, ...children) {
-    return h(tag, attrs, children);
+    return h(tag, attrs, children)
   },
 
   /**
    * A shortcut to the svg hyperscript function.
    * @name svg
    */
-  svg: svg
-};
+  svg: svg,
+}
 
-module.exports = CycleDOM;
+module.exports = CycleDOM
