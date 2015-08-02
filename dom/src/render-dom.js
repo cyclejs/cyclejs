@@ -27,9 +27,12 @@ function fixRootElem$(rawRootElem$, domContainer) {
       let previousClasses = rootElem.className.trim().split(/\s+/)
       let missingClasses = originalClasses
         .filter(clss => previousClasses.indexOf(clss) < 0)
+      let classes = previousClasses.length > 0 ?
+        previousClasses.concat(missingClasses) :
+        missingClasses
       //console.log('%cfixRootElemClassName(), missingClasses: ' +
       //  missingClasses, 'color: lightgray')
-      rootElem.className = previousClasses.concat(missingClasses).join(` `)
+      rootElem.className = classes.join(` `).trim()
       if (originalId) { rootElem.id = originalId }
       //console.log('%c  result: ' + rootElem.className, 'color: lightgray')
       //console.log('%cEmit rootElem$ ' + rootElem.tagName + '.' +

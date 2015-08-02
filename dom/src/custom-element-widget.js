@@ -93,6 +93,7 @@ function createContainerElement(tagName, vtreeProperties) {
   element.id = vtreeProperties.id || ``
   element.className = vtreeProperties.className || ``
   element.className += ` cycleCustomElement-` + tagName.toUpperCase()
+  element.className = element.className.trim()
   element.cycleCustomElementMetadata = {
     propertiesDriver: null,
     rootElem$: null,

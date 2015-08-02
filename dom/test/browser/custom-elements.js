@@ -353,6 +353,51 @@ describe('Custom Elements', function () {
     });
   });
 
+  it('should not render unwanted leading spaces in className', function (done) {
+    function myElementDef() {
+      return {
+        DOM: Rx.Observable.just(
+          h('button', [
+            h('p', "Some content")
+          ])
+        )
+      };
+    }
+    function main(responses) {
+      return {
+        DOM: responses.DOM.get('.target', 'click')
+          .startWith(0)
+          .scan(-1, (x,y) => x+1)
+          .map(number =>
+            h('div', [
+              h('p', `Counter: ${number}`),
+              h('my-element.target')
+            ])
+          )
+      };
+    }
+    let [requests, responses] = Cycle.run(main, {
+      DOM: makeDOMDriver(createRenderTarget(), {
+        'my-element': myElementDef
+      })
+    });
+    // Make assertions
+    responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
+      assert.notStrictEqual(root, null);
+      assert.notStrictEqual(typeof root, 'undefined');
+      assert.strictEqual(root.innerHTML,
+        '<div>' +
+          '<p>Counter: 0</p>' +
+          '<button class="target cycleCustomElement-MY-ELEMENT">' +
+            '<p>Some content</p>' +
+          '</button>' +
+        '</div>'
+      );
+      responses.dispose();
+      done();
+    });
+  });
+
   it('should render custom element with a non-div top element', function (done) {
     // Make simple custom element
     function myElementDef({props}) {
