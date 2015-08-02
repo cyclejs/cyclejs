@@ -15635,6 +15635,7 @@ function createContainerElement(tagName, vtreeProperties) {
   element.id = vtreeProperties.id || "";
   element.className = vtreeProperties.className || "";
   element.className += " cycleCustomElement-" + tagName.toUpperCase();
+  element.className = element.className.trim();
   element.cycleCustomElementMetadata = {
     propertiesDriver: null,
     rootElem$: null,
@@ -15988,9 +15989,10 @@ function fixRootElem$(rawRootElem$, domContainer) {
     var missingClasses = originalClasses.filter(function (clss) {
       return previousClasses.indexOf(clss) < 0;
     });
+    var classes = previousClasses.length > 0 ? previousClasses.concat(missingClasses) : missingClasses;
     //console.log('%cfixRootElemClassName(), missingClasses: ' +
     //  missingClasses, 'color: lightgray')
-    rootElem.className = previousClasses.concat(missingClasses).join(" ");
+    rootElem.className = classes.join(" ").trim();
     if (originalId) {
       rootElem.id = originalId;
     }
