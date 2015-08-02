@@ -70,7 +70,7 @@ function makePropertiesDriver() {
     enumerable: false,
     value: function get(streamKey, comparer = defaultComparer) {
       if (typeof streamKey === `undefined`) {
-        throw new Error(`Custom element driver 'props.get()' expects an ` +
+        throw new Error(`Custom element driver \`props.get()\` expects an ` +
           `argument in the getter.`)
       }
       if (typeof this[streamKey] === `undefined`) {
@@ -104,7 +104,7 @@ function createContainerElement(tagName, vtreeProperties) {
 
 function throwIfVTreeHasPropertyChildren(vtree) {
   if (typeof vtree.properties.children !== `undefined`) {
-    throw new Error(`Custom element should not have property 'children'. ` +
+    throw new Error(`Custom element should not have property \`children\`. ` +
       `It is reserved for children elements nested into this custom element.`)
   }
 }
@@ -135,24 +135,24 @@ function makeConstructor() {
 
 function validateDefFnOutput(defFnOutput, domDriverName, tagName) {
   if (typeof defFnOutput !== `object`) {
-    throw new Error(`Custom element definition function for '${tagName}' ` +
+    throw new Error(`Custom element definition function for \`${tagName}\` ` +
       ` should output an object.`)
   }
   if (typeof defFnOutput[domDriverName] === `undefined`) {
     throw new Error(`Custom element definition function for '${tagName}' ` +
-      `should output an object containing '${domDriverName}'.`)
+      `should output an object containing \`${domDriverName}\`.`)
   }
   if (typeof defFnOutput[domDriverName].subscribe !== `function`) {
-    throw new Error(`Custom element definition function for '${tagName}' ` +
+    throw new Error(`Custom element definition function for \`${tagName}\` ` +
       `should output an object containing an Observable of VTree, named ` +
-      `'${domDriverName}'.`)
+      `\`${domDriverName}\`.`)
   }
   for (let name in defFnOutput) {
     if (defFnOutput.hasOwnProperty(name) &&
       name !== domDriverName && name !== EVENTS_SINK_NAME)
     {
-      throw new Error(`Unknown '${name}' found on custom element ` +
-        `'${tagName}'s definition function's output.`)
+      throw new Error(`Unknown \`${name}\` found on custom element ` +
+        `\`${tagName}\`s definition function's output.`)
     }
   }
 }
@@ -202,17 +202,17 @@ function makeInit(tagName, definitionFn) {
 
 function validatePropertiesDriverInMetadata(element, fnName) {
   if (!element) {
-    throw new Error(`Missing DOM element when calling ${fnName} on custom ` +
-      `element Widget.`)
+    throw new Error(`Missing DOM element when calling \`${fnName}\` on ` +
+      `custom element Widget.`)
   }
   if (!element.cycleCustomElementMetadata) {
     throw new Error(`Missing custom element metadata on DOM element when ` +
-      `calling ${fnName} on custom element Widget.`)
+      `calling \`${fnName}\` on custom element Widget.`)
   }
   let metadata = element.cycleCustomElementMetadata
   if (metadata.propertiesDriver.type !== `PropertiesDriver`) {
     throw new Error(`Custom element metadata's propertiesDriver type is ` +
-      `invalid: ${metadata.propertiesDriver.type}.`)
+      `invalid: \`${metadata.propertiesDriver.type}\`.`)
   }
 }
 

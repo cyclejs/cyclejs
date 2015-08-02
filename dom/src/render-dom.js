@@ -215,7 +215,7 @@ function makeDOMDriver(container, customElementDefinitions = {}) {
     container
   // Check pre-conditions
   if (typeof container === `string` && domContainer === null) {
-    throw new Error(`Cannot render into unknown element '${container}'`)
+    throw new Error(`Cannot render into unknown element \`${container}\``)
   } else if (!isElement(domContainer)) {
     throw new Error(`Given container is not a DOM element neither a selector ` +
       `string.`)
