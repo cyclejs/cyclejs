@@ -1,6 +1,7 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.CycleHTTPDriver = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-'use strict';
-var Rx = require('rx');
+"use strict";
+
+var Rx = require("rx");
 
 function makeRequestProxies(drivers) {
   var requestProxies = {};
@@ -30,7 +31,7 @@ function makeDispose(requestProxies, rawResponses) {
       }
     }
     for (var _name3 in rawResponses) {
-      if (rawResponses.hasOwnProperty(_name3) && typeof rawResponses[_name3].dispose === 'function') {
+      if (rawResponses.hasOwnProperty(_name3) && typeof rawResponses[_name3].dispose === "function") {
         rawResponses[_name3].dispose();
       }
     }
@@ -38,18 +39,25 @@ function makeDispose(requestProxies, rawResponses) {
 }
 
 function makeAppInput(requestProxies, rawResponses) {
-  Object.defineProperty(rawResponses, 'dispose', {
+  Object.defineProperty(rawResponses, "dispose", {
     enumerable: false,
     value: makeDispose(requestProxies, rawResponses)
   });
   return rawResponses;
 }
 
+function logToConsoleError(err) {
+  var target = err.stack || err;
+  if (console && console.error) {
+    console.error(target);
+  }
+}
+
 function replicateMany(original, imitators) {
   for (var _name4 in original) {
     if (original.hasOwnProperty(_name4)) {
       if (imitators.hasOwnProperty(_name4) && !imitators[_name4].isDisposed) {
-        original[_name4].subscribe(imitators[_name4].asObserver());
+        original[_name4].doOnError(logToConsoleError).subscribe(imitators[_name4].asObserver());
       }
     }
   }
@@ -65,14 +73,14 @@ function isObjectEmpty(obj) {
 }
 
 function run(main, drivers) {
-  if (typeof main !== 'function') {
-    throw new Error('First argument given to Cycle.run() must be the `main` ' + 'function.');
+  if (typeof main !== "function") {
+    throw new Error("First argument given to Cycle.run() must be the 'main' " + "function.");
   }
-  if (typeof drivers !== 'object' || drivers === null) {
-    throw new Error('Second argument given to Cycle.run() must be an object ' + 'with driver functions as properties.');
+  if (typeof drivers !== "object" || drivers === null) {
+    throw new Error("Second argument given to Cycle.run() must be an object " + "with driver functions as properties.");
   }
   if (isObjectEmpty(drivers)) {
-    throw new Error('Second argument given to Cycle.run() must be an object ' + 'with at least one driver function declared as a property.');
+    throw new Error("Second argument given to Cycle.run() must be an object " + "with at least one driver function declared as a property.");
   }
 
   var requestProxies = makeRequestProxies(drivers);
@@ -12252,13 +12260,13 @@ module.exports = function(arr, fn, initial){
   return curr;
 };
 },{}],7:[function(require,module,exports){
-'use strict';
+"use strict";
 
-var _require = require('@cycle/core');
+var _require = require("@cycle/core");
 
 var Rx = _require.Rx;
 
-var superagent = require('superagent');
+var superagent = require("superagent");
 
 function optionsToSuperagent(_ref) {
   var url = _ref.url;
@@ -12284,16 +12292,16 @@ function optionsToSuperagent(_ref) {
   var _ref$redirects = _ref.redirects;
   var redirects = _ref$redirects === undefined ? 5 : _ref$redirects;
   var _ref$type = _ref.type;
-  var type = _ref$type === undefined ? 'json' : _ref$type;
+  var type = _ref$type === undefined ? "json" : _ref$type;
   var _ref$method = _ref.method;
-  var method = _ref$method === undefined ? 'get' : _ref$method;
+  var method = _ref$method === undefined ? "get" : _ref$method;
 
-  if (typeof url !== 'string') {
-    throw new Error('Please provide a `url` property in the request options.');
+  if (typeof url !== "string") {
+    throw new Error("Please provide a `url` property in the request options.");
   }
   var sanitizedMethod = method.toLowerCase();
   var request = superagent[sanitizedMethod](url);
-  if (typeof request.redirects === 'function') {
+  if (typeof request.redirects === "function") {
     request = request.redirects(redirects);
   }
   request = request.type(type);
@@ -12340,12 +12348,12 @@ function urlToSuperagent(url) {
 function createResponse$(reqOptions) {
   return Rx.Observable.create(function (observer) {
     var request = undefined;
-    if (typeof reqOptions === 'string') {
+    if (typeof reqOptions === "string") {
       request = urlToSuperagent(reqOptions);
-    } else if (typeof reqOptions === 'object') {
+    } else if (typeof reqOptions === "object") {
       request = optionsToSuperagent(reqOptions);
     } else {
-      observer.onError(new Error('Observable of requests given to HTTP ' + 'Driver must emit either URL strings or objects with parameters.'));
+      observer.onError(new Error("Observable of requests given to HTTP " + "Driver must emit either URL strings or objects with parameters."));
       return function () {}; // noop
     }
 
@@ -12387,9 +12395,9 @@ module.exports = {
 };
 
 },{"@cycle/core":1,"superagent":4}],8:[function(require,module,exports){
-'use strict';
+"use strict";
 
-var _require = require('./http-driver');
+var _require = require("./http-driver");
 
 var makeHTTPDriver = _require.makeHTTPDriver;
 
