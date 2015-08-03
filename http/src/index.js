@@ -1,5 +1,4 @@
-'use strict';
-let {makeHTTPDriver} = require('./http-driver');
+let {makeHTTPDriver} = require(`./http-driver`)
 
 module.exports = {
   /**
@@ -42,5 +41,5 @@ module.exports = {
    * @return {Function} the HTTP Driver function
    * @function makeHTTPDriver
    */
-  makeHTTPDriver
-};
+  makeHTTPDriver,
+}
