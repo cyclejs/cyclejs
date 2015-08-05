@@ -1,5 +1,5 @@
 /* eslint-disable */
-var isArray = require('virtual-dom/node_modules/x-is-array');
+var isArray = require('x-is-array');
 
 var VNode = require('virtual-dom/vnode/vnode.js');
 var VText = require('virtual-dom/vnode/vtext.js');
