@@ -277,6 +277,43 @@ describe('Rendering', function () {
       });
     });
 
+    it('should render a VTree with a grandchild Observable<VTree>', function (done) {
+      function app() {
+        let grandchild$ = Rx.Observable
+          .just(
+            h('h4.grandchild', {}, [
+              'I am a baby'
+            ])
+          )
+          .delay(20);
+        let child$ = Rx.Observable
+          .just(
+            h('h3.child', {}, [
+              'I am a kid', grandchild$
+            ])
+          )
+          .delay(80);
+        return {
+          DOM: Rx.Observable.just(h('div.my-class', [
+            h('p', {}, 'Ordinary paragraph'),
+            child$
+          ]))
+        };
+      }
+      let [requests, responses] = Cycle.run(app, {
+        DOM: makeDOMDriver(createRenderTarget())
+      });
+      responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
+        let selectEl = root.querySelector('.grandchild');
+        assert.notStrictEqual(selectEl, null);
+        assert.notStrictEqual(typeof selectEl, 'undefined');
+        assert.strictEqual(selectEl.tagName, 'H4');
+        assert.strictEqual(selectEl.textContent, 'I am a baby');
+        responses.dispose();
+        done();
+      });
+    });
+
     it('should not work after has been disposed', function (done) {
       let number$ = Rx.Observable.range(1, 3)
         .concatMap(x => Rx.Observable.just(x).delay(50));
