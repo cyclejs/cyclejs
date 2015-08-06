@@ -16313,7 +16313,7 @@ var VirtualNode = require("virtual-dom/vnode/vnode");
  */
 function transposeVTree(vtree) {
   if (typeof vtree.subscribe === "function") {
-    return vtree;
+    return vtree.flatMap(transposeVTree);
   } else if (vtree.type === "VirtualText") {
     return Rx.Observable.just(vtree);
   } else if (vtree.type === "VirtualNode" && Array.isArray(vtree.children) && vtree.children.length > 0) {
