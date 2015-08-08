@@ -89,16 +89,21 @@ describe('Custom Elements', function () {
       })
     });
     // Make assertions
-    setTimeout(function () {
-      let myElement = document.querySelector('.stateful-element');
+    responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
+      let myElement = root.querySelector('.stateful-element');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
       assert.strictEqual(myElement.tagName, 'H3');
-      assert.strictEqual(myElement.textContent, '8');
+      assert.strictEqual(myElement.textContent, '0');
+      assert.strictEqual(myElement.style.color, 'rgb(255, 0, 0)');
+    });
+    responses.DOM.get(':root').skip(6).take(1).subscribe(function (root) {
+      let myElement = root.querySelector('.stateful-element');
+      assert.strictEqual(myElement.textContent, '3');
       assert.strictEqual(myElement.style.color, 'rgb(0, 255, 0)');
       responses.dispose();
       done();
-    }, 500);
+    });
   });
 
   it('should have Observable properties object as props.get(\'*\')', function (done) {
