@@ -27,10 +27,10 @@
     "virtual-dom": "2.1.0"
   },
   "peerDependencies": {
-    "@cycle/core": "1.0.x"
+    "@cycle/core": "2.x.x"
   },
   "devDependencies": {
-    "@cycle/core": "1.0.x",
+    "@cycle/core": "2.x.x",
     "babel": "5.8.x",
     "babelify": "6.1.x",
     "browserify": "11.0.0",

@@ -16,15 +16,6 @@ function createRenderTarget() {
 }
 
 describe('Rendering', function () {
-  beforeEach(function () {
-    Array.prototype.slice.call(document.querySelectorAll('.cycletest'))
-      .forEach(function (x) {
-        if (x.remove) {
-          x.remove();
-        }
-      });
-  });
-
   describe('makeDOMDriver', function () {
     it('should accept a DOM element as input', function () {
       let element = createRenderTarget();
@@ -335,7 +326,10 @@ describe('Rendering', function () {
         assert.notStrictEqual(selectEl.textContent, '3');
         if (selectEl.textContent === '2') {
           responses.dispose();
-          done();
+          requests.dispose();
+          setTimeout(() => {
+            done();
+          }, 100);
         }
       });
     });

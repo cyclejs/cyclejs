@@ -14,15 +14,6 @@ function createRenderTarget() {
 }
 
 describe('Custom Elements', function () {
-  beforeEach(function () {
-    Array.prototype.slice.call(document.querySelectorAll('.cycletest'))
-      .forEach(function (x) {
-        if (x.remove) {
-          x.remove();
-        }
-      });
-  });
-
   describe('Registry on makeDOMDriver', function () {
     it('should throw error if definitionFn is not a function', function () {
       let element = createRenderTarget();

@@ -39,7 +39,6 @@ function fixRootElem$(rawRootElem$, domContainer) {
       //  rootElem.className, 'color: #009988')
       return rootElem
     })
-    .replay(null, 1)
 }
 
 function isVTreeCustomElement(vtree) {
@@ -202,7 +201,7 @@ function makeDOMDriverWithRegistry(container, CERegistry) {
     if (!isRootForCustomElement(container)) {
       rawRootElem$ = rawRootElem$.startWith(container)
     }
-    let rootElem$ = fixRootElem$(rawRootElem$, container)
+    let rootElem$ = fixRootElem$(rawRootElem$, container).replay(null, 1)
     let disposable = rootElem$.connect()
     return {
       get: makeResponseGetter(rootElem$),
