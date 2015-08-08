@@ -20,29 +20,32 @@ function callDrivers(drivers, requestProxies) {
   return responses
 }
 
-function makeDispose(requestProxies, rawResponses) {
+function attachDisposeToRequests(requests, replicationSubscription) {
+  Object.defineProperty(requests, `dispose`, {
+    enumerable: false,
+    value: () => { replicationSubscription.dispose() },
+  })
+  return requests
+}
+
+function makeDisposeResponses(responses) {
   return function dispose() {
-    for (let x in requestProxies) {
-      if (requestProxies.hasOwnProperty(x)) {
-        requestProxies[x].dispose()
-      }
-    }
-    for (let name in rawResponses) {
-      if (rawResponses.hasOwnProperty(name) &&
-        typeof rawResponses[name].dispose === `function`)
+    for (let name in responses) {
+      if (responses.hasOwnProperty(name) &&
+        typeof responses[name].dispose === `function`)
       {
-        rawResponses[name].dispose()
+        responses[name].dispose()
       }
     }
   }
 }
 
-function makeAppInput(requestProxies, rawResponses) {
-  Object.defineProperty(rawResponses, `dispose`, {
+function attachDisposeToResponses(responses) {
+  Object.defineProperty(responses, `dispose`, {
     enumerable: false,
-    value: makeDispose(requestProxies, rawResponses),
+    value: makeDisposeResponses(responses),
   })
-  return rawResponses
+  return responses
 }
 
 function logToConsoleError(err) {
@@ -52,16 +55,32 @@ function logToConsoleError(err) {
   }
 }
 
-function replicateMany(original, imitators) {
-  for (let name in original) {
-    if (original.hasOwnProperty(name)) {
-      if (imitators.hasOwnProperty(name) && !imitators[name].isDisposed) {
-        original[name]
-          .doOnError(logToConsoleError)
-          .subscribe(imitators[name].asObserver())
+function replicateMany(observables, subjects) {
+  return Rx.Observable.create(observer => {
+    let subscription = new Rx.CompositeDisposable()
+    for (let name in observables) {
+      if (observables.hasOwnProperty(name) &&
+        subjects.hasOwnProperty(name) &&
+        !subjects[name].isDisposed)
+      {
+        subscription.add(
+          observables[name]
+            .doOnError(logToConsoleError)
+            .subscribe(subjects[name].asObserver())
+        )
       }
     }
-  }
+    observer.onNext(subscription)
+
+    return function dispose() {
+      subscription.dispose()
+      for (let x in subjects) {
+        if (subjects.hasOwnProperty(x)) {
+          subjects[x].dispose()
+        }
+      }
+    }
+  }).delay(1)
 }
 
 function isObjectEmpty(obj) {
@@ -88,11 +107,12 @@ function run(main, drivers) {
   }
 
   let requestProxies = makeRequestProxies(drivers)
-  let rawResponses = callDrivers(drivers, requestProxies)
-  let responses = makeAppInput(requestProxies, rawResponses)
+  let responses = callDrivers(drivers, requestProxies)
   let requests = main(responses)
-  setTimeout(() => replicateMany(requests, requestProxies), 1)
-  return [requests, responses]
+  let subscription = replicateMany(requests, requestProxies).subscribe()
+  let requestsWithDispose = attachDisposeToRequests(requests, subscription)
+  let responsesWithDispose = attachDisposeToResponses(responses)
+  return [requestsWithDispose, responsesWithDispose]
 }
 
 let Cycle = {
