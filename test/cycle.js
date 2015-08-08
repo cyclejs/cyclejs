@@ -59,13 +59,35 @@ describe('Cycle', function () {
         };
       }
       function driver(req) {
-        return req.map(x => x.charCodeAt(0));
+        return req.map(x => x.charCodeAt(0)).delay(1);
       }
       let [requests, responses] = Cycle.run(app, {other: driver});
       responses.other.subscribe(x => {
         assert.strictEqual(x, 97);
+        requests.dispose();
         responses.dispose();
         done();
+      });
+    });
+
+    it('should not work after has been disposed', function (done) {
+      let number$ = Cycle.Rx.Observable.range(1, 3)
+        .concatMap(x => Cycle.Rx.Observable.just(x).delay(50));
+      function app() {
+        return {other: number$};
+      }
+      let [requests, responses] = Cycle.run(app, {
+        other: number$ => number$.map(number => 'x' + number)
+      });
+      responses.other.subscribe(function (x) {
+        assert.notStrictEqual(x, 'x3');
+        if (x === 'x2') {
+          requests.dispose();
+          responses.dispose();
+          setTimeout(() => {
+            done();
+          }, 100);
+        }
       });
     });
 
