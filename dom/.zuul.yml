@@ -15,8 +15,8 @@ browsers:
   - name: ie
     version: 9..latest
   - name: android
-    version: latest
+    version: '4.4..latest'
   - name: iphone
-    version: latest
+    version: '6.0..latest'
   - name: ipad
-    version: latest
+    version: '6.0..latest'
