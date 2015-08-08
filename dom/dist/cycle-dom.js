@@ -23,27 +23,32 @@ function callDrivers(drivers, requestProxies) {
   return responses;
 }
 
-function makeDispose(requestProxies, rawResponses) {
-  return function dispose() {
-    for (var x in requestProxies) {
-      if (requestProxies.hasOwnProperty(x)) {
-        requestProxies[x].dispose();
-      }
+function attachDisposeToRequests(requests, replicationSubscription) {
+  Object.defineProperty(requests, "dispose", {
+    enumerable: false,
+    value: function value() {
+      replicationSubscription.dispose();
     }
-    for (var _name3 in rawResponses) {
-      if (rawResponses.hasOwnProperty(_name3) && typeof rawResponses[_name3].dispose === "function") {
-        rawResponses[_name3].dispose();
+  });
+  return requests;
+}
+
+function makeDisposeResponses(responses) {
+  return function dispose() {
+    for (var _name3 in responses) {
+      if (responses.hasOwnProperty(_name3) && typeof responses[_name3].dispose === "function") {
+        responses[_name3].dispose();
       }
     }
   };
 }
 
-function makeAppInput(requestProxies, rawResponses) {
-  Object.defineProperty(rawResponses, "dispose", {
+function attachDisposeToResponses(responses) {
+  Object.defineProperty(responses, "dispose", {
     enumerable: false,
-    value: makeDispose(requestProxies, rawResponses)
+    value: makeDisposeResponses(responses)
   });
-  return rawResponses;
+  return responses;
 }
 
 function logToConsoleError(err) {
@@ -53,14 +58,27 @@ function logToConsoleError(err) {
   }
 }
 
-function replicateMany(original, imitators) {
-  for (var _name4 in original) {
-    if (original.hasOwnProperty(_name4)) {
-      if (imitators.hasOwnProperty(_name4) && !imitators[_name4].isDisposed) {
-        original[_name4].doOnError(logToConsoleError).subscribe(imitators[_name4].asObserver());
+function replicateMany(observables, subjects) {
+  return Rx.Observable.create(function (observer) {
+    var subscription = new Rx.CompositeDisposable();
+    setTimeout(function () {
+      for (var _name4 in observables) {
+        if (observables.hasOwnProperty(_name4) && subjects.hasOwnProperty(_name4) && !subjects[_name4].isDisposed) {
+          subscription.add(observables[_name4].doOnError(logToConsoleError).subscribe(subjects[_name4].asObserver()));
+        }
       }
-    }
-  }
+      observer.onNext(subscription);
+    }, 1);
+
+    return function dispose() {
+      subscription.dispose();
+      for (var x in subjects) {
+        if (subjects.hasOwnProperty(x)) {
+          subjects[x].dispose();
+        }
+      }
+    };
+  });
 }
 
 function isObjectEmpty(obj) {
@@ -84,13 +102,12 @@ function run(main, drivers) {
   }
 
   var requestProxies = makeRequestProxies(drivers);
-  var rawResponses = callDrivers(drivers, requestProxies);
-  var responses = makeAppInput(requestProxies, rawResponses);
+  var responses = callDrivers(drivers, requestProxies);
   var requests = main(responses);
-  setTimeout(function () {
-    return replicateMany(requests, requestProxies);
-  }, 1);
-  return [requests, responses];
+  var subscription = replicateMany(requests, requestProxies).subscribe();
+  var requestsWithDispose = attachDisposeToRequests(requests, subscription);
+  var responsesWithDispose = attachDisposeToResponses(responses);
+  return [requestsWithDispose, responsesWithDispose];
 }
 
 var Cycle = {
@@ -16000,7 +16017,7 @@ function fixRootElem$(rawRootElem$, domContainer) {
     //console.log('%cEmit rootElem$ ' + rootElem.tagName + '.' +
     //  rootElem.className, 'color: #009988')
     return rootElem;
-  }).replay(null, 1);
+  });
 }
 
 function isVTreeCustomElement(vtree) {
@@ -16167,7 +16184,7 @@ function makeDOMDriverWithRegistry(container, CERegistry) {
     if (!isRootForCustomElement(container)) {
       rawRootElem$ = rawRootElem$.startWith(container);
     }
-    var rootElem$ = fixRootElem$(rawRootElem$, container);
+    var rootElem$ = fixRootElem$(rawRootElem$, container).replay(null, 1);
     var disposable = rootElem$.connect();
     return {
       get: makeResponseGetter(rootElem$),
