@@ -70,6 +70,27 @@ describe('Cycle', function () {
       });
     });
 
+    it('should happen on event loop\'s next tick', function (done) {
+      function app() {
+        return {
+          other: Cycle.Rx.Observable.from([10, 20, 30]),
+        };
+      }
+      let mutable = 'wrong';
+      function driver(req) {
+        return req.map(x => 'a' + 10)
+      }
+      let [requests, responses] = Cycle.run(app, {other: driver});
+      responses.other.take(1).subscribe(x => {
+        assert.strictEqual(x, 'a10');
+        assert.strictEqual(mutable, 'correct');
+        requests.dispose();
+        responses.dispose();
+        done();
+      });
+      mutable = 'correct';
+    });
+
     it('should not work after has been disposed', function (done) {
       let number$ = Cycle.Rx.Observable.range(1, 3)
         .concatMap(x => Cycle.Rx.Observable.just(x).delay(50));

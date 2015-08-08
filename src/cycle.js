@@ -58,19 +58,21 @@ function logToConsoleError(err) {
 function replicateMany(observables, subjects) {
   return Rx.Observable.create(observer => {
     let subscription = new Rx.CompositeDisposable()
-    for (let name in observables) {
-      if (observables.hasOwnProperty(name) &&
-        subjects.hasOwnProperty(name) &&
-        !subjects[name].isDisposed)
-      {
-        subscription.add(
-          observables[name]
-            .doOnError(logToConsoleError)
-            .subscribe(subjects[name].asObserver())
-        )
+    setTimeout(() => {
+      for (let name in observables) {
+        if (observables.hasOwnProperty(name) &&
+          subjects.hasOwnProperty(name) &&
+          !subjects[name].isDisposed)
+        {
+          subscription.add(
+            observables[name]
+              .doOnError(logToConsoleError)
+              .subscribe(subjects[name].asObserver())
+          )
+        }
       }
-    }
-    observer.onNext(subscription)
+      observer.onNext(subscription)
+    }, 1)
 
     return function dispose() {
       subscription.dispose()
@@ -80,7 +82,7 @@ function replicateMany(observables, subjects) {
         }
       }
     }
-  }).delay(1)
+  })
 }
 
 function isObjectEmpty(obj) {
