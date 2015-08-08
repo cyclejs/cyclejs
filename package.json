@@ -34,6 +34,7 @@
     "markdox": "0.1.9",
     "mocha": "2.2.5",
     "sinon": "^1.15.4",
+    "testem": "0.9.2",
     "uglify-js": "2.4.24"
   },
   "engines": {
@@ -43,6 +44,9 @@
     "eslint": "eslint src/",
     "mocha": "mocha --compilers js:babel/register test",
     "test": "npm run eslint && npm run mocha",
+    "test-browser": "testem",
+    "pretest-browser": "browserify test/cycle.js -t babelify -o test/browser/tests-bundle.js",
+    "posttest-browser": "rm test/browser/tests-bundle.js",
     "browserify": "browserify src/cycle.js -t babelify --standalone Cycle --outfile dist/cycle.js",
     "uglify": "uglifyjs dist/cycle.js -o dist/cycle.min.js",
     "dist": "npm run browserify && npm run uglify",
