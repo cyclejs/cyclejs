@@ -10880,12 +10880,14 @@ function logToConsoleError(err) {
 function replicateMany(observables, subjects) {
   return Rx.Observable.create(function (observer) {
     var subscription = new Rx.CompositeDisposable();
-    for (var _name4 in observables) {
-      if (observables.hasOwnProperty(_name4) && subjects.hasOwnProperty(_name4) && !subjects[_name4].isDisposed) {
-        subscription.add(observables[_name4].doOnError(logToConsoleError).subscribe(subjects[_name4].asObserver()));
+    setTimeout(function () {
+      for (var _name4 in observables) {
+        if (observables.hasOwnProperty(_name4) && subjects.hasOwnProperty(_name4) && !subjects[_name4].isDisposed) {
+          subscription.add(observables[_name4].doOnError(logToConsoleError).subscribe(subjects[_name4].asObserver()));
+        }
       }
-    }
-    observer.onNext(subscription);
+      observer.onNext(subscription);
+    }, 1);
 
     return function dispose() {
       subscription.dispose();
@@ -10895,7 +10897,7 @@ function replicateMany(observables, subjects) {
         }
       }
     };
-  }).delay(1);
+  });
 }
 
 function isObjectEmpty(obj) {
