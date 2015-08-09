@@ -13,10 +13,10 @@
     "superagent": "^1.2.0"
   },
   "peerDependencies": {
-    "@cycle/core": "1.x.x"
+    "@cycle/core": "2.x.x"
   },
   "devDependencies": {
-    "@cycle/core": "1.x.x",
+    "@cycle/core": "2.x.x",
     "babel": "5.8.x",
     "babelify": "6.1.x",
     "body-parser": "1.13.3",
