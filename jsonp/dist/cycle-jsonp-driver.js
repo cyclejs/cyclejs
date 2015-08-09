@@ -1,6 +1,7 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.CycleJSONPDriver = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-'use strict';
-var Rx = require('rx');
+"use strict";
+
+var Rx = require("rx");
 
 function makeRequestProxies(drivers) {
   var requestProxies = {};
@@ -22,37 +23,62 @@ function callDrivers(drivers, requestProxies) {
   return responses;
 }
 
-function makeDispose(requestProxies, rawResponses) {
-  return function dispose() {
-    for (var x in requestProxies) {
-      if (requestProxies.hasOwnProperty(x)) {
-        requestProxies[x].dispose();
-      }
+function attachDisposeToRequests(requests, replicationSubscription) {
+  Object.defineProperty(requests, "dispose", {
+    enumerable: false,
+    value: function value() {
+      replicationSubscription.dispose();
     }
-    for (var _name3 in rawResponses) {
-      if (rawResponses.hasOwnProperty(_name3) && typeof rawResponses[_name3].dispose === 'function') {
-        rawResponses[_name3].dispose();
+  });
+  return requests;
+}
+
+function makeDisposeResponses(responses) {
+  return function dispose() {
+    for (var _name3 in responses) {
+      if (responses.hasOwnProperty(_name3) && typeof responses[_name3].dispose === "function") {
+        responses[_name3].dispose();
       }
     }
   };
 }
 
-function makeAppInput(requestProxies, rawResponses) {
-  Object.defineProperty(rawResponses, 'dispose', {
+function attachDisposeToResponses(responses) {
+  Object.defineProperty(responses, "dispose", {
     enumerable: false,
-    value: makeDispose(requestProxies, rawResponses)
+    value: makeDisposeResponses(responses)
   });
-  return rawResponses;
+  return responses;
 }
 
-function replicateMany(original, imitators) {
-  for (var _name4 in original) {
-    if (original.hasOwnProperty(_name4)) {
-      if (imitators.hasOwnProperty(_name4) && !imitators[_name4].isDisposed) {
-        original[_name4].subscribe(imitators[_name4].asObserver());
-      }
-    }
+function logToConsoleError(err) {
+  var target = err.stack || err;
+  if (console && console.error) {
+    console.error(target);
   }
+}
+
+function replicateMany(observables, subjects) {
+  return Rx.Observable.create(function (observer) {
+    var subscription = new Rx.CompositeDisposable();
+    setTimeout(function () {
+      for (var _name4 in observables) {
+        if (observables.hasOwnProperty(_name4) && subjects.hasOwnProperty(_name4) && !subjects[_name4].isDisposed) {
+          subscription.add(observables[_name4].doOnError(logToConsoleError).subscribe(subjects[_name4].asObserver()));
+        }
+      }
+      observer.onNext(subscription);
+    }, 1);
+
+    return function dispose() {
+      subscription.dispose();
+      for (var x in subjects) {
+        if (subjects.hasOwnProperty(x)) {
+          subjects[x].dispose();
+        }
+      }
+    };
+  });
 }
 
 function isObjectEmpty(obj) {
@@ -64,44 +90,43 @@ function isObjectEmpty(obj) {
   return true;
 }
 
-function run(app, drivers) {
-  if (typeof app !== 'function') {
-    throw new Error('First argument given to Cycle.run() must be the `app` ' + 'function.');
+function run(main, drivers) {
+  if (typeof main !== "function") {
+    throw new Error("First argument given to Cycle.run() must be the 'main' " + "function.");
   }
-  if (typeof drivers !== 'object' || drivers === null) {
-    throw new Error('Second argument given to Cycle.run() must be an object ' + 'with driver functions as properties.');
+  if (typeof drivers !== "object" || drivers === null) {
+    throw new Error("Second argument given to Cycle.run() must be an object " + "with driver functions as properties.");
   }
   if (isObjectEmpty(drivers)) {
-    throw new Error('Second argument given to Cycle.run() must be an object ' + 'with at least one driver function declared as a property.');
+    throw new Error("Second argument given to Cycle.run() must be an object " + "with at least one driver function declared as a property.");
   }
 
   var requestProxies = makeRequestProxies(drivers);
-  var rawResponses = callDrivers(drivers, requestProxies);
-  var responses = makeAppInput(requestProxies, rawResponses);
-  var requests = app(responses);
-  setTimeout(function () {
-    return replicateMany(requests, requestProxies);
-  }, 1);
-  return [requests, responses];
+  var responses = callDrivers(drivers, requestProxies);
+  var requests = main(responses);
+  var subscription = replicateMany(requests, requestProxies).subscribe();
+  var requestsWithDispose = attachDisposeToRequests(requests, subscription);
+  var responsesWithDispose = attachDisposeToResponses(responses);
+  return [requestsWithDispose, responsesWithDispose];
 }
 
 var Cycle = {
   /**
-   * Takes an `app` function and circularly connects it to the given collection
+   * Takes an `main` function and circularly connects it to the given collection
    * of driver functions.
    *
-   * The `app` function expects a collection of "driver response" Observables as
-   * input, and should return a collection of "driver request" Observables.
+   * The `main` function expects a collection of "driver response" Observables
+   * as input, and should return a collection of "driver request" Observables.
    * A "collection of Observables" is a JavaScript object where
    * keys match the driver names registered by the `drivers` object, and values
    * are Observables or a collection of Observables.
    *
-   * @param {Function} app a function that takes `responses` as input
+   * @param {Function} main a function that takes `responses` as input
    * and outputs a collection of `requests` Observables.
    * @param {Object} drivers an object where keys are driver names and values
    * are driver functions.
    * @return {Array} an array where the first object is the collection of driver
-   * requests, and the second objet is the collection of driver responses, that
+   * requests, and the second object is the collection of driver responses, that
    * can be used for debugging or testing.
    * @function run
    */
