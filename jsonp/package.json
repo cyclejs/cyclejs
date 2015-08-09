@@ -23,6 +23,7 @@
     "eslint": "1.0.x",
     "eslint-config-cycle": "3.0.x",
     "eslint-plugin-cycle": "1.0.x",
+    "eslint-plugin-no-class": "0.1.x",
     "markdox": "0.1.9",
     "uglify-js": "2.4.23"
   },

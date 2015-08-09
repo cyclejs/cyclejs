@@ -1,38 +1,37 @@
-'use strict';
-let {Rx} = require('@cycle/core');
-let jsonp = require('jsonp');
+let {Rx} = require(`@cycle/core`)
+let jsonp = require(`jsonp`)
 
 function createResponse$(url) {
   return Rx.Observable.create(observer => {
-    if (typeof url !== 'string') {
-      observer.onError(new Error('Observable of requests given to JSONP ' +
-        'Driver must emit URL strings.'));
-      return () => {}; // noop
+    if (typeof url !== `string`) {
+      observer.onError(new Error(`Observable of requests given to JSONP ` +
+        `Driver must emit URL strings.`))
+      return () => {} // noop
     }
 
     try {
       jsonp(url, (err, res) => {
         if (err) {
-          observer.onError(err);
+          observer.onError(err)
         } else {
-          observer.onNext(res);
-          observer.onCompleted();
+          observer.onNext(res)
+          observer.onCompleted()
         }
-      });
+      })
     } catch (err) {
-      observer.onError(err);
+      observer.onError(err)
     }
-  });
+  })
 }
 
 function makeJSONPDriver() {
   return function jsonpDriver(request$) {
     return request$.map(url => {
-      let response$ = createResponse$(url);
-      response$.request = url;
-      return response$;
-    });
-  };
+      let response$ = createResponse$(url)
+      response$.request = url
+      return response$
+    })
+  }
 }
 
 module.exports = {
@@ -56,5 +55,5 @@ module.exports = {
    * @return {Function} the JSONP Driver function
    * @function makeJSONPDriver
    */
-  makeJSONPDriver
-};
+  makeJSONPDriver,
+}
