@@ -23,27 +23,32 @@ function callDrivers(drivers, requestProxies) {
   return responses;
 }
 
-function makeDispose(requestProxies, rawResponses) {
-  return function dispose() {
-    for (var x in requestProxies) {
-      if (requestProxies.hasOwnProperty(x)) {
-        requestProxies[x].dispose();
-      }
+function attachDisposeToRequests(requests, replicationSubscription) {
+  Object.defineProperty(requests, "dispose", {
+    enumerable: false,
+    value: function value() {
+      replicationSubscription.dispose();
     }
-    for (var _name3 in rawResponses) {
-      if (rawResponses.hasOwnProperty(_name3) && typeof rawResponses[_name3].dispose === "function") {
-        rawResponses[_name3].dispose();
+  });
+  return requests;
+}
+
+function makeDisposeResponses(responses) {
+  return function dispose() {
+    for (var _name3 in responses) {
+      if (responses.hasOwnProperty(_name3) && typeof responses[_name3].dispose === "function") {
+        responses[_name3].dispose();
       }
     }
   };
 }
 
-function makeAppInput(requestProxies, rawResponses) {
-  Object.defineProperty(rawResponses, "dispose", {
+function attachDisposeToResponses(responses) {
+  Object.defineProperty(responses, "dispose", {
     enumerable: false,
-    value: makeDispose(requestProxies, rawResponses)
+    value: makeDisposeResponses(responses)
   });
-  return rawResponses;
+  return responses;
 }
 
 function logToConsoleError(err) {
@@ -53,14 +58,27 @@ function logToConsoleError(err) {
   }
 }
 
-function replicateMany(original, imitators) {
-  for (var _name4 in original) {
-    if (original.hasOwnProperty(_name4)) {
-      if (imitators.hasOwnProperty(_name4) && !imitators[_name4].isDisposed) {
-        original[_name4].doOnError(logToConsoleError).subscribe(imitators[_name4].asObserver());
+function replicateMany(observables, subjects) {
+  return Rx.Observable.create(function (observer) {
+    var subscription = new Rx.CompositeDisposable();
+    setTimeout(function () {
+      for (var _name4 in observables) {
+        if (observables.hasOwnProperty(_name4) && subjects.hasOwnProperty(_name4) && !subjects[_name4].isDisposed) {
+          subscription.add(observables[_name4].doOnError(logToConsoleError).subscribe(subjects[_name4].asObserver()));
+        }
       }
-    }
-  }
+      observer.onNext(subscription);
+    }, 1);
+
+    return function dispose() {
+      subscription.dispose();
+      for (var x in subjects) {
+        if (subjects.hasOwnProperty(x)) {
+          subjects[x].dispose();
+        }
+      }
+    };
+  });
 }
 
 function isObjectEmpty(obj) {
@@ -84,13 +102,12 @@ function run(main, drivers) {
   }
 
   var requestProxies = makeRequestProxies(drivers);
-  var rawResponses = callDrivers(drivers, requestProxies);
-  var responses = makeAppInput(requestProxies, rawResponses);
+  var responses = callDrivers(drivers, requestProxies);
   var requests = main(responses);
-  setTimeout(function () {
-    return replicateMany(requests, requestProxies);
-  }, 1);
-  return [requests, responses];
+  var subscription = replicateMany(requests, requestProxies).subscribe();
+  var requestsWithDispose = attachDisposeToRequests(requests, subscription);
+  var responsesWithDispose = attachDisposeToResponses(responses);
+  return [requestsWithDispose, responsesWithDispose];
 }
 
 var Cycle = {
@@ -11433,7 +11450,7 @@ function Request(method, url) {
     new_err.response = res;
     new_err.status = res.status;
 
-    self.callback(err || new_err, res);
+    self.callback(new_err, res);
   });
 }
 
@@ -11906,7 +11923,8 @@ Request.prototype.end = function(fn){
   // body
   if ('GET' != this.method && 'HEAD' != this.method && 'string' != typeof data && !isHost(data)) {
     // serialize stuff
-    var serialize = request.serialize[this.getHeader('Content-Type')];
+    var contentType = this.getHeader('Content-Type');
+    var serialize = request.serialize[contentType ? contentType.split(';')[0] : ''];
     if (serialize) data = serialize(data);
   }
 
@@ -11921,6 +11939,20 @@ Request.prototype.end = function(fn){
   xhr.send(data);
   return this;
 };
+
+/**
+ * Faux promise support
+ *
+ * @param {Function} fulfill
+ * @param {Function} reject
+ * @return {Request}
+ */
+
+Request.prototype.then = function (fulfill, reject) {
+  return this.end(function(err, res) {
+    err ? reject(err) : fulfill(res);
+  });
+}
 
 /**
  * Expose `Request`.
