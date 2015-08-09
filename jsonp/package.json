@@ -17,15 +17,15 @@
   },
   "devDependencies": {
     "@cycle/core": "2.x.x",
-    "babel": "5.6.x",
+    "babel": "5.8.x",
     "babelify": "6.1.x",
-    "browserify": "10.2.4",
+    "browserify": "11.0.1",
     "eslint": "1.0.x",
     "eslint-config-cycle": "3.0.x",
     "eslint-plugin-cycle": "1.0.x",
     "eslint-plugin-no-class": "0.1.x",
     "markdox": "0.1.9",
-    "uglify-js": "2.4.23"
+    "uglify-js": "2.4.24"
   },
   "scripts": {
     "eslint": "eslint src/",
