@@ -1,0 +1,20 @@
+{
+  "name": "cycle-isomorphic-example",
+  "version": "0.0.0",
+  "private": true,
+  "author": "Andre Staltz",
+  "license": "MIT",
+  "dependencies": {
+    "@cycle/core": "2.0.x",
+    "@cycle/dom": "4.0.x",
+    "babel": "5.8.x",
+    "babelify": "6.1.x",
+    "browserify": "11.0.1",
+    "express": "^4.12.3",
+    "serialize-javascript": "^1.0.0",
+    "uglifyify": "^3.0.1"
+  },
+  "scripts": {
+    "start": "babel-node ./server.js"
+  }
+}
