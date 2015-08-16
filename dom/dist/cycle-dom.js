@@ -16343,7 +16343,7 @@ function transposeVTree(vtree) {
 
       return new VirtualNode(vtree.tagName, vtree.properties, arr, vtree.key, vtree.namespace);
     });
-  } else if (vtree.type === "VirtualNode") {
+  } else if (vtree.type === "VirtualNode" || vtree.type === "Widget") {
     return Rx.Observable.just(vtree);
   } else {
     throw new Error("Unhandled case in transposeVTree()");
