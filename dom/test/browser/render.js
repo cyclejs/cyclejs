@@ -134,6 +134,49 @@ describe('Rendering', function () {
       });
     });
 
+    it('should allow plain virtual-dom Widgets in the VTree', function (done) {
+      // The widget
+      const MyTestWidget = function (content) {
+        this.content = content;
+      };
+      MyTestWidget.prototype.type = 'Widget';
+      MyTestWidget.prototype.init = function() {
+        const divElem = document.createElement('H4');
+        const textElem = document.createTextNode('Content is ' + this.content);
+        divElem.appendChild(textElem);
+        return divElem;
+      }
+      MyTestWidget.prototype.update = function(previous, domNode) {
+        return null
+      }
+
+      // The Cycle.js app
+      function app() {
+        return {
+          DOM: Rx.Observable.just(h('div.top-most', [
+            h('p', 'Just a paragraph'),
+            new MyTestWidget('hello world')
+          ]))
+        };
+      }
+
+      // Run it
+      let [requests, responses] = Cycle.run(app, {
+        DOM: makeDOMDriver(createRenderTarget())
+      });
+
+      // Assert it
+      responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
+        let selectEl = root.querySelector('h4');
+        assert.notStrictEqual(selectEl, null);
+        assert.notStrictEqual(typeof selectEl, 'undefined');
+        assert.strictEqual(selectEl.tagName, 'H4');
+        assert.strictEqual(selectEl.textContent, 'Content is hello world');
+        responses.dispose();
+        done();
+      });
+    });
+
     it('should catch interaction events coming from wrapped View', function (done) {
       // Make a View reactively imitating another View
       function app() {
