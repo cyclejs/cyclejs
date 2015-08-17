@@ -363,7 +363,7 @@ describe('Custom Elements', function () {
       return {
         DOM: responses.DOM.get('.target', 'click')
           .startWith(0)
-          .scan(-1, (x,y) => x+1)
+          .scan((x,y) => x+1, -1)
           .map(number =>
             h('div', [
               h('p', `Counter: ${number}`),

@@ -28,10 +28,10 @@
     "x-is-array": "0.1.0"
   },
   "peerDependencies": {
-    "@cycle/core": "2.x.x"
+    "@cycle/core": "3.x.x"
   },
   "devDependencies": {
-    "@cycle/core": "2.x.x",
+    "@cycle/core": "3.x.x",
     "babel": "5.8.x",
     "babelify": "6.1.x",
     "browserify": "11.0.0",
@@ -41,7 +41,7 @@
     "eslint-plugin-no-class": "^0.1.0",
     "markdox": "0.1.x",
     "mocha": "2.2.5",
-    "rx": "2.x.x",
+    "rx": "3.x.x",
     "testem": "0.9.1",
     "uglify-js": "2.4.24",
     "zuul": "^3.2.0"
