@@ -21,7 +21,7 @@
   ],
   "main": "lib/cycle.js",
   "dependencies": {
-    "rx": "2.5.3"
+    "rx": "3.0.1"
   },
   "devDependencies": {
     "babel": "5.8.x",
