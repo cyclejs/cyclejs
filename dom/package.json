@@ -34,7 +34,7 @@
     "@cycle/core": "3.x.x",
     "babel": "5.8.x",
     "babelify": "6.1.x",
-    "browserify": "11.0.0",
+    "browserify": "11.0.1",
     "eslint": "1.0.x",
     "eslint-config-cycle": "3.0.x",
     "eslint-plugin-cycle": "1.0.x",
@@ -42,7 +42,7 @@
     "markdox": "0.1.x",
     "mocha": "2.2.5",
     "rx": "3.x.x",
-    "testem": "0.9.1",
+    "testem": "0.9.2",
     "uglify-js": "2.4.24",
     "zuul": "^3.2.0"
   },
