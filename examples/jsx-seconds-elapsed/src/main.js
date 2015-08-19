@@ -7,7 +7,7 @@ function main(drivers) {
     .map(i => i + 1)
     .startWith(0);
   let vtree$ = secondsElapsed$.map(secondsElapsed =>
-    <div>{`Seconds elapsed ${secondsElapsed}`}</div>
+    <div>Seconds elapsed {secondsElapsed}</div>
   );
   return {DOM: vtree$};
 }
