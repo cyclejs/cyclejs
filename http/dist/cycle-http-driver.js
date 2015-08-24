@@ -12085,12 +12085,26 @@ function createResponse$(reqOptions) {
 }
 
 function makeHTTPDriver() {
+  var _ref2 = arguments.length <= 0 || arguments[0] === undefined ? { autoSubscribe: true } : arguments[0];
+
+  var _ref2$autoSubscribe = _ref2.autoSubscribe;
+  var autoSubscribe = _ref2$autoSubscribe === undefined ? true : _ref2$autoSubscribe;
+
   return function httpDriver(request$) {
-    return request$.map(function (reqOptions) {
+    var response$$ = request$.map(function (reqOptions) {
       var response$ = createResponse$(reqOptions);
+      if (autoSubscribe) {
+        response$ = response$.replay(null, 1);
+        response$.connect();
+      }
       response$.request = reqOptions;
       return response$;
     });
+    if (autoSubscribe) {
+      response$$ = response$$.replay(null, 1);
+      response$$.connect();
+    }
+    return response$$;
   };
 }
 
@@ -12147,6 +12161,11 @@ module.exports = {
    * Observable. The response Observables themselves emit the response object
    * received through superagent.
    *
+   * @param {Object} options an object with settings options that apply globally
+   * for all requests processed by the returned HTTP Driver function. The
+   * options are:
+   * - `autoSubscribe` *(Boolean)*: execute the HTTP eagerly, even if its
+   *   response Observable is not subscribed to. Default: **true**.
    * @return {Function} the HTTP Driver function
    * @function makeHTTPDriver
    */
