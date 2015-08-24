@@ -3,7 +3,7 @@
 
 - [`makeHTTPDriver`](#makeHTTPDriver)
 
-### <a id="makeHTTPDriver"></a> `makeHTTPDriver()`
+### <a id="makeHTTPDriver"></a> `makeHTTPDriver(options)`
 
 HTTP Driver factory.
 
@@ -40,6 +40,13 @@ have a `request` field attached to them (to the Observable object itself)
 indicating which request (from the driver input) generated this response
 Observable. The response Observables themselves emit the response object
 received through superagent.
+
+#### Arguments:
+
+- `options :: Object` an object with settings options that apply globally for all requests processed by the returned HTTP Driver function. The
+options are:
+- `autoSubscribe` *(Boolean)*: execute the HTTP eagerly, even if its
+  response Observable is not subscribed to. Default: **true**.
 
 #### Return:
 
