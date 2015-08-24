@@ -22,7 +22,7 @@ function labeledSlider({DOM, props$}, name = '') {
 
   return {
     DOM: vtree$,
-    newValue$
+    value$
   };
 }
 
