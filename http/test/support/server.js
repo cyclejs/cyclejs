@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
+var globalSandbox = require('./global');
 
 var app = express();
 
@@ -17,7 +18,9 @@ app.get('/hello', function(req, res){
 });
 
 app.post('/pet', function(req, res){
-  res.send('added ' + req.body.name + ' the ' + req.body.species);
+  var result = 'added ' + req.body.name + ' the ' + req.body.species;
+  globalSandbox.petPOSTResponse = result;
+  res.send(result);
 });
 
 app.get('/json', function(req, res){

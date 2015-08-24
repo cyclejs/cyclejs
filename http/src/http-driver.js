@@ -1,5 +1,5 @@
-let {Rx} = require(`@cycle/core`)
-let superagent = require(`superagent`)
+const {Rx} = require(`@cycle/core`)
+const superagent = require(`superagent`)
 
 function optionsToSuperagent({
   url,
@@ -54,7 +54,7 @@ function optionsToSuperagent({
   }
   if (attach !== null) {
     for (let i = attach.length - 1; i >= 0; i--) {
-      let a = attach[i]
+      const a = attach[i]
       request = request.attach(a.name, a.path, a.filename)
     }
   }
@@ -97,13 +97,22 @@ function createResponse$(reqOptions) {
   })
 }
 
-function makeHTTPDriver() {
+function makeHTTPDriver({autoSubscribe = true} = {autoSubscribe: true}) {
   return function httpDriver(request$) {
-    return request$.map(reqOptions => {
+    let response$$ = request$.map(reqOptions => {
       let response$ = createResponse$(reqOptions)
+      if (autoSubscribe) {
+        response$ = response$.replay(null, 1)
+        response$.connect()
+      }
       response$.request = reqOptions
       return response$
     })
+    if (autoSubscribe) {
+      response$$ = response$$.replay(null, 1)
+      response$$.connect()
+    }
+    return response$$
   }
 }
 
