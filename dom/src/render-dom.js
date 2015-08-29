@@ -173,6 +173,10 @@ function makeRootElemToEvent$(selector, eventName) {
 
 function makeResponseGetter(rootElem$) {
   return function get(selector, eventName) {
+    if (console && console.log) {
+      console.log(`WARNING: the DOM Driver's get(selector, eventType) is ` +
+        `deprecated. Use select(selector).events(eventType) instead.`)
+    }
     if (typeof selector !== `string`) {
       throw new Error(`DOM driver's get() expects first argument to be a ` +
         `string as a CSS selector`)

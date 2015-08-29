@@ -41,6 +41,9 @@ function convertCustomElementsToVTree(vtree$, CERegistry, driverName) {
 
 function makeResponseGetter() {
   return function get(selector) {
+    if (console && console.log) {
+      console.log(`WARNING: HTML Driver's get(selector) is deprecated.`)
+    }
     if (selector === `:root`) {
       return this
     } else {
