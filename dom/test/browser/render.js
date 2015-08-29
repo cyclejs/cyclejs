@@ -221,15 +221,16 @@ describe('Rendering', function () {
         responses.dispose();
         done();
       });
-      responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
-        let myElement = root.querySelector('.myelementclass');
-        assert.notStrictEqual(myElement, null);
-        assert.notStrictEqual(typeof myElement, 'undefined');
-        assert.strictEqual(myElement.tagName, 'H3');
-        assert.doesNotThrow(function () {
-          myElement.click();
+      responses.DOM.select(':root').observable.skip(1).take(1)
+        .subscribe(function (root) {
+          let myElement = root.querySelector('.myelementclass');
+          assert.notStrictEqual(myElement, null);
+          assert.notStrictEqual(typeof myElement, 'undefined');
+          assert.strictEqual(myElement.tagName, 'H3');
+          assert.doesNotThrow(function () {
+            myElement.click();
+          });
         });
-      });
     });
 
     describe('DOM.select()', function () {
@@ -262,14 +263,19 @@ describe('Rendering', function () {
           DOM: makeDOMDriver(createRenderTarget())
         });
         // Make assertions
-        responses.DOM.select('.myelementclass').observable.subscribe(elem => {
-          assert.notStrictEqual(elem, null);
-          assert.notStrictEqual(typeof elem, 'undefined');
-          assert.strictEqual(elem.tagName, 'H3');
-          assert.strictEqual(elem.textContent, 'Foobar');
-          responses.dispose();
-          done();
-        });
+        responses.DOM.select('.myelementclass').observable.skip(1).take(1)
+          .subscribe(elem => {
+            assert.notStrictEqual(elem, null);
+            assert.notStrictEqual(typeof elem, 'undefined');
+            // Is a NodeList
+            assert.strictEqual(Array.isArray(elem), false);
+            assert.strictEqual(elem.length, 1);
+            // NodeList with the H3 element
+            assert.strictEqual(elem[0].tagName, 'H3');
+            assert.strictEqual(elem[0].textContent, 'Foobar');
+            responses.dispose();
+            done();
+          });
       });
     });
 

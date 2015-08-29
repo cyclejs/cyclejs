@@ -8,6 +8,13 @@ let VDOM = {
 let {replaceCustomElementsWithSomething, makeCustomElementsRegistry} =
   require(`./custom-elements`)
 let {transposeVTree} = require(`./transposition`)
+let matchesSelector
+// Try-catch to prevent unnecessary import of DOM-specifics in Node.js env:
+try {
+  matchesSelector = require(`matches-selector`)
+} catch (err) {
+  matchesSelector = () => {}
+}
 
 function isElement(obj) {
   return typeof HTMLElement === `object` ?
@@ -185,6 +192,42 @@ function makeResponseGetter(rootElem$) {
   }
 }
 
+function makeEventsSelector(element$) {
+  return function events(eventName) {
+    if (typeof eventName !== `string`) {
+      throw new Error(`DOM driver's get() expects second argument to be a ` +
+        `string representing the event type to listen for.`)
+    }
+    return element$.flatMapLatest(element => {
+      if (!element) {
+        return Rx.Observable.empty()
+      }
+      return Rx.Observable.fromEvent(element, eventName)
+    })
+  }
+}
+
+function makeElementSelector(rootElem$) {
+  return function select(selector) {
+    if (typeof selector !== `string`) {
+      throw new Error(`DOM driver's select() expects first argument to be a ` +
+        `string as a CSS selector`)
+    }
+    let element$ = selector.trim() === `:root` ? rootElem$ :
+      rootElem$.map(rootElem => {
+        if (matchesSelector(rootElem, selector)) {
+          return rootElem
+        } else {
+          return rootElem.querySelectorAll(selector)
+        }
+      })
+    return {
+      observable: element$,
+      events: makeEventsSelector(element$),
+    }
+  }
+}
+
 function validateDOMDriverInput(vtree$) {
   if (!vtree$ || typeof vtree$.subscribe !== `function`) {
     throw new Error(`The DOM driver function expects as input an ` +
@@ -205,6 +248,7 @@ function makeDOMDriverWithRegistry(container, CERegistry) {
     let disposable = rootElem$.connect()
     return {
       get: makeResponseGetter(rootElem$),
+      select: makeElementSelector(rootElem$),
       dispose: disposable.dispose.bind(disposable),
     }
   }
