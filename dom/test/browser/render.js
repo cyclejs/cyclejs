@@ -205,6 +205,80 @@ describe('Rendering', function () {
       });
     });
 
+    it('should catch user events using DOM.select().events()', function (done) {
+      function app() {
+        return {
+          DOM: Rx.Observable.just(h('h3.myelementclass', 'Foobar'))
+        };
+      }
+      let [requests, responses] = Cycle.run(app, {
+        DOM: makeDOMDriver(createRenderTarget())
+      });
+      // Make assertions
+      responses.DOM.select('.myelementclass').events('click').subscribe(ev => {
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual(ev.target.textContent, 'Foobar');
+        responses.dispose();
+        done();
+      });
+      responses.DOM.select(':root').observable.skip(1).take(1)
+        .subscribe(function (root) {
+          let myElement = root.querySelector('.myelementclass');
+          assert.notStrictEqual(myElement, null);
+          assert.notStrictEqual(typeof myElement, 'undefined');
+          assert.strictEqual(myElement.tagName, 'H3');
+          assert.doesNotThrow(function () {
+            myElement.click();
+          });
+        });
+    });
+
+    describe('DOM.select()', function () {
+      it('should be an object with observable and events()', function (done) {
+        function app() {
+          return {
+            DOM: Rx.Observable.just(h('h3.myelementclass', 'Foobar'))
+          };
+        }
+        let [requests, responses] = Cycle.run(app, {
+          DOM: makeDOMDriver(createRenderTarget())
+        });
+        // Make assertions
+        const selection = responses.DOM.select('.myelementclass');
+        assert.strictEqual(typeof selection, 'object');
+        assert.strictEqual(typeof selection.observable, 'object');
+        assert.strictEqual(typeof selection.observable.subscribe, 'function');
+        assert.strictEqual(typeof selection.events, 'function');
+        responses.dispose();
+        done();
+      });
+
+      it('should have an observable of DOM elements', function (done) {
+        function app() {
+          return {
+            DOM: Rx.Observable.just(h('h3.myelementclass', 'Foobar'))
+          };
+        }
+        let [requests, responses] = Cycle.run(app, {
+          DOM: makeDOMDriver(createRenderTarget())
+        });
+        // Make assertions
+        responses.DOM.select('.myelementclass').observable.skip(1).take(1)
+          .subscribe(elem => {
+            assert.notStrictEqual(elem, null);
+            assert.notStrictEqual(typeof elem, 'undefined');
+            // Is a NodeList
+            assert.strictEqual(Array.isArray(elem), false);
+            assert.strictEqual(elem.length, 1);
+            // NodeList with the H3 element
+            assert.strictEqual(elem[0].tagName, 'H3');
+            assert.strictEqual(elem[0].textContent, 'Foobar');
+            responses.dispose();
+            done();
+          });
+      });
+    });
+
     it('should allow subscribing to interactions', function (done) {
       // Make a View reactively imitating another View
       function app() {
