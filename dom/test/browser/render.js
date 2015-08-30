@@ -8,9 +8,12 @@ let Fixture89 = require('./fixtures/issue-89');
 let {Rx} = Cycle;
 let {h, hJSX, makeDOMDriver} = CycleDOM;
 
-function createRenderTarget() {
+function createRenderTarget(id = null) {
   let element = document.createElement('div');
   element.className = 'cycletest';
+  if (id) {
+    element.id = id;
+  }
   document.body.appendChild(element);
   return element;
 }
@@ -205,6 +208,33 @@ describe('Rendering', function () {
       });
     });
 
+    it('should catch interaction events using id in DOM.get', function (done) {
+      function app() {
+        return {
+          DOM: Rx.Observable.just(h('h3.myelementclass', 'Foobar'))
+        };
+      }
+      let [requests, responses] = Cycle.run(app, {
+        DOM: makeDOMDriver(createRenderTarget('parent-001'))
+      });
+      // Make assertions
+      responses.DOM.get('#parent-001', 'click').subscribe(ev => {
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual(ev.target.textContent, 'Foobar');
+        responses.dispose();
+        done();
+      });
+      responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
+        let myElement = root.querySelector('.myelementclass');
+        assert.notStrictEqual(myElement, null);
+        assert.notStrictEqual(typeof myElement, 'undefined');
+        assert.strictEqual(myElement.tagName, 'H3');
+        assert.doesNotThrow(function () {
+          myElement.click();
+        });
+      });
+    });
+
     it('should catch user events using DOM.select().events()', function (done) {
       function app() {
         return {
@@ -216,6 +246,34 @@ describe('Rendering', function () {
       });
       // Make assertions
       responses.DOM.select('.myelementclass').events('click').subscribe(ev => {
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual(ev.target.textContent, 'Foobar');
+        responses.dispose();
+        done();
+      });
+      responses.DOM.select(':root').observable.skip(1).take(1)
+        .subscribe(function (root) {
+          let myElement = root.querySelector('.myelementclass');
+          assert.notStrictEqual(myElement, null);
+          assert.notStrictEqual(typeof myElement, 'undefined');
+          assert.strictEqual(myElement.tagName, 'H3');
+          assert.doesNotThrow(function () {
+            myElement.click();
+          });
+        });
+    });
+
+    it('should catch interaction events using id in DOM.select', function (done) {
+      function app() {
+        return {
+          DOM: Rx.Observable.just(h('h3.myelementclass', 'Foobar'))
+        };
+      }
+      let [requests, responses] = Cycle.run(app, {
+        DOM: makeDOMDriver(createRenderTarget('parent-002'))
+      });
+      // Make assertions
+      responses.DOM.select('#parent-002').events('click').subscribe(ev => {
         assert.strictEqual(ev.type, 'click');
         assert.strictEqual(ev.target.textContent, 'Foobar');
         responses.dispose();

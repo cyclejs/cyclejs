@@ -150,24 +150,10 @@ function makeRootElemToEvent$(selector, eventName) {
     if (!rootElem) {
       return Rx.Observable.empty()
     }
-    //let isCustomElement = !!rootElem.cycleCustomElementMetadata
-    //console.log(`%cget('${selector}', '${eventName}') flatMapper` +
-    //  (isCustomElement ? ' for a custom element' : ' for top-level View'),
-    //  'color: #0000BB')
-    let klass = selector.replace(`.`, ``)
-    if (rootElem.className.search(new RegExp(`\\b${klass}\\b`)) >= 0) {
-      //console.log('%c  Good return. (A)', 'color:#0000BB')
-      //console.log(rootElem)
-      return Rx.Observable.fromEvent(rootElem, eventName)
-    }
-    let targetElements = rootElem.querySelectorAll(selector)
-    if (targetElements && targetElements.length > 0) {
-      //console.log('%c  Good return. (B)', 'color:#0000BB')
-      //console.log(targetElements)
-      return Rx.Observable.fromEvent(targetElements, eventName)
-    }
-    //console.log('%c  returning empty!', 'color: #0000BB')
-    return Rx.Observable.empty()
+    let targetElements = matchesSelector(rootElem, selector) ?
+      rootElem :
+      rootElem.querySelectorAll(selector)
+    return Rx.Observable.fromEvent(targetElements, eventName)
   }
 }
 
@@ -189,7 +175,6 @@ function makeResponseGetter(rootElem$) {
         `string representing the event type to listen for.`)
     }
 
-    //console.log(`%cget("${selector}", "${eventName}")`, 'color: #0000BB')
     return rootElem$
       .flatMapLatest(makeRootElemToEvent$(selector, eventName))
       .share()
@@ -207,7 +192,7 @@ function makeEventsSelector(element$) {
         return Rx.Observable.empty()
       }
       return Rx.Observable.fromEvent(element, eventName)
-    })
+    }).share()
   }
 }
 
