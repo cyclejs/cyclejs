@@ -9,9 +9,11 @@ let CycleDOM = {
    * target on the existing DOM which this driver will operate on. All custom
    * elements which this driver can detect should be given as the second
    * parameter. The output of this driver is a collection of Observables queried
-   * by a getter function: `domDriverOutput.get(selector, eventType)` returns an
+   * with: `domDriverOutput.select(selector).events(eventType)` returns an
    * Observable of events of `eventType` happening on the element determined by
-   * `selector`. Also, `domDriverOutput.get(':root')` returns an Observable of
+   * `selector`. Just `domDriverOutput.select(selector).observable` returns
+   * an Observable of the DOM element matched by the given selector. Also,
+   * `domDriverOutput.select(':root').observable` returns an Observable of
    * DOM element corresponding to the root (or container) of the app on the DOM.
    *
    * @param {(String|HTMLElement)} container the DOM selector for the element
@@ -23,8 +25,8 @@ let CycleDOM = {
    * function: input are driver responses, output are requests to drivers.
    * @return {Function} the DOM driver function. The function expects an
    * Observable of VTree as input, and outputs the response object for this
-   * driver, containing functions `get()` and `dispose()` that can be used for
-   * debugging and testing.
+   * driver, containing functions `select()` and `dispose()` that can be used
+   * for debugging and testing.
    * @function makeDOMDriver
    */
   makeDOMDriver,
