@@ -15431,7 +15431,7 @@ function makeInit(tagName, definitionFn) {
     var domDriver = makeDOMDriverWithRegistry(element, registry);
     var propertiesDriver = makePropertiesDriver();
     var domResponse = domDriver(proxyVTree$, driverName);
-    var rootElem$ = domResponse.get(":root");
+    var rootElem$ = domResponse.select(":root").observable;
     rootElem$.subscribe(function (rootElem) {
       // This is expected to happen before initCustomElement() returns `element`
       element = rootElem;
