@@ -1,0 +1,25 @@
+{
+  "name": "example",
+  "version": "0.0.0",
+  "private": true,
+  "author": "Andre Staltz",
+  "license": "MIT",
+  "dependencies": {
+    "@cycle/core": "3.1.x",
+    "@cycle/dom": "5.1.x",
+    "@cycle/jsonp": "3.0.x",
+    "immutable": "^3.7.4",
+    "lodash": "^3.10.1"
+  },
+  "devDependencies": {
+    "browserify": "11.0.1",
+    "babel": "5.6.x",
+    "babelify": "6.1.x"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prebrowserify": "mkdir -p dist",
+    "browserify": "browserify src/main.js -t babelify --outfile dist/main.js",
+    "start": "npm install && npm run browserify && echo 'OPEN index.html IN YOUR BROWSER'"
+  }
+}
