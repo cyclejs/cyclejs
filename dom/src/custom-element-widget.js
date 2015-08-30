@@ -170,7 +170,7 @@ function makeInit(tagName, definitionFn) {
     let domDriver = makeDOMDriverWithRegistry(element, registry)
     let propertiesDriver = makePropertiesDriver()
     let domResponse = domDriver(proxyVTree$, driverName)
-    let rootElem$ = domResponse.get(`:root`)
+    let rootElem$ = domResponse.select(`:root`).observable
     rootElem$.subscribe(rootElem => {
       // This is expected to happen before initCustomElement() returns `element`
       element = rootElem
