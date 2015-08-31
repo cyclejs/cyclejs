@@ -17,6 +17,7 @@ Cycle *Core* is the minimum required tools you need for building applications. I
 - Understand how Cycle.js works in general: go to http://cycle.js.org
 - Understand how Cycle *Core* itself works: read the [docs](https://github.com/cyclejs/cycle-core/blob/master/docs/api.md) and the [tests](https://github.com/cyclejs/cycle-core/tree/master/test)
 - File a bug report for anything Cycle-related: [open an issue](https://github.com/cyclejs/cycle-core/issues/new)
+- Ask a question such as "How do I ...?": [open a StackOverflow question with `cyclejs` tag](http://stackoverflow.com/questions/tagged/cyclejs) or ask in the [Gitter chat room](https://gitter.im/cyclejs/cycle-core)
 - Contribute a new driver: [open an issue](https://github.com/cyclejs/cycle-core/issues/new)
 
 ## LICENSE
