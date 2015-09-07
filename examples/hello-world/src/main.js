@@ -3,7 +3,7 @@ import {h, makeDOMDriver} from '@cycle/dom';
 
 function main(responses) {
   return {
-    DOM: responses.DOM.get('.myinput', 'input')
+    DOM: responses.DOM.select('.myinput').events('input')
       .map(ev => ev.target.value)
       .startWith('')
       .map(name =>
