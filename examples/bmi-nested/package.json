@@ -5,9 +5,8 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/core": "2.0.x",
-    "@cycle/dom": "4.0.x",
-    "@cycle/http": "2.0.x"
+    "@cycle/core": "3.1.x",
+    "@cycle/dom": "5.1.x"
   },
   "devDependencies": {
     "browserify": "11.0.1",

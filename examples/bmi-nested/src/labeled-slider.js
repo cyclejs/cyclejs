@@ -3,7 +3,7 @@ import {h} from '@cycle/dom';
 
 function labeledSlider({DOM, props$}, name = '') {
   let initialValue$ = props$.map(props => props.initial).first();
-  let newValue$ = DOM.get(`.labeled-slider${name} .slider`, 'input')
+  let newValue$ = DOM.select(`.labeled-slider${name} .slider`).events('input')
     .map(ev => ev.target.value);
   let value$ = initialValue$.concat(newValue$);
   let vtree$ = Rx.Observable.combineLatest(props$, value$, (props, value) =>
