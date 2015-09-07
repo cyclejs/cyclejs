@@ -3,7 +3,7 @@ import {h, makeDOMDriver} from '@cycle/dom';
 
 function main(responses) {
   let requests = {
-    DOM: responses.DOM.get('input', 'change')
+    DOM: responses.DOM.select('input').events('change')
       .map(ev => ev.target.checked)
       .startWith(false)
       .map(toggled =>
