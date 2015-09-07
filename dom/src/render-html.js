@@ -52,6 +52,17 @@ function makeResponseGetter() {
   }
 }
 
+function makeBogusSelect() {
+  return function select() {
+    return {
+      observable: Rx.Observable.empty(),
+      events() {
+        return Rx.Observable.empty()
+      },
+    }
+  }
+}
+
 function makeHTMLDriver(customElementDefinitions = {}) {
   let registry = makeCustomElementsRegistry(customElementDefinitions)
   return function htmlDriver(vtree$, driverName) {
@@ -59,6 +70,7 @@ function makeHTMLDriver(customElementDefinitions = {}) {
     let output$ = convertCustomElementsToVTree(vtreeLast$, registry, driverName)
       .map(vtree => toHTML(vtree))
     output$.get = makeResponseGetter()
+    output$.select = makeBogusSelect()
     return output$
   }
 }
