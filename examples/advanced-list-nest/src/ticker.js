@@ -3,7 +3,8 @@ import {h} from '@cycle/dom';
 import combineLatestObj from 'rx-combine-latest-obj';
 
 function intent(DOM, name = '') {
-  const removeClicks$ = DOM.get(`${name}.ticker .remove-btn`, 'click');
+  const removeClicks$ = DOM.select(`${name}.ticker .remove-btn`)
+    .events('click');
   const stop$ = removeClicks$;
   const remove$ = removeClicks$.map(() => name).delay(500);
   return {stop$, remove$};
