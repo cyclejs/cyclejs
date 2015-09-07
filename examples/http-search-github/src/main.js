@@ -8,7 +8,7 @@ function main(responses) {
 
   // Requests for Github repositories happen when the input field changes,
   // debounced by 500ms, ignoring empty input field.
-  const searchRequest$ = responses.DOM.get('.field', 'input')
+  const searchRequest$ = responses.DOM.select('.field').events('input')
     .debounce(500)
     .map(ev => ev.target.value)
     .filter(query => query.length > 0)
