@@ -4,7 +4,7 @@ import {makeHTTPDriver} from '@cycle/http';
 
 function main(responses) {
   const USERS_URL = 'http://jsonplaceholder.typicode.com/users/';
-  let getRandomUser$ = responses.DOM.get('.get-random', 'click')
+  let getRandomUser$ = responses.DOM.select('.get-random').events('click')
     .map(() => {
       let randomNum = Math.round(Math.random() * 9) + 1;
       return {
