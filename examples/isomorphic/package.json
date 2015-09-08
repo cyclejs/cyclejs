@@ -5,8 +5,8 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/core": "2.0.x",
-    "@cycle/dom": "4.0.x",
+    "@cycle/core": "3.1.x",
+    "@cycle/dom": "5.1.x",
     "babel": "5.8.x",
     "babelify": "6.1.x",
     "browserify": "11.0.1",
@@ -15,6 +15,6 @@
     "uglifyify": "^3.0.1"
   },
   "scripts": {
-    "start": "babel-node ./server.js"
+    "start": "npm install && babel-node ./server.js"
   }
 }

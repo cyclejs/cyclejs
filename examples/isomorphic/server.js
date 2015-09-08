@@ -72,7 +72,7 @@ server.use(function (req, res) {
     DOM: makeHTMLDriver(),
     context: () => context$
   });
-  let html$ = responses.DOM.get(':root').map(prependHTML5Doctype);
+  let html$ = responses.DOM.map(prependHTML5Doctype);
   html$.subscribe(html => res.send(html));
 });
 

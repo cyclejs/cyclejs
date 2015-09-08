@@ -34,7 +34,7 @@ function renderAboutPage() {
 }
 
 function app(ext) {
-  let routeFromClick$ = ext.DOM.get('.link', 'click')
+  let routeFromClick$ = ext.DOM.select('.link').events('click')
     .doOnNext(ev => ev.preventDefault())
     .map(ev => ev.currentTarget.attributes.href.value);
 
