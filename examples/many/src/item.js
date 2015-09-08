@@ -3,11 +3,14 @@ import {h} from '@cycle/dom';
 import combineLatestObj from 'rx-combine-latest-obj';
 
 function intent(DOM, name = []) {
-  const changeColor$ = DOM.get(name.join(' ') + '.item .color-field', 'input')
+  const changeColor$ = DOM.select(name.join(' ') + '.item .color-field')
+    .events('input')
     .map(ev => ({color: ev.target.value, name}));
-  const changeWidth$ = DOM.get(name.join(' ') + '.item .width-slider', 'input')
+  const changeWidth$ = DOM.select(name.join(' ') + '.item .width-slider')
+    .events('input')
     .map(ev => ({width: parseInt(ev.target.value), name}));
-  const destroy$ = DOM.get(name.join(' ') + '.item .remove-btn', 'click')
+  const destroy$ = DOM.select(name.join(' ') + '.item .remove-btn')
+    .events('click')
     .map(ev => ({name}));
 
   return {changeColor$, changeWidth$, destroy$};

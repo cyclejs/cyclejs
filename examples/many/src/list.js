@@ -4,8 +4,10 @@ import item from './item';
 
 function intent(DOM, itemActions, name = []) {
   const addItem$ = Rx.Observable.merge(
-    DOM.get(name.join(' ') + '.list .add-one-btn', 'click').map(() => 1),
-    DOM.get(name.join(' ') + '.list .add-many-btn', 'click').map(() => 1000)
+    DOM.select(name.join(' ') + '.list .add-one-btn')
+      .events('click').map(() => 1),
+    DOM.select(name.join(' ') + '.list .add-many-btn')
+      .events('click').map(() => 1000)
   );
   const removeItem$ = itemActions.destroy$
     .map(({name}) => parseInt(name[name.length-1].replace('.list-item', '')));
