@@ -16034,6 +16034,17 @@ function makeResponseGetter() {
   };
 }
 
+function makeBogusSelect() {
+  return function select() {
+    return {
+      observable: Rx.Observable.empty(),
+      events: function events() {
+        return Rx.Observable.empty();
+      }
+    };
+  };
+}
+
 function makeHTMLDriver() {
   var customElementDefinitions = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
@@ -16044,6 +16055,7 @@ function makeHTMLDriver() {
       return toHTML(vtree);
     });
     output$.get = makeResponseGetter();
+    output$.select = makeBogusSelect();
     return output$;
   };
 }
