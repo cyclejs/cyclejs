@@ -1,5 +1,5 @@
 let {Rx} = require(`@cycle/core`)
-Rx = typeof window !== `undefined` ? require(`rx-dom`) : Rx
+let fromEvent = require(`./fromevent`)
 let VDOM = {
   h: require(`./virtual-hyperscript`),
   diff: require(`virtual-dom/diff`),
@@ -192,7 +192,7 @@ function makeEventsSelector(element$) {
       if (!element) {
         return Rx.Observable.empty()
       }
-      return Rx.DOM.fromEvent(element, eventName, useCapture)
+      return fromEvent(element, eventName, useCapture)
     }).share()
   }
 }
