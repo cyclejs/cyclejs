@@ -1,4 +1,5 @@
 let {Rx} = require(`@cycle/core`)
+Rx = typeof window !== `undefined` ? require(`rx-dom`) : Rx
 let VDOM = {
   h: require(`./virtual-hyperscript`),
   diff: require(`virtual-dom/diff`),
@@ -182,7 +183,7 @@ function makeResponseGetter(rootElem$) {
 }
 
 function makeEventsSelector(element$) {
-  return function events(eventName) {
+  return function events(eventName, useCapture = false) {
     if (typeof eventName !== `string`) {
       throw new Error(`DOM driver's get() expects second argument to be a ` +
         `string representing the event type to listen for.`)
@@ -191,7 +192,7 @@ function makeEventsSelector(element$) {
       if (!element) {
         return Rx.Observable.empty()
       }
-      return Rx.Observable.fromEvent(element, eventName)
+      return Rx.DOM.fromEvent(element, eventName, useCapture)
     }).share()
   }
 }
