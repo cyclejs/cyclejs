@@ -19,6 +19,9 @@ Observable of events of `eventType` happening on the element determined by
 an Observable of the DOM element matched by the given selector. Also,
 `domDriverOutput.select(':root').observable` returns an Observable of
 DOM element corresponding to the root (or container) of the app on the DOM.
+The `events()` function also allows you to specify the `useCapture`
+parameter of event listener. That is, the full function signature is
+`events(eventType, useCapture)` where `useCapture` is by default `false`.
 
 #### Arguments:
 
