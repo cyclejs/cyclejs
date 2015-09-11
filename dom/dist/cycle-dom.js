@@ -15537,7 +15537,7 @@ module.exports = {
   makeWidgetClass: makeWidgetClass
 };
 
-},{"./render-dom":113,"@cycle/core":1}],111:[function(require,module,exports){
+},{"./render-dom":114,"@cycle/core":1}],111:[function(require,module,exports){
 "use strict";
 
 var _require = require("./custom-element-widget");
@@ -15676,7 +15676,72 @@ var CycleDOM = {
 
 module.exports = CycleDOM;
 
-},{"./render-dom":113,"./render-html":114,"./virtual-hyperscript":116,"virtual-dom/virtual-hyperscript/svg":96}],113:[function(require,module,exports){
+},{"./render-dom":114,"./render-html":115,"./virtual-hyperscript":117,"virtual-dom/virtual-hyperscript/svg":96}],113:[function(require,module,exports){
+"use strict";
+
+var _require = require("@cycle/core");
+
+var Rx = _require.Rx;
+
+var disposableCreate = Rx.Disposable.create;
+var CompositeDisposable = Rx.CompositeDisposable;
+var AnonymousObservable = Rx.AnonymousObservable;
+
+function createListener(_ref) {
+  var element = _ref.element;
+  var eventName = _ref.eventName;
+  var handler = _ref.handler;
+  var useCapture = _ref.useCapture;
+
+  if (element.addEventListener) {
+    element.addEventListener(eventName, handler, useCapture);
+    return disposableCreate(function removeEventListener() {
+      element.removeEventListener(eventName, handler, useCapture);
+    });
+  }
+  throw new Error("No listener found");
+}
+
+function createEventListener(_ref2) {
+  var element = _ref2.element;
+  var eventName = _ref2.eventName;
+  var handler = _ref2.handler;
+  var useCapture = _ref2.useCapture;
+
+  var disposables = new CompositeDisposable();
+
+  var toStr = Object.prototype.toString;
+  if (toStr.call(element) === "[object NodeList]" || toStr.call(element) === "[object HTMLCollection]") {
+    for (var i = 0, len = element.length; i < len; i++) {
+      disposables.add(createEventListener({
+        element: element.item(i),
+        eventName: eventName,
+        handler: handler,
+        useCapture: useCapture }));
+    }
+  } else if (element) {
+    disposables.add(createListener({ element: element, eventName: eventName, handler: handler, useCapture: useCapture }));
+  }
+  return disposables;
+}
+
+function fromEvent(element, eventName) {
+  var useCapture = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+
+  return new AnonymousObservable(function subscribe(observer) {
+    return createEventListener({
+      element: element,
+      eventName: eventName,
+      handler: function handler() {
+        observer.onNext(arguments[0]);
+      },
+      useCapture: useCapture });
+  }).publish().refCount();
+}
+
+module.exports = fromEvent;
+
+},{"@cycle/core":1}],114:[function(require,module,exports){
 "use strict";
 
 var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; })();
@@ -15685,6 +15750,7 @@ var _require = require("@cycle/core");
 
 var Rx = _require.Rx;
 
+var fromEvent = require("./fromevent");
 var VDOM = {
   h: require("./virtual-hyperscript"),
   diff: require("virtual-dom/diff"),
@@ -15877,6 +15943,8 @@ function makeResponseGetter(rootElem$) {
 
 function makeEventsSelector(element$) {
   return function events(eventName) {
+    var useCapture = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+
     if (typeof eventName !== "string") {
       throw new Error("DOM driver's get() expects second argument to be a " + "string representing the event type to listen for.");
     }
@@ -15884,7 +15952,7 @@ function makeEventsSelector(element$) {
       if (!element) {
         return Rx.Observable.empty();
       }
-      return Rx.Observable.fromEvent(element, eventName);
+      return fromEvent(element, eventName, useCapture);
     }).share();
   };
 }
@@ -15965,7 +16033,7 @@ module.exports = {
   makeDOMDriver: makeDOMDriver
 };
 
-},{"./custom-elements":111,"./transposition":115,"./virtual-hyperscript":116,"@cycle/core":1,"matches-selector":66,"vdom-parser":67,"virtual-dom/diff":82,"virtual-dom/patch":83}],114:[function(require,module,exports){
+},{"./custom-elements":111,"./fromevent":113,"./transposition":116,"./virtual-hyperscript":117,"@cycle/core":1,"matches-selector":66,"vdom-parser":67,"virtual-dom/diff":82,"virtual-dom/patch":83}],115:[function(require,module,exports){
 "use strict";
 
 var _require = require("@cycle/core");
@@ -16068,7 +16136,7 @@ module.exports = {
   makeHTMLDriver: makeHTMLDriver
 };
 
-},{"./custom-element-widget":110,"./custom-elements":111,"./transposition":115,"@cycle/core":1,"vdom-to-html":71}],115:[function(require,module,exports){
+},{"./custom-element-widget":110,"./custom-elements":111,"./transposition":116,"@cycle/core":1,"vdom-to-html":71}],116:[function(require,module,exports){
 "use strict";
 
 var _require = require("@cycle/core");
@@ -16105,7 +16173,7 @@ module.exports = {
   transposeVTree: transposeVTree
 };
 
-},{"@cycle/core":1,"virtual-dom/vnode/vnode":104}],116:[function(require,module,exports){
+},{"@cycle/core":1,"virtual-dom/vnode/vnode":104}],117:[function(require,module,exports){
 /* eslint-disable */
 'use strict';
 
