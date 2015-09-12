@@ -96,11 +96,11 @@ same format as the DOM Driver's response. Example:
 ```js
 const userEvents = mockDOMResponse({
   '.foo': {
-    'click': Rx.Observable.just(135),
-    'mouseover': Rx.Observable.just('example')
+    'click': Rx.Observable.just({target: {}}),
+    'mouseover': Rx.Observable.just({target: {}})
   },
   '.bar': {
-    'scroll': Rx.Observable.just(2)
+    'scroll': Rx.Observable.just({target: {}})
   }
 });
 
