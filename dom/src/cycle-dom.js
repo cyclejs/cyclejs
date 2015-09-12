@@ -1,6 +1,7 @@
 let svg = require(`virtual-dom/virtual-hyperscript/svg`)
 let {makeDOMDriver} = require(`./render-dom`)
 let {makeHTMLDriver} = require(`./render-html`)
+let mockDOMResponse = require(`./mock-dom-response`)
 let h = require(`./virtual-hyperscript`)
 
 let CycleDOM = {
@@ -69,7 +70,7 @@ let CycleDOM = {
    * VTrees.
    * @name hJSX
    */
-  hJSX: function hJSX(tag, attrs, ...children) {
+  hJSX(tag, attrs, ...children) {
     return h(tag, attrs, children)
   },
 
@@ -77,7 +78,39 @@ let CycleDOM = {
    * A shortcut to the svg hyperscript function.
    * @name svg
    */
-  svg: svg,
+  svg,
+
+  /**
+   * A testing utility which aids in creating a queryable collection of
+   * Observables. Call mockDOMResponse giving it an object specifying selectors,
+   * eventTypes and their Observabls, and get as output an object following the
+   * same format as the DOM Driver's response. Example:
+   *
+   * ```js
+   * const userEvents = mockDOMResponse({
+   *   '.foo': {
+   *     'click': Rx.Observable.just(135),
+   *     'mouseover': Rx.Observable.just('example')
+   *   },
+   *   '.bar': {
+   *     'scroll': Rx.Observable.just(2)
+   *   }
+   * });
+   *
+   * // Usage
+   * const click$ = userEvents.select('.foo').events('click');
+   * ```
+   *
+   * @param {Object} mockedSelectors an object where keys are selector strings
+   * and values are objects. Those nested objects have eventType strings as keys
+   * and values are Observables you created.
+   * @return {Object} fake DOM response object, containin a function `select()`
+   * which can be used just like the DOM Driver's response. Call
+   * `select(selector).events(eventType)` on the response object to get the
+   * Observable you defined in the input of `mockDOMResponse`.
+   * @function mockDOMResponse
+   */
+  mockDOMResponse,
 }
 
 module.exports = CycleDOM
