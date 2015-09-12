@@ -15537,7 +15537,7 @@ module.exports = {
   makeWidgetClass: makeWidgetClass
 };
 
-},{"./render-dom":114,"@cycle/core":1}],111:[function(require,module,exports){
+},{"./render-dom":115,"@cycle/core":1}],111:[function(require,module,exports){
 "use strict";
 
 var _require = require("./custom-element-widget");
@@ -15594,6 +15594,7 @@ var _require2 = require("./render-html");
 
 var makeHTMLDriver = _require2.makeHTMLDriver;
 
+var mockDOMResponse = require("./mock-dom-response");
 var h = require("./virtual-hyperscript");
 
 var CycleDOM = {
@@ -15674,12 +15675,44 @@ var CycleDOM = {
    * A shortcut to the svg hyperscript function.
    * @name svg
    */
-  svg: svg
+  svg: svg,
+
+  /**
+   * A testing utility which aids in creating a queryable collection of
+   * Observables. Call mockDOMResponse giving it an object specifying selectors,
+   * eventTypes and their Observabls, and get as output an object following the
+   * same format as the DOM Driver's response. Example:
+   *
+   * ```js
+   * const userEvents = mockDOMResponse({
+   *   '.foo': {
+   *     'click': Rx.Observable.just(135),
+   *     'mouseover': Rx.Observable.just('example')
+   *   },
+   *   '.bar': {
+   *     'scroll': Rx.Observable.just(2)
+   *   }
+   * });
+   *
+   * // Usage
+   * const click$ = userEvents.select('.foo').events('click');
+   * ```
+   *
+   * @param {Object} mockedSelectors an object where keys are selector strings
+   * and values are objects. Those nested objects have eventType strings as keys
+   * and values are Observables you created.
+   * @return {Object} fake DOM response object, containin a function `select()`
+   * which can be used just like the DOM Driver's response. Call
+   * `select(selector).events(eventType)` on the response object to get the
+   * Observable you defined in the input of `mockDOMResponse`.
+   * @function mockDOMResponse
+   */
+  mockDOMResponse: mockDOMResponse
 };
 
 module.exports = CycleDOM;
 
-},{"./render-dom":114,"./render-html":115,"./virtual-hyperscript":117,"virtual-dom/virtual-hyperscript/svg":96}],113:[function(require,module,exports){
+},{"./mock-dom-response":114,"./render-dom":115,"./render-html":116,"./virtual-hyperscript":118,"virtual-dom/virtual-hyperscript/svg":96}],113:[function(require,module,exports){
 "use strict";
 
 var _require = require("@cycle/core");
@@ -15745,6 +15778,54 @@ function fromEvent(element, eventName) {
 module.exports = fromEvent;
 
 },{"@cycle/core":1}],114:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _cycleCore = require('@cycle/core');
+
+var emptyStream = _cycleCore.Rx.Observable.empty();
+
+function getEventsStreamForSelector(mockedEventTypes) {
+  return function getEventsStream(eventType) {
+    for (var key in mockedEventTypes) {
+      if (mockedEventTypes.hasOwnProperty(key) && key === eventType) {
+        return mockedEventTypes[key];
+      }
+    }
+    return emptyStream;
+  };
+}
+
+function mockDOMResponse() {
+  var mockedSelectors = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+  return {
+    select: function select(selector) {
+      for (var key in mockedSelectors) {
+        if (mockedSelectors.hasOwnProperty(key) && key === selector) {
+          return {
+            observable: emptyStream,
+            events: getEventsStreamForSelector(mockedSelectors[key])
+          };
+        }
+      }
+      return {
+        observable: emptyStream,
+        events: function events() {
+          return emptyStream;
+        }
+      };
+    }
+  };
+}
+
+exports['default'] = mockDOMResponse;
+module.exports = exports['default'];
+
+},{"@cycle/core":1}],115:[function(require,module,exports){
 "use strict";
 
 var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; })();
@@ -16036,7 +16117,7 @@ module.exports = {
   makeDOMDriver: makeDOMDriver
 };
 
-},{"./custom-elements":111,"./fromevent":113,"./transposition":116,"./virtual-hyperscript":117,"@cycle/core":1,"matches-selector":66,"vdom-parser":67,"virtual-dom/diff":82,"virtual-dom/patch":83}],115:[function(require,module,exports){
+},{"./custom-elements":111,"./fromevent":113,"./transposition":117,"./virtual-hyperscript":118,"@cycle/core":1,"matches-selector":66,"vdom-parser":67,"virtual-dom/diff":82,"virtual-dom/patch":83}],116:[function(require,module,exports){
 "use strict";
 
 var _require = require("@cycle/core");
@@ -16139,7 +16220,7 @@ module.exports = {
   makeHTMLDriver: makeHTMLDriver
 };
 
-},{"./custom-element-widget":110,"./custom-elements":111,"./transposition":116,"@cycle/core":1,"vdom-to-html":71}],116:[function(require,module,exports){
+},{"./custom-element-widget":110,"./custom-elements":111,"./transposition":117,"@cycle/core":1,"vdom-to-html":71}],117:[function(require,module,exports){
 "use strict";
 
 var _require = require("@cycle/core");
@@ -16176,7 +16257,7 @@ module.exports = {
   transposeVTree: transposeVTree
 };
 
-},{"@cycle/core":1,"virtual-dom/vnode/vnode":104}],117:[function(require,module,exports){
+},{"@cycle/core":1,"virtual-dom/vnode/vnode":104}],118:[function(require,module,exports){
 /* eslint-disable */
 'use strict';
 
