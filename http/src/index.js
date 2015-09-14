@@ -30,6 +30,10 @@ module.exports = {
    * - `withCredentials` *(Boolean)*: enables the ability to send cookies from
    * the origin.
    * - `redirects` *(Number)*: number of redirects to follow.
+   * - `eager` *(Boolean)*: whether or not to execute the request regardless of
+   *   usage of its corresponding response. Default value is `false` (i.e.,
+   *   the request is lazy). Main use case is: set this option to `true` if you
+   *   send POST requests and you are not interested in its response.
    *
    * **Responses**. A metastream is an Observable of Observables. The response
    * metastream emits Observables of responses. These Observables of responses
@@ -42,7 +46,7 @@ module.exports = {
    * for all requests processed by the returned HTTP Driver function. The
    * options are:
    * - `eager` *(Boolean)*: execute the HTTP eagerly, even if its
-   *   response Observable is not subscribed to. Default: **true**.
+   *   response Observable is not subscribed to. Default: **false**.
    * @return {Function} the HTTP Driver function
    * @function makeHTTPDriver
    */

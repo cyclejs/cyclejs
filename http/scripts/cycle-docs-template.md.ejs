@@ -2,12 +2,7 @@
   # `CycleHTTP` object API
 
   <? doc.javadoc.forEach(function(comment) { ?>
-    <? if (!comment.ignore) { ?>
-      <? if (comment.name) { ?>
-        - [`<?= comment.name ?>`](#<?= comment.name ?>)
-      <? } ?>
-    <? } ?>
-  <? }) ?>
+    <? if (!comment.ignore) { ?><? if (comment.name) { ?>- [`<?= comment.name ?>`](#<?= comment.name ?>)<? } ?><? } ?><? }) ?>
 
   <? doc.javadoc.forEach(function(comment) { ?>
     <? if (!comment.ignore) { ?>
