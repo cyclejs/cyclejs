@@ -41,7 +41,7 @@ module.exports = {
    * @param {Object} options an object with settings options that apply globally
    * for all requests processed by the returned HTTP Driver function. The
    * options are:
-   * - `autoSubscribe` *(Boolean)*: execute the HTTP eagerly, even if its
+   * - `eager` *(Boolean)*: execute the HTTP eagerly, even if its
    *   response Observable is not subscribed to. Default: **true**.
    * @return {Function} the HTTP Driver function
    * @function makeHTTPDriver

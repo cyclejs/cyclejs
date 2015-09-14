@@ -13,14 +13,14 @@ var makeHTTPDriver = src.makeHTTPDriver;
 var globalSandbox = require('./support/global');
 
 describe('HTTP Driver in Node.js', function () {
-  it('should auto-execute HTTP request when factory gets autoSubscribe = true',
+  it('should auto-execute HTTP request when factory gets eager = true',
     function(done) {
       var request$ = Cycle.Rx.Observable.just({
         url: uri + '/pet',
         method: 'POST',
         send: {name: 'Woof', species: 'Dog'}
       });
-      var httpDriver = makeHTTPDriver({autoSubscribe: true});
+      var httpDriver = makeHTTPDriver({eager: true});
       globalSandbox.petPOSTResponse = null;
       httpDriver(request$);
       setTimeout(function () {
@@ -32,12 +32,30 @@ describe('HTTP Driver in Node.js', function () {
     }
   );
 
-  it('should auto-execute HTTP request by default',
+  it('should not auto-execute HTTP request by default',
     function(done) {
       var request$ = Cycle.Rx.Observable.just({
         url: uri + '/pet',
         method: 'POST',
         send: {name: 'Woof', species: 'Dog'}
+      });
+      var httpDriver = makeHTTPDriver();
+      globalSandbox.petPOSTResponse = null;
+      httpDriver(request$);
+      setTimeout(function () {
+        assert.strictEqual(globalSandbox.petPOSTResponse, null);
+        done();
+      }, 100);
+    }
+  );
+
+  it('should auto-execute HTTP request if the request has eager = true',
+    function(done) {
+      var request$ = Cycle.Rx.Observable.just({
+        url: uri + '/pet',
+        method: 'POST',
+        send: {name: 'Woof', species: 'Dog'},
+        eager: true
       });
       var httpDriver = makeHTTPDriver();
       globalSandbox.petPOSTResponse = null;
@@ -51,14 +69,14 @@ describe('HTTP Driver in Node.js', function () {
     }
   );
 
-  it('should not auto-execute HTTP request when factory gets autoSubscribe = false',
+  it('should not auto-execute HTTP request when factory gets eager = false',
     function(done) {
       var request$ = Cycle.Rx.Observable.just({
         url: uri + '/pet',
         method: 'POST',
         send: {name: 'Woof', species: 'Dog'}
       });
-      var httpDriver = makeHTTPDriver({autoSubscribe: false});
+      var httpDriver = makeHTTPDriver({eager: false});
       globalSandbox.petPOSTResponse = null;
       httpDriver(request$);
       setTimeout(function () {

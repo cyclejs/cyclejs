@@ -97,21 +97,20 @@ function createResponse$(reqOptions) {
   })
 }
 
-function makeHTTPDriver({autoSubscribe = true} = {autoSubscribe: true}) {
+function makeHTTPDriver({eager = false} = {eager: false}) {
   return function httpDriver(request$) {
-    let response$$ = request$.map(reqOptions => {
-      let response$ = createResponse$(reqOptions)
-      if (autoSubscribe) {
-        response$ = response$.replay(null, 1)
-        response$.connect()
-      }
-      response$.request = reqOptions
-      return response$
-    })
-    if (autoSubscribe) {
-      response$$ = response$$.replay(null, 1)
-      response$$.connect()
-    }
+    let response$$ = request$
+      .map(reqOptions => {
+        let response$ = createResponse$(reqOptions)
+        if (eager || reqOptions.eager) {
+          response$ = response$.replay(null, 1)
+          response$.connect()
+        }
+        response$.request = reqOptions
+        return response$
+      })
+      .replay(null, 1)
+    response$$.connect()
     return response$$
   }
 }
