@@ -182,6 +182,17 @@ function makeResponseGetter(rootElem$) {
   }
 }
 
+function confineResponse(response, scope) {
+  return response.select(scope)
+}
+
+function confineRequest(request, scope) {
+  return request.map(vtree => {
+    vtree.properties.className += scope
+    return vtree
+  })
+}
+
 function makeEventsSelector(element$) {
   return function events(eventName, useCapture = false) {
     if (typeof eventName !== `string`) {
@@ -203,17 +214,24 @@ function makeElementSelector(rootElem$) {
       throw new Error(`DOM driver's select() expects first argument to be a ` +
         `string as a CSS selector`)
     }
-    let element$ = selector.trim() === `:root` ? rootElem$ :
-      rootElem$.map(rootElem => {
-        if (matchesSelector(rootElem, selector)) {
+    let scopedSelector = this.namespace.join(` `) + selector
+    let element$ = selector.trim() === `:root` ? rootElem$ : rootElem$
+      .map(root => typeof root.length === `number` ? root[0] : root)
+      .map(rootElem => {
+        if (matchesSelector(rootElem, scopedSelector)) {
           return rootElem
         } else {
-          return rootElem.querySelectorAll(selector)
+          return rootElem.querySelectorAll(scopedSelector)
         }
       })
+      .filter(elem => elem.length !== 0)
     return {
       observable: element$,
+      namespace: this.namespace.concat(selector),
+      select: makeElementSelector(element$),
       events: makeEventsSelector(element$),
+      confineResponse,
+      confineRequest,
     }
   }
 }
@@ -237,9 +255,12 @@ function makeDOMDriverWithRegistry(container, CERegistry) {
     let rootElem$ = fixRootElem$(rawRootElem$, container).replay(null, 1)
     let disposable = rootElem$.connect()
     return {
+      namespace: [],
       get: makeResponseGetter(rootElem$),
       select: makeElementSelector(rootElem$),
       dispose: disposable.dispose.bind(disposable),
+      confineResponse,
+      confineRequest,
     }
   }
 }
