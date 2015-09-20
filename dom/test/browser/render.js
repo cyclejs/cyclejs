@@ -263,6 +263,47 @@ describe('Rendering', function () {
         });
     });
 
+    it('should catch events from many elements using DOM.select().events()', function (done) {
+      function app() {
+        return {
+          DOM: Rx.Observable.just(h('div.parent', [
+            h('h4.clickable.first', 'First'),
+            h('h4.clickable.second', 'Second'),
+          ]))
+        };
+      }
+      let [requests, responses] = Cycle.run(app, {
+        DOM: makeDOMDriver(createRenderTarget())
+      });
+      let clicks = [];
+      // Make assertions
+      responses.DOM.select('.clickable').events('click').elementAt(0)
+        .subscribe(ev => {
+          assert.strictEqual(ev.type, 'click');
+          assert.strictEqual(ev.target.textContent, 'First');
+        });
+      responses.DOM.select('.clickable').events('click').elementAt(1)
+        .subscribe(ev => {
+          assert.strictEqual(ev.type, 'click');
+          assert.strictEqual(ev.target.textContent, 'Second');
+          responses.dispose();
+          done();
+        });
+      responses.DOM.select(':root').observable.skip(1).take(1)
+        .subscribe(function (root) {
+          let firstElem = root.querySelector('.first');
+          let secondElem = root.querySelector('.second');
+          assert.notStrictEqual(firstElem, null);
+          assert.notStrictEqual(typeof firstElem, 'undefined');
+          assert.notStrictEqual(secondElem, null);
+          assert.notStrictEqual(typeof secondElem, 'undefined');
+          assert.doesNotThrow(function () {
+            firstElem.click();
+            setTimeout(() => secondElem.click(), 1);
+          });
+        });
+    });
+
     it('should catch interaction events using id in DOM.select', function (done) {
       function app() {
         return {
