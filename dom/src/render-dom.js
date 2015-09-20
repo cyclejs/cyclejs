@@ -183,7 +183,7 @@ function makeResponseGetter(rootElem$) {
 }
 
 function confineResponse(response, scope) {
-  return response.select(scope)
+  return response.select(`.${scope}`)
 }
 
 function confineRequest(request, scope) {
