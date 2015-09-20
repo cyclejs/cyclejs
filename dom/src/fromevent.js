@@ -28,6 +28,14 @@ function createEventListener({element, eventName, handler, useCapture}) {
           handler,
           useCapture}))
     }
+  } else if (Array.isArray(element)) {
+    for (let i = 0, len = element.length; i < len; i++) {
+      disposables.add(createEventListener({
+          element: element[i],
+          eventName,
+          handler,
+          useCapture}))
+    }
   } else if (element) {
     disposables.add(createListener({element, eventName, handler, useCapture}))
   }

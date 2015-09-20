@@ -307,14 +307,14 @@ describe('Rendering', function () {
     it('should catch interaction events using id in DOM.select', function (done) {
       function app() {
         return {
-          DOM: Rx.Observable.just(h('h3.myelementclass', 'Foobar'))
+          DOM: Rx.Observable.just(h('h3#myElementId', 'Foobar'))
         };
       }
       let [requests, responses] = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget('parent-002'))
       });
       // Make assertions
-      responses.DOM.select('#parent-002').events('click').subscribe(ev => {
+      responses.DOM.select('#myElementId').events('click').subscribe(ev => {
         assert.strictEqual(ev.type, 'click');
         assert.strictEqual(ev.target.textContent, 'Foobar');
         responses.dispose();
@@ -322,7 +322,7 @@ describe('Rendering', function () {
       });
       responses.DOM.select(':root').observable.skip(1).take(1)
         .subscribe(function (root) {
-          let myElement = root.querySelector('.myelementclass');
+          let myElement = root.querySelector('#myElementId');
           assert.notStrictEqual(myElement, null);
           assert.notStrictEqual(typeof myElement, 'undefined');
           assert.strictEqual(myElement.tagName, 'H3');
@@ -363,18 +363,48 @@ describe('Rendering', function () {
         });
         // Make assertions
         responses.DOM.select('.myelementclass').observable.skip(1).take(1)
-          .subscribe(elem => {
-            assert.notStrictEqual(elem, null);
-            assert.notStrictEqual(typeof elem, 'undefined');
-            // Is a NodeList
-            assert.strictEqual(Array.isArray(elem), false);
-            assert.strictEqual(elem.length, 1);
-            // NodeList with the H3 element
-            assert.strictEqual(elem[0].tagName, 'H3');
-            assert.strictEqual(elem[0].textContent, 'Foobar');
+          .subscribe(elements => {
+            assert.notStrictEqual(elements, null);
+            assert.notStrictEqual(typeof elements, 'undefined');
+            // Is an Array
+            assert.strictEqual(Array.isArray(elements), true);
+            assert.strictEqual(elements.length, 1);
+            // Array with the H3 element
+            assert.strictEqual(elements[0].tagName, 'H3');
+            assert.strictEqual(elements[0].textContent, 'Foobar');
             responses.dispose();
             done();
           });
+      });
+
+      it('should not select element outside the given scope', function (done) {
+        function app() {
+          return {
+            DOM: Rx.Observable.just(
+              h('h3.top-most', [
+                h('h2.bar', 'Wrong'),
+                h('div.foo', [
+                  h('h2.bar', 'Correct')
+                ])
+              ])
+            )
+          };
+        }
+        let [requests, responses] = Cycle.run(app, {
+          DOM: makeDOMDriver(createRenderTarget())
+        });
+        // Make assertions
+        responses.DOM.select('.foo').select('.bar').observable.skip(1).take(1)
+          .subscribe(elements => {
+            assert.strictEqual(elements.length, 1);
+            let element = elements[0];
+            assert.notStrictEqual(element, null);
+            assert.notStrictEqual(typeof element, 'undefined');
+            assert.strictEqual(element.tagName, 'H2');
+            assert.strictEqual(element.textContent, 'Correct');
+            responses.dispose();
+            done();
+          })
       });
     });
 

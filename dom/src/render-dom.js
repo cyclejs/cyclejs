@@ -146,6 +146,8 @@ function renderRawRootElem$(vtree$, domContainer, {CERegistry, driverName}) {
     .flatMap(diffAndPatchToElement$)
 }
 
+// TODO When we remove this function, also refactor `fromEvent` to assume
+// always an array as the `targetElements` input
 function makeRootElemToEvent$(selector, eventName) {
   return function rootElemToEvent$(rootElem) {
     if (!rootElem) {
@@ -199,32 +201,33 @@ function makeEventsSelector(element$) {
       throw new Error(`DOM driver's get() expects second argument to be a ` +
         `string representing the event type to listen for.`)
     }
-    return element$.flatMapLatest(element => {
-      if (!element) {
+    return element$.flatMapLatest(elements => {
+      if (!elements) {
         return Rx.Observable.empty()
       }
-      return fromEvent(element, eventName, useCapture)
+      return fromEvent(elements, eventName, useCapture)
     }).share()
   }
 }
 
-function makeElementSelector(rootElem$) {
+function makeElementSelector(rootEl$) {
   return function select(selector) {
     if (typeof selector !== `string`) {
       throw new Error(`DOM driver's select() expects first argument to be a ` +
         `string as a CSS selector`)
     }
-    let scopedSelector = this.namespace.join(` `) + selector
-    let element$ = selector.trim() === `:root` ? rootElem$ : rootElem$
-      .map(root => typeof root.length === `number` ? root[0] : root)
-      .map(rootElem => {
-        if (matchesSelector(rootElem, scopedSelector)) {
-          return rootElem
+    let scopedSelector = `${this.namespace.join(` `)} ${selector}`.trim()
+    let element$ = selector.trim() === `:root` ? rootEl$ : rootEl$.map(x => {
+      let array = Array.isArray(x) ? x : [x]
+      return array.map(element => {
+        if (matchesSelector(element, scopedSelector)) {
+          return [element]
         } else {
-          return rootElem.querySelectorAll(scopedSelector)
+          let nodeList = element.querySelectorAll(scopedSelector)
+          return Array.prototype.slice.call(nodeList)
         }
-      })
-      .filter(elem => elem.length !== 0)
+      }).reduce((prev, curr) => prev.concat(curr), [])
+    })
     return {
       observable: element$,
       namespace: this.namespace.concat(selector),
