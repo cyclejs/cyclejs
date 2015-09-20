@@ -188,7 +188,7 @@ function confineResponse(response, scope) {
 
 function confineRequest(request, scope) {
   return request.map(vtree => {
-    vtree.properties.className += scope
+    vtree.properties.className = `${vtree.properties.className} ${scope}`.trim()
     return vtree
   })
 }
