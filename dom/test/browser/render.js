@@ -263,6 +263,46 @@ describe('Rendering', function () {
         });
     });
 
+    it('should catch user events using DOM.select().select().events()', function (done) {
+      function app() {
+        return {
+          DOM: Rx.Observable.just(
+            h('h3.top-most', [
+              h('h2.bar', 'Wrong'),
+              h('div.foo', [
+                h('h4.bar', 'Correct')
+              ])
+            ])
+          )
+        };
+      }
+      let [requests, responses] = Cycle.run(app, {
+        DOM: makeDOMDriver(createRenderTarget())
+      });
+      // Make assertions
+      responses.DOM.select('.foo').select('.bar').events('click').subscribe(ev => {
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual(ev.target.textContent, 'Correct');
+        responses.dispose();
+        done();
+      });
+      responses.DOM.select(':root').observable.skip(1).take(1)
+        .subscribe(function (root) {
+          let wrongElement = root.querySelector('.bar');
+          let correctElement = root.querySelector('.foo .bar');
+          assert.notStrictEqual(wrongElement, null);
+          assert.notStrictEqual(correctElement, null);
+          assert.notStrictEqual(typeof wrongElement, 'undefined');
+          assert.notStrictEqual(typeof correctElement, 'undefined');
+          assert.strictEqual(wrongElement.tagName, 'H2');
+          assert.strictEqual(correctElement.tagName, 'H4');
+          assert.doesNotThrow(function () {
+            wrongElement.click();
+            setTimeout(() => correctElement.click(), 5);
+          });
+        });
+    });
+
     it('should catch events from many elements using DOM.select().events()', function (done) {
       function app() {
         return {
@@ -384,7 +424,7 @@ describe('Rendering', function () {
               h('h3.top-most', [
                 h('h2.bar', 'Wrong'),
                 h('div.foo', [
-                  h('h2.bar', 'Correct')
+                  h('h4.bar', 'Correct')
                 ])
               ])
             )
@@ -400,7 +440,7 @@ describe('Rendering', function () {
             let element = elements[0];
             assert.notStrictEqual(element, null);
             assert.notStrictEqual(typeof element, 'undefined');
-            assert.strictEqual(element.tagName, 'H2');
+            assert.strictEqual(element.tagName, 'H4');
             assert.strictEqual(element.textContent, 'Correct');
             responses.dispose();
             done();
