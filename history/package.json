@@ -1,13 +1,13 @@
 {
   "name": "cycle-history",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Cycle.js Driver based on the rackt/history library",
   "main": "lib/index.js",
   "scripts": {
     "prebuild": "npm test",
     "build": "./node_modules/.bin/babel src -d lib/",
     "test": "./node_modules/.bin/browserify -t babelify ./tests | ./node_modules/.bin/testling",
-    "publish-to-npm": "npm test && npm publish",
+    "publish": "npm build && npm publish",
     "git-push": "npm test && git push"
   },
   "repository": {

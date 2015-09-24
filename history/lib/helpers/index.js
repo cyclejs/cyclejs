@@ -7,7 +7,7 @@ var supportsHistory = function supportsHistory() {
   var ua = navigator.userAgent;
 
   // We only want Android 2 and 4.0, stock browser, and not Chrome which identifies
-  // itself as 'Mobile Safari' as well, nor Windows Phone (issue #1471).
+  // itself as 'Mobile Safari' as well, nor Windows Phone (Modernizr issue #1471).
   if ((ua.indexOf('Android 2.') !== -1 || ua.indexOf('Android 4.0') !== -1) && ua.indexOf('Mobile Safari') !== -1 && ua.indexOf('Chrome') === -1 && ua.indexOf('Windows Phone') === -1) {
     return false;
   }
@@ -22,11 +22,12 @@ var which = function which(event) {
 };
 
 var sameOrigin = function sameOrigin(href) {
-  var origin = location.protocol + '//location.hostname';
+  var origin = location.protocol + '//' + location.hostname;
   if (location.port) origin += ':' + location.port;
   return href && 0 === href.indexOf(origin);
 };
 
+// Adapted from page.js
 var filterLinks = function filterLinks(event) {
 
   if (1 !== which(event)) return false;
@@ -45,7 +46,7 @@ var filterLinks = function filterLinks(event) {
 
   var link = target.getAttribute('href');
 
-  if (target.pathname === location.pathname && (target.has || "#" === link)) return false;
+  if (target.pathname === location.pathname && (target.hash || "#" === link)) return false;
 
   if (link && link.indexOf('mailto:') > -1) return false;
 
@@ -61,7 +62,7 @@ var filterLinks = function filterLinks(event) {
   }
 
   // We want to handle this link.
-  e.preventDefault();
+  event.preventDefault();
   return true;
 };
 

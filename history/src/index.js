@@ -1,18 +1,20 @@
 import {Rx} from '@cycle/core';
-import {createHistory, createHashHistory, useQueries} from 'history';
+import createHistory from 'history/lib/createHistory';
+import createHashHistory from 'history/lib/createHashHistory';
+import useQueries from 'history/lib/useQueries';
 import {filterLinks, supportsHistory} from './helpers';
 
-const  makeHistory = (hash, useQueries, options) => {
+const  makeHistory = (hash, queries, options) => {
   hash = hash || supportsHistory();
-  if (hash && useQueries) return useQueries(createHashHistory)(options);
-  if (hash && !useQueries) return createHashHistory(options);
-  if (!hash && useQueries) return useQueries(createHistory)(options);
-  if (!hash && !useQueries) return createHistory(options);
+  if (hash && queries) return useQueries(createHashHistory)(options);
+  if (hash && !queries) return createHashHistory(options);
+  if (!hash && queries) return useQueries(createHistory)(options);
+  if (!hash && !queries) return createHistory(options);
 }
 
 const createPushState = history => {
 
-  return  pushState = path => {
+  return function pushState(path) {
     if ('string' === typeof url) history.pushState({}, url);
     // Is an object with state and path;
     else if ('object' === typeof url) {
@@ -39,20 +41,19 @@ const createHistorySubject = (history) => {
   return subject;
 }
 
-const  makeHistoryDriver = ( { hash = false, useQueries = true, ...options } ) => {
+const  makeHistoryDriver = ( { hash = false, queries = true, ...options } ) => {
 
-  const history = makeHistory(hash, useQueries, options);
+  const history = makeHistory(hash, queries, options);
   const historySubject = createHistorySubject(history);
 
-  return  historyDriver = url$ => {
-
+  return function historyDriver(url$) {
     url$
-      .subscribe(createPushState(history));
+      .distinctUntilChanged()
+      .subscribe( createPushState(history) );
 
-    history.listen(location => historySubject.onNext(location));
+    history.listen( location => historySubject.onNext(location) );
 
     return historySubject;
-
   }
 }
 
