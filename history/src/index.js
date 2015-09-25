@@ -1,11 +1,9 @@
 import {Rx} from '@cycle/core';
-import createHistory from 'history/lib/createHistory';
-import createHashHistory from 'history/lib/createHashHistory';
-import useQueries from 'history/lib/useQueries';
+import {createHistory, createHashHistory, useQueries} from 'history';
 import {filterLinks, supportsHistory} from './helpers';
 
 const  makeHistory = (hash, queries, options) => {
-  hash = hash || supportsHistory();
+  hash = hash || !supportsHistory();
   if (hash && queries) return useQueries(createHashHistory)(options);
   if (hash && !queries) return createHashHistory(options);
   if (!hash && queries) return useQueries(createHistory)(options);
@@ -34,15 +32,12 @@ const createHistorySubject = (history) => {
   // To be removed if unneeded.
   Object.keys(history).forEach(key => {
     if (key !== 'listen') subject[key] = history[key];
-  })
-  // More descriptive
-  subject.location = subject.value;
+  });
 
   return subject;
 }
 
 const  makeHistoryDriver = ( { hash = false, queries = true, ...options } ) => {
-
   const history = makeHistory(hash, queries, options);
   const historySubject = createHistorySubject(history);
 
@@ -53,11 +48,38 @@ const  makeHistoryDriver = ( { hash = false, queries = true, ...options } ) => {
 
     history.listen( location => historySubject.onNext(location) );
 
+    // Convenience
+    historySubject.location = historySubject.value;
+
     return historySubject;
+  }
+}
+
+const makeServerHistoryDriver = startUrl => {
+
+  return function historyDriver(url$) {
+    let subject = new Rx.BehaviorSubject({
+      pathname: startUrl,
+      search: '',
+      state: '',
+      action: '',
+      key: ''
+    });
+
+    url$.subscribe(url => subject.onNext({
+      pathname: url,
+      search: '',
+      state: '',
+      action: '',
+      key: ''
+    }));
+
+    return subject;
   }
 }
 
 export {
   makeHistoryDriver,
+  makeServerHistoryDriver,
   filterLinks
 };
