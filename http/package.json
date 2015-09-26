@@ -10,27 +10,27 @@
     "url": "https://github.com/cyclejs/cycle-http-driver"
   },
   "dependencies": {
-    "superagent": "^1.2.0"
+    "superagent": "1.4.0"
   },
   "peerDependencies": {
     "@cycle/core": "3.x.x"
   },
   "devDependencies": {
-    "@cycle/core": "3.x.x",
-    "babel": "5.8.x",
-    "babelify": "6.1.x",
+    "@cycle/core": "3.1.0",
+    "babel": "5.8.23",
+    "babelify": "6.1.3",
     "body-parser": "1.13.3",
     "browserify": "11.0.1",
     "cookie-parser": "1.3.5",
-    "eslint": "1.0.x",
-    "eslint-config-cycle": "3.0.x",
-    "eslint-plugin-cycle": "1.0.x",
-    "eslint-plugin-no-class": "0.1.x",
-    "express": "4.13.x",
+    "eslint": "1.0.0",
+    "eslint-config-cycle": "3.0.0",
+    "eslint-plugin-cycle": "1.0.1",
+    "eslint-plugin-no-class": "0.1.0",
+    "express": "4.13.3",
     "markdox": "0.1.9",
     "mocha": "2.2.5",
     "uglify-js": "2.4.24",
-    "zuul": "^3.2.0"
+    "zuul": "3.6.0"
   },
   "scripts": {
     "eslint": "eslint src/",
