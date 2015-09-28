@@ -14,25 +14,24 @@ var _helpers = require('./helpers');
 
 var makeHistory = function makeHistory(hash, queries, options) {
   hash = hash || !(0, _helpers.supportsHistory)();
-  if (hash && queries) return (0, _history.useQueries)(_history.createHashHistory)(options);
-  if (hash && !queries) return (0, _history.createHashHistory)(options);
-  if (!hash && queries) return (0, _history.useQueries)(_history.createHistory)(options);
-  if (!hash && !queries) return (0, _history.createHistory)(options);
+  if (hash && queries) return (0, _history.useQueries)((0, _history.useBasename)(_history.createHashHistory))(options);
+  if (hash && !queries) return (0, _history.useBasename)(_history.createHashHistory)(options);
+  if (!hash && queries) return (0, _history.useQueries)((0, _history.useBasename)(_history.createHistory))(options);
+  if (!hash && !queries) return (0, _history.useBasename)(_history.createHistory)(options);
 };
 
-var createPushState = function createPushState(history) {
+var createPushState = function createPushState(history, basename) {
 
-  return function pushState(path) {
-    if ('string' === typeof url) history.pushState({}, url);
+  return function pushState(url) {
+    if ('string' === typeof url) history.pushState({}, url.replace(basename, ''));
     // Is an object with state and path;
     else if ('object' === typeof url) {
-        var _url = url;
-        var state = _url.state;
-        var _path = _url.path;
+        var state = url.state;
+        var path = url.path;
 
-        history.pushState(state, _path);
+        history.pushState(state, path.replace(basename, ''));
       } else {
-        throw new Error("History Driver input must be a string or object { state: { the: 'state' }, path : '/path' }");
+        throw new Error('History Driver input must be a string or object { state: { the: \'state\' }, path : \'/path\' }") but received ' + typeof url);
       }
   };
 };
@@ -57,11 +56,13 @@ var makeHistoryDriver = function makeHistoryDriver(_ref) {
 
   var options = _objectWithoutProperties(_ref, ['hash', 'queries']);
 
+  // hash:boolean, queries: boolean, options: Object, baseName: string
+
   var history = makeHistory(hash, queries, options);
   var historySubject = createHistorySubject(history);
 
   return function historyDriver(url$) {
-    url$.distinctUntilChanged().subscribe(createPushState(history));
+    url$.distinctUntilChanged().subscribe(createPushState(history, options.basename || ''));
 
     history.listen(function (location) {
       return historySubject.onNext(location);
@@ -74,25 +75,15 @@ var makeHistoryDriver = function makeHistoryDriver(_ref) {
   };
 };
 
-var makeServerHistoryDriver = function makeServerHistoryDriver(startUrl) {
+var makeServerHistoryDriver = function makeServerHistoryDriver(startingLocation) {
 
-  return function historyDriver(url$) {
-    var subject = new _cycleCore.Rx.BehaviorSubject({
-      pathname: startUrl,
-      search: '',
-      state: '',
-      action: '',
-      key: ''
-    });
+  return function historyDriver(location$) {
+    var subject = new _cycleCore.Rx.BehaviorSubject(startingLocation);
 
-    url$.subscribe(function (url) {
-      return subject.onNext({
-        pathname: url,
-        search: '',
-        state: '',
-        action: '',
-        key: ''
-      });
+    location$.subscribe(function (pathname) {
+      var location = startingLocation;
+      location.pathname = pathname;
+      subject.onNext(location);
     });
 
     return subject;
