@@ -63,7 +63,7 @@ const filterLinks = (event) => {
   if (event.defaultPrevented) return true;
   // We want to handle this link.
   event.preventDefault();
-  return false;
+  return true;
 
 }
 
