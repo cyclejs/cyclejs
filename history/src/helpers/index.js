@@ -36,7 +36,6 @@ const filterLinks = (event) => {
 
 
   let target = event.target;
-  console.log(target);
   // Make sure you're grabbing the link not a child.
   while (target && 'A' !== target.nodeName) target = target.parentNode;
   if (!target || 'A' !== target.nodeName) return false;
