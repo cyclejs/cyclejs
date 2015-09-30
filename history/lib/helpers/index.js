@@ -30,29 +30,27 @@ var sameOrigin = function sameOrigin(href) {
 // Adapted from page.js
 var filterLinks = function filterLinks(event) {
 
-  if (1 !== which(event)) return true;
+  if (1 !== which(event)) return false;
 
-  if (event.metaKey || event.ctrlKey || event.shiftKey) return true;
-
-  if (event.defaultPrevented) return true;
+  if (event.metaKey || event.ctrlKey || event.shiftKey) return false;
 
   var target = event.target;
-
+  console.log(target);
   // Make sure you're grabbing the link not a child.
   while (target && 'A' !== target.nodeName) target = target.parentNode;
-  if (!target || 'A' !== target.nodeName) return true;
+  if (!target || 'A' !== target.nodeName) return false;
 
-  if (target.hasAttribute('download') || target.getAttribute('rel') === 'external') return true;
+  if (target.hasAttribute('download') || target.getAttribute('rel') === 'external') return false;
 
   var link = target.getAttribute('href');
 
-  if (target.pathname === location.pathname && (target.hash || "#" === link)) return true;
+  if (target.pathname === location.pathname && (target.hash || "#" === link)) return false;
 
-  if (link && link.indexOf('mailto:') > -1) return true;
+  if (link && link.indexOf('mailto:') > -1) return false;
 
-  if (target.target) return true;
+  if (target.target) return;
 
-  if (!sameOrigin(target.href)) return true;
+  if (!sameOrigin(target.href)) return false;
 
   var path = target.pathname + target.search + (target.hash || '');
 
@@ -61,6 +59,7 @@ var filterLinks = function filterLinks(event) {
     path = path.replace(/^\/[a-zA-Z]:\//, '/');
   }
 
+  if (event.defaultPrevented) return true;
   // We want to handle this link.
   event.preventDefault();
   return false;
