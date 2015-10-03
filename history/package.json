@@ -1,6 +1,6 @@
 {
   "name": "cycle-history",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "Cycle.js Driver based on the rackt/history library",
   "main": "lib/index.js",
   "repository": {
