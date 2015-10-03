@@ -1,68 +1,123 @@
-'use strict';
+/* global window, navigator, location */
 
-Object.defineProperty(exports, '__esModule', {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var supportsHistory = function supportsHistory() {
+function supportsHistory() {
   var ua = navigator.userAgent;
 
-  // We only want Android 2 and 4.0, stock browser, and not Chrome which identifies
-  // itself as 'Mobile Safari' as well, nor Windows Phone (Modernizr issue #1471).
-  if ((ua.indexOf('Android 2.') !== -1 || ua.indexOf('Android 4.0') !== -1) && ua.indexOf('Mobile Safari') !== -1 && ua.indexOf('Chrome') === -1 && ua.indexOf('Windows Phone') === -1) {
-    return false;
+  if ((ua.indexOf("Android 2.") !== -1 || ua.indexOf("Android 4.0") !== -1) && ua.indexOf("Mobile Safari") !== -1 && ua.indexOf("Chrome") === -1 && ua.indexOf("Windows Phone") === -1) {
+    {
+      return false;
+    }
   }
 
   // Return the regular check
-  return window.history && 'pushState' in window.history;
-};
+  return window.history && "pushState" in window.history;
+}
 
-var which = function which(event) {
-  event = event || window.event;
-  return null === event.which ? event.button : event.which;
-};
+function which(event) {
+  var _event = event || window.event;
+  _event = _event.which ? _event.button : _event.which;
+  return _event;
+}
 
 var sameOrigin = function sameOrigin(href) {
-  var origin = location.protocol + '//' + location.hostname;
-  if (location.port) origin += ':' + location.port;
-  return href && 0 === href.indexOf(origin);
-};
-
-// Adapted from page.js
-var filterLinks = function filterLinks(event) {
-
-  if (1 !== which(event)) return false;
-
-  if (event.metaKey || event.ctrlKey || event.shiftKey) return false;
-
-  var target = event.target;
-  // Make sure you're grabbing the link not a child.
-  while (target && 'A' !== target.nodeName) target = target.parentNode;
-  if (!target || 'A' !== target.nodeName) return false;
-
-  if (target.hasAttribute('download') || target.getAttribute('rel') === 'external') return false;
-
-  var link = target.getAttribute('href');
-
-  if (target.pathname === location.pathname && (target.hash || "#" === link)) return false;
-
-  if (link && link.indexOf('mailto:') > -1) return false;
-
-  if (target.target) return;
-
-  if (!sameOrigin(target.href)) return false;
-
-  var path = target.pathname + target.search + (target.hash || '');
-
-  // strip leading "/[drive letter]:" on NW.js on Windows
-  if (typeof process !== 'undefined' && path.match(/^\/[a-zA-Z]:\//)) {
-    path = path.replace(/^\/[a-zA-Z]:\//, '/');
+  var origin = location.protocol + "//" + location.hostname;
+  if (location.port) {
+    origin += ":" + location.port;
   }
-
-  if (event.defaultPrevented) return true;
-  // We want to handle this link.
-  event.preventDefault();
-  return true;
+  var _href = href && href.indexOf(origin) === 0;
+  return _href;
 };
+
+function testEvent(event) {
+  if (which(event) !== 1) {
+    return false;
+  }
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.defaultPrevented) {
+    return false;
+  }
+  return true;
+}
+
+function validateLink(target) {
+  var validTarget = target;
+  while (validTarget && "A" !== validTarget.nodeName) {
+    validTarget = validTarget.parentNode;
+  }
+  if (!validTarget || "A" !== validTarget.nodeName) {
+    return false;
+  }
+  return validTarget;
+}
+
+function isDownloadLink(target) {
+  if (target.hasAttribute("download")) {
+    return true;
+  }
+  return false;
+}
+
+function isExternalLink(target) {
+  if (target.getAttribute("rel") === "external") {
+    return true;
+  }
+  return false;
+}
+
+function isCurrentPath(target) {
+  if (target.pathname === location.pathname && (target.hash || target.getAttribute("href") === "#")) {
+    return true;
+  }
+  return false;
+}
+
+function isMailLink(target) {
+  if (target.getAttribute("href") && target.getAttribute("href").indexOf("mailto:") > -1) {
+    return true;
+  }
+  return false;
+}
+
+function testTarget(target) {
+  // Make sure you`re grabbing the link not a child.
+  var _target = validateLink(target);
+  if (_target === false) {
+    return false;
+  }
+  if (isDownloadLink(_target)) {
+    return false;
+  }
+  if (isExternalLink(_target)) {
+    return false;
+  }
+  if (_target.target) {
+    return false;
+  }
+  if (!sameOrigin(_target.href)) {
+    return false;
+  }
+  if (isCurrentPath(_target)) {
+    return false;
+  }
+  if (isMailLink(_target)) {
+    return false;
+  }
+  return true;
+}
+
+function filterLinks(event) {
+  if (!testEvent(event)) {
+    return false;
+  }
+  if (!testTarget(event.target)) {
+    return false;
+  }
+  return true;
+}
 
 exports.filterLinks = filterLinks;
 exports.supportsHistory = supportsHistory;

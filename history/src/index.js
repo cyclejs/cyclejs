@@ -1,74 +1,94 @@
-import {Rx} from '@cycle/core';
-import {createHistory, createHashHistory, useQueries, useBasename} from 'history';
-import {filterLinks, supportsHistory} from './helpers';
+/* global require */
+const {Rx} = require(`@cycle/core`)
+const {
+  createHistory,
+  createHashHistory,
+  useQueries,
+  useBasename,
+} = require(`history`)
+const {filterLinks, supportsHistory} = require(`./helpers`)
 
-const  makeHistory: Function = (hash: boolean, queries: boolean, options: Object) => {
-  hash = hash || !supportsHistory();
-  if (hash && queries) return useQueries(useBasename(createHashHistory))(options);
-  if (hash && !queries) return useBasename(createHashHistory)(options);
-  if (!hash && queries) return useQueries(useBasename(createHistory))(options);
-  if (!hash && !queries) return useBasename(createHistory)(options);
+function makeHistory(hash, queries, options) {
+  const useHash = hash || !supportsHistory()
+  if (useHash && queries) {
+    return useQueries(useBasename(createHashHistory))(options)
+  }
+  if (useHash && !queries) {
+    return useBasename(createHashHistory)(options)
+  }
+  if (!useHash && queries) {
+    return useQueries(useBasename(createHistory))(options)
+  }
+  if (!useHash && !queries) {
+    return useBasename(createHistory)(options)
+  }
 }
 
-const createPushState: Function = (history: Object, basename: string) => {
-
-  return function pushState(url: string|Object): void {
-    if ('string' === typeof url) history.pushState({}, url.replace(basename, ''));
-    // Is an object with state and path;
-    else if ('object' === typeof url) {
-      let {state, path} = url;
-      history.pushState(state, path.replace(basename, ''))
+function createPushState(history, basename) {
+  return function pushState(url) {
+    if (`string` === typeof url) {
+      history.pushState({}, url.replace(basename, ``))
+    } else if (`object` === typeof url) {
+      let {state, path, query} = url
+      history.pushState(state, path.replace(basename, ``), query)
     } else {
-      throw new Error(`History Driver input must be a string or object { state: { the: 'state' }, path : '/path' }") but received ${typeof url}`)
+      throw new Error(`History Driver input must be a string or
+        object but received ${typeof url}`)
     }
   }
-
 }
 
-const createHistorySubject: Function = (history: Object): Rx.Subject => {
-  let subject = new Rx.BehaviorSubject();
+function createHistorySubject(history) {
+  let subject = new Rx.BehaviorSubject()
 
   // Append methods for convenience.
   // To be removed if unneeded.
   Object.keys(history).forEach(key => {
-    if (key !== 'listen') subject[key] = history[key];
-  });
+    if (key !== `listen`) {
+      subject[key] = history[key]
+    }
+  })
 
-  return subject;
+  return subject
 }
 
-const makeHistoryDriver: Function = ( { hash = false, queries = true, ...options } ) => {
-  // hash:boolean, queries: boolean, options: Object, baseName: string
+function makeHistoryDriver(config) {
+  const {hash = false, queries = true, ...options} = config || {}
+  const history = makeHistory(hash, queries, options)
+  const historySubject = createHistorySubject(history)
 
-  const history: Object = makeHistory(hash, queries, options);
-  const historySubject: Rx.Subject = createHistorySubject(history);
-
-  return function historyDriver(url$): Rx.Subject {
+  return function historyDriver(url$) {
     url$
       .distinctUntilChanged()
-      .subscribe( createPushState(history, options.basename || '') );
+      .subscribe(createPushState(history, options.basename || ``))
 
-    history.listen( location => historySubject.onNext(location) );
-
+    history.listen(location => historySubject.onNext(location))
     // Convenience
-    historySubject.location = historySubject.value;
+    historySubject.location = historySubject.value
 
-    return historySubject;
+    return historySubject
   }
 }
 
-const makeServerHistoryDriver: Function = (startingLocation: Object) => {
+function makeServerHistoryDriver(startingLocation) {
+  const {
+    pathname = `/`,
+    query = {},
+    search = ``,
+    state = {},
+    action = `POP`,
+    key = ``
+  } = startingLocation || {}
 
-  return function historyDriver(location$: Rx.Observable): Rx.Subject {
-    let subject = new Rx.BehaviorSubject(startingLocation);
-
-    location$.subscribe(pathname => {
-      let location = startingLocation;
-      location.pathname = pathname;
-      subject.onNext(location);
-    });
-
-    return subject;
+  return function historyDriver() {
+    return new Rx.BehaviorSubject({
+      pathname,
+      query,
+      search,
+      state,
+      action,
+      key
+    })
   }
 }
 
@@ -76,4 +96,4 @@ export {
   makeHistoryDriver,
   makeServerHistoryDriver,
   filterLinks
-};
+}
