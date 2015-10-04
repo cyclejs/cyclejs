@@ -29,7 +29,7 @@ function createPushState(history, basename) {
     if (`string` === typeof url) {
       history.pushState({}, url.replace(basename, ``))
     } else if (`object` === typeof url) {
-      let {state, path, query} = url
+      let {state = {}, path, query = {}} = url
       history.pushState(state, path.replace(basename, ``), query)
     } else {
       throw new Error(`History Driver input must be a string or
