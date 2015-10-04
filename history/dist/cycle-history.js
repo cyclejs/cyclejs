@@ -2466,9 +2466,11 @@ function createPushState(history, basename) {
     if ("string" === typeof url) {
       history.pushState({}, url.replace(basename, ""));
     } else if ("object" === typeof url) {
-      var state = url.state;
+      var _url$state = url.state;
+      var state = _url$state === undefined ? {} : _url$state;
       var path = url.path;
-      var query = url.query;
+      var _url$query = url.query;
+      var query = _url$query === undefined ? {} : _url$query;
 
       history.pushState(state, path.replace(basename, ""), query);
     } else {
