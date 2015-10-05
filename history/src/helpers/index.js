@@ -16,88 +16,56 @@ function supportsHistory() {
   return window.history && `pushState` in window.history
 }
 
-function which(event) {
-  let _event = event || window.event
-  _event = _event.which ? _event.button : _event.which
-  return _event
+/*eslint-disable */
+function which(e) {
+  e = e || window.event;
+  return null === e.which ? e.button : e.which;
 }
 
-const sameOrigin = (href) => {
-  let origin = `${location.protocol}//${location.hostname}`
-  if (location.port) {
-    origin += `:${location.port}`
-  }
-  let _href = href && href.indexOf(origin) === 0
-  return _href
+/**
+ * Check if `href` is the same origin.
+ */
+
+function sameOrigin(href) {
+  let origin = location.protocol + '//' + location.hostname;
+  if (location.port) origin += ':' + location.port;
+  return (href && (0 === href.indexOf(origin)));
 }
 
-function testEvent(event) {
-  if (which(event) !== 1) {return false }
-  if (event.metaKey ||
-      event.ctrlKey ||
-      event.shiftKey ||
-      event.defaultPrevented)
-  {
-    return false
-  }
+
+const filterLinks = (e) => {
+  if (1 !== which(e)) return false
+
+  if (e.metaKey || e.ctrlKey || e.shiftKey) return false
+  if (e.defaultPrevented) return true
+
+  // ensure link
+  let el = e.target;
+  while (el && 'A' !== el.nodeName) el = el.parentNode;
+  if (!el || 'A' !== el.nodeName) return false
+
+  // Ignore if tag has
+  // 1. "download" attribute
+  // 2. rel="external" attribute
+  if (el.hasAttribute('download') ||
+      el.getAttribute('rel') === 'external') return false
+
+  // ensure non-hash for the same path
+  const link = el.getAttribute('href');
+
+  // Check for mailto: in the href
+  if (link && link.indexOf('mailto:') > -1) return false;
+
+  // check target
+  if (el.target) return false;
+
+  // x-origin
+  if (!sameOrigin(el.href)) return false;
+
+  e.preventDefault()
   return true
 }
-
-function validateLink(target) {
-  let validTarget = target
-  while (validTarget && `A` !== validTarget.nodeName) {
-    validTarget = validTarget.parentNode
-  }
-  if (!validTarget || `A` !== validTarget.nodeName) {return false}
-  return validTarget
-}
-
-function isDownloadLink(target) {
-  if (target.hasAttribute(`download`)) {return true}
-  return false
-}
-
-function isExternalLink(target) {
-  if (target.getAttribute(`rel`) === `external`) {return true}
-  return false
-}
-
-function isCurrentPath(target) {
-  if (target.pathname === location.pathname &&
-    (target.hash || target.getAttribute(`href`) === `#`))
-  {
-    return true
-  }
-  return false
-}
-
-function isMailLink(target) {
-  if (target.getAttribute(`href`) &&
-    target.getAttribute(`href`).indexOf(`mailto:`) > -1)
-  {
-    return true
-  }
-  return false
-}
-
-function testTarget(target) {
-  // Make sure you`re grabbing the link not a child.
-  const _target = validateLink(target)
-  if (_target === false) {return false}
-  if (isDownloadLink(_target)) {return false}
-  if (isExternalLink(_target)) {return false}
-  if (_target.target) {return false}
-  if (!sameOrigin(_target.href)) {return false}
-  if (isCurrentPath(_target)) {return false}
-  if (isMailLink(_target)) {return false}
-  return true
-}
-
-function filterLinks(event) {
-  if (!testEvent(event)) {return false}
-  if (!testTarget(event.target)) {return false}
-  return true
-}
+/*eslint-enable */
 
 export {
   filterLinks,
