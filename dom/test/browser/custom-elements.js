@@ -4,7 +4,7 @@ let assert = require('assert');
 let Cycle = require('@cycle/core');
 let CycleDOM = require('../../src/cycle-dom');
 let {Rx} = Cycle;
-let {h, makeDOMDriver} = CycleDOM;
+let {h, svg, makeDOMDriver} = CycleDOM;
 
 function createRenderTarget() {
   let element = document.createElement('div');
@@ -231,6 +231,46 @@ describe('Custom Elements', function () {
       }
     );
   });
+
+  it('should allow nested svg elements as children', function (done) {
+    // Make the svg custom element
+    function workspace(responses) {
+      return {
+        DOM: responses.props.get('*').map(props => {
+          const svgProps = {...props, children: void 0};
+          return svg('svg', {
+            attributes: svgProps,
+            style: {border: '1px solid rgb(221, 221, 221)'}},
+            props.children
+          );
+        })
+      }
+    }
+    // Use the custom elements
+    function app() {
+      return {
+        DOM: Rx.Observable.just(
+          h('section', [
+            h('work-space', {width: 500, height: 500}, [
+              h('work-space', {width: 100, height: 100})
+            ])
+          ])
+        )
+      };
+    }
+    let [requests, responses] = Cycle.run(app, {
+      DOM: makeDOMDriver(createRenderTarget(), {
+        'work-space': workspace,
+      })
+    });
+    // Make assertions
+    responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
+      let svgElements = root.querySelectorAll('svg');
+      assert.strictEqual(svgElements.length, 2);
+      responses.dispose();
+      done();
+    });
+  })
 
   it('should recognize and create two unrelated elements', function (done) {
     // Make the first custom element

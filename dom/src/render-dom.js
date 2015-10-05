@@ -27,8 +27,11 @@ function isElement(obj) {
 
 function fixRootElem$(rawRootElem$, domContainer) {
   // Create rootElem stream and automatic className correction
-  let originalClasses = (domContainer.className ||
-   domContainer.className.baseVal || ``).trim().split(/\s+/)
+  let originalClasses = (
+    domContainer.className ||
+    domContainer.className.baseVal ||
+    ``)
+    .trim().split(/\s+/)
   let originalId = domContainer.id
   //console.log('%coriginalClasses: ' + originalClasses, 'color: lightgray')
   return rawRootElem$
