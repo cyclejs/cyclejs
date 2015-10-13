@@ -17,24 +17,16 @@ function createListener({element, eventName, handler, useCapture}) {
 function createEventListener({element, eventName, handler, useCapture}) {
   const disposables = new CompositeDisposable()
 
-  const toStr = Object.prototype.toString
-  if (toStr.call(element) === `[object NodeList]` ||
-    toStr.call(element) === `[object HTMLCollection]`)
-  {
+  if (Array.isArray(element)) {
     for (let i = 0, len = element.length; i < len; i++) {
-      disposables.add(createEventListener({
-          element: element.item(i),
-          eventName,
-          handler,
-          useCapture}))
-    }
-  } else if (Array.isArray(element)) {
-    for (let i = 0, len = element.length; i < len; i++) {
-      disposables.add(createEventListener({
+      disposables.add(
+        createEventListener({
           element: element[i],
           eventName,
           handler,
-          useCapture}))
+          useCapture,
+        })
+      )
     }
   } else if (element) {
     disposables.add(createListener({element, eventName, handler, useCapture}))
@@ -50,8 +42,9 @@ function fromEvent(element, eventName, useCapture = false) {
       handler: function handler() {
         observer.onNext(arguments[0])
       },
-      useCapture})
-  }).publish().refCount()
+      useCapture,
+    })
+  }).share()
 }
 
 module.exports = fromEvent

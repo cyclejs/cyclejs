@@ -40,7 +40,7 @@ describe('HTML Driver', function () {
     });
   });
 
-  it('should output simple HTML Observable at `.get(\':root\')`', function (done) {
+  it('should output simple HTML Observable', function (done) {
     function app() {
       return {
         html: Rx.Observable.just(h('div.test-element', ['Foobar']))

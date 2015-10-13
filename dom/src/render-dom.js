@@ -146,44 +146,6 @@ function renderRawRootElem$(vtree$, domContainer, {CERegistry, driverName}) {
     .flatMap(diffAndPatchToElement$)
 }
 
-// TODO When we remove this function, also refactor `fromEvent` to assume
-// always an array as the `targetElements` input
-function makeRootElemToEvent$(selector, eventName) {
-  return function rootElemToEvent$(rootElem) {
-    if (!rootElem) {
-      return Rx.Observable.empty()
-    }
-    let targetElements = matchesSelector(rootElem, selector) ?
-      rootElem :
-      rootElem.querySelectorAll(selector)
-    return Rx.Observable.fromEvent(targetElements, eventName)
-  }
-}
-
-function makeResponseGetter(rootElem$) {
-  return function get(selector, eventName) {
-    if (console && console.log) {
-      console.log(`WARNING: the DOM Driver's get(selector, eventType) is ` +
-        `deprecated. Use select(selector).events(eventType) instead.`)
-    }
-    if (typeof selector !== `string`) {
-      throw new Error(`DOM driver's get() expects first argument to be a ` +
-        `string as a CSS selector`)
-    }
-    if (selector.trim() === `:root`) {
-      return rootElem$
-    }
-    if (typeof eventName !== `string`) {
-      throw new Error(`DOM driver's get() expects second argument to be a ` +
-        `string representing the event type to listen for.`)
-    }
-
-    return rootElem$
-      .flatMapLatest(makeRootElemToEvent$(selector, eventName))
-      .share()
-  }
-}
-
 function isolateSource(source, scope) {
   return source.select(`.${scope}`)
 }
@@ -198,7 +160,7 @@ function isolateSink(sink, scope) {
 function makeEventsSelector(element$) {
   return function events(eventName, useCapture = false) {
     if (typeof eventName !== `string`) {
-      throw new Error(`DOM driver's get() expects second argument to be a ` +
+      throw new Error(`DOM driver's events() expects argument to be a ` +
         `string representing the event type to listen for.`)
     }
     return element$.flatMapLatest(elements => {
@@ -213,7 +175,7 @@ function makeEventsSelector(element$) {
 function makeElementSelector(rootEl$) {
   return function select(selector) {
     if (typeof selector !== `string`) {
-      throw new Error(`DOM driver's select() expects first argument to be a ` +
+      throw new Error(`DOM driver's select() expects the argument to be a ` +
         `string as a CSS selector`)
     }
     let scopedSelector = `${this.namespace.join(` `)} ${selector}`.trim()
@@ -259,7 +221,6 @@ function makeDOMDriverWithRegistry(container, CERegistry) {
     let disposable = rootElem$.connect()
     return {
       namespace: [],
-      get: makeResponseGetter(rootElem$),
       select: makeElementSelector(rootElem$),
       dispose: disposable.dispose.bind(disposable),
       isolateSource,
@@ -296,7 +257,6 @@ module.exports = {
   checkRootVTreeNotCustomElement,
   makeDiffAndPatchToElement$,
   renderRawRootElem$,
-  makeResponseGetter,
   validateDOMDriverInput,
   makeDOMDriverWithRegistry,
 

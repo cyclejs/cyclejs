@@ -21,7 +21,7 @@ function makeReplaceCustomElementsWithVTree$(CERegistry, driverName) {
   return function replaceCustomElementsWithVTree$(vtree) {
     return replaceCustomElementsWithSomething(vtree, CERegistry,
       function toVTree$(_vtree, WidgetClass) {
-        let interactions = {get: () => Rx.Observable.empty()}
+        let interactions = {select: () => Rx.Observable.empty()}
         let props = makePropertiesDriverFromVTree(_vtree)
         let input = makeCustomElementInput(interactions, props)
         let output = WidgetClass.definitionFn(input)
@@ -37,19 +37,6 @@ function convertCustomElementsToVTree(vtree$, CERegistry, driverName) {
   return vtree$
     .map(makeReplaceCustomElementsWithVTree$(CERegistry, driverName))
     .flatMap(transposeVTree)
-}
-
-function makeResponseGetter() {
-  return function get(selector) {
-    if (console && console.log) {
-      console.log(`WARNING: HTML Driver's get(selector) is deprecated.`)
-    }
-    if (selector === `:root`) {
-      return this
-    } else {
-      return Rx.Observable.empty()
-    }
-  }
 }
 
 function makeBogusSelect() {
@@ -69,7 +56,6 @@ function makeHTMLDriver(customElementDefinitions = {}) {
     let vtreeLast$ = vtree$.last()
     let output$ = convertCustomElementsToVTree(vtreeLast$, registry, driverName)
       .map(vtree => toHTML(vtree))
-    output$.get = makeResponseGetter()
     output$.select = makeBogusSelect()
     return output$
   }
