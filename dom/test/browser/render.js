@@ -89,6 +89,21 @@ describe('Rendering', function () {
       });
     });
 
+    it('should have isolateSource() and isolateSink() in source', function (done) {
+      function app() {
+        return {
+          DOM: Rx.Observable.just(h('div'))
+        };
+      }
+      let [sinks, sources] = Cycle.run(app, {
+        DOM: makeDOMDriver(createRenderTarget())
+      });
+      assert.strictEqual(typeof sources.DOM.isolateSource, 'function');
+      assert.strictEqual(typeof sources.DOM.isolateSink, 'function');
+      sources.dispose();
+      done();
+    });
+
     it('should convert a simple virtual-dom <select> to DOM element', function (done) {
       function app() {
         return {
@@ -342,6 +357,91 @@ describe('Rendering', function () {
             setTimeout(() => secondElem.click(), 1);
           });
         });
+    });
+
+    describe('isolateSource', function () {
+      it('should have the same effect as DOM.select()', function (done) {
+        function app() {
+          return {
+            DOM: Rx.Observable.just(
+              h('h3.top-most', [
+                h('h2.bar', 'Wrong'),
+                h('div.foo', [
+                  h('h4.bar', 'Correct')
+                ])
+              ])
+            )
+          };
+        }
+        let [sinks, sources] = Cycle.run(app, {
+          DOM: makeDOMDriver(createRenderTarget())
+        });
+        let isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'foo');
+        // Make assertions
+        isolatedDOMSource.select('.bar').events('click').subscribe(ev => {
+          assert.strictEqual(ev.type, 'click');
+          assert.strictEqual(ev.target.textContent, 'Correct');
+          sources.dispose();
+          done();
+        });
+        sources.DOM.select(':root').observable.skip(1).take(1)
+          .subscribe(function (root) {
+            let wrongElement = root.querySelector('.bar');
+            let correctElement = root.querySelector('.foo .bar');
+            assert.notStrictEqual(wrongElement, null);
+            assert.notStrictEqual(correctElement, null);
+            assert.notStrictEqual(typeof wrongElement, 'undefined');
+            assert.notStrictEqual(typeof correctElement, 'undefined');
+            assert.strictEqual(wrongElement.tagName, 'H2');
+            assert.strictEqual(correctElement.tagName, 'H4');
+            assert.doesNotThrow(function () {
+              wrongElement.click();
+              setTimeout(() => correctElement.click(), 5);
+            });
+          });
+      });
+
+      it('should return source also with isolateSource and isolateSink', function (done) {
+        function app() {
+          return {
+            DOM: Rx.Observable.just(h('h3.top-most'))
+          };
+        }
+        let [sinks, sources] = Cycle.run(app, {
+          DOM: makeDOMDriver(createRenderTarget())
+        });
+        let isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'top-most');
+        // Make assertions
+        assert.strictEqual(typeof isolatedDOMSource.isolateSource, 'function');
+        assert.strictEqual(typeof isolatedDOMSource.isolateSink, 'function');
+        sources.dispose();
+        done();
+      });
+    });
+
+    describe('isolateSink', function () {
+      it('should add a className to the vtree sink', function (done) {
+        function app(sources) {
+          let vtree$ = Rx.Observable.just(h('h3.top-most'));
+          return {
+            DOM: sources.DOM.isolateSink(vtree$, 'foo'),
+          };
+        }
+        let [sinks, sources] = Cycle.run(app, {
+          DOM: makeDOMDriver(createRenderTarget())
+        });
+        // Make assertions
+        sources.DOM.select(':root').observable.skip(1).take(1)
+          .subscribe(function (root) {
+            let element = root.querySelector('.top-most');
+            assert.notStrictEqual(element, null);
+            assert.notStrictEqual(typeof element, 'undefined');
+            assert.strictEqual(element.tagName, 'H3');
+            assert.strictEqual(element.className, 'top-most foo');
+            sources.dispose();
+            done();
+          });
+      });
     });
 
     it('should catch interaction events using id in DOM.select', function (done) {

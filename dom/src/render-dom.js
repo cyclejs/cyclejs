@@ -184,12 +184,12 @@ function makeResponseGetter(rootElem$) {
   }
 }
 
-function confineResponse(response, scope) {
-  return response.select(`.${scope}`)
+function isolateSource(source, scope) {
+  return source.select(`.${scope}`)
 }
 
-function confineRequest(request, scope) {
-  return request.map(vtree => {
+function isolateSink(sink, scope) {
+  return sink.map(vtree => {
     vtree.properties.className = `${vtree.properties.className} ${scope}`.trim()
     return vtree
   })
@@ -233,8 +233,8 @@ function makeElementSelector(rootEl$) {
       namespace: this.namespace.concat(selector),
       select: makeElementSelector(element$),
       events: makeEventsSelector(element$),
-      confineResponse,
-      confineRequest,
+      isolateSource,
+      isolateSink,
     }
   }
 }
@@ -262,8 +262,8 @@ function makeDOMDriverWithRegistry(container, CERegistry) {
       get: makeResponseGetter(rootElem$),
       select: makeElementSelector(rootElem$),
       dispose: disposable.dispose.bind(disposable),
-      confineResponse,
-      confineRequest,
+      isolateSource,
+      isolateSink,
     }
   }
 }
