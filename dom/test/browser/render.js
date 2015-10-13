@@ -78,7 +78,7 @@ describe('Rendering', function () {
       let [requests, responses] = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
-      responses.DOM.get(':root').skip(1).take(1).subscribe(root => {
+      responses.DOM.select(':root').observable.skip(1).take(1).subscribe(root => {
         let classNameRegex = /top\-most/;
         assert.strictEqual(root.tagName, 'DIV');
         let child = root.children[0];
@@ -102,7 +102,7 @@ describe('Rendering', function () {
       let [requests, responses] = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
-      responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
+      responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
         let selectEl = root.querySelector('.my-class');
         assert.notStrictEqual(selectEl, null);
         assert.notStrictEqual(typeof selectEl, 'undefined');
@@ -127,7 +127,7 @@ describe('Rendering', function () {
       let [requests, responses] = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
-      responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
+      responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
         let selectEl = root.querySelector('.my-class');
         assert.notStrictEqual(selectEl, null);
         assert.notStrictEqual(typeof selectEl, 'undefined');
@@ -169,7 +169,7 @@ describe('Rendering', function () {
       });
 
       // Assert it
-      responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
+      responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
         let selectEl = root.querySelector('h4');
         assert.notStrictEqual(selectEl, null);
         assert.notStrictEqual(typeof selectEl, 'undefined');
@@ -191,13 +191,14 @@ describe('Rendering', function () {
         DOM: makeDOMDriver(createRenderTarget())
       });
       // Make assertions
-      responses.DOM.get('.myelementclass', 'click').subscribe(ev => {
+      responses.DOM.select('.myelementclass').events('click').subscribe(ev => {
         assert.strictEqual(ev.type, 'click');
         assert.strictEqual(ev.target.textContent, 'Foobar');
         responses.dispose();
         done();
       });
-      responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
+      responses.DOM.select(':root').observable.skip(1).take(1)
+        .subscribe(function (root) {
         let myElement = root.querySelector('.myelementclass');
         assert.notStrictEqual(myElement, null);
         assert.notStrictEqual(typeof myElement, 'undefined');
@@ -208,7 +209,7 @@ describe('Rendering', function () {
       });
     });
 
-    it('should catch interaction events using id in DOM.get', function (done) {
+    it('should catch interaction events using id in DOM.select(cssSelector).events(event)', function (done) {
       function app() {
         return {
           DOM: Rx.Observable.just(h('h3.myelementclass', 'Foobar'))
@@ -218,13 +219,13 @@ describe('Rendering', function () {
         DOM: makeDOMDriver(createRenderTarget('parent-001'))
       });
       // Make assertions
-      responses.DOM.get('#parent-001', 'click').subscribe(ev => {
+      responses.DOM.select('#parent-001').events('click').subscribe(ev => {
         assert.strictEqual(ev.type, 'click');
         assert.strictEqual(ev.target.textContent, 'Foobar');
         responses.dispose();
         done();
       });
-      responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
+      responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
         let myElement = root.querySelector('.myelementclass');
         assert.notStrictEqual(myElement, null);
         assert.notStrictEqual(typeof myElement, 'undefined');
@@ -388,14 +389,14 @@ describe('Rendering', function () {
       let [requests, responses] = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
-      responses.DOM.get('.myelementclass', 'click').subscribe(ev => {
+      responses.DOM.select('.myelementclass').events('click').subscribe(ev => {
         assert.strictEqual(ev.type, 'click');
         assert.strictEqual(ev.target.textContent, 'Foobar');
         responses.dispose();
         done();
       });
       // Make assertions
-      responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
+      responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
         let myElement = root.querySelector('.myelementclass');
         assert.notStrictEqual(myElement, null);
         assert.notStrictEqual(typeof myElement, 'undefined');
@@ -419,7 +420,7 @@ describe('Rendering', function () {
         })
       });
 
-      responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
+      responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
         setTimeout(() => {
           let myelement = root.querySelector('.myelementclass');
           assert.notStrictEqual(myelement, null);
@@ -449,7 +450,7 @@ describe('Rendering', function () {
           'my-element': Fixture89.myElement
         })
       });
-      responses.DOM.get(':root').subscribeOnError(function (err) {
+      responses.DOM.select(':root').observable.subscribeOnError(function (err) {
         assert.strictEqual(err.message,
           'Illegal to use a Cycle custom element as the root of a View.'
         );
@@ -473,7 +474,7 @@ describe('Rendering', function () {
       let [requests, responses] = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
-      responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
+      responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
         let selectEl = root.querySelector('.child');
         assert.notStrictEqual(selectEl, null);
         assert.notStrictEqual(typeof selectEl, 'undefined');
@@ -510,7 +511,7 @@ describe('Rendering', function () {
       let [requests, responses] = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
-      responses.DOM.get(':root').skip(1).take(1).subscribe(function (root) {
+      responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
         let selectEl = root.querySelector('.grandchild');
         assert.notStrictEqual(selectEl, null);
         assert.notStrictEqual(typeof selectEl, 'undefined');
@@ -534,7 +535,7 @@ describe('Rendering', function () {
       let [requests, responses] = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
-      responses.DOM.get(':root').skip(1).subscribe(function (root) {
+      responses.DOM.select(':root').observable.skip(1).subscribe(function (root) {
         let selectEl = root.querySelector('.target');
         assert.notStrictEqual(selectEl, null);
         assert.notStrictEqual(typeof selectEl, 'undefined');

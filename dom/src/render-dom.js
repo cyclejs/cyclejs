@@ -162,42 +162,6 @@ function renderRawRootElem$(vtree$, domContainer, {CERegistry, driverName}) {
     .flatMap(diffAndPatchToElement$)
 }
 
-function makeRootElemToEvent$(selector, eventName) {
-  return function rootElemToEvent$(rootElem) {
-    if (!rootElem) {
-      return Rx.Observable.empty()
-    }
-    let targetElements = matchesSelector(rootElem, selector) ?
-      rootElem :
-      rootElem.querySelectorAll(selector)
-    return Rx.Observable.fromEvent(targetElements, eventName)
-  }
-}
-
-function makeResponseGetter(rootElem$) {
-  return function get(selector, eventName) {
-    if (console && console.log) {
-      console.log(`WARNING: the DOM Driver's get(selector, eventType) is ` +
-        `deprecated. Use select(selector).events(eventType) instead.`)
-    }
-    if (typeof selector !== `string`) {
-      throw new Error(`DOM driver's get() expects first argument to be a ` +
-        `string as a CSS selector`)
-    }
-    if (selector.trim() === `:root`) {
-      return rootElem$
-    }
-    if (typeof eventName !== `string`) {
-      throw new Error(`DOM driver's get() expects second argument to be a ` +
-        `string representing the event type to listen for.`)
-    }
-
-    return rootElem$
-      .flatMapLatest(makeRootElemToEvent$(selector, eventName))
-      .share()
-  }
-}
-
 function makeEventsSelector(element$) {
   return function events(eventName, useCapture = false) {
     if (typeof eventName !== `string`) {
@@ -253,7 +217,6 @@ function makeDOMDriverWithRegistry(container, CERegistry) {
     let rootElem$ = fixRootElem$(rawRootElem$, container).replay(null, 1)
     let disposable = rootElem$.connect()
     return {
-      get: makeResponseGetter(rootElem$),
       select: makeElementSelector(rootElem$),
       dispose: disposable.dispose.bind(disposable),
     }
@@ -288,7 +251,6 @@ module.exports = {
   checkRootVTreeNotCustomElement,
   makeDiffAndPatchToElement$,
   renderRawRootElem$,
-  makeResponseGetter,
   validateDOMDriverInput,
   makeDOMDriverWithRegistry,
 

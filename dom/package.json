@@ -42,7 +42,7 @@
     "eslint-plugin-no-class": "0.1.0",
     "markdox": "0.1.9",
     "mocha": "2.2.5",
-    "rx": "3.1.2",
+    "rx": "4.0.1",
     "testem": "0.9.2",
     "uglify-js": "2.4.24",
     "zuul": "3.6.0"
