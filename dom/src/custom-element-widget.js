@@ -169,19 +169,19 @@ function makeInit(tagName, definitionFn) {
     let proxyVTree$ = new Rx.ReplaySubject(1)
     let domDriver = makeDOMDriverWithRegistry(element, registry)
     let propertiesDriver = makePropertiesDriver()
-    let domResponse = domDriver(proxyVTree$, driverName)
-    let rootElem$ = domResponse.select(`:root`).observable
+    let domSource = domDriver(proxyVTree$, driverName)
+    let rootElem$ = domSource.select(`:root`).observable
     rootElem$.subscribe(rootElem => {
       // This is expected to happen before initCustomElement() returns `element`
       element = rootElem
     })
     let defFnInput = makeCustomElementInput(
-      domResponse, propertiesDriver, driverName
+      domSource, propertiesDriver, driverName
     )
-    let requests = definitionFn(defFnInput)
-    validateDefFnOutput(requests, driverName, tagName)
+    let sinks = definitionFn(defFnInput)
+    validateDefFnOutput(sinks, driverName, tagName)
     widget.disposables.add(
-      requests[driverName].subscribe(proxyVTree$.asObserver())
+      sinks[driverName].subscribe(proxyVTree$.asObserver())
     )
     widget.disposables.add(
       rootElem$.subscribe(widget.firstRootElem$.asObserver())
@@ -189,13 +189,13 @@ function makeInit(tagName, definitionFn) {
     element.cycleCustomElementMetadata = {
       propertiesDriver,
       rootElem$,
-      customEvents: requests.events,
+      customEvents: sinks.events,
       eventDispatchingSubscription: false,
     }
     subscribeEventDispatchingSink(element, widget)
     widget.disposables.add(widget.firstRootElem$)
     widget.disposables.add(proxyVTree$)
-    widget.disposables.add(domResponse)
+    widget.disposables.add(domSource)
     widget.update(null, element)
     return element
   }

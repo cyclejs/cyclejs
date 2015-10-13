@@ -13,16 +13,16 @@ describe('HTML Driver', function () {
         html: Rx.Observable.just(h('div.test-element', ['Foobar']))
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       html: makeHTMLDriver()
     });
-    responses.html.subscribe(html => {
+    sources.html.subscribe(html => {
       assert.strictEqual(html, '<div class="test-element">Foobar</div>');
       done();
     });
   });
 
-  it('should make bogus select().events() as requests', function (done) {
+  it('should make bogus select().events() as sources', function (done) {
     function app({html}) {
       assert.strictEqual(typeof html.select, 'function');
       assert.strictEqual(typeof html.select('whatever').observable.subscribe, 'function');
@@ -31,10 +31,10 @@ describe('HTML Driver', function () {
         html: Rx.Observable.just(h('div.test-element', ['Foobar']))
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       html: makeHTMLDriver()
     });
-    responses.html.subscribe(html => {
+    sources.html.subscribe(html => {
       assert.strictEqual(html, '<div class="test-element">Foobar</div>');
       done();
     });
@@ -46,10 +46,10 @@ describe('HTML Driver', function () {
         html: Rx.Observable.just(h('div.test-element', ['Foobar']))
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       html: makeHTMLDriver()
     });
-    responses.html.subscribe(html => {
+    sources.html.subscribe(html => {
       assert.strictEqual(html, '<div class="test-element">Foobar</div>');
       done();
     });
@@ -66,10 +66,10 @@ describe('HTML Driver', function () {
         DOM: Rx.Observable.just(h('div.test-element', [h('my-element')]))
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeHTMLDriver({'my-element': myElement})
     });
-    responses.DOM.subscribe(html => {
+    sources.DOM.subscribe(html => {
       assert.strictEqual(html,
         '<div class="test-element">' +
           '<h3 class="myelementclass"></h3>' +
@@ -133,11 +133,11 @@ describe('HTML Driver', function () {
         )
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeHTMLDriver({'my-element': myElement})
     });
 
-    responses.DOM.subscribe(html => {
+    sources.DOM.subscribe(html => {
       assert.strictEqual(html,
         '<div class="test-element">' +
           '<h3 class="myelementclass">YES</h3>' +
@@ -163,11 +163,11 @@ describe('HTML Driver', function () {
         )
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeHTMLDriver({'my-element': myElement})
     });
 
-    responses.DOM.subscribe(html => {
+    sources.DOM.subscribe(html => {
       assert.strictEqual(html,
         '<div class="test-element">' +
         '<h3 class="myelementclass">YES</h3>' +
@@ -208,14 +208,14 @@ describe('HTML Driver', function () {
         )
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       html: makeHTMLDriver({
         'x-foo': xFoo,
         'x-bar': xBar
       })
     });
 
-    responses.html.subscribe(html => {
+    sources.html.subscribe(html => {
       assert.strictEqual(html,
         '<div class="test-element">' +
           '<div>' +
