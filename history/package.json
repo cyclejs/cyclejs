@@ -21,10 +21,10 @@
   },
   "homepage": "https://github.com/tylors/cycle-history#readme",
   "dependencies": {
-    "history": "^1.11.1"
+    "history": "^1.x.x"
   },
   "peerDependencies": {
-    "@cycle/core": "^3.1.0"
+    "@cycle/core": "4.x.x"
   },
   "devDependencies": {
     "babel": "5.8.x",
