@@ -73,4 +73,6 @@ let [requests, responses] = Cycle.run(wrappedAppFn, {
 ```
 `makeServerHistoryDriver()` accepts all options allowed in a [Location](https://github.com/rackt/history/blob/master/docs/Location.md) as well as the extra options provided by BasenameSupport and QuerySupport, each respectively can be found   [here](https://github.com/rackt/history/blob/master/docs/BasenameSupport.md) and [here](https://github.com/rackt/history/blob/master/docs/QuerySupport.md). Simple defaults are provided if not supplied.
 
+For more concrete examples on usage, please check out [cycle-starter](https://github.com/tylors/cycle-starter)
+
 In @staltz isomorphic example, you can remove all references to context$ if it is now unneeded for your application.
