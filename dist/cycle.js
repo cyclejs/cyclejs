@@ -130,14 +130,7 @@ var Cycle = {
    * can be used for debugging or testing.
    * @function run
    */
-  run: run,
-
-  /**
-   * A shortcut to the root object of
-   * [RxJS](https://github.com/Reactive-Extensions/RxJS).
-   * @name Rx
-   */
-  Rx: Rx
+  run: run
 };
 
 module.exports = Cycle;
