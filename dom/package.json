@@ -41,9 +41,9 @@
     "eslint-plugin-cycle": "1.0.1",
     "eslint-plugin-no-class": "0.1.0",
     "markdox": "0.1.9",
-    "mocha": "2.2.5",
+    "mocha": "2.3.3",
     "rx": "4.0.6",
-    "testem": "0.9.2",
+    "testem": "0.9.8",
     "uglify-js": "2.5.0",
     "zuul": "3.6.0"
   },
