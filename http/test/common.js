@@ -3,8 +3,8 @@
 var assert = require('assert');
 var src = require('../lib/index');
 var Cycle = require('@cycle/core');
+var Rx = require('rx');
 var makeHTTPDriver = src.makeHTTPDriver;
-var Rx = Cycle.Rx;
 
 function run(uri) {
   describe('makeHTTPDriver', function () {
