@@ -3,7 +3,7 @@
 let assert = require('assert');
 let Cycle = require('@cycle/core');
 let CycleDOM = require('../../src/cycle-dom');
-let {Rx} = Cycle;
+let Rx = require('rx');
 let {h, makeHTMLDriver} = CycleDOM;
 
 describe('HTML Driver', function () {

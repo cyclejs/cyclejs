@@ -1,4 +1,4 @@
-let {Rx} = require(`@cycle/core`)
+let Rx = require(`rx`)
 const ALL_PROPS = `*`
 const PROPS_DRIVER_NAME = `props`
 const EVENTS_SINK_NAME = `events`

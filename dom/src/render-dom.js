@@ -1,4 +1,4 @@
-let {Rx} = require(`@cycle/core`)
+let Rx = require(`rx`)
 let fromEvent = require(`./fromevent`)
 let VDOM = {
   h: require(`./virtual-hyperscript`),

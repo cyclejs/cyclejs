@@ -1,4 +1,4 @@
-let {Rx} = require(`@cycle/core`)
+let Rx = require(`rx`)
 let toHTML = require(`vdom-to-html`)
 let {replaceCustomElementsWithSomething, makeCustomElementsRegistry} =
   require(`./custom-elements`)

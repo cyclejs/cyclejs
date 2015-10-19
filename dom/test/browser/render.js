@@ -5,7 +5,7 @@ let assert = require('assert');
 let Cycle = require('@cycle/core');
 let CycleDOM = require('../../src/cycle-dom');
 let Fixture89 = require('./fixtures/issue-89');
-let {Rx} = Cycle;
+let Rx = require('rx');
 let {h, hJSX, makeDOMDriver} = CycleDOM;
 
 function createRenderTarget(id = null) {

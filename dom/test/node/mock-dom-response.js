@@ -1,7 +1,7 @@
 'use strict';
 /* global describe, it */
 let assert = require('assert');
-let {Rx} = require('@cycle/core');
+let Rx = require('rx');
 let CycleDOM = require('../../src/cycle-dom');
 let mockDOMResponse = require('../../src/mock-dom-response');
 
