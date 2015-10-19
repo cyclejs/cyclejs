@@ -2,16 +2,13 @@
 /* global describe, it */
 let assert = require('assert');
 let Cycle = require('../src/cycle');
+let Rx = require('rx');
 let sinon = require('sinon');
 
 describe('Cycle', function () {
   describe('API', function () {
     it('should have `run`', function () {
       assert.strictEqual(typeof Cycle.run, 'function');
-    });
-
-    it('should have a shortcut to Rx', function () {
-      assert.strictEqual(typeof Cycle.Rx, 'object');
     });
   });
 
@@ -41,7 +38,7 @@ describe('Cycle', function () {
         };
       }
       function driver() {
-        return Cycle.Rx.Observable.just('b');
+        return Rx.Observable.just('b');
       }
       let [left, right] = Cycle.run(app, {other: driver});
       assert.strictEqual(typeof left, 'object');
@@ -73,7 +70,7 @@ describe('Cycle', function () {
     it('should happen on event loop\'s next tick', function (done) {
       function app() {
         return {
-          other: Cycle.Rx.Observable.from([10, 20, 30]),
+          other: Rx.Observable.from([10, 20, 30]),
         };
       }
       let mutable = 'wrong';
@@ -92,8 +89,8 @@ describe('Cycle', function () {
     });
 
     it('should not work after has been disposed', function (done) {
-      let number$ = Cycle.Rx.Observable.range(1, 3)
-        .concatMap(x => Cycle.Rx.Observable.just(x).delay(50));
+      let number$ = Rx.Observable.range(1, 3)
+        .concatMap(x => Rx.Observable.just(x).delay(50));
       function app() {
         return {other: number$};
       }
@@ -124,7 +121,7 @@ describe('Cycle', function () {
         };
       }
       function driver() {
-        return Cycle.Rx.Observable.just('b');
+        return Rx.Observable.just('b');
       }
 
       Cycle.run(main, {other: driver});

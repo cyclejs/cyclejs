@@ -2,7 +2,6 @@
 # `Cycle` object API
 
 - [`run`](#run)
-- [`Rx`](#Rx)
 
 ### <a id="run"></a> `run(main, drivers)`
 
@@ -24,10 +23,3 @@ are Observables or a collection of Observables.
 
 *(Array)* an array where the first object is the collection of driver requests, and the second object is the collection of driver responses, that
 can be used for debugging or testing.
-
-- - -
-
-### <a id="Rx"></a> `Rx`
-
-A shortcut to the root object of
-[RxJS](https://github.com/Reactive-Extensions/RxJS).

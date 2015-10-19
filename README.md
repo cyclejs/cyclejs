@@ -4,13 +4,15 @@
 
 > Cycle.js is a fully reactive JavaScript framework for Human-Computer Interaction.
 
-Cycle *Core* is the minimum required tools you need for building applications. It is basically comprised of one single function, `Cycle.run(main, drivers)` and wraps RxJS as `Cycle.Rx`.
+Cycle *Core* is the minimum required tools you need for building applications. It is comprised of one single function, `Cycle.run(main, drivers)`.
 
 ## Installing
 
 [![npm version](https://badge.fury.io/js/%40cycle%2Fcore.svg)](http://badge.fury.io/js/%40cycle%2Fcore)
 
-`npm install @cycle/core`
+`npm install rx @cycle/core`
+
+Note: `rx` is a **required** dependency. Without it, nothing will change.
 
 ## I came here because I want to...
 
