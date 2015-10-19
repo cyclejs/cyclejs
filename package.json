@@ -35,7 +35,7 @@
     "markdox": "0.1.9",
     "mocha": "2.2.5",
     "sinon": "1.17.1",
-    "testem": "0.9.2",
+    "testem": "0.9.8",
     "uglify-js": "2.5.0"
   },
   "engines": {
