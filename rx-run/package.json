@@ -20,10 +20,11 @@
     "virtual-dom"
   ],
   "main": "lib/cycle.js",
-  "dependencies": {
-    "rx": "4.0.6"
+  "peerDependencies": {
+    "rx": "*"
   },
   "devDependencies": {
+    "rx": "4.0.6",
     "babel": "5.8.23",
     "babelify": "6.1.3",
     "browserify": "11.0.1",
@@ -47,7 +48,7 @@
     "test-browser": "testem",
     "pretest-browser": "browserify test/cycle.js -t babelify -o test/browser/tests-bundle.js",
     "posttest-browser": "rm test/browser/tests-bundle.js",
-    "browserify": "browserify src/cycle.js -t babelify --standalone Cycle --outfile dist/cycle.js",
+    "browserify": "browserify src/cycle.js -t babelify --standalone Cycle --exclude rx --outfile dist/cycle.js",
     "uglify": "uglifyjs dist/cycle.js -o dist/cycle.min.js",
     "dist": "npm run browserify && npm run uglify",
     "docs": "node ./scripts/make-api-docs.js",

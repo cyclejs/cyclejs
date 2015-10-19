@@ -138,13 +138,6 @@ let Cycle = {
    * @function run
    */
   run,
-
-  /**
-   * A shortcut to the root object of
-   * [RxJS](https://github.com/Reactive-Extensions/RxJS).
-   * @name Rx
-   */
-  Rx: Rx,
 }
 
 module.exports = Cycle
