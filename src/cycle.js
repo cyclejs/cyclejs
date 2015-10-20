@@ -1,4 +1,4 @@
-let Rx = require(`rx`)
+const Rx = require(`@reactivex/rxjs`)
 
 function makeRequestProxies(drivers) {
   let requestProxies = {}
@@ -23,7 +23,7 @@ function callDrivers(drivers, requestProxies) {
 function attachDisposeToRequests(requests, replicationSubscription) {
   Object.defineProperty(requests, `dispose`, {
     enumerable: false,
-    value: () => { replicationSubscription.dispose() },
+    value: () => { replicationSubscription._unsubscribe() },
   })
   return requests
 }
@@ -32,9 +32,9 @@ function makeDisposeResponses(responses) {
   return function dispose() {
     for (let name in responses) {
       if (responses.hasOwnProperty(name) &&
-        typeof responses[name].dispose === `function`)
+        typeof responses[name]._unsubscribe === `function`)
       {
-        responses[name].dispose()
+        responses[name]._unsubscribe()
       }
     }
   }
@@ -57,7 +57,7 @@ function logToConsoleError(err) {
 
 function replicateMany(observables, subjects) {
   return Rx.Observable.create(observer => {
-    let subscription = new Rx.CompositeDisposable()
+    let subscription = new Rx.Subscription()
     setTimeout(() => {
       for (let name in observables) {
         if (observables.hasOwnProperty(name) &&
@@ -66,12 +66,12 @@ function replicateMany(observables, subjects) {
         {
           subscription.add(
             observables[name]
-              .doOnError(logToConsoleError)
-              .subscribe(subjects[name].asObserver())
+              .do(null, logToConsoleError)
+              .subscribe(subjects[name].lift())
           )
         }
       }
-      observer.onNext(subscription)
+      observer.next(subscription)
     }, 1)
 
     return function dispose() {

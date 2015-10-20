@@ -2,7 +2,7 @@
 /* global describe, it */
 let assert = require('assert');
 let Cycle = require('../src/cycle');
-let Rx = require('rx');
+let Rx = require('@reactivex/rxjs')
 let sinon = require('sinon');
 
 describe('Cycle', function () {
@@ -38,7 +38,7 @@ describe('Cycle', function () {
         };
       }
       function driver() {
-        return Rx.Observable.just('b');
+        return Rx.Observable.of('b');
       }
       let [left, right] = Cycle.run(app, {other: driver});
       assert.strictEqual(typeof left, 'object');
@@ -56,7 +56,7 @@ describe('Cycle', function () {
         };
       }
       function driver(req) {
-        return req.map(x => x.charCodeAt(0)).delay(1);
+        return req.map(x => x.charCodeAt(0));
       }
       let [requests, responses] = Cycle.run(app, {other: driver});
       responses.other.subscribe(x => {
@@ -90,7 +90,7 @@ describe('Cycle', function () {
 
     it('should not work after has been disposed', function (done) {
       let number$ = Rx.Observable.range(1, 3)
-        .concatMap(x => Rx.Observable.just(x).delay(50));
+        .concatMap(x => Rx.Observable.of(x).delay(100));
       function app() {
         return {other: number$};
       }
@@ -121,7 +121,7 @@ describe('Cycle', function () {
         };
       }
       function driver() {
-        return Rx.Observable.just('b');
+        return Rx.Observable.of('b');
       }
 
       Cycle.run(main, {other: driver});

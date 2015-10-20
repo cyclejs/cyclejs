@@ -21,10 +21,10 @@
   ],
   "main": "lib/cycle.js",
   "peerDependencies": {
-    "rx": "*"
+    "@reactivex/rxjs": "5.0.0-alpha.6"
   },
   "devDependencies": {
-    "rx": "4.0.6",
+    "@reactivex/rxjs": "5.0.0-alpha.6",
     "babel": "5.8.23",
     "babelify": "6.3.0",
     "browserify": "11.2.0",
