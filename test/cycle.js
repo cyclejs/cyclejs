@@ -2,7 +2,7 @@
 /* global describe, it */
 let assert = require('assert');
 let Cycle = require('../src/cycle');
-let Rx = require('@reactivex/rxjs')
+let Rx = require('@reactivex/rxjs');
 let sinon = require('sinon');
 
 describe('Cycle', function () {
