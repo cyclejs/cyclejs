@@ -58,13 +58,25 @@ function run(uri) {
         var httpDriver = makeHTTPDriver();
         var response$$ = httpDriver(request$);
         response$$.subscribe(function(response$) {
-          assert.strictEqual(response$.request, uri + '/hello');
+          assert.strictEqual(typeof response$.request, 'object');
+          assert.strictEqual(response$.request.url, uri + '/hello');
           response$.subscribe(function(response) {
             assert.strictEqual(response.status, 200);
             assert.strictEqual(response.text, 'Hello World');
             done();
           });
         });
+      }
+    );
+
+    it('should return response metastream with isolateSource and isolateSink',
+      function(done) {
+        var request$ = Rx.Observable.just(uri + '/hello');
+        var httpDriver = makeHTTPDriver();
+        var response$$ = httpDriver(request$);
+        assert.strictEqual(typeof response$$.isolateSource, 'function');
+        assert.strictEqual(typeof response$$.isolateSink, 'function');
+        done();
       }
     );
 
@@ -121,7 +133,8 @@ function run(uri) {
         var httpDriver = makeHTTPDriver();
         var response$$ = httpDriver(request$);
         response$$.subscribe(function(response$) {
-          assert.strictEqual(response$.request, uri + '/error');
+          assert.strictEqual(typeof response$.request, 'object');
+          assert.strictEqual(response$.request.url, uri + '/error');
           response$.subscribe(
             function onNext() { assert.fail(); },
             function onError(err) {
@@ -135,6 +148,34 @@ function run(uri) {
       }
     );
 
+  });
+
+  describe('isolateSource and isolateSink', function () {
+    it('should hide responses from outside the scope',
+      function(done) {
+        var httpDriver = makeHTTPDriver();
+        var proxyRequest$ = new Rx.Subject();
+        var response$$ = httpDriver(proxyRequest$);
+
+        var ignoredRequest$ = Rx.Observable.just(uri + '/json');
+        var request$ = Rx.Observable.just(uri + '/hello').delay(10);
+        var scopedRequest$ = response$$.isolateSink(request$, 'foo');
+        var scopedResponse$$ = response$$.isolateSource(response$$, 'foo');
+
+        scopedResponse$$.subscribe(function(response$) {
+          assert.strictEqual(typeof response$.request, 'object');
+          assert.strictEqual(response$.request.url, uri + '/hello');
+          response$.subscribe(function(response) {
+            assert.strictEqual(response.status, 200);
+            assert.strictEqual(response.text, 'Hello World');
+            done();
+          });
+        });
+
+        Rx.Observable.merge(ignoredRequest$, scopedRequest$)
+          .subscribe(proxyRequest$.asObserver());
+      }
+    );
   });
 }
 

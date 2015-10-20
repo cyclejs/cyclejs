@@ -67,16 +67,7 @@ function urlToSuperagent(url) {
 
 function createResponse$(reqOptions) {
   return Rx.Observable.create(observer => {
-    let request
-    if (typeof reqOptions === `string`) {
-      request = urlToSuperagent(reqOptions)
-    } else if (typeof reqOptions === `object`) {
-      request = optionsToSuperagent(reqOptions)
-    } else {
-      observer.onError(new Error(`Observable of requests given to HTTP ` +
-        `Driver must emit either URL strings or objects with parameters.`))
-      return () => {} // noop
-    }
+    let request = optionsToSuperagent(reqOptions)
 
     try {
       request.end((err, res) => {
@@ -97,10 +88,40 @@ function createResponse$(reqOptions) {
   })
 }
 
+function normalizeRequestOptions(reqOptions) {
+  if (typeof reqOptions === `string`) {
+    return {url: reqOptions}
+  } else if (typeof reqOptions === `object`) {
+    return reqOptions
+  } else {
+    throw new Error(`Observable of requests given to HTTP Driver must emit ` +
+      `either URL strings or objects with parameters.`)
+  }
+}
+
+function isolateSource(response$$, scope) {
+  return response$$.filter(res$ =>
+    Array.isArray(res$.request._namespace) &&
+    res$.request._namespace.indexOf(scope) !== -1
+  )
+}
+
+function isolateSink(request$, scope) {
+  return request$.map(req => {
+    if (typeof req === `string`) {
+      return {url: req, _namespace: [scope]}
+    }
+    req._namespace = req._namespace || []
+    req._namespace.push(scope)
+    return req
+  })
+}
+
 function makeHTTPDriver({eager = false} = {eager: false}) {
   return function httpDriver(request$) {
     let response$$ = request$
-      .map(reqOptions => {
+      .map(request => {
+        const reqOptions = normalizeRequestOptions(request)
         let response$ = createResponse$(reqOptions)
         if (eager || reqOptions.eager) {
           response$ = response$.replay(null, 1)
@@ -111,6 +132,8 @@ function makeHTTPDriver({eager = false} = {eager: false}) {
       })
       .replay(null, 1)
     response$$.connect()
+    response$$.isolateSource = isolateSource
+    response$$.isolateSink = isolateSink
     return response$$
   }
 }
