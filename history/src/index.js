@@ -1,5 +1,5 @@
 /* global require */
-const {Rx} = require(`@cycle/core`)
+const {Rx} = require(`rx`)
 const {
   createHistory,
   createHashHistory,

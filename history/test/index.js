@@ -1,6 +1,6 @@
 /* global require */
 const test = require(`tape`)
-const {Rx} = require(`@cycle/core`)
+const {Rx} = require(`rx`)
 const {
   makeHistoryDriver,
   makeServerHistoryDriver,

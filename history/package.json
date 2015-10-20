@@ -24,7 +24,7 @@
     "history": "^1.x.x"
   },
   "peerDependencies": {
-    "@cycle/core": "4.x.x"
+    "rx": "4.x.x"
   },
   "devDependencies": {
     "babel": "5.8.x",
