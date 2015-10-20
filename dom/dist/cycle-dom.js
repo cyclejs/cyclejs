@@ -4678,11 +4678,12 @@ function isArray(obj) {
 }
 
 },{}],107:[function(require,module,exports){
+(function (global){
 "use strict";
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var Rx = require("rx");
+var Rx = (typeof window !== "undefined" ? window['Rx'] : typeof global !== "undefined" ? global['Rx'] : null);
 var ALL_PROPS = "*";
 var PROPS_DRIVER_NAME = "props";
 var EVENTS_SINK_NAME = "events";
@@ -4945,7 +4946,8 @@ module.exports = {
   makeWidgetClass: makeWidgetClass
 };
 
-},{"./render-dom":112,"rx":undefined}],108:[function(require,module,exports){
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./render-dom":112}],108:[function(require,module,exports){
 "use strict";
 
 var _require = require("./custom-element-widget");
@@ -5121,9 +5123,10 @@ var CycleDOM = {
 module.exports = CycleDOM;
 
 },{"./mock-dom-response":111,"./render-dom":112,"./render-html":113,"./virtual-hyperscript":115,"virtual-dom/virtual-hyperscript/svg":93}],110:[function(require,module,exports){
+(function (global){
 "use strict";
 
-var Rx = require("rx");
+var Rx = (typeof window !== "undefined" ? window['Rx'] : typeof global !== "undefined" ? global['Rx'] : null);
 
 var disposableCreate = Rx.Disposable.create;
 var CompositeDisposable = Rx.CompositeDisposable;
@@ -5183,7 +5186,9 @@ function fromEvent(element, eventName) {
 
 module.exports = fromEvent;
 
-},{"rx":undefined}],111:[function(require,module,exports){
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],111:[function(require,module,exports){
+(function (global){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5192,7 +5197,7 @@ Object.defineProperty(exports, '__esModule', {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _rx = require('rx');
+var _rx = (typeof window !== "undefined" ? window['Rx'] : typeof global !== "undefined" ? global['Rx'] : null);
 
 var _rx2 = _interopRequireDefault(_rx);
 
@@ -5235,12 +5240,14 @@ function mockDOMResponse() {
 exports['default'] = mockDOMResponse;
 module.exports = exports['default'];
 
-},{"rx":undefined}],112:[function(require,module,exports){
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],112:[function(require,module,exports){
+(function (global){
 "use strict";
 
 var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; })();
 
-var Rx = require("rx");
+var Rx = (typeof window !== "undefined" ? window['Rx'] : typeof global !== "undefined" ? global['Rx'] : null);
 var fromEvent = require("./fromevent");
 var VDOM = {
   h: require("./virtual-hyperscript"),
@@ -5505,10 +5512,12 @@ module.exports = {
   makeDOMDriver: makeDOMDriver
 };
 
-},{"./custom-elements":108,"./fromevent":110,"./transposition":114,"./virtual-hyperscript":115,"matches-selector":57,"rx":undefined,"vdom-parser":58,"virtual-dom/diff":73,"virtual-dom/patch":80}],113:[function(require,module,exports){
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./custom-elements":108,"./fromevent":110,"./transposition":114,"./virtual-hyperscript":115,"matches-selector":57,"vdom-parser":58,"virtual-dom/diff":73,"virtual-dom/patch":80}],113:[function(require,module,exports){
+(function (global){
 "use strict";
 
-var Rx = require("rx");
+var Rx = (typeof window !== "undefined" ? window['Rx'] : typeof global !== "undefined" ? global['Rx'] : null);
 var toHTML = require("vdom-to-html");
 
 var _require = require("./custom-elements");
@@ -5605,10 +5614,12 @@ module.exports = {
   makeHTMLDriver: makeHTMLDriver
 };
 
-},{"./custom-element-widget":107,"./custom-elements":108,"./transposition":114,"rx":undefined,"vdom-to-html":62}],114:[function(require,module,exports){
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./custom-element-widget":107,"./custom-elements":108,"./transposition":114,"vdom-to-html":62}],114:[function(require,module,exports){
+(function (global){
 "use strict";
 
-var Rx = require("rx");
+var Rx = (typeof window !== "undefined" ? window['Rx'] : typeof global !== "undefined" ? global['Rx'] : null);
 var VirtualNode = require("virtual-dom/vnode/vnode");
 
 /**
@@ -5639,7 +5650,8 @@ module.exports = {
   transposeVTree: transposeVTree
 };
 
-},{"rx":undefined,"virtual-dom/vnode/vnode":101}],115:[function(require,module,exports){
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"virtual-dom/vnode/vnode":101}],115:[function(require,module,exports){
 /* eslint-disable */
 'use strict';
 
