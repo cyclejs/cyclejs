@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tylors/cycle-history.git"
+    "url": "git+https://github.com/cyclejs/cycle-history.git"
   },
   "keywords": [
     "cycle",
@@ -17,9 +17,9 @@
   "author": "Tylor Steinberger <tlsteinberger167@gmai.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/tylors/cycle-history/issues"
+    "url": "https://github.com/cyclejs/cycle-history/issues"
   },
-  "homepage": "https://github.com/tylors/cycle-history#readme",
+  "homepage": "https://github.com/cyclejs/cycle-history#readme",
   "dependencies": {
     "history": "^1.x.x"
   },
