@@ -1,6 +1,6 @@
 {
   "name": "@cycle/dom",
-  "version": "7.1.0",
+  "version": "7.1.1",
   "author": "Andre Staltz",
   "description": "The standard DOM Driver for Cycle.js, based on virtual-dom, and other helpers",
   "license": "MIT",
@@ -36,6 +36,7 @@
     "babel": "5.8.23",
     "babelify": "6.3.0",
     "browserify": "11.2.0",
+    "browserify-shim": "^3.8.10",
     "eslint": "1.0.0",
     "eslint-config-cycle": "3.0.0",
     "eslint-plugin-cycle": "1.0.1",
@@ -50,16 +51,22 @@
   "engines": {
     "node": ">=0.10.0"
   },
+  "browserify-shim": {
+    "rx": "global:Rx"
+  },
   "scripts": {
     "eslint": "eslint src/",
+    "test-browser-perf": "testem -f test/browser/perf/.testem-perf.json",
     "test-node": "mocha --compilers js:babel/register test/node",
     "test-browser": "testem",
     "test-zuul": "zuul --open --no-coverage --local 4000 -- test/browser/index.js",
+    "pretest-browser-perf": "browserify test/browser/perf/index.js -t babelify -o test/browser/perf/tests-bundle.js",
+    "posttest-browser-perf": "rm test/browser/perf/tests-bundle.js",
     "pretest-browser": "browserify test/browser/index.js -t babelify -o test/browser/page/tests-bundle.js",
     "posttest-browser": "rm test/browser/page/tests-bundle.js",
     "test": "npm run eslint && npm run test-node && npm run test-browser",
     "test-ci": "npm run eslint && npm run test-node && zuul --no-coverage -- test/browser/index.js",
-    "browserify": "browserify src/cycle-dom.js -t babelify --standalone CycleDOM --exclude rx --outfile dist/cycle-dom.js",
+    "browserify": "browserify src/cycle-dom.js -t babelify -t browserify-shim --standalone CycleDOM --exclude rx --outfile dist/cycle-dom.js",
     "uglify": "uglifyjs dist/cycle-dom.js -o dist/cycle-dom.min.js",
     "dist": "npm run browserify && npm run uglify",
     "docs": "node ./scripts/make-api-docs.js",
