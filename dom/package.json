@@ -52,9 +52,12 @@
   },
   "scripts": {
     "eslint": "eslint src/",
+    "test-browser-perf": "testem -f test/browser/perf/.testem-perf.json",
     "test-node": "mocha --compilers js:babel/register test/node",
     "test-browser": "testem",
     "test-zuul": "zuul --open --no-coverage --local 4000 -- test/browser/index.js",
+    "pretest-browser-perf": "browserify test/browser/perf/index.js -t babelify -o test/browser/perf/tests-bundle.js",
+    "posttest-browser-perf": "rm test/browser/perf/tests-bundle.js",
     "pretest-browser": "browserify test/browser/index.js -t babelify -o test/browser/page/tests-bundle.js",
     "posttest-browser": "rm test/browser/page/tests-bundle.js",
     "test": "npm run eslint && npm run test-node && npm run test-browser",
