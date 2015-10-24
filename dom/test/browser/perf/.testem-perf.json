@@ -1,0 +1,6 @@
+{
+  "test_page": "test/browser/perf/index.html",
+  "launch_in_dev": [
+    "Chrome"
+  ]
+}
