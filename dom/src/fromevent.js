@@ -1,4 +1,4 @@
-let {Rx} = require(`@cycle/core`)
+let Rx = require(`rx`)
 
 const disposableCreate = Rx.Disposable.create
 const CompositeDisposable = Rx.CompositeDisposable

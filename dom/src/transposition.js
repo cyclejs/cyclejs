@@ -1,4 +1,4 @@
-let {Rx} = require(`@cycle/core`)
+let Rx = require(`rx`)
 let VirtualNode = require(`virtual-dom/vnode/vnode`)
 
 /**
@@ -19,7 +19,10 @@ function transposeVTree(vtree) {
           vtree.tagName, vtree.properties, arr, vtree.key, vtree.namespace
         )
       )
-  } else if (vtree.type === `VirtualNode` || vtree.type === `Widget`) {
+  } else if (vtree.type === `VirtualNode` ||
+    vtree.type === `Widget` ||
+    vtree.type === `Thunk`)
+  {
     return Rx.Observable.just(vtree)
   } else {
     throw new Error(`Unhandled case in transposeVTree()`)

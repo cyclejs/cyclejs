@@ -1,7 +1,7 @@
 'use strict';
 let Cycle = require('@cycle/core');
 let CycleDOM = require('../../../src/cycle-dom');
-let {Rx} = Cycle;
+let Rx = require('rx');
 let {h} = CycleDOM;
 
 function myElement(ext) {

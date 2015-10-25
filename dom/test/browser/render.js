@@ -5,7 +5,7 @@ let assert = require('assert');
 let Cycle = require('@cycle/core');
 let CycleDOM = require('../../src/cycle-dom');
 let Fixture89 = require('./fixtures/issue-89');
-let {Rx} = Cycle;
+let Rx = require('rx');
 let {h, hJSX, makeDOMDriver} = CycleDOM;
 
 function createRenderTarget(id = null) {
@@ -152,6 +152,48 @@ describe('Rendering', function () {
       });
     });
 
+    it('should allow virtual-dom Thunks in the VTree', function (done) {
+      // The thunk
+      let ConstantlyThunk = function(greeting){
+        this.greeting = greeting;
+      };
+      ConstantlyThunk.prototype.type = 'Thunk';
+      ConstantlyThunk.prototype.render = function(previous) {
+        debugger;
+        if (previous && previous.vnode) {
+          return previous.vnode;
+        } else {
+          return h('h4', 'Constantly ' + this.greeting);
+        }
+      };
+      // The Cycle.js app
+      function app() {
+        return {
+          DOM: Rx.Observable.interval(10).take(5).map(i =>
+            h('div', [
+              new ConstantlyThunk('hello' + i)
+            ])
+          )
+        };
+      }
+
+      // Run it
+      let [requests, responses] = Cycle.run(app, {
+        DOM: makeDOMDriver(createRenderTarget())
+      });
+
+      // Assert it
+      responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+        let selectEl = root.querySelector('h4');
+        assert.notStrictEqual(selectEl, null);
+        assert.notStrictEqual(typeof selectEl, 'undefined');
+        assert.strictEqual(selectEl.tagName, 'H4');
+        assert.strictEqual(selectEl.textContent, 'Constantly hello0');
+        responses.dispose();
+        done();
+      });
+    });
+
     it('should allow plain virtual-dom Widgets in the VTree', function (done) {
       // The widget
       const MyTestWidget = function (content) {
@@ -223,7 +265,7 @@ describe('Rendering', function () {
       });
     });
 
-    it('should catch interaction events using id in DOM.get', function (done) {
+    it('should catch interaction events using id in DOM.select(cssSelector).events(event)', function (done) {
       function app() {
         return {
           DOM: Rx.Observable.just(h('h3.myelementclass', 'Foobar'))

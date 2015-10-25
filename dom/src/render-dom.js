@@ -1,4 +1,4 @@
-let {Rx} = require(`@cycle/core`)
+let Rx = require(`rx`)
 let fromEvent = require(`./fromevent`)
 let VDOM = {
   h: require(`./virtual-hyperscript`),
@@ -27,12 +27,24 @@ function isElement(obj) {
 
 function fixRootElem$(rawRootElem$, domContainer) {
   // Create rootElem stream and automatic className correction
-  let originalClasses = (domContainer.className || ``).trim().split(/\s+/)
+  let originalClasses = (
+    domContainer.className ||
+    domContainer.className.baseVal ||
+    ``)
+    .trim().split(/\s+/)
   let originalId = domContainer.id
   //console.log('%coriginalClasses: ' + originalClasses, 'color: lightgray')
   return rawRootElem$
     .map(function fixRootElemClassNameAndId(rootElem) {
-      let previousClasses = rootElem.className.trim().split(/\s+/)
+      let fixedRootClassName = null
+      let svg = false
+      if (typeof rootElem.className === `string`) {
+        fixedRootClassName = rootElem.className
+      } else if (typeof rootElem.className.baseVal === `string`) {
+        fixedRootClassName = rootElem.className.baseVal
+        svg = true
+      }
+      let previousClasses = fixedRootClassName.trim().split(/\s+/)
       let missingClasses = originalClasses
         .filter(clss => previousClasses.indexOf(clss) < 0)
       let classes = previousClasses.length > 0 ?
@@ -40,11 +52,15 @@ function fixRootElem$(rawRootElem$, domContainer) {
         missingClasses
       //console.log('%cfixRootElemClassName(), missingClasses: ' +
       //  missingClasses, 'color: lightgray')
-      rootElem.className = classes.join(` `).trim()
+      if (svg) {
+        rootElem.className.baseVal = classes.join(` `).trim()
+      } else {
+        rootElem.className = classes.join(` `).trim()
+      }
       if (originalId) { rootElem.id = originalId }
-      //console.log('%c  result: ' + rootElem.className, 'color: lightgray')
+      //console.log('%c  result: ' + fixedRootClassName, 'color: lightgray')
       //console.log('%cEmit rootElem$ ' + rootElem.tagName + '.' +
-      //  rootElem.className, 'color: #009988')
+      //  fixedRootClassName, 'color: #009988')
       return rootElem
     })
 }
