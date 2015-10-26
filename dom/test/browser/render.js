@@ -408,7 +408,7 @@ describe('Rendering', function () {
             DOM: Rx.Observable.just(
               h('h3.top-most', [
                 h('h2.bar', 'Wrong'),
-                h('div.foo', [
+                h('div.cycle-scope-foo', [
                   h('h4.bar', 'Correct')
                 ])
               ])
@@ -429,7 +429,7 @@ describe('Rendering', function () {
         sources.DOM.select(':root').observable.skip(1).take(1)
           .subscribe(function (root) {
             let wrongElement = root.querySelector('.bar');
-            let correctElement = root.querySelector('.foo .bar');
+            let correctElement = root.querySelector('.cycle-scope-foo .bar');
             assert.notStrictEqual(wrongElement, null);
             assert.notStrictEqual(correctElement, null);
             assert.notStrictEqual(typeof wrongElement, 'undefined');
@@ -479,10 +479,40 @@ describe('Rendering', function () {
             assert.notStrictEqual(element, null);
             assert.notStrictEqual(typeof element, 'undefined');
             assert.strictEqual(element.tagName, 'H3');
-            assert.strictEqual(element.className, 'top-most foo');
+            assert.strictEqual(element.className, 'top-most cycle-scope-foo');
             sources.dispose();
             done();
           });
+      });
+
+      it('should prevent parent from DOM.selecting() inside the isolation', function (done) {
+        function app(sources) {
+          return {
+            DOM: Rx.Observable.just(
+              h('h3.top-most', [
+                sources.DOM.isolateSink(Rx.Observable.just(
+                  h('div.foo', [
+                    h('h4.bar', 'Wrong')
+                  ])
+                ), 'ISOLATION'),
+                h('h2.bar', 'Correct'),
+              ])
+            )
+          };
+        }
+        let [sinks, sources] = Cycle.run(app, {
+          DOM: makeDOMDriver(createRenderTarget())
+        });
+        sources.DOM.select('.bar').observable.skip(1).take(1).subscribe(function (elements) {
+          assert.strictEqual(Array.isArray(elements), true);
+          assert.strictEqual(elements.length, 1);
+          const correctElement = elements[0];
+          assert.notStrictEqual(correctElement, null);
+          assert.notStrictEqual(typeof correctElement, 'undefined');
+          assert.strictEqual(correctElement.tagName, 'H2');
+          assert.strictEqual(correctElement.textContent, 'Correct');
+          done();
+        });
       });
     });
 

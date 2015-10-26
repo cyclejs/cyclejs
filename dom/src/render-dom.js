@@ -163,14 +163,32 @@ function renderRawRootElem$(vtree$, domContainer, {CERegistry, driverName}) {
 }
 
 function isolateSource(source, scope) {
-  return source.select(`.${scope}`)
+  return source.select(`.cycle-scope-${scope}`)
 }
 
 function isolateSink(sink, scope) {
   return sink.map(vtree => {
-    vtree.properties.className = `${vtree.properties.className} ${scope}`.trim()
+    const c = `${vtree.properties.className} cycle-scope-${scope}`.trim()
+    vtree.properties.className = c
     return vtree
   })
+}
+
+function makeIsStrictlyInRootScope(rootList, namespace) {
+  const classIsForeign = c => {
+    const matched = c.match(/cycle-scope-(\S+)/)
+    return matched && namespace.indexOf(`.${c}`) === -1
+  }
+  return function isStrictlyInRootScope(leaf) {
+    for (let parent = leaf; parent !== null; parent = parent.parentElement) {
+      if (rootList.indexOf(parent) >= 0) {
+        return true
+      }
+      const classList = parent.className.split(` `)
+      const someClassIsForeign = classList.some(classIsForeign)
+      return !someClassIsForeign
+    }
+  }
 }
 
 function makeEventsSelector(element$) {
@@ -194,7 +212,8 @@ function makeElementSelector(rootEl$) {
       throw new Error(`DOM driver's select() expects the argument to be a ` +
         `string as a CSS selector`)
     }
-    let scopedSelector = `${this.namespace.join(` `)} ${selector}`.trim()
+    const namespace = this.namespace
+    let scopedSelector = `${namespace.join(` `)} ${selector}`.trim()
     let element$ = selector.trim() === `:root` ? rootEl$ : rootEl$.map(x => {
       let array = Array.isArray(x) ? x : [x]
       return array.map(element => {
@@ -204,11 +223,13 @@ function makeElementSelector(rootEl$) {
           let nodeList = element.querySelectorAll(scopedSelector)
           return Array.prototype.slice.call(nodeList)
         }
-      }).reduce((prev, curr) => prev.concat(curr), [])
+      })
+      .reduce((prev, curr) => prev.concat(curr), [])
+      .filter(makeIsStrictlyInRootScope(array, namespace))
     })
     return {
       observable: element$,
-      namespace: this.namespace.concat(selector),
+      namespace: namespace.concat(selector),
       select: makeElementSelector(element$),
       events: makeEventsSelector(element$),
       isolateSource,
