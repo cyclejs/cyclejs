@@ -43,18 +43,18 @@ describe('Custom Elements', function () {
         DOM: Rx.Observable.just(h('div.toplevel', [h('my-element', {key: 1})]))
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
     // Make assertions
-    responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
       let myElement = root.querySelector('.myelementclass');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
       assert.strictEqual(myElement.tagName, 'H3');
-      responses.dispose();
+      sources.dispose();
       done();
     });
   });
@@ -83,13 +83,13 @@ describe('Custom Elements', function () {
         )
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
     // Make assertions
-    responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
       let myElement = root.querySelector('.stateful-element');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
@@ -97,11 +97,11 @@ describe('Custom Elements', function () {
       assert.strictEqual(myElement.textContent, '0');
       assert.strictEqual(myElement.style.color, 'rgb(255, 0, 0)');
     });
-    responses.DOM.select(':root').observable.skip(6).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').observable.skip(6).take(1).subscribe(function (root) {
       let myElement = root.querySelector('.stateful-element');
       assert.strictEqual(myElement.textContent, '3');
       assert.strictEqual(myElement.style.color, 'rgb(0, 255, 0)');
-      responses.dispose();
+      sources.dispose();
       done();
     });
   });
@@ -131,20 +131,20 @@ describe('Custom Elements', function () {
         )
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
     // Make assertions
-    responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
       let myElement = root.querySelector('.inner-element');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
       assert.strictEqual(myElement.tagName, 'H3');
       assert.strictEqual(myElement.textContent, 'Hello world');
       assert.strictEqual(myElement.style.color, 'rgb(255, 0, 0)');
-      responses.dispose();
+      sources.dispose();
       done();
     });
   });
@@ -174,20 +174,20 @@ describe('Custom Elements', function () {
         )
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
     // Make assertions
-    responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
       let myElement = root.querySelector('.inner-element');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
       assert.strictEqual(myElement.tagName, 'H3');
       assert.strictEqual(myElement.textContent, 'Hello world');
       assert.strictEqual(myElement.style.color, 'rgb(255, 0, 0)');
-      responses.dispose();
+      sources.dispose();
       done();
     });
   });
@@ -213,13 +213,13 @@ describe('Custom Elements', function () {
         )
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
     // Make assertions
-    responses.DOM.select(':root').observable.skip(1).take(1).subscribe(
+    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(
       function onNextHandler() {
         assert.fail('DOM :root Observable should not emit onNext.');
       },
@@ -295,14 +295,14 @@ describe('Custom Elements', function () {
         )
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeDOMDriver(createRenderTarget(), {
         'my-element1': myElementDef1,
         'my-element2': myElementDef2
       })
     });
     // Make assertions
-    responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
       let myElement1 = root.querySelector('.myelement1class');
       let myElement2 = root.querySelector('.myelement2class');
       assert.notStrictEqual(myElement1, null);
@@ -311,7 +311,7 @@ describe('Custom Elements', function () {
       assert.notStrictEqual(myElement2, null);
       assert.notStrictEqual(typeof myElement2, 'undefined');
       assert.strictEqual(myElement2.tagName, 'H2');
-      responses.dispose();
+      sources.dispose();
       done();
     });
   });
@@ -339,19 +339,19 @@ describe('Custom Elements', function () {
         DOM: Rx.Observable.just(h('div', [h('outer-element', {key: 2})]))
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeDOMDriver(createRenderTarget(), {
         'inner-element': innerElementDef,
         'outer-element': outerElementDef
       })
     });
     // Make assertions
-    responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
       let innerElement = root.querySelector('.innerClass');
       assert.notStrictEqual(innerElement, null);
       assert.notStrictEqual(typeof innerElement, 'undefined');
       assert.strictEqual(innerElement.tagName, 'H3');
-      responses.dispose();
+      sources.dispose();
       done();
     });
   });
@@ -368,13 +368,13 @@ describe('Custom Elements', function () {
         DOM: Rx.Observable.just(h('div.toplevel', [h('my-element', {key: 1})]))
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
     // Make assertions
-    responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
       assert.notStrictEqual(root, null);
       assert.notStrictEqual(typeof root, 'undefined');
       assert.strictEqual(root.innerHTML,
@@ -384,7 +384,7 @@ describe('Custom Elements', function () {
           '</h3>'+
         '</div>'
       );
-      responses.dispose();
+      sources.dispose();
       done();
     });
   });
@@ -399,9 +399,9 @@ describe('Custom Elements', function () {
         )
       };
     }
-    function main(responses) {
+    function main(sources) {
       return {
-        DOM: responses.DOM.select('.target').events('click')
+        DOM: sources.DOM.select('.target').events('click')
           .startWith(0)
           .scan((x,y) => x+1, -1)
           .map(number =>
@@ -412,13 +412,13 @@ describe('Custom Elements', function () {
           )
       };
     }
-    let [requests, responses] = Cycle.run(main, {
+    let [sinks, sources] = Cycle.run(main, {
       DOM: makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
     // Make assertions
-    responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
       assert.notStrictEqual(root, null);
       assert.notStrictEqual(typeof root, 'undefined');
       assert.strictEqual(root.innerHTML,
@@ -429,7 +429,7 @@ describe('Custom Elements', function () {
           '</button>' +
         '</div>'
       );
-      responses.dispose();
+      sources.dispose();
       done();
     });
   });
@@ -453,19 +453,19 @@ describe('Custom Elements', function () {
         )
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
     // Make assertions
-    responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
       let myElement = root.querySelector('.myelementclass');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
       assert.strictEqual(myElement.tagName, 'H3');
       assert.strictEqual(myElement.textContent, 'Hello World');
-      responses.dispose();
+      sources.dispose();
       done();
     });
   });
@@ -489,15 +489,15 @@ describe('Custom Elements', function () {
         ]))
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
     // Make assertions
     Rx.Observable.combineLatest(
-      responses.DOM.select(':root').observable.skip(1).take(1),
-      responses.DOM.select('.eventsource').events('myevent'),
+      sources.DOM.select(':root').observable.skip(1).take(1),
+      sources.DOM.select('.eventsource').events('myevent'),
       (root, event) => ({root, event})
     )
     .subscribe(({root, event}) => {
@@ -507,7 +507,7 @@ describe('Custom Elements', function () {
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
       assert.strictEqual(myElement.tagName, 'H3');
-      responses.dispose();
+      sources.dispose();
       done();
     });
   });
@@ -526,16 +526,16 @@ describe('Custom Elements', function () {
       };
     }
     // Make assertions
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
-    responses.DOM.select(':root').observable.subscribeOnError(err => {
+    sources.DOM.select(':root').observable.subscribeOnError(err => {
       assert.fail(null, null, err);
     });
     setTimeout(() => {
-      responses.dispose();
+      sources.dispose();
       done();
     }, 500);
   });
@@ -575,13 +575,13 @@ describe('Custom Elements', function () {
       };
     }
 
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeDOMDriver(createRenderTarget(), {
         'slider-elem': sliderDef
       })
     });
 
-    responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
       // Simulate clicks
       setTimeout(() => root.querySelector('.internalslider').click(), 200);
       setTimeout(() => root.querySelector('.internalslider').click(), 300);
@@ -590,7 +590,7 @@ describe('Custom Elements', function () {
       setTimeout(() => {
         let sliders = root.querySelectorAll('.internalslider');
         assert.strictEqual(sliders.length, 0);
-        responses.dispose();
+        sources.dispose();
         done();
       }, 500);
     });
@@ -615,18 +615,18 @@ describe('Custom Elements', function () {
         ]))
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeDOMDriver(createRenderTarget(), {
         'simple-wrapper': simpleWrapperDef
       })
     });
     // Make assertions
-    responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
       let wrapper = root.querySelector('.wrapper');
       assert.notStrictEqual(wrapper, null);
       assert.notStrictEqual(typeof wrapper, 'undefined');
       assert.strictEqual(wrapper.tagName, 'DIV');
-      responses.dispose();
+      sources.dispose();
       done();
     });
   });
@@ -646,17 +646,17 @@ describe('Custom Elements', function () {
         ]))
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
-    responses.DOM.select(':root').observable.subscribeOnError((err) => {
+    sources.DOM.select(':root').observable.subscribeOnError((err) => {
       assert.strictEqual(err.message, 'Custom element should not have ' +
         'property `children`. It is reserved for children elements nested ' +
         'into this custom element.'
       );
-      responses.dispose();
+      sources.dispose();
       done();
     });
   });
@@ -690,13 +690,13 @@ describe('Custom Elements', function () {
       };
     }
 
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeDOMDriver(createRenderTarget(), {
         'x-element': xElementDef
       })
     });
 
-    responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
       setTimeout(() => root.querySelector('.button').click(), 100);
       setTimeout(() => root.querySelector('.button').click(), 200);
       setTimeout(() => {
@@ -704,7 +704,7 @@ describe('Custom Elements', function () {
         assert.strictEqual(items.length, 2);
         assert.strictEqual(items[0].textContent, 'item1');
         assert.strictEqual(items[1].textContent, 'item2');
-        responses.dispose();
+        sources.dispose();
         done();
       }, 500);
     });
@@ -735,23 +735,23 @@ describe('Custom Elements', function () {
         )
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
     // Make assertions
-    responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
       let myElement = root.querySelector('.myelementclass');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
       assert.strictEqual(myElement.tagName, 'H3');
     });
-    responses.DOM.select('.eventsource').events('myevent').subscribe(function (event) {
+    sources.DOM.select('.eventsource').events('myevent').subscribe(function (event) {
       assert.strictEqual(event.type, 'myevent');
       assert.strictEqual(event.detail, 123);
       assert.strictEqual(event.target.tagName, 'BUTTON');
-      responses.dispose();
+      sources.dispose();
       done();
     });
   });
@@ -778,13 +778,13 @@ describe('Custom Elements', function () {
         })
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
     // Make assertions
-    responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
       let myElement = root.querySelector('.myelementclass');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
@@ -793,11 +793,11 @@ describe('Custom Elements', function () {
       // Destroy the element
       customElementSwitch$.request(1);
     });
-    responses.DOM.select(':root').observable.skip(2).subscribe(function (root) {
+    sources.DOM.select(':root').observable.skip(2).subscribe(function (root) {
       let destroyedElement = root.querySelector('.myelementclass');
       assert.strictEqual(destroyedElement, null);
       assert.notStrictEqual(log.length, 2);
-      responses.dispose();
+      sources.dispose();
       done();
     });
     customElementSwitch$.request(1);
@@ -827,14 +827,14 @@ describe('Custom Elements', function () {
         })
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeDOMDriver(createRenderTarget(), {
         'my-element': myElementDef
       })
     });
     // Make assertions
     let myEventDisposable;
-    responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
       let myElement = root.querySelector('.myelementclass');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
@@ -853,7 +853,7 @@ describe('Custom Elements', function () {
       // Destroy the element
       customElementSwitch$.request(1);
     });
-    responses.DOM.select(':root').observable.skip(2).subscribe(function (root) {
+    sources.DOM.select(':root').observable.skip(2).subscribe(function (root) {
       let destroyedElement = root.querySelector('.myelementclass');
       assert.strictEqual(destroyedElement, null);
 
@@ -861,7 +861,7 @@ describe('Custom Elements', function () {
       number$.request(1);
       assert.notStrictEqual(log.length, 3);
 
-      responses.dispose();
+      sources.dispose();
       myEventDisposable.dispose();
       done();
     });

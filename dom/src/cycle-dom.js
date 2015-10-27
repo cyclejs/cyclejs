@@ -1,7 +1,7 @@
 let svg = require(`virtual-dom/virtual-hyperscript/svg`)
 let {makeDOMDriver} = require(`./render-dom`)
 let {makeHTMLDriver} = require(`./render-html`)
-let mockDOMResponse = require(`./mock-dom-response`)
+let mockDOMSource = require(`./mock-dom-source`)
 let h = require(`./virtual-hyperscript`)
 
 let CycleDOM = {
@@ -26,9 +26,9 @@ let CycleDOM = {
    * The key of each property should be the tag name of the custom element, and
    * the value should be a function defining the implementation of the custom
    * element. This function follows the same contract as the top-most `main`
-   * function: input are driver responses, output are requests to drivers.
+   * function: input are driver sources, output are sinks to drivers.
    * @return {Function} the DOM driver function. The function expects an
-   * Observable of VTree as input, and outputs the response object for this
+   * Observable of VTree as input, and outputs the source object for this
    * driver, containing functions `select()` and `dispose()` that can be used
    * for debugging and testing.
    * @function makeDOMDriver
@@ -45,7 +45,7 @@ let CycleDOM = {
    * The key of each property should be the tag name of the custom element, and
    * the value should be a function defining the implementation of the custom
    * element. This function follows the same contract as the top-most `main`
-   * function: input are driver responses, output are requests to drivers.
+   * function: input are driver sources, output are sinks to drivers.
    * @return {Function} the HTML driver function. The function expects an
    * Observable of Virtual DOM elements as input, and outputs an Observable of
    * strings as the HTML renderization of the virtual DOM elements.
@@ -82,12 +82,12 @@ let CycleDOM = {
 
   /**
    * A testing utility which aids in creating a queryable collection of
-   * Observables. Call mockDOMResponse giving it an object specifying selectors,
+   * Observables. Call mockDOMSource giving it an object specifying selectors,
    * eventTypes and their Observabls, and get as output an object following the
-   * same format as the DOM Driver's response. Example:
+   * same format as the DOM Driver's source. Example:
    *
    * ```js
-   * const userEvents = mockDOMResponse({
+   * const userEvents = mockDOMSource({
    *   '.foo': {
    *     'click': Rx.Observable.just({target: {}}),
    *     'mouseover': Rx.Observable.just({target: {}})
@@ -104,13 +104,13 @@ let CycleDOM = {
    * @param {Object} mockedSelectors an object where keys are selector strings
    * and values are objects. Those nested objects have eventType strings as keys
    * and values are Observables you created.
-   * @return {Object} fake DOM response object, containin a function `select()`
-   * which can be used just like the DOM Driver's response. Call
-   * `select(selector).events(eventType)` on the response object to get the
-   * Observable you defined in the input of `mockDOMResponse`.
-   * @function mockDOMResponse
+   * @return {Object} fake DOM source object, containin a function `select()`
+   * which can be used just like the DOM Driver's source. Call
+   * `select(selector).events(eventType)` on the source object to get the
+   * Observable you defined in the input of `mockDOMSource`.
+   * @function mockDOMSource
    */
-  mockDOMResponse,
+  mockDOMSource,
 }
 
 module.exports = CycleDOM

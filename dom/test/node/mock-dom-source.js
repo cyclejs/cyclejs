@@ -3,15 +3,15 @@
 let assert = require('assert');
 let Rx = require('rx');
 let CycleDOM = require('../../src/cycle-dom');
-let mockDOMResponse = require('../../src/mock-dom-response');
+let mockDOMSource = require('../../src/mock-dom-source');
 
-describe('mockDOMResponse', function () {
+describe('mockDOMSource', function () {
   it('should be in accessible in the API', function () {
-    assert.strictEqual(typeof CycleDOM.mockDOMResponse, 'function');
+    assert.strictEqual(typeof CycleDOM.mockDOMSource, 'function');
   });
 
   it('should make an Observable for clicks on `.foo`', function (done) {
-    const userEvents = mockDOMResponse({
+    const userEvents = mockDOMSource({
       '.foo': {
         'click': Rx.Observable.just(135)
       }
@@ -23,7 +23,7 @@ describe('mockDOMResponse', function () {
   });
 
   it('should make multiple user event Observables', function (done) {
-    const userEvents = mockDOMResponse({
+    const userEvents = mockDOMSource({
       '.foo': {
         'click': Rx.Observable.just(135)
       },
@@ -42,7 +42,7 @@ describe('mockDOMResponse', function () {
   });
 
   it('should make multiple user event Observables on the same selector', function (done) {
-    const userEvents = mockDOMResponse({
+    const userEvents = mockDOMSource({
       '.foo': {
         'click': Rx.Observable.just(135),
         'scroll': Rx.Observable.just(3)
@@ -59,7 +59,7 @@ describe('mockDOMResponse', function () {
   });
 
   it('should return an empty Observable if query does not match', function (done) {
-    const userEvents = mockDOMResponse({
+    const userEvents = mockDOMSource({
       '.foo': {
         'click': Rx.Observable.just(135)
       }
@@ -75,7 +75,7 @@ describe('mockDOMResponse', function () {
   });
 
   it('should return empty Observable for select().observable', function (done) {
-    const userEvents = mockDOMResponse({
+    const userEvents = mockDOMSource({
       '.foo': {
         'click': Rx.Observable.just(135)
       }
