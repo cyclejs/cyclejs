@@ -440,6 +440,7 @@ describe('Rendering', function () {
               wrongElement.click();
               setTimeout(() => correctElement.click(), 5);
             });
+            done();
           });
       });
 
