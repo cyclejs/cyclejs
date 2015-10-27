@@ -14849,13 +14849,11 @@ function makeHistoryDriver(config) {
   var historySubject = createHistorySubject(history);
 
   return function historyDriver(url$) {
-    url$.distinctUntilChanged().subscribe(createPushState(history, options.basename || ""));
+    url$.subscribe(createPushState(history, options.basename || ""));
 
     history.listen(function (location) {
       return historySubject.onNext(location);
     });
-    // Convenience
-    historySubject.location = historySubject.value;
 
     return historySubject;
   };
