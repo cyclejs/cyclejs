@@ -59,12 +59,9 @@ function makeHistoryDriver(config) {
 
   return function historyDriver(url$) {
     url$
-      .distinctUntilChanged()
       .subscribe(createPushState(history, options.basename || ``))
 
     history.listen(location => historySubject.onNext(location))
-    // Convenience
-    historySubject.location = historySubject.value
 
     return historySubject
   }
@@ -77,7 +74,7 @@ function makeServerHistoryDriver(startingLocation) {
     search = ``,
     state = {},
     action = `POP`,
-    key = ``
+    key = ``,
   } = startingLocation || {}
 
   return function historyDriver() {
@@ -87,7 +84,7 @@ function makeServerHistoryDriver(startingLocation) {
       search,
       state,
       action,
-      key
+      key,
     })
   }
 }
