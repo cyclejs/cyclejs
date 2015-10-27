@@ -62,7 +62,8 @@ describe('Custom Elements', function () {
   it('should render inner state and properties independently', function (done) {
     // Make custom element with internal state, and properties as input
     function myElementDef(ext) {
-      let number$ = Rx.Observable.interval(10).take(9);
+      // 10 ms fail, 11 ms pass. Must be hardware related!
+      let number$ = Rx.Observable.interval(11).take(9);
       return {
         DOM: Rx.Observable.combineLatest(ext.props.get('color'), number$,
           function (color, number) {
