@@ -42,9 +42,9 @@ function main({ DOM, History }){
     .map(location => {
       switch (location.pathname) {
         case '/home':
-          return h('h1', {}, 'Welcome Home')
+          return renderHome()
         default:
-          return h('h1', {}, 'Hello, World!')
+          return renderIndex()
       }
     })
 
