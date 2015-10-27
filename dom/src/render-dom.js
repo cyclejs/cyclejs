@@ -180,18 +180,16 @@ function makeIsStrictlyInRootScope(rootList, namespace) {
     return matched && namespace.indexOf(`.${c}`) === -1
   }
   return function isStrictlyInRootScope(leaf) {
-    let someClassIsForeign = false
     for (let parent = leaf; parent !== null; parent = parent.parentElement) {
       if (rootList.indexOf(parent) >= 0) {
         return true
       }
       const classList = parent.className.split(` `)
-      someClassIsForeign = classList.some(classIsForeign)
-      if (someClassIsForeign) {
-        break
+      if (classList.some(classIsForeign)) {
+        return false
       }
     }
-    return !someClassIsForeign
+    return true
   }
 }
 
