@@ -94,6 +94,45 @@ function isObjectEmpty(obj) {
   return true
 }
 
+let counter
+
+function newScope() {
+  return `cy${++counter}`
+}
+
+function isolate(dialogue, scope = newScope()) {
+  return function scopedDialogue(responses) {
+    const scopedResponses = {}
+    for (let key in responses) {
+      if (responses.hasOwnProperty(key)) {
+        if (typeof responses[key].confineResponse === `function`) {
+          scopedResponses[key] = responses[key].confineResponse(
+            responses[key], scope
+          )
+        } else {
+          scopedResponses[key] = responses[key]
+        }
+      }
+    }
+    const requests = dialogue(scopedResponses)
+    const scopedRequests = {}
+    for (let key in requests) {
+      if (requests.hasOwnProperty(key)) {
+        if (responses.hasOwnProperty(key) &&
+          typeof responses[key].confineRequest === `function`)
+        {
+          scopedRequests[key] = responses[key].confineRequest(
+            requests[key], scope
+          )
+        } else {
+          scopedRequests[key] = requests[key]
+        }
+      }
+    }
+    return scopedRequests
+  }
+}
+
 function run(main, drivers) {
   if (typeof main !== `function`) {
     throw new Error(`First argument given to Cycle.run() must be the 'main' ` +
@@ -138,6 +177,11 @@ let Cycle = {
    * @function run
    */
   run,
+
+  /**
+   * I need documentation.
+   */
+  isolate,
 }
 
 module.exports = Cycle
