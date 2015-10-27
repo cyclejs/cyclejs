@@ -31,6 +31,7 @@ This function expects a [Location object](https://github.com/rackt/history/blob/
 
 ###### Example
 ```js
+import { makeServerHistoryDriver } from '@cycle/history'
 import { createLocation } from 'history'
 
 makeServerHistoryDriver(
@@ -40,7 +41,7 @@ makeServerHistoryDriver(
 )
 ```
 
-#### `filterLinks(pathname: string): Boolean`
+#### `filterLinks(event: Event): Boolean`
 
 This is a helper function which allows the filtering of links. When you click a link that should be handled by your application it will accept it, but if it is an external/download/etc link not meant to be handled internally it will be ignored.
 
