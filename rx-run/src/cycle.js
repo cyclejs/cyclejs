@@ -182,7 +182,22 @@ let Cycle = {
   run,
 
   /**
-   * @TODO I need documentation.
+   * Takes a `dialogue` function and an optional `scope`, and returns a scoped
+   * `dialogue` function.
+   *
+   * When the scoped `dialogue` function is invoked, each source, provided
+   * to the scoped `dialogue`, are attempted called to isolate the source within
+   * the scope. Likewise, the returned sinks from the invocation are also
+   * attempted called to isolate each within the scope.
+   *
+   * @param {Function} dialogue a function that takes `sources` as input
+   * and outputs a collection of `sinks`.
+   * @param {String} scope an optional string that are passed to `sources`
+   * and `sinks` when the returned scoped `dialogue` is invoked.
+   * @return {Function} the scoped dialogue function that, as the original
+   * dialogue function, takes `sources` that will be attempted isolated
+   * and returns `sinks` that will be attempted isolated.
+   * @function isolate
    */
   isolate,
 }
