@@ -1,3 +1,4 @@
+/* eslint-disable */
 'use strict';
 /* global describe, it */
 let assert = require('assert');
@@ -9,6 +10,10 @@ describe('Cycle', function () {
   describe('API', function () {
     it('should have `run`', function () {
       assert.strictEqual(typeof Cycle.run, 'function');
+    });
+
+    it('should have `isolate`', function () {
+      assert.strictEqual(typeof Cycle.isolate, 'function');
     });
   });
 
@@ -132,6 +137,117 @@ describe('Cycle', function () {
         sandbox.restore();
         done();
       }, 10);
+    });
+  });
+
+  describe('isolate()', function () {
+    it('should throw if first argument is not a function', function () {
+      assert.throws(() => {
+        Cycle.isolate('not a function');
+      }, /First argument given to Cycle\.isolate\(\) must be a 'dialogue' function/i);
+    });
+
+    it('should throw if second argument is not a string', function () {
+      function MyDialogue() {}
+      assert.throws(() => {
+        Cycle.isolate(MyDialogue, null);
+      }, /Second argument given to Cycle\.isolate\(\) must be a string for 'scope'/i);
+    });
+
+    it('should return a function', function () {
+      function MyDialogue() {}
+      const scopedMyDialogue = Cycle.isolate(MyDialogue, `myScope`);
+      assert.strictEqual(typeof scopedMyDialogue, `function`);
+    });
+
+    it('should make a new scope if second argument is undefined', function () {
+      function MyDialogue() {}
+      const scopedMyDialogue = Cycle.isolate(MyDialogue);
+      assert.strictEqual(typeof scopedMyDialogue, `function`);
+    });
+
+    describe('scopedDialogue', function () {
+      it('should return scoped sinks', function () {
+        function driver() {
+          return {};
+        }
+
+        function MyDialogue(sources) {
+          return {
+            other: Rx.Observable.just('a')
+          };
+        }
+        const scopedMyDialogue = Cycle.isolate(MyDialogue);
+        const scopedSinks = scopedMyDialogue({other: driver()});
+
+        assert.strictEqual(typeof scopedSinks, `object`);
+        scopedSinks.other.subscribe(x => {
+          assert.strictEqual(x, 'a');
+        })
+      })
+
+      it('should isolate sources', function () {
+        function driver() {
+          const someFunc = function (v) {
+            const scope = this.scope;
+            return {
+              scope: scope.concat(v),
+              someFunc,
+              isolateSource
+            };
+          };
+          const isolateSource = function (source, scope) {
+            return source.someFunc(scope);
+          };
+          return {
+            scope: [],
+            someFunc,
+            isolateSource
+          };
+        }
+
+        function MyDialogue(sources) {
+          return {
+            other: sources.other.someFunc('a')
+          };
+        }
+        // First test no isolation...
+        const myDialogue = MyDialogue({other: driver()})
+        assert.strictEqual(myDialogue.other.scope.length, 1);
+        assert.strictEqual(myDialogue.other.scope[0], `a`);
+        // ...then test isolated
+        const scopedMyDialogue = Cycle.isolate(MyDialogue, `myScope`);
+        const scopedSinks = scopedMyDialogue({other: driver()});
+        assert.strictEqual(scopedSinks.other.scope.length, 2);
+        assert.strictEqual(scopedSinks.other.scope[0], `myScope`);
+        assert.strictEqual(scopedSinks.other.scope[1], `a`);
+      });
+
+      it('should isolate sinks', function () {
+        function driver() {
+          const isolateSink = function (sink, scope) {
+            return sink.map(v => `${v} ${scope}`);
+          };
+          return {
+            isolateSink
+          };
+        }
+
+        function MyDialogue(sources) {
+          return {
+            other: ['a']
+          };
+        }
+        // First test no isolation...
+        const myDialogue = MyDialogue({other: driver()})
+        assert.strictEqual(myDialogue.other.length, 1);
+        assert.strictEqual(myDialogue.other[0], `a`);
+        // ...then test isolated
+        const scopedMyDialogue = Cycle.isolate(MyDialogue, `myScope`);
+        const scopedSinks = scopedMyDialogue({other: driver()});
+        assert.strictEqual(scopedSinks.other.length, 1);
+        assert.strictEqual(scopedSinks.other[0], `a myScope`);
+      });
     });
   });
 });
