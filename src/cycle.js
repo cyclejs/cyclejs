@@ -125,8 +125,8 @@ let Cycle = {
    * The `main` function expects a collection of "driver response" Observables
    * as input, and should return a collection of "driver request" Observables.
    * A "collection of Observables" is a JavaScript object whose
-   * keys match the driver names registered by the `drivers` object, and whose values
-   * are Observables or a collection of Observables.
+   * keys match the driver names registered by the `drivers` object, and whose
+   * values are Observables or a collection of Observables.
    *
    * @param {Function} main a function that takes `responses` as input
    * and outputs a collection of `requests` Observables.
