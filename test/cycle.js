@@ -167,7 +167,7 @@ describe('Cycle', function () {
     });
 
     describe('scopedDialogue', function () {
-      it('should return scoped sinks', function () {
+      it('should return a valid dialogue', function () {
         function driver() {
           return {};
         }
@@ -186,7 +186,7 @@ describe('Cycle', function () {
         })
       })
 
-      it('should isolate sources', function () {
+      it('should call `isolateSource` of drivers', function () {
         function driver() {
           const someFunc = function (v) {
             const scope = this.scope;
@@ -211,11 +211,6 @@ describe('Cycle', function () {
             other: sources.other.someFunc('a')
           };
         }
-        // First test no isolation...
-        const myDialogue = MyDialogue({other: driver()})
-        assert.strictEqual(myDialogue.other.scope.length, 1);
-        assert.strictEqual(myDialogue.other.scope[0], `a`);
-        // ...then test isolated
         const scopedMyDialogue = Cycle.isolate(MyDialogue, `myScope`);
         const scopedSinks = scopedMyDialogue({other: driver()});
         assert.strictEqual(scopedSinks.other.scope.length, 2);
@@ -223,7 +218,7 @@ describe('Cycle', function () {
         assert.strictEqual(scopedSinks.other.scope[1], `a`);
       });
 
-      it('should isolate sinks', function () {
+      it('should call `isolateSink` of drivers', function () {
         function driver() {
           const isolateSink = function (sink, scope) {
             return sink.map(v => `${v} ${scope}`);
@@ -238,11 +233,6 @@ describe('Cycle', function () {
             other: ['a']
           };
         }
-        // First test no isolation...
-        const myDialogue = MyDialogue({other: driver()})
-        assert.strictEqual(myDialogue.other.length, 1);
-        assert.strictEqual(myDialogue.other[0], `a`);
-        // ...then test isolated
         const scopedMyDialogue = Cycle.isolate(MyDialogue, `myScope`);
         const scopedSinks = scopedMyDialogue({other: driver()});
         assert.strictEqual(scopedSinks.other.length, 1);
