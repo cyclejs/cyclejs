@@ -101,35 +101,38 @@ function newScope() {
 }
 
 function isolate(dialogue, scope = newScope()) {
-  return function scopedDialogue(responses) {
-    const scopedResponses = {}
-    for (let key in responses) {
-      if (responses.hasOwnProperty(key)) {
-        if (typeof responses[key].confineResponse === `function`) {
-          scopedResponses[key] = responses[key].confineResponse(
-            responses[key], scope
-          )
-        } else {
-          scopedResponses[key] = responses[key]
-        }
+  if (typeof dialogue !== `function`) {
+    throw new Error(`First argument given to Cycle.isolate() must be a ` +
+      `'dialogue' function`)
+  }
+  if (typeof scope !== `string`) {
+    throw new Error(`Second argument given to Cycle.isolate() must be a ` +
+      `string for 'scope'`)
+  }
+  return function scopedDialogue(sources) {
+    const scopedSources = {}
+    for (let key in sources) {
+      if (sources.hasOwnProperty(key) &&
+        typeof sources[key].isolateSource === `function`)
+      {
+        scopedSources[key] = sources[key].isolateSource(sources[key], scope)
+      } else if (sources.hasOwnProperty(key)) {
+        scopedSources[key] = sources[key]
       }
     }
-    const requests = dialogue(scopedResponses)
-    const scopedRequests = {}
-    for (let key in requests) {
-      if (requests.hasOwnProperty(key)) {
-        if (responses.hasOwnProperty(key) &&
-          typeof responses[key].confineRequest === `function`)
-        {
-          scopedRequests[key] = responses[key].confineRequest(
-            requests[key], scope
-          )
-        } else {
-          scopedRequests[key] = requests[key]
-        }
+    const sinks = dialogue(scopedSources)
+    const scopedSinks = {}
+    for (let key in sinks) {
+      if (sinks.hasOwnProperty(key) &&
+        sources.hasOwnProperty(key) &&
+        typeof sources[key].isolateSink === `function`)
+      {
+        scopedSinks[key] = sources[key].isolateSink(sinks[key], scope)
+      } else if (sinks.hasOwnProperty(key)) {
+        scopedSinks[key] = sinks[key]
       }
     }
-    return scopedRequests
+    return scopedSinks
   }
 }
 
@@ -179,7 +182,22 @@ let Cycle = {
   run,
 
   /**
-   * I need documentation.
+   * Takes a `dialogue` function and an optional `scope`, and returns a scoped
+   * `dialogue` function.
+   *
+   * When the scoped `dialogue` function is invoked, each source, provided
+   * to the scoped `dialogue`, are attempted called to isolate the source within
+   * the scope. Likewise, the returned sinks from the invocation are also
+   * attempted called to isolate each within the scope.
+   *
+   * @param {Function} dialogue a function that takes `sources` as input
+   * and outputs a collection of `sinks`.
+   * @param {String} scope an optional string that are passed to `sources`
+   * and `sinks` when the returned scoped `dialogue` is invoked.
+   * @return {Function} the scoped dialogue function that, as the original
+   * dialogue function, takes `sources` that will be attempted isolated
+   * and returns `sinks` that will be attempted isolated.
+   * @function isolate
    */
   isolate,
 }
