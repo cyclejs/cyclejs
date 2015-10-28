@@ -101,35 +101,39 @@ function newScope() {
 }
 
 function isolate(dialogue, scope = newScope()) {
-  return function scopedDialogue(responses) {
-    const scopedResponses = {}
-    for (let key in responses) {
-      if (responses.hasOwnProperty(key)) {
-        if (typeof responses[key].confineResponse === `function`) {
-          scopedResponses[key] = responses[key].confineResponse(
-            responses[key], scope
-          )
+  if (typeof dialogue !== `function`) {
+    throw new Error(`First argument given to Cycle.isolate() must be a ` +
+      `'dialogue' function`)
+  }
+  if (typeof scope !== `string`) {
+    throw new Error(`Second argument given to Cycle.isolate() must be a ` +
+      `string for 'scope'`)
+  }
+  return function scopedDialogue(sources) {
+    const scopedSources = {}
+    for (let key in sources) {
+      if (sources.hasOwnProperty(key)) {
+        if (typeof sources[key].isolateSource === `function`) {
+          scopedSources[key] = sources[key].isolateSource(sources[key], scope)
         } else {
-          scopedResponses[key] = responses[key]
+          scopedSources[key] = sources[key]
         }
       }
     }
-    const requests = dialogue(scopedResponses)
-    const scopedRequests = {}
-    for (let key in requests) {
-      if (requests.hasOwnProperty(key)) {
-        if (responses.hasOwnProperty(key) &&
-          typeof responses[key].confineRequest === `function`)
+    const sinks = dialogue(scopedSources)
+    const scopedSinks = {}
+    for (let key in sinks) {
+      if (sinks.hasOwnProperty(key)) {
+        if (sources.hasOwnProperty(key) &&
+          typeof sources[key].isolateSink === `function`)
         {
-          scopedRequests[key] = responses[key].confineRequest(
-            requests[key], scope
-          )
+          scopedSinks[key] = sources[key].isolateSink(sinks[key], scope)
         } else {
-          scopedRequests[key] = requests[key]
+          scopedSinks[key] = sinks[key]
         }
       }
     }
-    return scopedRequests
+    return scopedSinks
   }
 }
 
@@ -179,7 +183,7 @@ let Cycle = {
   run,
 
   /**
-   * I need documentation.
+   * @TODO I need documentation.
    */
   isolate,
 }
