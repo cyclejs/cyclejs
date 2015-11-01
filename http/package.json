@@ -34,6 +34,9 @@
     "uglify-js": "2.5.0",
     "zuul": "3.6.0"
   },
+  "browserify-shim": {
+    "rx": "global:Rx"
+  },
   "scripts": {
     "eslint": "eslint src/",
     "test-node": "mocha test/node.js",
