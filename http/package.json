@@ -13,7 +13,7 @@
     "superagent": "1.4.0"
   },
   "peerDependencies": {
-    "@cycle/core": "5.x.x"
+    "rx": ">=3"
   },
   "devDependencies": {
     "@cycle/core": "5.0.x",
