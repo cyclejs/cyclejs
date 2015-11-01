@@ -1498,7 +1498,7 @@ var _require = require("./http-driver");
 
 var makeHTTPDriver = _require.makeHTTPDriver;
 
-module.exports = {
+var CycleHTTPDriver = {
   /**
    * HTTP Driver factory.
    *
@@ -1550,6 +1550,8 @@ module.exports = {
    */
   makeHTTPDriver: makeHTTPDriver
 };
+
+module.exports = CycleHTTPDriver;
 
 },{"./http-driver":4}]},{},[5])(5)
 });
