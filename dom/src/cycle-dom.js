@@ -83,7 +83,7 @@ let CycleDOM = {
   /**
    * A testing utility which aids in creating a queryable collection of
    * Observables. Call mockDOMSource giving it an object specifying selectors,
-   * eventTypes and their Observabls, and get as output an object following the
+   * eventTypes and their Observables, and get as output an object following the
    * same format as the DOM Driver's source. Example:
    *
    * ```js
@@ -104,7 +104,7 @@ let CycleDOM = {
    * @param {Object} mockedSelectors an object where keys are selector strings
    * and values are objects. Those nested objects have eventType strings as keys
    * and values are Observables you created.
-   * @return {Object} fake DOM source object, containin a function `select()`
+   * @return {Object} fake DOM source object, containing a function `select()`
    * which can be used just like the DOM Driver's source. Call
    * `select(selector).events(eventType)` on the source object to get the
    * Observable you defined in the input of `mockDOMSource`.
