@@ -1,51 +1,51 @@
 let Rx = require(`rx`)
 
-function makeRequestProxies(drivers) {
-  let requestProxies = {}
+function makeSinkProxies(drivers) {
+  let sinkProxies = {}
   for (let name in drivers) {
     if (drivers.hasOwnProperty(name)) {
-      requestProxies[name] = new Rx.ReplaySubject(1)
+      sinkProxies[name] = new Rx.ReplaySubject(1)
     }
   }
-  return requestProxies
+  return sinkProxies
 }
 
-function callDrivers(drivers, requestProxies) {
-  let responses = {}
+function callDrivers(drivers, sinkProxies) {
+  let sources = {}
   for (let name in drivers) {
     if (drivers.hasOwnProperty(name)) {
-      responses[name] = drivers[name](requestProxies[name], name)
+      sources[name] = drivers[name](sinkProxies[name], name)
     }
   }
-  return responses
+  return sources
 }
 
-function attachDisposeToRequests(requests, replicationSubscription) {
-  Object.defineProperty(requests, `dispose`, {
+function attachDisposeToSinks(sinks, replicationSubscription) {
+  Object.defineProperty(sinks, `dispose`, {
     enumerable: false,
     value: () => { replicationSubscription.dispose() },
   })
-  return requests
+  return sinks
 }
 
-function makeDisposeResponses(responses) {
+function makeDisposeSources(sources) {
   return function dispose() {
-    for (let name in responses) {
-      if (responses.hasOwnProperty(name) &&
-        typeof responses[name].dispose === `function`)
+    for (let name in sources) {
+      if (sources.hasOwnProperty(name) &&
+        typeof sources[name].dispose === `function`)
       {
-        responses[name].dispose()
+        sources[name].dispose()
       }
     }
   }
 }
 
-function attachDisposeToResponses(responses) {
-  Object.defineProperty(responses, `dispose`, {
+function attachDisposeToSources(sources) {
+  Object.defineProperty(sources, `dispose`, {
     enumerable: false,
-    value: makeDisposeResponses(responses),
+    value: makeDisposeSources(sources),
   })
-  return responses
+  return sources
 }
 
 function logToConsoleError(err) {
@@ -150,13 +150,13 @@ function run(main, drivers) {
       `with at least one driver function declared as a property.`)
   }
 
-  let requestProxies = makeRequestProxies(drivers)
-  let responses = callDrivers(drivers, requestProxies)
-  let requests = main(responses)
-  let subscription = replicateMany(requests, requestProxies).subscribe()
-  let requestsWithDispose = attachDisposeToRequests(requests, subscription)
-  let responsesWithDispose = attachDisposeToResponses(responses)
-  return [requestsWithDispose, responsesWithDispose]
+  let sinkProxies = makeSinkProxies(drivers)
+  let sources = callDrivers(drivers, sinkProxies)
+  let sinks = main(sources)
+  let subscription = replicateMany(sinks, sinkProxies).subscribe()
+  let sinksWithDispose = attachDisposeToSinks(sinks, subscription)
+  let sourcesWithDispose = attachDisposeToSources(sources)
+  return [sinksWithDispose, sourcesWithDispose]
 }
 
 let Cycle = {
@@ -164,18 +164,18 @@ let Cycle = {
    * Takes an `main` function and circularly connects it to the given collection
    * of driver functions.
    *
-   * The `main` function expects a collection of "driver response" Observables
-   * as input, and should return a collection of "driver request" Observables.
+   * The `main` function expects a collection of "driver source" Observables
+   * as input, and should return a collection of "driver sink" Observables.
    * A "collection of Observables" is a JavaScript object where
    * keys match the driver names registered by the `drivers` object, and values
    * are Observables or a collection of Observables.
    *
-   * @param {Function} main a function that takes `responses` as input
-   * and outputs a collection of `requests` Observables.
+   * @param {Function} main a function that takes `sources` as input
+   * and outputs a collection of `sinks` Observables.
    * @param {Object} drivers an object where keys are driver names and values
    * are driver functions.
    * @return {Array} an array where the first object is the collection of driver
-   * requests, and the second object is the collection of driver responses, that
+   * sinks, and the second object is the collection of driver sources, that
    * can be used for debugging or testing.
    * @function run
    */
