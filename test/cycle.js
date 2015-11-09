@@ -36,7 +36,7 @@ describe('Cycle', function () {
       }, /Second argument given to Cycle\.run\(\) must be an object with at least one/i);
     });
 
-    it('should return requests object and responses object', function () {
+    it('should return sinks object and sources object', function () {
       function app(ext) {
         return {
           other: ext.other.take(1).startWith('a')
@@ -55,19 +55,19 @@ describe('Cycle', function () {
     });
 
     it('should return a disposable drivers output', function (done) {
-      function app(res) {
+      function app(sources) {
         return {
-          other: res.other.take(6).map(x => String(x)).startWith('a')
+          other: sources.other.take(6).map(x => String(x)).startWith('a')
         };
       }
-      function driver(req) {
-        return req.map(x => x.charCodeAt(0)).delay(1);
+      function driver(sink) {
+        return sink.map(x => x.charCodeAt(0)).delay(1);
       }
-      let [requests, responses] = Cycle.run(app, {other: driver});
-      responses.other.subscribe(x => {
+      let [sinks, sources] = Cycle.run(app, {other: driver});
+      sources.other.subscribe(x => {
         assert.strictEqual(x, 97);
-        requests.dispose();
-        responses.dispose();
+        sinks.dispose();
+        sources.dispose();
         done();
       });
     });
@@ -79,15 +79,15 @@ describe('Cycle', function () {
         };
       }
       let mutable = 'wrong';
-      function driver(req) {
-        return req.map(x => 'a' + 10)
+      function driver(sink) {
+        return sink.map(x => 'a' + 10)
       }
-      let [requests, responses] = Cycle.run(app, {other: driver});
-      responses.other.take(1).subscribe(x => {
+      let [sinks, sources] = Cycle.run(app, {other: driver});
+      sources.other.take(1).subscribe(x => {
         assert.strictEqual(x, 'a10');
         assert.strictEqual(mutable, 'correct');
-        requests.dispose();
-        responses.dispose();
+        sinks.dispose();
+        sources.dispose();
         done();
       });
       mutable = 'correct';
@@ -99,14 +99,14 @@ describe('Cycle', function () {
       function app() {
         return {other: number$};
       }
-      let [requests, responses] = Cycle.run(app, {
+      let [sinks, sources] = Cycle.run(app, {
         other: number$ => number$.map(number => 'x' + number)
       });
-      responses.other.subscribe(function (x) {
+      sources.other.subscribe(function (x) {
         assert.notStrictEqual(x, 'x3');
         if (x === 'x2') {
-          requests.dispose();
-          responses.dispose();
+          sinks.dispose();
+          sources.dispose();
           setTimeout(() => {
             done();
           }, 100);
@@ -118,9 +118,9 @@ describe('Cycle', function () {
       let sandbox = sinon.sandbox.create();
       sandbox.stub(console, "error");
 
-      function main(responses) {
+      function main(sources) {
         return {
-          other: responses.other.take(1).startWith('a').map(() => {
+          other: sources.other.take(1).startWith('a').map(() => {
             throw new Error('malfunction');
           })
         };
