@@ -235,9 +235,9 @@ describe('Custom Elements', function () {
 
   it('should allow nested svg elements as children', function (done) {
     // Make the svg custom element
-    function workspace(responses) {
+    function workspace(sources) {
       return {
-        DOM: responses.props.get('*').map(props => {
+        DOM: sources.props.get('*').map(props => {
           const svgProps = {...props, children: void 0};
           return svg('svg', {
             attributes: svgProps,
@@ -259,16 +259,16 @@ describe('Custom Elements', function () {
         )
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let [sinks, sources] = Cycle.run(app, {
       DOM: makeDOMDriver(createRenderTarget(), {
         'work-space': workspace,
       })
     });
     // Make assertions
-    responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
       let svgElements = root.querySelectorAll('svg');
       assert.strictEqual(svgElements.length, 2);
-      responses.dispose();
+      sources.dispose();
       done();
     });
   })
