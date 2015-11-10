@@ -1,0 +1,61 @@
+{
+  "name": "@cycle/isolate",
+  "version": "1.0.0",
+  "author": "Andre Staltz",
+  "description": "A utility function to make scoped dataflow components in Cycle.js",
+  "license": "MIT",
+  "homepage": "https://cyclejs.github.io",
+  "bugs": "https://github.com/cyclejs/isolate/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cyclejs/isolate"
+  },
+  "keywords": [
+    "reactive",
+    "framework",
+    "rxjs",
+    "rx",
+    "unidirectional",
+    "mvi",
+    "dataflow",
+    "virtual-dom"
+  ],
+  "main": "lib/index.js",
+  "devDependencies": {
+    "babel": "5.8.23",
+    "babelify": "6.3.0",
+    "browserify": "11.2.0",
+    "eslint": "1.0.0",
+    "eslint-config-cycle": "3.0.0",
+    "eslint-plugin-cycle": "1.0.1",
+    "eslint-plugin-no-class": "0.1.0",
+    "markdox": "0.1.10",
+    "mocha": "2.3.3",
+    "rx": "4.0.6",
+    "sinon": "1.17.1",
+    "testem": "0.9.8",
+    "uglify-js": "2.5.0"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "eslint": "eslint src/",
+    "mocha": "mocha --compilers js:babel/register test",
+    "test": "npm run eslint && npm run mocha",
+    "test-browser": "testem",
+    "pretest-browser": "browserify test/index.js -t babelify -o test/browser/tests-bundle.js",
+    "posttest-browser": "rm test/browser/tests-bundle.js",
+    "browserify": "browserify src/index.js -t babelify --standalone CycleIsolate --outfile dist/cycle-isolate.js",
+    "uglify": "uglifyjs dist/cycle-isolate.js -o dist/cycle-isolate.min.js",
+    "dist": "npm run browserify && npm run uglify",
+    "docs": "node ./scripts/make-api-docs.js",
+    "precompile-lib": "rm -rf lib/ && mkdir -p lib",
+    "compile-lib": "babel -d lib/ src/",
+    "prepublish": "npm run compile-lib",
+    "release": "npm run release-patch",
+    "release-patch": "git checkout master && npm run dist; git commit -a -m 'Build dist/'; npm version patch && git push origin master --tags && npm publish --access=public",
+    "release-minor": "git checkout master && npm run dist; git commit -a -m 'Build dist/'; npm version minor && git push origin master --tags && npm publish --access=public",
+    "release-major": "git checkout master && npm run dist; git commit -a -m 'Build dist/'; npm version major && git push origin master --tags && npm publish --access=public"
+  }
+}

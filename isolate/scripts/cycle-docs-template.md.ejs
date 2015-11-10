@@ -1,0 +1,57 @@
+<? docfiles.forEach(function(doc) { ?>
+  # `isolate` API
+
+  <? doc.javadoc.forEach(function(comment) { ?>
+    <? if (!comment.ignore) { ?>
+      <? if (comment.name) { ?>
+        - [`<?= comment.name ?>`](#<?= comment.name ?>)
+      <? } ?>
+    <? } ?>
+  <? }) ?>
+
+  <? doc.javadoc.forEach(function(comment) { ?>
+    <? if (!comment.ignore) { ?>
+      <? if (comment.name) { ?>
+        <? if (comment.isMethod || comment.isFunction) { ?>
+          ### <a id="<?= comment.name ?>"></a> `<?= comment.name ?>(<?= comment.paramStr ?>)`
+        <? } else { ?>
+          ### <a id="<?= comment.name ?>"></a> `<?= comment.name ?>`
+        <? } ?>
+      <? } ?>
+
+        <?= comment.description ?>
+
+        <? if (comment.deprecated) { ?>
+          **Deprecated**
+        <? } ?>
+
+        <? if (comment.author) { ?>
+          Author: <?- comment.author ?>
+        <? } ?>
+
+        <? if (comment.version) { ?>
+          Version: <?= comment.version ?>
+        <? } ?>
+
+        <? if (comment.see) { ?>
+          See: <?= comment.see ?>
+        <? } ?>
+
+      <? if (comment.paramTags.length > 0) { ?>
+        #### Arguments:
+        <? comment.paramTags.forEach(function(paramTag) { ?>
+          - `<?= paramTag.name ?><? if (paramTag.joinedTypes) { ?> :: <?= paramTag.joinedTypes.replace('.', '') ?><? } ?>`<? if (paramTag.description) { ?> <?= paramTag.description ?><? } ?><? }) ?>
+      <? } ?>
+
+      <? if (comment.returnTags.length > 0) { ?>
+        #### Return:
+        <? comment.returnTags.forEach(function(returnTag) { ?>
+          *(<?= returnTag.joinedTypes ?>)* <?= returnTag.description ?>
+        <? }) ?>
+      <? } ?>
+    <? } ?>
+
+    - - -
+  <? }) ?>
+
+<? }) ?>
