@@ -4,6 +4,7 @@
 - [`makeDOMDriver`](#makeDOMDriver)
 - [`makeHTMLDriver`](#makeHTMLDriver)
 - [`h`](#h)
+- [`div, span, h1`](#hyperscript-helpers)
 - [`hJSX`](#hJSX)
 - [`svg`](#svg)
 - [`mockDOMResponse`](#mockDOMResponse)
@@ -66,6 +67,14 @@ strings as the HTML renderization of the virtual DOM elements.
 A shortcut to [virtual-hyperscript](
 https://github.com/Matt-Esch/virtual-dom/tree/master/virtual-hyperscript).
 This is a helper for creating VTrees in Views.
+
+- - -
+
+### <a id="hyperscript-helpers"></a> `hyperscript-helpers`
+
+A shortcut to [hyperscript-helpers](
+https://github.com/ohanhi/hyperscript-helpers).
+This is a helper for extending virtual-hyperscript.
 
 - - -
 

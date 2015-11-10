@@ -3,6 +3,17 @@ let {makeDOMDriver} = require(`./render-dom`)
 let {makeHTMLDriver} = require(`./render-html`)
 let mockDOMSource = require(`./mock-dom-source`)
 let h = require(`./virtual-hyperscript`)
+let {a, abbr, address, area, article, aside, audio, b, base,
+      bdi, bdo, blockquote, body, br, button, canvas, caption,
+      cite, code, col, colgroup, dd, del, dfn, dir, div, dl,
+      dt, em, embed, fieldset, figcaption, figure, footer, form,
+      h1, h2, h3, h4, h5, h6, head, header, hgroup, hr, html,
+      i, iframe, img, input, ins, kbd, keygen, label, legend,
+      li, link, map, mark, menu, meta, nav, noscript, object,
+      ol, optgroup, option, p, param, pre, q, rp, rt, ruby, s,
+      samp, script, section, select, small, source, span, strong,
+      style, sub, sup, table, tbody, td, textarea, tfoot, th,
+      thead, title, tr, u, ul, video} = require(`hyperscript-helpers`)(h)
 
 let CycleDOM = {
   /**
@@ -60,6 +71,25 @@ let CycleDOM = {
    * @name h
    */
   h,
+
+  /**
+   * shortcuts to [hyperscript-helpers](
+   * https://github.com/ohanhi/hyperscript-helpers).
+   * This is a helper for extending virtual-hyperscript.
+   * @name virtual-hyperscript
+   */
+
+  a, abbr, address, area, article, aside, audio, b, base,
+  bdi, bdo, blockquote, body, br, button, canvas, caption,
+  cite, code, col, colgroup, dd, del, dfn, dir, div, dl,
+  dt, em, embed, fieldset, figcaption, figure, footer, form,
+  h1, h2, h3, h4, h5, h6, head, header, hgroup, hr, html,
+  i, iframe, img, input, ins, kbd, keygen, label, legend,
+  li, link, map, mark, menu, meta, nav, noscript, object,
+  ol, optgroup, option, p, param, pre, q, rp, rt, ruby, s,
+  samp, script, section, select, small, source, span, strong,
+  style, sub, sup, table, tbody, td, textarea, tfoot, th,
+  thead, title, tr, u, ul, video,
 
   /**
    * An adapter around virtual-hyperscript `h()` to allow JSX to be used easily

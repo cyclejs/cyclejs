@@ -6,7 +6,7 @@ let Cycle = require('@cycle/core');
 let CycleDOM = require('../../src/cycle-dom');
 let Fixture89 = require('./fixtures/issue-89');
 let Rx = require('rx');
-let {h, hJSX, makeDOMDriver} = CycleDOM;
+let {h, div, p, span, h4, h3, hJSX, select, option, makeDOMDriver} = CycleDOM;
 
 function createRenderTarget(id = null) {
   let element = document.createElement('div');
@@ -68,9 +68,9 @@ describe('Rendering', function () {
       function app() {
         return {
           DOM: Rx.Observable.just(
-            h('div.top-most', [
-              h('p', 'Foo'),
-              h('span', 'Bar')
+            div('.top-most', [
+              p('Foo'),
+              span('Bar')
             ])
           )
         };
@@ -92,7 +92,7 @@ describe('Rendering', function () {
     it('should have isolateSource() and isolateSink() in source', function (done) {
       function app() {
         return {
-          DOM: Rx.Observable.just(h('div'))
+          DOM: Rx.Observable.just(div())
         };
       }
       let [sinks, sources] = Cycle.run(app, {
@@ -107,10 +107,10 @@ describe('Rendering', function () {
     it('should convert a simple virtual-dom <select> to DOM element', function (done) {
       function app() {
         return {
-          DOM: Rx.Observable.just(h('select.my-class', [
-            h('option', {value: 'foo'}, 'Foo'),
-            h('option', {value: 'bar'}, 'Bar'),
-            h('option', {value: 'baz'}, 'Baz')
+          DOM: Rx.Observable.just(select('.my-class', [
+            option({value: 'foo'}, 'Foo'),
+            option({value: 'bar'}, 'Bar'),
+            option({value: 'baz'}, 'Baz')
           ]))
         };
       }
@@ -163,14 +163,14 @@ describe('Rendering', function () {
         if (previous && previous.vnode) {
           return previous.vnode;
         } else {
-          return h('h4', 'Constantly ' + this.greeting);
+          return h4('Constantly ' + this.greeting);
         }
       };
       // The Cycle.js app
       function app() {
         return {
           DOM: Rx.Observable.interval(10).take(5).map(i =>
-            h('div', [
+            div([
               new ConstantlyThunk('hello' + i)
             ])
           )
@@ -213,8 +213,8 @@ describe('Rendering', function () {
       // The Cycle.js app
       function app() {
         return {
-          DOM: Rx.Observable.just(h('div.top-most', [
-            h('p', 'Just a paragraph'),
+          DOM: Rx.Observable.just(div('.top-most', [
+            p('Just a paragraph'),
             new MyTestWidget('hello world')
           ]))
         };
@@ -241,7 +241,7 @@ describe('Rendering', function () {
       // Make a View reactively imitating another View
       function app() {
         return {
-          DOM: Rx.Observable.just(h('h3.myelementclass', 'Foobar'))
+          DOM: Rx.Observable.just(h3('.myelementclass', 'Foobar'))
         };
       }
       let [sinks, sources] = Cycle.run(app, {
