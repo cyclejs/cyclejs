@@ -11,6 +11,8 @@
 ## Example
 
 ```js
+import isolate from '@cycle/isolate';
+
 function bmiCalculator({DOM}) {
   let weightProps$ = Rx.Observable.just({
     label: 'Weight', unit: 'kg', min: 40, initial: 70, max: 140
