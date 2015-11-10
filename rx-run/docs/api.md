@@ -23,8 +23,8 @@ are Observables or a collection of Observables.
 
 #### Return:
 
-*(Array)* an array where the first object is the collection of driver sinks, and the second object is the collection of driver sources, that
-can be used for debugging or testing.
+*(Object)* an object with two properties: `sources` and `sinks`. `sinks` is the collection of driver sinks, and `sources` is the collection
+of driver sources, that can be used for debugging or testing.
 
 - - -
 

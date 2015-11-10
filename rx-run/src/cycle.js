@@ -156,7 +156,7 @@ function run(main, drivers) {
   let subscription = replicateMany(sinks, sinkProxies).subscribe()
   let sinksWithDispose = attachDisposeToSinks(sinks, subscription)
   let sourcesWithDispose = attachDisposeToSources(sources)
-  return [sinksWithDispose, sourcesWithDispose]
+  return {sources: sourcesWithDispose, sinks: sinksWithDispose}
 }
 
 let Cycle = {
@@ -174,9 +174,9 @@ let Cycle = {
    * and outputs a collection of `sinks` Observables.
    * @param {Object} drivers an object where keys are driver names and values
    * are driver functions.
-   * @return {Array} an array where the first object is the collection of driver
-   * sinks, and the second object is the collection of driver sources, that
-   * can be used for debugging or testing.
+   * @return {Object} an object with two properties: `sources` and `sinks`.
+   * `sinks` is the collection of driver sinks, and `sources` is the collection
+   * of driver sources, that can be used for debugging or testing.
    * @function run
    */
   run,
