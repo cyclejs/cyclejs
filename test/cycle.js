@@ -45,13 +45,13 @@ describe('Cycle', function () {
       function driver() {
         return Rx.Observable.just('b');
       }
-      let [left, right] = Cycle.run(app, {other: driver});
-      assert.strictEqual(typeof left, 'object');
-      assert.strictEqual(typeof left.other.subscribe, 'function');
-      assert.strictEqual(typeof right, 'object');
-      assert.notStrictEqual(typeof right.other, 'undefined');
-      assert.notStrictEqual(right.other, null);
-      assert.strictEqual(typeof right.other.subscribe, 'function');
+      let {sinks, sources} = Cycle.run(app, {other: driver});
+      assert.strictEqual(typeof sinks, 'object');
+      assert.strictEqual(typeof sinks.other.subscribe, 'function');
+      assert.strictEqual(typeof sources, 'object');
+      assert.notStrictEqual(typeof sources.other, 'undefined');
+      assert.notStrictEqual(sources.other, null);
+      assert.strictEqual(typeof sources.other.subscribe, 'function');
     });
 
     it('should return a disposable drivers output', function (done) {
@@ -63,7 +63,7 @@ describe('Cycle', function () {
       function driver(sink) {
         return sink.map(x => x.charCodeAt(0)).delay(1);
       }
-      let [sinks, sources] = Cycle.run(app, {other: driver});
+      let {sinks, sources} = Cycle.run(app, {other: driver});
       sources.other.subscribe(x => {
         assert.strictEqual(x, 97);
         sinks.dispose();
@@ -82,7 +82,7 @@ describe('Cycle', function () {
       function driver(sink) {
         return sink.map(x => 'a' + 10)
       }
-      let [sinks, sources] = Cycle.run(app, {other: driver});
+      let {sinks, sources} = Cycle.run(app, {other: driver});
       sources.other.take(1).subscribe(x => {
         assert.strictEqual(x, 'a10');
         assert.strictEqual(mutable, 'correct');
@@ -99,7 +99,7 @@ describe('Cycle', function () {
       function app() {
         return {other: number$};
       }
-      let [sinks, sources] = Cycle.run(app, {
+      let {sinks, sources} = Cycle.run(app, {
         other: number$ => number$.map(number => 'x' + number)
       });
       sources.other.subscribe(function (x) {
