@@ -30,10 +30,10 @@
     "x-is-array": "0.1.0"
   },
   "peerDependencies": {
-    "@cycle/core": "5.x.x"
+    "@cycle/core": "6.0.0-rc1"
   },
   "devDependencies": {
-    "@cycle/core": "5.0.x",
+    "@cycle/core": "6.0.0-rc1",
     "babel": "5.8.23",
     "babelify": "6.3.0",
     "browserify": "11.2.0",

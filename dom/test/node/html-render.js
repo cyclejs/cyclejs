@@ -13,7 +13,7 @@ describe('HTML Driver', function () {
         html: Rx.Observable.just(div('.test-element', ['Foobar']))
       };
     }
-    let [sinks, sources] = Cycle.run(app, {
+    let {sinks, sources} = Cycle.run(app, {
       html: makeHTMLDriver()
     });
     sources.html.subscribe(html => {
@@ -31,7 +31,7 @@ describe('HTML Driver', function () {
         html: Rx.Observable.just(div('.test-element', ['Foobar']))
       };
     }
-    let [sinks, sources] = Cycle.run(app, {
+    let {sinks, sources} = Cycle.run(app, {
       html: makeHTMLDriver()
     });
     sources.html.subscribe(html => {
@@ -46,7 +46,7 @@ describe('HTML Driver', function () {
         html: Rx.Observable.just(div('.test-element', ['Foobar']))
       };
     }
-    let [sinks, sources] = Cycle.run(app, {
+    let {sinks, sources} = Cycle.run(app, {
       html: makeHTMLDriver()
     });
     sources.html.subscribe(html => {
@@ -63,7 +63,7 @@ describe('HTML Driver', function () {
         ]))
       };
     }
-    let [sinks, sources] = Cycle.run(app, {
+    let {sinks, sources} = Cycle.run(app, {
       DOM: makeHTMLDriver()
     });
     sources.DOM.subscribe(html => {
@@ -87,9 +87,7 @@ describe('HTML Driver', function () {
         ]))
       };
     }
-    let html$ = Cycle.run(app, {
-      html: makeHTMLDriver()
-    })[1].html;
+    let html$ = Cycle.run(app, { html: makeHTMLDriver() }).sources.html;
 
     html$.subscribe(html => {
       assert.strictEqual(html,
@@ -118,7 +116,7 @@ describe('HTML Driver', function () {
         )
       };
     }
-    let [sinks, sources] = Cycle.run(app, {
+    let {sinks, sources} = Cycle.run(app, {
       DOM: makeHTMLDriver()
     });
 
@@ -153,7 +151,7 @@ describe('HTML Driver', function () {
         )
       };
     }
-    let [sinks, sources] = Cycle.run(app, {
+    let {sinks, sources} = Cycle.run(app, {
       html: makeHTMLDriver()
     });
 

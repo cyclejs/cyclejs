@@ -75,7 +75,7 @@ describe('Rendering', function () {
           )
         };
       }
-      let [sinks, sources] = Cycle.run(app, {
+      let {sinks, sources} = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
       sources.DOM.select(':root').observable.skip(1).take(1).subscribe(root => {
@@ -95,7 +95,7 @@ describe('Rendering', function () {
           DOM: Rx.Observable.just(div())
         };
       }
-      let [sinks, sources] = Cycle.run(app, {
+      let {sinks, sources} = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
       assert.strictEqual(typeof sources.DOM.isolateSource, 'function');
@@ -114,7 +114,7 @@ describe('Rendering', function () {
           ]))
         };
       }
-      let [sinks, sources] = Cycle.run(app, {
+      let {sinks, sources} = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
       sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
@@ -139,7 +139,7 @@ describe('Rendering', function () {
           )
         };
       }
-      let [sinks, sources] = Cycle.run(app, {
+      let {sinks, sources} = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
       sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
@@ -178,7 +178,7 @@ describe('Rendering', function () {
       }
 
       // Run it
-      let [sinks, sources] = Cycle.run(app, {
+      let {sinks, sources} = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
 
@@ -221,7 +221,7 @@ describe('Rendering', function () {
       }
 
       // Run it
-      let [sinks, sources] = Cycle.run(app, {
+      let {sinks, sources} = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
 
@@ -244,7 +244,7 @@ describe('Rendering', function () {
           DOM: Rx.Observable.just(h3('.myelementclass', 'Foobar'))
         };
       }
-      let [sinks, sources] = Cycle.run(app, {
+      let {sinks, sources} = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
       // Make assertions
@@ -271,7 +271,7 @@ describe('Rendering', function () {
           DOM: Rx.Observable.just(h3('.myelementclass', 'Foobar'))
         };
       }
-      let [sinks, sources] = Cycle.run(app, {
+      let {sinks, sources} = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget('parent-001'))
       });
       // Make assertions
@@ -298,7 +298,7 @@ describe('Rendering', function () {
           DOM: Rx.Observable.just(h3('.myelementclass', 'Foobar'))
         };
       }
-      let [sinks, sources] = Cycle.run(app, {
+      let {sinks, sources} = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
       // Make assertions
@@ -333,7 +333,7 @@ describe('Rendering', function () {
           )
         };
       }
-      let [sinks, sources] = Cycle.run(app, {
+      let {sinks, sources} = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
       // Make assertions
@@ -369,7 +369,7 @@ describe('Rendering', function () {
           ]))
         };
       }
-      let [sinks, sources] = Cycle.run(app, {
+      let {sinks, sources} = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
       let clicks = [];
@@ -415,7 +415,7 @@ describe('Rendering', function () {
             )
           };
         }
-        let [sinks, sources] = Cycle.run(app, {
+        let {sinks, sources} = Cycle.run(app, {
           DOM: makeDOMDriver(createRenderTarget())
         });
         let isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'foo');
@@ -450,7 +450,7 @@ describe('Rendering', function () {
             DOM: Rx.Observable.just(h('h3.top-most'))
           };
         }
-        let [sinks, sources] = Cycle.run(app, {
+        let {sinks, sources} = Cycle.run(app, {
           DOM: makeDOMDriver(createRenderTarget())
         });
         let isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'top-most');
@@ -470,7 +470,7 @@ describe('Rendering', function () {
             DOM: sources.DOM.isolateSink(vtree$, 'foo'),
           };
         }
-        let [sinks, sources] = Cycle.run(app, {
+        let {sinks, sources} = Cycle.run(app, {
           DOM: makeDOMDriver(createRenderTarget())
         });
         // Make assertions
@@ -501,7 +501,7 @@ describe('Rendering', function () {
             )
           };
         }
-        let [sinks, sources] = Cycle.run(app, {
+        let {sinks, sources} = Cycle.run(app, {
           DOM: makeDOMDriver(createRenderTarget())
         });
         sources.DOM.select('.bar').observable.skip(1).take(1).subscribe(function (elements) {
@@ -523,7 +523,7 @@ describe('Rendering', function () {
           DOM: Rx.Observable.just(h3('#myElementId', 'Foobar'))
         };
       }
-      let [sinks, sources] = Cycle.run(app, {
+      let {sinks, sources} = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget('parent-002'))
       });
       // Make assertions
@@ -552,7 +552,7 @@ describe('Rendering', function () {
             DOM: Rx.Observable.just(h3('.myelementclass', 'Foobar'))
           };
         }
-        let [sinks, sources] = Cycle.run(app, {
+        let {sinks, sources} = Cycle.run(app, {
           DOM: makeDOMDriver(createRenderTarget())
         });
         // Make assertions
@@ -571,7 +571,7 @@ describe('Rendering', function () {
             DOM: Rx.Observable.just(h3('.myelementclass', 'Foobar'))
           };
         }
-        let [sinks, sources] = Cycle.run(app, {
+        let {sinks, sources} = Cycle.run(app, {
           DOM: makeDOMDriver(createRenderTarget())
         });
         // Make assertions
@@ -603,7 +603,7 @@ describe('Rendering', function () {
             )
           };
         }
-        let [sinks, sources] = Cycle.run(app, {
+        let {sinks, sources} = Cycle.run(app, {
           DOM: makeDOMDriver(createRenderTarget())
         });
         // Make assertions
@@ -628,7 +628,7 @@ describe('Rendering', function () {
           DOM: Rx.Observable.just(h3('.myelementclass', 'Foobar'))
         };
       }
-      let [sinks, sources] = Cycle.run(app, {
+      let {sinks, sources} = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
       sources.DOM.select('.myelementclass').events('click').subscribe(ev => {
@@ -656,7 +656,7 @@ describe('Rendering', function () {
           DOM: Fixture89.viewWithContainerFn(number$)
         };
       }
-      let [sinks, sources] = Cycle.run(app, {
+      let {sinks, sources} = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
 
@@ -685,7 +685,7 @@ describe('Rendering', function () {
           DOM: Fixture89.viewWithoutContainerFn(number$)
         };
       }
-      let [sinks, sources] = Cycle.run(app, {
+      let {sinks, sources} = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
 
@@ -719,7 +719,7 @@ describe('Rendering', function () {
           ]))
         };
       }
-      let [sinks, sources] = Cycle.run(app, {
+      let {sinks, sources} = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
       sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
@@ -753,7 +753,7 @@ describe('Rendering', function () {
           ]))
         };
       }
-      let [sinks, sources] = Cycle.run(app, {
+      let {sinks, sources} = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
       sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
@@ -777,7 +777,7 @@ describe('Rendering', function () {
           )
         };
       }
-      let [sinks, sources] = Cycle.run(app, {
+      let {sinks, sources} = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
       sources.DOM.select(':root').observable.skip(1).subscribe(function (root) {
