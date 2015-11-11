@@ -4,11 +4,10 @@ let CycleDOM = require('../../../src/cycle-dom');
 let Rx = require('rx');
 let {h} = CycleDOM;
 
-function myElement(ext) {
-  return {
-    DOM: ext.props.get('content')
-      .map(content => h('h3.myelementclass', content))
-  };
+function myElement(content) {
+  return Rx.Observable.just(content).map(content =>
+    h('h3.myelementclass', content)
+  );
 }
 
 function makeModelNumber$() {
@@ -21,14 +20,14 @@ function makeModelNumber$() {
 function viewWithContainerFn(number$) {
   return number$.map(number =>
     h('div', [
-      h('my-element', {content: String(number)})
+      myElement(String(number))
     ])
   );
 }
 
 function viewWithoutContainerFn(number$) {
   return number$.map(number =>
-    h('my-element', {content: String(number)})
+    myElement(String(number))
   );
 }
 

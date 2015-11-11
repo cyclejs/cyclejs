@@ -178,18 +178,18 @@ describe('Rendering', function () {
       }
 
       // Run it
-      let [requests, responses] = Cycle.run(app, {
+      let [sinks, sources] = Cycle.run(app, {
         DOM: makeDOMDriver(createRenderTarget())
       });
 
       // Assert it
-      responses.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+      sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
         let selectEl = root.querySelector('h4');
         assert.notStrictEqual(selectEl, null);
         assert.notStrictEqual(typeof selectEl, 'undefined');
         assert.strictEqual(selectEl.tagName, 'H4');
         assert.strictEqual(selectEl.textContent, 'Constantly hello0');
-        responses.dispose();
+        sources.dispose();
         done();
       });
     });
@@ -649,7 +649,7 @@ describe('Rendering', function () {
       });
     });
 
-    it('should accept a view wrapping a custom element (#89)', function (done) {
+    it('should accept a view wrapping a VTree$ (#89)', function (done) {
       function app() {
         let number$ = Fixture89.makeModelNumber$();
         return {
@@ -657,9 +657,7 @@ describe('Rendering', function () {
         };
       }
       let [sinks, sources] = Cycle.run(app, {
-        DOM: makeDOMDriver(createRenderTarget(), {
-          'my-element': Fixture89.myElement
-        })
+        DOM: makeDOMDriver(createRenderTarget())
       });
 
       sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
@@ -680,7 +678,7 @@ describe('Rendering', function () {
       });
     });
 
-    it('should reject a view with custom element as the root of vtree$', function (done) {
+    it('should accept a view with VTree$ as the root of VTree', function (done) {
       function app() {
         let number$ = Fixture89.makeModelNumber$();
         return {
@@ -688,16 +686,24 @@ describe('Rendering', function () {
         };
       }
       let [sinks, sources] = Cycle.run(app, {
-        DOM: makeDOMDriver(createRenderTarget(), {
-          'my-element': Fixture89.myElement
-        })
+        DOM: makeDOMDriver(createRenderTarget())
       });
-      sources.DOM.select(':root').observable.subscribeOnError(function (err) {
-        assert.strictEqual(err.message,
-          'Illegal to use a Cycle custom element as the root of a View.'
-        );
-        sources.dispose();
-        done();
+
+      sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+        setTimeout(() => {
+          let myelement = root.querySelector('.myelementclass');
+          assert.notStrictEqual(myelement, null);
+          assert.strictEqual(myelement.tagName, 'H3');
+          assert.strictEqual(myelement.textContent, '123');
+        }, 100);
+        setTimeout(() => {
+          let myelement = root.querySelector('.myelementclass');
+          assert.notStrictEqual(myelement, null);
+          assert.strictEqual(myelement.tagName, 'H3');
+          assert.strictEqual(myelement.textContent, '456');
+          sources.dispose();
+          done();
+        }, 500);
       });
     });
 
@@ -729,20 +735,17 @@ describe('Rendering', function () {
 
     it('should render a VTree with a grandchild Observable<VTree>', function (done) {
       function app() {
-        let grandchild$ = Rx.Observable
-          .just(
+        let grandchild$ = Rx.Observable.just(
             h4('.grandchild', {}, [
               'I am a baby'
             ])
-          )
-          .delay(20);
-        let child$ = Rx.Observable
-          .just(
+          ).delay(20);
+        let child$ = Rx.Observable.just(
             h3('.child', {}, [
-              'I am a kid', grandchild$
+              'I am a kid',
+              grandchild$
             ])
-          )
-          .delay(80);
+          ).delay(80);
         return {
           DOM: Rx.Observable.just(div('.my-class', [
             p({}, 'Ordinary paragraph'),

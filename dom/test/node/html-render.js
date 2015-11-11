@@ -55,19 +55,16 @@ describe('HTML Driver', function () {
     });
   });
 
-  it('should render a simple nested custom element as HTML', function (done) {
-    function myElement() {
-      return {
-        DOM: Rx.Observable.just(h3('.myelementclass'))
-      };
-    }
+  it('should render a simple nested vtree$ as HTML', function (done) {
     function app() {
       return {
-        DOM: Rx.Observable.just(div('.test-element', [h('my-element')]))
+        DOM: Rx.Observable.just(h('div.test-element', [
+          Rx.Observable.just(h('h3.myelementclass'))
+        ]))
       };
     }
     let [sinks, sources] = Cycle.run(app, {
-      DOM: makeHTMLDriver({'my-element': myElement})
+      DOM: makeHTMLDriver()
     });
     sources.DOM.subscribe(html => {
       assert.strictEqual(html,
@@ -79,30 +76,19 @@ describe('HTML Driver', function () {
     });
   });
 
-  it('should render double nested custom elements as HTML', function (done) {
-    function myElement() {
+  it('should render double nested vtree$ as HTML', function (done) {
+    function app() {
       return {
-        html: Rx.Observable.just(h3('.myelementclass'))
-      };
-    }
-    function niceElement() {
-      return {
-        html: Rx.Observable.just(div('.a-nice-element', [
-          String('foobar'), h('my-element')
+        html: Rx.Observable.just(h('div.test-element', [
+          Rx.Observable.just(h('div.a-nice-element', [
+            String('foobar'),
+            Rx.Observable.just(h('h3.myelementclass'))
+          ]))
         ]))
       };
     }
-    function app() {
-      return {
-        html: Rx.Observable.just(div('.test-element', [h('nice-element')]))
-      };
-    }
-    let customElements = {
-      'my-element': myElement,
-      'nice-element': niceElement
-    };
     let html$ = Cycle.run(app, {
-      html: makeHTMLDriver(customElements)
+      html: makeHTMLDriver()
     })[1].html;
 
     html$.subscribe(html => {
@@ -117,24 +103,23 @@ describe('HTML Driver', function () {
     });
   });
 
-  it('should HTML-render a nested custom element with props', function (done) {
-    function myElement(ext) {
-      return {
-        DOM: ext.props.get('foobar')
-          .map(foobar => h3('.myelementclass', String(foobar).toUpperCase()))
-      };
+  it('should HTML-render a nested vtree$ with props', function (done) {
+    function myElement(foobar$) {
+      return foobar$.map(foobar =>
+        h('h3.myelementclass', String(foobar).toUpperCase())
+      );
     }
     function app() {
       return {
         DOM: Rx.Observable.just(
-          div('.test-element', [
-            h('my-element', {foobar: 'yes'})
+          h('div.test-element', [
+            myElement(Rx.Observable.just('yes'))
           ])
         )
       };
     }
     let [sinks, sources] = Cycle.run(app, {
-      DOM: makeHTMLDriver({'my-element': myElement})
+      DOM: makeHTMLDriver()
     });
 
     sources.DOM.subscribe(html => {
@@ -147,47 +132,7 @@ describe('HTML Driver', function () {
     });
   });
 
-  it('should HTML-render a nested custom element with props (2)', function (done) {
-    function myElement(ext) {
-      return {
-        DOM: ext.props.get('*')
-          .map(props => h3('.myelementclass', String(props.foobar).toUpperCase()))
-      };
-    }
-    function app() {
-      return {
-        DOM: Rx.Observable.just(
-          h('div.test-element', [
-            h('my-element', {foobar: 'yes'})
-          ])
-        )
-      };
-    }
-    let [sinks, sources] = Cycle.run(app, {
-      DOM: makeHTMLDriver({'my-element': myElement})
-    });
-
-    sources.DOM.subscribe(html => {
-      assert.strictEqual(html,
-        '<div class="test-element">' +
-        '<h3 class="myelementclass">YES</h3>' +
-        '</div>'
-      );
-      done();
-    });
-  });
-
-  it('should render a complex custom element tree as HTML', function (done) {
-    function xFoo() {
-      return {
-        html: Rx.Observable.just(h('h1.fooclass'))
-      };
-    }
-    function xBar() {
-      return {
-        html: Rx.Observable.just(h('h2.barclass'))
-      };
-    }
+  it('should render a complex and nested vtree$ as HTML', function (done) {
     function app() {
       return {
         html: Rx.Observable.just(
@@ -195,13 +140,13 @@ describe('HTML Driver', function () {
             h('div', [
               h('h2.a', 'a'),
               h('h4.b', 'b'),
-              h('x-foo')
+              Rx.Observable.just(h('h1.fooclass'))
             ]),
             h('div', [
               h('h3.c', 'c'),
               h('div', [
                 h('p.d', 'd'),
-                h('x-bar')
+                Rx.Observable.just(h('h2.barclass'))
               ])
             ])
           ])
@@ -209,10 +154,7 @@ describe('HTML Driver', function () {
       };
     }
     let [sinks, sources] = Cycle.run(app, {
-      html: makeHTMLDriver({
-        'x-foo': xFoo,
-        'x-bar': xBar
-      })
+      html: makeHTMLDriver()
     });
 
     sources.html.subscribe(html => {
