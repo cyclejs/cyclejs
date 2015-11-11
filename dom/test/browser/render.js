@@ -6,7 +6,7 @@ let Cycle = require('@cycle/core');
 let CycleDOM = require('../../src/cycle-dom');
 let Fixture89 = require('./fixtures/issue-89');
 let Rx = require('rx');
-let {h, hJSX, makeDOMDriver} = CycleDOM;
+let {h, div, p, span, h2, h3, h4, hJSX, select, option, makeDOMDriver} = CycleDOM;
 
 function createRenderTarget(id = null) {
   let element = document.createElement('div');
@@ -68,9 +68,9 @@ describe('Rendering', function () {
       function app() {
         return {
           DOM: Rx.Observable.just(
-            h('div.top-most', [
-              h('p', 'Foo'),
-              h('span', 'Bar')
+            div('.top-most', [
+              p('Foo'),
+              span('Bar')
             ])
           )
         };
@@ -92,7 +92,7 @@ describe('Rendering', function () {
     it('should have isolateSource() and isolateSink() in source', function (done) {
       function app() {
         return {
-          DOM: Rx.Observable.just(h('div'))
+          DOM: Rx.Observable.just(div())
         };
       }
       let [sinks, sources] = Cycle.run(app, {
@@ -107,10 +107,10 @@ describe('Rendering', function () {
     it('should convert a simple virtual-dom <select> to DOM element', function (done) {
       function app() {
         return {
-          DOM: Rx.Observable.just(h('select.my-class', [
-            h('option', {value: 'foo'}, 'Foo'),
-            h('option', {value: 'bar'}, 'Bar'),
-            h('option', {value: 'baz'}, 'Baz')
+          DOM: Rx.Observable.just(select('.my-class', [
+            option({value: 'foo'}, 'Foo'),
+            option({value: 'bar'}, 'Bar'),
+            option({value: 'baz'}, 'Baz')
           ]))
         };
       }
@@ -163,14 +163,14 @@ describe('Rendering', function () {
         if (previous && previous.vnode) {
           return previous.vnode;
         } else {
-          return h('h4', 'Constantly ' + this.greeting);
+          return h4('Constantly ' + this.greeting);
         }
       };
       // The Cycle.js app
       function app() {
         return {
           DOM: Rx.Observable.interval(10).take(5).map(i =>
-            h('div', [
+            div([
               new ConstantlyThunk('hello' + i)
             ])
           )
@@ -213,8 +213,8 @@ describe('Rendering', function () {
       // The Cycle.js app
       function app() {
         return {
-          DOM: Rx.Observable.just(h('div.top-most', [
-            h('p', 'Just a paragraph'),
+          DOM: Rx.Observable.just(div('.top-most', [
+            p('Just a paragraph'),
             new MyTestWidget('hello world')
           ]))
         };
@@ -241,7 +241,7 @@ describe('Rendering', function () {
       // Make a View reactively imitating another View
       function app() {
         return {
-          DOM: Rx.Observable.just(h('h3.myelementclass', 'Foobar'))
+          DOM: Rx.Observable.just(h3('.myelementclass', 'Foobar'))
         };
       }
       let [sinks, sources] = Cycle.run(app, {
@@ -268,7 +268,7 @@ describe('Rendering', function () {
     it('should catch interaction events using id in DOM.select(cssSelector).events(event)', function (done) {
       function app() {
         return {
-          DOM: Rx.Observable.just(h('h3.myelementclass', 'Foobar'))
+          DOM: Rx.Observable.just(h3('.myelementclass', 'Foobar'))
         };
       }
       let [sinks, sources] = Cycle.run(app, {
@@ -295,7 +295,7 @@ describe('Rendering', function () {
     it('should catch user events using DOM.select().events()', function (done) {
       function app() {
         return {
-          DOM: Rx.Observable.just(h('h3.myelementclass', 'Foobar'))
+          DOM: Rx.Observable.just(h3('.myelementclass', 'Foobar'))
         };
       }
       let [sinks, sources] = Cycle.run(app, {
@@ -324,10 +324,10 @@ describe('Rendering', function () {
       function app() {
         return {
           DOM: Rx.Observable.just(
-            h('h3.top-most', [
-              h('h2.bar', 'Wrong'),
-              h('div.foo', [
-                h('h4.bar', 'Correct')
+            h3('.top-most', [
+              h2('.bar', 'Wrong'),
+              div('.foo', [
+                h4('.bar', 'Correct')
               ])
             ])
           )
@@ -363,9 +363,9 @@ describe('Rendering', function () {
     it('should catch events from many elements using DOM.select().events()', function (done) {
       function app() {
         return {
-          DOM: Rx.Observable.just(h('div.parent', [
-            h('h4.clickable.first', 'First'),
-            h('h4.clickable.second', 'Second'),
+          DOM: Rx.Observable.just(div('.parent', [
+            h4('.clickable.first', 'First'),
+            h4('.clickable.second', 'Second'),
           ]))
         };
       }
@@ -406,10 +406,10 @@ describe('Rendering', function () {
         function app() {
           return {
             DOM: Rx.Observable.just(
-              h('h3.top-most', [
-                h('h2.bar', 'Wrong'),
-                h('div.cycle-scope-foo', [
-                  h('h4.bar', 'Correct')
+              h3('.top-most', [
+                h2('.bar', 'Wrong'),
+                div('.cycle-scope-foo', [
+                  h4('.bar', 'Correct')
                 ])
               ])
             )
@@ -465,7 +465,7 @@ describe('Rendering', function () {
     describe('isolateSink', function () {
       it('should add a className to the vtree sink', function (done) {
         function app(sources) {
-          let vtree$ = Rx.Observable.just(h('h3.top-most'));
+          let vtree$ = Rx.Observable.just(h3('.top-most'));
           return {
             DOM: sources.DOM.isolateSink(vtree$, 'foo'),
           };
@@ -490,13 +490,13 @@ describe('Rendering', function () {
         function app(sources) {
           return {
             DOM: Rx.Observable.just(
-              h('h3.top-most', [
+              h3('.top-most', [
                 sources.DOM.isolateSink(Rx.Observable.just(
-                  h('div.foo', [
-                    h('h4.bar', 'Wrong')
+                  div('.foo', [
+                    h4('.bar', 'Wrong')
                   ])
                 ), 'ISOLATION'),
-                h('h2.bar', 'Correct'),
+                h2('.bar', 'Correct'),
               ])
             )
           };
@@ -520,7 +520,7 @@ describe('Rendering', function () {
     it('should catch interaction events using id in DOM.select', function (done) {
       function app() {
         return {
-          DOM: Rx.Observable.just(h('h3#myElementId', 'Foobar'))
+          DOM: Rx.Observable.just(h3('#myElementId', 'Foobar'))
         };
       }
       let [sinks, sources] = Cycle.run(app, {
@@ -549,7 +549,7 @@ describe('Rendering', function () {
       it('should be an object with observable and events()', function (done) {
         function app() {
           return {
-            DOM: Rx.Observable.just(h('h3.myelementclass', 'Foobar'))
+            DOM: Rx.Observable.just(h3('.myelementclass', 'Foobar'))
           };
         }
         let [sinks, sources] = Cycle.run(app, {
@@ -568,7 +568,7 @@ describe('Rendering', function () {
       it('should have an observable of DOM elements', function (done) {
         function app() {
           return {
-            DOM: Rx.Observable.just(h('h3.myelementclass', 'Foobar'))
+            DOM: Rx.Observable.just(h3('.myelementclass', 'Foobar'))
           };
         }
         let [sinks, sources] = Cycle.run(app, {
@@ -594,10 +594,10 @@ describe('Rendering', function () {
         function app() {
           return {
             DOM: Rx.Observable.just(
-              h('h3.top-most', [
-                h('h2.bar', 'Wrong'),
-                h('div.foo', [
-                  h('h4.bar', 'Correct')
+              h3('.top-most', [
+                h2('.bar', 'Wrong'),
+                div('.foo', [
+                  h4('.bar', 'Correct')
                 ])
               ])
             )
@@ -625,7 +625,7 @@ describe('Rendering', function () {
       // Make a View reactively imitating another View
       function app() {
         return {
-          DOM: Rx.Observable.just(h('h3.myelementclass', 'Foobar'))
+          DOM: Rx.Observable.just(h3('.myelementclass', 'Foobar'))
         };
       }
       let [sinks, sources] = Cycle.run(app, {
@@ -704,11 +704,11 @@ describe('Rendering', function () {
     it('should render a VTree with a child Observable<VTree>', function (done) {
       function app() {
         let child$ = Rx.Observable.just(
-          h('h4.child', {}, 'I am a kid')
+          h4('.child', {}, 'I am a kid')
         ).delay(80);
         return {
-          DOM: Rx.Observable.just(h('div.my-class', [
-            h('p', {}, 'Ordinary paragraph'),
+          DOM: Rx.Observable.just(div('.my-class', [
+            p({}, 'Ordinary paragraph'),
             child$
           ]))
         };
@@ -731,21 +731,21 @@ describe('Rendering', function () {
       function app() {
         let grandchild$ = Rx.Observable
           .just(
-            h('h4.grandchild', {}, [
+            h4('.grandchild', {}, [
               'I am a baby'
             ])
           )
           .delay(20);
         let child$ = Rx.Observable
           .just(
-            h('h3.child', {}, [
+            h3('.child', {}, [
               'I am a kid', grandchild$
             ])
           )
           .delay(80);
         return {
-          DOM: Rx.Observable.just(h('div.my-class', [
-            h('p', {}, 'Ordinary paragraph'),
+          DOM: Rx.Observable.just(div('.my-class', [
+            p({}, 'Ordinary paragraph'),
             child$
           ]))
         };
@@ -770,7 +770,7 @@ describe('Rendering', function () {
       function app() {
         return {
           DOM: number$.map(number =>
-              h('h3.target', String(number))
+              h3('.target', String(number))
           )
         };
       }

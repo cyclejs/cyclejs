@@ -4,9 +4,10 @@
 - [`makeDOMDriver`](#makeDOMDriver)
 - [`makeHTMLDriver`](#makeHTMLDriver)
 - [`h`](#h)
+- [`hh`](#hh)
 - [`hJSX`](#hJSX)
 - [`svg`](#svg)
-- [`mockDOMResponse`](#mockDOMResponse)
+- [`mockDOMSource`](#mockDOMSource)
 
 ### <a id="makeDOMDriver"></a> `makeDOMDriver(container, customElements)`
 
@@ -30,11 +31,11 @@ parameter of event listener. That is, the full function signature is
 - `customElements :: Object` a collection of custom element definitions. The key of each property should be the tag name of the custom element, and
 the value should be a function defining the implementation of the custom
 element. This function follows the same contract as the top-most `main`
-function: input are driver responses, output are requests to drivers.
+function: input are driver sources, output are sinks to drivers.
 
 #### Return:
 
-*(Function)* the DOM driver function. The function expects an Observable of VTree as input, and outputs the response object for this
+*(Function)* the DOM driver function. The function expects an Observable of VTree as input, and outputs the source object for this
 driver, containing functions `select()` and `dispose()` that can be used
 for debugging and testing.
 
@@ -52,7 +53,7 @@ their implementations.
 - `customElements :: Object` a collection of custom element definitions. The key of each property should be the tag name of the custom element, and
 the value should be a function defining the implementation of the custom
 element. This function follows the same contract as the top-most `main`
-function: input are driver responses, output are requests to drivers.
+function: input are driver sources, output are sinks to drivers.
 
 #### Return:
 
@@ -66,6 +67,14 @@ strings as the HTML renderization of the virtual DOM elements.
 A shortcut to [virtual-hyperscript](
 https://github.com/Matt-Esch/virtual-dom/tree/master/virtual-hyperscript).
 This is a helper for creating VTrees in Views.
+
+- - -
+
+### <a id="hh"></a> `hh`
+
+shortcuts to [hyperscript-helpers](
+https://github.com/ohanhi/hyperscript-helpers).
+This is a helper for extending virtual-hyperscript. Create virtual DOM elements with `div({className: 'wrapper'}, [ h1('Header') ])` instead of `h('div.wrapper', [ h('h1', 'Header') ])`.
 
 - - -
 
@@ -86,15 +95,15 @@ A shortcut to the svg hyperscript function.
 
 - - -
 
-### <a id="mockDOMResponse"></a> `mockDOMResponse(mockedSelectors)`
+### <a id="mockDOMSource"></a> `mockDOMSource(mockedSelectors)`
 
 A testing utility which aids in creating a queryable collection of
-Observables. Call mockDOMResponse giving it an object specifying selectors,
-eventTypes and their Observabls, and get as output an object following the
-same format as the DOM Driver's response. Example:
+Observables. Call mockDOMSource giving it an object specifying selectors,
+eventTypes and their Observables, and get as output an object following the
+same format as the DOM Driver's source. Example:
 
 ```js
-const userEvents = mockDOMResponse({
+const userEvents = mockDOMSource({
   '.foo': {
     'click': Rx.Observable.just({target: {}}),
     'mouseover': Rx.Observable.just({target: {}})
@@ -115,6 +124,9 @@ and values are Observables you created.
 
 #### Return:
 
-*(Object)* fake DOM response object, containin a function `select()` which can be used just like the DOM Driver's response. Call
-`select(selector).events(eventType)` on the response object to get the
-Observable you defined in the input of `mockDOMResponse`.
+*(Object)* fake DOM source object, containing a function `select()` which can be used just like the DOM Driver's source. Call
+`select(selector).events(eventType)` on the source object to get the
+Observable you defined in the input of `mockDOMSource`.
+
+- - -
+

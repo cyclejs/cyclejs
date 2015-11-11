@@ -3,6 +3,7 @@ let {makeDOMDriver} = require(`./render-dom`)
 let {makeHTMLDriver} = require(`./render-html`)
 let mockDOMSource = require(`./mock-dom-source`)
 let h = require(`./virtual-hyperscript`)
+let hh = require(`hyperscript-helpers`)(h)
 
 let CycleDOM = {
   /**
@@ -60,6 +61,15 @@ let CycleDOM = {
    * @name h
    */
   h,
+
+  /**
+   * shortcuts to [hyperscript-helpers](
+   * https://github.com/ohanhi/hyperscript-helpers).
+   * This is a helper for extending virtual-hyperscript. Create virtual DOM elements with `div({className: 'wrapper'}, [ h1('Header') ])` instead of `h('div.wrapper', [ h('h1', 'Header') ])`.
+   * @name hh
+   */
+
+  hh,
 
   /**
    * An adapter around virtual-hyperscript `h()` to allow JSX to be used easily

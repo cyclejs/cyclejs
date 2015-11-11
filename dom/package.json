@@ -22,6 +22,7 @@
   "main": "lib/cycle-dom.js",
   "dependencies": {
     "es6-map": "0.1.1",
+    "hyperscript-helpers": "^2.0.2",
     "matches-selector": "1.0.0",
     "vdom-parser": "1.2.1",
     "vdom-to-html": "2.1.1",
