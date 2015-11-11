@@ -16,7 +16,6 @@
     "rx": ">=3"
   },
   "devDependencies": {
-    "@cycle/core": "5.0.x",
     "babel": "5.8.23",
     "babelify": "6.3.0",
     "body-parser": "1.14.1",

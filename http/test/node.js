@@ -7,7 +7,6 @@ require('./common')(uri);
 
 // Node.js specific ============================================================
 var assert = require('assert');
-var Cycle = require('@cycle/core');
 var Rx = require('rx');
 var src = require('../lib/index');
 var makeHTTPDriver = src.makeHTTPDriver;

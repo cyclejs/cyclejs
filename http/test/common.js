@@ -2,7 +2,6 @@
 /* global describe, it */
 var assert = require('assert');
 var src = require('../lib/index');
-var Cycle = require('@cycle/core');
 var Rx = require('rx');
 var makeHTTPDriver = src.makeHTTPDriver;
 
