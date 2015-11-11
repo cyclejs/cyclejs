@@ -4,7 +4,7 @@ let assert = require('assert');
 let Cycle = require('@cycle/core');
 let CycleDOM = require('../../src/cycle-dom');
 let Rx = require('rx');
-let {h, svg, makeDOMDriver} = CycleDOM;
+let {h, svg, p, div, h1, h2, h3, button, ol, li, makeDOMDriver} = CycleDOM;
 
 function createRenderTarget() {
   let element = document.createElement('div');
@@ -34,13 +34,13 @@ describe('Custom Elements', function () {
     // Make simple custom element
     function myElementDef() {
       return {
-        DOM: Rx.Observable.just(h('h3.myelementclass'))
+        DOM: Rx.Observable.just(h3('.myelementclass'))
       };
     }
     // Use the custom element
     function app() {
       return {
-        DOM: Rx.Observable.just(h('div.toplevel', [h('my-element', {key: 1})]))
+        DOM: Rx.Observable.just(div('.toplevel', [h('my-element', {key: 1})]))
       };
     }
     let [sinks, sources] = Cycle.run(app, {
@@ -67,7 +67,7 @@ describe('Custom Elements', function () {
       return {
         DOM: Rx.Observable.combineLatest(ext.props.get('color'), number$,
           function (color, number) {
-            return h('h3.stateful-element', {style: {color}}, String(number));
+            return h3('.stateful-element', {style: {color}}, String(number));
           }
         )
       };
@@ -78,7 +78,7 @@ describe('Custom Elements', function () {
         DOM: Rx.Observable.just('#00FF00').delay(50)
           .startWith('#FF0000')
           .map(color =>
-            h('div', [
+            div([
               h('my-element', {key: 1, 'color': color})
             ])
         )
@@ -116,7 +116,7 @@ describe('Custom Elements', function () {
           assert.notStrictEqual(propsObj, null);
           assert.strictEqual(propsObj.color, '#FF0000');
           assert.strictEqual(propsObj.content, 'Hello world');
-          return h('h3.inner-element',
+          return h3('.inner-element',
             {style: {color: propsObj.color}},
             String(propsObj.content)
           );
@@ -126,7 +126,7 @@ describe('Custom Elements', function () {
     function app() {
       return {
         DOM: Rx.Observable.just(
-          h('div', [
+          div([
             h('my-element', {color: '#FF0000', content: 'Hello world'})
           ])
         )
@@ -159,7 +159,7 @@ describe('Custom Elements', function () {
           assert.notStrictEqual(propsObj, null);
           assert.strictEqual(propsObj.color, '#FF0000');
           assert.strictEqual(propsObj.content, 'Hello world');
-          return h('h3.inner-element',
+          return h3('.inner-element',
             {style: {color: propsObj.color}},
             String(propsObj.content)
           );
@@ -169,7 +169,7 @@ describe('Custom Elements', function () {
     function app() {
       return {
         DOM: Rx.Observable.just(
-          h('div', [
+          div('div', [
             h('my-element', {color: '#FF0000', content: 'Hello world'})
           ])
         )
@@ -198,7 +198,7 @@ describe('Custom Elements', function () {
     function myElementDef(ext) {
       return {
         DOM: ext.props.get().map(propsObj =>
-          h('h3.inner-element',
+          h3('.inner-element',
             {style: {color: propsObj.color}},
             String(propsObj.content)
           )
@@ -208,7 +208,7 @@ describe('Custom Elements', function () {
     function app() {
       return {
         DOM: Rx.Observable.just(
-          h('div', [
+          div([
             h('my-element', {color: '#FF0000', content: 'Hello world'})
           ])
         )
@@ -277,20 +277,20 @@ describe('Custom Elements', function () {
     // Make the first custom element
     function myElementDef1() {
       return {
-        DOM: Rx.Observable.just(h('h1.myelement1class'))
+        DOM: Rx.Observable.just(h1('.myelement1class'))
       };
     }
     // Make the second custom element
     function myElementDef2() {
       return {
-        DOM: Rx.Observable.just(h('h2.myelement2class'))
+        DOM: Rx.Observable.just(h2('.myelement2class'))
       };
     }
     // Use the custom elements
     function app() {
       return {
         DOM: Rx.Observable.just(
-          h('div', [
+          div([
             h('my-element1'), h('my-element2')
           ])
         )
@@ -321,14 +321,14 @@ describe('Custom Elements', function () {
     // Make the inner custom element
     function innerElementDef() {
       return {
-        DOM: Rx.Observable.just(h('h3.innerClass'))
+        DOM: Rx.Observable.just(h3('.innerClass'))
       };
     }
     // Make the outer custom element
     function outerElementDef() {
       return {
         DOM: Rx.Observable.just(
-          h('div.outerClass', [
+          div('.outerClass', [
             h('inner-element', {key: 1})
           ])
         )
@@ -337,7 +337,7 @@ describe('Custom Elements', function () {
     // Use the custom elements
     function app() {
       return {
-        DOM: Rx.Observable.just(h('div', [h('outer-element', {key: 2})]))
+        DOM: Rx.Observable.just(div([h('outer-element', {key: 2})]))
       };
     }
     let [sinks, sources] = Cycle.run(app, {
@@ -360,13 +360,13 @@ describe('Custom Elements', function () {
   it('should not render unwanted empty ids in elements', function (done) {
     function myElementDef() {
       return {
-        DOM: Rx.Observable.just(h('h3.myelementclass', 'Hello world'))
+        DOM: Rx.Observable.just(h3('.myelementclass', 'Hello world'))
       };
     }
     // Use the custom element
     function app() {
       return {
-        DOM: Rx.Observable.just(h('div.toplevel', [h('my-element', {key: 1})]))
+        DOM: Rx.Observable.just(div('.toplevel', [h('my-element', {key: 1})]))
       };
     }
     let [sinks, sources] = Cycle.run(app, {
@@ -394,9 +394,7 @@ describe('Custom Elements', function () {
     function myElementDef() {
       return {
         DOM: Rx.Observable.just(
-          h('button', [
-            h('p', "Some content")
-          ])
+          button( p("Some content"))
         )
       };
     }
@@ -406,8 +404,8 @@ describe('Custom Elements', function () {
           .startWith(0)
           .scan((x,y) => x+1, -1)
           .map(number =>
-            h('div', [
-              h('p', `Counter: ${number}`),
+            div([
+              p(`Counter: ${number}`),
               h('my-element.target')
             ])
           )
@@ -439,17 +437,17 @@ describe('Custom Elements', function () {
     // Make simple custom element
     function myElementDef({props}) {
       return {
-        DOM: props.get('content').map(content => h('h3.myelementclass', content))
+        DOM: props.get('content').map(content => h3('.myelementclass', content))
       };
     }
     // Use the custom element
     function app() {
       return {
         DOM: Rx.Observable.just(
-          h('div.toplevel', [
-            h('p', 'Before'),
+          div('.toplevel', [
+            p('Before'),
             h('my-element', {key: 1, content: 'Hello World'}),
-            h('p', 'After')
+            p('After')
           ])
         )
       };
@@ -476,7 +474,7 @@ describe('Custom Elements', function () {
     // Make simple custom element
     function myElementDef() {
       return {
-        DOM: Rx.Observable.just(h('h3.myelementclass', 'foobar')),
+        DOM: Rx.Observable.just(h3('.myelementclass', 'foobar')),
         events: {
           myevent: Rx.Observable.just(123).delay(300)
         }
@@ -485,7 +483,7 @@ describe('Custom Elements', function () {
     // Use the custom element
     function app() {
       return {
-        DOM: Rx.Observable.just(h('div.toplevel', [
+        DOM: Rx.Observable.just(div('.toplevel', [
           h('my-element.eventsource', {key: 1})
         ]))
       };
@@ -517,13 +515,13 @@ describe('Custom Elements', function () {
     // Make simple custom element
     function myElementDef() {
       return {
-        DOM: Rx.Observable.just(h('h3.myelementclass'))
+        DOM: Rx.Observable.just(h3('.myelementclass'))
       };
     }
     // Make VNode with a string as child
     function app() {
       return {
-        DOM: Rx.Observable.just(h('h1', 'This will be a VirtualText'))
+        DOM: Rx.Observable.just(h1('This will be a VirtualText'))
       };
     }
     // Make assertions
@@ -546,7 +544,7 @@ describe('Custom Elements', function () {
     function sliderDef(ext) {
       let remove$ = ext.DOM.select('.internalslider').events('click').map(() => true);
       let id$ = ext.props.get('id').shareReplay(1);
-      let vtree$ = id$.map(id => h('h3.internalslider', String(id)));
+      let vtree$ = id$.map(id => h3('.internalslider', String(id)));
       return {
         DOM: vtree$,
         events: {
@@ -571,7 +569,7 @@ describe('Custom Elements', function () {
             }
           })
           .map(items =>
-            h('div.allSliders', items.map(item => h('slider-elem.slider', {id: item.id})))
+            div('.allSliders', items.map(item => h('slider-elem.slider', {id: item.id})))
           )
       };
     }
@@ -602,16 +600,16 @@ describe('Custom Elements', function () {
     function simpleWrapperDef(ext) {
       return {
         DOM: ext.props.get('children').map(children => {
-          return h('div.wrapper', children);
+          return div('.wrapper', children);
         })
       };
     }
     // Use the custom element
     function app() {
       return {
-        DOM: Rx.Observable.just(h('div.toplevel', [
+        DOM: Rx.Observable.just(div('.toplevel', [
           h('simple-wrapper', [
-            h('h1', 'Hello'), h('h2', 'World')
+            h1('Hello'), h2('World')
           ])
         ]))
       };
@@ -636,13 +634,13 @@ describe('Custom Elements', function () {
     // Make simple custom element
     function myElementDef() {
       return {
-        DOM: Rx.Observable.just(h('h3.myelementclass'))
+        DOM: Rx.Observable.just(h3('.myelementclass'))
       };
     }
     // Use the custom element
     function app() {
       return {
-        DOM: Rx.Observable.just(h('div.toplevel', [
+        DOM: Rx.Observable.just(div('.toplevel', [
           h('my-element', {children: 123})
         ]))
       };
@@ -666,8 +664,8 @@ describe('Custom Elements', function () {
     function xElementDef(ext) {
       return {
         DOM: ext.props.get('list', () => false).map(list =>
-          h('div', [
-            h('ol', list.map(value => h('li.test-item', null, value)))
+          div([
+            ol(list.map(value => li('.test-item', null, value)))
           ]))
       };
     }
@@ -685,7 +683,7 @@ describe('Custom Elements', function () {
           .startWith([])
           .scan((data, modifier) => modifier(data))
           .map(data => h('.root', [
-            h('button.button', 'add new item'),
+            button('.button', 'add new item'),
             h('x-element', {key: 0, list: data})
           ]))
       };
@@ -718,8 +716,8 @@ describe('Custom Elements', function () {
       // be emitted on <button> and not from the original <h3>.
       return {
         DOM: Rx.Observable.merge(
-          Rx.Observable.just(h('h3.myelementclass', 'foo')),
-          Rx.Observable.just(h('button.myelementclass', 'bar')).delay(50)
+          Rx.Observable.just(h3('.myelementclass', 'foo')),
+          Rx.Observable.just(button('.myelementclass', 'bar')).delay(50)
         ),
         events: {
           myevent: Rx.Observable.just(123).delay(300)
@@ -730,7 +728,7 @@ describe('Custom Elements', function () {
     function app() {
       return {
         DOM: Rx.Observable.just(
-          h('div.toplevel', [
+          div('.toplevel', [
             h('my-element.eventsource', {key: 1})
           ])
         )
@@ -766,7 +764,7 @@ describe('Custom Elements', function () {
       return {
         DOM: number$
           .do(i => log.push(i))
-          .map(i => h('h3.myelementclass', String(i)))
+          .map(i => h3('.myelementclass', String(i)))
       };
     }
     // Use the custom element
@@ -774,8 +772,8 @@ describe('Custom Elements', function () {
       return {
         DOM: customElementSwitch$.map(theSwitch => {
           return theSwitch === 0
-            ? h('div.toplevel', [h('my-element', {key: 1})])
-            : h('div.toplevel', []);
+            ? div('.toplevel', [h('my-element', {key: 1})])
+            : div('.toplevel', []);
         })
       };
     }
@@ -812,7 +810,7 @@ describe('Custom Elements', function () {
     // Make simple custom element
     function myElementDef() {
       return {
-        DOM: Rx.Observable.just(h('h3.myelementclass')),
+        DOM: Rx.Observable.just(h3('.myelementclass')),
         events: {
           myevent: number$.do(i => log.push(i))
         }
@@ -823,8 +821,8 @@ describe('Custom Elements', function () {
       return {
         DOM: customElementSwitch$.map(theSwitch => {
           return theSwitch === 0
-            ? h('div.toplevel', [h('my-element', {key: 1})])
-            : h('div.toplevel', []);
+            ? div('.toplevel', [h('my-element', {key: 1})])
+            : div('.toplevel', []);
         })
       };
     }
