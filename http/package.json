@@ -16,8 +16,8 @@
     "rx": ">=3"
   },
   "devDependencies": {
-    "babel": "^5.8.23",
-    "babelify": "^6.3.0",
+    "babel": "^5.8.29",
+    "babelify": "^6.4.0",
     "body-parser": "1.14.1",
     "browserify": "12.0.1",
     "browserify-shim": "^3.8.11",
