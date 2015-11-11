@@ -63,13 +63,14 @@ let CycleDOM = {
   h,
 
   /**
-   * shortcuts to [hyperscript-helpers](
-   * https://github.com/ohanhi/hyperscript-helpers).
-   * This is a helper for extending virtual-hyperscript. Create virtual DOM elements with `div({className: 'wrapper'}, [ h1('Header') ])` instead of `h('div.wrapper', [ h('h1', 'Header') ])`.
-   * @name hh
+   * Shortcuts to
+   * [hyperscript-helpers](https://github.com/ohanhi/hyperscript-helpers).
+   * This is a helper for writing virtual-hyperscript. Create virtual DOM
+   * elements with `div('.wrapper', [ h1('Header') ])` instead of
+   * `h('div.wrapper', [ h('h1', 'Header') ])`.
+   * @name hyperscript-helpers
    */
-
-  hh,
+  ...hh,
 
   /**
    * An adapter around virtual-hyperscript `h()` to allow JSX to be used easily

@@ -4,7 +4,7 @@
 - [`makeDOMDriver`](#makeDOMDriver)
 - [`makeHTMLDriver`](#makeHTMLDriver)
 - [`h`](#h)
-- [`hh`](#hh)
+- [`hyperscript-helpers`](#hyperscript-helpers)
 - [`hJSX`](#hJSX)
 - [`svg`](#svg)
 - [`mockDOMSource`](#mockDOMSource)
@@ -70,11 +70,13 @@ This is a helper for creating VTrees in Views.
 
 - - -
 
-### <a id="hh"></a> `hh`
+### <a id="hyperscript-helpers"></a> `hyperscript-helpers`
 
-shortcuts to [hyperscript-helpers](
-https://github.com/ohanhi/hyperscript-helpers).
-This is a helper for extending virtual-hyperscript. Create virtual DOM elements with `div({className: 'wrapper'}, [ h1('Header') ])` instead of `h('div.wrapper', [ h('h1', 'Header') ])`.
+Shortcuts to
+[hyperscript-helpers](https://github.com/ohanhi/hyperscript-helpers).
+This is a helper for writing virtual-hyperscript. Create virtual DOM
+elements with `div('.wrapper', [ h1('Header') ])` instead of
+`h('div.wrapper', [ h('h1', 'Header') ])`.
 
 - - -
 
