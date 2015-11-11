@@ -1386,7 +1386,9 @@ function optionsToSuperagent(_ref) {
   if (typeof url !== "string") {
     throw new Error("Please provide a `url` property in the request options.");
   }
-  var sanitizedMethod = method.toLowerCase();
+  var lowerCaseMethod = method.toLowerCase();
+  var sanitizedMethod = lowerCaseMethod === "delete" ? "del" : lowerCaseMethod;
+
   var request = superagent[sanitizedMethod](url);
   if (typeof request.redirects === "function") {
     request = request.redirects(redirects);
