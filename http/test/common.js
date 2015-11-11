@@ -126,6 +126,27 @@ function run(uri) {
       }
     );
 
+    it('should return response metastream when given yet another options obj',
+      function(done) {
+        var request$ = Rx.Observable.just({
+          url: uri + '/delete',
+          method: 'DELETE',
+          query: {foo: 102030, bar: 'Pub'}
+        });
+        var httpDriver = makeHTTPDriver();
+        var response$$ = httpDriver(request$);
+        response$$.subscribe(function(response$) {
+          assert.strictEqual(response$.request.url, uri + '/delete');
+          assert.strictEqual(response$.request.method, 'DELETE');
+          response$.subscribe(function(response) {
+            assert.strictEqual(response.status, 200);
+            assert.strictEqual(response.body.deleted, true);
+            done();
+          });
+        });
+      }
+    );
+
     it('should send 500 server errors to response$ onError',
       function(done) {
         var request$ = Rx.Observable.just(uri + '/error');

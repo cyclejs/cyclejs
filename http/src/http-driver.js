@@ -19,7 +19,9 @@ function optionsToSuperagent({
   if (typeof url !== `string`) {
     throw new Error(`Please provide a \`url\` property in the request options.`)
   }
-  const sanitizedMethod = method.toLowerCase()
+  const lowerCaseMethod = method.toLowerCase()
+  const sanitizedMethod = lowerCaseMethod === `delete` ? `del` : lowerCaseMethod
+
   let request = superagent[sanitizedMethod](url)
   if (typeof request.redirects === `function`) {
     request = request.redirects(redirects)

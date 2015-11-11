@@ -35,4 +35,8 @@ app.get('/error', function(req, res){
   res.status(500).send('boom');
 });
 
+app.delete('/delete', function(req, res){
+  res.status(200).json({deleted: true})
+})
+
 app.listen(process.env.ZUUL_PORT);
