@@ -1,4 +1,4 @@
-const {Rx} = require(`@cycle/core`)
+const Rx = require(`rx`)
 const superagent = require(`superagent`)
 
 function optionsToSuperagent({

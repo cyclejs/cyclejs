@@ -1,6 +1,6 @@
 let {makeHTTPDriver} = require(`./http-driver`)
 
-module.exports = {
+let CycleHTTPDriver = {
   /**
    * HTTP Driver factory.
    *
@@ -52,3 +52,6 @@ module.exports = {
    */
   makeHTTPDriver,
 }
+
+module.exports = CycleHTTPDriver
+
