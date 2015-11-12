@@ -1,4 +1,4 @@
-let counter
+let counter = 0
 
 function newScope() {
   return `cycle${++counter}`
