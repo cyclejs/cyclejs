@@ -24,10 +24,10 @@
     "rx": "*"
   },
   "devDependencies": {
-    "babel": "5.8.23",
-    "babelify": "6.3.0",
-    "browserify": "11.2.0",
-    "browserify-shim": "^3.8.10",
+    "babel": "5.8.29",
+    "babelify": "6.4.0",
+    "browserify": "12.0.1",
+    "browserify-shim": "3.8.11",
     "eslint": "1.0.0",
     "eslint-config-cycle": "3.0.0",
     "eslint-plugin-cycle": "1.0.1",
@@ -35,8 +35,8 @@
     "markdox": "0.1.10",
     "mocha": "2.3.3",
     "rx": "4.0.6",
-    "sinon": "1.17.1",
-    "testem": "0.9.8",
+    "sinon": "1.17.2",
+    "testem": "0.9.11",
     "uglify-js": "2.5.0"
   },
   "engines": {
