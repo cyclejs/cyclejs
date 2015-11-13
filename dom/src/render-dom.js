@@ -78,11 +78,11 @@ function makeIsStrictlyInRootScope(rootList, namespace) {
     return matched && namespace.indexOf(`.${c}`) === -1
   }
   return function isStrictlyInRootScope(leaf) {
-    for (let parent = leaf; parent !== null; parent = parent.parentElement) {
-      if (rootList.indexOf(parent) >= 0) {
+    for (let el = leaf.parentElement; el !== null; el = el.parentElement) {
+      if (rootList.indexOf(el) >= 0) {
         return true
       }
-      const classList = parent.className.split(` `)
+      const classList = el.className.split(` `)
       if (classList.some(classIsForeign)) {
         return false
       }
@@ -99,7 +99,7 @@ function makeEventsSelector(element$) {
     }
 
     return element$.flatMapLatest(elements => {
-      if (!elements) {
+      if (elements.length === 0) {
         return Rx.Observable.empty()
       }
       return fromEvent(elements, eventName, useCapture)

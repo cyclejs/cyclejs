@@ -515,6 +515,34 @@ describe('Rendering', function () {
           done();
         });
       });
+
+      it('should allow parent to DOM.select() an isolation boundary', function (done) {
+        function app(sources) {
+          return {
+            DOM: Rx.Observable.just(
+              h3('.top-most', [
+                sources.DOM.isolateSink(Rx.Observable.just(
+                  span('.foo', [
+                    h4('.foo', 'Wrong')
+                  ])
+                ), 'ISOLATION')
+              ])
+            )
+          };
+        }
+        let {sinks, sources} = Cycle.run(app, {
+          DOM: makeDOMDriver(createRenderTarget())
+        });
+        sources.DOM.select('.foo').observable.skip(1).take(1).subscribe(function (elements) {
+          assert.strictEqual(Array.isArray(elements), true);
+          assert.strictEqual(elements.length, 1);
+          const correctElement = elements[0];
+          assert.notStrictEqual(correctElement, null);
+          assert.notStrictEqual(typeof correctElement, 'undefined');
+          assert.strictEqual(correctElement.tagName, 'SPAN');
+          done();
+        });
+      });
     });
 
     it('should catch interaction events using id in DOM.select', function (done) {
