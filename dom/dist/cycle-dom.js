@@ -3733,11 +3733,11 @@ function makeIsStrictlyInRootScope(rootList, namespace) {
     return matched && namespace.indexOf("." + c) === -1;
   };
   return function isStrictlyInRootScope(leaf) {
-    for (var _parent = leaf; _parent !== null; _parent = _parent.parentElement) {
-      if (rootList.indexOf(_parent) >= 0) {
+    for (var el = leaf.parentElement; el !== null; el = el.parentElement) {
+      if (rootList.indexOf(el) >= 0) {
         return true;
       }
-      var classList = _parent.className.split(" ");
+      var classList = el.className.split(" ");
       if (classList.some(classIsForeign)) {
         return false;
       }
@@ -3755,7 +3755,7 @@ function makeEventsSelector(element$) {
     }
 
     return element$.flatMapLatest(function (elements) {
-      if (!elements) {
+      if (elements.length === 0) {
         return Rx.Observable.empty();
       }
       return fromEvent(elements, eventName, useCapture);
