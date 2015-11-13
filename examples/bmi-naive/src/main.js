@@ -1,4 +1,5 @@
 import Cycle from '@cycle/core';
+import {Observable} from 'rx';
 import {h, makeDOMDriver} from '@cycle/dom';
 
 function main({DOM}) {
@@ -6,7 +7,8 @@ function main({DOM}) {
     .map(ev => ev.target.value);
   let changeHeight$ = DOM.select('#height').events('input')
     .map(ev => ev.target.value);
-  let state$ = Cycle.Rx.Observable.combineLatest(
+
+  let state$ = Observable.combineLatest(
     changeWeight$.startWith(70),
     changeHeight$.startWith(170),
     (weight, height) => {
