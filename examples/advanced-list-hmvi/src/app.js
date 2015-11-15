@@ -1,5 +1,5 @@
-import {Rx} from '@cycle/core';
-import {h} from '@cycle/dom';
+import {Observable} from 'rx';
+import {div, h3} from '@cycle/dom';
 import ticker from './ticker.js';
 
 function makeRandomColor() {
@@ -23,11 +23,11 @@ function intent(DOM) {
 }
 
 function model(actions) {
-  const color$ = Rx.Observable.interval(1000)
+  const color$ = Observable.interval(1000)
     .map(makeRandomColor)
     .startWith('#000000');
 
-  const insertMod$ = Rx.Observable.interval(5000).take(10)
+  const insertMod$ = Observable.interval(5000).take(10)
     .map(id => function (oldList) {
       const stopThisTicker$ = actions.stopTicker$.filter(x => x === id);
       const tickerState$ = ticker.model({color$}, {stop$: stopThisTicker$})
@@ -41,18 +41,18 @@ function model(actions) {
       return oldList.filter(item => item.id !== id);
     });
 
-  const mod$ = Rx.Observable.merge(insertMod$, removeMod$);
+  const mod$ = Observable.merge(insertMod$, removeMod$);
 
-  return Rx.Observable.just([])
+  return Observable.just([])
     .merge(mod$)
     .scan((acc, mod) => mod(acc));
 }
 
 function view(state$) {
   return state$.map(listOfTickers =>
-    h('div#the-view', listOfTickers.length ?
+    div('#the-view', listOfTickers.length ?
       listOfTickers.map(item => ticker.view(item.state$, `.item${item.id}`)) :
-      h('h3', 'Loading...')
+      h3('Loading...')
     )
   );
 }
