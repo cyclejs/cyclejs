@@ -1,10 +1,8 @@
-/** @jsx hJSX */
-
-import {Rx, run} from '@cycle/core'
-import {hJSX, makeDOMDriver} from '@cycle/dom'
+import {Observable} from 'rx'
+import Cycle from '@cycle/core'
+import {makeDOMDriver, ul, li, span, input, div, section, label} from '@cycle/dom'
 import {makeJSONPDriver} from '@cycle/jsonp'
 import Immutable from 'immutable'
-import mergeObjects from 'lodash/object/assign'
 
 const containerStyle = {
   background: '#EFEFEF',
@@ -31,11 +29,11 @@ const inputTextStyle = {
   padding: '5px',
 }
 
-const autocompleteableStyle = mergeObjects({
+const autocompleteableStyle = {
+  ...inputTextStyle,
   width: '100%',
-  boxSizing: 'border-box'},
-  inputTextStyle
-)
+  boxSizing: 'border-box',
+}
 
 const autocompleteMenuStyle = {
   position: 'absolute',
@@ -79,12 +77,12 @@ ControlledInputHook.prototype.hook = function hook(element) {
   }
 }
 
-Rx.Observable.prototype.between = function between(first, second) {
+Observable.prototype.between = function between(first, second) {
   return this.window(first, () => second).switch()
 }
 
-Rx.Observable.prototype.notBetween = function notBetween(first, second) {
-  return Rx.Observable.merge(
+Observable.prototype.notBetween = function notBetween(first, second) {
+  return Observable.merge(
     this.takeUntil(first),
     first.flatMapLatest(() => this.skipUntil(second))
   )
@@ -128,15 +126,15 @@ function intent(DOM) {
       .filter(delta => delta !== 0),
     setHighlight$: itemHover$
       .map(ev => parseInt(ev.target.dataset.index)),
-    keepFocusOnInput$: Rx.Observable
+    keepFocusOnInput$: Observable
       .merge(inputBlurToItem$, enterPressed$, tabPressed$),
-    selectHighlighted$: Rx.Observable
+    selectHighlighted$: Observable
       .merge(itemMouseClick$, enterPressed$, tabPressed$),
-    wantsSuggestions$: Rx.Observable.merge(
+    wantsSuggestions$: Observable.merge(
       inputFocus$.map(() => true),
       inputBlur$.map(() => false)
     ),
-    quitAutocomplete$: Rx.Observable
+    quitAutocomplete$: Observable
       .merge(clearField$, inputBlurToElsewhere$),
   }
 }
@@ -161,7 +159,7 @@ function modifications(actions) {
     })
 
   const selectHighlightedMod$ = actions.selectHighlighted$
-    .flatMap(() => Rx.Observable.from([true, false]))
+    .flatMap(() => Observable.from([true, false]))
     .map(selected => function (state) {
       const suggestions = state.get('suggestions')
       const highlighted = state.get('highlighted')
@@ -181,7 +179,7 @@ function modifications(actions) {
       return state.set('suggestions', [])
     })
 
-  return Rx.Observable.merge(
+  return Observable.merge(
     moveHighlightMod$, setHighlightMod$, selectHighlightedMod$, hideMod$
   )
 }
@@ -205,31 +203,30 @@ function model(suggestionsFromResponse$, actions) {
 
 function renderAutocompleteMenu({suggestions, highlighted}) {
   if (suggestions.length === 0) { return null }
+  const childStyle = index => ({
+    ...autocompleteItemStyle,
+    backgroundColor: highlighted === index ? LIGHT_GREEN : null
+  })
 
-  return (
-    <ul className="autocomplete-menu" style={autocompleteMenuStyle}>
-      {suggestions.map((suggestion, index) =>
-        <li className="autocomplete-item" attributes={{'data-index': index}}
-          style={mergeObjects({
-            backgroundColor: highlighted === index ? LIGHT_GREEN : null},
-            autocompleteItemStyle
-          )}
-        >{suggestion}</li>
-      )}
-    </ul>
+  return ul('.autocomplete-menu', {style: autocompleteMenuStyle},
+    suggestions.map((suggestion, index) =>
+      li('.autocomplete-item',
+        {attributes: {'data-index': index}, style: childStyle(index)},
+        suggestion
+      )
+    )
   )
 }
 
 function renderComboBox({suggestions, highlighted, selected}) {
-  return (
-    <span className="combo-box" style={comboBoxStyle}>
-      <input className="autocompleteable" type="text"
-        style={autocompleteableStyle}
-        data-hook={new ControlledInputHook(selected)}
-        />
-      {renderAutocompleteMenu({suggestions, highlighted})}
-    </span>
-  )
+  return span('.combo-box', {style: comboBoxStyle}, [
+    input('.autocompleteable', {
+      type: 'text',
+      style: autocompleteableStyle,
+      'data-hook': new ControlledInputHook(selected)}
+    ),
+    renderAutocompleteMenu({suggestions, highlighted})
+  ])
 }
 
 function view(state$) {
@@ -238,16 +235,16 @@ function view(state$) {
     const highlighted = state.get('highlighted')
     const selected = state.get('selected')
     return (
-      <div className="container" style={containerStyle}>
-        <section style={sectionStyle}>
-          <label className="search-label" style={searchLabelStyle}>Query:</label>
-          {renderComboBox({suggestions, highlighted, selected})}
-        </section>
-        <section style={sectionStyle}>
-          <label style={searchLabelStyle}>Some field:</label>
-          <input type="text" style={inputTextStyle}></input>
-        </section>
-      </div>
+      div('.container', {style: containerStyle}, [
+        section({style: sectionStyle}, [
+          label('.search-label', {style: searchLabelStyle}, 'Query:'),
+          renderComboBox({suggestions, highlighted, selected})
+        ]),
+        section({style: sectionStyle}, [
+          label({style: searchLabelStyle}, 'Some field:'),
+          input({type: 'text', style: inputTextStyle})
+        ])
+      ])
     )
   })
 }
@@ -309,4 +306,4 @@ const drivers = {
   preventDefault: preventDefaultSinkDriver,
 }
 
-run(main, drivers)
+Cycle.run(main, drivers)

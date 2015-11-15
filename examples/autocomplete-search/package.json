@@ -5,11 +5,11 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/core": "3.1.x",
-    "@cycle/dom": "5.1.x",
-    "@cycle/jsonp": "3.0.x",
-    "immutable": "^3.7.4",
-    "lodash": "^3.10.1"
+    "@cycle/core": "6.0.0-rc2",
+    "@cycle/dom": "8.0.0-rc2",
+    "@cycle/jsonp": "5.0.x",
+    "rx": "4.0.6",
+    "immutable": "^3.7.4"
   },
   "devDependencies": {
     "browserify": "11.0.1",
