@@ -1,5 +1,5 @@
 import {Rx} from '@cycle/core';
-import {h} from '@cycle/dom';
+import {button, div, input} from '@cycle/dom';
 import combineLatestObj from 'rx-combine-latest-obj';
 
 function intent(DOM, id = ``) {
@@ -38,19 +38,19 @@ function view(state$, id) {
       padding: '20px',
       margin: '10px 0px'
     };
-    return h(`div.item${id}`, {style}, [
-      h('input.color-field', {
+    return div(`.item${id}`, {style}, [
+      input('.color-field', {
         type: 'text',
         attributes: {value: color}
       }),
-      h('div.slider-container', [
-        h('input.width-slider', {
+      div('.slider-container', [
+        input('.width-slider', {
           type: 'range', min: '200', max: '1000',
           attributes: {value: width}
         })
       ]),
-      h('div.width-content', String(width)),
-      h('button.remove-btn', 'Remove')
+      div('.width-content', String(width)),
+      button('.remove-btn', 'Remove')
     ]);
   });
 }
