@@ -1,44 +1,43 @@
-import {Rx} from '@cycle/core';
-import {h} from '@cycle/dom';
+import {Observable} from 'rx';
+import {div, h1, h4, button} from '@cycle/dom';
 import combineLatestObj from 'rx-combine-latest-obj';
 
 function intent(DOM, name = '') {
-  const removeClicks$ = DOM.select(`${name}.ticker .remove-btn`)
-    .events('click');
+  const removeClicks$ = DOM.select('.remove-btn').events('click');
   const stop$ = removeClicks$;
-  const remove$ = removeClicks$.map(() => name).delay(500);
+  const remove$ = removeClicks$.delay(500);
   return {stop$, remove$};
 }
 
 function model(actions, givenColor$) {
-  const x$ = Rx.Observable.interval(50).startWith(0).takeUntil(actions.stop$);
-  const y$ = Rx.Observable.interval(100).startWith(0).takeUntil(actions.stop$);
-  const color$ = Rx.Observable.merge(
+  const x$ = Observable.interval(50).startWith(0).takeUntil(actions.stop$);
+  const y$ = Observable.interval(100).startWith(0).takeUntil(actions.stop$);
+  const color$ = Observable.merge(
     givenColor$.takeUntil(actions.stop$),
     actions.stop$.map(() => '#FF0000')
   );
   return combineLatestObj({x$, y$, color$});
 }
 
-function view(state$, name = '') {
+function view(state$) {
   return state$.map(({color, x, y}) => {
     const style = {color, backgroundColor: '#ECECEC'};
-    return h(`div.ticker${name}`, {style}, [
-      h('h4', `x${x} ${color}`),
-      h('h1', `Y${y} ${color}`),
-      h('button.remove-btn', 'Remove')
+    return div('.ticker', {style}, [
+      h4(`x${x} ${color}`),
+      h1(`Y${y} ${color}`),
+      button('.remove-btn', 'Remove')
     ]);
   });
 }
 
-function ticker(sources, name = '') {
-  const actions = intent(sources.DOM, name);
+function Ticker(sources) {
+  const actions = intent(sources.DOM);
   const state$ = model(actions, sources.color);
-  const vtree$ = view(state$, name);
+  const vtree$ = view(state$);
   return {
     DOM: vtree$,
     remove: actions.remove$,
   };
 }
 
-export default ticker;
+export default Ticker;

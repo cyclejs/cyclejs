@@ -1,7 +1,7 @@
-import {Rx} from '@cycle/core';
-import {h} from '@cycle/dom';
-import InjectableObservable from 'rx-injectable-observable';
-import ticker from './ticker.js';
+import {Observable, Subject} from 'rx';
+import {h3, div} from '@cycle/dom';
+import isolate from '@cycle/isolate';
+import Ticker from './Ticker.js';
 
 function makeRandomColor() {
   let hexColor = Math.floor(Math.random() * 16777215).toString(16);
@@ -13,25 +13,23 @@ function makeRandomColor() {
 }
 
 function intent(DOM, tickerActions) {
-  const getTickerItemId = (name) => parseInt(name.replace('.item', ''))
   return {
-    removeTicker$: tickerActions.remove$.map(getTickerItemId)
+    removeTicker$: tickerActions.remove$
   };
 }
 
-function model(actions, ticker) {
-  const color$ = Rx.Observable.interval(1000)
+function model(actions, TickerComponent) {
+  const color$ = Observable.interval(1000)
     .map(makeRandomColor)
     .startWith('#000000');
 
-  const insertMod$ = Rx.Observable.interval(5000).take(10)
+  const insertMod$ = Observable.interval(5000).take(10)
     .map(id => function (oldList) {
-      const out = ticker(color$, id);
+      const out = TickerComponent(color$, id);
       out.DOM = out.DOM.replay(null, 1);
       out.DOM.connect();
       out.remove = out.remove.publish();
       out.remove.connect();
-      console.log('connect new ticker');
       return oldList.concat([{id, DOM: out.DOM, remove: out.remove}]);
     });
 
@@ -40,38 +38,42 @@ function model(actions, ticker) {
       return oldList.filter(item => item.id !== id);
     });
 
-  const mod$ = Rx.Observable.merge(insertMod$, removeMod$);
+  const mod$ = Observable.merge(insertMod$, removeMod$);
 
-  return Rx.Observable.just([])
+  return Observable.just([])
     .merge(mod$)
     .scan((acc, mod) => mod(acc))
     .shareReplay(1);
 }
 
 function view(children$, name = '') {
-  const loading = h('h3', 'Loading...');
+  const loading = h3('Loading...');
   return children$.map(children =>
-    h('div#the-view', children.length > 0 ? children : [loading])
+    div('#the-view', children.length > 0 ? children : [loading])
   );
 }
 
-function app(sources, name = '') {
-  const tickerActions = {remove$: new Rx.Subject()};
-  const actions = intent(sources.DOM, tickerActions);
-  const tickerCurriedWithDOM = (color$, id) =>
-    ticker({DOM: sources.DOM, color: color$}, `.item${id}`);
-  const tickers$ = model(actions, tickerCurriedWithDOM);
+const TickerWrapper = sources => (color$, id) => {
+  const ticker = isolate(Ticker)({DOM: sources.DOM, color: color$});
+  return {
+    DOM: ticker.DOM,
+    remove: ticker.remove.map(() => id)
+  };
+}
+
+function App(sources) {
+  const tickerProxyActions = {remove$: new Subject()};
+  const actions = intent(sources.DOM, tickerProxyActions);
+  const tickers$ = model(actions, TickerWrapper(sources));
   const tickerViews$ = tickers$.map(list => list.map(t => t.DOM));
-  const tickerRemove$ = tickers$
-    .filter(arr => arr.length)
-    .flatMapLatest(list =>
-      Rx.Observable.merge(list.map(t => t.remove))
-    );
-  tickerRemove$.subscribe(tickerActions.remove$.asObserver());
+  const tickerRemove$ = tickers$.flatMapLatest(list =>
+    Observable.merge(list.map(t => t.remove))
+  );
+  tickerRemove$.subscribe(tickerProxyActions.remove$.asObserver());
   const vtree$ = view(tickerViews$);
   return {
     DOM: vtree$
-  }
+  };
 }
 
-export default app;
+export default App;

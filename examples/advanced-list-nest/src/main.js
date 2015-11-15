@@ -1,8 +1,8 @@
 import {run} from '@cycle/core';
 import {makeDOMDriver} from '@cycle/dom';
-import app from './app.js';
+import App from './App.js';
 
-const main = app;
+const main = App;
 
 run(main, {
   DOM: makeDOMDriver('#main-container')

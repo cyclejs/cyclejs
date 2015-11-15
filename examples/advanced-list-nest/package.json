@@ -5,11 +5,11 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/core": "3.1.x",
-    "@cycle/dom": "5.1.x",
-    "rx": "^3.1.0",
+    "@cycle/core": "6.0.0-rc2",
+    "@cycle/dom": "8.0.0-rc2",
     "rx-combine-latest-obj": "1.0.x",
-    "rx-injectable-observable": "3.0.x"
+    "@cycle/isolate": "1.0.2",
+    "rx": "4.0.6"
   },
   "devDependencies": {
     "browserify": "11.0.1",
