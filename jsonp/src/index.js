@@ -1,4 +1,4 @@
-let {Rx} = require(`@cycle/core`)
+let Rx = require(`rx`)
 let jsonp = require(`jsonp`)
 
 function createResponse$(url) {
