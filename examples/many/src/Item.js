@@ -2,16 +2,16 @@ import {Rx} from '@cycle/core';
 import {h} from '@cycle/dom';
 import combineLatestObj from 'rx-combine-latest-obj';
 
-function intent(DOM, name = []) {
-  const changeColor$ = DOM.select(name.join(' ') + '.item .color-field')
+function intent(DOM, id = ``) {
+  const changeColor$ = DOM.select('.color-field')
     .events('input')
-    .map(ev => ({color: ev.target.value, name}));
-  const changeWidth$ = DOM.select(name.join(' ') + '.item .width-slider')
+    .map(ev => ({color: ev.target.value}));
+  const changeWidth$ = DOM.select('.width-slider')
     .events('input')
-    .map(ev => ({width: parseInt(ev.target.value), name}));
-  const destroy$ = DOM.select(name.join(' ') + '.item .remove-btn')
+    .map(ev => ({width: parseInt(ev.target.value)}));
+  const destroy$ = DOM.select('.remove-btn')
     .events('click')
-    .map(ev => ({name}));
+    .map(ev => ({id}));
 
   return {changeColor$, changeWidth$, destroy$};
 }
@@ -27,7 +27,7 @@ function model(props, actions) {
   return combineLatestObj({color$, width$});
 }
 
-function view(state$, name = []) {
+function view(state$, id) {
   return state$.map(({color, width}) => {
     const style = {
       border: '1px solid #000',
@@ -38,7 +38,7 @@ function view(state$, name = []) {
       padding: '20px',
       margin: '10px 0px'
     };
-    return h('div.item' + name[name.length-1], {style}, [
+    return h(`div.item${id}`, {style}, [
       h('input.color-field', {
         type: 'text',
         attributes: {value: color}
@@ -55,10 +55,10 @@ function view(state$, name = []) {
   });
 }
 
-function item(sources, name = []) {
-  const actions = intent(sources.DOM, name);
+function Item(sources, id = ``) {
+  const actions = intent(sources.DOM, id);
   const state$ = model(sources.props, actions);
-  const vtree$ = view(state$, name);
+  const vtree$ = view(state$, id);
 
   return {
     DOM: vtree$,
@@ -66,4 +66,4 @@ function item(sources, name = []) {
   };
 }
 
-export default item;
+export default Item;

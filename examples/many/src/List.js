@@ -1,16 +1,17 @@
 import {Observable, Subject} from 'rx';
 import {button, div} from '@cycle/dom';
-import item from './item';
+import isolate from '@cycle/isolate'
+import Item from './Item';
 
-function intent(DOM, itemActions, name = []) {
+function intent(DOM, itemActions) {
   const addItem$ = Observable.merge(
-    DOM.select(name.join(' ') + '.list .add-one-btn')
+    DOM.select('.add-one-btn')
       .events('click').map(() => 1),
-    DOM.select(name.join(' ') + '.list .add-many-btn')
+    DOM.select('.add-many-btn')
       .events('click').map(() => 1000)
   );
   const removeItem$ = itemActions.destroy$
-    .map(({name}) => parseInt(name[name.length-1].replace('.list-item', '')));
+    .map(({id}) => parseInt(id.replace('.list-item', '')));
 
   return {
     addItem$,
@@ -65,7 +66,7 @@ function model(actions, itemFn) {
     .publishValue(initialState).refCount();
 }
 
-function view(itemDOMs$, name = []) {
+function view(itemDOMs$) {
   function renderTopButtons() {
     return div('.topButtons', [
       button('.add-one-btn', 'Add New Item'),
@@ -74,26 +75,28 @@ function view(itemDOMs$, name = []) {
   }
 
   return itemDOMs$.map(itemDOMs =>
-    div('.list' + name[name.length-1],
+    div('.list',
       [renderTopButtons()].concat(itemDOMs)
     )
   );
 }
 
-function makeItemWrapper(DOM, name = []) {
+function makeItemWrapper(DOM) {
   return function itemWrapper(props, id) {
     const propsObservables = {
       color$: Observable.just(props.color),
       width$: Observable.just(props.width),
     };
-    return item({DOM, props: propsObservables}, name.concat(`.list-item${id}`));
+    return isolate(Item, `${id}`)({
+      DOM, props: propsObservables
+    }, `.list-item${id}`);
   }
 }
 
-function list(sources, name = []) {
+function List(sources) {
   const itemActions = {destroy$: new Subject()};
-  const actions = intent(sources.DOM, itemActions, name);
-  const itemWrapper = makeItemWrapper(sources.DOM, name);
+  const actions = intent(sources.DOM, itemActions);
+  const itemWrapper = makeItemWrapper(sources.DOM);
   const items$ = model(actions, itemWrapper);
   const itemDOMs$ = items$.map(items => items.map(item => item.DOM));
   const itemDestroy$ = items$
@@ -102,11 +105,11 @@ function list(sources, name = []) {
       Observable.merge(items.map(item => item.destroy$))
     );
   itemDestroy$.subscribe(itemActions.destroy$.asObserver());
-  const vtree$ = view(itemDOMs$, name);
+  const vtree$ = view(itemDOMs$);
 
   return {
     DOM: vtree$
   };
 }
 
-export default list;
+export default List;

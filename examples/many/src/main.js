@@ -3,7 +3,7 @@ import {makeDOMDriver} from '@cycle/dom';
 import List from './List';
 
 function main(sources) {
-  return List(sources, ['.many-list']);
+  return List(sources);
 }
 
 run(main, {
