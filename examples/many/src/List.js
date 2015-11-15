@@ -1,9 +1,9 @@
-import {Rx} from '@cycle/core';
-import {h} from '@cycle/dom';
+import {Observable, Subject} from 'rx';
+import {button, div} from '@cycle/dom';
 import item from './item';
 
 function intent(DOM, itemActions, name = []) {
-  const addItem$ = Rx.Observable.merge(
+  const addItem$ = Observable.merge(
     DOM.select(name.join(' ') + '.list .add-one-btn')
       .events('click').map(() => 1),
     DOM.select(name.join(' ') + '.list .add-many-btn')
@@ -59,7 +59,7 @@ function model(actions, itemFn) {
     }
   );
 
-  return Rx.Observable.merge(addItemMod$, removeItemMod$)
+  return Observable.merge(addItemMod$, removeItemMod$)
     .startWith(initialState)
     .scan((listItems, modification) => modification(listItems))
     .publishValue(initialState).refCount();
@@ -67,14 +67,14 @@ function model(actions, itemFn) {
 
 function view(itemDOMs$, name = []) {
   function renderTopButtons() {
-    return h('div.topButtons', [
-      h('button.add-one-btn', 'Add New Item'),
-      h('button.add-many-btn', 'Add Many Items')
+    return div('.topButtons', [
+      button('.add-one-btn', 'Add New Item'),
+      button('.add-many-btn', 'Add Many Items')
     ]);
   }
 
   return itemDOMs$.map(itemDOMs =>
-    h('div.list' + name[name.length-1],
+    div('.list' + name[name.length-1],
       [renderTopButtons()].concat(itemDOMs)
     )
   );
@@ -83,15 +83,15 @@ function view(itemDOMs$, name = []) {
 function makeItemWrapper(DOM, name = []) {
   return function itemWrapper(props, id) {
     const propsObservables = {
-      color$: Rx.Observable.just(props.color),
-      width$: Rx.Observable.just(props.width),
+      color$: Observable.just(props.color),
+      width$: Observable.just(props.width),
     };
     return item({DOM, props: propsObservables}, name.concat(`.list-item${id}`));
   }
 }
 
 function list(sources, name = []) {
-  const itemActions = {destroy$: new Rx.Subject()};
+  const itemActions = {destroy$: new Subject()};
   const actions = intent(sources.DOM, itemActions, name);
   const itemWrapper = makeItemWrapper(sources.DOM, name);
   const items$ = model(actions, itemWrapper);
@@ -99,7 +99,7 @@ function list(sources, name = []) {
   const itemDestroy$ = items$
     .filter(items => items.length)
     .flatMapLatest(items =>
-      Rx.Observable.merge(items.map(item => item.destroy$))
+      Observable.merge(items.map(item => item.destroy$))
     );
   itemDestroy$.subscribe(itemActions.destroy$.asObserver());
   const vtree$ = view(itemDOMs$, name);
