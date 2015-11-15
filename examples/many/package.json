@@ -4,10 +4,14 @@
   "private": true,
   "author": "Andre Staltz",
   "license": "MIT",
+  "contributors": [{
+    "name": "Frederik Krautwald"
+  }],
   "dependencies": {
-    "@cycle/core": "3.1.x",
-    "@cycle/dom": "5.1.x",
-    "rx": "^3.1.1",
+    "@cycle/core": "6.0.0-rc2",
+    "@cycle/dom": "8.0.0-rc2",
+    "@cycle/isolate": "1.0.x",
+    "rx": "^4.0.6",
     "rx-combine-latest-obj": "^1.0.2"
   },
   "devDependencies": {
