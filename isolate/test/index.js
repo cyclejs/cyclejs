@@ -42,17 +42,17 @@ describe('isolate', function () {
         return {};
       }
 
-      function MyDataflowComponent(sources) {
+      function MyDataflowComponent(sources, foo, bar) {
         return {
-          other: Rx.Observable.just('a')
+          other: Rx.Observable.just([foo, bar])
         };
       }
       const scopedMyDataflowComponent = isolate(MyDataflowComponent);
-      const scopedSinks = scopedMyDataflowComponent({other: driver()});
+      const scopedSinks = scopedMyDataflowComponent({other: driver()}, `foo`, `bar`);
 
       assert.strictEqual(typeof scopedSinks, `object`);
       scopedSinks.other.subscribe(x => {
-        assert.strictEqual(x, 'a');
+        assert.strictEqual(x.join(), `foo,bar`);
       })
     })
 
