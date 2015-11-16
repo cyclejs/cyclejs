@@ -1,31 +1,31 @@
 import Cycle from '@cycle/core';
-import {h, makeDOMDriver} from '@cycle/dom';
+import {div, button, h1, h4, a, makeDOMDriver} from '@cycle/dom';
 import {makeHTTPDriver} from '@cycle/http';
 
-function main(responses) {
+function main(sources) {
   const USERS_URL = 'http://jsonplaceholder.typicode.com/users/';
-  let getRandomUser$ = responses.DOM.select('.get-random').events('click')
+  const getRandomUser$ = sources.DOM.select('.get-random').events('click')
     .map(() => {
-      let randomNum = Math.round(Math.random() * 9) + 1;
+      const randomNum = Math.round(Math.random() * 9) + 1;
       return {
         url: USERS_URL + String(randomNum),
         method: 'GET'
       };
     });
 
-  let user$ = responses.HTTP
+  const user$ = sources.HTTP
     .filter(res$ => res$.request.url.indexOf(USERS_URL) === 0)
     .mergeAll()
     .map(res => res.body)
     .startWith(null);
 
-  let vtree$ = user$.map(user =>
-    h('div.users', [
-      h('button.get-random', 'Get random user'),
-      user === null ? null : h('div.user-details', [
-        h('h1.user-name', user.name),
-        h('h4.user-email', user.email),
-        h('a.user-website', {href: user.website}, user.website)
+  const vtree$ = user$.map(user =>
+    div('.users', [
+      button('.get-random', 'Get random user'),
+      user === null ? null : div('.user-details', [
+        h1('.user-name', user.name),
+        h4('.user-email', user.email),
+        a('.user-website', {href: user.website}, user.website)
       ])
     ])
   );
