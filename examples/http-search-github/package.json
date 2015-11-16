@@ -5,10 +5,10 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/core": "3.1.x",
-    "@cycle/dom": "5.1.x",
-    "@cycle/http": "3.1.x",
-    "hyperscript-helpers": "1.x.x"
+    "@cycle/core": "6.0.0-rc2",
+    "@cycle/dom": "8.0.0-rc2",
+    "@cycle/http": "7.0.0-rc1",
+    "rx": "4.0.6"
   },
   "devDependencies": {
     "browserify": "11.0.1",

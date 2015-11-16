@@ -1,14 +1,14 @@
 import Cycle from '@cycle/core';
-import {h, makeDOMDriver} from '@cycle/dom';
+import {Observable} from 'rx';
+import {div, label, input, hr, ul, li, a, makeDOMDriver} from '@cycle/dom';
 import {makeHTTPDriver} from '@cycle/http';
-const {div, label, input, hr, ul, li, a} = require('hyperscript-helpers')(h);
 
-function main(responses) {
+function main(sources) {
   const GITHUB_SEARCH_API = 'https://api.github.com/search/repositories?q=';
 
   // Requests for Github repositories happen when the input field changes,
   // debounced by 500ms, ignoring empty input field.
-  const searchRequest$ = responses.DOM.select('.field').events('input')
+  const searchRequest$ = sources.DOM.select('.field').events('input')
     .debounce(500)
     .map(ev => ev.target.value)
     .filter(query => query.length > 0)
@@ -16,12 +16,12 @@ function main(responses) {
 
   // Requests unrelated to the Github search. This is to demonstrate
   // how filtering for the correct HTTP responses is necessary.
-  const otherRequest$ = Cycle.Rx.Observable.interval(1000).take(2)
+  const otherRequest$ = Observable.interval(1000).take(2)
     .map(() => 'http://www.google.com');
 
   // Convert the stream of HTTP responses to virtual DOM elements.
-  const vtree$ = responses.HTTP
-    .filter(res$ => res$.request.indexOf(GITHUB_SEARCH_API) === 0)
+  const vtree$ = sources.HTTP
+    .filter(res$ => res$.request.url.indexOf(GITHUB_SEARCH_API) === 0)
     .flatMap(x => x)
     .map(res => res.body.items)
     .startWith([])
