@@ -2,6 +2,9 @@
 
 > A utility function to make scoped dataflow components in Cycle.js.
 
+[![Cycle.js](https://img.shields.io/badge/Cycle.js-compatible-brightgreen.svg)](https://github.com/cyclejs)
+[![Motorcycle.js](https://img.shields.io/badge/Motorcycle.js-compatible-brightgreen.svg)](https://github.com/motorcyclejs)
+
 ## Installing
 
 [![npm version](https://badge.fury.io/js/%40cycle%2Fisolate.svg)](http://badge.fury.io/js/%40cycle%2Fisolate)
