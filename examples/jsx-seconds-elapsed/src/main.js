@@ -1,19 +1,17 @@
 /** @jsx hJSX */
-import {run, Rx} from '@cycle/core';
+import Cycle from '@cycle/core';
+import {Observable} from 'rx';
 import {makeDOMDriver, hJSX} from '@cycle/dom';
 
 function main(drivers) {
-  let secondsElapsed$ = Rx.Observable.interval(1000)
-    .map(i => i + 1)
-    .startWith(0);
-  let vtree$ = secondsElapsed$.map(secondsElapsed =>
-    <div>Seconds elapsed {secondsElapsed}</div>
-  );
-  return {DOM: vtree$};
+  return {
+    DOM: Observable.timer(0, 1000)
+      .map(i => <div>Seconds elapsed {i}</div>)
+  };
 }
 
-let drivers = {
+const drivers = {
  DOM: makeDOMDriver('#main-container')
 };
 
-run(main, drivers);
+Cycle.run(main, drivers);
