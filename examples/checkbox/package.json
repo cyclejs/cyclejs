@@ -6,7 +6,8 @@
   "license": "MIT",
   "dependencies": {
     "@cycle/core": "6.0.0-rc2",
-    "@cycle/dom": "8.0.0-rc2"
+    "@cycle/dom": "8.0.0-rc2",
+    "rx": "4.0.6"
   },
   "devDependencies": {
     "browserify": "11.0.1",
