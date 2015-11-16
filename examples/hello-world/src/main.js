@@ -1,17 +1,17 @@
 import Cycle from '@cycle/core';
-import {h, makeDOMDriver} from '@cycle/dom';
+import {div, label, input, hr, h1, makeDOMDriver} from '@cycle/dom';
 
-function main(responses) {
+function main(sources) {
   return {
-    DOM: responses.DOM.select('.myinput').events('input')
+    DOM: sources.DOM.select('.myinput').events('input')
       .map(ev => ev.target.value)
       .startWith('')
       .map(name =>
-        h('div', [
-          h('label', 'Name:'),
-          h('input.myinput', {attributes: {type: 'text'}}),
-          h('hr'),
-          h('h1', `Hello ${name}`)
+        div([
+          label('Name:'),
+          input('.myinput', {attributes: {type: 'text'}}),
+          hr(),
+          h1(`Hello ${name}`)
         ])
       )
   };
