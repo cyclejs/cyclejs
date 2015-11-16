@@ -44,7 +44,7 @@ function isolate(dataflowComponent) {
   if (typeof scope !== "string") {
     throw new Error("Second argument given to isolate() must be a " + "string for 'scope'");
   }
-  return function scopedDialogue(sources) {
+  return function scopedDataflowComponent(sources) {
     var scopedSources = {};
     for (var key in sources) {
       if (sources.hasOwnProperty(key) && typeof sources[key].isolateSource === "function") {
@@ -53,7 +53,12 @@ function isolate(dataflowComponent) {
         scopedSources[key] = sources[key];
       }
     }
-    var sinks = dataflowComponent(scopedSources);
+
+    for (var _len = arguments.length, rest = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      rest[_key - 1] = arguments[_key];
+    }
+
+    var sinks = dataflowComponent.apply(undefined, [scopedSources].concat(rest));
     var scopedSinks = {};
     for (var key in sinks) {
       if (sinks.hasOwnProperty(key) && sources.hasOwnProperty(key) && typeof sources[key].isolateSink === "function") {
