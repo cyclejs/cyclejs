@@ -5,13 +5,10 @@ import Item from './Item';
 
 function intent(DOM, itemActions) {
   const addItem$ = Observable.merge(
-    DOM.select('.add-one-btn')
-      .events('click').map(() => 1),
-    DOM.select('.add-many-btn')
-      .events('click').map(() => 1000)
+    DOM.select('.add-one-btn').events('click').map(() => 1),
+    DOM.select('.add-many-btn').events('click').map(() => 1000)
   );
-  const removeItem$ = itemActions.destroy$
-    .map(id => id);
+  const removeItem$ = itemActions.destroy$;
 
   return {
     addItem$,
