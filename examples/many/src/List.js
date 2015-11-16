@@ -87,9 +87,7 @@ function makeItemWrapper(DOM) {
       color$: Observable.just(props.color),
       width$: Observable.just(props.width),
     };
-    const item = isolate(Item, `${id}`)({
-      DOM, props: propsObservables
-    });
+    const item = isolate(Item)({DOM, props: propsObservables});
     return {
       DOM: item.DOM,
       destroy$: item.destroy$.map(() => id)
