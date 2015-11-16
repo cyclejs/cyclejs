@@ -6,6 +6,9 @@
   "license": "MIT",
   "homepage": "https://cyclejs.github.io",
   "bugs": "https://github.com/cyclejs/isolate/issues",
+  "contributors": [{
+    "name": "Frederik Krautwald"
+  }],
   "repository": {
     "type": "git",
     "url": "https://github.com/cyclejs/isolate"

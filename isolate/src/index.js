@@ -41,7 +41,7 @@ function isolate(dataflowComponent, scope = newScope()) {
     throw new Error(`Second argument given to isolate() must be a ` +
       `string for 'scope'`)
   }
-  return function scopedDialogue(sources) {
+  return function scopedDataflowComponent(sources, ...rest) {
     const scopedSources = {}
     for (let key in sources) {
       if (sources.hasOwnProperty(key) &&
@@ -52,7 +52,7 @@ function isolate(dataflowComponent, scope = newScope()) {
         scopedSources[key] = sources[key]
       }
     }
-    const sinks = dataflowComponent(scopedSources)
+    const sinks = dataflowComponent(scopedSources, ...rest)
     const scopedSinks = {}
     for (let key in sinks) {
       if (sinks.hasOwnProperty(key) &&
