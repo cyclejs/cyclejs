@@ -18,9 +18,11 @@ function newScope() {
  * `source.isolateSink(sink, scope)`.
  *
  * If the `scope` is not provided, a new scope will be automatically created.
- * This means that **`isolate(dataflowComponent)` is impure** (not referentially
- * transparent). Two calls to `isolate(Foo)` will generate two distinct dataflow
- * components.
+ * This means that while **`isolate(dataflowComponent, scope)` is pure**
+ * (referentially transparent), **`isolate(dataflowComponent)` is impure**
+ * (not referentially transparent). Two calls to `isolate(Foo, bar)` will
+ * generate two indistinct dataflow components. But, two calls to `isolate(Foo)`
+ * will generate two distinct dataflow components.
  *
  * Note that both `isolateSource()` and `isolateSink()` are static members of
  * `source`. The reason for this is that drivers produce `source` while the
