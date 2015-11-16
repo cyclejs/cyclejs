@@ -1,14 +1,16 @@
 {
   "name": "@cycle/isolate",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "author": "Andre Staltz",
   "description": "A utility function to make scoped dataflow components in Cycle.js",
   "license": "MIT",
   "homepage": "https://cyclejs.github.io",
   "bugs": "https://github.com/cyclejs/isolate/issues",
-  "contributors": [{
-    "name": "Frederik Krautwald"
-  }],
+  "contributors": [
+    {
+      "name": "Frederik Krautwald"
+    }
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/cyclejs/isolate"
