@@ -2,7 +2,7 @@ import {Rx} from '@cycle/core';
 import {button, div, input} from '@cycle/dom';
 import combineLatestObj from 'rx-combine-latest-obj';
 
-function intent(DOM, id = ``) {
+function intent(DOM) {
   const changeColor$ = DOM.select('.color-field')
     .events('input')
     .map(ev => ({color: ev.target.value}));
@@ -11,7 +11,7 @@ function intent(DOM, id = ``) {
     .map(ev => ({width: parseInt(ev.target.value)}));
   const destroy$ = DOM.select('.remove-btn')
     .events('click')
-    .map(ev => ({id}));
+    .map(ev => true);
 
   return {changeColor$, changeWidth$, destroy$};
 }
@@ -27,7 +27,7 @@ function model(props, actions) {
   return combineLatestObj({color$, width$});
 }
 
-function view(state$, id) {
+function view(state$) {
   return state$.map(({color, width}) => {
     const style = {
       border: '1px solid #000',
@@ -38,7 +38,7 @@ function view(state$, id) {
       padding: '20px',
       margin: '10px 0px'
     };
-    return div(`.item${id}`, {style}, [
+    return div(`.item`, {style}, [
       input('.color-field', {
         type: 'text',
         attributes: {value: color}
@@ -55,10 +55,10 @@ function view(state$, id) {
   });
 }
 
-function Item(sources, id = ``) {
-  const actions = intent(sources.DOM, id);
+function Item(sources) {
+  const actions = intent(sources.DOM);
   const state$ = model(sources.props, actions);
-  const vtree$ = view(state$, id);
+  const vtree$ = view(state$);
 
   return {
     DOM: vtree$,

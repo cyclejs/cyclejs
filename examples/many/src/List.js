@@ -11,7 +11,7 @@ function intent(DOM, itemActions) {
       .events('click').map(() => 1000)
   );
   const removeItem$ = itemActions.destroy$
-    .map(({id}) => parseInt(id.replace('.list-item', '')));
+    .map(id => id);
 
   return {
     addItem$,
@@ -87,9 +87,13 @@ function makeItemWrapper(DOM) {
       color$: Observable.just(props.color),
       width$: Observable.just(props.width),
     };
-    return isolate(Item, `${id}`)({
+    const item = isolate(Item, `${id}`)({
       DOM, props: propsObservables
-    }, `.list-item${id}`);
+    });
+    return {
+      DOM: item.DOM,
+      destroy$: item.destroy$.map(() => id)
+    }
   }
 }
 
