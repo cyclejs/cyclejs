@@ -1,9 +1,9 @@
 import {run} from '@cycle/core';
 import {makeDOMDriver} from '@cycle/dom';
-import list from './list';
+import List from './List';
 
 function main(sources) {
-  return list(sources, ['.many-list']);
+  return List(sources);
 }
 
 run(main, {
