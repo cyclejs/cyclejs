@@ -1,7 +1,7 @@
-'use strict';
 let Cycle = require('@cycle/core');
+let {Observable} = require('rx');
 let {makeDOMDriver} = require('@cycle/dom');
-let {app} = require('./app');
+let app = require('./app');
 
 function clientSideApp(responses) {
   let requests = app(responses);
@@ -11,5 +11,5 @@ function clientSideApp(responses) {
 
 Cycle.run(clientSideApp, {
   DOM: makeDOMDriver('.app-container'),
-  context: () => Cycle.Rx.Observable.just(window.appContext)
+  context: () => Observable.just(window.appContext)
 });

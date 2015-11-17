@@ -1,23 +1,32 @@
-'use strict';
 let Cycle = require('@cycle/core');
 let express = require('express');
 let browserify = require('browserify');
 let serialize = require('serialize-javascript');
-let {Rx} = Cycle;
-let {h, makeHTMLDriver} = require('@cycle/dom');
-let {app} = require('./app');
+let {Observable, ReplaySubject} = require('rx');
+let {
+  html,
+  head,
+  title,
+  body,
+  div,
+  script,
+  makeHTMLDriver
+} = require('@cycle/dom');
+let app = require('./app');
 
 function wrapVTreeWithHTMLBoilerplate(vtree, context, clientBundle) {
-  return h('html', [
-    h('head', [
-      h('title', 'Cycle Isomorphism Example')
-    ]),
-    h('body', [
-      h('div.app-container', [vtree]),
-      h('script', `window.appContext = ${serialize(context)};`),
-      h('script', clientBundle)
+  return (
+    html([
+      head([
+        title('Cycle Isomorphism Example')
+      ]),
+      body([
+        div('.app-container', [vtree]),
+        script(`window.appContext = ${serialize(context)};`),
+        script(clientBundle)
+      ])
     ])
-  ]);
+  );
 }
 
 function prependHTML5Doctype(html) {
@@ -25,9 +34,9 @@ function prependHTML5Doctype(html) {
 }
 
 function wrapAppResultWithBoilerplate(appFn, context$, bundle$) {
-  return function wrappedAppFn(ext) {
-    let vtree$ = appFn(ext).DOM;
-    let wrappedVTree$ = Rx.Observable.combineLatest(vtree$, context$, bundle$,
+  return function wrappedAppFn(sources) {
+    let vtree$ = appFn(sources).DOM;
+    let wrappedVTree$ = Observable.combineLatest(vtree$, context$, bundle$,
       wrapVTreeWithHTMLBoilerplate
     );
     return {
@@ -37,7 +46,7 @@ function wrapAppResultWithBoilerplate(appFn, context$, bundle$) {
 }
 
 let clientBundle$ = (() => {
-  let replaySubject = new Rx.ReplaySubject(1);
+  let replaySubject = new ReplaySubject(1);
   let bundleString = '';
   let bundleStream = browserify()
     .transform('babelify')
@@ -66,13 +75,13 @@ server.use(function (req, res) {
   }
   console.log(`req: ${req.method} ${req.url}`);
 
-  let context$ = Rx.Observable.just({route: req.url});
+  let context$ = Observable.just({route: req.url});
   let wrappedAppFn = wrapAppResultWithBoilerplate(app, context$, clientBundle$);
-  let [requests, responses] = Cycle.run(wrappedAppFn, {
+  let {sources} = Cycle.run(wrappedAppFn, {
     DOM: makeHTMLDriver(),
     context: () => context$
   });
-  let html$ = responses.DOM.map(prependHTML5Doctype);
+  let html$ = sources.DOM.map(prependHTML5Doctype);
   html$.subscribe(html => res.send(html));
 });
 
