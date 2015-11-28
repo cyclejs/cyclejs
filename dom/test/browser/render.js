@@ -6,7 +6,7 @@ let Cycle = require('@cycle/core');
 let CycleDOM = require('../../src/cycle-dom');
 let Fixture89 = require('./fixtures/issue-89');
 let Rx = require('rx');
-let {h, div, p, span, h2, h3, h4, hJSX, select, option, makeDOMDriver} = CycleDOM;
+let {h, svg, div, p, span, h2, h3, h4, hJSX, select, option, makeDOMDriver} = CycleDOM;
 
 function createRenderTarget(id = null) {
   let element = document.createElement('div');
@@ -646,6 +646,37 @@ describe('Rendering', function () {
             sources.dispose();
             done();
           })
+      });
+
+      it('should select svg element', function (done) {
+        function app() {
+          let svgTriangle = svg('svg', {width: 150, height: 150}, [
+            svg('polygon', {
+              class: 'triangle',
+              attributes: {
+                points: '20 0 20 150 150 20'
+              }
+            }),
+          ]);
+
+          return {
+            DOM: Rx.Observable.just(h('div', svgTriangle))
+          };
+        }
+
+        let {sinks, sources} = Cycle.run(app, {
+          DOM: makeDOMDriver(createRenderTarget())
+        });
+
+        // Make assertions
+        const selection = sources.DOM.select('.triangle').observable.skip(1).take(1).subscribe(elements => {
+          assert.strictEqual(elements.length, 1);
+          let triangleElement = elements[0];
+          assert.notStrictEqual(triangleElement, null);
+          assert.notStrictEqual(typeof triangleElement, 'undefined');
+          assert.strictEqual(triangleElement.tagName, 'polygon');
+          done();
+        });
       });
     });
 
