@@ -1,4 +1,4 @@
-let Rx = require(`rx`)
+let Rx = require(`@reactivex/rxjs`)
 
 function makeSinkProxies(drivers) {
   let sinkProxies = {}
@@ -23,7 +23,9 @@ function callDrivers(drivers, sinkProxies) {
 function attachDisposeToSinks(sinks, replicationSubscription) {
   Object.defineProperty(sinks, `dispose`, {
     enumerable: false,
-    value: () => { replicationSubscription.dispose() },
+    value: () => {
+      replicationSubscription._unsubscribe()
+    },
   })
   return sinks
 }
@@ -32,9 +34,9 @@ function makeDisposeSources(sources) {
   return function dispose() {
     for (let name in sources) {
       if (sources.hasOwnProperty(name) &&
-        typeof sources[name].dispose === `function`)
+        typeof sources[name]._unsubscribe === `function`)
       {
-        sources[name].dispose()
+        sources[name]._unsubscribe()
       }
     }
   }
@@ -57,7 +59,7 @@ function logToConsoleError(err) {
 
 function replicateMany(observables, subjects) {
   return Rx.Observable.create(observer => {
-    let subscription = new Rx.CompositeDisposable()
+    let subscription = new Rx.Subscription()
     setTimeout(() => {
       for (let name in observables) {
         if (observables.hasOwnProperty(name) &&
@@ -66,12 +68,16 @@ function replicateMany(observables, subjects) {
         {
           subscription.add(
             observables[name]
-              .doOnError(logToConsoleError)
-              .subscribe(subjects[name].asObserver())
+              .do(null, logToConsoleError)
+              .subscribe(
+                subjects[name].next.bind(subjects[name]),
+                subjects[name].error.bind(subjects[name]),
+                subjects[name].complete.bind(subjects[name])
+              )
           )
         }
       }
-      observer.onNext(subscription)
+      observer.next(subscription)
     }, 1)
 
     return function dispose() {
