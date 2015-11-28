@@ -102,10 +102,13 @@ function normalizeRequestOptions(reqOptions) {
 }
 
 function isolateSource(response$$, scope) {
-  return response$$.filter(res$ =>
+  let isolatedResponse$$ = response$$.filter(res$ =>
     Array.isArray(res$.request._namespace) &&
     res$.request._namespace.indexOf(scope) !== -1
   )
+  isolatedResponse$$.isolateSource = isolateSource
+  isolatedResponse$$.isolateSink = isolateSink
+  return isolatedResponse$$
 }
 
 function isolateSink(request$, scope) {
