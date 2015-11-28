@@ -21,7 +21,7 @@
   ],
   "main": "lib/cycle.js",
   "peerDependencies": {
-    "rx": "*"
+    "@reactivex/rxjs": "5.0.0-alpha.10"
   },
   "devDependencies": {
     "babel": "5.8.29",
@@ -43,7 +43,7 @@
     "node": ">=0.10.0"
   },
   "browserify-shim": {
-    "rx": "global:Rx"
+    "@reactivex/rxjs": "global:Rx"
   },
   "scripts": {
     "eslint": "eslint src/",
