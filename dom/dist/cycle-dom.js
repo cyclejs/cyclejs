@@ -3737,8 +3737,9 @@ function makeIsStrictlyInRootScope(rootList, namespace) {
       if (rootList.indexOf(el) >= 0) {
         return true;
       }
-      var classList = el.className.split(" ");
-      if (classList.some(classIsForeign)) {
+
+      var classList = el.classList || el.className.split(" ");
+      if (Array.prototype.some.call(classList, classIsForeign)) {
         return false;
       }
     }
