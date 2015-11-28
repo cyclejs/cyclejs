@@ -1467,12 +1467,6 @@ function normalizeRequestOptions(reqOptions) {
   }
 }
 
-function isolateSource(response$$, scope) {
-  return response$$.filter(function (res$) {
-    return Array.isArray(res$.request._namespace) && res$.request._namespace.indexOf(scope) !== -1;
-  });
-}
-
 function isolateSink(request$, scope) {
   return request$.map(function (req) {
     if (typeof req === "string") {
@@ -1482,6 +1476,15 @@ function isolateSink(request$, scope) {
     req._namespace.push(scope);
     return req;
   });
+}
+
+function isolateSource(response$$, scope) {
+  var isolatedResponse$$ = response$$.filter(function (res$) {
+    return Array.isArray(res$.request._namespace) && res$.request._namespace.indexOf(scope) !== -1;
+  });
+  isolatedResponse$$.isolateSource = isolateSource;
+  isolatedResponse$$.isolateSink = isolateSink;
+  return isolatedResponse$$;
 }
 
 function makeHTTPDriver() {
