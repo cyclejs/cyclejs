@@ -101,16 +101,6 @@ function normalizeRequestOptions(reqOptions) {
   }
 }
 
-function isolateSource(response$$, scope) {
-  let isolatedResponse$$ = response$$.filter(res$ =>
-    Array.isArray(res$.request._namespace) &&
-    res$.request._namespace.indexOf(scope) !== -1
-  )
-  isolatedResponse$$.isolateSource = isolateSource
-  isolatedResponse$$.isolateSink = isolateSink
-  return isolatedResponse$$
-}
-
 function isolateSink(request$, scope) {
   return request$.map(req => {
     if (typeof req === `string`) {
@@ -120,6 +110,16 @@ function isolateSink(request$, scope) {
     req._namespace.push(scope)
     return req
   })
+}
+
+function isolateSource(response$$, scope) {
+  let isolatedResponse$$ = response$$.filter(res$ =>
+    Array.isArray(res$.request._namespace) &&
+    res$.request._namespace.indexOf(scope) !== -1
+  )
+  isolatedResponse$$.isolateSource = isolateSource
+  isolatedResponse$$.isolateSink = isolateSink
+  return isolatedResponse$$
 }
 
 function makeHTTPDriver({eager = false} = {eager: false}) {

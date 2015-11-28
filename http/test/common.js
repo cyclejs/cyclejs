@@ -171,6 +171,29 @@ function run(uri) {
   });
 
   describe('isolateSource and isolateSink', function () {
+    it('should exist on the HTTP Source (response$$)', function(done) {
+      var httpDriver = makeHTTPDriver();
+      var request$ = new Rx.Subject();
+      var response$$ = httpDriver(request$);
+
+      assert.strictEqual(typeof response$$.isolateSource, 'function');
+      assert.strictEqual(typeof response$$.isolateSink, 'function');
+      done();
+    });
+
+    it('should exist on a scoped HTTP Source (response$$)', function(done) {
+      var httpDriver = makeHTTPDriver();
+      var request$ = new Rx.Subject();
+      var response$$ = httpDriver(request$);
+
+      var scopedRequest$ = response$$.isolateSink(request$, 'foo');
+      var scopedResponse$$ = response$$.isolateSource(response$$, 'foo');
+
+      assert.strictEqual(typeof scopedResponse$$.isolateSource, 'function');
+      assert.strictEqual(typeof scopedResponse$$.isolateSink, 'function');
+      done();
+    });
+
     it('should hide responses from outside the scope',
       function(done) {
         var httpDriver = makeHTTPDriver();
