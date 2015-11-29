@@ -26,6 +26,7 @@
   "devDependencies": {
     "@reactivex/rxjs": "^5.0.0-alpha.10",
     "babel": "5.8.29",
+    "babel-eslint": "^5.0.0-beta3",
     "babelify": "6.4.0",
     "browserify": "12.0.1",
     "browserify-shim": "3.8.11",
@@ -37,7 +38,7 @@
     "mocha": "2.3.3",
     "rx": "4.0.6",
     "sinon": "1.17.2",
-    "testem": "0.9.11",
+    "testem": "^0.9.11",
     "uglify-js": "2.5.0"
   },
   "engines": {
@@ -49,7 +50,7 @@
   "scripts": {
     "eslint": "eslint src/",
     "mocha": "mocha --compilers js:babel/register test",
-    "test": "npm run eslint && npm run mocha",
+    "test": "npm run eslint && npm run mocha && npm run test-browser",
     "test-browser": "testem",
     "pretest-browser": "browserify test/cycle.js -t babelify -o test/browser/tests-bundle.js",
     "posttest-browser": "rm test/browser/tests-bundle.js",
