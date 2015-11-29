@@ -24,7 +24,7 @@ function attachDisposeToSinks(sinks, replicationSubscription) {
   Object.defineProperty(sinks, `dispose`, {
     enumerable: false,
     value: () => {
-      replicationSubscription._unsubscribe()
+      replicationSubscription.unsubscribe.call()
     },
   })
   return sinks
@@ -34,9 +34,9 @@ function makeDisposeSources(sources) {
   return function dispose() {
     for (let name in sources) {
       if (sources.hasOwnProperty(name) &&
-        typeof sources[name]._unsubscribe === `function`)
+        typeof sources[name].unsubscribe === `function`)
       {
-        sources[name]._unsubscribe()
+        sources[name].unsubscribe.call()
       }
     }
   }
@@ -64,7 +64,7 @@ function replicateMany(observables, subjects) {
       for (let name in observables) {
         if (observables.hasOwnProperty(name) &&
           subjects.hasOwnProperty(name) &&
-          !subjects[name].isDisposed)
+          !subjects[name].isUnsubscribed)
         {
           subscription.add(
             observables[name]
