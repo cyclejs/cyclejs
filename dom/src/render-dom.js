@@ -66,7 +66,8 @@ function isolateSource(source, scope) {
 
 function isolateSink(sink, scope) {
   return sink.map(vtree => {
-    const c = `${vtree.properties.className} cycle-scope-${scope}`.trim()
+    const {className: vtreeClass = ``} = vtree.properties
+    const c = `${vtreeClass} cycle-scope-${scope}`.trim()
     vtree.properties.className = c
     return vtree
   })
@@ -83,7 +84,7 @@ function makeIsStrictlyInRootScope(rootList, namespace) {
         return true
       }
 
-      const classList = el.classList || el.className.split(` `)
+      const classList = el.classList || String.prototype.split.call(el.className, ` `)
       if (Array.prototype.some.call(classList, classIsForeign)) {
         return false
       }
