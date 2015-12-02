@@ -3721,7 +3721,10 @@ function isolateSource(source, scope) {
 
 function isolateSink(sink, scope) {
   return sink.map(function (vtree) {
-    var c = (vtree.properties.className + " cycle-scope-" + scope).trim();
+    var _vtree$properties$className2 = vtree.properties.className;
+    var vtreeClass = _vtree$properties$className2 === undefined ? "" : _vtree$properties$className2;
+
+    var c = (vtreeClass + " cycle-scope-" + scope).trim();
     vtree.properties.className = c;
     return vtree;
   });
@@ -3738,7 +3741,7 @@ function makeIsStrictlyInRootScope(rootList, namespace) {
         return true;
       }
 
-      var classList = el.classList || el.className.split(" ");
+      var classList = el.classList || String.prototype.split.call(el.className, " ");
       if (Array.prototype.some.call(classList, classIsForeign)) {
         return false;
       }
