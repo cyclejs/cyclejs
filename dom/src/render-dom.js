@@ -84,7 +84,7 @@ function makeIsStrictlyInRootScope(rootList, namespace) {
         return true
       }
 
-      const classList = el.classList || el.className.split(` `)
+      const classList = el.classList || String.prototype.split.call(el.className, ` `)
       if (Array.prototype.some.call(classList, classIsForeign)) {
         return false
       }
