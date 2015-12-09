@@ -486,6 +486,30 @@ describe('Rendering', function () {
           });
       });
 
+      it('should add a className to a vtree sink that had no className', function (done) {
+        function app(sources) {
+          let vtree$ = Rx.Observable.just(h3());
+          return {
+            DOM: sources.DOM.isolateSink(vtree$, 'foo'),
+          };
+        }
+        let {sinks, sources} = Cycle.run(app, {
+          DOM: makeDOMDriver(createRenderTarget())
+        });
+        // Make assertions
+        sources.DOM.select(':root').observable.skip(1).take(1)
+          .subscribe(function (root) {
+            let element = root.querySelector('h3');
+            assert.notStrictEqual(element, null);
+            assert.notStrictEqual(typeof element, 'undefined');
+            assert.strictEqual(element.tagName, 'H3');
+            assert.strictEqual(element.className, 'cycle-scope-foo');
+            sources.dispose();
+            done();
+          });
+      });
+
+
       it('should prevent parent from DOM.selecting() inside the isolation', function (done) {
         function app(sources) {
           return {
