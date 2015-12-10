@@ -509,6 +509,39 @@ describe('Rendering', function () {
           });
       });
 
+      it('should not redundantly repeat the scope className', function (done) {
+        function app(sources) {
+          let vtree1$ = Rx.Observable.just(span({className: 'tab1'}, 'Hi'));
+          let vtree2$ = Rx.Observable.just(span({className: 'tab2'}, 'Hello'));
+          let first$ = sources.DOM.isolateSink(vtree1$, '1');
+          let second$ = sources.DOM.isolateSink(vtree2$, '2');
+          let switched$ = Rx.Observable.concat(
+            Rx.Observable.just(1).delay(50),
+            Rx.Observable.just(2).delay(50),
+            Rx.Observable.just(1).delay(50),
+            Rx.Observable.just(2).delay(50),
+            Rx.Observable.just(1).delay(50),
+            Rx.Observable.just(2).delay(50)
+          ).flatMapLatest(i => i === 1 ? first$ : second$);
+          return {
+            DOM: switched$
+          };
+        }
+        let {sinks, sources} = Cycle.run(app, {
+          DOM: makeDOMDriver(createRenderTarget())
+        });
+        // Make assertions
+        sources.DOM.select(':root').observable.skip(5).take(1)
+          .subscribe(function (root) {
+            let element = root.querySelector('span');
+            assert.notStrictEqual(element, null);
+            assert.notStrictEqual(typeof element, 'undefined');
+            assert.strictEqual(element.tagName, 'SPAN');
+            assert.strictEqual(element.className, 'tab1 cycle-scope-1');
+            sources.dispose();
+            done();
+          });
+      });
 
       it('should prevent parent from DOM.selecting() inside the isolation', function (done) {
         function app(sources) {

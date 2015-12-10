@@ -67,8 +67,10 @@ function isolateSource(source, scope) {
 function isolateSink(sink, scope) {
   return sink.map(vtree => {
     const {className: vtreeClass = ``} = vtree.properties
-    const c = `${vtreeClass} cycle-scope-${scope}`.trim()
-    vtree.properties.className = c
+    if (vtreeClass.indexOf(`cycle-scope-${scope}`) === -1) {
+      const c = `${vtreeClass} cycle-scope-${scope}`.trim()
+      vtree.properties.className = c
+    }
     return vtree
   })
 }
