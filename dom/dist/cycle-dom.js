@@ -3724,8 +3724,10 @@ function isolateSink(sink, scope) {
     var _vtree$properties$className2 = vtree.properties.className;
     var vtreeClass = _vtree$properties$className2 === undefined ? "" : _vtree$properties$className2;
 
-    var c = (vtreeClass + " cycle-scope-" + scope).trim();
-    vtree.properties.className = c;
+    if (vtreeClass.indexOf("cycle-scope-" + scope) === -1) {
+      var c = (vtreeClass + " cycle-scope-" + scope).trim();
+      vtree.properties.className = c;
+    }
     return vtree;
   });
 }
