@@ -54,6 +54,21 @@ describe('Rendering', function () {
         makeDOMDriver(123);
       }, /Given container is not a DOM element neither a selector string/);
     });
+
+    it('should accept function as error callback', function () {
+      let element = document.createDocumentFragment();
+      let onError = function() {};
+      assert.doesNotThrow(function () {
+        makeDOMDriver(element, onError);
+      });
+    });
+
+    it('should not accept number as error callback', function () {
+      let element = document.createDocumentFragment();
+      assert.throws(function () {
+        makeDOMDriver(element, 42);
+      });
+    });
   });
 
   describe('DOM Driver', function () {
@@ -62,6 +77,26 @@ describe('Rendering', function () {
       assert.throws(function () {
         domDriver({});
       }, /The DOM driver function expects as input an Observable of virtual/);
+    });
+
+    it('should pass errors to error callback', function (done) {
+      let error = new Error();
+      let errorCallback = function(e) {
+        assert.strictEqual(e, error);
+        done(); 
+      };
+
+      function app() {
+        return {
+          DOM: Rx.Observable.throw(error)
+        };
+      }
+
+      let {sinks, sources} = Cycle.run(app, {
+        DOM: makeDOMDriver(createRenderTarget(), errorCallback)
+      });
+
+            
     });
 
     it('should have Observable `:root` in DOM source', function (done) {

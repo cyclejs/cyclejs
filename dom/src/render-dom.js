@@ -151,7 +151,7 @@ function validateDOMSink(vtree$) {
   }
 }
 
-function makeDOMDriver(container) {
+function makeDOMDriver(container, errorCallback = console.error.bind(console)) {
   // Find and prepare the container
   let domContainer = typeof container === `string` ?
     document.querySelector(container) :
@@ -164,10 +164,15 @@ function makeDOMDriver(container) {
       `string.`)
   }
 
+  if (typeof errorCallback !== `function`) {
+    throw new Error(`Given error callback is not a function`);
+  }
+
   return function domDriver(vtree$) {
     validateDOMSink(vtree$)
     let rootElem$ = renderRawRootElem$(vtree$, domContainer)
       .startWith(domContainer)
+      .doOnError(errorCallback)
       .replay(null, 1)
     let disposable = rootElem$.connect()
     return {
