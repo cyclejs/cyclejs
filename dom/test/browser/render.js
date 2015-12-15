@@ -912,7 +912,7 @@ describe('Rendering', function () {
       });
     });
 
-    it('should only be concerned with values from the most recent nested Observable', function (done) {}
+    it('should only be concerned with values from the most recent nested Observable', function (done) {
       function app() {
         return {
           DOM: Rx.Observable.just(
