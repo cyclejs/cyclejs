@@ -883,6 +883,33 @@ describe('Rendering', function () {
       });
     });
 
+    it('should render a SVG VTree with a child Observable<VTree>', function (done) {
+      function app() {
+        let child$ = Rx.Observable.just(
+          svg('g', {
+            attributes: {'class': 'child'}
+          })
+        ).delay(80);
+        return {
+          DOM: Rx.Observable.just(svg('svg', [
+            svg('g'),
+            child$
+          ]))
+        };
+      }
+      let {sinks, sources} = Cycle.run(app, {
+        DOM: makeDOMDriver(createRenderTarget())
+      });
+      sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+        let selectEl = root.querySelector('.child');
+        assert.notStrictEqual(selectEl, null);
+        assert.notStrictEqual(typeof selectEl, 'undefined');
+        assert.strictEqual(selectEl.tagName, 'g');
+        sources.dispose();
+        done();
+      });
+    });
+
     it('should not work after has been disposed', function (done) {
       let number$ = Rx.Observable.range(1, 3)
         .concatMap(x => Rx.Observable.just(x).delay(50));

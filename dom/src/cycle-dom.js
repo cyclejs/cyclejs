@@ -1,4 +1,4 @@
-let svg = require(`virtual-dom/virtual-hyperscript/svg`)
+let svg = require(`./virtual-hyperscript-svg`)
 let {makeDOMDriver} = require(`./render-dom`)
 let {makeHTMLDriver} = require(`./render-html`)
 let mockDOMSource = require(`./mock-dom-source`)
