@@ -59,14 +59,14 @@ describe('Rendering', function () {
       let element = document.createDocumentFragment();
       let onError = function() {};
       assert.doesNotThrow(function () {
-        makeDOMDriver(element, onError);
+        makeDOMDriver(element, {onError});
       });
     });
 
     it('should not accept number as error callback', function () {
       let element = document.createDocumentFragment();
       assert.throws(function () {
-        makeDOMDriver(element, 42);
+        makeDOMDriver(element, {onError: 42});
       });
     });
   });
@@ -83,7 +83,7 @@ describe('Rendering', function () {
       let error = new Error();
       let errorCallback = function(e) {
         assert.strictEqual(e, error);
-        done(); 
+        done();
       };
 
       function app() {
@@ -93,10 +93,8 @@ describe('Rendering', function () {
       }
 
       let {sinks, sources} = Cycle.run(app, {
-        DOM: makeDOMDriver(createRenderTarget(), errorCallback)
+        DOM: makeDOMDriver(createRenderTarget(), {onError: errorCallback})
       });
-
-            
     });
 
     it('should have Observable `:root` in DOM source', function (done) {
