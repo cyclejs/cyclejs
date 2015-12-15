@@ -912,7 +912,7 @@ describe('Rendering', function () {
       });
     });
 
-    it('should only be concerned with values from the most recent nested Observable', function (done) {}
+    it('should only be concerned with values from the most recent nested Observable', function (done) {
       function app() {
         return {
           DOM: Rx.Observable.just(
@@ -922,7 +922,7 @@ describe('Rendering', function () {
                 .startWith(1)
                 .map((outer) =>
                   Rx.Observable.just(2)
-                  .delay(outer * 100)
+                  .delay(0)
                   .startWith(1)
                   .map((inner) => div('.target', outer+'/'+inner))
                 )
