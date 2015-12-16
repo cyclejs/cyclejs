@@ -3539,13 +3539,21 @@ function makeIsStrictlyInRootScope(rootList, namespace) {
     var matched = c.match(/cycle-scope-(\S+)/);
     return matched && namespace.indexOf("." + c) === -1;
   };
+  var classIsDomestic = function classIsDomestic(c) {
+    var matched = c.match(/cycle-scope-(\S+)/);
+    return matched && namespace.indexOf("." + c) !== -1;
+  };
   return function isStrictlyInRootScope(leaf) {
-    for (var el = leaf.parentElement; el !== null; el = el.parentElement) {
+    for (var el = leaf; el !== null; el = el.parentElement) {
       if (rootList.indexOf(el) >= 0) {
         return true;
       }
 
-      var classList = el.classList || String.prototype.split.call(el.className, " ");
+      var split = String.prototype.split;
+      var classList = el.classList || split.call(el.className, " ");
+      if (Array.prototype.some.call(classList, classIsDomestic)) {
+        return true;
+      }
       if (Array.prototype.some.call(classList, classIsForeign)) {
         return false;
       }
@@ -3578,19 +3586,20 @@ function makeElementSelector(rootEl$) {
     }
 
     var namespace = this.namespace;
-    var scopedSelector = (namespace.join(" ") + " " + selector).trim();
     var element$ = selector.trim() === ":root" ? rootEl$ : rootEl$.map(function (x) {
       var array = Array.isArray(x) ? x : [x];
       return array.map(function (element) {
-        if (matchesSelector(element, scopedSelector)) {
+        var boundarySelector = "" + namespace.join(" ") + selector;
+        if (matchesSelector(element, boundarySelector)) {
           return [element];
         } else {
+          var scopedSelector = (namespace.join(" ") + " " + selector).trim();
           var nodeList = element.querySelectorAll(scopedSelector);
           return Array.prototype.slice.call(nodeList);
         }
       }).reduce(function (prev, curr) {
         return prev.concat(curr);
-      }, []).filter(makeIsStrictlyInRootScope(array, namespace));
+      }, []).filter(makeIsStrictlyInRootScope(array, namespace.concat(selector)));
     });
     return {
       observable: element$,
