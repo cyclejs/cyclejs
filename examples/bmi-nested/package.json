@@ -6,7 +6,7 @@
   "license": "MIT",
   "dependencies": {
     "@cycle/core": "6.0.0-rc2",
-    "@cycle/dom": "8.0.0-rc2",
+    "@cycle/dom": "8.0.0-rc8",
     "@cycle/isolate": "1.0.x",
     "rx": "^4.0.6"
   },
