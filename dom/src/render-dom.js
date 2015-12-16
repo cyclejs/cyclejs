@@ -80,13 +80,21 @@ function makeIsStrictlyInRootScope(rootList, namespace) {
     const matched = c.match(/cycle-scope-(\S+)/)
     return matched && namespace.indexOf(`.${c}`) === -1
   }
+  const classIsDomestic = c => {
+    const matched = c.match(/cycle-scope-(\S+)/)
+    return matched && namespace.indexOf(`.${c}`) !== -1
+  }
   return function isStrictlyInRootScope(leaf) {
-    for (let el = leaf.parentElement; el !== null; el = el.parentElement) {
+    for (let el = leaf; el !== null; el = el.parentElement) {
       if (rootList.indexOf(el) >= 0) {
         return true
       }
 
-      const classList = el.classList || String.prototype.split.call(el.className, ` `)
+      const split = String.prototype.split
+      const classList = el.classList || split.call(el.className, ` `)
+      if (Array.prototype.some.call(classList, classIsDomestic)) {
+        return true
+      }
       if (Array.prototype.some.call(classList, classIsForeign)) {
         return false
       }
@@ -119,19 +127,20 @@ function makeElementSelector(rootEl$) {
     }
 
     const namespace = this.namespace
-    let scopedSelector = `${namespace.join(` `)} ${selector}`.trim()
-    let element$ = selector.trim() === `:root` ? rootEl$ : rootEl$.map(x => {
-      let array = Array.isArray(x) ? x : [x]
+    const element$ = selector.trim() === `:root` ? rootEl$ : rootEl$.map(x => {
+      const array = Array.isArray(x) ? x : [x]
       return array.map(element => {
-        if (matchesSelector(element, scopedSelector)) {
+        const boundarySelector = `${namespace.join(` `)}${selector}`
+        if (matchesSelector(element, boundarySelector)) {
           return [element]
         } else {
-          let nodeList = element.querySelectorAll(scopedSelector)
+          const scopedSelector = `${namespace.join(` `)} ${selector}`.trim()
+          const nodeList = element.querySelectorAll(scopedSelector)
           return Array.prototype.slice.call(nodeList)
         }
       })
       .reduce((prev, curr) => prev.concat(curr), [])
-      .filter(makeIsStrictlyInRootScope(array, namespace))
+      .filter(makeIsStrictlyInRootScope(array, namespace.concat(selector)))
     })
     return {
       observable: element$,

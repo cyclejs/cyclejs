@@ -606,14 +606,51 @@ describe('Rendering', function () {
         });
       });
 
-      it('should allow parent to DOM.select() an isolation boundary', function (done) {
+      it('should allow parent to DOM.select() in its own isolation island', function (done) {
+        function app(sources) {
+          const {isolateSource, isolateSink} = sources.DOM;
+          const islandElement$ = isolateSource(sources.DOM, 'island')
+            .select('.bar').observable;
+          const islandVTree$ = isolateSink(
+            Rx.Observable.just(div([h3('.bar', 'Correct')])), 'island'
+          );
+          return {
+            DOM: Rx.Observable.just(
+              h3('.top-most', [
+                sources.DOM.isolateSink(Rx.Observable.just(
+                  div('.foo', [
+                    islandVTree$,
+                    h4('.bar', 'Wrong')
+                  ])
+                ), 'ISOLATION'),
+              ])
+            ),
+            island: islandElement$
+          };
+        }
+        let {sinks, sources} = Cycle.run(app, {
+          DOM: makeDOMDriver(createRenderTarget())
+        });
+        sinks.island.skip(1).take(1).subscribe(function (elements) {
+          assert.strictEqual(Array.isArray(elements), true);
+          assert.strictEqual(elements.length, 1);
+          const correctElement = elements[0];
+          assert.notStrictEqual(correctElement, null);
+          assert.notStrictEqual(typeof correctElement, 'undefined');
+          assert.strictEqual(correctElement.tagName, 'H3');
+          assert.strictEqual(correctElement.textContent, 'Correct');
+          done();
+        });
+      });
+
+      it('should allow a child component to DOM.select() its own root', function (done) {
         function app(sources) {
           return {
             DOM: Rx.Observable.just(
               h3('.top-most', [
                 sources.DOM.isolateSink(Rx.Observable.just(
                   span('.foo', [
-                    h4('.foo', 'Wrong')
+                    h4('.bar', 'Wrong')
                   ])
                 ), 'ISOLATION')
               ])
@@ -623,15 +660,19 @@ describe('Rendering', function () {
         let {sinks, sources} = Cycle.run(app, {
           DOM: makeDOMDriver(createRenderTarget())
         });
-        sources.DOM.select('.foo').observable.skip(1).take(1).subscribe(function (elements) {
-          assert.strictEqual(Array.isArray(elements), true);
-          assert.strictEqual(elements.length, 1);
-          const correctElement = elements[0];
-          assert.notStrictEqual(correctElement, null);
-          assert.notStrictEqual(typeof correctElement, 'undefined');
-          assert.strictEqual(correctElement.tagName, 'SPAN');
-          done();
-        });
+        const {isolateSource} = sources.DOM;
+        isolateSource(sources.DOM, 'ISOLATION')
+          .select('.foo').observable
+          .skip(1).take(1)
+          .subscribe(function (elements) {
+            assert.strictEqual(Array.isArray(elements), true);
+            assert.strictEqual(elements.length, 1);
+            const correctElement = elements[0];
+            assert.notStrictEqual(correctElement, null);
+            assert.notStrictEqual(typeof correctElement, 'undefined');
+            assert.strictEqual(correctElement.tagName, 'SPAN');
+            done();
+          });
       });
     });
 
