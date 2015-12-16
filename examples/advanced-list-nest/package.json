@@ -6,9 +6,9 @@
   "license": "MIT",
   "dependencies": {
     "@cycle/core": "6.0.0-rc2",
-    "@cycle/dom": "8.0.0-rc2",
+    "@cycle/dom": "8.0.0-rc8",
     "rx-combine-latest-obj": "1.0.x",
-    "@cycle/isolate": "1.0.2",
+    "@cycle/isolate": "1.1.1",
     "rx": "4.0.6"
   },
   "devDependencies": {
