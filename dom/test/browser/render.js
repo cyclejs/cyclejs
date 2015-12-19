@@ -192,7 +192,6 @@ describe('Rendering', function () {
       };
       ConstantlyThunk.prototype.type = 'Thunk';
       ConstantlyThunk.prototype.render = function(previous) {
-        debugger;
         if (previous && previous.vnode) {
           return previous.vnode;
         } else {
@@ -549,7 +548,7 @@ describe('Rendering', function () {
           ]);
 
           return {
-            DOM: Rx.Observable.just(h('div', svgTriangle))
+            DOM: Rx.Observable.just(svgTriangle)
           };
         }
 
