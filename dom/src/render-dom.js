@@ -71,6 +71,13 @@ function isolateSink(sink, scope) {
       const c = `${vtreeClass} cycle-scope-${scope}`.trim()
       vtree.properties.className = c
     }
+    if (vtree.properties.attributes) { // for svg root elements
+      const vtreeAttrClass = vtree.properties.attributes[`class`] || ``
+      if (vtreeAttrClass.indexOf(`cycle-scope-${scope}`) === -1) {
+        const cattr = `${vtreeAttrClass} cycle-scope-${scope}`.trim()
+        vtree.properties.attributes[`class`] = cattr
+      }
+    }
     return vtree
   })
 }

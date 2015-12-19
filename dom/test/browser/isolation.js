@@ -327,4 +327,49 @@ describe('isolation', function () {
         done();
       });
   });
-})
+
+  it('should allow DOM.selecting svg elements', function (done) {
+    function App(sources) {
+      const triangleElement$ = sources.DOM.select('.triangle').observable;
+
+      let svgTriangle = svg('svg', {width: 150, height: 150}, [
+        svg('polygon', {
+          class: 'triangle',
+          attributes: {
+            points: '20 0 20 150 150 20'
+          }
+        }),
+      ]);
+
+      return {
+        DOM: Rx.Observable.just(svgTriangle),
+        triangleElement: triangleElement$
+      };
+    }
+
+    function IsolatedApp(sources) {
+      const {isolateSource, isolateSink} = sources.DOM
+      const isolatedDOMSource = isolateSource(sources.DOM, 'ISOLATION');
+      const app = App({DOM: isolatedDOMSource});
+      const isolateDOMSink = isolateSink(app.DOM, 'ISOLATION');
+      return {
+        DOM: isolateDOMSink,
+        triangleElement: app.triangleElement
+      };
+    }
+
+    let {sinks, sources} = Cycle.run(IsolatedApp, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    // Make assertions
+    const selection = sinks.triangleElement.skip(1).take(1).subscribe(elements => {
+      assert.strictEqual(elements.length, 1);
+      let triangleElement = elements[0];
+      assert.notStrictEqual(triangleElement, null);
+      assert.notStrictEqual(typeof triangleElement, 'undefined');
+      assert.strictEqual(triangleElement.tagName, 'polygon');
+      done();
+    });
+  });
+});
