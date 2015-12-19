@@ -3530,6 +3530,14 @@ function isolateSink(sink, scope) {
       var c = (vtreeClass + " cycle-scope-" + scope).trim();
       vtree.properties.className = c;
     }
+    if (vtree.properties.attributes) {
+      // for svg root elements
+      var vtreeAttrClass = vtree.properties.attributes["class"] || "";
+      if (vtreeAttrClass.indexOf("cycle-scope-" + scope) === -1) {
+        var cattr = (vtreeAttrClass + " cycle-scope-" + scope).trim();
+        vtree.properties.attributes["class"] = cattr;
+      }
+    }
     return vtree;
   });
 }
