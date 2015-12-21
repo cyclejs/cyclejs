@@ -1,6 +1,6 @@
 {
   "name": "@cycle/dom",
-  "version": "7.1.1",
+  "version": "8.0.0-rc9",
   "author": "Andre Staltz",
   "description": "The standard DOM Driver for Cycle.js, based on virtual-dom, and other helpers",
   "license": "MIT",
@@ -21,32 +21,30 @@
   ],
   "main": "lib/cycle-dom.js",
   "dependencies": {
-    "es6-map": "0.1.1",
+    "hyperscript-helpers": "2.0.2",
     "matches-selector": "1.0.0",
     "vdom-parser": "1.2.1",
-    "vdom-to-html": "2.1.1",
+    "vdom-to-html": "2.2.0",
     "virtual-dom": "2.1.1",
     "x-is-array": "0.1.0"
   },
-  "peerDependencies": {
-    "@cycle/core": "5.x.x"
-  },
   "devDependencies": {
-    "@cycle/core": "5.0.x",
-    "babel": "5.8.23",
-    "babelify": "6.3.0",
-    "browserify": "11.2.0",
-    "browserify-shim": "^3.8.10",
+    "@cycle/core": "6.0.0-rc2",
+    "babel": "5.8.29",
+    "babelify": "6.4.0",
+    "browserify": "12.0.1",
+    "browserify-shim": "3.8.11",
+    "es6-map": "0.1.2",
     "eslint": "1.0.0",
-    "eslint-config-cycle": "3.0.0",
-    "eslint-plugin-cycle": "1.0.1",
+    "eslint-config-cycle": "3.1.0",
+    "eslint-plugin-cycle": "1.0.2",
     "eslint-plugin-no-class": "0.1.0",
     "markdox": "0.1.10",
     "mocha": "2.3.3",
     "rx": "4.0.6",
-    "testem": "0.9.8",
+    "testem": "0.9.11",
     "uglify-js": "2.5.0",
-    "zuul": "3.6.0"
+    "zuul": "3.7.2"
   },
   "engines": {
     "node": ">=0.10.0"

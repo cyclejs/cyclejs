@@ -13,7 +13,7 @@ function getEventsStreamForSelector(mockedEventTypes) {
   }
 }
 
-function mockDOMResponse(mockedSelectors = {}) {
+function mockDOMSource(mockedSelectors = {}) {
   return {
     select(selector) {
       for (const key in mockedSelectors) {
@@ -32,4 +32,4 @@ function mockDOMResponse(mockedSelectors = {}) {
   }
 }
 
-export default mockDOMResponse
+export default mockDOMSource

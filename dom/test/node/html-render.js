@@ -4,72 +4,69 @@ let assert = require('assert');
 let Cycle = require('@cycle/core');
 let CycleDOM = require('../../src/cycle-dom');
 let Rx = require('rx');
-let {h, makeHTMLDriver} = CycleDOM;
+let {div, h3, h, makeHTMLDriver} = CycleDOM;
 
 describe('HTML Driver', function () {
   it('should output HTML when given a simple vtree stream', function (done) {
     function app() {
       return {
-        html: Rx.Observable.just(h('div.test-element', ['Foobar']))
+        html: Rx.Observable.just(div('.test-element', ['Foobar']))
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let {sinks, sources} = Cycle.run(app, {
       html: makeHTMLDriver()
     });
-    responses.html.subscribe(html => {
+    sources.html.subscribe(html => {
       assert.strictEqual(html, '<div class="test-element">Foobar</div>');
       done();
     });
   });
 
-  it('should make bogus select().events() as requests', function (done) {
+  it('should make bogus select().events() as sources', function (done) {
     function app({html}) {
       assert.strictEqual(typeof html.select, 'function');
       assert.strictEqual(typeof html.select('whatever').observable.subscribe, 'function');
       assert.strictEqual(typeof html.select('whatever').events().subscribe, 'function');
       return {
-        html: Rx.Observable.just(h('div.test-element', ['Foobar']))
+        html: Rx.Observable.just(div('.test-element', ['Foobar']))
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let {sinks, sources} = Cycle.run(app, {
       html: makeHTMLDriver()
     });
-    responses.html.subscribe(html => {
+    sources.html.subscribe(html => {
       assert.strictEqual(html, '<div class="test-element">Foobar</div>');
       done();
     });
   });
 
-  it('should output simple HTML Observable at `.get(\':root\')`', function (done) {
+  it('should output simple HTML Observable', function (done) {
     function app() {
       return {
-        html: Rx.Observable.just(h('div.test-element', ['Foobar']))
+        html: Rx.Observable.just(div('.test-element', ['Foobar']))
       };
     }
-    let [requests, responses] = Cycle.run(app, {
+    let {sinks, sources} = Cycle.run(app, {
       html: makeHTMLDriver()
     });
-    responses.html.subscribe(html => {
+    sources.html.subscribe(html => {
       assert.strictEqual(html, '<div class="test-element">Foobar</div>');
       done();
     });
   });
 
-  it('should render a simple nested custom element as HTML', function (done) {
-    function myElement() {
-      return {
-        DOM: Rx.Observable.just(h('h3.myelementclass'))
-      };
-    }
+  it('should render a simple nested vtree$ as HTML', function (done) {
     function app() {
       return {
-        DOM: Rx.Observable.just(h('div.test-element', [h('my-element')]))
+        DOM: Rx.Observable.just(h('div.test-element', [
+          Rx.Observable.just(h('h3.myelementclass'))
+        ]))
       };
     }
-    let [requests, responses] = Cycle.run(app, {
-      DOM: makeHTMLDriver({'my-element': myElement})
+    let {sinks, sources} = Cycle.run(app, {
+      DOM: makeHTMLDriver()
     });
-    responses.DOM.subscribe(html => {
+    sources.DOM.subscribe(html => {
       assert.strictEqual(html,
         '<div class="test-element">' +
           '<h3 class="myelementclass"></h3>' +
@@ -79,31 +76,18 @@ describe('HTML Driver', function () {
     });
   });
 
-  it('should render double nested custom elements as HTML', function (done) {
-    function myElement() {
+  it('should render double nested vtree$ as HTML', function (done) {
+    function app() {
       return {
-        html: Rx.Observable.just(h('h3.myelementclass'))
-      };
-    }
-    function niceElement() {
-      return {
-        html: Rx.Observable.just(h('div.a-nice-element', [
-          String('foobar'), h('my-element')
+        html: Rx.Observable.just(h('div.test-element', [
+          Rx.Observable.just(h('div.a-nice-element', [
+            String('foobar'),
+            Rx.Observable.just(h('h3.myelementclass'))
+          ]))
         ]))
       };
     }
-    function app() {
-      return {
-        html: Rx.Observable.just(h('div.test-element', [h('nice-element')]))
-      };
-    }
-    let customElements = {
-      'my-element': myElement,
-      'nice-element': niceElement
-    };
-    let html$ = Cycle.run(app, {
-      html: makeHTMLDriver(customElements)
-    })[1].html;
+    let html$ = Cycle.run(app, { html: makeHTMLDriver() }).sources.html;
 
     html$.subscribe(html => {
       assert.strictEqual(html,
@@ -117,27 +101,26 @@ describe('HTML Driver', function () {
     });
   });
 
-  it('should HTML-render a nested custom element with props', function (done) {
-    function myElement(ext) {
-      return {
-        DOM: ext.props.get('foobar')
-          .map(foobar => h('h3.myelementclass', String(foobar).toUpperCase()))
-      };
+  it('should HTML-render a nested vtree$ with props', function (done) {
+    function myElement(foobar$) {
+      return foobar$.map(foobar =>
+        h('h3.myelementclass', String(foobar).toUpperCase())
+      );
     }
     function app() {
       return {
         DOM: Rx.Observable.just(
           h('div.test-element', [
-            h('my-element', {foobar: 'yes'})
+            myElement(Rx.Observable.just('yes'))
           ])
         )
       };
     }
-    let [requests, responses] = Cycle.run(app, {
-      DOM: makeHTMLDriver({'my-element': myElement})
+    let {sinks, sources} = Cycle.run(app, {
+      DOM: makeHTMLDriver()
     });
 
-    responses.DOM.subscribe(html => {
+    sources.DOM.subscribe(html => {
       assert.strictEqual(html,
         '<div class="test-element">' +
           '<h3 class="myelementclass">YES</h3>' +
@@ -147,47 +130,7 @@ describe('HTML Driver', function () {
     });
   });
 
-  it('should HTML-render a nested custom element with props (2)', function (done) {
-    function myElement(ext) {
-      return {
-        DOM: ext.props.get('*')
-          .map(props => h('h3.myelementclass', String(props.foobar).toUpperCase()))
-      };
-    }
-    function app() {
-      return {
-        DOM: Rx.Observable.just(
-          h('div.test-element', [
-            h('my-element', {foobar: 'yes'})
-          ])
-        )
-      };
-    }
-    let [requests, responses] = Cycle.run(app, {
-      DOM: makeHTMLDriver({'my-element': myElement})
-    });
-
-    responses.DOM.subscribe(html => {
-      assert.strictEqual(html,
-        '<div class="test-element">' +
-        '<h3 class="myelementclass">YES</h3>' +
-        '</div>'
-      );
-      done();
-    });
-  });
-
-  it('should render a complex custom element tree as HTML', function (done) {
-    function xFoo() {
-      return {
-        html: Rx.Observable.just(h('h1.fooclass'))
-      };
-    }
-    function xBar() {
-      return {
-        html: Rx.Observable.just(h('h2.barclass'))
-      };
-    }
+  it('should render a complex and nested vtree$ as HTML', function (done) {
     function app() {
       return {
         html: Rx.Observable.just(
@@ -195,27 +138,24 @@ describe('HTML Driver', function () {
             h('div', [
               h('h2.a', 'a'),
               h('h4.b', 'b'),
-              h('x-foo')
+              Rx.Observable.just(h('h1.fooclass'))
             ]),
             h('div', [
               h('h3.c', 'c'),
               h('div', [
                 h('p.d', 'd'),
-                h('x-bar')
+                Rx.Observable.just(h('h2.barclass'))
               ])
             ])
           ])
         )
       };
     }
-    let [requests, responses] = Cycle.run(app, {
-      html: makeHTMLDriver({
-        'x-foo': xFoo,
-        'x-bar': xBar
-      })
+    let {sinks, sources} = Cycle.run(app, {
+      html: makeHTMLDriver()
     });
 
-    responses.html.subscribe(html => {
+    sources.html.subscribe(html => {
       assert.strictEqual(html,
         '<div class="test-element">' +
           '<div>' +
