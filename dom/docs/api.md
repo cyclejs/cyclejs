@@ -9,29 +9,28 @@
 - [`svg`](#svg)
 - [`mockDOMSource`](#mockDOMSource)
 
-### <a id="makeDOMDriver"></a> `makeDOMDriver(container, customElements)`
+### <a id="makeDOMDriver"></a> `makeDOMDriver(container, options)`
 
 A factory for the DOM driver function. Takes a `container` to define the
-target on the existing DOM which this driver will operate on. All custom
-elements which this driver can detect should be given as the second
-parameter. The output of this driver is a collection of Observables queried
-with: `domDriverOutput.select(selector).events(eventType)` returns an
-Observable of events of `eventType` happening on the element determined by
-`selector`. Just `domDriverOutput.select(selector).observable` returns
-an Observable of the DOM element matched by the given selector. Also,
-`domDriverOutput.select(':root').observable` returns an Observable of
-DOM element corresponding to the root (or container) of the app on the DOM.
-The `events()` function also allows you to specify the `useCapture`
-parameter of event listener. That is, the full function signature is
+target on the existing DOM which this driver will operate on. The output
+("source") of this driver is a collection of Observables queried with:
+`DOMSource.select(selector).events(eventType)` returns an Observable of
+events of `eventType` happening on the element determined by `selector`.
+Just `DOMSource.select(selector).observable` returns an Observable of the
+DOM element matched by the given selector. Also,
+`DOMSource.select(':root').observable` returns an Observable of DOM element
+corresponding to the root (or container) of the app on the DOM. The
+`events()` function also allows you to specify the `useCapture` parameter
+of the event listener. That is, the full function signature is
 `events(eventType, useCapture)` where `useCapture` is by default `false`.
 
 #### Arguments:
 
 - `container :: String|HTMLElement` the DOM selector for the element (or the element itself) to contain the rendering of the VTrees.
-- `customElements :: Object` a collection of custom element definitions. The key of each property should be the tag name of the custom element, and
-the value should be a function defining the implementation of the custom
-element. This function follows the same contract as the top-most `main`
-function: input are driver sources, output are sinks to drivers.
+- `options :: Object` an options object containing additional configurations. The options object is optional. These are the parameters
+that may be specified:
+  - `onError`: a callback function to handle errors. By default it is
+  `console.error`.
 
 #### Return:
 
@@ -41,19 +40,9 @@ for debugging and testing.
 
 - - -
 
-### <a id="makeHTMLDriver"></a> `makeHTMLDriver(customElements)`
+### <a id="makeHTMLDriver"></a> `makeHTMLDriver()`
 
-A factory for the HTML driver function. Takes the registry object of all
-custom elements as the only parameter. The HTML driver function will use
-the custom element registry to detect custom element on the VTree and apply
-their implementations.
-
-#### Arguments:
-
-- `customElements :: Object` a collection of custom element definitions. The key of each property should be the tag name of the custom element, and
-the value should be a function defining the implementation of the custom
-element. This function follows the same contract as the top-most `main`
-function: input are driver sources, output are sinks to drivers.
+A factory for the HTML driver function.
 
 #### Return:
 
@@ -88,6 +77,9 @@ http://babeljs.io/docs/advanced/transformers/other/react/) `@jsx hJSX` at
 the top of the ES6 file, make sure you import `hJSX` with
 `import {hJSX} from '@cycle/dom'`, and then you can use JSX to create
 VTrees.
+
+Note that to pass in custom attributes, e.g. data-*, you must use the
+attributes key like `<tag attributes={{'data-custom-attr': 'foo'}} />`.
 
 - - -
 
