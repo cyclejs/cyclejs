@@ -119,7 +119,7 @@ function run(main, drivers) {
 
 let Cycle = {
   /**
-   * Takes an `main` function and circularly connects it to the given collection
+   * Takes a `main` function and circularly connects it to the given collection
    * of driver functions.
    *
    * The `main` function expects a collection of "driver source" Observables
