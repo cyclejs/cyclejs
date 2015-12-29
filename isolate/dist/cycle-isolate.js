@@ -73,6 +73,10 @@ function isolate(dataflowComponent) {
   };
 }
 
+isolate.reset = function () {
+  return counter = 0;
+};
+
 module.exports = isolate;
 
 },{}]},{},[1])(1)
