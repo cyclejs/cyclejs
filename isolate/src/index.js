@@ -70,4 +70,6 @@ function isolate(dataflowComponent, scope = newScope()) {
   }
 }
 
+isolate.reset = () => counter = 0
+
 module.exports = isolate
