@@ -549,11 +549,11 @@ describe('Rendering', function () {
 
       sources.DOM.select(':root').observable.skip(1).take(1).subscribe(root => {
         const wrong = root.querySelector('.wrong');
-        wrong.focus();
-        wrong.blur();
         const correct = root.querySelector('.correct');
-        correct.focus();
-        correct.blur();
+        setTimeout(() => wrong.focus(), 50);
+        setTimeout(() => wrong.blur(), 100);
+        setTimeout(() => correct.focus(), 150);
+        setTimeout(() => correct.blur(), 200);
       });
     });
 
