@@ -34,29 +34,18 @@ describe('isolateSource', function () {
       DOM: makeDOMDriver(createRenderTarget())
     });
     let isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'foo');
+
     // Make assertions
-    isolatedDOMSource.select('.bar').events('click').subscribe(ev => {
-      assert.strictEqual(ev.type, 'click');
-      assert.strictEqual(ev.target.textContent, 'Correct');
+    isolatedDOMSource.select('.bar').observable.skip(1).take(1).subscribe(elements => {
+      assert.strictEqual(elements.length, 1);
+      const correctElement = elements[0];
+      assert.notStrictEqual(correctElement, null);
+      assert.notStrictEqual(typeof correctElement, 'undefined');
+      assert.strictEqual(correctElement.tagName, 'H4');
+      assert.strictEqual(correctElement.textContent, 'Correct');
       sources.dispose();
       done();
     });
-    sources.DOM.select(':root').observable.skip(1).take(1)
-      .subscribe(function (root) {
-        let wrongElement = root.querySelector('.bar');
-        let correctElement = root.querySelector('.cycle-scope-foo .bar');
-        assert.notStrictEqual(wrongElement, null);
-        assert.notStrictEqual(correctElement, null);
-        assert.notStrictEqual(typeof wrongElement, 'undefined');
-        assert.notStrictEqual(typeof correctElement, 'undefined');
-        assert.strictEqual(wrongElement.tagName, 'H2');
-        assert.strictEqual(correctElement.tagName, 'H4');
-        assert.doesNotThrow(function () {
-          wrongElement.click();
-          setTimeout(() => correctElement.click(), 5);
-        });
-        done();
-      });
   });
 
   it('should return source also with isolateSource and isolateSink', function (done) {
