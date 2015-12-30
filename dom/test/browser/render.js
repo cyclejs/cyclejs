@@ -6,7 +6,7 @@ let Cycle = require('@cycle/core');
 let CycleDOM = require('../../src/cycle-dom');
 let Fixture89 = require('./fixtures/issue-89');
 let Rx = require('rx');
-let {h, svg, div, p, span, h2, h3, h4, hJSX, select, option, makeDOMDriver} = CycleDOM;
+let {h, svg, div, input, p, span, h2, h3, h4, hJSX, select, option, makeDOMDriver} = CycleDOM;
 
 function createRenderTarget(id = null) {
   let element = document.createElement('div');
@@ -459,6 +459,71 @@ describe('Rendering', function () {
             myElement.click();
           });
         });
+    });
+
+    it('should catch interaction events from future elements', function (done) {
+      function app() {
+        return {
+          DOM: Rx.Observable.concat(
+            Rx.Observable.just(h2('.blesh', 'Blesh')),
+            Rx.Observable.just(h3('.blish', 'Blish')).delay(100),
+            Rx.Observable.just(h4('.blosh', 'Blosh')).delay(100),
+          )
+        };
+      }
+      let {sinks, sources} = Cycle.run(app, {
+        DOM: makeDOMDriver(createRenderTarget('parent-002'))
+      });
+      // Make assertions
+      sources.DOM.select('.blosh').events('click').subscribe(ev => {
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual(ev.target.textContent, 'Blosh');
+        sources.dispose();
+        done();
+      });
+      sources.DOM.select(':root').observable.skip(3).take(1)
+        .subscribe(function (root) {
+          let myElement = root.querySelector('.blosh');
+          assert.notStrictEqual(myElement, null);
+          assert.notStrictEqual(typeof myElement, 'undefined');
+          assert.strictEqual(myElement.tagName, 'H4');
+          assert.strictEqual(myElement.textContent, 'Blosh');
+          assert.doesNotThrow(function () {
+            myElement.click();
+          });
+        });
+    });
+
+    it('should catch a blur event with useCapture', function (done) {
+      function app() {
+        return {
+          DOM: Rx.Observable.just(div('.parent', [
+            input('.correct', {type: 'text'}, []),
+            input('.wrong', {type: 'text'}, [])
+          ]))
+        }
+      }
+
+      let {sinks, sources} = Cycle.run(app, {
+        DOM: makeDOMDriver(createRenderTarget())
+      });
+
+      sources.DOM.select('.wrong').events('blur', false).subscribe(assert.fail)
+
+      sources.DOM.select('.correct').events('blur', true).subscribe(ev => {
+        assert.strictEqual(ev.type, 'blur');
+        assert.strictEqual(ev.target.className, 'correct');
+        done();
+      })
+
+      sources.DOM.select(':root').observable.skip(1).take(1).subscribe(root => {
+        const wrong = root.querySelector('.wrong');
+        wrong.focus();
+        wrong.blur();
+        const correct = root.querySelector('.correct');
+        correct.focus();
+        correct.blur();
+      });
     });
 
     describe('DOM.select()', function () {

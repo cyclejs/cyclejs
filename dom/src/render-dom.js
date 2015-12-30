@@ -82,7 +82,7 @@ function isolateSink(sink, scope) {
   })
 }
 
-function makeIsStrictlyInRootScope(rootList, namespace) {
+function makeIsStrictlyInRootScope(namespace) {
   const classIsForeign = c => {
     const matched = c.match(/cycle-scope-(\S+)/)
     return matched && namespace.indexOf(`.${c}`) === -1
@@ -93,10 +93,6 @@ function makeIsStrictlyInRootScope(rootList, namespace) {
   }
   return function isStrictlyInRootScope(leaf) {
     for (let el = leaf; el !== null; el = el.parentElement) {
-      if (rootList.indexOf(el) >= 0) {
-        return true
-      }
-
       const split = String.prototype.split
       const classList = el.classList || split.call(el.className, ` `)
       if (Array.prototype.some.call(classList, classIsDomestic)) {
@@ -110,19 +106,35 @@ function makeIsStrictlyInRootScope(rootList, namespace) {
   }
 }
 
-function makeEventsSelector(element$) {
+function makeEventsSelector(rootEl$, namespace) {
   return function events(eventName, useCapture = false) {
     if (typeof eventName !== `string`) {
       throw new Error(`DOM driver's events() expects argument to be a ` +
         `string representing the event type to listen for.`)
     }
+    const isStrictlyInRootScope = makeIsStrictlyInRootScope(namespace)
 
-    return element$.flatMapLatest(elements => {
-      if (elements.length === 0) {
-        return Rx.Observable.empty()
-      }
-      return fromEvent(elements, eventName, useCapture)
-    }).share()
+    return rootEl$
+      .first()
+      .flatMapLatest(rootEl => {
+        if (rootEl.length === 0) {
+          return Rx.Observable.empty()
+        }
+        const descendantSelector = namespace.join(` `)
+        if (matchesSelector(rootEl, descendantSelector)) { // is root Element
+          return fromEvent(rootEl, eventName, useCapture)
+        }
+        const topSelector = namespace.join(``)
+        return fromEvent(rootEl, eventName, useCapture).filter(ev => {
+          if (matchesSelector(ev.srcElement, descendantSelector) ||
+              matchesSelector(ev.srcElement, topSelector))
+          {
+            return isStrictlyInRootScope(ev.srcElement)
+          }
+          return false
+        })
+      })
+      .share()
   }
 }
 
@@ -134,26 +146,26 @@ function makeElementSelector(rootEl$) {
     }
 
     const namespace = this.namespace
-    const element$ = selector.trim() === `:root` ? rootEl$ : rootEl$.map(x => {
-      const array = Array.isArray(x) ? x : [x]
-      return array.map(element => {
-        const boundarySelector = `${namespace.join(` `)}${selector}`
-        if (matchesSelector(element, boundarySelector)) {
-          return [element]
-        } else {
-          const scopedSelector = `${namespace.join(` `)} ${selector}`.trim()
-          const nodeList = element.querySelectorAll(scopedSelector)
-          return Array.prototype.slice.call(nodeList)
-        }
-      })
-      .reduce((prev, curr) => prev.concat(curr), [])
-      .filter(makeIsStrictlyInRootScope(array, namespace.concat(selector)))
+    const trimmedSelector = selector.trim()
+    const childNamespace = trimmedSelector === `:root` ?
+      namespace :
+      namespace.concat(trimmedSelector)
+    const element$ = rootEl$.map(rootEl => {
+      if (childNamespace.join(``) === ``) {
+        return rootEl
+      }
+      let nodeList = rootEl.querySelectorAll(childNamespace.join(` `))
+      if (nodeList.length === 0) {
+        nodeList = rootEl.querySelectorAll(childNamespace.join(``))
+      }
+      const array = Array.prototype.slice.call(nodeList)
+      return array.filter(makeIsStrictlyInRootScope(childNamespace))
     })
     return {
       observable: element$,
-      namespace: namespace.concat(selector),
-      select: makeElementSelector(element$),
-      events: makeEventsSelector(element$),
+      namespace: childNamespace,
+      select: makeElementSelector(rootEl$),
+      events: makeEventsSelector(rootEl$, childNamespace),
       isolateSource,
       isolateSink,
     }
