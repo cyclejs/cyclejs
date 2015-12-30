@@ -182,6 +182,14 @@ function validateDOMSink(vtree$) {
   }
 }
 
+function defaultOnErrorFn(msg) {
+  if (console && console.error) {
+    console.error(msg)
+  } else {
+    console.log(msg)
+  }
+}
+
 function makeDOMDriver(container, options) {
   // Find and prepare the container
   let domContainer = typeof container === `string` ?
@@ -194,7 +202,7 @@ function makeDOMDriver(container, options) {
     throw new Error(`Given container is not a DOM element neither a selector ` +
       `string.`)
   }
-  const {onError = console.error.bind(console)} = options || {}
+  const {onError = defaultOnErrorFn} = options || {}
   if (typeof onError !== `function`) {
     throw new Error(`You provided an \`onError\` to makeDOMDriver but it was ` +
       `not a function. It should be a callback function to handle errors.`)
@@ -212,7 +220,7 @@ function makeDOMDriver(container, options) {
       namespace: [],
       select: makeElementSelector(rootElem$),
       events: makeEventsSelector(rootElem$, []),
-      dispose: disposable.dispose.bind(disposable),
+      dispose: () => disposable.dispose(),
       isolateSource,
       isolateSink,
     }
