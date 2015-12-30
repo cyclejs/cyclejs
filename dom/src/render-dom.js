@@ -92,7 +92,7 @@ function makeIsStrictlyInRootScope(namespace) {
     return matched && namespace.indexOf(`.${c}`) !== -1
   }
   return function isStrictlyInRootScope(leaf) {
-    for (let el = leaf; el !== null; el = el.parentElement) {
+    for (let el = leaf; el; el = el.parentElement) {
       const split = String.prototype.split
       const classList = el.classList || split.call(el.className, ` `)
       if (Array.prototype.some.call(classList, classIsDomestic)) {
