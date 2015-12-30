@@ -269,6 +269,37 @@ describe('Rendering', function () {
       });
     });
 
+    it('should catch interaction events without prior select()', function (done) {
+      function app() {
+        return {
+          DOM: Rx.Observable.just(div('.parent', [
+            h3('.myelementclass', 'Foobar')
+          ]))
+        };
+      }
+
+      let {sinks, sources} = Cycle.run(app, {
+        DOM: makeDOMDriver(createRenderTarget())
+      });
+
+      // Make assertions
+      sources.DOM.events('click').subscribe(ev => {
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual(ev.target.textContent, 'Foobar');
+        sources.dispose();
+        done();
+      });
+      sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+        let myElement = root.querySelector('.myelementclass');
+        assert.notStrictEqual(myElement, null);
+        assert.notStrictEqual(typeof myElement, 'undefined');
+        assert.strictEqual(myElement.tagName, 'H3');
+        assert.doesNotThrow(function () {
+          myElement.click();
+        });
+      });
+    });
+
     it('should catch interaction events coming from wrapped View', function (done) {
       // Make a View reactively imitating another View
       function app() {

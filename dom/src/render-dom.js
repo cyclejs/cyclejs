@@ -120,6 +120,9 @@ function makeEventsSelector(rootEl$, namespace) {
         if (rootEl.length === 0) {
           return Rx.Observable.empty()
         }
+        if (!namespace || namespace.length === 0) {
+          return fromEvent(rootEl, eventName, useCapture)
+        }
         const descendantSelector = namespace.join(` `)
         if (matchesSelector(rootEl, descendantSelector)) { // is root Element
           return fromEvent(rootEl, eventName, useCapture)
@@ -205,8 +208,10 @@ function makeDOMDriver(container, options) {
       .replay(null, 1)
     let disposable = rootElem$.connect()
     return {
+      observable: rootElem$,
       namespace: [],
       select: makeElementSelector(rootElem$),
+      events: makeEventsSelector(rootElem$, []),
       dispose: disposable.dispose.bind(disposable),
       isolateSource,
       isolateSink,
