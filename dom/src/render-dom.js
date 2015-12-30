@@ -129,10 +129,10 @@ function makeEventsSelector(rootEl$, namespace) {
         }
         const topSelector = namespace.join(``)
         return fromEvent(rootEl, eventName, useCapture).filter(ev => {
-          if (matchesSelector(ev.srcElement, descendantSelector) ||
-              matchesSelector(ev.srcElement, topSelector))
+          if (matchesSelector(ev.target, descendantSelector) ||
+              matchesSelector(ev.target, topSelector))
           {
-            return isStrictlyInRootScope(ev.srcElement)
+            return isStrictlyInRootScope(ev.target)
           }
           return false
         })
