@@ -530,7 +530,8 @@ describe('Rendering', function () {
         return {
           DOM: Rx.Observable.just(div('.parent', [
             input('.correct', {type: 'text'}, []),
-            input('.wrong', {type: 'text'}, [])
+            input('.wrong', {type: 'text'}, []),
+            input('.dummy', {type: 'text'})
           ]))
         }
       }
@@ -539,21 +540,22 @@ describe('Rendering', function () {
         DOM: makeDOMDriver(createRenderTarget())
       });
 
-      sources.DOM.select('.wrong').events('blur', false).subscribe(assert.fail)
-
       sources.DOM.select('.correct').events('blur', true).subscribe(ev => {
         assert.strictEqual(ev.type, 'blur');
         assert.strictEqual(ev.target.className, 'correct');
         done();
       })
 
+      sources.DOM.select('.wrong').events('blur', false).subscribe(assert.fail)
+
       sources.DOM.select(':root').observable.skip(1).take(1).subscribe(root => {
-        const wrong = root.querySelector('.wrong');
         const correct = root.querySelector('.correct');
+        const wrong = root.querySelector('.wrong');
+        const dummy = root.querySelector('.dummy');
         setTimeout(() => wrong.focus(), 50);
-        setTimeout(() => wrong.blur(), 100);
+        setTimeout(() => dummy.focus(), 100);
         setTimeout(() => correct.focus(), 150);
-        setTimeout(() => correct.blur(), 200);
+        setTimeout(() => dummy.focus(), 200);
       });
     });
 
