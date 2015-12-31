@@ -3546,7 +3546,7 @@ function isolateSink(sink, scope) {
   });
 }
 
-function makeIsStrictlyInRootScope(rootList, namespace) {
+function makeIsStrictlyInRootScope(namespace) {
   var classIsForeign = function classIsForeign(c) {
     var matched = c.match(/cycle-scope-(\S+)/);
     return matched && namespace.indexOf("." + c) === -1;
@@ -3556,11 +3556,7 @@ function makeIsStrictlyInRootScope(rootList, namespace) {
     return matched && namespace.indexOf("." + c) !== -1;
   };
   return function isStrictlyInRootScope(leaf) {
-    for (var el = leaf; el !== null; el = el.parentElement) {
-      if (rootList.indexOf(el) >= 0) {
-        return true;
-      }
-
+    for (var el = leaf; el; el = el.parentElement) {
       var split = String.prototype.split;
       var classList = el.classList || split.call(el.className, " ");
       if (Array.prototype.some.call(classList, classIsDomestic)) {
@@ -3574,19 +3570,34 @@ function makeIsStrictlyInRootScope(rootList, namespace) {
   };
 }
 
-function makeEventsSelector(element$) {
+function makeEventsSelector(rootEl$, namespace) {
   return function events(eventName) {
     var useCapture = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
 
     if (typeof eventName !== "string") {
       throw new Error("DOM driver's events() expects argument to be a " + "string representing the event type to listen for.");
     }
+    var isStrictlyInRootScope = makeIsStrictlyInRootScope(namespace);
 
-    return element$.flatMapLatest(function (elements) {
-      if (elements.length === 0) {
+    return rootEl$.first().flatMapLatest(function (rootEl) {
+      if (rootEl.length === 0) {
         return Rx.Observable.empty();
       }
-      return fromEvent(elements, eventName, useCapture);
+      if (!namespace || namespace.length === 0) {
+        return fromEvent(rootEl, eventName, useCapture);
+      }
+      var descendantSelector = namespace.join(" ");
+      if (matchesSelector(rootEl, descendantSelector)) {
+        // is root Element
+        return fromEvent(rootEl, eventName, useCapture);
+      }
+      var topSelector = namespace.join("");
+      return fromEvent(rootEl, eventName, useCapture).filter(function (ev) {
+        if (matchesSelector(ev.target, descendantSelector) || matchesSelector(ev.target, topSelector)) {
+          return isStrictlyInRootScope(ev.target);
+        }
+        return false;
+      });
     }).share();
   };
 }
@@ -3598,26 +3609,24 @@ function makeElementSelector(rootEl$) {
     }
 
     var namespace = this.namespace;
-    var element$ = selector.trim() === ":root" ? rootEl$ : rootEl$.map(function (x) {
-      var array = Array.isArray(x) ? x : [x];
-      return array.map(function (element) {
-        var boundarySelector = "" + namespace.join(" ") + selector;
-        if (matchesSelector(element, boundarySelector)) {
-          return [element];
-        } else {
-          var scopedSelector = (namespace.join(" ") + " " + selector).trim();
-          var nodeList = element.querySelectorAll(scopedSelector);
-          return Array.prototype.slice.call(nodeList);
-        }
-      }).reduce(function (prev, curr) {
-        return prev.concat(curr);
-      }, []).filter(makeIsStrictlyInRootScope(array, namespace.concat(selector)));
+    var trimmedSelector = selector.trim();
+    var childNamespace = trimmedSelector === ":root" ? namespace : namespace.concat(trimmedSelector);
+    var element$ = rootEl$.map(function (rootEl) {
+      if (childNamespace.join("") === "") {
+        return rootEl;
+      }
+      var nodeList = rootEl.querySelectorAll(childNamespace.join(" "));
+      if (nodeList.length === 0) {
+        nodeList = rootEl.querySelectorAll(childNamespace.join(""));
+      }
+      var array = Array.prototype.slice.call(nodeList);
+      return array.filter(makeIsStrictlyInRootScope(childNamespace));
     });
     return {
       observable: element$,
-      namespace: namespace.concat(selector),
-      select: makeElementSelector(element$),
-      events: makeEventsSelector(element$),
+      namespace: childNamespace,
+      select: makeElementSelector(rootEl$),
+      events: makeEventsSelector(rootEl$, childNamespace),
       isolateSource: isolateSource,
       isolateSink: isolateSink
     };
@@ -3627,6 +3636,14 @@ function makeElementSelector(rootEl$) {
 function validateDOMSink(vtree$) {
   if (!vtree$ || typeof vtree$.subscribe !== "function") {
     throw new Error("The DOM driver function expects as input an " + "Observable of virtual DOM elements");
+  }
+}
+
+function defaultOnErrorFn(msg) {
+  if (console && console.error) {
+    console.error(msg);
+  } else {
+    console.log(msg);
   }
 }
 
@@ -3643,7 +3660,7 @@ function makeDOMDriver(container, options) {
   var _ref3 = options || {};
 
   var _ref3$onError = _ref3.onError;
-  var onError = _ref3$onError === undefined ? console.error.bind(console) : _ref3$onError;
+  var onError = _ref3$onError === undefined ? defaultOnErrorFn : _ref3$onError;
 
   if (typeof onError !== "function") {
     throw new Error("You provided an `onError` to makeDOMDriver but it was " + "not a function. It should be a callback function to handle errors.");
@@ -3654,9 +3671,13 @@ function makeDOMDriver(container, options) {
     var rootElem$ = renderRawRootElem$(vtree$, domContainer).startWith(domContainer).doOnError(onError).replay(null, 1);
     var disposable = rootElem$.connect();
     return {
+      observable: rootElem$,
       namespace: [],
       select: makeElementSelector(rootElem$),
-      dispose: disposable.dispose.bind(disposable),
+      events: makeEventsSelector(rootElem$, []),
+      dispose: function dispose() {
+        return disposable.dispose();
+      },
       isolateSource: isolateSource,
       isolateSink: isolateSink
     };
