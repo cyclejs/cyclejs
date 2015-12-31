@@ -525,7 +525,53 @@ describe('Rendering', function () {
         });
     });
 
-    it('should catch a blur event with useCapture', function (done) {
+    it('should catch a non-bubbling click event with useCapture', function (done) {
+      function app() {
+        return {
+          DOM: Rx.Observable.just(div('.parent', [
+            div('.clickable', 'Hello')
+          ]))
+        }
+      }
+
+      function click(el) {
+        let ev = document.createEvent(`MouseEvent`)
+        ev.initMouseEvent(
+            `click`,
+            false /* bubble */, true /* cancelable */,
+            window, null,
+            0, 0, 0, 0, /* coordinates */
+            false, false, false, false, /* modifier keys */
+            0 /*left*/, null
+        )
+        el.dispatchEvent(ev)
+      }
+
+      let {sinks, sources} = Cycle.run(app, {
+        DOM: makeDOMDriver(createRenderTarget())
+      });
+
+      sources.DOM.select('.clickable').events('click', true).subscribe(ev => {
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual(ev.target.tagName, 'DIV');
+        assert.strictEqual(ev.target.className, 'clickable');
+        assert.strictEqual(ev.target.textContent, 'Hello');
+        done();
+      });
+
+      sources.DOM.select('.clickable').events('click', false).subscribe(assert.fail);
+
+      sources.DOM.select(':root').observable.skip(1).take(1).subscribe(root => {
+        const clickable = root.querySelector('.clickable');
+        click(clickable);
+      });
+    });
+
+    // This test does not work if and only if the browser is unfocused in the
+    // operating system. In some browsers in SauceLabs, this test would always
+    // fail for that reason. Until we find how to force the browser to be
+    // focused, we can't run this test.
+    it.skip('should catch a blur event with useCapture', function (done) {
       function app() {
         return {
           DOM: Rx.Observable.just(div('.parent', [
