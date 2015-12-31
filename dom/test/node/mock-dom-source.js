@@ -65,13 +65,8 @@ describe('mockDOMSource', function () {
       }
     });
     let subscribeExecuted = false;
-    userEvents.select('.impossible').events('scroll').subscribe(ev => {
-      subscribeExecuted = true;
-    });
-    setTimeout(() => {
-      assert.strictEqual(subscribeExecuted, false);
-      done();
-    }, 1000);
+    userEvents.select('.impossible').events('scroll')
+      .subscribe(assert.fail, assert.fail, done);
   });
 
   it('should return empty Observable for select().observable', function (done) {
@@ -81,12 +76,7 @@ describe('mockDOMSource', function () {
       }
     });
     let subscribeExecuted = false;
-    userEvents.select('.foo').observable.subscribe(ev => {
-      subscribeExecuted = true;
-    });
-    setTimeout(() => {
-      assert.strictEqual(subscribeExecuted, false);
-      done();
-    }, 1000);
+    userEvents.select('.foo').observable
+      .subscribe(assert.fail, assert.fail, done);
   });
 });
