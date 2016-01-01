@@ -117,22 +117,16 @@ function makeEventsSelector(rootEl$, namespace) {
     return rootEl$
       .first()
       .flatMapLatest(rootEl => {
-        if (rootEl.length === 0) {
-          return Rx.Observable.empty()
-        }
         if (!namespace || namespace.length === 0) {
           return fromEvent(rootEl, eventName, useCapture)
         }
         const descendantSelector = namespace.join(` `)
-        if (matchesSelector(rootEl, descendantSelector)) { // is root Element
-          return fromEvent(rootEl, eventName, useCapture)
-        }
         const topSelector = namespace.join(``)
         const roof = rootEl.parentElement
         return fromEvent(rootEl, eventName, useCapture).filter(ev => {
           for (let el = ev.target; el && el !== roof; el = el.parentElement) {
             if (!isStrictlyInRootScope(el)) {
-              break
+              return false
             }
             if (matchesSelector(el, descendantSelector) ||
                 matchesSelector(el, topSelector))
