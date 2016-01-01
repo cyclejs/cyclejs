@@ -128,11 +128,18 @@ function makeEventsSelector(rootEl$, namespace) {
           return fromEvent(rootEl, eventName, useCapture)
         }
         const topSelector = namespace.join(``)
+        const roof = rootEl.parentElement
         return fromEvent(rootEl, eventName, useCapture).filter(ev => {
-          if (matchesSelector(ev.target, descendantSelector) ||
-              matchesSelector(ev.target, topSelector))
-          {
-            return isStrictlyInRootScope(ev.target)
+          for (let el = ev.target; el && el !== roof; el = el.parentElement) {
+            if (!isStrictlyInRootScope(el)) {
+              break
+            }
+            if (matchesSelector(el, descendantSelector) ||
+                matchesSelector(el, topSelector))
+            {
+              Object.defineProperty(ev, `currentTarget`, {value: el})
+              return true
+            }
           }
           return false
         })

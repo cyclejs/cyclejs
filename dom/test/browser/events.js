@@ -262,6 +262,44 @@ describe('DOMSource.events()', function () {
       });
   });
 
+  it('should have currentTarget pointed to the selected parent', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.just(div('.top', [
+          h2('.parent', [
+            span('.child', 'Hello world')
+          ])
+        ]))
+      };
+    }
+
+    const {sinks, sources} = Cycle.run(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    sources.DOM.select('.parent').events('click').subscribe(ev => {
+      assert.strictEqual(ev.type, 'click');
+      assert.strictEqual(ev.target.tagName, 'SPAN');
+      assert.strictEqual(ev.target.className, 'child');
+      assert.strictEqual(ev.target.textContent, 'Hello world');
+      assert.strictEqual(ev.currentTarget.tagName, 'H2');
+      assert.strictEqual(ev.currentTarget.className, 'parent');
+      sources.dispose();
+      done();
+    });
+    // Make assertions
+    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+      const child = root.querySelector('.child');
+      assert.notStrictEqual(child, null);
+      assert.notStrictEqual(typeof child, 'undefined');
+      assert.strictEqual(child.tagName, 'SPAN');
+      assert.strictEqual(child.className, 'child');
+      assert.doesNotThrow(function () {
+        child.click();
+      });
+    });
+  });
+
   it('should catch a non-bubbling click event with useCapture', function (done) {
     function app() {
       return {
