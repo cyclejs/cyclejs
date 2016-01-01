@@ -13,7 +13,7 @@ function myElement(content) {
 function makeModelNumber$() {
   return Rx.Observable.merge(
     Rx.Observable.just(123).delay(50),
-    Rx.Observable.just(456).delay(400)
+    Rx.Observable.just(456).delay(200)
   );
 }
 
