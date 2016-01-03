@@ -106,13 +106,32 @@ function makeIsStrictlyInRootScope(namespace) {
   }
 }
 
+const eventTypesThatDontBubble = [
+  `load`,
+  `unload`,
+  `focus`,
+  `blur`,
+  `mouseenter`,
+  `mouseleave`,
+  `submit`,
+  `change`,
+  `reset`,
+]
+
 function makeEventsSelector(rootEl$, namespace) {
-  return function events(eventName, useCapture = false) {
+  return function events(eventName, options = {}) {
     if (typeof eventName !== `string`) {
       throw new Error(`DOM driver's events() expects argument to be a ` +
         `string representing the event type to listen for.`)
     }
     const isStrictlyInRootScope = makeIsStrictlyInRootScope(namespace)
+    let useCapture = false
+    if (eventTypesThatDontBubble.indexOf(eventName) !== -1) {
+      useCapture = true
+    }
+    if (typeof options.useCapture === `boolean`) {
+      useCapture = options.useCapture
+    }
 
     return rootEl$
       .first()

@@ -4,7 +4,7 @@ let assert = require('assert');
 let Cycle = require('@cycle/core');
 let CycleDOM = require('../../src/cycle-dom');
 let Rx = require('rx');
-let {svg, div, input, p, span, h2, h3, h4, select, option, makeDOMDriver} = CycleDOM;
+let {svg, div, input, p, span, h2, h3, h4, form, select, option, makeDOMDriver} = CycleDOM;
 
 function createRenderTarget(id = null) {
   let element = document.createElement('div');
@@ -300,6 +300,34 @@ describe('DOMSource.events()', function () {
     });
   });
 
+  it('should catch a non-bubbling Form `reset` event', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.just(div('.parent', [
+          form('.form', [
+            input('.field', {type: 'text'})
+          ])
+        ]))
+      }
+    }
+
+    const {sinks, sources} = Cycle.run(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    sources.DOM.select('.parent').events('reset').subscribe(ev => {
+      assert.strictEqual(ev.type, 'reset');
+      assert.strictEqual(ev.target.tagName, 'FORM');
+      assert.strictEqual(ev.target.className, 'form');
+      done();
+    });
+
+    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(root => {
+      const form = root.querySelector('.form');
+      form.reset();
+    });
+  });
+
   it('should catch a non-bubbling click event with useCapture', function (done) {
     function app() {
       return {
@@ -312,12 +340,12 @@ describe('DOMSource.events()', function () {
     function click(el) {
       const ev = document.createEvent(`MouseEvent`)
       ev.initMouseEvent(
-          `click`,
-          false /* bubble */, true /* cancelable */,
-          window, null,
-          0, 0, 0, 0, /* coordinates */
-          false, false, false, false, /* modifier keys */
-          0 /*left*/, null
+        `click`,
+        false /* bubble */, true /* cancelable */,
+        window, null,
+        0, 0, 0, 0, /* coordinates */
+        false, false, false, false, /* modifier keys */
+        0 /*left*/, null
       )
       el.dispatchEvent(ev)
     }
@@ -326,15 +354,17 @@ describe('DOMSource.events()', function () {
       DOM: makeDOMDriver(createRenderTarget())
     });
 
-    sources.DOM.select('.clickable').events('click', true).subscribe(ev => {
-      assert.strictEqual(ev.type, 'click');
-      assert.strictEqual(ev.target.tagName, 'DIV');
-      assert.strictEqual(ev.target.className, 'clickable');
-      assert.strictEqual(ev.target.textContent, 'Hello');
-      done();
-    });
+    sources.DOM.select('.clickable').events('click', {useCapture: true})
+      .subscribe(ev => {
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual(ev.target.tagName, 'DIV');
+        assert.strictEqual(ev.target.className, 'clickable');
+        assert.strictEqual(ev.target.textContent, 'Hello');
+        done();
+      });
 
-    sources.DOM.select('.clickable').events('click', false).subscribe(assert.fail);
+    sources.DOM.select('.clickable').events('click', {useCapture: false})
+      .subscribe(assert.fail);
 
     sources.DOM.select(':root').observable.skip(1).take(1).subscribe(root => {
       const clickable = root.querySelector('.clickable');
@@ -361,13 +391,55 @@ describe('DOMSource.events()', function () {
       DOM: makeDOMDriver(createRenderTarget())
     });
 
-    sources.DOM.select('.correct').events('blur', true).subscribe(ev => {
-      assert.strictEqual(ev.type, 'blur');
-      assert.strictEqual(ev.target.className, 'correct');
-      done();
-    })
+    sources.DOM.select('.correct').events('blur', {useCapture: true})
+      .subscribe(ev => {
+        assert.strictEqual(ev.type, 'blur');
+        assert.strictEqual(ev.target.className, 'correct');
+        done();
+      });
 
-    sources.DOM.select('.wrong').events('blur', false).subscribe(assert.fail)
+    sources.DOM.select('.wrong').events('blur', {useCapture: false})
+      .subscribe(assert.fail);
+
+    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(root => {
+      const correct = root.querySelector('.correct');
+      const wrong = root.querySelector('.wrong');
+      const dummy = root.querySelector('.dummy');
+      setTimeout(() => wrong.focus(), 50);
+      setTimeout(() => dummy.focus(), 100);
+      setTimeout(() => correct.focus(), 150);
+      setTimeout(() => dummy.focus(), 200);
+    });
+  });
+
+  // This test does not work if and only if the browser is unfocused in the
+  // operating system. In some browsers in SauceLabs, this test would always
+  // fail for that reason. Until we find how to force the browser to be
+  // focused, we can't run this test.
+  it.skip('should catch a blur event by default (no options)', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.just(div('.parent', [
+          input('.correct', {type: 'text'}, []),
+          input('.wrong', {type: 'text'}, []),
+          input('.dummy', {type: 'text'})
+        ]))
+      }
+    }
+
+    const {sinks, sources} = Cycle.run(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    sources.DOM.select('.correct').events('blur')
+      .subscribe(ev => {
+        assert.strictEqual(ev.type, 'blur');
+        assert.strictEqual(ev.target.className, 'correct');
+        done();
+      });
+
+    sources.DOM.select('.wrong').events('blur', {useCapture: false})
+      .subscribe(assert.fail);
 
     sources.DOM.select(':root').observable.skip(1).take(1).subscribe(root => {
       const correct = root.querySelector('.correct');
