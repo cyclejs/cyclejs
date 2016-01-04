@@ -233,7 +233,9 @@ describe('isolation', function () {
     function Frame(sources) {
       const click$ = sources.DOM.select('.foo').events('click');
       const vtree$ = Rx.Observable.just(
-        h4('.foo.frame', [ sources.content$ ])
+        h4('.foo.frame', {style: {backgroundColor: 'lightblue'}}, [
+          sources.content$
+        ])
       );
       return {
         DOM: vtree$,
@@ -245,10 +247,9 @@ describe('isolation', function () {
       const {isolateSource, isolateSink} = sources.DOM;
 
       const islandDOMSource = isolateSource(sources.DOM, 'island');
-      const click$ = islandDOMSource.select('.foo')
-        .events('click').do(e => e.stopPropagation());
+      const click$ = islandDOMSource.select('.foo').events('click');
       const islandDOMSink$ = isolateSink(
-        Rx.Observable.just(span('.foo.monalisa', 'Correct')),
+        Rx.Observable.just(span('.foo.monalisa', 'Monalisa')),
         'island'
       );
 
@@ -266,34 +267,57 @@ describe('isolation', function () {
     const {sources, sinks} = Cycle.run(Monalisa, {
       DOM: makeDOMDriver(createRenderTarget())
     });
-    let monalisaFoo;
-    let frameFoo;
 
-    sinks.frameClick.subscribe(ev => {
-      assert.strictEqual(ev.type, 'click');
-      assert.strictEqual(ev.target.tagName, 'H4');
-      assert.doesNotThrow(function () {
-        monalisaFoo.click();
-      });
-    });
-    sinks.monalisaClick.subscribe(ev => {
-      assert.strictEqual(ev.type, 'click');
-      assert.strictEqual(ev.target.tagName, 'SPAN');
+    const frameClick$ = sinks.frameClick.map(ev => ({
+      type: ev.type,
+      tagName: ev.target.tagName
+    }));
+
+    const monalisaClick$ = sinks.monalisaClick.map(ev => ({
+      type: ev.type,
+      tagName: ev.target.tagName
+    }));
+
+    // Stop the propagtion of the first click
+    sinks.monalisaClick.first().subscribe(ev => ev.stopPropagation());
+
+    // The frame should be notified about 2 clicks:
+    //  1. the second click on monalisa (whose propagation has not stopped)
+    //  2. the only click on the frame itself
+    frameClick$.take(2).sequenceEqual(
+      Rx.Observable.fromArray([
+        {type: 'click', tagName: 'SPAN'},
+        {type: 'click', tagName: 'H4'},
+      ])
+    ).subscribe(isEqual => {
+      assert.strictEqual(isEqual, true);
       sources.dispose();
       done();
     });
 
+    // Monalisa should receive two clicks
+    monalisaClick$.take(2).sequenceEqual(
+      Rx.Observable.fromArray([
+        {type: 'click', tagName: 'SPAN'},
+        {type: 'click', tagName: 'SPAN'},
+      ])
+    ).subscribe(isEqual => {
+      assert.strictEqual(isEqual, true);
+    });
+
     sources.DOM.select(':root').observable.skip(1).take(1).subscribe(root => {
-      frameFoo = root.querySelector('.foo.frame');
-      monalisaFoo = root.querySelector('.foo.monalisa');
+      const frameFoo = root.querySelector('.foo.frame');
+      const monalisaFoo = root.querySelector('.foo.monalisa');
       assert.notStrictEqual(frameFoo, null);
       assert.notStrictEqual(monalisaFoo, null);
       assert.notStrictEqual(typeof frameFoo, 'undefined');
       assert.notStrictEqual(typeof monalisaFoo, 'undefined');
       assert.strictEqual(frameFoo.tagName, 'H4');
       assert.strictEqual(monalisaFoo.tagName, 'SPAN');
-      assert.doesNotThrow(function () {
-        frameFoo.click();
+      assert.doesNotThrow(() => {
+        monalisaFoo.click();
+        monalisaFoo.click();
+        setTimeout(() => frameFoo.click(), 0);
       });
     });
   });

@@ -118,13 +118,54 @@ const eventTypesThatDontBubble = [
   `reset`,
 ]
 
+function maybeMutateEventPropagationAttributes(event) {
+  if (!event.hasOwnProperty(`propagationHasBeenStopped`)) {
+    event.propagationHasBeenStopped = false
+    const oldStopPropagation = event.stopPropagation
+    event.stopPropagation = function stopPropagation() {
+      oldStopPropagation.call(this)
+      this.propagationHasBeenStopped = true
+    }
+  }
+}
+
+function mutateEventCurrentTarget(event, currentTargetElement) {
+  Object.defineProperty(event, `currentTarget`, {
+    value: currentTargetElement,
+    configurable: true,
+  })
+}
+
+function makeSimulateBubbling(namespace, rootEl) {
+  const isStrictlyInRootScope = makeIsStrictlyInRootScope(namespace)
+  const descendantSel = namespace.join(` `)
+  const topSel = namespace.join(``)
+  const roof = rootEl.parentElement
+
+  return function simulateBubbling(ev) {
+    maybeMutateEventPropagationAttributes(ev)
+    if (ev.propagationHasBeenStopped) {
+      return false
+    }
+    for (let el = ev.target; el && el !== roof; el = el.parentElement) {
+      if (!isStrictlyInRootScope(el)) {
+        continue
+      }
+      if (matchesSelector(el, descendantSel) || matchesSelector(el, topSel)) {
+        mutateEventCurrentTarget(ev, el)
+        return true
+      }
+    }
+    return false
+  }
+}
+
 function makeEventsSelector(rootEl$, namespace) {
   return function events(eventName, options = {}) {
     if (typeof eventName !== `string`) {
       throw new Error(`DOM driver's events() expects argument to be a ` +
         `string representing the event type to listen for.`)
     }
-    const isStrictlyInRootScope = makeIsStrictlyInRootScope(namespace)
     let useCapture = false
     if (eventTypesThatDontBubble.indexOf(eventName) !== -1) {
       useCapture = true
@@ -139,23 +180,8 @@ function makeEventsSelector(rootEl$, namespace) {
         if (!namespace || namespace.length === 0) {
           return fromEvent(rootEl, eventName, useCapture)
         }
-        const descendantSelector = namespace.join(` `)
-        const topSelector = namespace.join(``)
-        const roof = rootEl.parentElement
-        return fromEvent(rootEl, eventName, useCapture).filter(ev => {
-          for (let el = ev.target; el && el !== roof; el = el.parentElement) {
-            if (!isStrictlyInRootScope(el)) {
-              return false
-            }
-            if (matchesSelector(el, descendantSelector) ||
-                matchesSelector(el, topSelector))
-            {
-              Object.defineProperty(ev, `currentTarget`, {value: el})
-              return true
-            }
-          }
-          return false
-        })
+        const simulateBubbling = makeSimulateBubbling(namespace, rootEl)
+        return fromEvent(rootEl, eventName, useCapture).filter(simulateBubbling)
       })
       .share()
   }
