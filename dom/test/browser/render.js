@@ -168,22 +168,22 @@ describe('DOM Rendering', function () {
       DOM: makeDOMDriver(createRenderTarget())
     });
 
-    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
-      setTimeout(() => {
-        const myelement = root.querySelector('.myelementclass');
+    sources.DOM.select('.myelementclass').observable.skip(1).first() // 1st
+      .subscribe(function (elements) {
+        const myelement = elements[0];
         assert.notStrictEqual(myelement, null);
         assert.strictEqual(myelement.tagName, 'H3');
         assert.strictEqual(myelement.textContent, '123');
-      }, 100);
-      setTimeout(() => {
-        const myelement = root.querySelector('.myelementclass');
+      });
+    sources.DOM.select('.myelementclass').observable.skip(2).first() // 2nd
+      .subscribe(function (elements) {
+        const myelement = elements[0];
         assert.notStrictEqual(myelement, null);
         assert.strictEqual(myelement.tagName, 'H3');
         assert.strictEqual(myelement.textContent, '456');
         sources.dispose();
         done();
-      }, 300);
-    });
+      });
   });
 
   it('should accept a view with VTree$ as the root of VTree', function (done) {
@@ -198,22 +198,22 @@ describe('DOM Rendering', function () {
       DOM: makeDOMDriver(createRenderTarget())
     });
 
-    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
-      setTimeout(() => {
-        const myelement = root.querySelector('.myelementclass');
+    sources.DOM.select('.myelementclass').observable.skip(1).first() // 1st
+      .subscribe(function (elements) {
+        const myelement = elements[0];
         assert.notStrictEqual(myelement, null);
         assert.strictEqual(myelement.tagName, 'H3');
         assert.strictEqual(myelement.textContent, '123');
-      }, 100);
-      setTimeout(() => {
-        const myelement = root.querySelector('.myelementclass');
+      });
+    sources.DOM.select('.myelementclass').observable.skip(2).first() // 1st
+      .subscribe(function (elements) {
+        const myelement = elements[0];
         assert.notStrictEqual(myelement, null);
         assert.strictEqual(myelement.tagName, 'H3');
         assert.strictEqual(myelement.textContent, '456');
         sources.dispose();
         done();
-      }, 300);
-    });
+      });
   });
 
   it('should render a VTree with a child Observable<VTree>', function (done) {
