@@ -130,10 +130,15 @@ function maybeMutateEventPropagationAttributes(event) {
 }
 
 function mutateEventCurrentTarget(event, currentTargetElement) {
-  Object.defineProperty(event, `currentTarget`, {
-    value: currentTargetElement,
-    configurable: true,
-  })
+  try {
+    Object.defineProperty(event, `currentTarget`, {
+      value: currentTargetElement,
+      configurable: true,
+    })
+  } catch (err) {
+    void err // noop
+  }
+  event.ownerTarget = currentTargetElement
 }
 
 function makeSimulateBubbling(namespace, rootEl) {
