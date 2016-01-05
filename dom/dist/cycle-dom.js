@@ -3570,34 +3570,73 @@ function makeIsStrictlyInRootScope(namespace) {
   };
 }
 
+var eventTypesThatDontBubble = ["load", "unload", "focus", "blur", "mouseenter", "mouseleave", "submit", "change", "reset"];
+
+function maybeMutateEventPropagationAttributes(event) {
+  if (!event.hasOwnProperty("propagationHasBeenStopped")) {
+    (function () {
+      event.propagationHasBeenStopped = false;
+      var oldStopPropagation = event.stopPropagation;
+      event.stopPropagation = function stopPropagation() {
+        oldStopPropagation.call(this);
+        this.propagationHasBeenStopped = true;
+      };
+    })();
+  }
+}
+
+function mutateEventCurrentTarget(event, currentTargetElement) {
+  Object.defineProperty(event, "currentTarget", {
+    value: currentTargetElement,
+    configurable: true
+  });
+}
+
+function makeSimulateBubbling(namespace, rootEl) {
+  var isStrictlyInRootScope = makeIsStrictlyInRootScope(namespace);
+  var descendantSel = namespace.join(" ");
+  var topSel = namespace.join("");
+  var roof = rootEl.parentElement;
+
+  return function simulateBubbling(ev) {
+    maybeMutateEventPropagationAttributes(ev);
+    if (ev.propagationHasBeenStopped) {
+      return false;
+    }
+    for (var el = ev.target; el && el !== roof; el = el.parentElement) {
+      if (!isStrictlyInRootScope(el)) {
+        continue;
+      }
+      if (matchesSelector(el, descendantSel) || matchesSelector(el, topSel)) {
+        mutateEventCurrentTarget(ev, el);
+        return true;
+      }
+    }
+    return false;
+  };
+}
+
 function makeEventsSelector(rootEl$, namespace) {
   return function events(eventName) {
-    var useCapture = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     if (typeof eventName !== "string") {
       throw new Error("DOM driver's events() expects argument to be a " + "string representing the event type to listen for.");
     }
-    var isStrictlyInRootScope = makeIsStrictlyInRootScope(namespace);
+    var useCapture = false;
+    if (eventTypesThatDontBubble.indexOf(eventName) !== -1) {
+      useCapture = true;
+    }
+    if (typeof options.useCapture === "boolean") {
+      useCapture = options.useCapture;
+    }
 
     return rootEl$.first().flatMapLatest(function (rootEl) {
-      if (rootEl.length === 0) {
-        return Rx.Observable.empty();
-      }
       if (!namespace || namespace.length === 0) {
         return fromEvent(rootEl, eventName, useCapture);
       }
-      var descendantSelector = namespace.join(" ");
-      if (matchesSelector(rootEl, descendantSelector)) {
-        // is root Element
-        return fromEvent(rootEl, eventName, useCapture);
-      }
-      var topSelector = namespace.join("");
-      return fromEvent(rootEl, eventName, useCapture).filter(function (ev) {
-        if (matchesSelector(ev.target, descendantSelector) || matchesSelector(ev.target, topSelector)) {
-          return isStrictlyInRootScope(ev.target);
-        }
-        return false;
-      });
+      var simulateBubbling = makeSimulateBubbling(namespace, rootEl);
+      return fromEvent(rootEl, eventName, useCapture).filter(simulateBubbling);
     }).share();
   };
 }
