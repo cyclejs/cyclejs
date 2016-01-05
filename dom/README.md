@@ -8,11 +8,9 @@ A collection of Cycle drivers to enable interaction with the DOM. It includes a 
 
 ## Browser support
 
+These are the browsers we officially support currently. Cycle.js may not work (or work partially) in other browsers.
+
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/cyclejs-dom.svg)](https://saucelabs.com/u/cyclejs-dom)
-
-## Resources
-
-- [Hyperscript-helpers](https://www.npmjs.com/package/hyperscript-helpers) come packaged with Cycle Dom, create virtual DOM elements with `div({className: 'wrapper'}, [ h1('Header') ])` instead of `h('div.wrapper', [ h('h1', 'Header') ])`.
 
 ## LICENSE
 
