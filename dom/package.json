@@ -42,7 +42,7 @@
     "mocha": "2.3.4",
     "rx": "4.0.7",
     "testem": "0.9.11",
-    "uglify-js": "2.5.0",
+    "uglify-js": "2.6.1",
     "zuul": "3.8.0"
   },
   "engines": {
