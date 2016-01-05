@@ -34,17 +34,16 @@
     "babelify": "6.4.0",
     "browserify": "12.0.1",
     "browserify-shim": "3.8.11",
-    "es6-map": "0.1.2",
     "eslint": "1.0.0",
-    "eslint-config-cycle": "3.1.0",
+    "eslint-config-cycle": "3.2.0",
     "eslint-plugin-cycle": "1.0.2",
     "eslint-plugin-no-class": "0.1.0",
     "markdox": "0.1.10",
-    "mocha": "2.3.3",
-    "rx": "4.0.6",
+    "mocha": "2.3.4",
+    "rx": "4.0.7",
     "testem": "0.9.11",
     "uglify-js": "2.5.0",
-    "zuul": "3.7.2"
+    "zuul": "3.8.0"
   },
   "engines": {
     "node": ">=0.10.0"
