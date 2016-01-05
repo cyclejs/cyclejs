@@ -262,7 +262,7 @@ describe('DOMSource.events()', function () {
       });
   });
 
-  it('should have currentTarget pointed to the selected parent', function (done) {
+  it('should have currentTarget or ownerTarget pointed to the selected parent', function (done) {
     function app() {
       return {
         DOM: Rx.Observable.just(div('.top', [
@@ -282,8 +282,11 @@ describe('DOMSource.events()', function () {
       assert.strictEqual(ev.target.tagName, 'SPAN');
       assert.strictEqual(ev.target.className, 'child');
       assert.strictEqual(ev.target.textContent, 'Hello world');
-      assert.strictEqual(ev.currentTarget.tagName, 'H2');
-      assert.strictEqual(ev.currentTarget.className, 'parent');
+      const currentTargetIsParentH2 =
+        ev.currentTarget.tagName === 'H2' && ev.currentTarget.className === 'parent';
+      const ownerTargetIsParentH2 =
+        ev.ownerTarget.tagName === 'H2' && ev.ownerTarget.className === 'parent';
+      assert.strictEqual(currentTargetIsParentH2 || ownerTargetIsParentH2, true);
       sources.dispose();
       done();
     });
