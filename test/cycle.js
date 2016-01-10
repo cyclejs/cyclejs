@@ -4,6 +4,9 @@
 let assert = require('assert');
 let Cycle = require('../src/cycle');
 let Rx = require('rx');
+let most = require('most')
+let Bacon = require('baconjs')
+let Kefir = require('kefir')
 let sinon = require('sinon');
 
 describe('Cycle', function () {
@@ -38,10 +41,10 @@ describe('Cycle', function () {
           other: ext.other.take(1).startWith('a')
         };
       }
-      function driver() {
-        return Rx.Observable.just('b');
+      function driver(_, convert) {
+        return convert(Rx.Observable.just('b'));
       }
-      let {sinks, sources} = Cycle.run(app, {other: driver});
+      let {sinks, sources, dispose} = Cycle.run(app, {other: driver});
       assert.strictEqual(typeof sinks, 'object');
       assert.strictEqual(typeof sinks.other.subscribe, 'function');
       assert.strictEqual(typeof sources, 'object');
@@ -56,14 +59,13 @@ describe('Cycle', function () {
           other: sources.other.take(6).map(x => String(x)).startWith('a')
         };
       }
-      function driver(sink) {
-        return sink.map(x => x.charCodeAt(0)).delay(1);
+      function driver(sink, convert) {
+        return convert(sink.map(x => x.charCodeAt(0)).delay(1));
       }
-      let {sinks, sources} = Cycle.run(app, {other: driver});
+      let {sinks, sources, dispose} = Cycle.run(app, {other: driver});
       sources.other.subscribe(x => {
         assert.strictEqual(x, 97);
-        sinks.dispose();
-        sources.dispose();
+        dispose();
         done();
       });
     });
@@ -75,15 +77,14 @@ describe('Cycle', function () {
         };
       }
       let mutable = 'wrong';
-      function driver(sink) {
-        return sink.map(x => 'a' + 10)
+      function driver(sink, convert) {
+        return convert(sink.map(x => 'a' + 10))
       }
-      let {sinks, sources} = Cycle.run(app, {other: driver});
+      let {sinks, sources, dispose} = Cycle.run(app, {other: driver});
       sources.other.take(1).subscribe(x => {
         assert.strictEqual(x, 'a10');
         assert.strictEqual(mutable, 'correct');
-        sinks.dispose();
-        sources.dispose();
+        dispose();
         done();
       });
       mutable = 'correct';
@@ -95,14 +96,16 @@ describe('Cycle', function () {
       function app() {
         return {other: number$};
       }
-      let {sinks, sources} = Cycle.run(app, {
-        other: number$ => number$.map(number => 'x' + number)
-      });
+
+      function driver(number$, convert) {
+        return convert(number$.map(number => 'x' + number))
+      }
+
+      let {sinks, sources, dispose} = Cycle.run(app, {other: driver});
       sources.other.subscribe(function (x) {
         assert.notStrictEqual(x, 'x3');
         if (x === 'x2') {
-          sinks.dispose();
-          sources.dispose();
+          dispose();
           setTimeout(() => {
             done();
           }, 100);
@@ -121,8 +124,8 @@ describe('Cycle', function () {
           })
         };
       }
-      function driver() {
-        return Rx.Observable.just('b');
+      function driver(_, convert) {
+        return convert(Rx.Observable.just('b'));
       }
 
       Cycle.run(main, {other: driver});
@@ -134,5 +137,132 @@ describe('Cycle', function () {
         done();
       }, 10);
     });
+
+    it('should return a disposable drivers output written in most', function (done) {
+      function app(sources) {
+        return {
+          other: sources.other.take(6).map(x => String(x)).startWith('a')
+        };
+      }
+      function driver(sink, convert) {
+        const source = sink.map(x => x.charCodeAt(0)).delay(1);
+        return convert(source)
+      }
+      driver.type = 'most'
+      let {sinks, sources, dispose} = Cycle.run(app, {other: driver});
+      sources.other.subscribe(x => {
+        assert.strictEqual(x, 97);
+        dispose();
+        done();
+      });
+    });
+
+    it('should allow writing your application in most', function(done) {
+      function app(sources) {
+        return {
+          other: sources.other.skipRepeats()
+        };
+      }
+
+      function driver(sink, convert) {
+        const source = most.from([1, 2, 2, 2, 3]);
+        return convert(source);
+      }
+
+      driver.type = 'most'
+
+      const {sinks, sources, dispose} = Cycle.run(app, {other: driver}, {streamLibrary: 'most'});
+
+      sinks.other.skip(2).take(1).observe(x => {
+        assert.strictEqual(x, 3);
+        dispose();
+        done();
+      });
+    });
+
+    it('should return a disposable drivers output written in bacon', function (done) {
+      function app(sources) {
+        return {
+          other: sources.other.take(6).map(x => String(x)).startWith('a')
+        };
+      }
+      function driver(sink, convert) {
+        const source = sink.map(x => x.charCodeAt(0)).delay(1);
+        return convert(source)
+      }
+      driver.type = 'bacon'
+      let {sinks, sources, dispose} = Cycle.run(app, {other: driver});
+      sources.other.subscribe(x => {
+        assert.strictEqual(x, 97);
+        dispose();
+        done();
+      });
+    });
+
+    it('should allow writing your application in bacon', function(done) {
+      function app(sources) {
+        return {
+          other: sources.other.skipDuplicates()
+        };
+      }
+
+      function driver(sink, convert) {
+        const source = most.from([1, 2, 2, 2, 3]);
+        return convert(source);
+      }
+
+      driver.type = 'most'
+
+      const {sinks, sources, dispose} = Cycle.run(app, {other: driver}, {streamLibrary: 'bacon'});
+
+      sinks.other.skip(2).take(1).onValue(x => {
+        assert.strictEqual(x, 3);
+        dispose();
+        done();
+      });
+    });
+
+    it('should return a disposable drivers output written in kefir', function (done) {
+      function app(sources) {
+        return {
+          other: sources.other.take(6).map(x => String(x)).startWith('a')
+        };
+      }
+      function driver(sink, convert) {
+        const source = sink.map(x => x.charCodeAt(0)).delay(1);
+        return convert(source)
+      }
+      driver.type = 'kefir'
+      let {sinks, sources, dispose} = Cycle.run(app, {other: driver});
+      sources.other.subscribe(x => {
+        assert.strictEqual(x, 97);
+        dispose();
+        done();
+      });
+    });
+
+    it('should allow writing your application in kefir', function(done) {
+      function app(sources) {
+        return {
+          other: sources.other.skipDuplicates()
+        };
+      }
+
+      function driver(sink, convert) {
+        const source = most.from([1, 2, 2, 2, 3]);
+        return convert(source);
+      }
+
+      driver.type = 'most'
+
+      const {sinks, sources, dispose} = Cycle.run(app, {other: driver}, {streamLibrary: 'kefir'});
+
+      sinks.other.skip(2).take(1).onValue(x => {
+        assert.strictEqual(x, 3);
+        dispose();
+        done();
+      });
+    });
+
   });
 });
