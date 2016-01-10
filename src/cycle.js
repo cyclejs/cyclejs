@@ -1,52 +1,34 @@
-let Rx = require(`rx`)
+import convert from 'stream-conversions'
+import Rx from 'rx'
 
-function makeSinkProxies(drivers) {
-  let sinkProxies = {}
-  for (let name in drivers) {
-    if (drivers.hasOwnProperty(name)) {
-      sinkProxies[name] = new Rx.ReplaySubject(1)
-    }
-  }
-  return sinkProxies
+const defaultOptions = {
+  streamLibrary: `rx`,
 }
 
-function callDrivers(drivers, sinkProxies) {
-  let sources = {}
-  for (let name in drivers) {
-    if (drivers.hasOwnProperty(name)) {
-      sources[name] = drivers[name](sinkProxies[name], name)
-    }
-  }
-  return sources
-}
+const isObjectEmpty = o => Object.keys(o).length <= 0
 
-function attachDisposeToSinks(sinks, replicationSubscription) {
-  Object.defineProperty(sinks, `dispose`, {
-    enumerable: false,
-    value: () => { replicationSubscription.dispose() },
-  })
-  return sinks
-}
+const makeSinkProxies = drivers =>
+  Object.keys(drivers)
+    .reduce((sinkProxies, driverName) => {
+      const type = drivers[driverName].type || `rx`
+      const sink = new Rx.ReplaySubject(1)
+      const stream = convert.rx.to[type](sink)
+      sinkProxies[driverName] = {sink, stream}
+      return sinkProxies
+    }, {})
 
-function makeDisposeSources(sources) {
-  return function dispose() {
-    for (let name in sources) {
-      if (sources.hasOwnProperty(name) &&
-        typeof sources[name].dispose === `function`)
-      {
-        sources[name].dispose()
-      }
-    }
-  }
-}
-
-function attachDisposeToSources(sources) {
-  Object.defineProperty(sources, `dispose`, {
-    enumerable: false,
-    value: makeDisposeSources(sources),
-  })
-  return sources
-}
+const callDrivers = (drivers, sinkProxies, streamLibrary) =>
+  Object.keys(drivers)
+    .reduce((sources, driverName) => {
+      const type = drivers[driverName].type || `rx`
+      const conversionFn = convert[type].to[streamLibrary]
+      sources[driverName] = drivers[driverName](
+        sinkProxies[driverName].stream,
+        conversionFn,
+        driverName
+      )
+      return sources
+    }, {})
 
 function logToConsoleError(err) {
   let target = err.stack || err
@@ -55,46 +37,36 @@ function logToConsoleError(err) {
   }
 }
 
-function replicateMany(observables, subjects) {
-  return Rx.Observable.create(observer => {
+const replicateMany = (sinks, sinkProxies, streamLibrary) =>
+  Rx.Observable.create(observer => {
     let subscription = new Rx.CompositeDisposable()
     setTimeout(() => {
-      for (let name in observables) {
-        if (observables.hasOwnProperty(name) &&
-          subjects.hasOwnProperty(name) &&
-          !subjects[name].isDisposed)
-        {
+      Object.keys(sinks)
+        .filter(driverName => sinkProxies[driverName]) // eslint-disable-line
+        .forEach(driverName => { // eslint-disable-line
+          const sinkProxy = sinkProxies[driverName]
           subscription.add(
-            observables[name]
+            convert[streamLibrary].to.rx(sinks[driverName])
               .doOnError(logToConsoleError)
-              .subscribe(subjects[name].asObserver())
+              .subscribe(sinkProxy.sink.asObserver())
           )
-        }
-      }
+        })
       observer.onNext(subscription)
     }, 1)
 
     return function dispose() {
       subscription.dispose()
-      for (let x in subjects) {
-        if (subjects.hasOwnProperty(x)) {
-          subjects[x].dispose()
+      for (let x in sinkProxies) {
+        if (sinkProxies[x].sink.hasOwnProperty(x)) {
+          sinkProxies[x].sink.dispose()
         }
       }
     }
   })
-}
 
-function isObjectEmpty(obj) {
-  for (let key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      return false
-    }
-  }
-  return true
-}
+function run(main, drivers, options = defaultOptions) {
+  const {streamLibrary} = options
 
-function run(main, drivers) {
   if (typeof main !== `function`) {
     throw new Error(`First argument given to Cycle.run() must be the 'main' ` +
       `function.`)
@@ -108,36 +80,20 @@ function run(main, drivers) {
       `with at least one driver function declared as a property.`)
   }
 
-  let sinkProxies = makeSinkProxies(drivers)
-  let sources = callDrivers(drivers, sinkProxies)
-  let sinks = main(sources)
-  let subscription = replicateMany(sinks, sinkProxies).subscribe()
-  let sinksWithDispose = attachDisposeToSinks(sinks, subscription)
-  let sourcesWithDispose = attachDisposeToSources(sources)
-  return {sources: sourcesWithDispose, sinks: sinksWithDispose}
+  const sinkProxies = makeSinkProxies(drivers)
+  const sources = callDrivers(drivers, sinkProxies, streamLibrary)
+  const sinks = main(sources)
+  const subscription =
+    replicateMany(sinks, sinkProxies, streamLibrary).subscribe()
+
+  const dispose = () => {
+    Object.keys(sinkProxies)
+      .forEach(key => sinkProxies[key].sink.dispose())
+    subscription.dispose()
+  }
+  return {sinks, sources, dispose}
 }
 
-let Cycle = {
-  /**
-   * Takes a `main` function and circularly connects it to the given collection
-   * of driver functions.
-   *
-   * The `main` function expects a collection of "driver source" Observables
-   * as input, and should return a collection of "driver sink" Observables.
-   * A "collection of Observables" is a JavaScript object where
-   * keys match the driver names registered by the `drivers` object, and values
-   * are Observables or a collection of Observables.
-   *
-   * @param {Function} main a function that takes `sources` as input
-   * and outputs a collection of `sinks` Observables.
-   * @param {Object} drivers an object where keys are driver names and values
-   * are driver functions.
-   * @return {Object} an object with two properties: `sources` and `sinks`.
-   * `sinks` is the collection of driver sinks, and `sources` is the collection
-   * of driver sources, that can be used for debugging or testing.
-   * @function run
-   */
-  run,
-}
+const Cycle = {run}
 
-module.exports = Cycle
+export default Cycle
