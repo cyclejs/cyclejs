@@ -5,6 +5,7 @@ let assert = require('assert');
 let Cycle = require('../src/cycle');
 let Rx = require('rx');
 let sinon = require('sinon');
+let rxAdapter = require('cycle-rx-adapter')['default']
 
 describe('Cycle', function () {
   describe('API', function () {
@@ -16,20 +17,26 @@ describe('Cycle', function () {
   describe('run()', function () {
     it('should throw if first argument is not a function', function () {
       assert.throws(() => {
-        Cycle.run('not a function');
+        Cycle.run('not a function', {}, {streamAdapter: rxAdapter});
       }, /First argument given to Cycle\.run\(\) must be the 'main' function/i);
     });
 
     it('should throw if second argument is not an object', function () {
       assert.throws(() => {
-        Cycle.run(() => {}, 'not an object');
+        Cycle.run(() => {}, 'not an object', {streamAdapter: rxAdapter});
       }, /Second argument given to Cycle\.run\(\) must be an object with driver functions/i);
     });
 
     it('should throw if second argument is an empty object', function () {
       assert.throws(() => {
-        Cycle.run(() => {}, {});
+        Cycle.run(() => {}, {}, {streamAdapter: rxAdapter});
       }, /Second argument given to Cycle\.run\(\) must be an object with at least one/i);
+    });
+
+    it('should throw if streamAdapter is not supplied', function () {
+      assert.throws(() => {
+        Cycle.run(() => {}, {other: () => {}}, {})
+      }, /Third argument given to Cycle\.run\(\) must be an object with the streamAdapter key supplied with a valid stream adapter/i)
     });
 
     it('should return sinks object and sources object', function () {
@@ -41,7 +48,7 @@ describe('Cycle', function () {
       function driver() {
         return Rx.Observable.just('b');
       }
-      let {sinks, sources} = Cycle.run(app, {other: driver});
+      let {sinks, sources, dispose} = Cycle.run(app, {other: driver}, {streamAdapter: rxAdapter});
       assert.strictEqual(typeof sinks, 'object');
       assert.strictEqual(typeof sinks.other.subscribe, 'function');
       assert.strictEqual(typeof sources, 'object');
@@ -59,11 +66,10 @@ describe('Cycle', function () {
       function driver(sink) {
         return sink.map(x => x.charCodeAt(0)).delay(1);
       }
-      let {sinks, sources} = Cycle.run(app, {other: driver});
+      let {sinks, sources, dispose} = Cycle.run(app, {other: driver}, {streamAdapter: rxAdapter});
       sources.other.subscribe(x => {
         assert.strictEqual(x, 97);
-        sinks.dispose();
-        sources.dispose();
+        dispose();
         done();
       });
     });
@@ -78,12 +84,11 @@ describe('Cycle', function () {
       function driver(sink) {
         return sink.map(x => 'a' + 10)
       }
-      let {sinks, sources} = Cycle.run(app, {other: driver});
+      let {sinks, sources, dispose} = Cycle.run(app, {other: driver}, {streamAdapter: rxAdapter});
       sources.other.take(1).subscribe(x => {
         assert.strictEqual(x, 'a10');
         assert.strictEqual(mutable, 'correct');
-        sinks.dispose();
-        sources.dispose();
+        dispose();
         done();
       });
       mutable = 'correct';
@@ -95,14 +100,13 @@ describe('Cycle', function () {
       function app() {
         return {other: number$};
       }
-      let {sinks, sources} = Cycle.run(app, {
+      let {sinks, sources, dispose} = Cycle.run(app, {
         other: number$ => number$.map(number => 'x' + number)
-      });
+      }, {streamAdapter: rxAdapter});
       sources.other.subscribe(function (x) {
         assert.notStrictEqual(x, 'x3');
         if (x === 'x2') {
-          sinks.dispose();
-          sources.dispose();
+          dispose();
           setTimeout(() => {
             done();
           }, 100);
@@ -125,7 +129,7 @@ describe('Cycle', function () {
         return Rx.Observable.just('b');
       }
 
-      Cycle.run(main, {other: driver});
+      Cycle.run(main, {other: driver}, {streamAdapter: rxAdapter});
       setTimeout(() => {
         sinon.assert.calledOnce(console.error);
         sinon.assert.calledWithExactly(console.error, sinon.match("malfunction"));
