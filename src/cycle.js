@@ -19,11 +19,21 @@ function makeSinkProxies(drivers, runStreamAdapter) {
   }
   return sinkProxies
 }
-function callDrivers(drivers, sinkProxies) {
+function callDrivers(drivers, sinkProxies, runStreamAdapter) {
   const sources = {}
   for (const name in drivers) {
     if (drivers.hasOwnProperty(name)) {
-      sources[name] = drivers[name](sinkProxies[name].stream, name)
+      const driverStreamAdapter =
+        drivers[name].streamAdapter || runStreamAdapter
+
+      const adapt = stream => // eslint-disable-line
+        // don't create function in for-loop
+        runStreamAdapter.adaptation(
+          stream,
+          driverStreamAdapter.streamSubscription
+        )
+
+      sources[name] = drivers[name](sinkProxies[name].stream, adapt, name)
     }
   }
   return sources
@@ -71,7 +81,7 @@ function run(main, drivers, {streamAdapter}) {
   }
 
   const sinkProxies = makeSinkProxies(drivers, streamAdapter)
-  const sources = callDrivers(drivers, sinkProxies)
+  const sources = callDrivers(drivers, sinkProxies, streamAdapter)
   const sinks = main(sources)
   replicateMany(sinks, sinkProxies, streamAdapter)
   const dispose = () => {
