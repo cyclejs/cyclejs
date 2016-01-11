@@ -1,0 +1,50 @@
+{
+  "name": "cycle-rx-adapter",
+  "version": "0.0.0",
+  "description": "Rx 4 adapter for Cycle.js core.",
+  "main": "lib/index.js",
+  "scripts": {
+    "predist": "rm -rf dist/ && mkdir -p dist/",
+    "dist": "browserify -t babelify -t browserify-shim --exclude rx src/index.js -o dist/cycle-rx-adapter.js",
+    "postdist": "uglifyjs dist/cycle-rx-adapter.js --output dist/cycle-rx-adapter.min.js",
+    "prelib": "rm -rf lib/ && mkdir -p lib/",
+    "lib": "babel src/ -d lib/",
+    "mocha": "mocha --compilers js:babel-core/register test",
+    "test": "npm run mocha",
+    "prepublish": "npm run lib && npm run dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tylors/cycle-rx-adapter.git"
+  },
+  "keywords": [
+    "Cycle",
+    "Cycle.js",
+    "core",
+    "rx",
+    "adapter"
+  ],
+  "author": "Tylor Steinberger <tlsteinberger167@gmail.com> (https://github.com/tylors)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tylors/cycle-rx-adapter/issues"
+  },
+  "homepage": "https://github.com/tylors/cycle-rx-adapter#readme",
+  "browserify-shim": {
+    "rx": "global:Rx"
+  },
+  "peerDependencies": {
+    "rx": "*"
+  },
+  "devDependencies": {
+    "assert": "^1.3.0",
+    "babel-cli": "^6.4.0",
+    "babel-core": "^6.4.0",
+    "babel-preset-es2015": "^6.3.13",
+    "babelify": "^7.2.0",
+    "browserify": "^13.0.0",
+    "browserify-shim": "^3.8.12",
+    "mocha": "^2.3.4",
+    "uglify-js": "^2.6.1"
+  }
+}
