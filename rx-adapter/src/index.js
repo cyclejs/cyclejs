@@ -42,7 +42,7 @@ const rxAdapter = {
     )
   },
 
-  isValidStream(stream) {
+  isAdaptedStream(stream) {
     if (typeof stream.subscribe !== 'function' || //should have .subscribe
       typeof stream.onValue === `function`) // make sure not baconjs
     {
@@ -63,9 +63,9 @@ const rxAdapter = {
     )
   },
 
-  toAdapterStream(stream, streamSubscription) {
-    if (rxAdapter.isValidStream(stream)) {
-      return stream
+  adaptation(fromStream, fromStreamSubscriptionFunc) {
+    if (rxAdapter.isAdaptedStream(fromStream)) {
+      return fromStream
     }
     return Observable.create(observer => {
       const sink = {
@@ -73,7 +73,7 @@ const rxAdapter = {
         end: x => observer.onCompleted(x),
         error: x => observer.onEnd(x),
       }
-      streamSubscription(stream, sink)
+      fromStreamSubscriptionFunc(fromStream, sink)
     })
   },
 }

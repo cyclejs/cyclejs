@@ -1,6 +1,6 @@
-const assert = require('assert')
-const Rx = require('rx')
-const adapter = require('../lib')
+import assert from 'assert'
+import Rx from 'rx'
+import adapter from '../src'
 
 describe('Cycle Rx Adapter', () => {
 
@@ -34,10 +34,10 @@ describe('Cycle Rx Adapter', () => {
     done()
   })
 
-  it('should have a isValidStream() function', done => {
-    assert.strictEqual(typeof adapter.isValidStream, 'function')
+  it('should have a isAdaptedStream() function', done => {
+    assert.strictEqual(typeof adapter.isAdaptedStream, 'function')
     assert.doesNotThrow(() => {
-      adapter.isValidStream(Rx.Observable.just(100))
+      adapter.isAdaptedStream(Rx.Observable.just(100))
     })
     done()
   })
@@ -64,10 +64,10 @@ describe('Cycle Rx Adapter', () => {
     done()
   })
 
-  it('should have toAdapterStream() function', done => {
-    assert.strictEqual(typeof adapter.toAdapterStream, 'function')
+  it('should have adaptation() function', done => {
+    assert.strictEqual(typeof adapter.adaptation, 'function')
     assert.doesNotThrow(() => {
-      adapter.toAdapterStream(Rx.Observable.just(100), adapter.streamSubscription)
+      adapter.adaptation(Rx.Observable.just(100), adapter.streamSubscription)
     })
     done()
   })
