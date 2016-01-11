@@ -11,9 +11,7 @@ function makeSinkProxies(drivers, runStreamAdapter) {
       var replaySubject = runStreamAdapter.replaySubject();
       var driverStreamAdapter = drivers[_name].streamAdapter || runStreamAdapter;
 
-      var stream = driverStreamAdapter.to(replaySubject.stream, runStreamAdapter.streamSubscription);
-
-      driverStreamAdapter.isValidStream(stream);
+      var stream = driverStreamAdapter.adaptation(replaySubject.stream, runStreamAdapter.streamSubscription);
 
       sinkProxies[_name] = {
         stream: stream,
