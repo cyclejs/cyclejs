@@ -33,6 +33,7 @@
     "uglify-js": "2.5.0",
     "zuul": "3.7.2"
   },
+  "browser": "dist/cycle-http-driver",
   "browserify-shim": {
     "rx": "global:Rx"
   },
