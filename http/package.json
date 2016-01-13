@@ -34,6 +34,9 @@
     "zuul": "3.7.2"
   },
   "browser": "dist/cycle-http-driver",
+  "jspm": {
+    "main": "dist/cycle-http-driver"
+  },
   "browserify-shim": {
     "rx": "global:Rx"
   },
