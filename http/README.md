@@ -34,7 +34,7 @@ function main(responses) {
   const HELLO_URL = 'http://localhost:8080/hello';
   let request$ = Rx.Observable.just(HELLO_URL);
   let vtree$ = responses.HTTP
-    .filter(res$ => res$.request === HELLO_URL)
+    .filter(res$ => res$.request.url === HELLO_URL)
     .mergeAll()
     .map(res => res.text) // We expect this to be "Hello World"
     .startWith('Loading...')
