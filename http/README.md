@@ -32,15 +32,15 @@ Simple and normal use case:
 ```js
 function main(responses) {
   const HELLO_URL = 'http://localhost:8080/hello';
-  let request$ = Rx.Observable.just(HELLO_URL);
+  let request$ = Rx.Observable.just({url: HELLO_URL}); // GET by default
   let vtree$ = responses.HTTP
     .filter(res$ => res$.request.url === HELLO_URL)
     .mergeAll()
     .map(res => res.text) // We expect this to be "Hello World"
     .startWith('Loading...')
     .map(text =>
-      h('div.container', [
-        h('h1', text)
+      div('.container', [
+        h1(text)
       ])
     );
 
@@ -61,17 +61,17 @@ function main(responses) {
 
   httpResponse$$.subscribe(httpResponse$ => {
     // Notice that httpResponse$$ emits httpResponse$.
-    
+
     // The response Observable has a special field attached to it:
     // `request`, which is the same object we emit in the Observable at the
-    // return of `main`. This is useful for filtering: you can find the 
+    // return of `main`. This is useful for filtering: you can find the
     // httpResponse$ corresponding to a certain request.
     console.log(httpResponse$.request);
   });
 
   let httpResponse$ = httpResponse$$.mergeAll(); // flattens the metastream
   // OR `httpResponse$$.switch()` to ignore past response streams.
-  
+
   httpResponse$.subscribe(httpResponse => {
     // httpResponse is the object we get as response from superagent.
     // Check the documentation in superagent to know the structure of
@@ -79,10 +79,15 @@ function main(responses) {
     console.log(httpResponse.status); // 200
   });
 
-  // The request Observable is the string `http://localhost:8080/ping` emitted
-  // every second.
+  // The request Observable is an object with property `url` and value
+  // `http://localhost:8080/ping` emitted every second.
   let request$ = Rx.Observable.interval(1000)
-    .map(() => 'http://localhost:8080/ping');
+    .map(() => {
+      return {
+        url: 'http://localhost:8080/ping',
+        method: 'GET',
+      };
+    });
 
   return {
     HTTP: request$ // HTTP driver expects the request$ as input
@@ -90,7 +95,7 @@ function main(responses) {
 }
 ```
 
-For a more advanced usage, check the [Search example](https://github.com/cyclejs/cycle-http-driver/blob/master/examples/search/search.js) and the [documentation](https://github.com/cyclejs/cycle-http-driver/blob/master/docs/api.md).
+For a more advanced usage, check the [Search example](https://github.com/cyclejs/cycle-examples/tree/master/http-search-github) and the [documentation](https://github.com/cyclejs/cycle-http-driver/blob/master/docs/api.md).
 
 ## Browser support
 
