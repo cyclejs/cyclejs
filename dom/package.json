@@ -21,7 +21,7 @@
   ],
   "main": "lib/cycle-dom.js",
   "dependencies": {
-    "hyperscript-helpers": "2.0.2",
+    "hyperscript-helpers": "2.0.3",
     "matches-selector": "1.0.0",
     "vdom-parser": "1.2.1",
     "vdom-to-html": "2.2.0",
