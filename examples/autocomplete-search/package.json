@@ -5,22 +5,26 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/core": "6.0.0-rc2",
-    "@cycle/dom": "8.0.0-rc2",
+    "@cycle/core": "6.0.0",
+    "@cycle/dom": "9.0.1",
     "@cycle/jsonp": "5.0.x",
-    "rx": "4.0.6",
-    "immutable": "^3.7.4"
+    "cycle-restart": "0.0.5",
+    "immutable": "^3.7.4",
+    "rx": "4.0.6"
   },
   "devDependencies": {
-    "browserify": "11.0.1",
     "babel": "5.6.x",
     "babelify": "6.1.x",
+    "browserify": "11.0.1",
+    "budo": "^7.1.0",
     "mkdirp": "0.5.x"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prebrowserify": "mkdirp dist",
     "browserify": "browserify src/main.js -t babelify --outfile dist/main.js",
-    "start": "npm install && npm run browserify && echo 'OPEN index.html IN YOUR BROWSER'"
+    "start": "npm install && npm run browserify && echo 'OPEN index.html IN YOUR BROWSER'",
+    "live": "watchify -t babelify -p browserify-hmr src/main.js -o dist/main.js",
+    "server": "babel-node server.js"
   }
 }
