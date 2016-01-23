@@ -1,14 +1,14 @@
 {
-  "name": "@cycle/core",
-  "version": "6.0.0",
+  "name": "@cycle/base",
+  "version": "1.0.0",
   "author": "Andre Staltz",
-  "description": "A fully reactive JavaScript framework for Human-Computer Interaction",
+  "description": "Base infrastructure for a generic run() function for Cycle.js",
   "license": "MIT",
   "homepage": "https://cyclejs.github.io",
-  "bugs": "https://github.com/cyclejs/cycle-core/issues",
+  "bugs": "https://github.com/cyclejs/base/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cyclejs/cycle-core"
+    "url": "https://github.com/cyclejs/base"
   },
   "keywords": [
     "reactive",
@@ -25,17 +25,22 @@
     "babelify": "6.4.0",
     "browserify": "12.0.1",
     "browserify-shim": "3.8.11",
+    "commitizen": "^2.5.0",
+    "conventional-changelog": "^0.5.3",
     "cycle-rx-adapter": "^0.2.0",
+    "cz-conventional-changelog": "^1.1.5",
     "eslint": "1.0.0",
     "eslint-config-cycle": "3.0.0",
     "eslint-plugin-cycle": "1.0.1",
     "eslint-plugin-no-class": "0.1.0",
+    "ghooks": "^1.0.3",
     "markdox": "0.1.10",
     "mocha": "2.3.3",
     "rx": "4.0.6",
     "sinon": "1.17.2",
     "testem": "0.9.11",
-    "uglify-js": "2.5.0"
+    "uglify-js": "2.5.0",
+    "validate-commit-msg": "^1.1.1"
   },
   "engines": {
     "node": ">=0.10.0"
@@ -43,8 +48,18 @@
   "browserify-shim": {
     "rx": "global:Rx"
   },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    },
+    "ghooks": {
+      "commit-msg": "node ./node_modules/validate-commit-msg/index.js"
+    }
+  },
   "scripts": {
     "eslint": "eslint src/",
+    "commit": "git-cz",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -w",
     "mocha": "mocha --compilers js:babel/register test",
     "test": "npm run eslint && npm run mocha",
     "test-browser": "testem",
