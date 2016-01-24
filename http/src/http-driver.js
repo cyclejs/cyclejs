@@ -76,6 +76,7 @@ function createResponse$(reqOptions) {
         if (err) {
           observer.onError(err)
         } else {
+          res.request = reqOptions
           observer.onNext(res)
           observer.onCompleted()
         }
