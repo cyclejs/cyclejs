@@ -1,25 +1,25 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
-var most_1 = typeof window !== "undefined" ? window['Most'] : typeof global !== "undefined" ? global['Most'] : null;
-var most_subject_1 = require("most-subject");
-;
-;
+'use strict';
+
+var most_1 = typeof window !== "undefined" ? window['most'] : typeof global !== "undefined" ? global['most'] : null;
+var most_subject_1 = require('most-subject');
 var MostAdapter = {
-    makeHoldSubject: function () {
+    makeHoldSubject: function makeHoldSubject() {
         return most_subject_1.holdSubject();
     },
-    dispose: function (sinks, sinkProxies, sources) {
+    dispose: function dispose(sinks, sinkProxies, sources) {
         Object.keys(sinkProxies).forEach(function (key) {
             return sinkProxies[key].observer.complete();
         });
     },
-    isValidStream: function (stream) {
-        if (typeof stream.observe !== "function") {
+    isValidStream: function isValidStream(stream) {
+        if (typeof stream.observe !== 'function') {
             return false;
         }
         return true;
     },
-    subscribeToStream: function (stream, observer) {
+    subscribeToStream: function subscribeToStream(stream, observer) {
         stream.observe(function (x) {
             return observer.next(x);
         }).then(function (x) {
@@ -28,7 +28,7 @@ var MostAdapter = {
             return observer.error(e);
         });
     },
-    adapt: function (originStream, subscribeToOriginStream) {
+    adapt: function adapt(originStream, subscribeToOriginStream) {
         if (MostAdapter.isValidStream(originStream)) {
             return originStream;
         }
@@ -38,7 +38,6 @@ var MostAdapter = {
         });
     }
 };
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = MostAdapter;
 
 
