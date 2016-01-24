@@ -35,10 +35,8 @@
   "homepage": "https://github.com/tylors/most-adapter-ts#readme",
   "browserify": {
     "transform": [
-      ["babelify", {"presets": ["es2015"]}],
-      ["browserify-shim", {"most": "global:most"}]
-    ],
-    "exclude": "most"
+      ["babelify", {"presets": ["es2015"]}]
+    ]
   },
   "browserify-shim": {
     "most": "global:most"
