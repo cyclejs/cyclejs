@@ -28,7 +28,8 @@
     "mvi",
     "virtual-dom"
   ],
-  "main": "lib/cycle.js",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "devDependencies": {
     "assert": "^1.3.0",
     "babel-preset-es2015": "^6.3.13",
@@ -47,6 +48,9 @@
     "typescript": "^1.7.5",
     "uglify-js": "2.5.0",
     "validate-commit-msg": "^1.1.1"
+  },
+  "browserify": {
+    "transform": [["babelify", { "presets": ["es2015"] }]]
   },
   "engines": {
     "node": ">=0.10.0"
