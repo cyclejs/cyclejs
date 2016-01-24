@@ -1,21 +1,8 @@
 import {create} from 'most';
 import {holdSubject} from 'most-subject';
 
-export interface Observer {
-  next: (x: any) => void;
-  error: (e: any) => void;
-  complete: (x: any) => void;
-};
-
-export type StreamSubscriber = (stream: any, observer: Observer) => void;
-
-export interface StreamAdapter {
-  makeHoldSubject: () => any;
-  dispose: (sinks: any, sinkProxies: any, sources: any) => void;
-  isValidStream: (stream: any) => boolean;
-  subscribeToStream: StreamSubscriber;
-  adapt: (originStream: any, subscribeToOriginStream: StreamSubscriber) => any;
-};
+// For TS Definitions
+import {Observer, StreamAdapter, StreamSubscriber} from '@cycle/base';
 
 const MostAdapter: StreamAdapter = {
   makeHoldSubject() {
