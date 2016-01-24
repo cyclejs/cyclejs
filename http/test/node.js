@@ -32,6 +32,24 @@ describe('HTTP Driver in Node.js', function () {
     }
   );
 
+  it('should not auto-execute HTTP request when factory gets eager = true but the requests explicitly overrides with eager = false',
+    function(done) {
+      var request$ = Rx.Observable.just({
+        url: uri + '/pet',
+        method: 'POST',
+        send: {name: 'Woof', species: 'Dog'},
+        eager: false
+      });
+      var httpDriver = makeHTTPDriver({eager: true});
+      globalSandbox.petPOSTResponse = null;
+      httpDriver(request$);
+      setTimeout(function () {
+        assert.strictEqual(globalSandbox.petPOSTResponse, null);
+        done();
+      }, 100);
+    }
+  );
+
   it('should not auto-execute HTTP request by default',
     function(done) {
       var request$ = Rx.Observable.just({
@@ -81,6 +99,27 @@ describe('HTTP Driver in Node.js', function () {
       httpDriver(request$);
       setTimeout(function () {
         assert.strictEqual(globalSandbox.petPOSTResponse, null);
+        done();
+      }, 100);
+    }
+  );
+
+
+  it('should auto-execute HTTP request when factory gets eager = false but the requests explicitly overrides with eager = true',
+    function(done) {
+      var request$ = Rx.Observable.just({
+        url: uri + '/pet',
+        method: 'POST',
+        send: {name: 'Woof', species: 'Dog'},
+        eager: true
+      });
+      var httpDriver = makeHTTPDriver({eager: false});
+      globalSandbox.petPOSTResponse = null;
+      httpDriver(request$);
+      setTimeout(function () {
+        assert.notStrictEqual(globalSandbox.petPOSTResponse, null);
+        assert.strictEqual(globalSandbox.petPOSTResponse, 'added Woof the Dog');
+        globalSandbox.petPOSTResponse = null;
         done();
       }, 100);
     }
