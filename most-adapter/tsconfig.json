@@ -7,7 +7,7 @@
     "noImplicitAny": true,
     "suppressImplicitAnyIndexErrors": true,
     "module": "commonjs",
-    "target": "ES5",
+    "target": "ES6",
     "outDir": "lib/"
   },
   "formatCodeOptions": {
@@ -15,10 +15,6 @@
     "tabSize": 2
   },
    "files": [
-     "typings/es6-shim/es6-shim.d.ts",
      "src/index.ts"
-   ],
-   "exclude": [
-     "node_modules"
    ]
 }
