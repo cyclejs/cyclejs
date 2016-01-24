@@ -46,7 +46,7 @@
     "sinon": "1.17.2",
     "tslint": "^3.2.2",
     "typescript": "^1.7.5",
-    "uglify-js": "2.5.0",
+    "uglify-js": "2.6.1",
     "validate-commit-msg": "^1.1.1"
   },
   "browserify": {
