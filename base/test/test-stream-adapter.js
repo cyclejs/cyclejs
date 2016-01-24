@@ -59,11 +59,14 @@ const testStreamAdapter = {
   },
 
   streamSubscribe(stream, observer) {
-    stream.subscribe(
+    const subscription = stream.subscribe(
       x => observer.next(x),
       e => observer.error(e),
       () => observer.complete()
     );
+    return () => {
+      subscription.dispose();
+    };
   },
 };
 

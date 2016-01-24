@@ -120,11 +120,13 @@ describe('Cycle', function () {
     });
 
     it('should not work after has been disposed', function (done) {
+      let sandbox = sinon.sandbox.create();
+      const spy = sandbox.spy();
       function app() {
         return {
           other: Rx.Observable.range(1, 3).concatMap(x =>
             Rx.Observable.of(x).delay(50)
-          )
+          ).doOnNext(spy)
         };
       }
       const {sinks, sources, run} = Cycle(app, {
@@ -138,6 +140,8 @@ describe('Cycle', function () {
         if (x === 'x2') {
           dispose();
           setTimeout(() => {
+            sinon.assert.calledTwice(spy);
+            sandbox.restore();
             done();
           }, 100);
         }
