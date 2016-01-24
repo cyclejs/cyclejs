@@ -1,0 +1,63 @@
+{
+  "name": "cycle-most-adapter",
+  "version": "0.0.0",
+  "description": "Cycle.js Adapter for Most.js",
+  "main": "lib/index.js",
+  "scripts": {
+    "lint": "tslint -c tslint.json src/*.ts",
+    "premocha": "tsc test/*.ts --module commonjs --out test/bundled-tests.js",
+    "mocha": "mocha test/bundled-tests.js",
+    "postmocha": "rm test/bundled-tests.js",
+    "test": "npm run lint && npm run mocha",
+    "prelib": "rm -rf lib/ && mkdir -p lib/",
+    "lib": "tsc",
+    "predist": "rm -rf dist/ && mkdir -p dist/ && npm run lib",
+    "dist": "browserify -t browserify-shim -t babelify --exclude most lib/index.js -o dist/cycle-most-adapter.js",
+    "postdist": "uglifyjs dist/cycle-most-adapter.js -o dist/cycle-most-adapter.min.js",
+    "start": "npm install && npm prune && tsd install",
+    "prepublish": "npm run lib",
+    "preversion": "npm run dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tylors/most-adapter-ts.git"
+  },
+  "keywords": [
+    "Cycle",
+    "Cycle.js",
+    "Most",
+    "Most.js",
+    "Adapter"
+  ],
+  "author": "Tylor Steinberger <tlsteinberger167@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tylors/most-adapter-ts/issues"
+  },
+  "homepage": "https://github.com/tylors/most-adapter-ts#readme",
+  "browserify-shim": {
+    "most": "global:Most"
+  },
+  "peerDependencies": {
+    "most": "*",
+    "most-subject": "2.x.x"
+  },
+  "devDependencies": {
+    "@most/hold": "^1.0.0",
+    "assert": "^1.3.0",
+    "babelify": "^7.2.0",
+    "browserify": "^13.0.0",
+    "browserify-shim": "^3.8.12",
+    "mocha": "^2.3.4",
+    "most": "^0.17.1",
+    "most-subject": "^2.0.0",
+    "rollup": "^0.25.1",
+    "rollup-plugin-commonjs": "^2.2.0",
+    "rollup-plugin-npm": "^1.3.0",
+    "rollup-plugin-typescript": "^0.4.1",
+    "tsd": "^0.6.5",
+    "tslint": "^3.3.0",
+    "typescript": "^1.7.5",
+    "uglify-js": "^2.6.1"
+  }
+}
