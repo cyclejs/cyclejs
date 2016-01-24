@@ -31,9 +31,12 @@ let CycleHTTPDriver = {
    * the origin.
    * - `redirects` *(Number)*: number of redirects to follow.
    * - `eager` *(Boolean)*: whether or not to execute the request regardless of
-   *   usage of its corresponding response. Default value is `false` (i.e.,
-   *   the request is lazy). Main use case is: set this option to `true` if you
-   *   send POST requests and you are not interested in its response.
+   *   usage of its corresponding response. By default the eager setting of the
+   *   driver is used (whose default is `false`, i.e. the request is lazy).
+   *   Explicitely setting eager in the request always overrides the driver
+   *   setting. Main use case is: set this option to `true` if you send POST
+   *   requests and you are not interested in its response.
+
    *
    * **Responses**. A metastream is an Observable of Observables. The response
    * metastream emits Observables of responses. These Observables of responses
@@ -47,6 +50,7 @@ let CycleHTTPDriver = {
    * options are:
    * - `eager` *(Boolean)*: execute the HTTP eagerly, even if its
    *   response Observable is not subscribed to. Default: **false**.
+   *   Can be overridden in the request.
    * @return {Function} the HTTP Driver function
    * @function makeHTTPDriver
    */
@@ -54,4 +58,3 @@ let CycleHTTPDriver = {
 }
 
 module.exports = CycleHTTPDriver
-

@@ -128,7 +128,7 @@ function makeHTTPDriver({eager = false} = {eager: false}) {
       .map(request => {
         const reqOptions = normalizeRequestOptions(request)
         let response$ = createResponse$(reqOptions)
-        if (eager || reqOptions.eager) {
+        if (typeof reqOptions.eager === `boolean` ? reqOptions.eager : eager) {
           response$ = response$.replay(null, 1)
           response$.connect()
         }
