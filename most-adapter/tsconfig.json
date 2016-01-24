@@ -7,7 +7,7 @@
     "noImplicitAny": true,
     "suppressImplicitAnyIndexErrors": true,
     "module": "commonjs",
-    "target": "ES6",
+    "target": "ES5",
     "outDir": "lib/"
   },
   "formatCodeOptions": {
