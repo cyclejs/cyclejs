@@ -29,7 +29,7 @@ export type StreamSubscribe = (stream: any, observer: Observer) => DisposeFuncti
 export interface StreamAdapter {
   adapt: (originStream: any, originStreamSubscribe: StreamSubscribe) => any;
   dispose: (sinks: any, sinkProxies: SinkProxies, sources: any) => void;
-  makeHoldSubject: () => any;
+  makeHoldSubject: () => HoldSubject;
   isValidStream: (stream: any) => boolean;
   streamSubscribe: StreamSubscribe;
 };
