@@ -32,7 +32,8 @@ describe('HTTP Driver in Node.js', function () {
     }
   );
 
-  it('should not auto-execute HTTP request when factory gets eager = true but the requests explicitly overrides with eager = false',
+  it('should not auto-execute HTTP request when factory gets eager = true but ' +
+  'the requests explicitly overrides with eager = false',
     function(done) {
       var request$ = Rx.Observable.just({
         url: uri + '/pet',
@@ -104,8 +105,8 @@ describe('HTTP Driver in Node.js', function () {
     }
   );
 
-
-  it('should auto-execute HTTP request when factory gets eager = false but the requests explicitly overrides with eager = true',
+  it('should auto-execute HTTP request when factory gets eager = false but the ' +
+  'requests explicitly overrides with eager = true',
     function(done) {
       var request$ = Rx.Observable.just({
         url: uri + '/pet',
@@ -122,6 +123,26 @@ describe('HTTP Driver in Node.js', function () {
         globalSandbox.petPOSTResponse = null;
         done();
       }, 100);
+    }
+  );
+
+  it('should add request options object to each response',
+    function(done) {
+      var request$ = Rx.Observable.just({
+        url: uri + '/pet',
+        method: 'POST',
+        send: {name: 'Woof', species: 'Dog'},
+        eager: true,
+        _id: 'petRequest'
+      });
+      var httpDriver = makeHTTPDriver();
+      var HTTP = httpDriver(request$);
+      HTTP.flatMap(function(_){return _})
+        .subscribe(function(r){
+          assert.ok(r.request);
+          assert.strictEqual(r.request._id, 'petRequest');
+          done();
+        });
     }
   );
 });
