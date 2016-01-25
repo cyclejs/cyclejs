@@ -89,6 +89,7 @@
     "preversion": "npm run dist && git add dist/ && git diff --quiet --exit-code --cached || git commit -a -m 'chore(dist): build dist/'",
     "version-patch": "npm version patch --message 'chore(version): %s'",
     "version-minor": "npm version minor --message 'chore(version): %s'",
-    "version-major": "npm version major --message 'chore(version): %s'"
+    "version-major": "npm version major --message 'chore(version): %s'",
+    "postversion": "npm publish --access=public"
   }
 }
