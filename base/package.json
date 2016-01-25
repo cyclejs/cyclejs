@@ -1,6 +1,6 @@
 {
   "name": "@cycle/base",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Base infrastructure for a generic run() function for Cycle.js",
   "license": "MIT",
   "homepage": "https://cyclejs.github.io",
@@ -50,7 +50,16 @@
     "validate-commit-msg": "^1.1.1"
   },
   "browserify": {
-    "transform": [["babelify", { "presets": ["es2015"] }]]
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "es2015"
+          ]
+        }
+      ]
+    ]
   },
   "engines": {
     "node": ">=0.10.0"
@@ -77,6 +86,9 @@
     "postdist": "uglifyjs dist/cycle-base.js -o dist/cycle-base.min.js",
     "start": "npm install && npm prune",
     "prepublish": "npm run lib",
-    "preversion": "npm run dist && git add dist/ && git commit -m 'chore(dist): build dist/'"
+    "preversion": "npm run dist && git add dist/ && git diff --quiet --exit-code --cached || git commit -a -m 'chore(dist): build dist/'",
+    "version-patch": "npm version patch --message 'chore(version): %s'",
+    "version-minor": "npm version minor --message 'chore(version): %s'",
+    "version-major": "npm version major --message 'chore(version): %s'"
   }
 }
