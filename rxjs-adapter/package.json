@@ -1,27 +1,22 @@
 {
-  "name": "cycle-rx5-adapter",
-  "version": "0.0.1",
-  "description": "Cycle.js Rx5 Stream Adapter",
+  "name": "@cycle/rxjs-adapter",
+  "version": "1.0.0",
+  "description": "Cycle.js RxJS 5 Stream Adapter",
   "main": "lib/index.js",
-  "scripts": {
-    "lint": "tslint -c tslint.json src/*.ts",
-    "premocha": "tsc test/*.ts --module commonjs --out test/bundled-tests.js",
-    "mocha": "mocha test/bundled-tests.js",
-    "postmocha": "rm test/bundled-tests.js",
-    "test": "npm run lint && npm run mocha",
-    "prelib": "rm -rf lib/ && mkdir -p lib/",
-    "lib": "tsc",
-    "predist": "rm -rf dist/ && mkdir -p dist/ && npm run lib",
-    "dist": "browserify -t browserify-shim -t babelify --exlude rxjs-es lib/index.js -o dist/cycle-rx5-adapter.js",
-    "postdist": "uglifyjs dist/cycle-rx5-adapter.js -o dist/cycle-rx5-adapter.min.js",
-    "start": "npm install && npm prune && tsd install",
-    "prepublish": "npm run lib",
-    "preversion": "npm run dist"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tylors/cycle-rx5-adapter.git"
   },
+  "contributors": [
+    {
+      "name": "Andre Staltz",
+      "email": "andre@staltz.com"
+    },
+    {
+      "name": "Tylor Steinberger",
+      "email": "tlsteinberger167@gmail.com"
+    }
+  ],
   "keywords": [
     "Cycle.js",
     "Cycle",
@@ -30,28 +25,47 @@
     "Stream",
     "Adapter"
   ],
-  "author": "Tylor Steinberger <tlsteinberger167@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/tylors/cycle-rx5-adapter/issues"
+    "url": "https://github.com/cyclejs/rx5-adapter/issues"
   },
-  "homepage": "https://github.com/tylors/cycle-rx5-adapter#readme",
+  "homepage": "https://github.com/cyclejs/rx5-adapter#readme",
   "browserify-shim": {
     "rxjs-es": "global:Rx"
   },
   "devDependencies": {
+    "@cycle/base": "^1.2.0",
     "assert": "^1.3.0",
     "babel-preset-es2015": "^6.3.13",
+    "babel-register": "^6.4.3",
     "babelify": "^7.2.0",
     "browserify": "^13.0.0",
     "browserify-shim": "^3.8.12",
+    "mkdirp": "^0.5.1",
     "mocha": "^2.3.4",
     "tsd": "^0.6.5",
     "tslint": "^3.2.2",
     "typescript": "^1.7.5",
-    "uglifyjs": "^2.4.10"
+    "uglify-js": "^2.6.1"
+  },
+  "peerDependencies": {
+    "@cycle/base": "^1.2.0"
   },
   "dependencies": {
     "rxjs": "^5.0.0-beta.1"
+  },
+  "scripts": {
+    "lint": "tslint -c tslint.json src/*.ts",
+    "premocha": "npm run lib",
+    "mocha": "mocha --compilers js:babel-register test",
+    "test": "npm run lint && npm run mocha",
+    "prelib": "rm -rf lib/ && mkdirp lib/",
+    "lib": "tsc",
+    "predist": "rm -rf dist/ && mkdirp dist/ && npm run lib",
+    "dist": "browserify -t browserify-shim -t babelify --exclude rxjs-es lib/index.js -o dist/cycle-rx5-adapter.js",
+    "postdist": "uglifyjs dist/cycle-rx5-adapter.js -o dist/cycle-rx5-adapter.min.js",
+    "start": "npm install && npm prune && tsd install",
+    "prepublish": "npm run lib",
+    "preversion": "npm run dist"
   }
 }
