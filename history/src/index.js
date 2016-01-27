@@ -54,7 +54,11 @@ function createHistorySubject(history) {
 
 function makeHistoryDriver(config) {
   const {hash = false, queries = true, ...options} = config || {}
-  const history = makeHistory(hash, queries, options)
+
+  const history = config.history ?
+    config.history :
+    makeHistory(hash, queries, options)
+  
   const historySubject = createHistorySubject(history)
 
   return function historyDriver(url$) {

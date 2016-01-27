@@ -9,6 +9,9 @@ This is a factory function which creates the history driver using the provided o
     Enable or disable [Query Support](https://github.com/rackt/history/blob/master/docs/QuerySupport.md). By default it is `true`.
   - <h5 style="margin:0;margin-top:0.25em;">basename: </h5>
     Set a basename for the History API to manage. More information can be found [here](https://github.com/rackt/history/blob/master/docs/BasenameSupport.md). By default it is an empty string `""`.
+  - <h5 style="margin:0;margin-top:0.25em;">history: </h5>
+    Set driver to use already existing instance of history. Typical use case is to share history with React Router.
+    React Router can be used to navigate "by clicking" through React views while using Cycle history driver to change navigation programmatically outside of React components (services, middlewares., models...).
 
 Further options available are all of those available to `rackt/history`'s `createHistory(options)` method. The documentation for `rackt/history` is available [here](https://github.com/rackt/history/tree/master/docs).
 
@@ -39,6 +42,29 @@ makeServerHistoryDriver(
     state: 'generated/retrieved on the server',
   })
 )
+```
+
+###### Example for integration with React Router
+```js
+import React from 'react'
+import { render } from 'react-dom'
+import { makeServerHistoryDriver } from '@cycle/history'
+import { createHistory } from 'history'
+import { Router } from 'react-router'
+import routes from './routes'
+
+const history = createHistory()
+
+const drivers = {
+  history: makeServerHistoryDriver({history})
+}
+
+// Cycle.run(main, drivers) etc.
+
+render(
+  <Router history={history} routes={routes} />,
+  document.getElementById('app-container')
+)  
 ```
 
 #### `filterLinks(event: Event): Boolean`
