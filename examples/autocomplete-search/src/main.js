@@ -3,7 +3,7 @@ import Cycle from '@cycle/core'
 import {makeDOMDriver} from '@cycle/dom'
 import {makeJSONPDriver} from '@cycle/jsonp'
 import {restart, restartable} from 'cycle-restart'
-let app = require('./app')
+let app = require('./app').default;
 
 function preventDefaultSinkDriver(prevented$) {
   prevented$.subscribe(ev => {
@@ -21,11 +21,11 @@ const drivers = {
   preventDefault: restartable(preventDefaultSinkDriver),
 }
 
-Cycle.run(app, drivers)
+const {sinks, sources} = Cycle.run(app, drivers)
 
 if (module && module.hot) {
   module.hot.accept('./app', () => {
     app = require('./app').default;
-    restart(app, drivers, {sinks, sources}, isolate);
+    restart(app, drivers, {sinks, sources});
   });
 }
