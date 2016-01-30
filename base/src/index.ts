@@ -2,7 +2,7 @@ export interface Observer {
   next: (x: any) => void;
   error: (e: any) => void;
   complete: (c?: any) => void;
-};
+}
 
 export interface DriverFunction {
   (stream: any, adaptFn: Function, driverName: string): any;
@@ -22,9 +22,9 @@ export interface SinkProxies {
   [driverName: string]: HoldSubject;
 }
 
-export type DisposeFunction = () => void;
+export type DisposeFunction = () => void
 
-export type StreamSubscribe = (stream: any, observer: Observer) => DisposeFunction | void;
+export type StreamSubscribe = (stream: any, observer: Observer) => DisposeFunction | void
 
 export interface StreamAdapter {
   adapt: (originStream: any, originStreamSubscribe: StreamSubscribe) => any;
@@ -32,17 +32,17 @@ export interface StreamAdapter {
   makeHoldSubject: () => HoldSubject;
   isValidStream: (stream: any) => boolean;
   streamSubscribe: StreamSubscribe;
-};
+}
 
 export interface CycleOptions {
  streamAdapter: StreamAdapter;
-};
+}
 
 export interface CycleExecution<Sources, Sinks> {
   sources: Sources;
   sinks: Sinks;
   run: () => DisposeFunction;
-};
+}
 
 function makeSinkProxies(drivers: DriversDefinition,
                          streamAdapter: StreamAdapter): SinkProxies {
@@ -72,12 +72,11 @@ function callDrivers(drivers: DriversDefinition,
   const sources = {};
   for (let name in drivers) {
     if (drivers.hasOwnProperty(name)) {
-      const driverStreamAdapter = drivers[name].streamAdapter || streamAdapter;
-      const adapt = (stream: any) => streamAdapter.adapt(
-        stream,
-        driverStreamAdapter.streamSubscribe
+      sources[name] = drivers[name](
+        sinkProxies[name].stream,
+        streamAdapter.adapt,
+        name
       );
-      sources[name] = drivers[name](sinkProxies[name].stream, adapt, name);
     }
   }
   return sources;
