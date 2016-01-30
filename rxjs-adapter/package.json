@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tylors/cycle-rx5-adapter.git"
+    "url": "git+https://github.com/tylors/cycle-rxjs-adapter.git"
   },
   "contributors": [
     {
@@ -27,9 +27,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/cyclejs/rx5-adapter/issues"
+    "url": "https://github.com/cyclejs/rxjs-adapter/issues"
   },
-  "homepage": "https://github.com/cyclejs/rx5-adapter#readme",
+  "homepage": "https://github.com/cyclejs/rxjs-adapter#readme",
   "browserify-shim": {
     "rxjs-es": "global:Rx"
   },
@@ -46,6 +46,7 @@
     "tsd": "^0.6.5",
     "tslint": "^3.2.2",
     "typescript": "^1.7.5",
+    "typings": "^0.6.3",
     "uglify-js": "^2.6.1"
   },
   "peerDependencies": {
@@ -59,11 +60,11 @@
     "premocha": "npm run lib",
     "mocha": "mocha --compilers js:babel-register test",
     "test": "npm run lint && npm run mocha",
-    "prelib": "rm -rf lib/ && mkdirp lib/",
+    "prelib": "rm -rf lib/ && mkdirp lib/ && typings install",
     "lib": "tsc",
     "predist": "rm -rf dist/ && mkdirp dist/ && npm run lib",
-    "dist": "browserify -t browserify-shim -t babelify --exclude rxjs-es lib/index.js -o dist/cycle-rx5-adapter.js",
-    "postdist": "uglifyjs dist/cycle-rx5-adapter.js -o dist/cycle-rx5-adapter.min.js",
+    "dist": "browserify -t browserify-shim -t babelify --exclude rxjs-es lib/index.js -o dist/cycle-rxjs-adapter.js",
+    "postdist": "uglifyjs dist/cycle-rxjs-adapter.js -o dist/cycle-rxjs-adapter.min.js",
     "start": "npm install && npm prune && tsd install",
     "prepublish": "npm run lib",
     "preversion": "npm run dist"

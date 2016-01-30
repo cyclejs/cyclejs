@@ -1,2 +1,3 @@
-# cycle-rx5-adapter
-Cycle.js RxJS 5 Adapter
+# rxjs-adapter
+
+RxJS version **5.x.x** StreamAdapter for run().
