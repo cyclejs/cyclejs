@@ -47,7 +47,6 @@
     "mkdirp": "^0.5.1",
     "mocha": "^2.3.4",
     "rx": "^4.0.7",
-    "tsd": "^0.6.5",
     "tslint": "^3.2.2",
     "typescript": "^1.7.5",
     "typings": "^0.6.3",
@@ -63,7 +62,7 @@
     "predist": "rm -rf dist/ && mkdirp dist/ && npm run lib",
     "dist": "browserify -t browserify-shim -t babelify --exclude rx lib/index.js -o dist/cycle-rx-adapter.js",
     "postdist": "uglifyjs dist/cycle-rx-adapter.js -o dist/cycle-rx-adapter.min.js",
-    "start": "npm install && npm prune && tsd install",
+    "start": "npm install && npm prune",
     "prepublish": "npm run lib",
     "preversion": "npm run dist"
   }
