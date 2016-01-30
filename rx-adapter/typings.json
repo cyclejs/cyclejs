@@ -1,0 +1,7 @@
+{
+  "dependencies": {},
+  "devDependencies": {},
+  "ambientDependencies": {
+    "rx.all": "github:Reactive-Extensions/RxJS/ts/rx.all.d.ts"
+  }
+}
