@@ -1,24 +1,28 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
-;
-;
 var rxjs_1 = require('rxjs');
-var Rx5Adapter = {
-    makeHoldSubject: function makeHoldSubject() {
-        var stream = new rxjs_1.ReplaySubject(1);
-        var observer = {
-            next: function next(x) {
-                stream.next(x);
-            },
-            error: function error(err) {
-                stream.error(err);
-            },
-            complete: function complete(x) {
-                stream.complete();
-            }
-        };
-        return { stream: stream, observer: observer };
+function logToConsoleError(err) {
+    var target = err.stack || err;
+    if (console && console.error) {
+        console.error(target);
+    } else if (console && console.log) {
+        console.log(target);
+    }
+}
+var RxJSAdapter = {
+    adapt: function adapt(originStream, originStreamSubscribe) {
+        if (this.isValidStream(originStream)) {
+            return originStream;
+        }
+        return rxjs_1.Observable.create(function (observer) {
+            var dispose = originStreamSubscribe(originStream, observer);
+            return function () {
+                if (typeof dispose === 'function') {
+                    dispose.call(null);
+                }
+            };
+        });
     },
     dispose: function dispose(sinks, sinkProxies, sources) {
         Object.keys(sources).forEach(function (k) {
@@ -30,39 +34,34 @@ var Rx5Adapter = {
             sinkProxies[k].observer.complete();
         });
     },
-    replicate: function replicate(stream, observer) {
-        stream.subscribe({
+    makeHoldSubject: function makeHoldSubject() {
+        var stream = new rxjs_1.ReplaySubject(1);
+        var observer = {
             next: function next(x) {
-                observer.next(x);
+                stream.next(x);
             },
-            error: function error(e) {
-                observer.error(e);
+            error: function error(err) {
+                logToConsoleError(err);
+                stream.error(err);
             },
             complete: function complete(x) {
-                observer.complete(x);
+                stream.complete();
             }
-        });
+        };
+        return { stream: stream, observer: observer };
     },
     isValidStream: function isValidStream(stream) {
-        if (typeof stream.subscribe !== 'function' || typeof stream.onValue === 'function') {
-            return false;
-        }
-        return true;
+        return typeof stream.subscribe === 'function' && typeof stream.onValue !== 'function';
     },
-    subscribeToStream: function subscribeToStream(stream, observer) {
-        stream.subscribe(observer);
-    },
-    adapt: function adapt(originStream, subscribeFromOriginStream) {
-        if (Rx5Adapter.isValidStream(originStream)) {
-            return originStream;
-        }
-        return rxjs_1.Observable.create(function (observer) {
-            subscribeFromOriginStream(originStream, observer);
-        });
+    streamSubscribe: function streamSubscribe(stream, observer) {
+        var subscription = stream.subscribe(observer);
+        return function () {
+            subscription.unsubscribe();
+        };
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = Rx5Adapter;
+exports.default = RxJSAdapter;
 
 
 },{"rxjs":8}],2:[function(require,module,exports){
