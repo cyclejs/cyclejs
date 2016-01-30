@@ -250,7 +250,7 @@ const BASE_URL =
 
 const networking = {
   processResponses(JSONP) {
-    return JSONP.filter(res$ => res$.request.url.indexOf(BASE_URL) === 0)
+    return JSONP.filter(res$ => res$.request.indexOf(BASE_URL) === 0)
       .switch()
       .map(res => res[1])
   },
