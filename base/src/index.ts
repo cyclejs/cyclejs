@@ -97,6 +97,14 @@ function replicateMany(sinks: any,
   };
 }
 
+function disposeSources<Sources>(sources: Sources) {
+  for (let k in sources) {
+    if (sources.hasOwnProperty(k) && typeof sources[k].dispose === 'function') {
+      sources[k].dispose();
+    }
+  }
+}
+
 const isObjectEmpty = (obj: any) => Object.keys(obj).length === 0;
 
 function Cycle<Sources, Sinks>(main: (sources: Sources) => Sinks,
@@ -127,6 +135,7 @@ function Cycle<Sources, Sinks>(main: (sources: Sources) => Sinks,
     const disposeReplication = replicateMany(sinks, sinkProxies, streamAdapter);
     return () => {
       streamAdapter.dispose(sinks, sinkProxies, sources);
+      disposeSources(sources);
       disposeReplication();
     };
   };
