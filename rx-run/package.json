@@ -1,8 +1,8 @@
 {
   "name": "@cycle/core",
-  "version": "6.0.0",
+  "version": "7.0.0-rc1",
   "author": "Andre Staltz",
-  "description": "A fully reactive JavaScript framework for Human-Computer Interaction",
+  "description": "The Cycle run() function meant to be used with RxJS v4",
   "license": "MIT",
   "homepage": "https://cyclejs.github.io",
   "bugs": "https://github.com/cyclejs/cycle-core/issues",
