@@ -27,7 +27,7 @@ const inputTextStyle = {
   padding: '5px',
 }
 
-const autocompleteableStyle = Object.assign(inputTextStyle, {
+const autocompleteableStyle = Object.assign({}, inputTextStyle, {
   width: '100%',
   boxSizing: 'border-box',
 })
@@ -200,7 +200,7 @@ function model(suggestionsFromResponse$, actions) {
 
 function renderAutocompleteMenu({suggestions, highlighted}) {
   if (suggestions.length === 0) { return null }
-  const childStyle = index => (Object.assign(autocompleteItemStyle, {
+  const childStyle = index => (Object.assign({}, autocompleteItemStyle, {
     backgroundColor: highlighted === index ? LIGHT_GREEN : null
   }))
 
