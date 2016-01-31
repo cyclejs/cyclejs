@@ -19,7 +19,8 @@
     "mvi",
     "virtual-dom"
   ],
-  "main": "lib/cycle.js",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "dependencies": {
     "@cycle/base": "^1.2.1",
     "@cycle/rx-adapter": "^1.0.1"
