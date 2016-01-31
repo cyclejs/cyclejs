@@ -11,6 +11,15 @@ var rx_adapter_1 = require('@cycle/rx-adapter');
  * the application actually execute. Refer to the documentation of `run()` for
  * more details.
  *
+ * **Example:**
+ * ```js
+ * const {sources, sinks, run} = Cycle(main, drivers);
+ * // ...
+ * const dispose = run(); // Executes the application
+ * // ...
+ * dispose();
+ * ```
+ *
  * @param {Function} main a function that takes `sources` as input
  * and outputs a collection of `sinks` Observables.
  * @param {Object} drivers an object where keys are driver names and values
@@ -27,6 +36,13 @@ var Cycle = function Cycle(main, drivers) {
 /**
  * Takes a `main` function and circularly connects it to the given collection
  * of driver functions.
+ *
+ * **Example:**
+ * ```js
+ * const dispose = Cycle.run(main, drivers);
+ * // ...
+ * dispose();
+ * ```
  *
  * The `main` function expects a collection of "source" Observables (returned
  * from drivers) as input, and should return a collection of "sink" Observables
