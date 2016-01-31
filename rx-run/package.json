@@ -40,7 +40,7 @@
     "eslint-plugin-no-class": "0.1.0",
     "markdox": "0.1.10",
     "mocha": "2.3.3",
-    "rx": "4.0.6",
+    "rx": "4.0.7",
     "sinon": "1.17.2",
     "testem": "0.9.11",
     "tslint": "^3.3.0",
