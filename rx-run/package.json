@@ -20,6 +20,7 @@
     "virtual-dom"
   ],
   "main": "lib/cycle.js",
+  "dependencies": {},
   "peerDependencies": {
     "rx": "*"
   },
