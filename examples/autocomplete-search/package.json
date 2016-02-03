@@ -19,7 +19,6 @@
     "babelify": "^7.2.0",
     "browserify": "11.0.1",
     "browserify-hmr": "^0.3.1",
-    "budo": "^7.1.0",
     "mkdirp": "0.5.x",
     "watchify": "^3.7.0"
   },
@@ -28,7 +27,6 @@
     "prebrowserify": "mkdirp dist",
     "browserify": "browserify src/main.js -t babelify --outfile dist/main.js",
     "start": "npm install && npm run browserify && echo 'OPEN index.html IN YOUR BROWSER'",
-    "live": "watchify -t babelify -p browserify-hmr src/main.js -o dist/main.js",
-    "server": "babel-node server.js"
+    "live": "watchify -t babelify -p browserify-hmr src/main.js -o dist/main.js"
   }
 }
