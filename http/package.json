@@ -10,7 +10,7 @@
     "url": "https://github.com/cyclejs/cycle-http-driver"
   },
   "dependencies": {
-    "superagent": "1.4.0"
+    "superagent": "1.7.2"
   },
   "peerDependencies": {
     "rx": ">=3"
