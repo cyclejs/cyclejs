@@ -133,7 +133,7 @@ const eventTypesThatDontBubble = [
   `volumechange`,
   `suspend`,
   `emptied`,
-  `stalled`
+  `stalled`,
 ]
 
 function maybeMutateEventPropagationAttributes(event) {
