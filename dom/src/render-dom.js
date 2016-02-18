@@ -127,7 +127,6 @@ const eventTypesThatDontBubble = [
   `canplay`,
   `canplaythrough`,
   `durationchange`,
-  `timeupdate`,
   `play`,
   `pause`,
   `ratechange`,
