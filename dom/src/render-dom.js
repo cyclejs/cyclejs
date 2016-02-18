@@ -117,6 +117,24 @@ const eventTypesThatDontBubble = [
   `change`,
   `reset`,
   `timeupdate`,
+  `playing`,
+  `waiting`,
+  `seeking`,
+  `seeked`,
+  `ended`,
+  `loadedmetadata`,
+  `loadeddata`,
+  `canplay`,
+  `canplaythrough`,
+  `durationchange`,
+  `timeupdate`,
+  `play`,
+  `pause`,
+  `ratechange`,
+  `volumechange`,
+  `suspend`,
+  `emptied`,
+  `stalled`
 ]
 
 function maybeMutateEventPropagationAttributes(event) {
