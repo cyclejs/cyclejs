@@ -116,6 +116,7 @@ const eventTypesThatDontBubble = [
   `submit`,
   `change`,
   `reset`,
+  `timeupdate`,
 ]
 
 function maybeMutateEventPropagationAttributes(event) {
