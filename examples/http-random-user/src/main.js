@@ -8,13 +8,13 @@ function main(sources) {
       const randomNum = Math.round(Math.random() * 9) + 1;
       return {
         url: 'http://jsonplaceholder.typicode.com/users/' + String(randomNum),
-        key: 'users',
+        category: 'users',
         method: 'GET'
       };
     });
 
   const user$ = sources.HTTP
-    .filter(res$ => res$.request.key === 'users')
+    .filter(res$ => res$.request.category === 'users')
     .mergeAll()
     .map(res => res.body)
     .startWith(null);
