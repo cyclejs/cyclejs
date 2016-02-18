@@ -3575,7 +3575,7 @@ function makeIsStrictlyInRootScope(namespace) {
   };
 }
 
-var eventTypesThatDontBubble = ["load", "unload", "focus", "blur", "mouseenter", "mouseleave", "submit", "change", "reset"];
+var eventTypesThatDontBubble = ["load", "unload", "focus", "blur", "mouseenter", "mouseleave", "submit", "change", "reset", "timeupdate"];
 
 function maybeMutateEventPropagationAttributes(event) {
   if (!event.hasOwnProperty("propagationHasBeenStopped")) {
