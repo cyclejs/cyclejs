@@ -3,18 +3,18 @@ import {div, button, h1, h4, a, makeDOMDriver} from '@cycle/dom';
 import {makeHTTPDriver} from '@cycle/http';
 
 function main(sources) {
-  const USERS_URL = 'http://jsonplaceholder.typicode.com/users/';
   const getRandomUser$ = sources.DOM.select('.get-random').events('click')
     .map(() => {
       const randomNum = Math.round(Math.random() * 9) + 1;
       return {
-        url: USERS_URL + String(randomNum),
+        url: 'http://jsonplaceholder.typicode.com/users/' + String(randomNum),
+        key: 'users',
         method: 'GET'
       };
     });
 
   const user$ = sources.HTTP
-    .filter(res$ => res$.request.url.indexOf(USERS_URL) === 0)
+    .filter(res$ => res$.request.key === 'users')
     .mergeAll()
     .map(res => res.body)
     .startWith(null);
