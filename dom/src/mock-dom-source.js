@@ -18,8 +18,12 @@ function mockDOMSource(mockedSelectors = {}) {
     select(selector) {
       for (const key in mockedSelectors) {
         if (mockedSelectors.hasOwnProperty(key) && key === selector) {
+          let observable = emptyStream
+          if (mockedSelectors[key].hasOwnProperty(`observable`)) {
+            observable = mockedSelectors[key].observable
+          }
           return {
-            observable: emptyStream,
+            observable,
             events: getEventsStreamForSelector(mockedSelectors[key]),
           }
         }
