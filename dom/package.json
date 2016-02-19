@@ -1,6 +1,6 @@
 {
   "name": "@cycle/dom",
-  "version": "9.0.4",
+  "version": "9.1.0",
   "author": "Andre Staltz",
   "description": "The standard DOM Driver for Cycle.js, based on virtual-dom, and other helpers",
   "license": "MIT",
