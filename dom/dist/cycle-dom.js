@@ -3291,18 +3291,20 @@ var CycleDOM = _extends({
    * same format as the DOM Driver's source. Example:
    *
    * ```js
-   * const userEvents = mockDOMSource({
+   * const domSource = mockDOMSource({
    *   '.foo': {
-   *     'click': Rx.Observable.just({target: {}}),
-   *     'mouseover': Rx.Observable.just({target: {}})
+   *     'click': Rx.Observable.of({target: {}}),
+   *     'mouseover': Rx.Observable.of({target: {}}),
    *   },
    *   '.bar': {
-   *     'scroll': Rx.Observable.just({target: {}})
+   *     'scroll': Rx.Observable.of({target: {}}),
+   *     observable: Rx.Observable.of({tagName: 'div'}),
    *   }
    * });
    *
    * // Usage
-   * const click$ = userEvents.select('.foo').events('click');
+   * const click$ = domSource.select('.foo').events('click');
+   * const element$ = domSource.select('.bar').observable;
    * ```
    *
    * @param {Object} mockedSelectors an object where keys are selector strings
@@ -3427,8 +3429,12 @@ function mockDOMSource() {
     select: function select(selector) {
       for (var key in mockedSelectors) {
         if (mockedSelectors.hasOwnProperty(key) && key === selector) {
+          var observable = emptyStream;
+          if (mockedSelectors[key].hasOwnProperty('observable')) {
+            observable = mockedSelectors[key].observable;
+          }
           return {
-            observable: emptyStream,
+            observable: observable,
             events: getEventsStreamForSelector(mockedSelectors[key])
           };
         }
