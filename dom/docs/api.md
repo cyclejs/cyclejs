@@ -97,18 +97,20 @@ eventTypes and their Observables, and get as output an object following the
 same format as the DOM Driver's source. Example:
 
 ```js
-const userEvents = mockDOMSource({
+const domSource = mockDOMSource({
   '.foo': {
-    'click': Rx.Observable.just({target: {}}),
-    'mouseover': Rx.Observable.just({target: {}})
+    'click': Rx.Observable.of({target: {}}),
+    'mouseover': Rx.Observable.of({target: {}}),
   },
   '.bar': {
-    'scroll': Rx.Observable.just({target: {}})
+    'scroll': Rx.Observable.of({target: {}}),
+    observable: Rx.Observable.of({tagName: 'div'}),
   }
 });
 
 // Usage
-const click$ = userEvents.select('.foo').events('click');
+const click$ = domSource.select('.foo').events('click');
+const element$ = domSource.select('.bar').observable;
 ```
 
 #### Arguments:
