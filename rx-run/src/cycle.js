@@ -30,11 +30,9 @@ function attachDisposeToSinks(sinks, replicationSubscription) {
 
 function makeDisposeSources(sources) {
   return function dispose() {
-    for (let name in sources) {
-      if (sources.hasOwnProperty(name) &&
-        typeof sources[name].dispose === `function`)
-      {
-        sources[name].dispose()
+    for (let source of Object.values(sources)) {
+      if (typeof source.dispose === `function`) {
+        source.dispose()
       }
     }
   }
@@ -73,10 +71,8 @@ function replicateMany(observables, subjects) {
 
     return function dispose() {
       subscription.dispose()
-      for (let x in subjects) {
-        if (subjects.hasOwnProperty(x)) {
-          subjects[x].dispose()
-        }
+      for (let subject of Object.values(subjects)) {
+        subject.dispose()
       }
     }
   })
