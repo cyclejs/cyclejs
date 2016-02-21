@@ -68,6 +68,12 @@ function createResponse$(reqOptions) {
     let request = optionsToSuperagent(reqOptions)
 
     try {
+      if (reqOptions.progress) {
+        request = request.on(`progress`, (res) => {
+          res.request = reqOptions
+          observer.onNext(res)
+        })
+      }
       request.end((err, res) => {
         if (err) {
           observer.onError(err)
