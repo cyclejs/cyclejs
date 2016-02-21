@@ -1,6 +1,6 @@
 {
   "name": "@cycle/http",
-  "version": "8.1.0",
+  "version": "8.2.0",
   "description": "A Cycle.js Driver for making HTTP requests",
   "main": "lib/index.js",
   "author": "Andre Staltz",
