@@ -85,15 +85,6 @@ function replicateMany(observables, subjects) {
   })
 }
 
-function isObjectEmpty(obj) {
-  for (let key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      return false
-    }
-  }
-  return true
-}
-
 function run(main, drivers) {
   if (typeof main !== `function`) {
     throw new Error(`First argument given to Cycle.run() must be the 'main' ` +
@@ -103,7 +94,7 @@ function run(main, drivers) {
     throw new Error(`Second argument given to Cycle.run() must be an object ` +
       `with driver functions as properties.`)
   }
-  if (isObjectEmpty(drivers)) {
+  if (Object.keys(drivers).length === 0) {
     throw new Error(`Second argument given to Cycle.run() must be an object ` +
       `with at least one driver function declared as a property.`)
   }
