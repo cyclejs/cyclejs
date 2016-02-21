@@ -1,23 +1,17 @@
 let Rx = require(`rx`)
 
 function makeSinkProxies(drivers) {
-  let sinkProxies = {}
-  for (let name in drivers) {
-    if (drivers.hasOwnProperty(name)) {
-      sinkProxies[name] = new Rx.ReplaySubject(1)
-    }
-  }
-  return sinkProxies
+  return Object.keys(drivers).reduce((sinkProxies, name) => {
+    sinkProxies[name] = new Rx.ReplaySubject(1)
+    return sinkProxies
+  }, {})
 }
 
 function callDrivers(drivers, sinkProxies) {
-  let sources = {}
-  for (let name in drivers) {
-    if (drivers.hasOwnProperty(name)) {
-      sources[name] = drivers[name](sinkProxies[name], name)
-    }
-  }
-  return sources
+  return Object.keys(drivers).reduce((sources, name) => {
+    sources[name] = drivers[name](sinkProxies[name], name)
+    return sources
+  }, {})
 }
 
 function attachDisposeToSinks(sinks, replicationSubscription) {
@@ -50,11 +44,8 @@ function replicateMany(observables, subjects) {
   return Rx.Observable.create(observer => {
     let subscription = new Rx.CompositeDisposable()
     setTimeout(() => {
-      for (let name in observables) {
-        if (observables.hasOwnProperty(name) &&
-          subjects.hasOwnProperty(name) &&
-          !subjects[name].isDisposed)
-        {
+      for (let name of Object.keys(observables)) {
+        if (subjects.hasOwnProperty(name) && !subjects[name].isDisposed) {
           subscription.add(
             observables[name]
               .doOnError(logToConsoleError)
