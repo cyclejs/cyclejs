@@ -21,11 +21,9 @@ function callDrivers(drivers, sinkProxies) {
 }
 
 function attachDisposeToSinks(sinks, replicationSubscription) {
-  Object.defineProperty(sinks, `dispose`, {
-    enumerable: false,
-    value: () => { replicationSubscription.dispose() },
+  return Object.defineProperty(sinks, `dispose`, {
+    value() { replicationSubscription.dispose() },
   })
-  return sinks
 }
 
 function makeDisposeSources(sources) {
@@ -39,11 +37,9 @@ function makeDisposeSources(sources) {
 }
 
 function attachDisposeToSources(sources) {
-  Object.defineProperty(sources, `dispose`, {
-    enumerable: false,
+  return Object.defineProperty(sources, `dispose`, {
     value: makeDisposeSources(sources),
   })
-  return sources
 }
 
 let logToConsoleError = typeof console !== `undefined` && console.error
