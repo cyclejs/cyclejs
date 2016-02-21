@@ -1,8 +1,7 @@
 {
   "name": "@cycle/dom",
   "version": "9.1.0",
-  "author": "Andre Staltz",
-  "description": "The standard DOM Driver for Cycle.js, based on virtual-dom, and other helpers",
+  "description": "The standard DOM Driver for Cycle.js, based on Snabbdom",
   "license": "MIT",
   "homepage": "https://github.com/cyclejs/cycle-dom",
   "bugs": "https://github.com/cyclejs/cycle-dom/issues",
@@ -10,6 +9,16 @@
     "type": "git",
     "url": "https://github.com/cyclejs/cycle-dom"
   },
+  "contributors": [
+    {
+      "name": "Andre Staltz",
+      "email": "andre@staltz.com"
+    },
+    {
+      "name": "Tylor Steinberger",
+      "email": "tlsteinberger167@gmail.com"
+    }
+  ],
   "keywords": [
     "reactive",
     "framework",
@@ -19,28 +28,38 @@
     "mvi",
     "virtual-dom"
   ],
-  "main": "lib/cycle-dom.js",
+  "main": "lib/index.js",
   "dependencies": {
     "hyperscript-helpers": "2.0.3",
     "matches-selector": "1.0.0",
-    "vdom-parser": "1.2.1",
-    "vdom-to-html": "2.2.0",
-    "virtual-dom": "2.1.1",
-    "x-is-array": "0.1.0"
+    "snabbdom": "^0.3.1",
+    "snabbdom-selector": "^0.3.2",
+    "snabbdom-to-html": "^2.0.1"
+  },
+  "peerDependencies": {
+    "rx": "*"
   },
   "devDependencies": {
-    "@cycle/core": "6.0.0",
-    "babel": "5.8.29",
-    "babelify": "6.4.0",
-    "browserify": "12.0.1",
-    "browserify-shim": "3.8.11",
-    "eslint": "1.0.0",
-    "eslint-config-cycle": "3.2.0",
-    "eslint-plugin-cycle": "1.0.2",
-    "eslint-plugin-no-class": "0.1.0",
+    "@cycle/core": "6.0.3",
+    "assert": "^1.3.0",
+    "babel-cli": "^6.4.5",
+    "babel-core": "^6.4.5",
+    "babel-eslint": "^4.1.6",
+    "babel-plugin-jsx-factory": "^1.0.1",
+    "babel-plugin-syntax-jsx": "^6.3.13",
+    "babel-plugin-transform-react-jsx": "^6.4.0",
+    "babel-preset-es2015": "^6.3.13",
+    "babelify": "^7.2.0",
+    "browserify": "^13.0.0",
+    "browserify-shim": "^3.8.12",
+    "eslint": "^1.10.3",
+    "eslint-config-cycle": "^3.2.0",
+    "eslint-plugin-cycle": "^1.0.2",
+    "eslint-plugin-no-class": "^0.1.0",
     "markdox": "0.1.10",
     "mocha": "2.3.4",
     "rx": "4.0.7",
+    "snabbdom-jsx": "^0.3.0",
     "testem": "0.9.11",
     "uglify-js": "2.6.1",
     "zuul": "3.8.0"
@@ -63,8 +82,8 @@
     "posttest-browser": "rm test/browser/page/tests-bundle.js",
     "test": "npm run eslint && npm run test-node && npm run test-browser",
     "test-ci": "npm run eslint && npm run test-node && zuul --no-coverage -- test/browser/index.js",
-    "browserify": "browserify src/cycle-dom.js -t babelify -t browserify-shim --standalone CycleDOM --exclude rx --outfile dist/cycle-dom.js",
-    "uglify": "uglifyjs dist/cycle-dom.js -o dist/cycle-dom.min.js",
+    "browserify": "browserify src/index.js -t babelify -t browserify-shim --standalone CycleDOM --exclude rx --outfile dist/cycle-dom.js",
+    "uglify": "uglifyjs dist/index.js --compress --mangle -o dist/cycle-dom.min.js",
     "dist": "npm run browserify && npm run uglify",
     "docs": "node ./scripts/make-api-docs.js",
     "precompile-lib": "rm -rf lib/ && mkdir -p lib",
