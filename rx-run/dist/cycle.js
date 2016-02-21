@@ -6,89 +6,75 @@ var Rx = (typeof window !== "undefined" ? window['Rx'] : typeof global !== "unde
 
 function makeSinkProxies(drivers) {
   var sinkProxies = {};
-  for (var _name in drivers) {
-    if (drivers.hasOwnProperty(_name)) {
-      sinkProxies[_name] = new Rx.ReplaySubject(1);
-    }
+  var keys = Object.keys(drivers);
+  for (var i = 0; i < keys.length; i++) {
+    sinkProxies[keys[i]] = new Rx.ReplaySubject(1);
   }
   return sinkProxies;
 }
 
 function callDrivers(drivers, sinkProxies) {
   var sources = {};
-  for (var _name2 in drivers) {
-    if (drivers.hasOwnProperty(_name2)) {
-      sources[_name2] = drivers[_name2](sinkProxies[_name2], _name2);
-    }
+  var keys = Object.keys(drivers);
+  for (var i = 0; i < keys.length; i++) {
+    var _name = keys[i];
+    sources[_name] = drivers[_name](sinkProxies[_name], _name);
   }
   return sources;
 }
 
 function attachDisposeToSinks(sinks, replicationSubscription) {
-  Object.defineProperty(sinks, "dispose", {
-    enumerable: false,
+  return Object.defineProperty(sinks, "dispose", {
     value: function value() {
       replicationSubscription.dispose();
     }
   });
-  return sinks;
 }
 
 function makeDisposeSources(sources) {
   return function dispose() {
-    for (var _name3 in sources) {
-      if (sources.hasOwnProperty(_name3) && typeof sources[_name3].dispose === "function") {
-        sources[_name3].dispose();
+    var keys = Object.keys(sources);
+    for (var i = 0; i < keys.length; i++) {
+      var source = sources[keys[i]];
+      if (typeof source.dispose === "function") {
+        source.dispose();
       }
     }
   };
 }
 
 function attachDisposeToSources(sources) {
-  Object.defineProperty(sources, "dispose", {
-    enumerable: false,
+  return Object.defineProperty(sources, "dispose", {
     value: makeDisposeSources(sources)
   });
-  return sources;
 }
 
-function logToConsoleError(err) {
-  var target = err.stack || err;
-  if (console && console.error) {
-    console.error(target);
-  }
-}
+var logToConsoleError = typeof console !== "undefined" && console.error ? function (error) {
+  console.error(error.stack || error);
+} : Function.prototype;
 
 function replicateMany(observables, subjects) {
   return Rx.Observable.create(function (observer) {
     var subscription = new Rx.CompositeDisposable();
     setTimeout(function () {
-      for (var _name4 in observables) {
-        if (observables.hasOwnProperty(_name4) && subjects.hasOwnProperty(_name4) && !subjects[_name4].isDisposed) {
-          subscription.add(observables[_name4].doOnError(logToConsoleError).subscribe(subjects[_name4].asObserver()));
+      var keys = Object.keys(observables);
+      for (var i = 0; i < keys.length; i++) {
+        var _name2 = keys[i];
+        if (subjects.hasOwnProperty(_name2) && !subjects[_name2].isDisposed) {
+          subscription.add(observables[_name2].doOnError(logToConsoleError).subscribe(subjects[_name2].asObserver()));
         }
       }
       observer.onNext(subscription);
-    }, 1);
+    });
 
     return function dispose() {
       subscription.dispose();
-      for (var x in subjects) {
-        if (subjects.hasOwnProperty(x)) {
-          subjects[x].dispose();
-        }
+      var keys = Object.keys(subjects);
+      for (var i = 0; i < keys.length; i++) {
+        subjects[keys[i]].dispose();
       }
     };
   });
-}
-
-function isObjectEmpty(obj) {
-  for (var key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      return false;
-    }
-  }
-  return true;
 }
 
 function run(main, drivers) {
@@ -98,7 +84,7 @@ function run(main, drivers) {
   if (typeof drivers !== "object" || drivers === null) {
     throw new Error("Second argument given to Cycle.run() must be an object " + "with driver functions as properties.");
   }
-  if (isObjectEmpty(drivers)) {
+  if (Object.keys(drivers).length === 0) {
     throw new Error("Second argument given to Cycle.run() must be an object " + "with at least one driver function declared as a property.");
   }
 
