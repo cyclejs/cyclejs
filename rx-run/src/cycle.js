@@ -69,7 +69,7 @@ function replicateMany(observables, subjects) {
         }
       }
       observer.onNext(subscription)
-    }, 1)
+    })
 
     return function dispose() {
       subscription.dispose()
