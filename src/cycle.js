@@ -48,12 +48,9 @@ function attachDisposeToSources(sources) {
   return sources
 }
 
-function logToConsoleError(err) {
-  let target = err.stack || err
-  if (console && console.error) {
-    console.error(target)
-  }
-}
+let logToConsoleError = typeof console !== `undefined` && console.error
+  ? error => { console.error(error.stack || error) }
+  : Function.prototype
 
 function replicateMany(observables, subjects) {
   return Rx.Observable.create(observer => {
