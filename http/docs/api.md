@@ -28,15 +28,19 @@ follow a structure similar to superagent's request API itself.
 - `user` *(String)*: username for authentication.
 - `password` *(String)*: password for authentication.
 - `field` *(Object)*: object where key/values are Form fields.
+- `progress` *(Boolean)*: whether or not to detect and emit progress events
+  on the response Observable.
 - `attach` *(Array)*: array of objects, where each object specifies `name`,
 `path`, and `filename` of a resource to upload.
 - `withCredentials` *(Boolean)*: enables the ability to send cookies from
 the origin.
 - `redirects` *(Number)*: number of redirects to follow.
 - `eager` *(Boolean)*: whether or not to execute the request regardless of
-  usage of its corresponding response. Default value is `false` (i.e.,
-  the request is lazy). Main use case is: set this option to `true` if you
-  send POST requests and you are not interested in its response.
+  usage of its corresponding response. By default the eager setting of the
+  driver is used (whose default is `false`, i.e. the request is lazy).
+  Explicitely setting eager in the request always overrides the driver
+  setting. Main use case is: set this option to `true` if you send POST
+  requests and you are not interested in its response.
 
 **Responses**. A metastream is an Observable of Observables. The response
 metastream emits Observables of responses. These Observables of responses
@@ -51,6 +55,7 @@ received through superagent.
 options are:
 - `eager` *(Boolean)*: execute the HTTP eagerly, even if its
   response Observable is not subscribed to. Default: **false**.
+  Can be overridden in the request.
 
 #### Return:
 
