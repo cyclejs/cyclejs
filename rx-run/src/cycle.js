@@ -1,17 +1,22 @@
 let Rx = require(`rx`)
 
 function makeSinkProxies(drivers) {
-  return Object.keys(drivers).reduce((sinkProxies, name) => {
-    sinkProxies[name] = new Rx.ReplaySubject(1)
-    return sinkProxies
-  }, {})
+  let sinkProxies = {}
+  let keys = Object.keys(drivers)
+  for (let i = 0; i < keys.length; i++) {
+    sinkProxies[keys[i]] = new Rx.ReplaySubject(1)
+  }
+  return sinkProxies
 }
 
 function callDrivers(drivers, sinkProxies) {
-  return Object.keys(drivers).reduce((sources, name) => {
+  let sources = {}
+  let keys = Object.keys(drivers)
+  for (let i = 0; i < keys.length; i++) {
+    let name = keys[i]
     sources[name] = drivers[name](sinkProxies[name], name)
-    return sources
-  }, {})
+  }
+  return sources
 }
 
 function attachDisposeToSinks(sinks, replicationSubscription) {
@@ -22,7 +27,9 @@ function attachDisposeToSinks(sinks, replicationSubscription) {
 
 function makeDisposeSources(sources) {
   return function dispose() {
-    for (let source of Object.values(sources)) {
+    let keys = Object.keys(sources)
+    for (let i = 0; i < keys.length; i++) {
+      let source = sources[keys[i]]
       if (typeof source.dispose === `function`) {
         source.dispose()
       }
@@ -44,7 +51,9 @@ function replicateMany(observables, subjects) {
   return Rx.Observable.create(observer => {
     let subscription = new Rx.CompositeDisposable()
     setTimeout(() => {
-      for (let name of Object.keys(observables)) {
+      let keys = Object.keys(observables)
+      for (let i = 0; i < keys.length; i++) {
+        let name = keys[i]
         if (subjects.hasOwnProperty(name) && !subjects[name].isDisposed) {
           subscription.add(
             observables[name]
@@ -58,8 +67,9 @@ function replicateMany(observables, subjects) {
 
     return function dispose() {
       subscription.dispose()
-      for (let subject of Object.values(subjects)) {
-        subject.dispose()
+      let keys = Object.keys(subjects)
+      for (let i = 0; i < keys.length; i++) {
+        subjects[keys[i]].dispose()
       }
     }
   })
