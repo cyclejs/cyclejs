@@ -63,10 +63,6 @@ function optionsToSuperagent({
   return request
 }
 
-function urlToSuperagent(url) {
-  return superagent.get(url)
-}
-
 function createResponse$(reqOptions) {
   return Rx.Observable.create(observer => {
     let request = optionsToSuperagent(reqOptions)
@@ -146,7 +142,6 @@ function makeHTTPDriver({eager = false} = {eager: false}) {
 
 module.exports = {
   optionsToSuperagent,
-  urlToSuperagent,
   createResponse$,
 
   makeHTTPDriver,
