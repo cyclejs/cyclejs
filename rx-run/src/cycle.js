@@ -2,68 +2,59 @@ let Rx = require(`rx`)
 
 function makeSinkProxies(drivers) {
   let sinkProxies = {}
-  for (let name in drivers) {
-    if (drivers.hasOwnProperty(name)) {
-      sinkProxies[name] = new Rx.ReplaySubject(1)
-    }
+  let keys = Object.keys(drivers)
+  for (let i = 0; i < keys.length; i++) {
+    sinkProxies[keys[i]] = new Rx.ReplaySubject(1)
   }
   return sinkProxies
 }
 
 function callDrivers(drivers, sinkProxies) {
   let sources = {}
-  for (let name in drivers) {
-    if (drivers.hasOwnProperty(name)) {
-      sources[name] = drivers[name](sinkProxies[name], name)
-    }
+  let keys = Object.keys(drivers)
+  for (let i = 0; i < keys.length; i++) {
+    let name = keys[i]
+    sources[name] = drivers[name](sinkProxies[name], name)
   }
   return sources
 }
 
 function attachDisposeToSinks(sinks, replicationSubscription) {
-  Object.defineProperty(sinks, `dispose`, {
-    enumerable: false,
-    value: () => { replicationSubscription.dispose() },
+  return Object.defineProperty(sinks, `dispose`, {
+    value() { replicationSubscription.dispose() },
   })
-  return sinks
 }
 
 function makeDisposeSources(sources) {
   return function dispose() {
-    for (let name in sources) {
-      if (sources.hasOwnProperty(name) &&
-        typeof sources[name].dispose === `function`)
-      {
-        sources[name].dispose()
+    let keys = Object.keys(sources)
+    for (let i = 0; i < keys.length; i++) {
+      let source = sources[keys[i]]
+      if (typeof source.dispose === `function`) {
+        source.dispose()
       }
     }
   }
 }
 
 function attachDisposeToSources(sources) {
-  Object.defineProperty(sources, `dispose`, {
-    enumerable: false,
+  return Object.defineProperty(sources, `dispose`, {
     value: makeDisposeSources(sources),
   })
-  return sources
 }
 
-function logToConsoleError(err) {
-  let target = err.stack || err
-  if (console && console.error) {
-    console.error(target)
-  }
-}
+let logToConsoleError = typeof console !== `undefined` && console.error
+  ? error => { console.error(error.stack || error) }
+  : Function.prototype
 
 function replicateMany(observables, subjects) {
   return Rx.Observable.create(observer => {
     let subscription = new Rx.CompositeDisposable()
     setTimeout(() => {
-      for (let name in observables) {
-        if (observables.hasOwnProperty(name) &&
-          subjects.hasOwnProperty(name) &&
-          !subjects[name].isDisposed)
-        {
+      let keys = Object.keys(observables)
+      for (let i = 0; i < keys.length; i++) {
+        let name = keys[i]
+        if (subjects.hasOwnProperty(name) && !subjects[name].isDisposed) {
           subscription.add(
             observables[name]
               .doOnError(logToConsoleError)
@@ -72,26 +63,16 @@ function replicateMany(observables, subjects) {
         }
       }
       observer.onNext(subscription)
-    }, 1)
+    })
 
     return function dispose() {
       subscription.dispose()
-      for (let x in subjects) {
-        if (subjects.hasOwnProperty(x)) {
-          subjects[x].dispose()
-        }
+      let keys = Object.keys(subjects)
+      for (let i = 0; i < keys.length; i++) {
+        subjects[keys[i]].dispose()
       }
     }
   })
-}
-
-function isObjectEmpty(obj) {
-  for (let key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      return false
-    }
-  }
-  return true
 }
 
 function run(main, drivers) {
@@ -103,7 +84,7 @@ function run(main, drivers) {
     throw new Error(`Second argument given to Cycle.run() must be an object ` +
       `with driver functions as properties.`)
   }
-  if (isObjectEmpty(drivers)) {
+  if (Object.keys(drivers).length === 0) {
     throw new Error(`Second argument given to Cycle.run() must be an object ` +
       `with at least one driver function declared as a property.`)
   }
