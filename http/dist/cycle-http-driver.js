@@ -1461,15 +1461,17 @@ function optionsToSuperagent(_ref) {
   return request;
 }
 
-function urlToSuperagent(url) {
-  return superagent.get(url);
-}
-
 function createResponse$(reqOptions) {
   return Rx.Observable.create(function (observer) {
     var request = optionsToSuperagent(reqOptions);
 
     try {
+      if (reqOptions.progress) {
+        request = request.on("progress", function (res) {
+          res.request = reqOptions;
+          observer.onNext(res);
+        });
+      }
       request.end(function (err, res) {
         if (err) {
           observer.onError(err);
@@ -1545,7 +1547,6 @@ function makeHTTPDriver() {
 
 module.exports = {
   optionsToSuperagent: optionsToSuperagent,
-  urlToSuperagent: urlToSuperagent,
   createResponse$: createResponse$,
 
   makeHTTPDriver: makeHTTPDriver
@@ -1584,6 +1585,8 @@ var CycleHTTPDriver = {
    * - `user` *(String)*: username for authentication.
    * - `password` *(String)*: password for authentication.
    * - `field` *(Object)*: object where key/values are Form fields.
+   * - `progress` *(Boolean)*: whether or not to detect and emit progress events
+   *   on the response Observable.
    * - `attach` *(Array)*: array of objects, where each object specifies `name`,
    * `path`, and `filename` of a resource to upload.
    * - `withCredentials` *(Boolean)*: enables the ability to send cookies from
@@ -1595,7 +1598,7 @@ var CycleHTTPDriver = {
    *   Explicitely setting eager in the request always overrides the driver
    *   setting. Main use case is: set this option to `true` if you send POST
    *   requests and you are not interested in its response.
-    *
+   *
    * **Responses**. A metastream is an Observable of Observables. The response
    * metastream emits Observables of responses. These Observables of responses
    * have a `request` field attached to them (to the Observable object itself)
