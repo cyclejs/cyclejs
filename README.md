@@ -14,6 +14,16 @@ Cycle *Core* is the minimum required tools you need for building applications. I
 
 Note: `rx` is a **required** dependency. Without it, nothing will change.
 
+## What to Use Cycle.js for and When to Use It
+
+Cycle.js provides a lightweight framework which benefits from [RxJS Observables](http://cycle.js.org/observables.html), providing a functional and reactive environment where you can keep your **application logic** in clean **pure functions** and isolated from **side effects**, contained in **drivers**, like DOM mutations or HTML5 Notifications.
+
+Cycle.js makes your application logic more reusable. As it is separated in pure functions, it is easy to switch from one driver to another, while your logic keeps untouched.
+
+Every Cycle.js app is a composable function, meaning that it can be reused in a larger Cycle.js app. This allows, unlike other frameworks, to build highly reusable components, from GUI components to Web Audio or network requests.
+
+Use it to improve your code readability, taking advantage of Observable declarations for creating explicit dataflows, which otherwise would not be as clear.
+
 ## I came here because I want to...
 
 - Understand how Cycle.js works in general: go to http://cycle.js.org
