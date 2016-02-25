@@ -6,6 +6,10 @@ A collection of Cycle drivers to enable interaction with the DOM. It includes a 
 
 [![npm version](https://badge.fury.io/js/%40cycle%2Fdom.svg)](http://badge.fury.io/js/%40cycle%2Fdom)
 
+## Why are Issues unavailable?
+
+We use only one repository for issues. [**Open the issue at Cycle Core repo.**](https://github.com/cyclejs/cycle-core/issues)
+
 ## Browser support
 
 These are the browsers we officially support currently. Cycle.js may not work (or work partially) in other browsers.
