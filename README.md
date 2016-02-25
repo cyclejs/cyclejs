@@ -19,7 +19,11 @@ Note: `rx` is a **required** dependency. Without it, nothing will change.
 - Understand how Cycle.js works in general: go to http://cycle.js.org
 - Understand how Cycle *Core* itself works: read the [docs](https://github.com/cyclejs/cycle-core/blob/master/docs/api.md) and the [tests](https://github.com/cyclejs/cycle-core/tree/master/test)
 - File a bug report for anything Cycle-related: [open an issue](https://github.com/cyclejs/cycle-core/issues/new)
-- Ask a question such as "How do I ...?": [open a StackOverflow question with `cyclejs` tag](http://stackoverflow.com/questions/tagged/cyclejs) or ask in the [Gitter chat room](https://gitter.im/cyclejs/cycle-core)
+- Ask a question such as "How do I ...?" on one of these channels:  
+  - Ask it in the [Gitter chat room](https://gitter.im/cyclejs/cycle-core)
+  - [Open a StackOverflow question with `cyclejs` tag](http://stackoverflow.com/questions/tagged/cyclejs) 
+  - [Open an issue here](https://github.com/cyclejs/cycle-core/issues/new). Please note all discussion-like issues are labeled `discussion` and immediately closed. This doesn't mean we disconsidered your discussion. We only leave actual issues open.
+- [Read discussion issues](https://github.com/cyclejs/cycle-core/labels/discussion)
 - Contribute a new driver: [open an issue](https://github.com/cyclejs/cycle-core/issues/new)
 
 ## LICENSE
