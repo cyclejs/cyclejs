@@ -11,6 +11,10 @@
 
 `npm install @cycle/isolate`
 
+## Why are Issues unavailable?
+
+We use only one repository for issues. [**Open the issue at Cycle Core repo.**](https://github.com/cyclejs/cycle-core/issues)
+
 ## Example
 
 ```js
