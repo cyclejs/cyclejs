@@ -8,6 +8,10 @@ npm install @cycle/http
 
 [![npm version](https://badge.fury.io/js/%40cycle%2Fhttp.svg)](http://badge.fury.io/js/%40cycle%2Fhttp)
 
+## Why are Issues unavailable?
+
+We use only one repository for issues. [**Open the issue at Cycle Core repo.**](https://github.com/cyclejs/cycle-core/issues)
+
 ## Usage
 
 Basics:
