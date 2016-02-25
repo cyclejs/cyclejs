@@ -23,7 +23,7 @@ Note: `rx` is a **required** dependency. Without it, nothing will change.
   - Ask it in the [Gitter chat room](https://gitter.im/cyclejs/cycle-core)
   - [Open a StackOverflow question with `cyclejs` tag](http://stackoverflow.com/questions/tagged/cyclejs) 
   - [Open an issue here](https://github.com/cyclejs/cycle-core/issues/new). Please note all discussion-like issues are labeled `discussion` and immediately closed. This doesn't mean we disconsidered your discussion. We only leave actual issues open.
-- [Read discussion issues](https://github.com/cyclejs/cycle-core/labels/discussion)
+- [Read discussion issues](https://github.com/cyclejs/cycle-core/issues?q=label%3Adiscussion+is%3Aclosed)
 - Contribute a new driver: [open an issue](https://github.com/cyclejs/cycle-core/issues/new)
 
 ## LICENSE
