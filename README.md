@@ -2,6 +2,8 @@
 <img src="https://raw.github.com/cyclejs/cycle-core/master/logo.png" /> Cycle.js
 </h1>
 
+> This is just a test...
+
 > Cycle.js is a fully reactive JavaScript framework for Human-Computer Interaction.
 
 Cycle *Core* is the minimum required tools you need for building applications. It is comprised of one single function, `Cycle.run(main, drivers)`.
