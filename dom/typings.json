@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "hyperscript-helpers": "npm:hyperscript-helpers"
+  },
+  "devDependencies": {
+  },
+  "ambientDependencies": {
+    "es6-shim": "github:DefinitelyTyped/DefinitelyTyped/es6-shim/es6-shim.d.ts#6697d6f7dadbf5773cb40ecda35a76027e0783b2",
+    "rx.all": "github:Reactive-Extensions/RxJS/ts/rx.all.d.ts"
+  }
+}

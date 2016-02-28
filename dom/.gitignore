@@ -5,7 +5,8 @@
 .settings
 
 # Installed libs
-node_modules
+node_modules/
+typings/
 
 # Generated
 test/browser/page/tests-bundle.js
