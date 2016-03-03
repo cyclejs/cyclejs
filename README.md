@@ -1,13 +1,14 @@
 <h1>
 <img src="https://raw.github.com/cyclejs/cycle-core/master/logo.png" /> Cycle.js
 </h1>
+> Cycle.js is a fully reactive JavaScript framework for Human-Computer Interaction.
+
 In the present, many frameworks have an implicit data flow, meaning that following the flow of data can become a headache. On the contrary, **Cycle.js** made this problem dissapear. The flow of data is clear by reading your code.
 
 No side effects, why?! Functional and reactive. **Cycle.js** apps are made of pure functions which take inputs and generate outputs, with no side effects.
 
 This are some of the benefits that **Cycle.js** provide for your app. Learn more, [here](http://cycle.js.org/).
 
-> Cycle.js is a fully reactive JavaScript framework for Human-Computer Interaction.
 
 Cycle *Core* is the minimum required tools you need for building applications. It is comprised of one single function, `Cycle.run(main, drivers)`.
 
