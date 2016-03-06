@@ -147,6 +147,31 @@ function run(uri) {
       }
     );
 
+    it('should not be possible to change the metastream\'s request',
+      function () {
+        var request$ = Rx.Observable.just({
+          url: uri + '/hello',
+          method: 'GET'
+        });
+        var httpDriver = makeHTTPDriver();
+        var response$$ = httpDriver(request$);
+        assert.throws(
+          function () {
+            response$$
+              .map(function (response$) {
+                response$.request = 1234;
+                return response$;
+              })
+              .subscribe(function(response$) {
+                assert.strictEqual(response$.request.url, uri + '/hello');
+                assert.strictEqual(response$.request.method, 'GET');
+              });
+          },
+          TypeError
+        )
+      }
+    )
+
     it('should send 500 server errors to response$ onError',
       function(done) {
         var request$ = Rx.Observable.just(uri + '/error');
