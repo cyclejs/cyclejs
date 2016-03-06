@@ -1535,7 +1535,10 @@ function makeHTTPDriver() {
         response$ = response$.replay(null, 1);
         response$.connect();
       }
-      response$.request = reqOptions;
+      Object.defineProperty(response$, "request", {
+        value: reqOptions,
+        writable: false
+      });
       return response$;
     }).replay(null, 1);
     response$$.connect();
