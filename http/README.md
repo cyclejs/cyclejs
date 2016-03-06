@@ -109,6 +109,6 @@ IE 8 is not supported because this library depends on [superagent](https://githu
 
 - - -
 
-[![Build Status](https://travis-ci.org/cyclejs/cycle-http-driver.svg?branch=master)](https://travis-ci.org/cyclejs/cycle-http-driver)
-[![Dependency Status](https://david-dm.org/cyclejs/cycle-http-driver.svg)](https://david-dm.org/cyclejs/cycle-http-driver)
-[![devDependency Status](https://david-dm.org/cyclejs/cycle-http-driver/dev-status.svg)](https://david-dm.org/cyclejs/cycle-http-driver#info=devDependencies)
+[![Build Status](https://travis-ci.org/cyclejs/http.svg?branch=master)](https://travis-ci.org/cyclejs/http)
+[![Dependency Status](https://david-dm.org/cyclejs/http.svg)](https://david-dm.org/cyclejs/http)
+[![devDependency Status](https://david-dm.org/cyclejs/http/dev-status.svg)](https://david-dm.org/cyclejs/http#info=devDependencies)
