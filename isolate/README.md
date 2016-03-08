@@ -2,6 +2,8 @@
 
 > A utility function to make scoped dataflow components in Cycle.js.
 
+See the Cycle.js [documentation on components](http://cycle.js.org/components.html#multiple-instances-of-the-same-component) for further details.
+
 [![Cycle.js](https://img.shields.io/badge/Cycle.js-compatible-brightgreen.svg)](https://github.com/cyclejs)
 [![Motorcycle.js](https://img.shields.io/badge/Motorcycle.js-compatible-brightgreen.svg)](https://github.com/motorcyclejs)
 
