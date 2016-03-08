@@ -1,6 +1,8 @@
 # `isolate()`
 
-> A utility function to make scoped dataflow components in Cycle.js.
+> A utility function to make scoped dataflow components in Cycle.js. For example, this isolates DOM events seen by a component to those from it's own nodes, not the entire tree. 
+
+See the cycle.js [documentation on components](http://cycle.js.org/components.html#multiple-instances-of-the-same-component) for further details.
 
 [![Cycle.js](https://img.shields.io/badge/Cycle.js-compatible-brightgreen.svg)](https://github.com/cyclejs)
 [![Motorcycle.js](https://img.shields.io/badge/Motorcycle.js-compatible-brightgreen.svg)](https://github.com/motorcyclejs)
