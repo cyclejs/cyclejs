@@ -13,26 +13,33 @@ function getEventsStreamForSelector(mockedEventTypes) {
   }
 }
 
-function mockDOMSource(mockedSelectors = {}) {
-  return {
-    select(selector) {
-      for (const key in mockedSelectors) {
-        if (mockedSelectors.hasOwnProperty(key) && key === selector) {
-          let observable = emptyStream
-          if (mockedSelectors[key].hasOwnProperty(`observable`)) {
-            observable = mockedSelectors[key].observable
-          }
-          return {
-            observable,
-            events: getEventsStreamForSelector(mockedSelectors[key]),
-          }
+function makeMockSelector(mockedSelectors) {
+  return function select(selector) {
+    for (const key in mockedSelectors) {
+      if (mockedSelectors.hasOwnProperty(key) && key === selector) {
+        let observable = emptyStream
+        if (mockedSelectors[key].hasOwnProperty(`observable`)) {
+          observable = mockedSelectors[key].observable
+        }
+        return {
+          observable,
+          select: makeMockSelector(mockedSelectors[key]),
+          events: getEventsStreamForSelector(mockedSelectors[key]),
         }
       }
-      return {
-        observable: emptyStream,
-        events: () => emptyStream,
-      }
-    },
+    }
+    return {
+      observable: emptyStream,
+      events: () => emptyStream,
+    }
+  }
+}
+
+function mockDOMSource(mockedSelectors = {}) {
+  return {
+    observable: emptyStream,
+    select: makeMockSelector(mockedSelectors),
+    events: () => emptyStream,
   }
 }
 
