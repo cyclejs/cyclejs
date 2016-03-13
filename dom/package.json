@@ -30,9 +30,8 @@
   ],
   "main": "lib/index.js",
   "dependencies": {
-    "hyperscript-helpers": "2.1.0",
     "matches-selector": "1.0.0",
-    "snabbdom": "^0.3.1",
+    "snabbdom": "^0.4.1",
     "snabbdom-selector": "^0.3.2",
     "snabbdom-to-html": "^2.0.1"
   },
@@ -63,7 +62,7 @@
     "snabbdom-jsx": "^0.3.0",
     "testem": "0.9.11",
     "tslint": "^3.2.2",
-    "typescript": "^1.7.5",
+    "typescript": "^1.8.7",
     "typings": "^0.6.3",
     "uglify-js": "2.6.1",
     "zuul": "3.8.0"
@@ -75,7 +74,7 @@
     "rx": "global:Rx"
   },
   "scripts": {
-    "lint": "eslint src/**/*.js && tslint -c tslint.json src/*.ts",
+    "lint": "tslint -c tslint.json src/*.ts",
     "test-browser-perf": "testem -f test/browser/perf/.testem-perf.json",
     "test-node": "mocha --compilers js:babel-register test/node",
     "test-browser": "testem",
@@ -84,8 +83,8 @@
     "posttest-browser-perf": "rm test/browser/perf/tests-bundle.js",
     "pretest-browser": "browserify test/browser/index.js -t babelify -o test/browser/page/tests-bundle.js",
     "posttest-browser": "rm test/browser/page/tests-bundle.js",
-    "test": "npm run lint && npm run test-node && npm run test-browser",
-    "test-ci": "npm run lint && npm run test-node && zuul --no-coverage -- test/browser/index.js",
+    "test": "npm run lint && npm run lib && npm run test-node && npm run test-browser",
+    "test-ci": "npm run lint && npm run lib && npm run test-node && zuul --no-coverage -- test/browser/index.js",
     "browserify": "browserify src/index.js -t babelify -t browserify-shim --standalone CycleDOM --exclude rx --outfile dist/cycle-dom.js",
     "uglify": "uglifyjs dist/index.js --compress --mangle -o dist/cycle-dom.min.js",
     "dist": "npm run browserify && npm run uglify",

@@ -1,4 +1,5 @@
 import {Observable} from 'rx';
+import {VNode} from 'snabbdom';
 import toHTML from 'snabbdom-to-html';
 import {transposeVTree} from './transposition';
 
@@ -13,10 +14,19 @@ function makeBogusSelect() {
   };
 }
 
-export function makeHTMLDriver() {
-  return function htmlDriver(vtree$) {
-    const output$ = vtree$.flatMapLatest(transposeVTree).last().map(toHTML);
-    output$.select = makeBogusSelect();
+export interface HTMLDriverOptions {
+  transposition?: boolean;
+}
+
+export function makeHTMLDriver(options?: HTMLDriverOptions) {
+  if (!options) { options = {}; }
+  const transposition = options.transposition || false;
+  return function htmlDriver(vnode$: Observable<VNode>): Observable<string> {
+    const goodVNode$ = (
+      transposition ? vnode$.flatMapLatest(transposeVTree) : vnode$
+    );
+    const output$ = goodVNode$.last().map(toHTML);
+    (<any> output$).select = makeBogusSelect();
     return output$;
   };
 }

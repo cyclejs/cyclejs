@@ -2,7 +2,7 @@
 /* global describe, it, beforeEach */
 let assert = require('assert');
 let Cycle = require('@cycle/core');
-let CycleDOM = require('../../src/cycle-dom');
+let CycleDOM = require('../../lib/index');
 let Rx = require('rx');
 let {div, h3, h, makeHTMLDriver} = CycleDOM;
 

@@ -1,10 +1,14 @@
 import {ScopeChecker} from './ScopeChecker';
 
-let matchesSelector;
+interface MatchesSelector {
+  (element: Element, selector: string): boolean;
+}
+let matchesSelector: MatchesSelector;
+declare var require: any;
 try {
   matchesSelector = require(`matches-selector`);
 } catch (e) {
-  matchesSelector = Function.prototype;
+  matchesSelector = <MatchesSelector> Function.prototype;
 }
 
 export interface PatchedEvent extends Event {

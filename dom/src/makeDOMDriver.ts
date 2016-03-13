@@ -24,15 +24,11 @@ function domDriverInputGuard(view$: Observable<any>): void {
   }
 }
 
-interface DOMDriverOptions {
-  modules: Object;
-  onError(msg: string): void;
+export interface DOMDriverOptions {
+  modules?: Object;
+  onError?(msg: string): void;
+  transposition?: boolean;
 }
-
-const defaults = {
-  modules: defaultModules,
-  onError: defaultOnErrorFn,
-};
 
 function defaultOnErrorFn(msg: string): void {
   if (console && console.error) {
@@ -42,20 +38,22 @@ function defaultOnErrorFn(msg: string): void {
   }
 }
 
-function makeDOMDriver(container: string | Element, {
-  modules = defaultModules,
-  onError = defaultOnErrorFn,
-} = defaults) {
+function makeDOMDriver(container: string | Element, options?: DOMDriverOptions) {
+  if (!options) { options = {}; }
+  const transposition = options.transposition || false;
+  const modules = options.modules || defaultModules;
+  const onError = options.onError || defaultOnErrorFn;
   const patch = init(modules);
   const rootElement = domSelectorParser(container);
   const vnodeWrapper = new VNodeWrapper(rootElement);
   makeDOMDriverInputGuard(modules, onError);
 
-  return function DOMDriver(view$: Observable<any>) {
-    domDriverInputGuard(view$);
-
-    const rootElement$ = view$
-      .flatMapLatest(transposeVTree)
+  return function DOMDriver(vnode$: Observable<any>) {
+    domDriverInputGuard(vnode$);
+    const goodVNode$ = (
+      transposition ? vnode$.flatMapLatest(transposeVTree) : vnode$
+    );
+    const rootElement$ = goodVNode$
       .map(vnodeWrapper.call, vnodeWrapper)
       .scan(patch, rootElement)
       .map(({elm}) => elm)

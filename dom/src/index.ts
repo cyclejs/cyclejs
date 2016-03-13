@@ -1,13 +1,13 @@
 // import * as modules from './modules'
 // export {modules}
 
-import thunk from 'snabbdom/thunk'
-export {thunk}
+import thunk from 'snabbdom/thunk';
+export {thunk};
 
-import h from './hyperscript'
-export {h}
+import h from './hyperscript';
+export {h};
 
-import hh from 'hyperscript-helpers'
+import hh from './hyperscript-helpers';
 const {
   a, abbr, address, area, article, aside, audio, b, base,
   bdi, bdo, blockquote, body, br, button, canvas, caption,
@@ -20,7 +20,7 @@ const {
   ruby, s, samp, script, section, select, small, source, span,
   strong, style, sub, sup, table, tbody, td, textarea, tfoot,
   th, thead, title, tr, u, ul, video,
-} = hh(h)
+} = hh;
 
 export {
   a, abbr, address, area, article, aside, audio, b, base,
@@ -34,13 +34,13 @@ export {
   ruby, s, samp, script, section, select, small, source, span,
   strong, style, sub, sup, table, tbody, td, textarea, tfoot,
   th, thead, title, tr, u, ul, video,
-}
+};
 
-import {makeDOMDriver} from './makeDOMDriver'
-export {makeDOMDriver}
+import {makeDOMDriver} from './makeDOMDriver';
+export {makeDOMDriver};
 
-import {mockDOMSource} from './mockDOMSource'
-export {mockDOMSource}
+import {mockDOMSource} from './mockDOMSource';
+export {mockDOMSource};
 
-import {makeHTMLDriver} from './makeHTMLDriver'
-export {makeHTMLDriver}
+import {makeHTMLDriver} from './makeHTMLDriver';
+export {makeHTMLDriver};

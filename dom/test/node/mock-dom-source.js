@@ -2,8 +2,8 @@
 /* global describe, it */
 let assert = require('assert');
 let Rx = require('rx');
-let CycleDOM = require('../../src/cycle-dom');
-let mockDOMSource = require('../../src/mock-dom-source');
+let CycleDOM = require('../../lib/index');
+let mockDOMSource = CycleDOM.mockDOMSource;
 
 describe('mockDOMSource', function () {
   it('should be in accessible in the API', function () {

@@ -13,7 +13,7 @@ export function domSelectorParser(selectors: any) {
     document.querySelector(selectors) :
     selectors;
 
-  if (typeof domElement === `string` && domElement === null) {
+  if (typeof selectors === `string` && domElement === null) {
     throw new Error(`Cannot render into unknown element \`${selectors}\``);
   } else if (!isElement(domElement)) {
     throw new Error(`Given container is not a DOM element neither a ` +

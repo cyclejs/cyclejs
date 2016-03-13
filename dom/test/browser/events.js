@@ -2,7 +2,7 @@
 /* global describe, it, beforeEach */
 let assert = require('assert');
 let Cycle = require('@cycle/core');
-let CycleDOM = require('../../src/cycle-dom');
+let CycleDOM = require('../../lib/index');
 let Rx = require('rx');
 let {svg, div, input, p, span, h2, h3, h4, form, select, option, makeDOMDriver} = CycleDOM;
 
@@ -232,7 +232,7 @@ describe('DOMSource.events()', function () {
         DOM: Rx.Observable.concat(
           Rx.Observable.just(h2('.blesh', 'Blesh')),
           Rx.Observable.just(h3('.blish', 'Blish')).delay(100),
-          Rx.Observable.just(h4('.blosh', 'Blosh')).delay(100),
+          Rx.Observable.just(h4('.blosh', 'Blosh')).delay(100)
         )
       };
     }

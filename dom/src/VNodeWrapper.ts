@@ -1,4 +1,4 @@
-import h from 'snabbdom/h';
+import h from './hyperscript';
 import classNameFromVNode from 'snabbdom-selector/lib/classNameFromVNode';
 import selectorParser from 'snabbdom-selector/lib/selectorParser';
 
@@ -9,8 +9,8 @@ export class VNodeWrapper {
   call(vnode: any): any {
     const {tagName: selectorTagName, id: selectorId} = selectorParser(vnode.sel);
     const vNodeClassName = classNameFromVNode(vnode);
-    const {data: vNodeData = {}} = vnode;
-    const {props: vNodeDataProps = {}} = vNodeData;
+    const vNodeData = vnode.data || {};
+    const vNodeDataProps = vNodeData.props || {};
     const {id: vNodeId = selectorId} = vNodeDataProps;
 
     const isVNodeAndRootElementIdentical =

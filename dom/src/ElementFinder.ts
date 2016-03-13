@@ -5,7 +5,7 @@ function getScope(namespace: Array<string>): Array<string> {
 }
 
 function removeDuplicates<T>(arr: Array<T>): Array<T> {
-  const newArray = [];
+  const newArray: Array<T> = [];
   for (let i = arr.length - 1; i >= 0; i--) {
     if (newArray.indexOf(arr[i]) === -1) {
       newArray.push(arr[i]);
