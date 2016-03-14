@@ -1,21 +1,3 @@
-# Editor-specific
-.idea
-*.sublime-project
-*.sublime-workspace
-.settings
-
-# Installed libs
-node_modules
-
-# Generated
-test/browser/page/tests-bundle.js
 lib/
-
-# Secrets
-.zuulrc
-
-# Misc
-ignore
+node_modules
 npm-debug.log
-ts/*
-!ts/cycle.d.ts

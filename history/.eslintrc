@@ -1,4 +1,11 @@
 {
   "extends": "eslint-config-cycle",
-  "parser": "babel-eslint"
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "parser": "babel-eslint",
+  "rules": {
+    "quotes": 0,
+  }
 }

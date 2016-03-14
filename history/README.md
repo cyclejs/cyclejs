@@ -1,15 +1,16 @@
-# Cycle History Driver
+# @cycle/history
 
-This is the standard Cycle driver for dealing with the [History API](https://developer.mozilla.org/en-US/docs/Web/API/History_API).
+This is the standard Cycle driver for dealing with the History API.
 
-This project builds on top of the battled-tested library [rackt/history](https://github.com/rackt/history), most notably used to create React-Router. The use of this library makes this driver easy to maintain and simplifies the differences between browsers and devices.
+This project is 100% compatible with rackt/history, most notably used to create React-Router. This allows for a Cycle application to be embedded inside of an existing React application and share history instances.
 
-# Install
-[![npm version](https://badge.fury.io/js/%40cycle%2Fhistory.svg)](https://badge.fury.io/js/%40cycle%2Fhistory)
+Though this library makes use of the interface that the rackt/history library provides, any other library can be used which satisfies the interface. For more information on this interface please see the [documentation](https://cyclejs.github.io/cycle-history/docs). Also take note of the ServerHistory object we have made to easily allow for server-side rendering of your Cycle application.
 
-This package is available on npm and is installable using the following command.
+## Install
+```shell
+$ npm install --save @cycle/history
 ```
-$ npm install @cycle/history
-```
 
-Documentation can be found  [here](https://github.com/cyclejs/cycle-history/tree/master/docs/).
+## Documentation
+
+Documentation can be found [here](https://cyclejs.github.io/cycle-history/docs)
