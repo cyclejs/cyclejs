@@ -101,7 +101,7 @@ function main(responses) {
 
 ## Error handling
 
-You can handle errors using standard RsJX operators. The response stream is a stream of streams, i.e. each response will be its own stream so usually you want to catch errors for that single response stream:
+You can handle errors using standard RxJS operators. The response stream is a stream of streams, i.e. each response will be its own stream so usually you want to catch errors for that single response stream:
 
 ```
 responses.HTTP
