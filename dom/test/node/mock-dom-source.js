@@ -22,6 +22,20 @@ describe('mockDOMSource', function () {
     })
   });
 
+  it('multiple .select()s should not throw when given empty mockedSelectors', () => {
+    assert.doesNotThrow(() => {
+      const DOM = mockDOMSource({})
+      DOM.select('.something').select('.other').events('click')
+    })
+  })
+
+  it('multiple .select()s should return empty observable if not defined', () => {
+    const DOM = mockDOMSource({})
+    const selector = DOM.select('.something').select('.other')
+    assert.strictEqual(selector.events('click') instanceof Rx.Observable, true)
+    assert.strictEqual(selector.observable instanceof Rx.Observable, true)
+  })
+
   it('should make multiple user event Observables', function (done) {
     const userEvents = mockDOMSource({
       '.foo': {

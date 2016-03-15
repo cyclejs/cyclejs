@@ -30,6 +30,7 @@ function makeMockSelector(mockedSelectors) {
     }
     return {
       observable: emptyStream,
+      select: makeMockSelector(mockedSelectors),
       events: () => emptyStream,
     }
   }
