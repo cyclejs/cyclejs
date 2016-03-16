@@ -74,6 +74,7 @@
     "rx": "global:Rx"
   },
   "scripts": {
+    "postinstall": "typings install",
     "lint": "tslint -c tslint.json src/*.ts",
     "test-browser-perf": "testem -f test/browser/perf/.testem-perf.json",
     "test-node": "mocha --compilers js:babel-register test/node",

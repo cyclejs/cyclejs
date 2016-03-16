@@ -1,3 +1,4 @@
+declare function require(s: string): any;
 const ClassModule = require('snabbdom/modules/class');
 const PropsModule = require('snabbdom/modules/props');
 const AttrsModule = require('snabbdom/modules/attributes');
