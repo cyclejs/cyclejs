@@ -19,7 +19,7 @@
     "mvi",
     "virtual-dom"
   ],
-  "main": "lib/cycle.js",
+  "main": "src/cycle.js",
   "dependencies": {},
   "peerDependencies": {
     "rx": "*"
