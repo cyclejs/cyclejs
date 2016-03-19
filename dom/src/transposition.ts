@@ -1,6 +1,7 @@
 import {Observable} from 'rx';
+import {VNode} from 'snabbdom';
 
-function createVTree(vnode: any, children: Array<any>): any {
+function createVTree(vnode: VNode, children: Array<any>): any {
   return {
     sel: vnode.sel,
     data: vnode.data,

@@ -1,4 +1,5 @@
 declare module 'snabbdom-to-html' {
   import {VNode} from 'snabbdom';
-  export default function toHTML(vNode: VNode): string;
+  function toHTML(vNode: VNode): string;
+  export = toHTML;
 }

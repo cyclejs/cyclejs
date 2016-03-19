@@ -1,7 +1,6 @@
 import {Observable} from 'rx';
 import {VNode} from 'snabbdom';
 import * as is from 'snabbdom/is';
-declare function require(s: string): any;
 const vnode = require('snabbdom/vnode');
 
 function isObservable(x: any): boolean {

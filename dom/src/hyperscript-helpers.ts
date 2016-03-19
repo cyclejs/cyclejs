@@ -11,9 +11,17 @@ function isSelector(param: any): boolean {
 function createTagFunction(tagName: string): Function {
   return function hyperscript(first: any, b?: any, c?: any) {
     if (isSelector(first)) {
-      return h(tagName + first, b, c);
-    } else {
+      if (!!b && !!c) {
+        return h(tagName + first, b, c);
+      } else if (!!b) {
+        return h(tagName + first, b);
+      } else {
+        return h(tagName + first);
+      }
+    } else if (!!b) {
       return h(tagName, first, b);
+    } else {
+      return h(tagName, first);
     }
   };
 }

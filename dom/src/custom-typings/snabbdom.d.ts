@@ -4,6 +4,7 @@ declare module 'snabbdom' {
     data?: Object;
     children?: Array<VNode | string>;
     text?: string;
+    key?: any;
     elm?: Element;
   }
 

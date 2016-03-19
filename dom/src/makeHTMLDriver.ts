@@ -1,7 +1,7 @@
 import {Observable} from 'rx';
 import {VNode} from 'snabbdom';
-import toHTML from 'snabbdom-to-html';
 import {transposeVTree} from './transposition';
+const toHTML: (vnode: VNode) => string = require('snabbdom-to-html');
 
 function makeBogusSelect() {
   return function select() {
