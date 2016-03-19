@@ -57,8 +57,8 @@ ServerHistory.prototype.createLocation = createLocation
  *   makeHistoryDriver,
  *   createServerHistory,
  *   createLocation
- * } from '@motorcycle/history'
- * import {makeHTMLDriver} from '@motorcycle/html'
+ * } from '@cycle/history'
+ * import {makeHTMLDriver} from '@cycle/dom'
  *
  * const app = express()
  *
@@ -72,7 +72,7 @@ ServerHistory.prototype.createLocation = createLocation
  *
  *   history.push(createLocation(req.url))
  *
- *   sources.html.select(':root').observe(html => res.end(html))
+ *   sources.html.subscribe(html => res.end(html))
  *   ...
  * })
  *

@@ -14,8 +14,8 @@ function makeUpdateHistory(history) {
         history[type](loc)
       }
     } else {
-      throw new Error(`History Driver input must be a string or
-        object but received ${typeof url}`)
+      throw new Error(`History Driver input must be a string or an ` +
+        `object but received ${typeof url}`)
     }
   }
 }
@@ -27,12 +27,12 @@ function makeUpdateHistory(history) {
  * @param  {object}          history - a valid history instance as defined by
  * ractk/history. Should have `createLocation()`, `createHref()`, `listen()`,
  * and `push()` methods.
- * @param {object} options - options object - currently accepts a `boolean` for
+ * @param {Object} options - options object - currently accepts a `boolean` for
  * the parameter `capture`. `capture` will automatically capture link clicks.
  * @return {historyDriver}                  The history driver function
  * @example
  * import {run} from '@cycle/core'
- * import {makeHistoryDriver} from '@motorcycle/history'
+ * import {makeHistoryDriver} from '@cycle/history'
  * import {useQueries, createHashHistory} form 'history'
  *
  * function main(sources) {...}
@@ -42,7 +42,7 @@ function makeUpdateHistory(history) {
  *   history: makeHistoryDriver(history),
  * })
  */
-function makeHistoryDriver(history, {capture = false} = {capture: false}) {
+function makeHistoryDriver(history, options) {
   if (!history || typeof history !== `object` ||
     typeof history.createLocation !== `function` ||
     typeof history.createHref !== `function` ||
@@ -52,6 +52,7 @@ function makeHistoryDriver(history, {capture = false} = {capture: false}) {
     throw new TypeError(`makeHistoryDriver requires an valid history object ` +
       `containing createLocation(), createHref(), push(), and listen() methods`)
   }
+  const capture = options && options.capture || false
   /*eslint-disable*/
   /**
    * The history driver used by run()

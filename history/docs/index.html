@@ -65,7 +65,7 @@
   <h2 id='createLocation' class='mt0'>
     createLocation<span class='gray'>([location])</span>
   </h2>
-    <p><a href='https://github.com/cyclejs/cycle-history/blob/51261880d585d89d1cf4252837e4d86682d37eba/src/util.js#L80-L85'><code>src/util.js</code></a></p>
+    <p><a href='https://github.com/cyclejs/cycle-history/blob/2494fd2c520c0b1a38cfbd261e76770d2d72da88/src/util.js#L80-L85'><code>src/util.js</code></a></p>
   
   
   
@@ -102,7 +102,7 @@ with sane defaults</p>
   <h2 id='createServerHistory' class='mt0'>
     createServerHistory<span class='gray'></span>
   </h2>
-    <p><a href='https://github.com/cyclejs/cycle-history/blob/51261880d585d89d1cf4252837e4d86682d37eba/src/serverHistory.js#L81-L83'><code>src/serverHistory.js</code></a></p>
+    <p><a href='https://github.com/cyclejs/cycle-history/blob/2494fd2c520c0b1a38cfbd261e76770d2d72da88/src/serverHistory.js#L81-L83'><code>src/serverHistory.js</code></a></p>
   
   
   
@@ -124,8 +124,8 @@ with sane defaults</p>
   makeHistoryDriver,
   createServerHistory,
   createLocation
-} <span class="hljs-keyword">from</span> <span class="hljs-string">'@motorcycle/history'</span>
-<span class="hljs-keyword">import</span> {makeHTMLDriver} <span class="hljs-keyword">from</span> <span class="hljs-string">'@motorcycle/html'</span>
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'@cycle/history'</span>
+<span class="hljs-keyword">import</span> {makeHTMLDriver} <span class="hljs-keyword">from</span> <span class="hljs-string">'@cycle/dom'</span>
 
 <span class="hljs-keyword">const</span> app = express()
 
@@ -139,7 +139,7 @@ app.use((res, req) =&gt; {
 
   history.push(createLocation(req.url))
 
-  sources.html.select(<span class="hljs-string">':root'</span>).observe(html =&gt; res.end(html))
+  sources.html.subscribe(html =&gt; res.end(html))
   ...
 })
 
@@ -149,7 +149,7 @@ app.listen(<span class="hljs-number">3000</span>)</pre>
   <h2 id='historyDriver' class='mt0'>
     historyDriver<span class='gray'>(sink$)</span>
   </h2>
-    <p><a href='https://github.com/cyclejs/cycle-history/blob/51261880d585d89d1cf4252837e4d86682d37eba/src/makeHistoryDriver.js#L75-L91'><code>src/makeHistoryDriver.js</code></a></p>
+    <p><a href='https://github.com/cyclejs/cycle-history/blob/2494fd2c520c0b1a38cfbd261e76770d2d72da88/src/makeHistoryDriver.js#L76-L92'><code>src/makeHistoryDriver.js</code></a></p>
   
   
   
@@ -196,7 +196,7 @@ location you have navigated to.</p>
   <h2 id='location' class='mt0'>
     location<span class='gray'></span>
   </h2>
-    <p><a href='https://github.com/cyclejs/cycle-history/blob/51261880d585d89d1cf4252837e4d86682d37eba/src/util.js#L60-L68'><code>src/util.js</code></a></p>
+    <p><a href='https://github.com/cyclejs/cycle-history/blob/2494fd2c520c0b1a38cfbd261e76770d2d72da88/src/util.js#L60-L68'><code>src/util.js</code></a></p>
   
   
   
@@ -266,9 +266,9 @@ location you have navigated to.</p>
 </section>
 </div><div class='py1'><section class='py2 clearfix'>
   <h2 id='makeHistoryDriver' class='mt0'>
-    makeHistoryDriver<span class='gray'>(history, options, $1)</span>
+    makeHistoryDriver<span class='gray'>(history, options)</span>
   </h2>
-    <p><a href='https://github.com/cyclejs/cycle-history/blob/51261880d585d89d1cf4252837e4d86682d37eba/src/makeHistoryDriver.js#L45-L92'><code>src/makeHistoryDriver.js</code></a></p>
+    <p><a href='https://github.com/cyclejs/cycle-history/blob/2494fd2c520c0b1a38cfbd261e76770d2d72da88/src/makeHistoryDriver.js#L45-L93'><code>src/makeHistoryDriver.js</code></a></p>
   
   
   
@@ -288,7 +288,7 @@ and <code>push()</code> methods.</p>
 
           </div>
         </li>
-        <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>
  <strong>options</strong>
           :
           <div class='force-inline'>
@@ -296,19 +296,6 @@ and <code>push()</code> methods.</p>
 the parameter <code>capture</code>. <code>capture</code> will automatically capture link clicks.</p>
 
           </div>
-        </li>
-        <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>
- <strong>$1</strong>
-            (default <code>{capture: false}</code>)
-          :
-          <div class='force-inline'>
-            
-          </div>
-            <ul>
-                <li> $1.capture
-                    (default <code>false</code>)
-                  </li>
-            </ul>
         </li>
     </ul>
       <h4>Returns</h4>
@@ -321,7 +308,7 @@ the parameter <code>capture</code>. <code>capture</code> will automatically capt
       </div>
     <h4>Examples</h4>
 <pre class='overflow-auto'><span class="hljs-keyword">import</span> {run} <span class="hljs-keyword">from</span> <span class="hljs-string">'@cycle/core'</span>
-<span class="hljs-keyword">import</span> {makeHistoryDriver} <span class="hljs-keyword">from</span> <span class="hljs-string">'@motorcycle/history'</span>
+<span class="hljs-keyword">import</span> {makeHistoryDriver} <span class="hljs-keyword">from</span> <span class="hljs-string">'@cycle/history'</span>
 <span class="hljs-keyword">import</span> {useQueries, createHashHistory} form <span class="hljs-string">'history'</span>
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">main</span>(<span class="hljs-params">sources</span>) </span>{...}
@@ -335,7 +322,7 @@ run(main, {
   <h2 id='ServerHistory' class='mt0'>
     ServerHistory<span class='gray'></span>
   </h2>
-    <p><a href='https://github.com/cyclejs/cycle-history/blob/51261880d585d89d1cf4252837e4d86682d37eba/src/serverHistory.js#L17-L19'><code>src/serverHistory.js</code></a></p>
+    <p><a href='https://github.com/cyclejs/cycle-history/blob/2494fd2c520c0b1a38cfbd261e76770d2d72da88/src/serverHistory.js#L17-L19'><code>src/serverHistory.js</code></a></p>
   
   
   
@@ -387,7 +374,7 @@ effectively the same as push() in this instance. (used internally)</p>
   <h2 id='supportsHistory' class='mt0'>
     supportsHistory<span class='gray'></span>
   </h2>
-    <p><a href='https://github.com/cyclejs/cycle-history/blob/51261880d585d89d1cf4252837e4d86682d37eba/src/util.js#L24-L45'><code>src/util.js</code></a></p>
+    <p><a href='https://github.com/cyclejs/cycle-history/blob/2494fd2c520c0b1a38cfbd261e76770d2d72da88/src/util.js#L24-L45'><code>src/util.js</code></a></p>
   
   
   
@@ -407,7 +394,7 @@ the History API; false if it does not.</p>
       </div>
     <h4>Examples</h4>
 <pre class='overflow-auto'><span class="hljs-keyword">import</span> {run} <span class="hljs-keyword">from</span> <span class="hljs-string">'@cycle/core'</span>
-<span class="hljs-keyword">import</span> {makeHistoryDriver, supportsHistory} <span class="hljs-keyword">from</span> <span class="hljs-string">'cyclic-history'</span>
+<span class="hljs-keyword">import</span> {makeHistoryDriver, supportsHistory} <span class="hljs-keyword">from</span> <span class="hljs-string">'@cycle/history'</span>
 <span class="hljs-keyword">import</span> {createHashHistory, createHistory} <span class="hljs-keyword">from</span> <span class="hljs-string">'history'</span>
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">main</span>(<span class="hljs-params">sources</span>) </span>{...}

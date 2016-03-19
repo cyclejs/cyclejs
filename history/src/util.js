@@ -9,7 +9,7 @@
  * the History API; false if it does not.
  * @example
  * import {run} from '@cycle/core'
- * import {makeHistoryDriver, supportsHistory} from 'cyclic-history'
+ * import {makeHistoryDriver, supportsHistory} from '@cycle/history'
  * import {createHashHistory, createHistory} from 'history'
  *
  * function main(sources) {...}
