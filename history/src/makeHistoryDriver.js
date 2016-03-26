@@ -33,7 +33,7 @@ function makeUpdateHistory(history) {
  * @example
  * import {run} from '@cycle/core'
  * import {makeHistoryDriver} from '@cycle/history'
- * import {useQueries, createHashHistory} form 'history'
+ * import {useQueries, createHashHistory} from 'history'
  *
  * function main(sources) {...}
  *
