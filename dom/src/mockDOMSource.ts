@@ -5,47 +5,41 @@ export interface DOMSelection {
   events: (eventType: string) => Observable<any>;
 }
 
-export class MockedDOMSelection {
+export class MockedDOMSource {
   public observable: Observable<any>;
 
-  constructor(private mockConfigEventTypes: Object,
-              mockConfigObservable?: Observable<any>) {
-    if (mockConfigObservable) {
-      this.observable = mockConfigObservable;
+  constructor(private _mockConfig: Object) {
+    if (_mockConfig['observable']) {
+      this.observable = _mockConfig['observable'];
     } else {
       this.observable = Observable.empty();
     }
   }
 
   public events(eventType: string) {
-    const mockConfigEventTypes = this.mockConfigEventTypes;
-    const keys = Object.keys(mockConfigEventTypes);
+    const mockConfig = this._mockConfig;
+    const keys = Object.keys(mockConfig);
     const keysLen = keys.length;
     for (let i = 0; i < keysLen; i++) {
       const key = keys[i];
       if (key === eventType) {
-        return mockConfigEventTypes[key];
+        return mockConfig[key];
       }
     }
     return Observable.empty();
   }
-}
-
-export class MockedDOMSource {
-  constructor(private mockConfig: Object) {
-  }
 
   public select(selector: string): DOMSelection {
-    const mockConfig = this.mockConfig;
+    const mockConfig = this._mockConfig;
     const keys = Object.keys(mockConfig);
     const keysLen = keys.length;
     for (let i = 0; i < keysLen; i++) {
       const key = keys[i];
       if (key === selector) {
-        return new MockedDOMSelection(mockConfig[key], mockConfig['observable']);
+        return new MockedDOMSource(mockConfig[key]);
       }
     }
-    return new MockedDOMSelection({}, mockConfig['observable']);
+    return new MockedDOMSource({});
   }
 }
 
