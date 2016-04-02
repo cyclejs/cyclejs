@@ -1,7 +1,7 @@
 // import * as modules from './modules'
 // export {modules}
 
-import thunk from 'snabbdom/thunk';
+import * as thunk from 'snabbdom/thunk';
 export {thunk};
 
 import h from './hyperscript';

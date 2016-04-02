@@ -6,7 +6,7 @@ let CycleDOM = require('../../lib/index');
 let Fixture89 = require('./fixtures/issue-89');
 let Rx = require('rx');
 let {html} = require('snabbdom-jsx');
-let {h, svg, div, input, p, span, h2, h3, h4, select, option, makeDOMDriver} = CycleDOM;
+let {h, svg, div, input, p, span, h2, h3, h4, select, option, thunk, makeDOMDriver} = CycleDOM;
 
 function createRenderTarget(id = null) {
   let element = document.createElement('div');
@@ -71,26 +71,17 @@ describe('DOM Rendering', function () {
     });
   });
 
-  it('should allow virtual-dom Thunks in the VTree', function (done) {
-    // The thunk
-    const ConstantlyThunk = function ConstantlyThunk(greeting){
-      this.greeting = greeting;
-    };
-    ConstantlyThunk.prototype.type = 'Thunk';
-    ConstantlyThunk.prototype.render = function(previous) {
-      if (previous && previous.vnode) {
-        return previous.vnode;
-      } else {
-        return h4('Constantly ' + this.greeting);
-      }
-    };
+  it('should allow snabbdom Thunks in the VTree', function (done) {
+    function renderThunk(greeting) {
+      return h4('Constantly ' + greeting)
+    }
 
     // The Cycle.js app
     function app() {
       return {
         DOM: Rx.Observable.interval(10).take(5).map(i =>
           div([
-            new ConstantlyThunk('hello' + i)
+            thunk('thunk', renderThunk, 'hello' + 0)
           ])
         )
       };

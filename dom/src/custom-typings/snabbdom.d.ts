@@ -28,7 +28,8 @@ declare module 'snabbdom/is' {
 
 declare module 'snabbdom/thunk' {
   import {VNode} from 'snabbdom';
-  export default function thunk(name: string, fn: Function): VNode;
+  function thunk(name: string, fn: Function): VNode;
+  export = thunk;
 }
 
 declare module 'snabbdom/modules/class' {
