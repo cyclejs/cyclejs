@@ -36,6 +36,10 @@ export {
   th, thead, title, tr, u, ul, video,
 };
 
+export function hJSX(tag: string, attrs: Object, ...children: any[]) {
+  return h(tag, attrs, children);
+};
+
 import {makeDOMDriver} from './makeDOMDriver';
 export {makeDOMDriver};
 
