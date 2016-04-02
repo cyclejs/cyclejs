@@ -57,6 +57,7 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions) 
       .map(vnodeWrapper.call, vnodeWrapper)
       .scan(patch, rootElement)
       .map(({elm}) => elm)
+      .startWith(rootElement)
       .doOnError(onError)
       .replay(null, 1);
 
