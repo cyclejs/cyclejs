@@ -131,6 +131,6 @@ export class DOMSource {
     }
   }
 
-  static isolateSink = isolateSink;
-  static isolateSource = isolateSource;
+  isolateSink = isolateSink;
+  isolateSource = isolateSource;
 }
