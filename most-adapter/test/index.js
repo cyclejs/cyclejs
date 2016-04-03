@@ -1,6 +1,7 @@
 import {describe, it} from 'mocha';
 import assert from 'assert';
 import MostAdapter from '../lib';
+import {Stream} from 'most'
 
 describe('MostAdapter', () => {
   it('should conform to StreamLibrary interface', () => {
@@ -26,9 +27,9 @@ describe('MostAdapter', () => {
     const mostStream = MostAdapter.adapt(dummyStream, arraySubscribe);
     assert.strictEqual(MostAdapter.isValidStream(mostStream), true);
     const expected = [1, 2, 3];
-    mostStream.subscribe(x => {
+    mostStream.observe(x => {
       assert.strictEqual(x, expected.shift());
-    }, done.fail, () => {
+    }).catch(done.fail).then(() => {
       assert.strictEqual(expected.length, 0);
       done();
     });
@@ -37,7 +38,7 @@ describe('MostAdapter', () => {
   // TODO
   it('should create a hold subject which can be fed and subscribed to', (done) => {
     const holdSubject = MostAdapter.makeHoldSubject();
-    assert.strictEqual(holdSubject.stream instanceof ReplaySubject, true);
+    assert.strictEqual(holdSubject.stream instanceof Stream, true);
     assert.strictEqual(MostAdapter.isValidStream(holdSubject.stream), true);
 
     const observer1Expected = [1, 2, 3, 4];
