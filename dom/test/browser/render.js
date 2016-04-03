@@ -104,49 +104,6 @@ describe('DOM Rendering', function () {
     });
   });
 
-  it('should allow plain virtual-dom Widgets in the VTree', function (done) {
-    // The widget
-    const MyTestWidget = function (content) {
-      this.content = content;
-    };
-    MyTestWidget.prototype.type = 'Widget';
-    MyTestWidget.prototype.init = function() {
-      const divElem = document.createElement('H4');
-      const textElem = document.createTextNode('Content is ' + this.content);
-      divElem.appendChild(textElem);
-      return divElem;
-    }
-    MyTestWidget.prototype.update = function(previous, domNode) {
-      return null
-    }
-
-    // The Cycle.js app
-    function app() {
-      return {
-        DOM: Rx.Observable.just(div('.top-most', [
-          p('Just a paragraph'),
-          new MyTestWidget('hello world')
-        ]))
-      };
-    }
-
-    // Run it
-    const {sinks, sources} = Cycle.run(app, {
-      DOM: makeDOMDriver(createRenderTarget())
-    });
-
-    // Assert it
-    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
-      const selectEl = root.querySelector('h4');
-      assert.notStrictEqual(selectEl, null);
-      assert.notStrictEqual(typeof selectEl, 'undefined');
-      assert.strictEqual(selectEl.tagName, 'H4');
-      assert.strictEqual(selectEl.textContent, 'Content is hello world');
-      sources.dispose();
-      done();
-    });
-  });
-
   it('should accept a view wrapping a VTree$ (#89)', function (done) {
     function app() {
       const number$ = Fixture89.makeModelNumber$();
