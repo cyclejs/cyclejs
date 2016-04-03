@@ -18,8 +18,8 @@ const {
   li, link, main, map, mark, menu, meta, nav, noscript,
   object, ol, optgroup, option, p, param, pre, q, rp, rt,
   ruby, s, samp, script, section, select, small, source, span,
-  strong, style, sub, sup, table, tbody, td, textarea, tfoot,
-  th, thead, title, tr, u, ul, video,
+  strong, style, sub, sup, svg, table, tbody, td, textarea,
+  tfoot, th, thead, title, tr, u, ul, video,
 } = hh;
 
 export {
@@ -32,8 +32,8 @@ export {
   li, link, main, map, mark, menu, meta, nav, noscript,
   object, ol, optgroup, option, p, param, pre, q, rp, rt,
   ruby, s, samp, script, section, select, small, source, span,
-  strong, style, sub, sup, table, tbody, td, textarea, tfoot,
-  th, thead, title, tr, u, ul, video,
+  strong, style, sub, sup, svg, table, tbody, td, textarea,
+  tfoot, th, thead, title, tr, u, ul, video,
 };
 
 import {makeDOMDriver} from './makeDOMDriver';

@@ -36,8 +36,8 @@ const TAG_NAMES = [
   'li', 'link', 'main', 'map', 'mark', 'menu', 'meta', 'nav', 'noscript',
   'object', 'ol', 'optgroup', 'option', 'p', 'param', 'pre', 'q', 'rp', 'rt',
   'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span',
-  'strong', 'style', 'sub', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot',
-  'th', 'thead', 'title', 'tr', 'u', 'ul', 'video', 'progress'
+  'strong', 'style', 'sub', 'sup', 'svg', 'table', 'tbody', 'td', 'textarea',
+  'tfoot', 'th', 'thead', 'title', 'tr', 'u', 'ul', 'video', 'progress'
 ];
 
 const exported = {TAG_NAMES, isSelector, createTagFunction};
