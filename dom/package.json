@@ -62,7 +62,7 @@
     "snabbdom-jsx": "^0.3.0",
     "testem": "0.9.11",
     "tslint": "^3.2.2",
-    "typescript": "^1.8.7",
+    "typescript": "^1.8.9",
     "typings": "^0.6.3",
     "uglify-js": "2.6.1",
     "zuul": "3.8.0"

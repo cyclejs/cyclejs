@@ -1,7 +1,7 @@
 // import * as modules from './modules'
 // export {modules}
 
-import * as thunk from 'snabbdom/thunk';
+const thunk = require('snabbdom/thunk');
 export {thunk};
 
 import h from './hyperscript';

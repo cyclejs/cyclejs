@@ -131,6 +131,6 @@ export class DOMSource {
     }
   }
 
-  isolateSink = isolateSink;
-  isolateSource = isolateSource;
+  public isolateSource: (source: DOMSource, scope: string) => DOMSource = isolateSource;
+  public isolateSink: (sink: Observable<any>, scope: string) => Observable<any> = isolateSink;
 }
