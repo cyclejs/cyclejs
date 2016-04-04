@@ -214,7 +214,7 @@ describe('isolation', function () {
     }
 
     const {sinks, sources} = Cycle.run(app, {
-      DOM: makeDOMDriver(createRenderTarget())
+      DOM: makeDOMDriver(createRenderTarget(), {transposition: true})
     });
 
     sinks.island.skip(1).take(1).subscribe(function (elements) {
@@ -265,7 +265,7 @@ describe('isolation', function () {
     }
 
     const {sources, sinks} = Cycle.run(Monalisa, {
-      DOM: makeDOMDriver(createRenderTarget())
+      DOM: makeDOMDriver(createRenderTarget(), {transposition: true})
     });
 
     const frameClick$ = sinks.frameClick.map(ev => ({
@@ -338,7 +338,7 @@ describe('isolation', function () {
     }
 
     const {sinks, sources} = Cycle.run(app, {
-      DOM: makeDOMDriver(createRenderTarget())
+      DOM: makeDOMDriver(createRenderTarget(), {transposition: true})
     });
 
     const {isolateSource} = sources.DOM;
