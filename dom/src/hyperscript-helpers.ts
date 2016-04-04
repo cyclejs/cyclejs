@@ -16,12 +16,14 @@ function createTagFunction(tagName: string): Function {
       } else if (!!b) {
         return h(tagName + first, b);
       } else {
-        return h(tagName + first);
+        return h(tagName + first, {});
       }
     } else if (!!b) {
       return h(tagName, first, b);
-    } else {
+    } else if (!!first) {
       return h(tagName, first);
+    } else {
+      return h(tagName, {});
     }
   };
 }

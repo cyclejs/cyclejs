@@ -9,7 +9,7 @@ export function isolateSource(source: DOMSource, scope: string): DOMSource {
 export function isolateSink(sink: Observable<any>, scope: string): Observable<any> {
   return sink.map(vTree => {
     if (vTree.sel.indexOf(`${SCOPE_PREFIX}${scope}`) === -1) {
-      if (vTree.data.ns) { // svg elements
+      if (vTree.data && vTree.data.ns) { // svg elements
         const attrs = vTree.data.attrs || {};
         attrs.class = `${attrs.class || ''} ${SCOPE_PREFIX}${scope}`;
       } else {
