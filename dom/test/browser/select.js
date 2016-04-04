@@ -129,10 +129,10 @@ describe('DOMSource.select()', function () {
     function app() {
       return {
         DOM: Rx.Observable.just(
-          svg('svg', {width: 150, height: 150}, [
-            svg('polygon', {
-              class: 'triangle',
-              attributes: {
+          svg({width: 150, height: 150}, [
+            h('polygon', {
+              attrs: {
+                class: 'triangle',
                 points: '20 0 20 150 150 20'
               }
             }),
