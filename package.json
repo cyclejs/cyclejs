@@ -58,7 +58,7 @@
     "test-browser": "testem",
     "pretest-browser": "browserify test/cycle.js -t babelify -o test/browser/tests-bundle.js",
     "posttest-browser": "rm test/browser/tests-bundle.js",
-    "predist": "rm -rf dist/ && mkdirp dist/ && npm run lib",
+    "predist": "rm -rf dist/ && mkdirp dist/ && npm run lib && npm run docs",
     "postdist": "uglifyjs dist/cycle.js -o dist/cycle.min.js",
     "dist": "browserify lib/index.js -t babelify -t browserify-shim --standalone Cycle --exclude rx -o dist/cycle.js",
     "docs": "node ./scripts/make-api-docs.js",
