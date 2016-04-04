@@ -175,13 +175,15 @@ describe('DOM rendering with transposition', function () {
   it('should only be concerned with values from the most recent nested Observable', function (done) {
     function app() {
       return {
-        DOM: Rx.Observable.just(div([
-          Rx.Observable.just(2).startWith(1).map(outer =>
-            Rx.Observable.just(2).delay(0).startWith(1).map(inner =>
-              div('.target', outer+'/'+inner)
+        DOM: Rx.Observable.of(
+          div([
+            Rx.Observable.of(1).concat(Rx.Observable.of(2).delay(5)).map(outer =>
+              Rx.Observable.of(1).concat(Rx.Observable.of(2).delay(10)).map(inner =>
+                div('.target', outer+'/'+inner)
+              )
             )
-          )
-        ]))
+          ])
+        )
       };
     };
 
@@ -192,7 +194,7 @@ describe('DOM rendering with transposition', function () {
     const expected = Rx.Observable.from(['1/1','2/1','2/2'])
 
     sources.DOM.select('.target').observable
-      // .skip(1)
+      .skip(1)
       .map(els => els[0].innerHTML)
       .sequenceEqual(expected)
       .subscribe((areSame) => {
