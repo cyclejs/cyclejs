@@ -75,7 +75,13 @@ function makeHistoryDriver(history, options) {
   /*eslint-enable*/
   return function historyDriver(sink$) {
     let history$ = new ReplaySubject(1)
-    history.listen(location => history$.onNext(location))
+    let unlisten = history.listen(location => history$.onNext(location))
+
+    let _dispose = history$.dispose
+    history$.dispose = () => {
+      unlisten()
+      _dispose.apply(history$)
+    }
 
     sink$.subscribe(makeUpdateHistory(history))
 

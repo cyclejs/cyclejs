@@ -130,5 +130,21 @@ describe(`History`, () => {
         sources.dispose()
       })
     })
+
+    it(`should stop listening history after disposed`, (done) => {
+      const app = () => ({})
+      const history = createHashHistory()
+      const {sources} = run(app, {
+        history: makeHistoryDriver(history)
+      })
+
+      setTimeout(function(){
+        sources.dispose()
+        assert.doesNotThrow(function(){
+          history.push(`/something`)
+          done()
+        }, Error, `does not throw after disposed`)
+      })
+    })
   })
 })
