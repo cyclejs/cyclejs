@@ -40,7 +40,7 @@
     "sinon": "1.17.2",
     "testem": "0.9.11",
     "tslint": "^3.3.0",
-    "typescript": "^1.7.5",
+    "typescript": "^1.8.9",
     "typings": "^0.6.3",
     "uglify-js": "2.5.0"
   },
