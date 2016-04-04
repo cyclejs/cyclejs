@@ -112,7 +112,7 @@ export class DOMSource {
     const useCapture: boolean = determineUseCapture(eventType, options);
 
     return this.rootElement$
-      .first()
+      .take(2) // 1st is the given container, 2nd is the re-rendered container
       .flatMapLatest(rootElement => {
         const namespace = this._namespace;
         if (!namespace || namespace.length === 0) {
