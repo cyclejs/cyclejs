@@ -12,6 +12,7 @@ export function isolateSink(sink: Observable<any>, scope: string): Observable<an
       if (vTree.data && vTree.data.ns) { // svg elements
         const attrs = vTree.data.attrs || {};
         attrs.class = `${attrs.class || ''} ${SCOPE_PREFIX}${scope}`;
+        vTree.data.attrs = attrs;
       } else {
         vTree.sel = `${vTree.sel}.${SCOPE_PREFIX}${scope}`;
       }

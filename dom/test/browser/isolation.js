@@ -361,10 +361,10 @@ describe('isolation', function () {
     function App(sources) {
       const triangleElement$ = sources.DOM.select('.triangle').observable;
 
-      const svgTriangle = svg('svg', {width: 150, height: 150}, [
-        svg('polygon', {
-          class: 'triangle',
-          attributes: {
+      const svgTriangle = svg({width: 150, height: 150}, [
+        h('polygon', {
+          attrs: {
+            class: 'triangle',
             points: '20 0 20 150 150 20'
           }
         }),
