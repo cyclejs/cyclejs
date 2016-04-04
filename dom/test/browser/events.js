@@ -402,7 +402,9 @@ describe('DOMSource.events()', function () {
       });
 
     sources.DOM.select('.wrong').events('blur', {useCapture: false})
-      .subscribe(assert.fail);
+      .subscribe(() =>
+        done('should not capture blur events if useCapture is false')
+      );
 
     sources.DOM.select(':root').observable.skip(1).take(1).subscribe(root => {
       const correct = root.querySelector('.correct');
@@ -442,7 +444,9 @@ describe('DOMSource.events()', function () {
       });
 
     sources.DOM.select('.wrong').events('blur', {useCapture: false})
-      .subscribe(assert.fail);
+      .subscribe(() =>
+        done('should not capture blur events if useCapture is false')
+      );
 
     sources.DOM.select(':root').observable.skip(1).take(1).subscribe(root => {
       const correct = root.querySelector('.correct');

@@ -55,12 +55,8 @@ const eventTypesThatDontBubble = [
 ];
 
 export interface EventsFnOptions {
-  useCapture: boolean;
+  useCapture?: boolean;
 }
-
-const defaultEventFnOptions: EventsFnOptions = {
-  useCapture: false,
-};
 
 function determineUseCapture(eventType: string, options: EventsFnOptions): boolean {
   let result = false;
@@ -104,7 +100,7 @@ export class DOMSource {
     return new DOMSource(this.rootElement$, childNamespace);
   }
 
-  events(eventType: string, options: EventsFnOptions = defaultEventFnOptions): Observable<Event> {
+  events(eventType: string, options: EventsFnOptions = {}): Observable<Event> {
     if (typeof eventType !== `string`) {
       throw new Error(`DOM driver's events() expects argument to be a ` +
         `string representing the event type to listen for.`);
