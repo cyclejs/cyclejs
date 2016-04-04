@@ -122,8 +122,8 @@ describe('isolateSink', function () {
 
   it('should not redundantly repeat the scope className', function (done) {
     function app(sources) {
-      const vtree1$ = Rx.Observable.just(span({className: 'tab1'}, 'Hi'));
-      const vtree2$ = Rx.Observable.just(span({className: 'tab2'}, 'Hello'));
+      const vtree1$ = Rx.Observable.just(span('.tab1', 'Hi'));
+      const vtree2$ = Rx.Observable.just(span('.tab2', 'Hello'));
       const first$ = sources.DOM.isolateSink(vtree1$, '1');
       const second$ = sources.DOM.isolateSink(vtree2$, '2');
       const switched$ = Rx.Observable.concat(
