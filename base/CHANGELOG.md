@@ -8,6 +8,16 @@
 
 
 
+<a name="1.3.0"></a>
+# [1.3.0](https://github.com/cyclejs/base/compare/v1.2.2...v1.3.0) (2016-04-05)
+
+
+### Features
+
+* **src:** export CycleSetup interface ([191f08f](https://github.com/cyclejs/base/commit/191f08f))
+
+
+
 <a name="1.2.2"></a>
 ## [1.2.2](https://github.com/cyclejs/base/compare/v1.2.1...v1.2.2) (2016-01-31)
 
