@@ -1,10 +1,10 @@
 'use strict';
 /* global describe, it, beforeEach */
 let assert = require('assert');
-let Cycle = require('@cycle/core');
-let CycleDOM = require('../../lib/index');
+let Cycle = require('@cycle/rxjs-run').default;
+let CycleDOM = require('../../../lib/index');
 let Fixture89 = require('./fixtures/issue-89');
-let Rx = require('rx');
+let Rx = require('rxjs');
 let {html} = require('snabbdom-jsx');
 let {h, svg, div, input, p, span, h2, h3, h4, select, option, thunk, makeDOMDriver} = CycleDOM;
 
@@ -27,26 +27,30 @@ describe('DOM rendering with transposition', function () {
       };
     }
 
-    const {sinks, sources} = Cycle.run(app, {
+    const {sinks, sources, run} = Cycle(app, {
       DOM: makeDOMDriver(createRenderTarget(), {transposition: true})
     });
 
-    sources.DOM.select('.myelementclass').observable.skip(1).first() // 1st
+    let dispose;
+    sources.DOM.select('.myelementclass').element$.skip(1).first() // 1st
       .subscribe(function (elements) {
         const myelement = elements[0];
         assert.notStrictEqual(myelement, null);
         assert.strictEqual(myelement.tagName, 'H3');
         assert.strictEqual(myelement.textContent, '123');
       });
-    sources.DOM.select('.myelementclass').observable.skip(2).first() // 2nd
+    sources.DOM.select('.myelementclass').element$.skip(2).first() // 2nd
       .subscribe(function (elements) {
         const myelement = elements[0];
         assert.notStrictEqual(myelement, null);
         assert.strictEqual(myelement.tagName, 'H3');
         assert.strictEqual(myelement.textContent, '456');
-        sources.dispose();
-        done();
+        setTimeout(() => {
+          dispose();
+          done();
+        });
       });
+    dispose = run();
   });
 
   it('should accept a view with VTree$ as the root of VTree', function (done) {
@@ -57,119 +61,135 @@ describe('DOM rendering with transposition', function () {
       };
     }
 
-    const {sinks, sources} = Cycle.run(app, {
+    const {sinks, sources, run} = Cycle(app, {
       DOM: makeDOMDriver(createRenderTarget(), {transposition: true})
     });
 
-    sources.DOM.select('.myelementclass').observable.skip(1).first() // 1st
+    let dispose;
+    sources.DOM.select('.myelementclass').element$.skip(1).first() // 1st
       .subscribe(function (elements) {
         const myelement = elements[0];
         assert.notStrictEqual(myelement, null);
         assert.strictEqual(myelement.tagName, 'H3');
         assert.strictEqual(myelement.textContent, '123');
       });
-    sources.DOM.select('.myelementclass').observable.skip(2).first() // 1st
+    sources.DOM.select('.myelementclass').element$.skip(2).first() // 1st
       .subscribe(function (elements) {
         const myelement = elements[0];
         assert.notStrictEqual(myelement, null);
         assert.strictEqual(myelement.tagName, 'H3');
         assert.strictEqual(myelement.textContent, '456');
-        sources.dispose();
-        done();
+        setTimeout(() => {
+          dispose();
+          done();
+        });
       });
+    dispose = run();
   });
 
   it('should render a VTree with a child Observable<VTree>', function (done) {
     function app() {
-      const child$ = Rx.Observable.just(
+      const child$ = Rx.Observable.of(
         h4('.child', {}, 'I am a kid')
       ).delay(80);
       return {
-        DOM: Rx.Observable.just(div('.my-class', [
+        DOM: Rx.Observable.of(div('.my-class', [
           p({}, 'Ordinary paragraph'),
           child$
         ]))
       };
     }
 
-    const {sinks, sources} = Cycle.run(app, {
+    const {sinks, sources, run} = Cycle(app, {
       DOM: makeDOMDriver(createRenderTarget(), {transposition: true})
     });
 
-    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    let dispose;
+    sources.DOM.select(':root').element$.skip(1).take(1).subscribe(function (root) {
       const selectEl = root.querySelector('.child');
       assert.notStrictEqual(selectEl, null);
       assert.notStrictEqual(typeof selectEl, 'undefined');
       assert.strictEqual(selectEl.tagName, 'H4');
       assert.strictEqual(selectEl.textContent, 'I am a kid');
-      sources.dispose();
-      done();
+      setTimeout(() => {
+        dispose();
+        done();
+      })
     });
+    dispose = run()
   });
 
   it('should render a VTree with a grandchild Observable<VTree>', function (done) {
     function app() {
-      const grandchild$ = Rx.Observable.just(
+      const grandchild$ = Rx.Observable.of(
           h4('.grandchild', {}, [
             'I am a baby'
           ])
         ).delay(20);
-      const child$ = Rx.Observable.just(
+      const child$ = Rx.Observable.of(
           h3('.child', {}, [
             'I am a kid',
             grandchild$
           ])
         ).delay(80);
       return {
-        DOM: Rx.Observable.just(div('.my-class', [
+        DOM: Rx.Observable.of(div('.my-class', [
           p({}, 'Ordinary paragraph'),
           child$
         ]))
       };
     }
 
-    const {sinks, sources} = Cycle.run(app, {
+    const {sinks, sources, run} = Cycle(app, {
       DOM: makeDOMDriver(createRenderTarget(), {transposition: true})
     });
 
-    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    let dispose;
+    sources.DOM.select(':root').element$.skip(1).take(1).subscribe(function (root) {
       const selectEl = root.querySelector('.grandchild');
       assert.notStrictEqual(selectEl, null);
       assert.notStrictEqual(typeof selectEl, 'undefined');
       assert.strictEqual(selectEl.tagName, 'H4');
       assert.strictEqual(selectEl.textContent, 'I am a baby');
-      sources.dispose();
-      done();
+      setTimeout(() => {
+        dispose();
+        done();
+      })
     });
+    dispose = run()
   });
 
   it('should render a SVG VTree with a child Observable<VTree>', function (done) {
     function app() {
-      const child$ = Rx.Observable.just(
+      const child$ = Rx.Observable.of(
         h('g', {
           attrs: {'class': 'child'}
         })
       ).delay(80);
       return {
-        DOM: Rx.Observable.just(svg([
+        DOM: Rx.Observable.of(svg([
           h('g'),
           child$
         ]))
       };
     }
 
-    const {sinks, sources} = Cycle.run(app, {
+    const {sinks, sources, run} = Cycle(app, {
       DOM: makeDOMDriver(createRenderTarget(), {transposition: true})
     });
 
-    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    let dispose
+    sources.DOM.select(':root').element$.skip(1).take(1).subscribe(function (root) {
       const selectEl = root.querySelector('.child');
       assert.notStrictEqual(selectEl, null);
       assert.notStrictEqual(typeof selectEl, 'undefined');
       assert.strictEqual(selectEl.tagName, 'g');
-      sources.dispose();
-      done();
+      setTimeout(() => {
+        dispose();
+        done();
+      });
     });
+    dispose = run();
   });
 
   it('should only be concerned with values from the most recent nested Observable', function (done) {
@@ -187,21 +207,25 @@ describe('DOM rendering with transposition', function () {
       };
     };
 
-    const {sinks, sources} = Cycle.run(app, {
+    const {sinks, sources, run} = Cycle(app, {
       DOM: makeDOMDriver(createRenderTarget(), {transposition: true})
     });
 
+    let dispose;
+
     const expected = Rx.Observable.from(['1/1','2/1','2/2'])
 
-    sources.DOM.select('.target').observable
+    sources.DOM.select('.target').element$
       .skip(1)
       .map(els => els[0].innerHTML)
       .sequenceEqual(expected)
       .subscribe((areSame) => {
         assert.strictEqual(areSame, true);
-        sources.dispose();
-        sinks.dispose();
-        done();
+        setTimeout(() => {
+          dispose();
+          done();
+        });
       });
+    dispose = run();
   });
 });

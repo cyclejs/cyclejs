@@ -1,7 +1,7 @@
 'use strict';
-let Cycle = require('@cycle/rx-run');
-let CycleDOM = require('../../../lib/index');
-let Rx = require('rx');
+let Cycle = require('@cycle/rxjs-run');
+let CycleDOM = require('../../../../lib/index');
+let Rx = require('rxjs');
 let {h} = CycleDOM;
 
 function myElement(content) {

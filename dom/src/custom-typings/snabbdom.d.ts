@@ -1,7 +1,7 @@
 declare module 'snabbdom' {
   export interface VNode {
     sel?: string;
-    data?: Object;
+    data?: any;
     children?: Array<VNode | string>;
     text?: string;
     key?: any;

@@ -1,10 +1,10 @@
 'use strict';
 /* global describe, it */
 let assert = require('assert');
-let Cycle = require('@cycle/core');
-let CycleDOM = require('../../lib/index');
+let Cycle = require('@cycle/rxjs-run').default;
+let CycleDOM = require('../../../lib/index');
 let Fixture89 = require('./fixtures/issue-89');
-let Rx = require('rx');
+let Rx = require('rxjs');
 let {h, svg, div, input, p, span, h2, h3, h4, select, option, makeDOMDriver} = CycleDOM;
 
 function createRenderTarget(id = null) {
@@ -101,31 +101,32 @@ describe('DOM Driver', function () {
       };
     }
 
-    const {sinks, sources} = Cycle.run(app, {
+    const {sinks, sources, run} = Cycle(app, {
       DOM: makeDOMDriver(createRenderTarget(), {onError: errorCallback})
     });
+    run();
   });
 
   it('should have isolateSource() and isolateSink() in source', function (done) {
     function app() {
       return {
-        DOM: Rx.Observable.just(div())
+        DOM: Rx.Observable.of(div())
       };
     }
 
-    const {sinks, sources} = Cycle.run(app, {
+    const {sinks, sources, run} = Cycle(app, {
       DOM: makeDOMDriver(createRenderTarget())
     });
-
+    let dispose = run();
     assert.strictEqual(typeof sources.DOM.isolateSource, 'function');
     assert.strictEqual(typeof sources.DOM.isolateSink, 'function');
-    sources.dispose();
+    dispose();
     done();
   });
 
   it('should not work after has been disposed', function (done) {
     const number$ = Rx.Observable.range(1, 3)
-      .concatMap(x => Rx.Observable.just(x).delay(50));
+      .concatMap(x => Rx.Observable.of(x).delay(50));
 
     function app() {
       return {
@@ -135,23 +136,24 @@ describe('DOM Driver', function () {
       };
     }
 
-    const {sinks, sources} = Cycle.run(app, {
+    const {sinks, sources, run} = Cycle(app, {
       DOM: makeDOMDriver(createRenderTarget())
     });
 
-    sources.DOM.select(':root').observable.skip(1).subscribe(function (root) {
+    let dispose;
+    sources.DOM.select(':root').element$.skip(1).subscribe(function (root) {
       const selectEl = root.querySelector('.target');
       assert.notStrictEqual(selectEl, null);
       assert.notStrictEqual(typeof selectEl, 'undefined');
       assert.strictEqual(selectEl.tagName, 'H3');
       assert.notStrictEqual(selectEl.textContent, '3');
       if (selectEl.textContent === '2') {
-        sources.dispose();
-        sinks.dispose();
+        dispose();
         setTimeout(() => {
           done();
         }, 100);
       }
     });
+    dispose = run();
   });
 });

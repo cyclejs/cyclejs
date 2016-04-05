@@ -69,24 +69,24 @@ describe('mockDOMSource', function () {
       .subscribe(assert.fail, assert.fail, done);
   });
 
-  it('should return empty Observable for select().observable and none is defined', function (done) {
+  it('should return empty Observable for select().element$ and none is defined', function (done) {
     const userEvents = mockDOMSource({
       '.foo': {
         'click': Rx.Observable.just(135)
       }
     });
     let subscribeExecuted = false;
-    userEvents.select('.foo').observable
+    userEvents.select('.foo').element$
       .subscribe(assert.fail, assert.fail, done);
   });
 
-  it('should return defined Observable for select().observable', function (done) {
+  it('should return defined Observable for select().element$', function (done) {
     const mockedDOMSource = mockDOMSource({
       '.foo': {
-        observable: Rx.Observable.just(135)
+        element$: Rx.Observable.just(135)
       }
     });
-    mockedDOMSource.select('.foo').observable
+    mockedDOMSource.select('.foo').element$
       .subscribe(e => {
         assert.strictEqual(e, 135)
         done()
@@ -98,12 +98,12 @@ describe('mockDOMSource', function () {
       '.bar': {
         '.foo': {
           '.baz': {
-            observable: Rx.Observable.just(135)
+            element$: Rx.Observable.just(135)
           }
         }
       }
     });
-    mockedDOMSource.select('.bar').select('.foo').select('.baz').observable
+    mockedDOMSource.select('.bar').select('.foo').select('.baz').element$
       .subscribe(e => {
         assert.strictEqual(e, 135);
         done();
@@ -121,6 +121,6 @@ describe('mockDOMSource', function () {
     const DOM = mockDOMSource({})
     const selector = DOM.select('.something').select('.other')
     assert.strictEqual(selector.events('click') instanceof Rx.Observable, true)
-    assert.strictEqual(selector.observable instanceof Rx.Observable, true)
+    assert.strictEqual(selector.element$ instanceof Rx.Observable, true)
   })
 });

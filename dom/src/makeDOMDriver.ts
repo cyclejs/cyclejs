@@ -1,3 +1,5 @@
+import {StreamAdapter} from '@cycle/base';
+
 import {init} from 'snabbdom';
 import {Observable} from 'rx';
 import {DOMSource} from './DOMSource';
@@ -49,10 +51,10 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions):
   const vnodeWrapper = new VNodeWrapper(rootElement);
   makeDOMDriverInputGuard(modules, onError);
 
-  function DOMDriver(vnode$: Observable<any>): DOMSource {
+  function DOMDriver(vnode$: Observable<any>, runStreamAdapter: StreamAdapter): DOMSource {
     domDriverInputGuard(vnode$);
     const goodVNode$ = (
-      transposition ? vnode$.flatMapLatest(transposeVTree) : vnode$
+      transposition ? vnode$.map(transposeVTree).switch() : vnode$
     );
     const rootElement$ = goodVNode$
       .map(vnodeWrapper.call, vnodeWrapper)
@@ -64,7 +66,7 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions):
 
     const disposable = rootElement$.connect();
 
-    return new DOMSource(rootElement$, [], disposable);
+    return new DOMSource(rootElement$, runStreamAdapter, [], disposable);
   };
 
   (<any> DOMDriver).streamAdapter = RxAdapter;

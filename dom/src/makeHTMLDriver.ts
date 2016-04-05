@@ -6,7 +6,7 @@ const toHTML: (vnode: VNode) => string = require('snabbdom-to-html');
 function makeBogusSelect() {
   return function select() {
     return {
-      observable: Observable.empty(),
+      element$: Observable.empty(),
       events() {
         return Observable.empty();
       },

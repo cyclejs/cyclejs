@@ -1,6 +1,6 @@
 'use strict';
 let Cycle = require('@cycle/rx-run');
-let CycleDOM = require('../../../lib/index');
+let CycleDOM = require('../../../../lib/index');
 let Rx = require('rx');
 let {h} = CycleDOM;
 

@@ -1,70 +1,73 @@
 'use strict';
 /* global describe, it, beforeEach */
 let assert = require('assert');
-let Cycle = require('@cycle/core');
+let Cycle = require('@cycle/rxjs-run').default;
 let CycleDOM = require('../../lib/index');
-let Rx = require('rx');
+let Rx = require('rxjs');
 let {div, h3, h, makeHTMLDriver} = CycleDOM;
 
 describe('HTML Driver', function () {
   it('should output HTML when given a simple vtree stream', function (done) {
     function app() {
       return {
-        html: Rx.Observable.just(div('.test-element', ['Foobar']))
+        html: Rx.Observable.of(div('.test-element', ['Foobar']))
       };
     }
-    let {sinks, sources} = Cycle.run(app, {
+    let {sinks, sources, run} = Cycle(app, {
       html: makeHTMLDriver()
     });
     sources.html.subscribe(html => {
       assert.strictEqual(html, '<div class="test-element">Foobar</div>');
       done();
     });
+    run()
   });
 
   it('should make bogus select().events() as sources', function (done) {
     function app({html}) {
       assert.strictEqual(typeof html.select, 'function');
-      assert.strictEqual(typeof html.select('whatever').observable.subscribe, 'function');
+      assert.strictEqual(typeof html.select('whatever').element$.subscribe, 'function');
       assert.strictEqual(typeof html.select('whatever').events().subscribe, 'function');
       return {
-        html: Rx.Observable.just(div('.test-element', ['Foobar']))
+        html: Rx.Observable.of(div('.test-element', ['Foobar']))
       };
     }
-    let {sinks, sources} = Cycle.run(app, {
+    let {sinks, sources, run} = Cycle(app, {
       html: makeHTMLDriver()
     });
     sources.html.subscribe(html => {
       assert.strictEqual(html, '<div class="test-element">Foobar</div>');
       done();
     });
+    run();
   });
 
   it('should output simple HTML Observable', function (done) {
     function app() {
       return {
-        html: Rx.Observable.just(div('.test-element', ['Foobar']))
+        html: Rx.Observable.of(div('.test-element', ['Foobar']))
       };
     }
-    let {sinks, sources} = Cycle.run(app, {
+    let {sinks, sources, run} = Cycle(app, {
       html: makeHTMLDriver()
     });
     sources.html.subscribe(html => {
       assert.strictEqual(html, '<div class="test-element">Foobar</div>');
       done();
     });
+    run();
   });
 
   describe('with transposition=true', function () {
     it('should render a simple nested vtree$ as HTML', function (done) {
       function app() {
         return {
-          DOM: Rx.Observable.just(h('div.test-element', [
-            Rx.Observable.just(h('h3.myelementclass'))
+          DOM: Rx.Observable.of(h('div.test-element', [
+            Rx.Observable.of(h('h3.myelementclass'))
           ]))
         };
       }
-      let {sinks, sources} = Cycle.run(app, {
+      let {sink, sources, run} = Cycle(app, {
         DOM: makeHTMLDriver({transposition: true})
       });
       sources.DOM.subscribe(html => {
@@ -75,24 +78,25 @@ describe('HTML Driver', function () {
         );
         done();
       });
+      run()
     });
 
     it('should render double nested vtree$ as HTML', function (done) {
       function app() {
         return {
-          html: Rx.Observable.just(h('div.test-element', [
-            Rx.Observable.just(h('div.a-nice-element', [
+          html: Rx.Observable.of(h('div.test-element', [
+            Rx.Observable.of(h('div.a-nice-element', [
               String('foobar'),
-              Rx.Observable.just(h('h3.myelementclass'))
+              Rx.Observable.of(h('h3.myelementclass'))
             ]))
           ]))
         };
       }
-      let html$ = Cycle.run(app, {
+      let {sinks, sources, run} = Cycle(app, {
         html: makeHTMLDriver({transposition: true})
-      }).sources.html;
+      })
 
-      html$.subscribe(html => {
+      sources.html.subscribe(html => {
         assert.strictEqual(html,
           '<div class="test-element">' +
           '<div class="a-nice-element">' +
@@ -102,6 +106,7 @@ describe('HTML Driver', function () {
         );
         done();
       });
+      run()
     });
 
     it('should HTML-render a nested vtree$ with props', function (done) {
@@ -112,14 +117,14 @@ describe('HTML Driver', function () {
       }
       function app() {
         return {
-          DOM: Rx.Observable.just(
+          DOM: Rx.Observable.of(
             h('div.test-element', [
-              myElement(Rx.Observable.just('yes'))
+              myElement(Rx.Observable.of('yes'))
             ])
           )
         };
       }
-      let {sinks, sources} = Cycle.run(app, {
+      let {sink, sources, run} = Cycle(app, {
         DOM: makeHTMLDriver({transposition: true})
       });
 
@@ -131,30 +136,31 @@ describe('HTML Driver', function () {
         );
         done();
       });
+      run()
     });
 
     it('should render a complex and nested vtree$ as HTML', function (done) {
       function app() {
         return {
-          html: Rx.Observable.just(
+          html: Rx.Observable.of(
             h('.test-element', [
               h('div', [
                 h('h2.a', 'a'),
                 h('h4.b', 'b'),
-                Rx.Observable.just(h('h1.fooclass'))
+                Rx.Observable.of(h('h1.fooclass'))
               ]),
               h('div', [
                 h('h3.c', 'c'),
                 h('div', [
                   h('p.d', 'd'),
-                  Rx.Observable.just(h('h2.barclass'))
+                  Rx.Observable.of(h('h2.barclass'))
                 ])
               ])
             ])
           )
         };
       }
-      let {sinks, sources} = Cycle.run(app, {
+      let {sink, sources, run} = Cycle(app, {
         html: makeHTMLDriver({transposition: true})
       });
 
@@ -177,6 +183,7 @@ describe('HTML Driver', function () {
         );
         done();
       });
+      run();
     });
   });
 });

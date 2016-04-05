@@ -18,7 +18,7 @@ export function transposeVTree(vnode: any) {
   } else if (vnode && typeof vnode.data === `object` && vnode.data.static) {
     return Observable.of(vnode);
   } else if (typeof vnode.subscribe === `function`) {
-    return vnode.flatMapLatest(transposeVTree);
+    return vnode.map(transposeVTree).switch();
   } else if (typeof vnode === `object`) {
     if (!vnode.children || vnode.children.length === 0) {
       return Observable.of(vnode);

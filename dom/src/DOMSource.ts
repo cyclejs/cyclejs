@@ -1,3 +1,5 @@
+import {StreamAdapter} from '@cycle/base';
+import RxAdapter from '@cycle/rx-adapter';
 import {Observable, Disposable} from 'rx';
 import {BubblingSimulator} from './BubblingSimulator';
 import {ElementFinder} from './ElementFinder';
@@ -71,16 +73,24 @@ function determineUseCapture(eventType: string, options: EventsFnOptions): boole
 
 export class DOMSource {
   constructor(private rootElement$: Observable<any>,
+              private runStreamAdapter: StreamAdapter,
               private _namespace: Array<string> = [],
               private disposable?: Disposable) {
   }
 
-  get observable(): Observable<any> {
+  get element$(): any {
+    console.log(this.runStreamAdapter);
     if (this._namespace.length === 0) {
-      return this.rootElement$;
+      return this.runStreamAdapter.adapt(
+        this.rootElement$,
+        RxAdapter.streamSubscribe
+      );
     } else {
       const elementFinder = new ElementFinder(this._namespace);
-      return this.rootElement$.map(elementFinder.call, elementFinder);
+      return this.runStreamAdapter.adapt(
+        this.rootElement$.map(elementFinder.call, elementFinder),
+        RxAdapter.streamSubscribe
+      );
     }
   }
 
@@ -97,17 +107,17 @@ export class DOMSource {
     const childNamespace = trimmedSelector === `:root` ?
       this._namespace :
       this._namespace.concat(trimmedSelector).sort(sortNamespace);
-    return new DOMSource(this.rootElement$, childNamespace);
+    return new DOMSource(this.rootElement$, this.runStreamAdapter, childNamespace);
   }
 
-  events(eventType: string, options: EventsFnOptions = {}): Observable<Event> {
+  events(eventType: string, options: EventsFnOptions = {}): any {
     if (typeof eventType !== `string`) {
       throw new Error(`DOM driver's events() expects argument to be a ` +
         `string representing the event type to listen for.`);
     }
     const useCapture: boolean = determineUseCapture(eventType, options);
 
-    return this.rootElement$
+    const originStream = this.rootElement$
       .take(2) // 1st is the given container, 2nd is the re-rendered container
       .flatMapLatest(rootElement => {
         const namespace = this._namespace;
@@ -119,6 +129,11 @@ export class DOMSource {
           .filter(bubblingSimulator.shouldPropagate, bubblingSimulator);
       })
       .share();
+
+    return this.runStreamAdapter.adapt(
+      originStream,
+      RxAdapter.streamSubscribe
+    );
   }
 
   dispose(): void {
