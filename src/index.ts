@@ -1,15 +1,11 @@
 import {
   DriversDefinition,
   CycleExecution,
+  CycleSetup,
   DisposeFunction
 } from '@cycle/base';
 import CycleBase from '@cycle/base';
 import RxAdapter from '@cycle/rx-adapter';
-
-export interface CycleSetup {
-  (main: (sources: any) => any, drivers: DriversDefinition): CycleExecution<any, any>;
-  run: (main: (sources: any) => any, drivers: DriversDefinition) => DisposeFunction;
-}
 
 /**
  * A function that prepares the Cycle application to be executed. Takes a `main`
