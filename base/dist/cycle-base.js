@@ -28,7 +28,7 @@ function callDrivers(drivers, sinkProxies, streamAdapter) {
     var sources = {};
     for (var name_2 in drivers) {
         if (drivers.hasOwnProperty(name_2)) {
-            sources[name_2] = drivers[name_2](sinkProxies[name_2].stream, streamAdapter.adapt, name_2);
+            sources[name_2] = drivers[name_2](sinkProxies[name_2].stream, streamAdapter, name_2);
         }
     }
     return sources;
