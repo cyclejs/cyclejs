@@ -11,6 +11,13 @@ function logToConsoleError(err) {
         console.log(target);
     }
 }
+function attemptSubjectComplete(subject) {
+    try {
+        subject.complete();
+    } catch (err) {
+        return void 0;
+    }
+}
 var RxJSAdapter = {
     adapt: function adapt(originStream, originStreamSubscribe) {
         if (this.isValidStream(originStream)) {
@@ -32,7 +39,7 @@ var RxJSAdapter = {
             }
         });
         Object.keys(sinkProxies).forEach(function (k) {
-            sinkProxies[k].observer.complete();
+            attemptSubjectComplete(sinkProxies[k].observer);
         });
     },
     makeHoldSubject: function makeHoldSubject() {
