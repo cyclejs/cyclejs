@@ -1,6 +1,6 @@
 {
   "name": "@cycle/rxjs-adapter",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Cycle.js RxJS 5 Stream Adapter",
   "main": "lib/index.js",
   "repository": {
@@ -31,7 +31,7 @@
   },
   "homepage": "https://github.com/cyclejs/rxjs-adapter#readme",
   "browserify-shim": {
-    "rxjs-es": "global:Rx"
+    "rxjs": "global:Rx"
   },
   "devDependencies": {
     "@cycle/base": "^1.2.0",
@@ -43,16 +43,15 @@
     "browserify-shim": "^3.8.12",
     "mkdirp": "^0.5.1",
     "mocha": "^2.3.4",
-    "tslint": "^3.2.2",
+    "tslint": "3.6.0",
     "typescript": "^1.7.5",
     "typings": "^0.6.3",
-    "uglify-js": "^2.6.1"
+    "uglify-js": "^2.6.1",
+    "rxjs": "^5.0.0-beta.5"
   },
   "peerDependencies": {
-    "@cycle/base": "^1.2.0"
-  },
-  "dependencies": {
-    "rxjs": "^5.0.0-beta.1"
+    "@cycle/base": "^1.2.0",
+    "rxjs": "*"
   },
   "scripts": {
     "lint": "tslint -c tslint.json src/*.ts",
@@ -62,7 +61,7 @@
     "prelib": "rm -rf lib/ && mkdirp lib/ && typings install",
     "lib": "tsc",
     "predist": "rm -rf dist/ && mkdirp dist/ && npm run lib",
-    "dist": "browserify -t browserify-shim -t babelify --exclude rxjs-es lib/index.js -o dist/cycle-rxjs-adapter.js",
+    "dist": "browserify -t browserify-shim -t babelify --exclude rxjs lib/index.js -o dist/cycle-rxjs-adapter.js",
     "postdist": "uglifyjs dist/cycle-rxjs-adapter.js -o dist/cycle-rxjs-adapter.min.js",
     "start": "npm install && npm prune",
     "prepublish": "npm run lib",
