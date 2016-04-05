@@ -2,6 +2,10 @@
 # [2.0.0](https://github.com/cyclejs/base/compare/v2.0.0...v2.0.0) (2016-04-05)
 
 
+### Features
+
+* **DriverFunction:** improve DriverFunction signature ([3da5431](https://github.com/cyclejs/base/commit/3da5431))
+
 
 
 <a name="1.3.0"></a>
@@ -38,5 +42,3 @@
 # [1.2.0](https://github.com/cyclejs/base/compare/v1.2.0...v1.2.0) (2016-01-25)
 
 feat(StreamAdapter): improve typing of makeHoldSubject()
-
-

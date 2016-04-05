@@ -85,12 +85,11 @@
     "dist": "browserify lib/index.js -t babelify --standalone CycleBase -o dist/cycle-base.js",
     "postdist": "uglifyjs dist/cycle-base.js -o dist/cycle-base.min.js",
     "start": "npm install && npm prune",
-    "changelog-and-commit": "npm run changelog &&  git diff --quiet --exit-code --cached || git commit -a -m 'chore(CHANGELOG): update CHANGELOG.md'",
     "prepublish": "npm run lib",
     "preversion": "npm run dist && git add dist/ && git diff --quiet --exit-code --cached || git commit -a -m 'chore(dist): build dist/'",
     "version-patch": "npm version patch --message 'chore(version): %s'",
     "version-minor": "npm version minor --message 'chore(version): %s'",
     "version-major": "npm version major --message 'chore(version): %s'",
-    "postversion": "npm run changelog-and-commit && npm publish --access=public"
+    "postversion": "npm publish --access=public"
   }
 }
