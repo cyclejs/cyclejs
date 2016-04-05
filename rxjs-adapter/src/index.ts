@@ -34,8 +34,8 @@ const RxJSAdapter: StreamAdapter = {
 
   dispose(sinks: any, sinkProxies: SinkProxies, sources: any) {
     Object.keys(sources).forEach(k => {
-      if (typeof sources[k].dispose === 'function') {
-        sources[k].dispose();
+      if (typeof sources[k].unsubscribe === 'function') {
+        sources[k].unsubscribe();
       }
     });
     Object.keys(sinkProxies).forEach(k => {
