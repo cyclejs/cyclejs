@@ -4,15 +4,6 @@ export interface Observer {
   complete: (c?: any) => void;
 }
 
-export interface DriverFunction {
-  (stream: any, adaptFn: Function, driverName: string): any;
-  streamAdapter?: StreamAdapter;
-}
-
-export interface DriversDefinition {
-  [driverName: string]: DriverFunction;
-}
-
 export interface HoldSubject {
   stream: any;
   observer: Observer;
@@ -32,6 +23,15 @@ export interface StreamAdapter {
   makeHoldSubject: () => HoldSubject;
   isValidStream: (stream: any) => boolean;
   streamSubscribe: StreamSubscribe;
+}
+
+export interface DriverFunction {
+  (stream: any, adapter: StreamAdapter, driverName: string): any;
+  streamAdapter?: StreamAdapter;
+}
+
+export interface DriversDefinition {
+  [driverName: string]: DriverFunction;
 }
 
 export interface CycleOptions {
@@ -79,7 +79,7 @@ function callDrivers(drivers: DriversDefinition,
     if (drivers.hasOwnProperty(name)) {
       sources[name] = drivers[name](
         sinkProxies[name].stream,
-        streamAdapter.adapt,
+        streamAdapter,
         name
       );
     }
