@@ -1,6 +1,6 @@
 {
   "name": "@cycle/rxjs-adapter",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Cycle.js RxJS 5 Stream Adapter",
   "typings": "lib/index.d.ts",
   "main": "lib/index.js",
