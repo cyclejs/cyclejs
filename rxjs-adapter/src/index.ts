@@ -6,7 +6,7 @@ import {
   DisposeFunction,
   HoldSubject,
 } from '@cycle/base';
-import {Observable, ReplaySubject} from 'rxjs';
+import {Observable, Subject, ReplaySubject} from 'rxjs';
 
 function logToConsoleError(err: any) {
   const target = err.stack || err;
@@ -14,6 +14,14 @@ function logToConsoleError(err: any) {
     console.error(target);
   } else if (console && console.log) {
     console.log(target);
+  }
+}
+
+function attemptSubjectComplete<T>(subject: Subject<T>): void {
+  try {
+    subject.complete();
+  } catch (err) {
+    return void 0;
   }
 }
 
@@ -39,7 +47,7 @@ const RxJSAdapter: StreamAdapter = {
       }
     });
     Object.keys(sinkProxies).forEach(k => {
-      sinkProxies[k].observer.complete();
+      attemptSubjectComplete(<Subject<any>> sinkProxies[k].observer);
     });
   },
 
