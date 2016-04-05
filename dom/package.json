@@ -30,7 +30,7 @@
   ],
   "main": "lib/index.js",
   "dependencies": {
-    "@cycle/rx-adapter": "^1.0.2",
+    "@cycle/rx-adapter": "^1.0.3",
     "matches-selector": "1.0.0",
     "snabbdom": "^0.4.1",
     "snabbdom-selector": "^0.3.2",
