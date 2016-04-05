@@ -963,7 +963,7 @@ var RxJSAdapter = {
         return { stream: stream, observer: observer };
     },
     isValidStream: function (stream) {
-        return (typeof stream.subscribe === 'function' &&
+        return (typeof stream.subscribeOnNext === 'function' &&
             typeof stream.onValue !== 'function');
     },
     streamSubscribe: function (stream, observer) {
