@@ -44,8 +44,8 @@
     "mocha": "2.3.3",
     "rx": "4.0.6",
     "sinon": "1.17.2",
-    "tslint": "^3.2.2",
-    "typescript": "^1.7.5",
+    "tslint": "3.2.2",
+    "typescript": "1.8.9",
     "uglify-js": "2.6.1",
     "validate-commit-msg": "^1.1.1"
   },
