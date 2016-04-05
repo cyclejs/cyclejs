@@ -5,6 +5,7 @@ import {VNodeWrapper} from './VNodeWrapper';
 import {domSelectorParser} from './utils';
 import defaultModules from './modules';
 import {transposeVTree} from './transposition';
+import RxAdapter from '@cycle/rx-adapter';
 
 function makeDOMDriverInputGuard(modules: any, onError: any) {
   if (!Array.isArray(modules)) {
@@ -38,7 +39,7 @@ function defaultOnErrorFn(msg: string): void {
   }
 }
 
-function makeDOMDriver(container: string | Element, options?: DOMDriverOptions) {
+function makeDOMDriver(container: string | Element, options?: DOMDriverOptions): Function {
   if (!options) { options = {}; }
   const transposition = options.transposition || false;
   const modules = options.modules || defaultModules;
@@ -48,7 +49,7 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions) 
   const vnodeWrapper = new VNodeWrapper(rootElement);
   makeDOMDriverInputGuard(modules, onError);
 
-  return function DOMDriver(vnode$: Observable<any>) {
+  function DOMDriver(vnode$: Observable<any>): DOMSource {
     domDriverInputGuard(vnode$);
     const goodVNode$ = (
       transposition ? vnode$.flatMapLatest(transposeVTree) : vnode$
@@ -65,6 +66,10 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions) 
 
     return new DOMSource(rootElement$, [], disposable);
   };
+
+  (<any> DOMDriver).streamAdapter = RxAdapter;
+
+  return DOMDriver;
 }
 
 export {makeDOMDriver}

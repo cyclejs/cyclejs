@@ -67,6 +67,17 @@ describe('makeDOMDriver', function () {
       makeDOMDriver(element, {onError: 42});
     });
   });
+
+  it('should have a streamAdapter property', function () {
+    const element = createRenderTarget();
+    const DOMDriver = makeDOMDriver(element);
+    assert.notStrictEqual(typeof DOMDriver.streamAdapter, 'undefined');
+    assert.strictEqual(typeof DOMDriver.streamAdapter.adapt, 'function');
+    assert.strictEqual(typeof DOMDriver.streamAdapter.dispose, 'function');
+    assert.strictEqual(typeof DOMDriver.streamAdapter.makeHoldSubject, 'function');
+    assert.strictEqual(typeof DOMDriver.streamAdapter.isValidStream, 'function');
+    assert.strictEqual(typeof DOMDriver.streamAdapter.streamSubscribe, 'function');
+  });
 });
 
 describe('DOM Driver', function () {
