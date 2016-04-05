@@ -63,7 +63,7 @@ const RxJSAdapter: StreamAdapter = {
 
   isValidStream(stream: any): boolean {
     return (
-      typeof stream.subscribe === 'function' &&
+      typeof stream.subscribeOnNext === 'function' &&
       typeof stream.onValue !== 'function');
   },
 
