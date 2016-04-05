@@ -77,11 +77,22 @@ function callDrivers(drivers: DriversDefinition,
   const sources = {};
   for (let name in drivers) {
     if (drivers.hasOwnProperty(name)) {
-      sources[name] = drivers[name](
+      const driverOutput = drivers[name](
         sinkProxies[name].stream,
         streamAdapter,
         name
       );
+
+      const driverStreamAdapter = drivers[name].streamAdapter;
+
+      if (driverStreamAdapter && driverStreamAdapter.isValidStream(driverOutput)) {
+        sources[name] = streamAdapter.adapt(
+          driverOutput,
+          driverStreamAdapter.streamSubscribe
+        );
+      } else {
+        sources[name] = driverOutput;
+      }
     }
   }
   return sources;

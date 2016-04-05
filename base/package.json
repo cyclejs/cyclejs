@@ -43,8 +43,9 @@
     "mkdirp": "^0.5.1",
     "mocha": "2.3.3",
     "rx": "4.0.6",
+    "rxjs": "^5.0.0-beta.5",
     "sinon": "1.17.2",
-    "tslint": "3.2.2",
+    "tslint": "3.6.0",
     "typescript": "1.8.9",
     "uglify-js": "2.6.1",
     "validate-commit-msg": "^1.1.1"

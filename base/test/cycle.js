@@ -3,7 +3,9 @@ import assert from 'assert'
 import sinon from 'sinon'
 import Cycle from '../lib'
 import * as Rx from 'rx'
+import * as RxJS from 'rxjs'
 import testStreamAdapter from './test-stream-adapter';
+import testStreamAdapterTwo from './test-stream-adapter-two'
 
 describe('Cycle', function () {
   it('should be a function', () => {
@@ -86,6 +88,37 @@ describe('Cycle', function () {
       sources.other.skip(2).take(1).subscribe(function(x) {
         assert.strictEqual(typeof x, 'string');
         assert.strictEqual(x, 'Correct');
+      });
+
+      const dispose = run();
+      setTimeout(function() {
+        dispose();
+        done();
+      }, 10)
+    });
+
+    it('should convert sources between stream libraries', function(done) {
+      function app(sources) {
+        assert(testStreamAdapterTwo.isValidStream(sources.other))
+        return {
+          other: sources.other.switchMap(() => RxJS.Observable.of(10)).startWith(1)
+        }
+      }
+
+      function driver(sink$) {
+        assert(testStreamAdapter.isValidStream(sink$))
+        return sink$.doOnNext(() => {}).map(() => 5)
+      }
+
+      driver.streamAdapter = testStreamAdapter
+
+      const {sinks, sources, run} = Cycle(app, {
+        other: driver
+      }, {streamAdapter: testStreamAdapterTwo});
+
+      sources.other.take(1).subscribe(function(x) {
+        assert.strictEqual(typeof x, 'number');
+        assert.strictEqual(x, 5);
       });
 
       const dispose = run();

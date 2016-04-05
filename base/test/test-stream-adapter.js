@@ -54,7 +54,7 @@ const testStreamAdapter = {
 
   isValidStream(stream) {
     return (
-      typeof stream.subscribe === 'function' && // should have .subscribe
+      typeof stream.subscribeOnNext === 'function' && // should have .subscribe
       typeof stream.onValue !== 'function'); // make sure not baconjs
   },
 
