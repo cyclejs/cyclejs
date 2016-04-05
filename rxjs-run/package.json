@@ -69,6 +69,6 @@
     "version-patch": "npm version patch --message 'chore(version): %s'",
     "version-minor": "npm version minor --message 'chore(version): %s'",
     "version-major": "npm version major --message 'chore(version): %s'",
-    "postversion": "npm publish --access=public && node scripts/publish-package-rx-run.js"
+    "postversion": "npm publish --access=public"
   }
 }
