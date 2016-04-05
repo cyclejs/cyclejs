@@ -59,7 +59,7 @@ var BubblingSimulator = function () {
 exports.BubblingSimulator = BubblingSimulator;
 
 
-},{"./ScopeChecker":4,"matches-selector":37}],2:[function(require,module,exports){
+},{"./ScopeChecker":4,"matches-selector":38}],2:[function(require,module,exports){
 "use strict";
 
 var BubblingSimulator_1 = require('./BubblingSimulator');
@@ -288,7 +288,7 @@ var VNodeWrapper = function () {
 exports.VNodeWrapper = VNodeWrapper;
 
 
-},{"./hyperscript":8,"snabbdom-selector/lib/classNameFromVNode":38,"snabbdom-selector/lib/selectorParser":39}],6:[function(require,module,exports){
+},{"./hyperscript":8,"snabbdom-selector/lib/classNameFromVNode":39,"snabbdom-selector/lib/selectorParser":40}],6:[function(require,module,exports){
 (function (global){
 "use strict";
 
@@ -441,7 +441,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = h;
 
 
-},{"snabbdom/is":49,"snabbdom/vnode":58}],9:[function(require,module,exports){
+},{"snabbdom/is":50,"snabbdom/vnode":59}],9:[function(require,module,exports){
 // import * as modules from './modules'
 // export {modules}
 "use strict";
@@ -659,7 +659,7 @@ var makeHTMLDriver_1 = require('./makeHTMLDriver');
 exports.makeHTMLDriver = makeHTMLDriver_1.makeHTMLDriver;
 
 
-},{"./hyperscript":8,"./hyperscript-helpers":7,"./makeDOMDriver":11,"./makeHTMLDriver":12,"./mockDOMSource":13,"snabbdom/thunk":57}],10:[function(require,module,exports){
+},{"./hyperscript":8,"./hyperscript-helpers":7,"./makeDOMDriver":11,"./makeHTMLDriver":12,"./mockDOMSource":13,"snabbdom/thunk":58}],10:[function(require,module,exports){
 "use strict";
 
 var utils_1 = require('./utils');
@@ -693,6 +693,7 @@ var VNodeWrapper_1 = require('./VNodeWrapper');
 var utils_1 = require('./utils');
 var modules_1 = require('./modules');
 var transposition_1 = require('./transposition');
+var rx_adapter_1 = require('@cycle/rx-adapter');
 function makeDOMDriverInputGuard(modules, onError) {
     if (!Array.isArray(modules)) {
         throw new Error("Optional modules option must be " + "an array for snabbdom modules");
@@ -724,7 +725,7 @@ function makeDOMDriver(container, options) {
     var rootElement = utils_1.domSelectorParser(container);
     var vnodeWrapper = new VNodeWrapper_1.VNodeWrapper(rootElement);
     makeDOMDriverInputGuard(modules, onError);
-    return function DOMDriver(vnode$) {
+    function DOMDriver(vnode$) {
         domDriverInputGuard(vnode$);
         var goodVNode$ = transposition ? vnode$.flatMapLatest(transposition_1.transposeVTree) : vnode$;
         var rootElement$ = goodVNode$.map(vnodeWrapper.call, vnodeWrapper).scan(patch, rootElement).map(function (_a) {
@@ -733,12 +734,15 @@ function makeDOMDriver(container, options) {
         }).startWith(rootElement).doOnError(onError).replay(null, 1);
         var disposable = rootElement$.connect();
         return new DOMSource_1.DOMSource(rootElement$, [], disposable);
-    };
+    }
+    ;
+    DOMDriver.streamAdapter = rx_adapter_1.default;
+    return DOMDriver;
 }
 exports.makeDOMDriver = makeDOMDriver;
 
 
-},{"./DOMSource":2,"./VNodeWrapper":5,"./modules":14,"./transposition":15,"./utils":16,"snabbdom":56}],12:[function(require,module,exports){
+},{"./DOMSource":2,"./VNodeWrapper":5,"./modules":14,"./transposition":15,"./utils":16,"@cycle/rx-adapter":17,"snabbdom":57}],12:[function(require,module,exports){
 (function (global){
 "use strict";
 
@@ -771,7 +775,7 @@ exports.makeHTMLDriver = makeHTMLDriver;
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./transposition":15,"snabbdom-to-html":41}],13:[function(require,module,exports){
+},{"./transposition":15,"snabbdom-to-html":42}],13:[function(require,module,exports){
 (function (global){
 "use strict";
 
@@ -838,7 +842,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = [StyleModule, ClassModule, PropsModule, AttrsModule];
 
 
-},{"snabbdom/modules/attributes":50,"snabbdom/modules/class":51,"snabbdom/modules/eventlisteners":52,"snabbdom/modules/hero":53,"snabbdom/modules/props":54,"snabbdom/modules/style":55}],15:[function(require,module,exports){
+},{"snabbdom/modules/attributes":51,"snabbdom/modules/class":52,"snabbdom/modules/eventlisteners":53,"snabbdom/modules/hero":54,"snabbdom/modules/props":55,"snabbdom/modules/style":56}],15:[function(require,module,exports){
 (function (global){
 "use strict";
 
@@ -906,6 +910,73 @@ exports.domSelectorParser = domSelectorParser;
 
 
 },{}],17:[function(require,module,exports){
+"use strict";
+var rx_1 = require('rx');
+function logToConsoleError(err) {
+    var target = err.stack || err;
+    if (console && console.error) {
+        console.error(target);
+    }
+    else if (console && console.log) {
+        console.log(target);
+    }
+}
+var RxJSAdapter = {
+    adapt: function (originStream, originStreamSubscribe) {
+        if (this.isValidStream(originStream)) {
+            return originStream;
+        }
+        return rx_1.Observable.create(function (destinationObserver) {
+            var originObserver = {
+                next: function (x) { return destinationObserver.onNext(x); },
+                error: function (e) { return destinationObserver.onError(e); },
+                complete: function () { return destinationObserver.onCompleted(); },
+            };
+            var dispose = originStreamSubscribe(originStream, originObserver);
+            return function () {
+                if (typeof dispose === 'function') {
+                    dispose.call(null);
+                }
+            };
+        });
+    },
+    dispose: function (sinks, sinkProxies, sources) {
+        Object.keys(sources).forEach(function (k) {
+            if (typeof sources[k].dispose === 'function') {
+                sources[k].dispose();
+            }
+        });
+        Object.keys(sinkProxies).forEach(function (k) {
+            sinkProxies[k].observer.complete();
+        });
+    },
+    makeHoldSubject: function () {
+        var stream = new rx_1.ReplaySubject(1);
+        var observer = {
+            next: function (x) { stream.onNext(x); },
+            error: function (err) {
+                logToConsoleError(err);
+                stream.onError(err);
+            },
+            complete: function (x) { stream.onCompleted(); },
+        };
+        return { stream: stream, observer: observer };
+    },
+    isValidStream: function (stream) {
+        return (typeof stream.subscribe === 'function' &&
+            typeof stream.onValue !== 'function');
+    },
+    streamSubscribe: function (stream, observer) {
+        var subscription = stream.subscribe(function (x) { return observer.next(x); }, function (e) { return observer.error(e); }, function () { return observer.complete(); });
+        return function () {
+            subscription.dispose();
+        };
+    },
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = RxJSAdapter;
+
+},{"rx":undefined}],18:[function(require,module,exports){
 /*!
  * Cross-Browser Split 1.1.1
  * Copyright 2007-2012 Steven Levithan <stevenlevithan.com>
@@ -1013,7 +1084,7 @@ module.exports = (function split(undef) {
   return self;
 })();
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /**
  * lodash 3.1.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1146,7 +1217,7 @@ function isLength(value) {
 
 module.exports = baseFlatten;
 
-},{"lodash.isarguments":30,"lodash.isarray":31}],19:[function(require,module,exports){
+},{"lodash.isarguments":31,"lodash.isarray":32}],20:[function(require,module,exports){
 /**
  * lodash 3.0.3 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -1196,7 +1267,7 @@ function createBaseFor(fromRight) {
 
 module.exports = baseFor;
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 /**
  * lodash 3.1.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1255,7 +1326,7 @@ function indexOfNaN(array, fromIndex, fromRight) {
 
 module.exports = baseIndexOf;
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 /**
  * lodash 3.0.3 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1325,7 +1396,7 @@ function baseUniq(array, iteratee) {
 
 module.exports = baseUniq;
 
-},{"lodash._baseindexof":20,"lodash._cacheindexof":23,"lodash._createcache":24}],22:[function(require,module,exports){
+},{"lodash._baseindexof":21,"lodash._cacheindexof":24,"lodash._createcache":25}],23:[function(require,module,exports){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1392,7 +1463,7 @@ function identity(value) {
 
 module.exports = bindCallback;
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1447,7 +1518,7 @@ function isObject(value) {
 
 module.exports = cacheIndexOf;
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 (function (global){
 /**
  * lodash 3.1.2 (Custom Build) <https://lodash.com/>
@@ -1542,7 +1613,7 @@ SetCache.prototype.push = cachePush;
 module.exports = createCache;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"lodash._getnative":25}],25:[function(require,module,exports){
+},{"lodash._getnative":26}],26:[function(require,module,exports){
 /**
  * lodash 3.9.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1681,7 +1752,7 @@ function isNative(value) {
 
 module.exports = getNative;
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 (function (global){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
@@ -1744,7 +1815,7 @@ function checkGlobal(value) {
 module.exports = root;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 /**
  * lodash 3.2.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -1929,7 +2000,7 @@ function deburr(string) {
 
 module.exports = deburr;
 
-},{"lodash._root":26}],28:[function(require,module,exports){
+},{"lodash._root":27}],29:[function(require,module,exports){
 /**
  * lodash 3.2.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -2111,7 +2182,7 @@ function escape(string) {
 
 module.exports = escape;
 
-},{"lodash._root":26}],29:[function(require,module,exports){
+},{"lodash._root":27}],30:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -2184,7 +2255,7 @@ var forOwn = createForOwn(baseForOwn);
 
 module.exports = forOwn;
 
-},{"lodash._basefor":19,"lodash._bindcallback":22,"lodash.keys":33}],30:[function(require,module,exports){
+},{"lodash._basefor":20,"lodash._bindcallback":23,"lodash.keys":34}],31:[function(require,module,exports){
 /**
  * lodash 3.0.8 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -2429,7 +2500,7 @@ function isObjectLike(value) {
 
 module.exports = isArguments;
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 /**
  * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -2611,7 +2682,7 @@ function isNative(value) {
 
 module.exports = isArray;
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 /**
  * lodash 3.1.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -2685,7 +2756,7 @@ var kebabCase = createCompounder(function(result, word, index) {
 
 module.exports = kebabCase;
 
-},{"lodash.deburr":27,"lodash.words":36}],33:[function(require,module,exports){
+},{"lodash.deburr":28,"lodash.words":37}],34:[function(require,module,exports){
 /**
  * lodash 3.1.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -2923,7 +2994,7 @@ function keysIn(object) {
 
 module.exports = keys;
 
-},{"lodash._getnative":25,"lodash.isarguments":30,"lodash.isarray":31}],34:[function(require,module,exports){
+},{"lodash._getnative":26,"lodash.isarguments":31,"lodash.isarray":32}],35:[function(require,module,exports){
 /**
  * lodash 3.6.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -2992,7 +3063,7 @@ function restParam(func, start) {
 
 module.exports = restParam;
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 /**
  * lodash 3.1.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -3029,7 +3100,7 @@ var union = restParam(function(arrays) {
 
 module.exports = union;
 
-},{"lodash._baseflatten":18,"lodash._baseuniq":21,"lodash.restparam":34}],36:[function(require,module,exports){
+},{"lodash._baseflatten":19,"lodash._baseuniq":22,"lodash.restparam":35}],37:[function(require,module,exports){
 /**
  * lodash 3.2.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -3229,7 +3300,7 @@ function words(string, pattern, guard) {
 
 module.exports = words;
 
-},{"lodash._root":26}],37:[function(require,module,exports){
+},{"lodash._root":27}],38:[function(require,module,exports){
 'use strict';
 
 var proto = Element.prototype;
@@ -3259,7 +3330,7 @@ function match(el, selector) {
   }
   return false;
 }
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3299,7 +3370,7 @@ function classNameFromVNode(vNode) {
 
   return cn.trim();
 }
-},{"./selectorParser":39}],39:[function(require,module,exports){
+},{"./selectorParser":40}],40:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3357,7 +3428,7 @@ function selectorParser() {
     className: classes.join(' ')
   };
 }
-},{"browser-split":17}],40:[function(require,module,exports){
+},{"browser-split":18}],41:[function(require,module,exports){
 
 // All SVG children elements, not in this list, should self-close
 
@@ -3380,12 +3451,12 @@ module.exports = {
   'metadata': true,
   'title': true
 };
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 
 var init = require('./init');
 
 module.exports = init([require('./modules/attributes'), require('./modules/style')]);
-},{"./init":42,"./modules/attributes":43,"./modules/style":44}],42:[function(require,module,exports){
+},{"./init":43,"./modules/attributes":44,"./modules/style":45}],43:[function(require,module,exports){
 
 var parseSelector = require('./parse-selector');
 var VOID_ELEMENTS = require('./void-elements');
@@ -3445,7 +3516,7 @@ module.exports = function init(modules) {
     return tag.join('');
   };
 };
-},{"./container-elements":40,"./parse-selector":45,"./void-elements":46}],43:[function(require,module,exports){
+},{"./container-elements":41,"./parse-selector":46,"./void-elements":47}],44:[function(require,module,exports){
 
 var forOwn = require('lodash.forown');
 var escape = require('lodash.escape');
@@ -3510,7 +3581,7 @@ function setAttributes(values, target) {
     target[key] = value;
   });
 }
-},{"../parse-selector":45,"lodash.escape":28,"lodash.forown":29,"lodash.union":35}],44:[function(require,module,exports){
+},{"../parse-selector":46,"lodash.escape":29,"lodash.forown":30,"lodash.union":36}],45:[function(require,module,exports){
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var forOwn = require('lodash.forown');
@@ -3537,7 +3608,7 @@ module.exports = function style(vnode) {
 
   return styles.length ? 'style="' + styles.join('; ') + '"' : '';
 };
-},{"lodash.escape":28,"lodash.forown":29,"lodash.kebabcase":32}],45:[function(require,module,exports){
+},{"lodash.escape":29,"lodash.forown":30,"lodash.kebabcase":33}],46:[function(require,module,exports){
 
 // https://github.com/Matt-Esch/virtual-dom/blob/master/virtual-hyperscript/parse-tag.js
 
@@ -3584,7 +3655,7 @@ module.exports = function parseSelector(selector, upper) {
     className: classes.join(' ')
   };
 };
-},{"browser-split":17}],46:[function(require,module,exports){
+},{"browser-split":18}],47:[function(require,module,exports){
 
 // http://www.w3.org/html/wg/drafts/html/master/syntax.html#void-elements
 
@@ -3605,7 +3676,7 @@ module.exports = {
   track: true,
   wbr: true
 };
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 var VNode = require('./vnode');
 var is = require('./is');
 
@@ -3640,7 +3711,7 @@ module.exports = function h(sel, b, c) {
   return VNode(sel, data, children, text, undefined);
 };
 
-},{"./is":49,"./vnode":58}],48:[function(require,module,exports){
+},{"./is":50,"./vnode":59}],49:[function(require,module,exports){
 function createElement(tagName){
   return document.createElement(tagName);
 }
@@ -3696,13 +3767,13 @@ module.exports = {
   setTextContent: setTextContent
 };
 
-},{}],49:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 module.exports = {
   array: Array.isArray,
   primitive: function(s) { return typeof s === 'string' || typeof s === 'number'; },
 };
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 var booleanAttrs = ["allowfullscreen", "async", "autofocus", "autoplay", "checked", "compact", "controls", "declare", 
                 "default", "defaultchecked", "defaultmuted", "defaultselected", "defer", "disabled", "draggable", 
                 "enabled", "formnovalidate", "hidden", "indeterminate", "inert", "ismap", "itemscope", "loop", "multiple", 
@@ -3743,7 +3814,7 @@ function updateAttrs(oldVnode, vnode) {
 
 module.exports = {create: updateAttrs, update: updateAttrs};
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 function updateClass(oldVnode, vnode) {
   var cur, name, elm = vnode.elm,
       oldClass = oldVnode.data.class || {},
@@ -3763,7 +3834,7 @@ function updateClass(oldVnode, vnode) {
 
 module.exports = {create: updateClass, update: updateClass};
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 var is = require('../is');
 
 function arrInvoker(arr) {
@@ -3806,7 +3877,7 @@ function updateEventListeners(oldVnode, vnode) {
 
 module.exports = {create: updateEventListeners, update: updateEventListeners};
 
-},{"../is":49}],53:[function(require,module,exports){
+},{"../is":50}],54:[function(require,module,exports){
 var raf = (typeof window !== 'undefined' && window.requestAnimationFrame) || setTimeout;
 var nextFrame = function(fn) { raf(function() { raf(fn); }); };
 
@@ -3960,7 +4031,7 @@ function post() {
 
 module.exports = {pre: pre, create: create, destroy: destroy, post: post};
 
-},{}],54:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 function updateProps(oldVnode, vnode) {
   var key, cur, old, elm = vnode.elm,
       oldProps = oldVnode.data.props || {}, props = vnode.data.props || {};
@@ -3980,7 +4051,7 @@ function updateProps(oldVnode, vnode) {
 
 module.exports = {create: updateProps, update: updateProps};
 
-},{}],55:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 var raf = (typeof window !== 'undefined' && window.requestAnimationFrame) || setTimeout;
 var nextFrame = function(fn) { raf(function() { raf(fn); }); };
 
@@ -4046,7 +4117,7 @@ function applyRemoveStyle(vnode, rm) {
 
 module.exports = {create: updateStyle, update: updateStyle, destroy: applyDestroyStyle, remove: applyRemoveStyle};
 
-},{}],56:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 // jshint newcap: false
 /* global require, module, document, Node */
 'use strict';
@@ -4315,7 +4386,7 @@ function init(modules, api) {
 
 module.exports = {init: init};
 
-},{"./htmldomapi.js":48,"./is":49,"./vnode":58}],57:[function(require,module,exports){
+},{"./htmldomapi.js":49,"./is":50,"./vnode":59}],58:[function(require,module,exports){
 var h = require('./h');
 
 function init(thunk) {
@@ -4350,7 +4421,7 @@ module.exports = function(name, fn /* args */) {
   });
 };
 
-},{"./h":47}],58:[function(require,module,exports){
+},{"./h":48}],59:[function(require,module,exports){
 module.exports = function(sel, data, children, text, elm) {
   var key = data === undefined ? undefined : data.key;
   return {sel: sel, data: data, children: children,
