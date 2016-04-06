@@ -66,8 +66,8 @@ const Cycle: CycleSetup = <CycleSetup>
  * Cycle.js program, cleaning up resources used.
  * @function run
  */
-function run<Sources, Sinks>(main: (sources: Sources) => Sinks,
-                             drivers: DriversDefinition): DisposeFunction {
+export function run<Sources, Sinks>(main: (sources: Sources) => Sinks,
+                                    drivers: DriversDefinition): DisposeFunction {
   const {run} = CycleBase(main, drivers, {streamAdapter: RxAdapter});
   return run();
 }

@@ -63,6 +63,7 @@ function run(main, drivers) {
   var run = base_1.default(main, drivers, { streamAdapter: rx_adapter_1.default }).run;
   return run();
 }
+exports.run = run;
 Cycle.run = run;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Cycle;
