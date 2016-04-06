@@ -16,7 +16,7 @@ describe('HTML Driver', function () {
     let {sinks, sources, run} = Cycle(app, {
       html: makeHTMLDriver()
     });
-    sources.html.subscribe(html => {
+    sources.html.element$.subscribe(html => {
       assert.strictEqual(html, '<div class="test-element">Foobar</div>');
       done();
     });
@@ -35,7 +35,7 @@ describe('HTML Driver', function () {
     let {sinks, sources, run} = Cycle(app, {
       html: makeHTMLDriver()
     });
-    sources.html.subscribe(html => {
+    sources.html.element$.subscribe(html => {
       assert.strictEqual(html, '<div class="test-element">Foobar</div>');
       done();
     });
@@ -51,7 +51,7 @@ describe('HTML Driver', function () {
     let {sinks, sources, run} = Cycle(app, {
       html: makeHTMLDriver()
     });
-    sources.html.subscribe(html => {
+    sources.html.element$.subscribe(html => {
       assert.strictEqual(html, '<div class="test-element">Foobar</div>');
       done();
     });
@@ -70,7 +70,7 @@ describe('HTML Driver', function () {
       let {sink, sources, run} = Cycle(app, {
         DOM: makeHTMLDriver({transposition: true})
       });
-      sources.DOM.subscribe(html => {
+      sources.DOM.element$.subscribe(html => {
         assert.strictEqual(html,
           '<div class="test-element">' +
           '<h3 class="myelementclass"></h3>' +
@@ -96,7 +96,7 @@ describe('HTML Driver', function () {
         html: makeHTMLDriver({transposition: true})
       })
 
-      sources.html.subscribe(html => {
+      sources.html.element$.subscribe(html => {
         assert.strictEqual(html,
           '<div class="test-element">' +
           '<div class="a-nice-element">' +
@@ -128,7 +128,7 @@ describe('HTML Driver', function () {
         DOM: makeHTMLDriver({transposition: true})
       });
 
-      sources.DOM.subscribe(html => {
+      sources.DOM.element$.subscribe(html => {
         assert.strictEqual(html,
           '<div class="test-element">' +
           '<h3 class="myelementclass">YES</h3>' +
@@ -164,7 +164,7 @@ describe('HTML Driver', function () {
         html: makeHTMLDriver({transposition: true})
       });
 
-      sources.html.subscribe(html => {
+      sources.html.element$.subscribe(html => {
         assert.strictEqual(html,
           '<div class="test-element">' +
             '<div>' +

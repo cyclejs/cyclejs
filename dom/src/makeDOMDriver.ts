@@ -1,12 +1,11 @@
 import {StreamAdapter} from '@cycle/base';
-
 import {init} from 'snabbdom';
 import {Observable} from 'rx';
 import {DOMSource} from './DOMSource';
 import {VNodeWrapper} from './VNodeWrapper';
 import {domSelectorParser} from './utils';
 import defaultModules from './modules';
-import {transposeVTree} from './transposition';
+import {makeTransposeVNode} from './transposition';
 import RxAdapter from '@cycle/rx-adapter';
 
 function makeDOMDriverInputGuard(modules: any, onError: any) {
@@ -53,10 +52,11 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions):
 
   function DOMDriver(vnode$: Observable<any>, runStreamAdapter: StreamAdapter): DOMSource {
     domDriverInputGuard(vnode$);
-    const goodVNode$ = (
-      transposition ? vnode$.map(transposeVTree).switch() : vnode$
+    const transposeVNode = makeTransposeVNode(runStreamAdapter);
+    const preprocessedVNode$ = (
+      transposition ? vnode$.flatMapLatest(transposeVNode) : vnode$
     );
-    const rootElement$ = goodVNode$
+    const rootElement$ = preprocessedVNode$
       .map(vnodeWrapper.call, vnodeWrapper)
       .scan(patch, rootElement)
       .map(({elm}) => elm)

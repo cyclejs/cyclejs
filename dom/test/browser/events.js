@@ -1,9 +1,9 @@
 'use strict';
 /* global describe, it, beforeEach */
 let assert = require('assert');
-let Cycle = require('@cycle/rx-run').default;
-let CycleDOM = require('../../../lib/index');
-let Rx = require('rx');
+let Cycle = require('@cycle/rxjs-run').default;
+let CycleDOM = require('../../lib/index');
+let Rx = require('rxjs');
 let {svg, div, input, p, span, h2, h3, h4, form, select, option, makeDOMDriver} = CycleDOM;
 
 function createRenderTarget(id = null) {

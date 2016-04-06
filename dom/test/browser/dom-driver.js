@@ -2,7 +2,7 @@
 /* global describe, it */
 let assert = require('assert');
 let Cycle = require('@cycle/rxjs-run').default;
-let CycleDOM = require('../../../lib/index');
+let CycleDOM = require('../../lib/index');
 let Fixture89 = require('./fixtures/issue-89');
 let Rx = require('rxjs');
 let {h, svg, div, input, p, span, h2, h3, h4, select, option, makeDOMDriver} = CycleDOM;

@@ -2,7 +2,7 @@
 /* global describe, it, beforeEach */
 let assert = require('assert');
 let Cycle = require('@cycle/rxjs-run').default;
-let CycleDOM = require('../../../lib/index');
+let CycleDOM = require('../../lib/index');
 let Rx = require('rxjs');
 let {h, svg, div, p, span, h2, h3, h4, hJSX, select, option, makeDOMDriver} = CycleDOM;
 
@@ -316,14 +316,14 @@ describe('isolation', function () {
       }
     });
 
+    // Monalisa should receive two clicks
     const otherExpected = [
       {type: 'click', tagName: 'SPAN'},
       {type: 'click', tagName: 'SPAN'},
     ]
-    // Monalisa should receive two clicks
     monalisaClick$.take(2).subscribe(event => {
-      let e = other.shift()
-      assert.strictEqual(event.type, e.type)
+      let e = otherExpected.shift();
+      assert.strictEqual(event.type, e.type);
       assert.strictEqual(event.tagName, e.tagName);
     });
 

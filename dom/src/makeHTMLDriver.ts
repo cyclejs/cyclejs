@@ -1,17 +1,27 @@
+import RxAdapter from '@cycle/rx-adapter';
+import {StreamAdapter} from '@cycle/base';
 import {Observable} from 'rx';
 import {VNode} from 'snabbdom';
-import {transposeVTree} from './transposition';
+import {makeTransposeVNode} from './transposition';
 const toHTML: (vnode: VNode) => string = require('snabbdom-to-html');
 
-function makeBogusSelect() {
-  return function select() {
-    return {
-      element$: Observable.empty(),
-      events() {
-        return Observable.empty();
-      },
-    };
-  };
+export class HTMLSource {
+  public element$: any;
+  private _empty$: any;
+
+  constructor(vnode$: Observable<VNode>,
+              private runStreamAdapter: StreamAdapter) {
+    this.element$ = vnode$.last().map(toHTML);
+    this._empty$ = runStreamAdapter.adapt(Observable.empty(), RxAdapter.streamSubscribe);
+  }
+
+  public select(): HTMLSource {
+    return new HTMLSource(Observable.empty(), this.runStreamAdapter);
+  }
+
+  public events(): any {
+    return this._empty$;
+  }
 }
 
 export interface HTMLDriverOptions {
@@ -21,12 +31,13 @@ export interface HTMLDriverOptions {
 export function makeHTMLDriver(options?: HTMLDriverOptions) {
   if (!options) { options = {}; }
   const transposition = options.transposition || false;
-  return function htmlDriver(vnode$: Observable<VNode>): Observable<string> {
-    const goodVNode$ = (
-      transposition ? vnode$.flatMapLatest(transposeVTree) : vnode$
+  function htmlDriver(vnode$: Observable<VNode>, runStreamAdapter: StreamAdapter): any {
+    const transposeVNode = makeTransposeVNode(runStreamAdapter);
+    const preprocessedVNode$ = (
+      transposition ? vnode$.flatMapLatest(transposeVNode) : vnode$
     );
-    const output$ = goodVNode$.last().map(toHTML);
-    (<any> output$).select = makeBogusSelect();
-    return output$;
+    return new HTMLSource(preprocessedVNode$, runStreamAdapter);
   };
+  (<any> htmlDriver).streamAdapter = RxAdapter;
+  return htmlDriver;
 }

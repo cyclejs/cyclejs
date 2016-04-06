@@ -2,7 +2,7 @@
 /* global describe, it, beforeEach */
 let assert = require('assert');
 let Cycle = require('@cycle/rxjs-run').default;
-let CycleDOM = require('../../../lib/index');
+let CycleDOM = require('../../lib/index');
 let Fixture89 = require('./fixtures/issue-89');
 let Rx = require('rxjs');
 let {html} = require('snabbdom-jsx');
@@ -213,14 +213,15 @@ describe('DOM rendering with transposition', function () {
 
     let dispose;
 
-    const expected = Rx.Observable.from(['1/1','2/1','2/2'])
+    let expected = ['1/1','2/1','2/2'];
 
     sources.DOM.select('.target').element$
       .skip(1)
       .map(els => els[0].innerHTML)
-      .sequenceEqual(expected)
-      .subscribe((areSame) => {
-        assert.strictEqual(areSame, true);
+      .subscribe((x) => {
+        assert.strictEqual(x, expected.shift());
+      }, err => done(err), () => {
+        assert.strictEqual(expected.length, 0);
         setTimeout(() => {
           dispose();
           done();
