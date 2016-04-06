@@ -63,6 +63,7 @@ function run(main, drivers) {
   var run = base_1.default(main, drivers, { streamAdapter: rxjs_adapter_1.default }).run;
   return run();
 }
+exports.run = run;
 Cycle.run = run;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Cycle;
@@ -211,7 +212,6 @@ var RxJSAdapter = {
     },
     isValidStream: function (stream) {
         return (typeof stream.subscribe === 'function' &&
-            typeof stream.subscribeOnNext !== 'function' &&
             typeof stream.onValue !== 'function');
     },
     streamSubscribe: function (stream, observer) {
