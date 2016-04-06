@@ -1,4 +1,4 @@
-import {Observable} from 'rx';
+import {Observable} from 'rxjs';
 import {h2, div} from '@cycle/dom';
 import isolate from '@cycle/isolate';
 import LabeledSlider from './LabeledSlider';
@@ -7,10 +7,10 @@ function BmiCalculator({DOM}) {
   let WeightSlider = isolate(LabeledSlider);
   let HeightSlider = isolate(LabeledSlider);
 
-  let weightProps$ = Observable.just({
+  let weightProps$ = Observable.of({
     label: 'Weight', unit: 'kg', min: 40, initial: 70, max: 140
   });
-  let heightProps$ = Observable.just({
+  let heightProps$ = Observable.of({
     label: 'Height', unit: 'cm', min: 140, initial: 170, max: 210
   });
 

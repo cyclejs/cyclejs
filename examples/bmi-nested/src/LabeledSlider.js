@@ -1,8 +1,8 @@
-import {Observable} from 'rx';
+import {Observable} from 'rxjs';
 import {div, span, input} from '@cycle/dom';
 
 function LabeledSlider({DOM, props$}) {
-  let initialValue$ = props$.map(props => props.initial).first();
+  let initialValue$ = props$.map(props => props.initial).take(1);
   let newValue$ = DOM.select('.slider').events('input').map(ev => ev.target.value);
   let value$ = initialValue$.concat(newValue$);
 
@@ -10,7 +10,7 @@ function LabeledSlider({DOM, props$}) {
     div('.labeled-slider', [
       span('.label', [ props.label + ' ' + value + props.unit ]),
       input('.slider', {
-        type: 'range', min: props.min, max: props.max, value: value
+        attrs: {type: 'range', min: props.min, max: props.max, value: value}
       })
     ])
   );
