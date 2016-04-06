@@ -62,6 +62,7 @@ exports.BubblingSimulator = BubblingSimulator;
 },{"./ScopeChecker":4,"matches-selector":38}],2:[function(require,module,exports){
 "use strict";
 
+var rx_adapter_1 = require('@cycle/rx-adapter');
 var BubblingSimulator_1 = require('./BubblingSimulator');
 var ElementFinder_1 = require('./ElementFinder');
 var fromEvent_1 = require('./fromEvent');
@@ -93,23 +94,25 @@ function determineUseCapture(eventType, options) {
     return result;
 }
 var DOMSource = function () {
-    function DOMSource(rootElement$, _namespace, disposable) {
+    function DOMSource(rootElement$, runStreamAdapter, _namespace, disposable) {
         if (_namespace === void 0) {
             _namespace = [];
         }
         this.rootElement$ = rootElement$;
+        this.runStreamAdapter = runStreamAdapter;
         this._namespace = _namespace;
         this.disposable = disposable;
         this.isolateSource = isolate_1.isolateSource;
         this.isolateSink = isolate_1.isolateSink;
     }
-    Object.defineProperty(DOMSource.prototype, "observable", {
+    Object.defineProperty(DOMSource.prototype, "element$", {
         get: function get() {
+            console.log(this.runStreamAdapter);
             if (this._namespace.length === 0) {
-                return this.rootElement$;
+                return this.runStreamAdapter.adapt(this.rootElement$, rx_adapter_1.default.streamSubscribe);
             } else {
                 var elementFinder = new ElementFinder_1.ElementFinder(this._namespace);
-                return this.rootElement$.map(elementFinder.call, elementFinder);
+                return this.runStreamAdapter.adapt(this.rootElement$.map(elementFinder.call, elementFinder), rx_adapter_1.default.streamSubscribe);
             }
         },
         enumerable: true,
@@ -128,7 +131,7 @@ var DOMSource = function () {
         }
         var trimmedSelector = selector.trim();
         var childNamespace = trimmedSelector === ":root" ? this._namespace : this._namespace.concat(trimmedSelector).sort(sortNamespace);
-        return new DOMSource(this.rootElement$, childNamespace);
+        return new DOMSource(this.rootElement$, this.runStreamAdapter, childNamespace);
     };
     DOMSource.prototype.events = function (eventType, options) {
         var _this = this;
@@ -139,7 +142,7 @@ var DOMSource = function () {
             throw new Error("DOM driver's events() expects argument to be a " + "string representing the event type to listen for.");
         }
         var useCapture = determineUseCapture(eventType, options);
-        return this.rootElement$.take(2) // 1st is the given container, 2nd is the re-rendered container
+        var originStream = this.rootElement$.take(2) // 1st is the given container, 2nd is the re-rendered container
         .flatMapLatest(function (rootElement) {
             var namespace = _this._namespace;
             if (!namespace || namespace.length === 0) {
@@ -148,6 +151,7 @@ var DOMSource = function () {
             var bubblingSimulator = new BubblingSimulator_1.BubblingSimulator(namespace, rootElement);
             return fromEvent_1.fromEvent(rootElement, eventType, useCapture).filter(bubblingSimulator.shouldPropagate, bubblingSimulator);
         }).share();
+        return this.runStreamAdapter.adapt(originStream, rx_adapter_1.default.streamSubscribe);
     };
     DOMSource.prototype.dispose = function () {
         if (this.disposable) {
@@ -159,7 +163,7 @@ var DOMSource = function () {
 exports.DOMSource = DOMSource;
 
 
-},{"./BubblingSimulator":1,"./ElementFinder":3,"./fromEvent":6,"./isolate":10}],3:[function(require,module,exports){
+},{"./BubblingSimulator":1,"./ElementFinder":3,"./fromEvent":6,"./isolate":10,"@cycle/rx-adapter":17}],3:[function(require,module,exports){
 "use strict";
 
 var ScopeChecker_1 = require('./ScopeChecker');
@@ -725,15 +729,16 @@ function makeDOMDriver(container, options) {
     var rootElement = utils_1.domSelectorParser(container);
     var vnodeWrapper = new VNodeWrapper_1.VNodeWrapper(rootElement);
     makeDOMDriverInputGuard(modules, onError);
-    function DOMDriver(vnode$) {
+    function DOMDriver(vnode$, runStreamAdapter) {
         domDriverInputGuard(vnode$);
-        var goodVNode$ = transposition ? vnode$.flatMapLatest(transposition_1.transposeVTree) : vnode$;
-        var rootElement$ = goodVNode$.map(vnodeWrapper.call, vnodeWrapper).scan(patch, rootElement).map(function (_a) {
+        var transposeVNode = transposition_1.makeTransposeVNode(runStreamAdapter);
+        var preprocessedVNode$ = transposition ? vnode$.flatMapLatest(transposeVNode) : vnode$;
+        var rootElement$ = preprocessedVNode$.map(vnodeWrapper.call, vnodeWrapper).scan(patch, rootElement).map(function (_a) {
             var elm = _a.elm;
             return elm;
         }).startWith(rootElement).doOnError(onError).replay(null, 1);
         var disposable = rootElement$.connect();
-        return new DOMSource_1.DOMSource(rootElement$, [], disposable);
+        return new DOMSource_1.DOMSource(rootElement$, runStreamAdapter, [], disposable);
     }
     ;
     DOMDriver.streamAdapter = rx_adapter_1.default;
@@ -746,36 +751,44 @@ exports.makeDOMDriver = makeDOMDriver;
 (function (global){
 "use strict";
 
+var rx_adapter_1 = require('@cycle/rx-adapter');
 var rx_1 = (typeof window !== "undefined" ? window['Rx'] : typeof global !== "undefined" ? global['Rx'] : null);
 var transposition_1 = require('./transposition');
 var toHTML = require('snabbdom-to-html');
-function makeBogusSelect() {
-    return function select() {
-        return {
-            observable: rx_1.Observable.empty(),
-            events: function events() {
-                return rx_1.Observable.empty();
-            }
-        };
+var HTMLSource = function () {
+    function HTMLSource(vnode$, runStreamAdapter) {
+        this.runStreamAdapter = runStreamAdapter;
+        this.element$ = vnode$.last().map(toHTML);
+        this._empty$ = runStreamAdapter.adapt(rx_1.Observable.empty(), rx_adapter_1.default.streamSubscribe);
+    }
+    HTMLSource.prototype.select = function () {
+        return new HTMLSource(rx_1.Observable.empty(), this.runStreamAdapter);
     };
-}
+    HTMLSource.prototype.events = function () {
+        return this._empty$;
+    };
+    return HTMLSource;
+}();
+exports.HTMLSource = HTMLSource;
 function makeHTMLDriver(options) {
     if (!options) {
         options = {};
     }
     var transposition = options.transposition || false;
-    return function htmlDriver(vnode$) {
-        var goodVNode$ = transposition ? vnode$.flatMapLatest(transposition_1.transposeVTree) : vnode$;
-        var output$ = goodVNode$.last().map(toHTML);
-        output$.select = makeBogusSelect();
-        return output$;
-    };
+    function htmlDriver(vnode$, runStreamAdapter) {
+        var transposeVNode = transposition_1.makeTransposeVNode(runStreamAdapter);
+        var preprocessedVNode$ = transposition ? vnode$.flatMapLatest(transposeVNode) : vnode$;
+        return new HTMLSource(preprocessedVNode$, runStreamAdapter);
+    }
+    ;
+    htmlDriver.streamAdapter = rx_adapter_1.default;
+    return htmlDriver;
 }
 exports.makeHTMLDriver = makeHTMLDriver;
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./transposition":15,"snabbdom-to-html":42}],13:[function(require,module,exports){
+},{"./transposition":15,"@cycle/rx-adapter":17,"snabbdom-to-html":42}],13:[function(require,module,exports){
 (function (global){
 "use strict";
 
@@ -783,10 +796,10 @@ var rx_1 = (typeof window !== "undefined" ? window['Rx'] : typeof global !== "un
 var MockedDOMSource = function () {
     function MockedDOMSource(_mockConfig) {
         this._mockConfig = _mockConfig;
-        if (_mockConfig['observable']) {
-            this.observable = _mockConfig['observable'];
+        if (_mockConfig['element$']) {
+            this.element$ = _mockConfig['element$'];
         } else {
-            this.observable = rx_1.Observable.empty();
+            this.element$ = rx_1.Observable.empty();
         }
     }
     MockedDOMSource.prototype.events = function (eventType) {
@@ -848,6 +861,7 @@ exports.default = [StyleModule, ClassModule, PropsModule, AttrsModule];
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
+var rx_adapter_1 = require('@cycle/rx-adapter');
 var rx_1 = (typeof window !== "undefined" ? window['Rx'] : typeof global !== "undefined" ? global['Rx'] : null);
 function createVTree(vnode, children) {
     return {
@@ -859,36 +873,39 @@ function createVTree(vnode, children) {
         children: children
     };
 }
-function transposeVTree(vnode) {
-    if (!vnode) {
-        return null;
-    } else if (vnode && _typeof(vnode.data) === "object" && vnode.data.static) {
-        return rx_1.Observable.of(vnode);
-    } else if (typeof vnode.subscribe === "function") {
-        return vnode.flatMapLatest(transposeVTree);
-    } else if ((typeof vnode === "undefined" ? "undefined" : _typeof(vnode)) === "object") {
-        if (!vnode.children || vnode.children.length === 0) {
+function makeTransposeVNode(runStreamAdapter) {
+    return function transposeVNode(vnode) {
+        if (!vnode) {
+            return null;
+        } else if (vnode && _typeof(vnode.data) === "object" && vnode.data.static) {
             return rx_1.Observable.of(vnode);
-        }
-        var vnodeChildren = vnode.children.map(transposeVTree).filter(function (x) {
-            return x !== null;
-        });
-        return vnodeChildren.length === 0 ? rx_1.Observable.of(createVTree(vnode, vnodeChildren)) : rx_1.Observable.combineLatest(vnodeChildren, function () {
-            var children = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                children[_i - 0] = arguments[_i];
+        } else if (runStreamAdapter.isValidStream(vnode)) {
+            var rxStream = rx_adapter_1.default.adapt(vnode, runStreamAdapter.streamSubscribe);
+            return rxStream.flatMapLatest(transposeVNode);
+        } else if ((typeof vnode === 'undefined' ? 'undefined' : _typeof(vnode)) === "object") {
+            if (!vnode.children || vnode.children.length === 0) {
+                return rx_1.Observable.of(vnode);
             }
-            return createVTree(vnode, children);
-        });
-    } else {
-        throw new Error("Unhandled vTree Value");
-    }
+            var vnodeChildren = vnode.children.map(transposeVNode).filter(function (x) {
+                return x !== null;
+            });
+            return vnodeChildren.length === 0 ? rx_1.Observable.of(createVTree(vnode, vnodeChildren)) : rx_1.Observable.combineLatest(vnodeChildren, function () {
+                var children = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    children[_i - 0] = arguments[_i];
+                }
+                return createVTree(vnode, children);
+            });
+        } else {
+            throw new Error("Unhandled vTree Value");
+        }
+    };
 }
-exports.transposeVTree = transposeVTree;
+exports.makeTransposeVNode = makeTransposeVNode;
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],16:[function(require,module,exports){
+},{"@cycle/rx-adapter":17}],16:[function(require,module,exports){
 "use strict";
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
