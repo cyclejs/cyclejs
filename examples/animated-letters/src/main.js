@@ -1,6 +1,6 @@
-import Cycle from '@cycle/core'
+import Cycle from '@cycle/rx-run'
 import {Observable} from 'rx'
-import {div, ul, li, makeDOMDriver} from 'cycle-snabbdom'
+import {div, ul, li, makeDOMDriver} from '@cycle/dom'
 import {intersection, difference, sortBy} from 'lodash'
 
 function intent(keydownSource) {
