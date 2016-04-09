@@ -6,7 +6,7 @@
 
 `npm install rxjs @cycle/rxjs-run`
 
-Note: `rxjs` is a **required** dependency. Without it, nothing will works.
+Note: `rxjs` is a **required** dependency. Without it, nothing will work.
 
 [![Build Status](https://travis-ci.org/cyclejs/rxjs-run.svg?branch=master)](https://travis-ci.org/cyclejs/rxjs-run)
 [![Dependency Status](https://david-dm.org/cyclejs/rxjs-run.svg)](https://david-dm.org/cyclejs/rxjs-run)
