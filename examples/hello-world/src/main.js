@@ -1,4 +1,4 @@
-import Cycle from '@cycle/core';
+import Cycle from '@cycle/rx-run';
 import {div, label, input, hr, h1, makeDOMDriver} from '@cycle/dom';
 
 function main(sources) {
@@ -9,7 +9,7 @@ function main(sources) {
       .map(name =>
         div([
           label('Name:'),
-          input('.myinput', {attributes: {type: 'text'}}),
+          input('.myinput', {attrs: {type: 'text'}}),
           hr(),
           h1(`Hello ${name}`)
         ])
