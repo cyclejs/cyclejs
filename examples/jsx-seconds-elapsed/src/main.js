@@ -1,7 +1,7 @@
-/** @jsx hJSX */
-import Cycle from '@cycle/core';
+import Cycle from '@cycle/rx-run';
 import {Observable} from 'rx';
-import {makeDOMDriver, hJSX} from '@cycle/dom';
+import {makeDOMDriver} from '@cycle/dom';
+import {html} from 'snabbdom-jsx';
 
 function main(drivers) {
   return {
