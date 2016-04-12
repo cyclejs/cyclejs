@@ -1,7 +1,7 @@
 import {Observable, Subject} from 'rx'
 const {merge} = Observable
 import isolate from '@cycle/isolate'
-import {div, button} from 'cycle-snabbdom'
+import {div, button} from '@cycle/dom'
 
 function intent(DOMSource, childAction$, selfId) {
   return merge(
