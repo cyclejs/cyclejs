@@ -3,6 +3,7 @@ import {makeDOMDriver} from '@cycle/dom'
 import {Observable} from 'rx'
 import {makeChartDriver} from './chart-driver'
 
+const timeframeSec = 1
 const chartDefaults = {
     type: 'bar',
     options: {
@@ -24,7 +25,7 @@ Cycle.run(main, {
 function intent(DOM) {
     return {
         click$: DOM.events('click').map(() => 1),
-        timer$: Observable.interval(2000).map(() => 0),
+        timer$: Observable.interval(timeframeSec * 1000).map(() => 0),
     }
 }
 
@@ -51,7 +52,7 @@ function view(clicksHistory$) {
     return clicksHistory$.map((history) => ({
         labels: history.map((n, i) => i),
         datasets: [{
-            label: 'Clicks per second',
+            label: `Clicks per ${timeframeSec} second`,
             data: history,
             backgroundColor: '#3498db',
         }],
