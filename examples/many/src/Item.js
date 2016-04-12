@@ -1,4 +1,3 @@
-import {Rx} from '@cycle/core';
 import {button, div, input} from '@cycle/dom';
 import combineLatestObj from 'rx-combine-latest-obj';
 
@@ -38,15 +37,13 @@ function view(state$) {
       padding: '20px',
       margin: '10px 0px'
     };
-    return div(`.item`, {style}, [
+    return div('.item', {style}, [
       input('.color-field', {
-        type: 'text',
-        attributes: {value: color}
+        attrs: {type: 'text', value: color}
       }),
       div('.slider-container', [
         input('.width-slider', {
-          type: 'range', min: '200', max: '1000',
-          attributes: {value: width}
+          attrs: {type: 'range', min: '200', max: '1000', value: width}
         })
       ]),
       div('.width-content', String(width)),

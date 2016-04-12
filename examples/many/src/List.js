@@ -71,9 +71,11 @@ function view(itemDOMs$) {
     ]);
   }
 
-  return itemDOMs$.map(itemDOMs =>
-    div('.list',
-      [renderTopButtons()].concat(itemDOMs)
+  return itemDOMs$.flatMapLatest(itemDOMs =>
+    Observable.combineLatest(itemDOMs, (...items) =>
+      div('.list',
+        [renderTopButtons()].concat(items)
+      )
     )
   );
 }

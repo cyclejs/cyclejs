@@ -1,4 +1,4 @@
-import {run} from '@cycle/core';
+import {run} from '@cycle/rx-run';
 import {makeDOMDriver} from '@cycle/dom';
 import List from './List';
 
