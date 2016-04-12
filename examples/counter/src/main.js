@@ -1,11 +1,11 @@
-import {Observable} from 'rx';
-import Cycle from '@cycle/core';
+import {Observable} from 'rxjs';
+import Cycle from '@cycle/rxjs-run';
 import {div, button, p, makeDOMDriver} from '@cycle/dom';
 
-function main({DOM}) {
+function main(sources) {
   let action$ = Observable.merge(
-    DOM.select('.decrement').events('click').map(ev => -1),
-    DOM.select('.increment').events('click').map(ev => +1)
+    sources.DOM.select('.decrement').events('click').map(ev => -1),
+    sources.DOM.select('.increment').events('click').map(ev => +1)
   );
   let count$ = action$.startWith(0).scan((x,y) => x+y);
   return {
