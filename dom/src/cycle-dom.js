@@ -1,4 +1,4 @@
-let svg = require(`./virtual-hyperscript-svg`)
+let {svg, SupportedSvgTags} = require(`./virtual-hyperscript-svg`)
 let {makeDOMDriver} = require(`./render-dom`)
 let {makeHTMLDriver} = require(`./render-html`)
 let mockDOMSource = require(`./mock-dom-source`)
@@ -77,7 +77,9 @@ let CycleDOM = {
    * @name hJSX
    */
   hJSX(tag, attrs, ...children) {
-    return h(tag, attrs, children)
+    const isSvgTag = SupportedSvgTags.indexOf(tag) !== -1
+    const domHandler = isSvgTag ? svg : h
+    return domHandler(tag, attrs, children)
   },
 
   /**

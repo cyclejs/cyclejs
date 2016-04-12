@@ -71,6 +71,32 @@ describe('DOM Rendering', function () {
     });
   });
 
+  it('should convert a simple virtual-dom <svg> (JSX) to SVG DOM element', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.just(
+          <svg class="svg-test" width="800" height="600">
+            <circle cx="100" cy="100" r="50"></circle>
+          </svg>
+        )
+      };
+    }
+
+    const {sinks, sources} = Cycle.run(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+      const svgEl = root.querySelector('.svg-test');
+      assert.notStrictEqual(svgEl, null);
+      assert.notStrictEqual(typeof svgEl, 'undefined');
+      assert.strictEqual(svgEl.tagName, 'svg');
+      assert.ok(svgEl instanceof SVGElement);
+      sources.dispose();
+      done();
+    });
+  });
+
   it('should allow virtual-dom Thunks in the VTree', function (done) {
     // The thunk
     const ConstantlyThunk = function ConstantlyThunk(greeting){

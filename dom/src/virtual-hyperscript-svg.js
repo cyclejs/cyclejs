@@ -11,8 +11,32 @@ var SVGAttributeNamespace = require('virtual-dom/virtual-hyperscript/svg-attribu
 var attributeHook = require('virtual-dom/virtual-hyperscript/hooks/attribute-hook');
 
 var SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+const SupportedSvgTags = [
+  'circle',
+  'clipPath',
+  'defs',
+  'ellipse',
+  'g',
+  'image',
+  'line',
+  'linearGradient',
+  'mask',
+  'path',
+  'pattern',
+  'polygon',
+  'polyline',
+  'radialGradient',
+  'rect',
+  'stop',
+  'svg',
+  'text',
+  'tspan',
+]
 
-module.exports = svg;
+module.exports = {
+  svg: svg,
+  SupportedSvgTags: SupportedSvgTags
+}
 
 function svg(tagName, properties, children) {
   if (!children && isChildren(properties)) {
