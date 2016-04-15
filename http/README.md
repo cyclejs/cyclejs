@@ -10,7 +10,7 @@ npm install @cycle/http
 
 ## Why are Issues unavailable?
 
-We use only one repository for issues. [**Open the issue at Cycle Core repo.**](https://github.com/cyclejs/cycle-core/issues)
+We use only one repository for issues. [**Open the issue at Cycle Core repo.**](https://github.com/cyclejs/core/issues)
 
 ## Usage
 
@@ -35,10 +35,12 @@ Simple and normal use case:
 
 ```js
 function main(responses) {
-  const HELLO_URL = 'http://localhost:8080/hello';
-  let request$ = Rx.Observable.just({url: HELLO_URL}); // GET by default
+  let request$ = Rx.Observable.of({
+    url: 'http://localhost:8080/hello', // GET method by default
+    category: 'hello',
+  });
   let vtree$ = responses.HTTP
-    .filter(res$ => res$.request.url === HELLO_URL)
+    .select('hello')
     .mergeAll()
     .map(res => res.text) // We expect this to be "Hello World"
     .startWith('Loading...')
@@ -59,9 +61,13 @@ A thorough guide to the Observable API inside `main`:
 
 ```js
 function main(responses) {
+  // The HTTPSource has properties:
+  // - response$$
+  // - select(category)
+  // - filter(predicate)
   // Notice $$: it means this is a metastream, in other words, an Observable
   // of Observables.
-  let httpResponse$$ = responses.HTTP;
+  let httpResponse$$ = responses.HTTP.response$$;
 
   httpResponse$$.subscribe(httpResponse$ => {
     // Notice that httpResponse$$ emits httpResponse$.
@@ -103,20 +109,18 @@ function main(responses) {
 
 You can handle errors using standard RxJS operators. The response stream is a stream of streams, i.e. each response will be its own stream so usually you want to catch errors for that single response stream:
 
-```
+```js
 responses.HTTP
-  .filter(res$ => res$.request.url === HELLO_URL)
+  .select('hello')
   .flatMap((response$) =>
-    response$
-      .map((response) => console.log(response))
-      .catch(O.just(errorObject)) 
+    response$.catch(Observable.of(errorObject))
   )
 ```
 For more information, refer to the [RxJS documention for catch](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/catch.md).
 
 ## More information
 
-For a more advanced usage, check the [Search example](https://github.com/cyclejs/cycle-examples/tree/master/http-search-github) and the [documentation](https://github.com/cyclejs/cycle-http-driver/blob/master/docs/api.md).
+For a more advanced usage, check the [Search example](https://github.com/cyclejs/examples/tree/master/http-search-github) and the [documentation](https://github.com/cyclejs/http/blob/master/docs/api.md).
 
 ## Browser support
 

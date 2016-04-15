@@ -1,22 +1,27 @@
 'use strict';
-var Rx = require('rx');
 var assert = require('assert');
 var src = require('../lib/index');
-var Rx = require('rx');
+var Rx = require('rxjs');
+var Cycle = require('@cycle/rxjs-run').default;
 var makeHTTPDriver = src.makeHTTPDriver;
 var uri = '//' + window.location.host;
 require('./common')(uri);
 
 describe('HTTP Driver in the browser', function () {
   it('should be able to emit progress events on the response stream', function(done) {
-    var request$ = Rx.Observable.just({
-      url: uri + '/querystring',
-      method: 'GET',
-      progress: true,
-      query: {foo: 102030, bar: 'Pub'}
-    });
-    var httpDriver = makeHTTPDriver();
-    var response$$ = httpDriver(request$);
+    function main() {
+      return {
+        HTTP: Rx.Observable.of({
+          url: uri + '/querystring',
+          method: 'GET',
+          progress: true,
+          query: {foo: 102030, bar: 'Pub'}
+        })
+      }
+    }
+    var output = Cycle(main, { HTTP: makeHTTPDriver() });
+    var response$$ = output.sources.HTTP.response$$;
+
     response$$.subscribe(function(response$) {
       assert.strictEqual(response$.request.url, uri + '/querystring');
       assert.strictEqual(response$.request.method, 'GET');
@@ -36,5 +41,7 @@ describe('HTTP Driver in the browser', function () {
         }
       });
     });
+
+    output.run();
   });
 });
