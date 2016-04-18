@@ -1,4 +1,4 @@
-import {Observable} from 'rx'
+import {Observable} from 'rxjs'
 import {ul, li, span, input, div, section, label} from '@cycle/dom'
 import Immutable from 'immutable'
 
@@ -64,16 +64,6 @@ const autocompleteItemStyle = {
 
 const LIGHT_GREEN = '#8FE8B4'
 
-function ControlledInputHook(injectedText) {
-  this.injectedText = injectedText
-}
-
-ControlledInputHook.prototype.hook = function hook(element) {
-  if (this.injectedText !== null) {
-    element.value = this.injectedText
-  }
-}
-
 function between(first, second) {
   return (source) => source.window(first, () => second).switch()
 }
@@ -81,7 +71,7 @@ function between(first, second) {
 function notBetween(first, second) {
   return source => Observable.merge(
     source.takeUntil(first),
-    first.flatMapLatest(() => source.skipUntil(second))
+    first.switchMap(() => source.skipUntil(second))
   )
 }
 
@@ -104,13 +94,13 @@ function intent(DOM) {
   const clearField$ = input$.filter(ev => ev.target.value.length === 0)
   const inputBlurToItem$ = inputBlur$.let(between(itemMouseDown$, itemMouseUp$))
   const inputBlurToElsewhere$ = inputBlur$.let(notBetween(itemMouseDown$, itemMouseUp$))
-  const itemMouseClick$ = itemMouseDown$.flatMapLatest(mousedown =>
+  const itemMouseClick$ = itemMouseDown$.switchMap(mousedown =>
     itemMouseUp$.filter(mouseup => mousedown.target === mouseup.target)
   )
 
   return {
     search$: input$
-      .debounce(500)
+      .debounceTime(500)
       .let(between(inputFocus$, inputBlur$))
       .map(ev => ev.target.value)
       .filter(query => query.length > 0),
@@ -128,8 +118,8 @@ function intent(DOM) {
     selectHighlighted$: Observable
       .merge(itemMouseClick$, enterPressed$, tabPressed$),
     wantsSuggestions$: Observable.merge(
-      inputFocus$.map(() => true),
-      inputBlur$.map(() => false)
+      inputFocus$.mapTo(true),
+      inputBlur$.mapTo(false)
     ),
     quitAutocomplete$: Observable
       .merge(clearField$, inputBlurToElsewhere$),
@@ -156,7 +146,7 @@ function modifications(actions) {
     })
 
   const selectHighlightedMod$ = actions.selectHighlighted$
-    .flatMap(() => Observable.from([true, false]))
+    .mergeMapTo(Observable.from([true, false]))
     .map(selected => function (state) {
       const suggestions = state.get('suggestions')
       const highlighted = state.get('highlighted')
@@ -172,7 +162,7 @@ function modifications(actions) {
     })
 
   const hideMod$ = actions.quitAutocomplete$
-    .map(() => function (state) {
+    .mapTo(function (state) {
       return state.set('suggestions', [])
     })
 
@@ -192,7 +182,7 @@ function model(suggestionsFromResponse$, actions) {
     .map(suggestions => Immutable.Map(
       {suggestions, highlighted: null, selected: null}
     ))
-    .flatMapLatest(state => mod$.startWith(state).scan((acc, mod) => mod(acc)))
+    .switchMap(state => mod$.startWith(state).scan((acc, mod) => mod(acc)))
     .share()
 
   return state$
@@ -207,7 +197,7 @@ function renderAutocompleteMenu({suggestions, highlighted}) {
   return ul('.autocomplete-menu', {style: autocompleteMenuStyle},
     suggestions.map((suggestion, index) =>
       li('.autocomplete-item',
-        {attributes: {'data-index': index}, style: childStyle(index)},
+        {style: childStyle(index), attrs: {'data-index': index}},
         suggestion
       )
     )
@@ -217,10 +207,16 @@ function renderAutocompleteMenu({suggestions, highlighted}) {
 function renderComboBox({suggestions, highlighted, selected}) {
   return span('.combo-box', {style: comboBoxStyle}, [
     input('.autocompleteable', {
-      type: 'text',
       style: autocompleteableStyle,
-      'data-hook': new ControlledInputHook(selected)}
-    ),
+      attrs: {type: 'text'},
+      hook: {
+        update: (old, {elm}) => {
+          if (selected !== null) {
+            elm.value = selected
+          }
+        }
+      }
+    }),
     renderAutocompleteMenu({suggestions, highlighted})
   ])
 }
@@ -238,7 +234,7 @@ function view(state$) {
         ]),
         section({style: sectionStyle}, [
           label({style: searchLabelStyle}, 'Some field:'),
-          input({type: 'text', style: inputTextStyle})
+          input({style: inputTextStyle, attrs: {type: 'text'}})
         ])
       ])
     )

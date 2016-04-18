@@ -1,5 +1,5 @@
-import {Observable} from 'rx'
-import Cycle from '@cycle/core'
+import {Observable} from 'rxjs'
+import Cycle from '@cycle/rxjs-run'
 import {makeDOMDriver} from '@cycle/dom'
 import {makeJSONPDriver} from '@cycle/jsonp'
 import {restart, restartable} from 'cycle-restart'
@@ -16,9 +16,13 @@ function preventDefaultSinkDriver(prevented$) {
 }
 
 const drivers = {
-  DOM: restartable(makeDOMDriver('#main-container'), {pauseSinksWhileReplaying: false}),
-  JSONP: restartable(makeJSONPDriver()),
-  preventDefault: restartable(preventDefaultSinkDriver),
+  DOM: makeDOMDriver('#main-container'),
+  JSONP: makeJSONPDriver(),
+  preventDefault: preventDefaultSinkDriver,
+  // TODO: support cycle-restart in Cycle Diversity
+  // DOM: restartable(makeDOMDriver('#main-container'), {pauseSinksWhileReplaying: false}),
+  // JSONP: restartable(makeJSONPDriver()),
+  // preventDefault: restartable(preventDefaultSinkDriver),
 }
 
 const {sinks, sources} = Cycle.run(app, drivers)
