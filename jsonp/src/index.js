@@ -1,6 +1,6 @@
 let Rx = require(`rx`)
 let jsonp = require(`jsonp`)
-let RxAdapter = require(`@cycle/rx-adapter`)
+let RxAdapter = require(`@cycle/rx-adapter`).default
 
 function createResponse$(url) {
   return Rx.Observable.create(observer => {
