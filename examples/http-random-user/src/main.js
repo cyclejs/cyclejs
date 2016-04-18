@@ -1,4 +1,4 @@
-import Cycle from '@cycle/core';
+import Cycle from '@cycle/rxjs-run';
 import {div, button, h1, h4, a, makeDOMDriver} from '@cycle/dom';
 import {makeHTTPDriver} from '@cycle/http';
 
@@ -13,8 +13,7 @@ function main(sources) {
       };
     });
 
-  const user$ = sources.HTTP
-    .filter(res$ => res$.request.category === 'users')
+  const user$ = sources.HTTP.select('users')
     .mergeAll()
     .map(res => res.body)
     .startWith(null);
@@ -25,7 +24,7 @@ function main(sources) {
       user === null ? null : div('.user-details', [
         h1('.user-name', user.name),
         h4('.user-email', user.email),
-        a('.user-website', {href: user.website}, user.website)
+        a('.user-website', {attrs: {href: user.website}}, user.website)
       ])
     ])
   );
