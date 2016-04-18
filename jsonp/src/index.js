@@ -1,5 +1,6 @@
 let Rx = require(`rx`)
 let jsonp = require(`jsonp`)
+let RxAdapter = require(`@cycle/rx-adapter`)
 
 function createResponse$(url) {
   return Rx.Observable.create(observer => {
@@ -25,13 +26,15 @@ function createResponse$(url) {
 }
 
 function makeJSONPDriver() {
-  return function jsonpDriver(request$) {
+  function jsonpDriver(request$) {
     return request$.map(url => {
       let response$ = createResponse$(url)
       response$.request = url
       return response$
     })
   }
+  jsonpDriver.streamAdapter = RxAdapter
+  return jsonpDriver
 }
 
 module.exports = {
