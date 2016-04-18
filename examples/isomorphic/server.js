@@ -1,9 +1,9 @@
-let Cycle = require('@cycle/core');
-let express = require('express');
-let browserify = require('browserify');
-let serialize = require('serialize-javascript');
-let {Observable, ReplaySubject} = require('rx');
-let {
+import Cycle from '@cycle/rx-run';
+import express from 'express';
+import browserify from 'browserify';
+import serialize from 'serialize-javascript';
+import {Observable, ReplaySubject} from 'rx';
+import {
   html,
   head,
   title,
@@ -11,8 +11,8 @@ let {
   div,
   script,
   makeHTMLDriver
-} = require('@cycle/dom');
-let app = require('./app');
+} from '@cycle/dom';
+import app from './app';
 
 function wrapVTreeWithHTMLBoilerplate(vtree, context, clientBundle) {
   return (
@@ -75,14 +75,15 @@ server.use(function (req, res) {
   }
   console.log(`req: ${req.method} ${req.url}`);
 
-  let context$ = Observable.just({route: req.url});
+  let context$ = Observable.of({route: req.url});
   let wrappedAppFn = wrapAppResultWithBoilerplate(app, context$, clientBundle$);
-  let {sources} = Cycle.run(wrappedAppFn, {
+  let {sources, run} = Cycle(wrappedAppFn, {
     DOM: makeHTMLDriver(),
     context: () => context$
   });
-  let html$ = sources.DOM.map(prependHTML5Doctype);
+  let html$ = sources.DOM.element$.map(prependHTML5Doctype);
   html$.subscribe(html => res.send(html));
+  run();
 });
 
 let port = process.env.PORT || 3000;

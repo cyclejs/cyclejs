@@ -1,15 +1,15 @@
-let Cycle = require('@cycle/core');
+let Cycle = require('@cycle/rx-run');
 let {Observable} = require('rx');
 let {makeDOMDriver} = require('@cycle/dom');
 let app = require('./app');
 
-function clientSideApp(responses) {
-  let requests = app(responses);
-  requests.DOM = requests.DOM.skip(1);
-  return requests;
+function clientSideApp(sources) {
+  let sinks = app(sources);
+  sinks.DOM = sinks.DOM.skip(1);
+  return sinks;
 }
 
 Cycle.run(clientSideApp, {
   DOM: makeDOMDriver('.app-container'),
-  context: () => Observable.just(window.appContext)
+  context: () => Observable.of(window.appContext)
 });

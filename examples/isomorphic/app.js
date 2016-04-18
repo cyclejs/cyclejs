@@ -3,8 +3,8 @@ let {div, ul, li, a, section, h1, p} = require('@cycle/dom');
 function renderMenu() {
   return (
     ul([
-      li([ a('.link', {href: '/'}, 'Home') ]),
-      li([ a('.link', {href: '/about'}, 'About') ]),
+      li([ a('.link', {attrs: {href: '/'}}, 'Home') ]),
+      li([ a('.link', {attrs: {href: '/about'}}, 'About') ]),
     ])
   );
 }
