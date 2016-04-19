@@ -1,6 +1,6 @@
 {
   "name": "@cycle/http",
-  "version": "9.0.0-rc1",
+  "version": "9.0.0-rc2",
   "description": "A Cycle.js Driver for making HTTP requests",
   "main": "lib/index.js",
   "author": "Andre Staltz",
@@ -33,7 +33,7 @@
     "mocha": "2.3.4",
     "rx": "4.0.7",
     "rxjs": "^5.0.0-beta.5",
-    "tslint": "3.6.0",
+    "tslint": "3.7.4",
     "typescript": "^1.8.9",
     "typings": "^0.7.12",
     "uglify-js": "2.6.1",

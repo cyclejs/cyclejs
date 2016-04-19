@@ -64,10 +64,11 @@ export function optionsToSuperagent(rawReqOptions: RequestOptions) {
   return request;
 }
 
-export function createResponse$(reqOptions: RequestOptions) {
+export function createResponse$(reqInput: RequestInput) {
   return Observable.create(observer => {
     let request: any;
     try {
+      const reqOptions = normalizeRequestInput(reqInput);
       request = optionsToSuperagent(reqOptions);
       if (reqOptions.progress) {
         request = request.on('progress', (res: Response) => {
@@ -96,6 +97,16 @@ export function createResponse$(reqOptions: RequestOptions) {
   });
 }
 
+function softNormalizeRequestInput(reqInput: RequestInput): RequestOptions {
+  let reqOptions: RequestOptions;
+  try {
+    reqOptions = normalizeRequestInput(reqInput);
+  } catch (err) {
+    reqOptions = {url: 'Error', _error: err};
+  }
+  return reqOptions;
+}
+
 function normalizeRequestInput(reqOptions: RequestInput): RequestOptions {
   if (typeof reqOptions === 'string') {
     return {url: <string> reqOptions};
@@ -109,14 +120,13 @@ function normalizeRequestInput(reqOptions: RequestInput): RequestOptions {
 
 function makeRequestInputToResponse$(runStreamAdapter: StreamAdapter) {
   return function requestInputToResponse$(reqInput: RequestInput): any {
-    const reqOptions = normalizeRequestInput(reqInput);
-    let response$ = createResponse$(reqOptions).replay(null, 1);
+    let response$ = createResponse$(reqInput).replay(null, 1);
     response$.connect();
     response$ = (runStreamAdapter) ?
       runStreamAdapter.adapt(response$, RxAdapter.streamSubscribe) :
       response$;
     Object.defineProperty(response$, 'request', <PropertyDescriptor> {
-      value: reqOptions,
+      value: softNormalizeRequestInput(reqInput),
       writable: false,
     });
     return response$;
@@ -171,11 +181,8 @@ export function makeHTTPDriver(): Function {
       .map(makeRequestInputToResponse$(runSA))
       .replay(null, 1);
     let httpSource = new HTTPSource(response$$, runSA, []);
-    setTimeout(() => response$$.connect(), 0);
+    response$$.connect();
     return httpSource;
-    // (<any> response$$).isolateSource = isolateSource;
-    // (<any> response$$).isolateSink = isolateSink;
-    // return response$$;
   }
   (<any> httpDriver).streamAdapter = RxAdapter;
   return httpDriver;
