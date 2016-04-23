@@ -1,12 +1,12 @@
 {
   "name": "xstream",
+  "main": "lib/index.d.ts",
   "dependencies": {
-    "es6-promise": "registry:npm/es6-promise#3.0.0+20160211003958",
+    "@cycle/base": "npm:@cycle/base",
     "xstream": "npm:xstream"
   },
   "devDependencies": {},
   "ambientDependencies": {
-    "@cycle/base": "npm:@cycle/base",
     "es6-shim": "github:DefinitelyTyped/DefinitelyTyped/es6-shim/es6-shim.d.ts#6697d6f7dadbf5773cb40ecda35a76027e0783b2"
   },
   "ambientDevDependencies": {

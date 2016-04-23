@@ -1,8 +1,9 @@
 {
-  "name": "xstream",
-  "version": "0.0.1",
-  "description": "",
+  "name": "@cycle/xstream-adapter",
+  "version": "1.0.0",
+  "description": "Cycle.js xstream Stream Adapter",
   "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "scripts": {
     "commit": "git-cz",
     "lint": "tslint -c tslint.json src/**/*.ts",
@@ -10,9 +11,8 @@
     "mocha": "mocha --compilers js:babel-register",
     "postmocha": "rm -rf tests/**/*.js",
     "test": "npm run lint && npm run mocha",
-    "prelib": "rm -rf lib/ && mkdirp lib/",
+    "prelib": "typings install && rm -rf lib/ && mkdirp lib/",
     "lib": "tsc",
-    "postinstall": "typings install",
     "predist": "rm -rf dist/ && mkdirp dist/ && npm run lib",
     "dist": "browserify lib/index.js --standalone xstream --outfile dist/xstream.js",
     "postdist": "uglifyjs dist/xstream.js -o dist/xstream.min.js",
@@ -47,10 +47,13 @@
     "ts-node": "^0.5.5",
     "tslint": "^3.6.0",
     "typescript": "^1.8.9",
-    "typings": "^0.7.9",
+    "typings": "^0.8.0",
     "uglify-js": "^2.6.2",
     "validate-commit-msg": "^2.4.0",
-    "xstream": "^0.0.1"
+    "xstream": "1.0.x"
+  },
+  "peerDependencies": {
+    "xstream": "1.0.x"
   },
   "config": {
     "commitizen": {
