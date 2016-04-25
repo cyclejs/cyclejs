@@ -5,26 +5,7 @@ import {BubblingSimulator} from './BubblingSimulator';
 import {ElementFinder} from './ElementFinder';
 import {fromEvent} from './fromEvent';
 import {isolateSink, isolateSource} from './isolate';
-
-function isValidString(param: any): boolean {
-  return typeof param === `string` && param.length > 0;
-}
-
-function contains(str: string, match: string): boolean {
-  return str.indexOf(match) > -1;
-}
-
-function isNotTagName(param: any): boolean {
-  return isValidString(param) &&
-    contains(param, `.`) || contains(param, `#`) || contains(param, `:`);
-}
-
-function sortNamespace(a: any, b: any): number {
-  if (isNotTagName(a) && isNotTagName(b)) {
-    return 0;
-  }
-  return isNotTagName(a) ? 1 : -1;
-}
+import {IsolateModule} from './isolateModule';
 
 const eventTypesThatDontBubble = [
   `load`,
@@ -75,18 +56,20 @@ export class DOMSource {
   constructor(private rootElement$: Observable<any>,
               private runStreamAdapter: StreamAdapter,
               private _namespace: Array<string> = [],
+              public isolateModule: IsolateModule,
               private disposable?: Disposable) {
   }
 
-  get element$(): any {
-    console.log(this.runStreamAdapter);
+  get elements(): any {
     if (this._namespace.length === 0) {
       return this.runStreamAdapter.adapt(
         this.rootElement$,
         RxAdapter.streamSubscribe
       );
     } else {
-      const elementFinder = new ElementFinder(this._namespace);
+      const elementFinder = new ElementFinder(
+        this._namespace, this.isolateModule
+      );
       return this.runStreamAdapter.adapt(
         this.rootElement$.map(elementFinder.call, elementFinder),
         RxAdapter.streamSubscribe
@@ -106,8 +89,13 @@ export class DOMSource {
     const trimmedSelector = selector.trim();
     const childNamespace = trimmedSelector === `:root` ?
       this._namespace :
-      this._namespace.concat(trimmedSelector).sort(sortNamespace);
-    return new DOMSource(this.rootElement$, this.runStreamAdapter, childNamespace);
+      this._namespace.concat(trimmedSelector);
+    return new DOMSource(
+      this.rootElement$,
+      this.runStreamAdapter,
+      childNamespace,
+      this.isolateModule
+    );
   }
 
   events(eventType: string, options: EventsFnOptions = {}): any {
@@ -124,7 +112,9 @@ export class DOMSource {
         if (!namespace || namespace.length === 0) {
           return fromEvent(rootElement, eventType, useCapture);
         }
-        const bubblingSimulator = new BubblingSimulator(namespace, rootElement);
+        const bubblingSimulator = new BubblingSimulator(
+          namespace, rootElement, this.isolateModule
+        );
         return fromEvent(rootElement, eventType, useCapture)
           .filter(bubblingSimulator.shouldPropagate, bubblingSimulator);
       })
@@ -140,6 +130,7 @@ export class DOMSource {
     if (this.disposable) {
       this.disposable.dispose();
     }
+    this.isolateModule.reset();
   }
 
   public isolateSource: (source: DOMSource, scope: string) => DOMSource = isolateSource;

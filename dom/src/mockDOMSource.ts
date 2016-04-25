@@ -1,18 +1,18 @@
 import {Observable} from 'rx';
 
 export interface DOMSelection {
-  element$: Observable<any>;
+  elements: Observable<any>;
   events: (eventType: string) => Observable<any>;
 }
 
 export class MockedDOMSource {
-  public element$: Observable<any>;
+  public elements: Observable<any>;
 
   constructor(private _mockConfig: Object) {
-    if (_mockConfig['element$']) {
-      this.element$ = _mockConfig['element$'];
+    if (_mockConfig['elements']) {
+      this.elements = _mockConfig['elements'];
     } else {
-      this.element$ = Observable.empty();
+      this.elements = Observable.empty();
     }
   }
 

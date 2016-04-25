@@ -1,4 +1,6 @@
 import {ScopeChecker} from './ScopeChecker';
+import {IsolateModule} from './isolateModule';
+import {getScope, getSelectors} from './utils';
 
 interface MatchesSelector {
   (element: Element, selector: string): boolean;
@@ -17,17 +19,18 @@ export interface PatchedEvent extends Event {
 }
 
 export class BubblingSimulator {
-  private descendantSel: string;
-  private topSel: string;
+  private scope: string;
+  private selector: string;
   private roof: HTMLElement;
   private scopeChecker: ScopeChecker;
 
   constructor(private namespace: Array<string>,
-              private rootEl: Element) {
-    this.descendantSel = namespace.join(` `);
-    this.topSel = namespace.join(``);
+              private rootEl: Element,
+              isolateModule: IsolateModule) {
+    this.scope = getScope(namespace);
+    this.selector = getSelectors(namespace);
     this.roof = rootEl.parentElement;
-    this.scopeChecker = new ScopeChecker(namespace);
+    this.scopeChecker = new ScopeChecker(this.scope, isolateModule);
   }
 
   shouldPropagate(ev: PatchedEvent): boolean {
@@ -39,7 +42,7 @@ export class BubblingSimulator {
       if (!this.scopeChecker.isStrictlyInRootScope(el)) {
         continue;
       }
-      if (matchesSelector(el, this.descendantSel) || matchesSelector(el, this.topSel)) {
+      if (matchesSelector(el, this.selector)) {
         this.mutateEventCurrentTarget(ev, el);
         return true;
       }

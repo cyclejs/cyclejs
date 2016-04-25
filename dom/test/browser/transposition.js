@@ -32,14 +32,14 @@ describe('DOM rendering with transposition', function () {
     });
 
     let dispose;
-    sources.DOM.select('.myelementclass').element$.skip(1).first() // 1st
+    sources.DOM.select('.myelementclass').elements.skip(1).first() // 1st
       .subscribe(function (elements) {
         const myelement = elements[0];
         assert.notStrictEqual(myelement, null);
         assert.strictEqual(myelement.tagName, 'H3');
         assert.strictEqual(myelement.textContent, '123');
       });
-    sources.DOM.select('.myelementclass').element$.skip(2).first() // 2nd
+    sources.DOM.select('.myelementclass').elements.skip(2).first() // 2nd
       .subscribe(function (elements) {
         const myelement = elements[0];
         assert.notStrictEqual(myelement, null);
@@ -66,14 +66,14 @@ describe('DOM rendering with transposition', function () {
     });
 
     let dispose;
-    sources.DOM.select('.myelementclass').element$.skip(1).first() // 1st
+    sources.DOM.select('.myelementclass').elements.skip(1).first() // 1st
       .subscribe(function (elements) {
         const myelement = elements[0];
         assert.notStrictEqual(myelement, null);
         assert.strictEqual(myelement.tagName, 'H3');
         assert.strictEqual(myelement.textContent, '123');
       });
-    sources.DOM.select('.myelementclass').element$.skip(2).first() // 1st
+    sources.DOM.select('.myelementclass').elements.skip(2).first() // 1st
       .subscribe(function (elements) {
         const myelement = elements[0];
         assert.notStrictEqual(myelement, null);
@@ -105,7 +105,7 @@ describe('DOM rendering with transposition', function () {
     });
 
     let dispose;
-    sources.DOM.select(':root').element$.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').elements.skip(1).take(1).subscribe(function (root) {
       const selectEl = root.querySelector('.child');
       assert.notStrictEqual(selectEl, null);
       assert.notStrictEqual(typeof selectEl, 'undefined');
@@ -145,7 +145,7 @@ describe('DOM rendering with transposition', function () {
     });
 
     let dispose;
-    sources.DOM.select(':root').element$.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').elements.skip(1).take(1).subscribe(function (root) {
       const selectEl = root.querySelector('.grandchild');
       assert.notStrictEqual(selectEl, null);
       assert.notStrictEqual(typeof selectEl, 'undefined');
@@ -179,7 +179,7 @@ describe('DOM rendering with transposition', function () {
     });
 
     let dispose
-    sources.DOM.select(':root').element$.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').elements.skip(1).take(1).subscribe(function (root) {
       const selectEl = root.querySelector('.child');
       assert.notStrictEqual(selectEl, null);
       assert.notStrictEqual(typeof selectEl, 'undefined');
@@ -215,7 +215,7 @@ describe('DOM rendering with transposition', function () {
 
     let expected = ['1/1','2/1','2/2'];
 
-    sources.DOM.select('.target').element$
+    sources.DOM.select('.target').elements
       .skip(1)
       .map(els => els[0].innerHTML)
       .subscribe((x) => {

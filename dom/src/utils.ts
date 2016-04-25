@@ -6,7 +6,7 @@ function isElement(obj: any) {
     typeof obj.nodeName === `string`;
 }
 
-export const SCOPE_PREFIX = `cycle-scope-`;
+export const SCOPE_PREFIX = `$$CYCLEDOM$$-`;
 
 export function domSelectorParser(selectors: any) {
   const domElement = typeof selectors === `string` ?
@@ -20,4 +20,15 @@ export function domSelectorParser(selectors: any) {
       `selector string.`);
   }
   return domElement;
+}
+
+export function getScope(namespace: String[]): string {
+  return namespace
+    .filter(c => c.indexOf(SCOPE_PREFIX) > -1)
+    .slice(-1) // only need the latest, most specific, isolated boundary
+    .join(``);
+}
+
+export function getSelectors(namespace: String[]): string {
+  return namespace.filter(c => c.indexOf(SCOPE_PREFIX) === -1).join(` `);
 }
