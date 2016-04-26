@@ -6,13 +6,17 @@ import {makeTransposeVNode} from './transposition';
 const toHTML: (vnode: VNode) => string = require('snabbdom-to-html');
 
 export class HTMLSource {
-  public elements: any;
+  private _html$: any;
   private _empty$: any;
 
   constructor(vnode$: Observable<VNode>,
               private runStreamAdapter: StreamAdapter) {
-    this.elements = vnode$.last().map(toHTML);
+    this._html$ = vnode$.last().map(toHTML);
     this._empty$ = runStreamAdapter.adapt(Observable.empty(), RxAdapter.streamSubscribe);
+  }
+
+  get elements(): any {
+    return this.runStreamAdapter.adapt(this._html$, RxAdapter.streamSubscribe);
   }
 
   public select(): HTMLSource {
