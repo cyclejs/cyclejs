@@ -1,6 +1,6 @@
 {
   "name": "@cycle/xstream-adapter",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Cycle.js xstream Stream Adapter",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -53,7 +53,7 @@
     "xstream": "1.0.x"
   },
   "peerDependencies": {
-    "xstream": "1.0.x"
+    "xstream": "1.x.x"
   },
   "config": {
     "commitizen": {
