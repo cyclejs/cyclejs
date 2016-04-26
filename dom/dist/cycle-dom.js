@@ -774,9 +774,16 @@ var toHTML = require('snabbdom-to-html');
 var HTMLSource = function () {
     function HTMLSource(vnode$, runStreamAdapter) {
         this.runStreamAdapter = runStreamAdapter;
-        this.elements = vnode$.last().map(toHTML);
+        this._html$ = vnode$.last().map(toHTML);
         this._empty$ = runStreamAdapter.adapt(rx_1.Observable.empty(), rx_adapter_1.default.streamSubscribe);
     }
+    Object.defineProperty(HTMLSource.prototype, "elements", {
+        get: function get() {
+            return this.runStreamAdapter.adapt(this._html$, rx_adapter_1.default.streamSubscribe);
+        },
+        enumerable: true,
+        configurable: true
+    });
     HTMLSource.prototype.select = function () {
         return new HTMLSource(rx_1.Observable.empty(), this.runStreamAdapter);
     };

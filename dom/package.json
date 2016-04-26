@@ -1,6 +1,6 @@
 {
   "name": "@cycle/dom",
-  "version": "10.0.0-rc7",
+  "version": "10.0.0-rc8",
   "description": "The standard DOM Driver for Cycle.js, based on Snabbdom",
   "license": "MIT",
   "homepage": "https://github.com/cyclejs/cycle-dom",
