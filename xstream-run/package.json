@@ -1,6 +1,6 @@
 {
   "name": "@cycle/xstream-run",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Andre Staltz",
   "description": "The Cycle run() function to use with xstream",
   "license": "MIT",
@@ -22,7 +22,7 @@
   "typings": "lib/index.d.ts",
   "dependencies": {
     "@cycle/base": "^2.0.1",
-    "@cycle/xstream-adapter": "^1.0.1"
+    "@cycle/xstream-adapter": "^1.0.2"
   },
   "peerDependencies": {
     "xstream": "*"
