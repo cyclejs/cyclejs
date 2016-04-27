@@ -57,7 +57,7 @@
     "test": "npm run lint && npm run lib && npm run test-node && npm run test-browser",
     "test-ci": "npm run lint && npm run lib && npm run test-node && testem ci",
     "predist": "rm -rf dist/ && mkdirp dist/",
-    "lib": "tsc --target es2015 --module es2015",
+    "lib": "tsc",
     "start": "npm install && npm prune",
     "postinstall": "typings install",
     "prerelease": "npm run lib",

@@ -6,8 +6,8 @@
     "declaration": true,
     "noImplicitAny": true,
     "suppressImplicitAnyIndexErrors": true,
-    "module": "es2015",
-    "target": "ES6",
+    "module": "commonjs",
+    "target": "ES5",
     "outDir": "lib/"
   },
   "formatCodeOptions": {
