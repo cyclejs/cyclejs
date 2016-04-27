@@ -3,7 +3,7 @@
   "src_files": [
     "test/index.js"
   ],
-  "before_tests": "browserify test/browser/index.js -t [babelify --presets es2015 --plugins [syntax-object-rest-spread transform-object-rest-spread] ] -o test/browser/bundle.js",
+  "before_tests": "npm run build-browser-tests",
   "serve_files": [
     "test/browser/bundle.js"
   ],
