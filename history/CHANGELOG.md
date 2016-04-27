@@ -1,3 +1,12 @@
+# v3.0.4 (2016-04-27)
+
+
+## Bug Fixes
+
+- **package:** Fix installation errors (#20)
+  ([c4b6a86f](https://github.com/git+https://github.com/cyclejs/history.git/commits/c4b6a86f53b3accee7eda45f85cc635c7d98d1d2))
+
+
 # v3.0.3 (2016-04-27)
 
 
