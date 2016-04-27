@@ -60,7 +60,6 @@
     "lib": "tsc --target es2015 --module es2015",
     "start": "npm install && npm prune",
     "postinstall": "typings install",
-    "preversion": "npm run dist && git commit -m 'chore(dist): build dist/'",
     "prerelease": "npm run lib",
     "release": "npm run release-patch",
     "release-patch": "git checkout master && release patch && npm publish --access=public",
