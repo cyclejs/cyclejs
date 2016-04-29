@@ -1,77 +1,68 @@
 import {StreamAdapter} from '@cycle/base';
 import {init} from 'snabbdom';
-import {Observable} from 'rx';
+import {Stream} from 'xstream';
 import {DOMSource} from './DOMSource';
+import {VNode} from 'snabbdom';
 import {VNodeWrapper} from './VNodeWrapper';
-import {domSelectorParser} from './utils';
+import {getElement} from './utils';
 import defaultModules from './modules';
 import {IsolateModule} from './isolateModule';
 import {makeTransposeVNode} from './transposition';
-import RxAdapter from '@cycle/rx-adapter';
+import XStreamAdapter from '@cycle/xstream-adapter';
 
-function makeDOMDriverInputGuard(modules: any, onError: any) {
+function makeDOMDriverInputGuard(modules: any) {
   if (!Array.isArray(modules)) {
     throw new Error(`Optional modules option must be ` +
      `an array for snabbdom modules`);
   }
-  if (typeof onError !== `function`) {
-    throw new Error(`You provided an \`onError\` to makeDOMDriver but it was ` +
-      `not a function. It should be a callback function to handle errors.`);
-  }
 }
 
-function domDriverInputGuard(view$: Observable<any>): void {
-  if (!view$ || typeof view$.subscribe !== `function`) {
-    throw new Error(`The DOM driver function expects as input an ` +
-      `Observable of virtual DOM elements`);
+function domDriverInputGuard(view$: Stream<VNode>): void {
+  if (!view$
+  || typeof view$.addListener !== `function`
+  || typeof view$.fold !== `function`) {
+    throw new Error(`The DOM driver function expects as input a Stream of ` +
+      `virtual DOM elements`);
   }
 }
 
 export interface DOMDriverOptions {
   modules?: Array<Object>;
-  onError?(msg: string): void;
   transposition?: boolean;
-}
-
-function defaultOnErrorFn(msg: string): void {
-  if (console && console.error) {
-    console.error(msg);
-  } else {
-    console.log(msg);
-  }
 }
 
 function makeDOMDriver(container: string | Element, options?: DOMDriverOptions): Function {
   if (!options) { options = {}; }
   const transposition = options.transposition || false;
   const modules = options.modules || defaultModules;
-  const onError = options.onError || defaultOnErrorFn;
   const isolateModule = new IsolateModule((<Map<string, Element>>new Map()));
   const patch = init([isolateModule.createModule()].concat(modules));
-  const rootElement = domSelectorParser(container);
+  const rootElement = getElement(container);
   const vnodeWrapper = new VNodeWrapper(rootElement);
-  makeDOMDriverInputGuard(modules, onError);
+  makeDOMDriverInputGuard(modules);
 
-  function DOMDriver(vnode$: Observable<any>, runStreamAdapter: StreamAdapter): DOMSource {
+  function DOMDriver(vnode$: Stream<VNode>, runStreamAdapter: StreamAdapter): DOMSource {
     domDriverInputGuard(vnode$);
     const transposeVNode = makeTransposeVNode(runStreamAdapter);
     const preprocessedVNode$ = (
-      transposition ? vnode$.flatMapLatest(transposeVNode) : vnode$
+      transposition ? vnode$.map(transposeVNode).flatten() : vnode$
     );
     const rootElement$ = preprocessedVNode$
-      .map(vnodeWrapper.call, vnodeWrapper)
-      .scan(patch, rootElement)
-      .map(({elm}) => elm)
+      .map(vnode => vnodeWrapper.call(vnode))
+      .fold<VNode>(<(acc: VNode, v: VNode) => VNode>patch, <VNode> rootElement)
+      .drop(1)
+      .map(({elm}: any) => elm)
       .startWith(rootElement)
-      .doOnError(onError)
-      .replay(null, 1);
+      .remember();
 
-    const disposable = rootElement$.connect();
+    /* tslint:disable:no-empty */
+    rootElement$.addListener({next: () => {}, error: () => {}, complete: () => {}});
+    /* tslint:enable:no-empty */
 
-    return new DOMSource(rootElement$, runStreamAdapter, [], isolateModule, disposable);
+    return new DOMSource(rootElement$, runStreamAdapter, [], isolateModule);
   };
 
-  (<any> DOMDriver).streamAdapter = RxAdapter;
+  (<any> DOMDriver).streamAdapter = XStreamAdapter;
 
   return DOMDriver;
 }

@@ -18,6 +18,34 @@ function createRenderTarget(id = null) {
 }
 
 describe('DOM Rendering', function () {
+  it('should render DOM elements even when DOMSource is not utilized', function (done) {
+    function main() {
+      return {
+        DOM: Rx.Observable.of(
+          div('.my-render-only-container', [
+            h2('Cycle.js framework')
+          ])
+        )
+      };
+    }
+
+    Cycle.run(main, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    setTimeout(() => {
+      const myContainer = document.querySelector('.my-render-only-container');
+      assert.notStrictEqual(myContainer, null);
+      assert.notStrictEqual(typeof myContainer, 'undefined');
+      assert.strictEqual(myContainer.tagName, 'DIV');
+      const header = myContainer.querySelector('h2');
+      assert.notStrictEqual(header, null);
+      assert.notStrictEqual(typeof header, 'undefined');
+      assert.strictEqual(header.textContent, 'Cycle.js framework');
+      done();
+    }, 150);
+  });
+
   it('should convert a simple virtual-dom <select> to DOM element', function (done) {
     function app() {
       return {

@@ -1,21 +1,17 @@
-import {Observable, Observer} from 'rx';
-
-interface EventListener {
-  element: Element;
-  eventName: string;
-  handler(ev: Event): void;
-  useCapture: boolean;
-}
+import {Stream, Producer, Listener} from 'xstream';
 
 export function fromEvent(element: Element,
                           eventName: string,
-                          useCapture = false): Observable<Event> {
-  return Observable.create<Event>(function subscribe(observer: Observer<Event>) {
-    function next(event: Event) { observer.onNext(event); };
-
-    element.addEventListener(eventName, next, useCapture);
-
-    return () => element.removeEventListener(eventName, next, useCapture);
-
-  }).share();
+                          useCapture = false): Stream<Event> {
+  return Stream.create<Event>(<Producer<Event>> {
+    element: element,
+    next: null,
+    start: function start(listener: Listener<Event>) {
+      this.next = function next(event: Event) { listener.next(event); };
+      this.element.addEventListener(eventName, this.next, useCapture);
+    },
+    stop: function stop() {
+      this.element.removeEventListener(eventName, this.next, useCapture);
+    }
+  });
 }

@@ -8,10 +8,10 @@ function isElement(obj: any) {
 
 export const SCOPE_PREFIX = `$$CYCLEDOM$$-`;
 
-export function domSelectorParser(selectors: any) {
-  const domElement = typeof selectors === `string` ?
-    document.querySelector(selectors) :
-    selectors;
+export function getElement(selectors: Element | string): Element {
+  const domElement: Element = <Element> (typeof selectors === `string` ?
+    document.querySelector(<string> selectors) :
+    selectors);
 
   if (typeof selectors === `string` && domElement === null) {
     throw new Error(`Cannot render into unknown element \`${selectors}\``);

@@ -1,6 +1,6 @@
 import {StreamAdapter} from '@cycle/base';
-import RxAdapter from '@cycle/rx-adapter';
-import {Observable} from 'rx';
+import XStreamAdapter from '@cycle/xstream-adapter';
+import xs, {Stream} from 'xstream';
 import {VNode} from 'snabbdom';
 
 function createVTree(vnode: VNode, children: Array<any>): any {
@@ -14,18 +14,18 @@ function createVTree(vnode: VNode, children: Array<any>): any {
   };
 }
 
-export function makeTransposeVNode(runStreamAdapter: StreamAdapter): (vnode: any) => Observable<VNode> {
-  return function transposeVNode(vnode: any) {
+export function makeTransposeVNode(runStreamAdapter: StreamAdapter): (vnode: any) => Stream<VNode> {
+  return function transposeVNode(vnode: any): any {
     if (!vnode) {
       return null;
     } else if (vnode && typeof vnode.data === `object` && vnode.data.static) {
-      return Observable.of(vnode);
+      return xs.of(vnode);
     } else if (runStreamAdapter.isValidStream(vnode)) {
-      const rxStream = RxAdapter.adapt(vnode, runStreamAdapter.streamSubscribe);
-      return rxStream.flatMapLatest(transposeVNode);
+      const xsStream: Stream<any> = XStreamAdapter.adapt(vnode, runStreamAdapter.streamSubscribe);
+      return <any> xsStream.map(transposeVNode).flatten();
     } else if (typeof vnode === `object`) {
       if (!vnode.children || vnode.children.length === 0) {
-        return Observable.of(vnode);
+        return xs.of(vnode);
       }
 
       const vnodeChildren = vnode.children
@@ -33,9 +33,10 @@ export function makeTransposeVNode(runStreamAdapter: StreamAdapter): (vnode: any
         .filter((x: any) => x !== null);
 
       return vnodeChildren.length === 0 ?
-        Observable.of(createVTree(vnode, vnodeChildren)) :
-        Observable.combineLatest(vnodeChildren,
-          (...children) => createVTree(vnode, children)
+        xs.of(createVTree(vnode, vnodeChildren)) :
+        xs.combine(
+          (...children) => createVTree(vnode, children),
+          ...vnodeChildren
         );
     } else {
       throw new Error(`Unhandled vTree Value`);

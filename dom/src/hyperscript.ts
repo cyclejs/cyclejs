@@ -1,22 +1,23 @@
-import {Observable} from 'rx';
+import {Stream} from 'xstream';
 import {VNode} from 'snabbdom';
 import * as is from 'snabbdom/is';
 const vnode = require('snabbdom/vnode');
 
-function isObservable(x: any): boolean {
-  return typeof x.subscribe === `function`;
+function isGenericStream(x: any): boolean {
+  return !Array.isArray(x) && typeof x.map === `function`;
 }
 
-function addNSToObservable(vNode: VNode): void {
+function mutateStreamWithNS(vNode: VNode): VNode {
   addNS(vNode.data, vNode.children);
+  return vNode;
 }
 
-function addNS(data: Object, children: Array<VNode | string | Observable<VNode>>): void {
+function addNS(data: Object, children: Array<VNode | string | Stream<VNode>>): void {
   (<any> data).ns = `http://www.w3.org/2000/svg`;
   if (typeof children !== `undefined` && is.array(children)) {
     for (let i = 0; i < children.length; ++i) {
-      if (isObservable(children[i])) {
-        children[i] = (<Observable<VNode>> children[i]).do(addNSToObservable);
+      if (isGenericStream(children[i])) {
+        children[i] = (<Stream<VNode>> children[i]).map(mutateStreamWithNS);
       } else {
         addNS((<VNode> children[i]).data, (<VNode> children[i]).children);
       }
@@ -26,7 +27,7 @@ function addNS(data: Object, children: Array<VNode | string | Observable<VNode>>
 
 function h(sel: string, b?: any, c?: any) {
   let data = {};
-  let children: Array<VNode | string | Observable<VNode>>;
+  let children: Array<VNode | string | Stream<VNode>>;
   let text: string;
   let i: number;
   if (arguments.length === 3) {

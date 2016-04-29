@@ -53,21 +53,6 @@ describe('makeDOMDriver', function () {
     }, /Given container is not a DOM element neither a selector string/);
   });
 
-  it('should accept function as error callback', function () {
-    const element = document.createDocumentFragment();
-    const onError = function() {};
-    assert.doesNotThrow(function () {
-      makeDOMDriver(element, {onError});
-    });
-  });
-
-  it('should not accept number as error callback', function () {
-    const element = document.createDocumentFragment();
-    assert.throws(function () {
-      makeDOMDriver(element, {onError: 42});
-    });
-  });
-
   it('should have a streamAdapter property', function () {
     const element = createRenderTarget();
     const DOMDriver = makeDOMDriver(element);
@@ -85,26 +70,7 @@ describe('DOM Driver', function () {
     const domDriver = makeDOMDriver(createRenderTarget());
     assert.throws(function () {
       domDriver({});
-    }, /The DOM driver function expects as input an Observable of virtual/);
-  });
-
-  it('should pass errors to error callback', function (done) {
-    const error = new Error();
-    const errorCallback = function(e) {
-      assert.strictEqual(e, error);
-      done();
-    };
-
-    function app() {
-      return {
-        DOM: Rx.Observable.throw(error)
-      };
-    }
-
-    const {sinks, sources, run} = Cycle(app, {
-      DOM: makeDOMDriver(createRenderTarget(), {onError: errorCallback})
-    });
-    run();
+    }, /The DOM driver function expects as input a Stream of virtual/);
   });
 
   it('should have isolateSource() and isolateSink() in source', function (done) {

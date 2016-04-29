@@ -1,18 +1,18 @@
-import {Observable} from 'rx';
+import xs, {Stream} from 'xstream';
 
 export interface DOMSelection {
-  elements: Observable<any>;
-  events: (eventType: string) => Observable<any>;
+  elements: Stream<any>;
+  events: (eventType: string) => Stream<any>;
 }
 
 export class MockedDOMSource {
-  public elements: Observable<any>;
+  public elements: Stream<any>;
 
   constructor(private _mockConfig: Object) {
     if (_mockConfig['elements']) {
       this.elements = _mockConfig['elements'];
     } else {
-      this.elements = Observable.empty();
+      this.elements = xs.empty();
     }
   }
 
@@ -26,7 +26,7 @@ export class MockedDOMSource {
         return mockConfig[key];
       }
     }
-    return Observable.empty();
+    return xs.empty();
   }
 
   public select(selector: string): DOMSelection {

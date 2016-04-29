@@ -1,6 +1,7 @@
 import {StreamAdapter} from '@cycle/base';
-import RxAdapter from '@cycle/rx-adapter';
-import {Observable, Disposable} from 'rx';
+import XStreamAdapter from '@cycle/xstream-adapter';
+import {Stream} from 'xstream';
+import {VNode} from 'snabbdom';
 import {BubblingSimulator} from './BubblingSimulator';
 import {ElementFinder} from './ElementFinder';
 import {fromEvent} from './fromEvent';
@@ -53,26 +54,25 @@ function determineUseCapture(eventType: string, options: EventsFnOptions): boole
 }
 
 export class DOMSource {
-  constructor(private rootElement$: Observable<any>,
+  constructor(private rootElement$: Stream<Element>,
               private runStreamAdapter: StreamAdapter,
               private _namespace: Array<string> = [],
-              public isolateModule: IsolateModule,
-              private disposable?: Disposable) {
+              public isolateModule: IsolateModule) {
   }
 
   get elements(): any {
     if (this._namespace.length === 0) {
       return this.runStreamAdapter.adapt(
         this.rootElement$,
-        RxAdapter.streamSubscribe
+        XStreamAdapter.streamSubscribe
       );
     } else {
       const elementFinder = new ElementFinder(
         this._namespace, this.isolateModule
       );
       return this.runStreamAdapter.adapt(
-        this.rootElement$.map(elementFinder.call, elementFinder),
-        RxAdapter.streamSubscribe
+        this.rootElement$.map(el => elementFinder.call(el)),
+        XStreamAdapter.streamSubscribe
       );
     }
   }
@@ -107,7 +107,7 @@ export class DOMSource {
 
     const originStream = this.rootElement$
       .take(2) // 1st is the given container, 2nd is the re-rendered container
-      .flatMapLatest(rootElement => {
+      .map(rootElement => {
         const namespace = this._namespace;
         if (!namespace || namespace.length === 0) {
           return fromEvent(rootElement, eventType, useCapture);
@@ -116,23 +116,20 @@ export class DOMSource {
           namespace, rootElement, this.isolateModule
         );
         return fromEvent(rootElement, eventType, useCapture)
-          .filter(bubblingSimulator.shouldPropagate, bubblingSimulator);
+          .filter(ev => bubblingSimulator.shouldPropagate(ev));
       })
-      .share();
+      .flatten();
 
     return this.runStreamAdapter.adapt(
       originStream,
-      RxAdapter.streamSubscribe
+      XStreamAdapter.streamSubscribe
     );
   }
 
   dispose(): void {
-    if (this.disposable) {
-      this.disposable.dispose();
-    }
     this.isolateModule.reset();
   }
 
   public isolateSource: (source: DOMSource, scope: string) => DOMSource = isolateSource;
-  public isolateSink: (sink: Observable<any>, scope: string) => Observable<any> = isolateSink;
+  public isolateSink: (sink: Stream<VNode>, scope: string) => Stream<VNode> = isolateSink;
 }

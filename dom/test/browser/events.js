@@ -31,7 +31,6 @@ describe('DOMSource.events()', function () {
     sources.DOM.select('.myelementclass').events('click').subscribe(ev => {
       assert.strictEqual(ev.type, 'click');
       assert.strictEqual(ev.target.textContent, 'Foobar');
-      console.log('dispose', dispose)
       dispose();
       done();
     });
