@@ -28,7 +28,7 @@ describe('XStreamAdapter', () => {
     const expected = [1, 2, 3];
     stream.addListener({
       next(x) { assert.strictEqual(x, expected.shift()); },
-      error: done.fail,
+      error: done,
       complete() {
         assert.strictEqual(expected.length, 0)
         done()
@@ -46,7 +46,7 @@ describe('XStreamAdapter', () => {
 
     XStreamAdapter.streamSubscribe(holdSubject.stream, {
       next: (x) => assert.strictEqual(x, observer1Expected.shift()),
-      error: done.fail,
+      error: done,
       complete: () => assert.strictEqual(observer1Expected.length, 0),
     });
 
@@ -55,7 +55,7 @@ describe('XStreamAdapter', () => {
 
     XStreamAdapter.streamSubscribe(holdSubject.stream, {
       next: (x) => assert.strictEqual(x, observer2Expected.shift()),
-      error: done.fail,
+      error: done,
       complete: () => assert.strictEqual(observer2Expected.length, 0),
     });
 
