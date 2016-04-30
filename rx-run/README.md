@@ -32,8 +32,8 @@ Note: `rx` is a **required** dependency. Without it, nothing will change.
 
 - - -
 
-[![Build Status](https://travis-ci.org/cyclejs/cycle-core.svg?branch=master)](https://travis-ci.org/cyclejs/cycle-core)
+[![Build Status](https://travis-ci.org/cyclejs/core.svg?branch=master)](https://travis-ci.org/cyclejs/core)
 [![Code Climate](https://codeclimate.com/github/cyclejs/cycle-core/badges/gpa.svg)](https://codeclimate.com/github/cyclejs/cycle-core)
-[![Dependency Status](https://david-dm.org/cyclejs/cycle-core.svg)](https://david-dm.org/cyclejs/cycle-core)
-[![devDependency Status](https://david-dm.org/cyclejs/cycle-core/dev-status.svg)](https://david-dm.org/cyclejs/cycle-core#info=devDependencies)
+[![Dependency Status](https://david-dm.org/cyclejs/core.svg)](https://david-dm.org/cyclejs/core)
+[![devDependency Status](https://david-dm.org/cyclejs/core/dev-status.svg)](https://david-dm.org/cyclejs/core#info=devDependencies)
 [![JS.ORG](https://img.shields.io/badge/js.org-cycle-ffb400.svg?style=flat-square)](http://js.org)
