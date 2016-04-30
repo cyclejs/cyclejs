@@ -19,7 +19,6 @@ function sameOrigin(href: string) {
 
 function makeClickListener(push: Function) {
   return function clickListener(event: any) {
-    debugger;
     if (which(event) !== 1) {
       return;
     }
