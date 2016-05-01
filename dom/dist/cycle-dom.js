@@ -63,7 +63,7 @@ exports.BubblingSimulator = BubblingSimulator;
 },{"./ScopeChecker":4,"./utils":17,"matches-selector":39}],2:[function(require,module,exports){
 "use strict";
 
-var rx_adapter_1 = require('@cycle/rx-adapter');
+var xstream_adapter_1 = require('@cycle/xstream-adapter');
 var BubblingSimulator_1 = require('./BubblingSimulator');
 var ElementFinder_1 = require('./ElementFinder');
 var fromEvent_1 = require('./fromEvent');
@@ -80,7 +80,7 @@ function determineUseCapture(eventType, options) {
     return result;
 }
 var DOMSource = function () {
-    function DOMSource(rootElement$, runStreamAdapter, _namespace, isolateModule, disposable) {
+    function DOMSource(rootElement$, runStreamAdapter, _namespace, isolateModule) {
         if (_namespace === void 0) {
             _namespace = [];
         }
@@ -88,17 +88,18 @@ var DOMSource = function () {
         this.runStreamAdapter = runStreamAdapter;
         this._namespace = _namespace;
         this.isolateModule = isolateModule;
-        this.disposable = disposable;
         this.isolateSource = isolate_1.isolateSource;
         this.isolateSink = isolate_1.isolateSink;
     }
     Object.defineProperty(DOMSource.prototype, "elements", {
         get: function get() {
             if (this._namespace.length === 0) {
-                return this.runStreamAdapter.adapt(this.rootElement$, rx_adapter_1.default.streamSubscribe);
+                return this.runStreamAdapter.adapt(this.rootElement$, xstream_adapter_1.default.streamSubscribe);
             } else {
-                var elementFinder = new ElementFinder_1.ElementFinder(this._namespace, this.isolateModule);
-                return this.runStreamAdapter.adapt(this.rootElement$.map(elementFinder.call, elementFinder), rx_adapter_1.default.streamSubscribe);
+                var elementFinder_1 = new ElementFinder_1.ElementFinder(this._namespace, this.isolateModule);
+                return this.runStreamAdapter.adapt(this.rootElement$.map(function (el) {
+                    return elementFinder_1.call(el);
+                }), xstream_adapter_1.default.streamSubscribe);
             }
         },
         enumerable: true,
@@ -129,20 +130,19 @@ var DOMSource = function () {
         }
         var useCapture = determineUseCapture(eventType, options);
         var originStream = this.rootElement$.take(2) // 1st is the given container, 2nd is the re-rendered container
-        .flatMapLatest(function (rootElement) {
+        .map(function (rootElement) {
             var namespace = _this._namespace;
             if (!namespace || namespace.length === 0) {
                 return fromEvent_1.fromEvent(rootElement, eventType, useCapture);
             }
             var bubblingSimulator = new BubblingSimulator_1.BubblingSimulator(namespace, rootElement, _this.isolateModule);
-            return fromEvent_1.fromEvent(rootElement, eventType, useCapture).filter(bubblingSimulator.shouldPropagate, bubblingSimulator);
-        }).share();
-        return this.runStreamAdapter.adapt(originStream, rx_adapter_1.default.streamSubscribe);
+            return fromEvent_1.fromEvent(rootElement, eventType, useCapture).filter(function (ev) {
+                return bubblingSimulator.shouldPropagate(ev);
+            });
+        }).flatten();
+        return this.runStreamAdapter.adapt(originStream, xstream_adapter_1.default.streamSubscribe);
     };
     DOMSource.prototype.dispose = function () {
-        if (this.disposable) {
-            this.disposable.dispose();
-        }
         this.isolateModule.reset();
     };
     return DOMSource;
@@ -150,7 +150,7 @@ var DOMSource = function () {
 exports.DOMSource = DOMSource;
 
 
-},{"./BubblingSimulator":1,"./ElementFinder":3,"./fromEvent":6,"./isolate":10,"@cycle/rx-adapter":18}],3:[function(require,module,exports){
+},{"./BubblingSimulator":1,"./ElementFinder":3,"./fromEvent":6,"./isolate":10,"@cycle/xstream-adapter":18}],3:[function(require,module,exports){
 "use strict";
 
 var ScopeChecker_1 = require('./ScopeChecker');
@@ -257,21 +257,24 @@ exports.VNodeWrapper = VNodeWrapper;
 (function (global){
 "use strict";
 
-var rx_1 = (typeof window !== "undefined" ? window['Rx'] : typeof global !== "undefined" ? global['Rx'] : null);
+var xstream_1 = (typeof window !== "undefined" ? window['xstream'] : typeof global !== "undefined" ? global['xstream'] : null);
 function fromEvent(element, eventName, useCapture) {
     if (useCapture === void 0) {
         useCapture = false;
     }
-    return rx_1.Observable.create(function subscribe(observer) {
-        function next(event) {
-            observer.onNext(event);
+    return xstream_1.Stream.create({
+        element: element,
+        next: null,
+        start: function start(listener) {
+            this.next = function next(event) {
+                listener.next(event);
+            };
+            this.element.addEventListener(eventName, this.next, useCapture);
+        },
+        stop: function stop() {
+            this.element.removeEventListener(eventName, this.next, useCapture);
         }
-        ;
-        element.addEventListener(eventName, next, useCapture);
-        return function () {
-            return element.removeEventListener(eventName, next, useCapture);
-        };
-    }).share();
+    });
 }
 exports.fromEvent = fromEvent;
 
@@ -320,18 +323,19 @@ exports.default = exported;
 
 var is = require('snabbdom/is');
 var vnode = require('snabbdom/vnode');
-function isObservable(x) {
-    return typeof x.subscribe === "function";
+function isGenericStream(x) {
+    return !Array.isArray(x) && typeof x.map === "function";
 }
-function addNSToObservable(vNode) {
+function mutateStreamWithNS(vNode) {
     addNS(vNode.data, vNode.children);
+    return vNode;
 }
 function addNS(data, children) {
     data.ns = "http://www.w3.org/2000/svg";
     if (typeof children !== "undefined" && is.array(children)) {
         for (var i = 0; i < children.length; ++i) {
-            if (isObservable(children[i])) {
-                children[i] = children[i].do(addNSToObservable);
+            if (isGenericStream(children[i])) {
+                children[i] = children[i].map(mutateStreamWithNS);
             } else {
                 addNS(children[i].data, children[i].children);
             }
@@ -712,25 +716,15 @@ var utils_1 = require('./utils');
 var modules_1 = require('./modules');
 var isolateModule_1 = require('./isolateModule');
 var transposition_1 = require('./transposition');
-var rx_adapter_1 = require('@cycle/rx-adapter');
-function makeDOMDriverInputGuard(modules, onError) {
+var xstream_adapter_1 = require('@cycle/xstream-adapter');
+function makeDOMDriverInputGuard(modules) {
     if (!Array.isArray(modules)) {
         throw new Error("Optional modules option must be " + "an array for snabbdom modules");
     }
-    if (typeof onError !== "function") {
-        throw new Error("You provided an `onError` to makeDOMDriver but it was " + "not a function. It should be a callback function to handle errors.");
-    }
 }
 function domDriverInputGuard(view$) {
-    if (!view$ || typeof view$.subscribe !== "function") {
-        throw new Error("The DOM driver function expects as input an " + "Observable of virtual DOM elements");
-    }
-}
-function defaultOnErrorFn(msg) {
-    if (console && console.error) {
-        console.error(msg);
-    } else {
-        console.log(msg);
+    if (!view$ || typeof view$.addListener !== "function" || typeof view$.fold !== "function") {
+        throw new Error("The DOM driver function expects as input a Stream of " + "virtual DOM elements");
     }
 }
 function makeDOMDriver(container, options) {
@@ -739,53 +733,56 @@ function makeDOMDriver(container, options) {
     }
     var transposition = options.transposition || false;
     var modules = options.modules || modules_1.default;
-    var onError = options.onError || defaultOnErrorFn;
     var isolateModule = new isolateModule_1.IsolateModule(new Map());
     var patch = snabbdom_1.init([isolateModule.createModule()].concat(modules));
-    var rootElement = utils_1.domSelectorParser(container);
+    var rootElement = utils_1.getElement(container);
     var vnodeWrapper = new VNodeWrapper_1.VNodeWrapper(rootElement);
-    makeDOMDriverInputGuard(modules, onError);
+    makeDOMDriverInputGuard(modules);
     function DOMDriver(vnode$, runStreamAdapter) {
         domDriverInputGuard(vnode$);
         var transposeVNode = transposition_1.makeTransposeVNode(runStreamAdapter);
-        var preprocessedVNode$ = transposition ? vnode$.flatMapLatest(transposeVNode) : vnode$;
-        var rootElement$ = preprocessedVNode$.map(vnodeWrapper.call, vnodeWrapper).scan(patch, rootElement).map(function (_a) {
+        var preprocessedVNode$ = transposition ? vnode$.map(transposeVNode).flatten() : vnode$;
+        var rootElement$ = preprocessedVNode$.map(function (vnode) {
+            return vnodeWrapper.call(vnode);
+        }).fold(patch, rootElement).drop(1).map(function (_a) {
             var elm = _a.elm;
             return elm;
-        }).startWith(rootElement).doOnError(onError).replay(null, 1);
-        var disposable = rootElement$.connect();
-        return new DOMSource_1.DOMSource(rootElement$, runStreamAdapter, [], isolateModule, disposable);
+        }).startWith(rootElement).remember();
+        /* tslint:disable:no-empty */
+        rootElement$.addListener({ next: function next() {}, error: function error() {}, complete: function complete() {} });
+        /* tslint:enable:no-empty */
+        return new DOMSource_1.DOMSource(rootElement$, runStreamAdapter, [], isolateModule);
     }
     ;
-    DOMDriver.streamAdapter = rx_adapter_1.default;
+    DOMDriver.streamAdapter = xstream_adapter_1.default;
     return DOMDriver;
 }
 exports.makeDOMDriver = makeDOMDriver;
 
 
-},{"./DOMSource":2,"./VNodeWrapper":5,"./isolateModule":11,"./modules":15,"./transposition":16,"./utils":17,"@cycle/rx-adapter":18,"snabbdom":58}],13:[function(require,module,exports){
+},{"./DOMSource":2,"./VNodeWrapper":5,"./isolateModule":11,"./modules":15,"./transposition":16,"./utils":17,"@cycle/xstream-adapter":18,"snabbdom":58}],13:[function(require,module,exports){
 (function (global){
 "use strict";
 
-var rx_adapter_1 = require('@cycle/rx-adapter');
-var rx_1 = (typeof window !== "undefined" ? window['Rx'] : typeof global !== "undefined" ? global['Rx'] : null);
+var xstream_adapter_1 = require('@cycle/xstream-adapter');
+var xstream_1 = (typeof window !== "undefined" ? window['xstream'] : typeof global !== "undefined" ? global['xstream'] : null);
 var transposition_1 = require('./transposition');
 var toHTML = require('snabbdom-to-html');
 var HTMLSource = function () {
     function HTMLSource(vnode$, runStreamAdapter) {
         this.runStreamAdapter = runStreamAdapter;
         this._html$ = vnode$.last().map(toHTML);
-        this._empty$ = runStreamAdapter.adapt(rx_1.Observable.empty(), rx_adapter_1.default.streamSubscribe);
+        this._empty$ = runStreamAdapter.adapt(xstream_1.default.empty(), xstream_adapter_1.default.streamSubscribe);
     }
     Object.defineProperty(HTMLSource.prototype, "elements", {
         get: function get() {
-            return this.runStreamAdapter.adapt(this._html$, rx_adapter_1.default.streamSubscribe);
+            return this.runStreamAdapter.adapt(this._html$, xstream_adapter_1.default.streamSubscribe);
         },
         enumerable: true,
         configurable: true
     });
     HTMLSource.prototype.select = function () {
-        return new HTMLSource(rx_1.Observable.empty(), this.runStreamAdapter);
+        return new HTMLSource(xstream_1.default.empty(), this.runStreamAdapter);
     };
     HTMLSource.prototype.events = function () {
         return this._empty$;
@@ -800,29 +797,29 @@ function makeHTMLDriver(options) {
     var transposition = options.transposition || false;
     function htmlDriver(vnode$, runStreamAdapter) {
         var transposeVNode = transposition_1.makeTransposeVNode(runStreamAdapter);
-        var preprocessedVNode$ = transposition ? vnode$.flatMapLatest(transposeVNode) : vnode$;
+        var preprocessedVNode$ = transposition ? vnode$.map(transposeVNode).flatten() : vnode$;
         return new HTMLSource(preprocessedVNode$, runStreamAdapter);
     }
     ;
-    htmlDriver.streamAdapter = rx_adapter_1.default;
+    htmlDriver.streamAdapter = xstream_adapter_1.default;
     return htmlDriver;
 }
 exports.makeHTMLDriver = makeHTMLDriver;
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./transposition":16,"@cycle/rx-adapter":18,"snabbdom-to-html":43}],14:[function(require,module,exports){
+},{"./transposition":16,"@cycle/xstream-adapter":18,"snabbdom-to-html":43}],14:[function(require,module,exports){
 (function (global){
 "use strict";
 
-var rx_1 = (typeof window !== "undefined" ? window['Rx'] : typeof global !== "undefined" ? global['Rx'] : null);
+var xstream_1 = (typeof window !== "undefined" ? window['xstream'] : typeof global !== "undefined" ? global['xstream'] : null);
 var MockedDOMSource = function () {
     function MockedDOMSource(_mockConfig) {
         this._mockConfig = _mockConfig;
         if (_mockConfig['elements']) {
             this.elements = _mockConfig['elements'];
         } else {
-            this.elements = rx_1.Observable.empty();
+            this.elements = xstream_1.default.empty();
         }
     }
     MockedDOMSource.prototype.events = function (eventType) {
@@ -835,7 +832,7 @@ var MockedDOMSource = function () {
                 return mockConfig[key];
             }
         }
-        return rx_1.Observable.empty();
+        return xstream_1.default.empty();
     };
     MockedDOMSource.prototype.select = function (selector) {
         var mockConfig = this._mockConfig;
@@ -884,8 +881,8 @@ exports.default = [StyleModule, ClassModule, PropsModule, AttrsModule];
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-var rx_adapter_1 = require('@cycle/rx-adapter');
-var rx_1 = (typeof window !== "undefined" ? window['Rx'] : typeof global !== "undefined" ? global['Rx'] : null);
+var xstream_adapter_1 = require('@cycle/xstream-adapter');
+var xstream_1 = (typeof window !== "undefined" ? window['xstream'] : typeof global !== "undefined" ? global['xstream'] : null);
 function createVTree(vnode, children) {
     return {
         sel: vnode.sel,
@@ -901,24 +898,24 @@ function makeTransposeVNode(runStreamAdapter) {
         if (!vnode) {
             return null;
         } else if (vnode && _typeof(vnode.data) === "object" && vnode.data.static) {
-            return rx_1.Observable.of(vnode);
+            return xstream_1.default.of(vnode);
         } else if (runStreamAdapter.isValidStream(vnode)) {
-            var rxStream = rx_adapter_1.default.adapt(vnode, runStreamAdapter.streamSubscribe);
-            return rxStream.flatMapLatest(transposeVNode);
+            var xsStream = xstream_adapter_1.default.adapt(vnode, runStreamAdapter.streamSubscribe);
+            return xsStream.map(transposeVNode).flatten();
         } else if ((typeof vnode === 'undefined' ? 'undefined' : _typeof(vnode)) === "object") {
             if (!vnode.children || vnode.children.length === 0) {
-                return rx_1.Observable.of(vnode);
+                return xstream_1.default.of(vnode);
             }
             var vnodeChildren = vnode.children.map(transposeVNode).filter(function (x) {
                 return x !== null;
             });
-            return vnodeChildren.length === 0 ? rx_1.Observable.of(createVTree(vnode, vnodeChildren)) : rx_1.Observable.combineLatest(vnodeChildren, function () {
+            return vnodeChildren.length === 0 ? xstream_1.default.of(createVTree(vnode, vnodeChildren)) : xstream_1.default.combine.apply(xstream_1.default, [function () {
                 var children = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
                     children[_i - 0] = arguments[_i];
                 }
                 return createVTree(vnode, children);
-            });
+            }].concat(vnodeChildren));
         } else {
             throw new Error("Unhandled vTree Value");
         }
@@ -928,7 +925,7 @@ exports.makeTransposeVNode = makeTransposeVNode;
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"@cycle/rx-adapter":18}],17:[function(require,module,exports){
+},{"@cycle/xstream-adapter":18}],17:[function(require,module,exports){
 "use strict";
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -937,7 +934,7 @@ function isElement(obj) {
     return (typeof HTMLElement === "undefined" ? "undefined" : _typeof(HTMLElement)) === "object" ? obj instanceof HTMLElement || obj instanceof DocumentFragment : obj && (typeof obj === "undefined" ? "undefined" : _typeof(obj)) === "object" && obj !== null && (obj.nodeType === 1 || obj.nodeType === 11) && typeof obj.nodeName === "string";
 }
 exports.SCOPE_PREFIX = "$$CYCLEDOM$$-";
-function domSelectorParser(selectors) {
+function getElement(selectors) {
     var domElement = typeof selectors === "string" ? document.querySelector(selectors) : selectors;
     if (typeof selectors === "string" && domElement === null) {
         throw new Error("Cannot render into unknown element `" + selectors + "`");
@@ -946,7 +943,7 @@ function domSelectorParser(selectors) {
     }
     return domElement;
 }
-exports.domSelectorParser = domSelectorParser;
+exports.getElement = getElement;
 function getScope(namespace) {
     return namespace.filter(function (c) {
         return c.indexOf(exports.SCOPE_PREFIX) > -1;
@@ -964,7 +961,7 @@ exports.getSelectors = getSelectors;
 
 },{}],18:[function(require,module,exports){
 "use strict";
-var rx_1 = require('rx');
+var xstream_1 = require('xstream');
 function logToConsoleError(err) {
     var target = err.stack || err;
     if (console && console.error) {
@@ -974,23 +971,27 @@ function logToConsoleError(err) {
         console.log(target);
     }
 }
-var RxJSAdapter = {
+var XStreamAdapter = {
     adapt: function (originStream, originStreamSubscribe) {
-        if (this.isValidStream(originStream)) {
+        if (XStreamAdapter.isValidStream(originStream)) {
             return originStream;
         }
-        return rx_1.Observable.create(function (destinationObserver) {
-            var originObserver = {
-                next: function (x) { return destinationObserver.onNext(x); },
-                error: function (e) { return destinationObserver.onError(e); },
-                complete: function () { return destinationObserver.onCompleted(); },
-            };
-            var dispose = originStreamSubscribe(originStream, originObserver);
-            return function () {
+        ;
+        var dispose = null;
+        return xstream_1.default.create({
+            start: function (out) {
+                var observer = {
+                    next: function (value) { return out.shamefullySendNext(value); },
+                    error: function (err) { return out.shamefullySendError(err); },
+                    complete: function () { return out.shamefullySendComplete(); },
+                };
+                dispose = originStreamSubscribe(originStream, observer);
+            },
+            stop: function () {
                 if (typeof dispose === 'function') {
-                    dispose.call(null);
+                    dispose();
                 }
-            };
+            }
         });
     },
     dispose: function (sinks, sinkProxies, sources) {
@@ -1004,32 +1005,33 @@ var RxJSAdapter = {
         });
     },
     makeHoldSubject: function () {
-        var stream = new rx_1.ReplaySubject(1);
+        var stream = xstream_1.default.create();
         var observer = {
-            next: function (x) { stream.onNext(x); },
+            next: function (x) { stream.shamefullySendNext(x); },
             error: function (err) {
                 logToConsoleError(err);
-                stream.onError(err);
+                stream.shamefullySendError(err);
             },
-            complete: function (x) { stream.onCompleted(); },
+            complete: function () { stream.shamefullySendComplete(); }
         };
-        return { stream: stream, observer: observer };
+        return { observer: observer, stream: stream };
     },
     isValidStream: function (stream) {
-        return (typeof stream.subscribeOnNext === 'function' &&
-            typeof stream.onValue !== 'function');
+        return (typeof stream.addListener === 'function' &&
+            typeof stream.imitate === 'function');
     },
     streamSubscribe: function (stream, observer) {
-        var subscription = stream.subscribe(function (x) { return observer.next(x); }, function (e) { return observer.error(e); }, function () { return observer.complete(); });
+        stream.addListener(observer);
         return function () {
-            subscription.dispose();
+            stream.removeListener(observer);
         };
-    },
+    }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = RxJSAdapter;
+exports.default = XStreamAdapter;
 
-},{"rx":undefined}],19:[function(require,module,exports){
+
+},{"xstream":undefined}],19:[function(require,module,exports){
 /*!
  * Cross-Browser Split 1.1.1
  * Copyright 2007-2012 Steven Levithan <stevenlevithan.com>
