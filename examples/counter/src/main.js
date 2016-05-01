@@ -1,13 +1,13 @@
-import {Observable} from 'rxjs';
-import Cycle from '@cycle/rxjs-run';
+import xs from 'xstream';
+import Cycle from '@cycle/xstream-run';
 import {div, button, p, makeDOMDriver} from '@cycle/dom';
 
 function main(sources) {
-  let action$ = Observable.merge(
+  let action$ = xs.merge(
     sources.DOM.select('.decrement').events('click').map(ev => -1),
     sources.DOM.select('.increment').events('click').map(ev => +1)
   );
-  let count$ = action$.startWith(0).scan((x,y) => x+y);
+  let count$ = action$.fold((x,y) => x + y, 0);
   return {
     DOM: count$.map(count =>
         div([
