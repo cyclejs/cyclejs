@@ -1,4 +1,4 @@
-import Cycle from '@cycle/rxjs-run';
+import Cycle from '@cycle/xstream-run';
 import {div, input, p, makeDOMDriver} from '@cycle/dom';
 
 function main(sources) {
