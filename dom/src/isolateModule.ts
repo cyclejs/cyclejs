@@ -53,7 +53,6 @@ export class IsolateModule {
         const oldIsolate = oldData.isolate || ``;
         const isolate = data.isolate || ``;
         if (isolate) {
-          console.log('has isolate', elm);
           if (oldIsolate) { self.removeScope(oldIsolate); }
           self.setScope(elm, isolate);
         }
