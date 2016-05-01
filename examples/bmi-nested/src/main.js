@@ -1,4 +1,4 @@
-import {run} from '@cycle/rxjs-run';
+import {run} from '@cycle/xstream-run';
 import {makeDOMDriver} from '@cycle/dom';
 import BmiCalculator from './BmiCalculator';
 
