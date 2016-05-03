@@ -8,6 +8,7 @@ import {fromEvent} from './fromEvent';
 import {isolateSink, isolateSource} from './isolate';
 import {IsolateModule} from './isolateModule';
 import {EventDelegator} from './EventDelegator';
+import {getScope} from './utils';
 
 interface MatchesSelector {
   (element: Element, selector: string): boolean;
@@ -127,12 +128,14 @@ export class DOMSource {
         if (!namespace || namespace.length === 0) {
           return fromEvent(rootElement, eventType, useCapture);
         }
+        const scope = getScope(namespace);
+        const top = !scope ? rootElement : this.isolateModule.getIsolatedElement(scope);
 
         const subject = xs.create(); // TODO use memoization to avoid recreating this
-        const key = `${eventType}~${useCapture}`;
+        const key = `${eventType}~${useCapture}~${scope}`;
         if (!this.delegators.has(key)) {
           this.delegators.set(key,
-            new EventDelegator(rootElement, eventType, useCapture, this.isolateModule)
+            new EventDelegator(top, eventType, useCapture, this.isolateModule)
           );
         }
         this.delegators.get(key).addDestination(subject, namespace);

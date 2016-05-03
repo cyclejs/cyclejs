@@ -498,4 +498,48 @@ describe('isolation', function () {
     });
     run();
   });
+
+  it('should process bubbling events from inner to outer component', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.of(
+          h3('.top-most', [
+            h2('.bar', 'Wrong'),
+            div({isolate: '$$CYCLEDOM$$-foo'}, [
+              h4('.bar', 'Correct')
+            ])
+          ])
+        )
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+    const isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'foo');
+
+    let called = false
+
+    sources.DOM.select('.top-most').events('click').subscribe(ev => {
+      assert.strictEqual(called, true)
+      done()
+    })
+
+    isolatedDOMSource.select('h4.bar').events('click').subscribe(ev => {
+      assert.strictEqual(called, false)
+      called = true
+    })
+
+    // Make assertions
+    isolatedDOMSource.select('h4.bar').elements.skip(1).take(1).subscribe(elements => {
+      assert.strictEqual(elements.length, 1);
+      const correctElement = elements[0];
+      assert.notStrictEqual(correctElement, null);
+      assert.notStrictEqual(typeof correctElement, 'undefined');
+      assert.strictEqual(correctElement.tagName, 'H4');
+      assert.strictEqual(correctElement.textContent, 'Correct');
+      correctElement.click();
+    });
+    run();
+  });
 });

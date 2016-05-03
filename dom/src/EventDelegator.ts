@@ -33,15 +33,15 @@ export class EventDelegator {
   private destinations: Array<Destination> = [];
   private roof: Element;
 
-  constructor(rootElement: Element,
+  constructor(topElement: Element,
               public eventType: string,
               public useCapture: boolean,
               public isolateModule: IsolateModule) {
-    this.roof = rootElement.parentElement;
+    this.roof = topElement.parentElement;
     if (useCapture) {
-      rootElement.addEventListener(eventType, ev => this.capture(ev), useCapture);
+      topElement.addEventListener(eventType, ev => this.capture(ev), useCapture);
     } else {
-      rootElement.addEventListener(eventType, ev => this.bubble(ev), useCapture);
+      topElement.addEventListener(eventType, ev => this.bubble(ev), useCapture);
     }
   }
 
