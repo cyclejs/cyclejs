@@ -68,6 +68,13 @@ var BubblingSimulator_1 = require('./BubblingSimulator');
 var ElementFinder_1 = require('./ElementFinder');
 var fromEvent_1 = require('./fromEvent');
 var isolate_1 = require('./isolate');
+var utils_1 = require('./utils');
+var matchesSelector;
+try {
+    matchesSelector = require("matches-selector");
+} catch (e) {
+    matchesSelector = Function.prototype;
+}
 var eventTypesThatDontBubble = ["load", "unload", "focus", "blur", "mouseenter", "mouseleave", "submit", "change", "reset", "timeupdate", "playing", "waiting", "seeking", "seeked", "ended", "loadedmetadata", "loadeddata", "canplay", "canplaythrough", "durationchange", "play", "pause", "ratechange", "volumechange", "suspend", "emptied", "stalled"];
 function determineUseCapture(eventType, options) {
     var result = false;
@@ -132,11 +139,15 @@ var DOMSource = function () {
         var originStream = this.rootElement$.take(2) // 1st is the given container, 2nd is the re-rendered container
         .map(function (rootElement) {
             var namespace = _this._namespace;
+            var selector = utils_1.getSelectors(namespace);
             if (!namespace || namespace.length === 0) {
                 return fromEvent_1.fromEvent(rootElement, eventType, useCapture);
             }
             var bubblingSimulator = new BubblingSimulator_1.BubblingSimulator(namespace, rootElement, _this.isolateModule);
-            return fromEvent_1.fromEvent(rootElement, eventType, useCapture).filter(function (ev) {
+            var event$ = fromEvent_1.fromEvent(rootElement, eventType, useCapture);
+            return eventTypesThatDontBubble.indexOf(eventType) !== -1 ? event$.filter(function (ev) {
+                return matchesSelector(ev.target, selector);
+            }) : event$.filter(function (ev) {
                 return bubblingSimulator.shouldPropagate(ev);
             });
         }).flatten();
@@ -150,7 +161,7 @@ var DOMSource = function () {
 exports.DOMSource = DOMSource;
 
 
-},{"./BubblingSimulator":1,"./ElementFinder":3,"./fromEvent":6,"./isolate":10,"@cycle/xstream-adapter":18}],3:[function(require,module,exports){
+},{"./BubblingSimulator":1,"./ElementFinder":3,"./fromEvent":6,"./isolate":10,"./utils":17,"@cycle/xstream-adapter":18,"matches-selector":39}],3:[function(require,module,exports){
 "use strict";
 
 var ScopeChecker_1 = require('./ScopeChecker');
@@ -309,8 +320,13 @@ function createTagFunction(tagName) {
         }
     };
 }
-var TAG_NAMES = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'dd', 'del', 'dfn', 'dir', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'main', 'map', 'mark', 'menu', 'meta', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'p', 'param', 'pre', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'sup', 'svg', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'title', 'tr', 'u', 'ul', 'video', 'progress'];
-var exported = { TAG_NAMES: TAG_NAMES, isSelector: isSelector, createTagFunction: createTagFunction };
+var SVG_TAG_NAMES = ['a', 'altGlyph', 'altGlyphDef', 'altGlyphItem', 'animate', 'animateColor', 'animateMotion', 'animateTransform', 'animateTransform', 'circle', 'clipPath', 'color-profile', 'cursor', 'defs', 'desc', 'ellipse', 'feBlend', 'feColorMatrix', 'feComponentTransfer', 'feComposite', 'feConvolveMatrix', 'feDiffuseLighting', 'feDisplacementMap', 'feDistantLight', 'feFlood', 'feFuncA', 'feFuncB', 'feFuncG', 'feFuncR', 'feGaussianBlur', 'feImage', 'feMerge', 'feMergeNode', 'feMorphology', 'feOffset', 'fePointLight', 'feSpecularLighting', 'feSpotlight', 'feTile', 'feTurbulence', 'filter', 'font', 'font-face', 'font-face-format', 'font-face-name', 'font-face-src', 'font-face-uri', 'foreignObject', 'g', 'glyph', 'glyphRef', 'hkern', 'image', 'line', 'linearGradient', 'marker', 'mask', 'metadata', 'missing-glyph', 'mpath', 'path', 'pattern', 'polygon', 'polyling', 'radialGradient', 'rect', 'script', 'set', 'stop', 'style', 'switch', 'symbol', 'text', 'textPath', 'title', 'tref', 'tspan', 'use', 'view', 'vkern'];
+var svg = createTagFunction('svg');
+SVG_TAG_NAMES.forEach(function (tag) {
+    svg[tag] = createTagFunction(tag);
+});
+var TAG_NAMES = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'dd', 'del', 'dfn', 'dir', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'main', 'map', 'mark', 'menu', 'meta', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'p', 'param', 'pre', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'title', 'tr', 'u', 'ul', 'video', 'progress'];
+var exported = { SVG_TAG_NAMES: SVG_TAG_NAMES, TAG_NAMES: TAG_NAMES, svg: svg, isSelector: isSelector, createTagFunction: createTagFunction };
 TAG_NAMES.forEach(function (n) {
     exported[n] = createTagFunction(n);
 });
