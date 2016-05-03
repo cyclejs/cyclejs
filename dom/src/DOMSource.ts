@@ -7,6 +7,18 @@ import {ElementFinder} from './ElementFinder';
 import {fromEvent} from './fromEvent';
 import {isolateSink, isolateSource} from './isolate';
 import {IsolateModule} from './isolateModule';
+import {getSelectors} from './utils';
+
+interface MatchesSelector {
+  (element: Element, selector: string): boolean;
+}
+let matchesSelector: MatchesSelector;
+declare var require: any;
+try {
+  matchesSelector = require(`matches-selector`);
+} catch (e) {
+  matchesSelector = <MatchesSelector> Function.prototype;
+}
 
 const eventTypesThatDontBubble = [
   `load`,
@@ -109,14 +121,19 @@ export class DOMSource {
       .take(2) // 1st is the given container, 2nd is the re-rendered container
       .map(rootElement => {
         const namespace = this._namespace;
+        const selector = getSelectors(namespace);
         if (!namespace || namespace.length === 0) {
           return fromEvent(rootElement, eventType, useCapture);
         }
         const bubblingSimulator = new BubblingSimulator(
           namespace, rootElement, this.isolateModule
         );
-        return fromEvent(rootElement, eventType, useCapture)
-          .filter(ev => bubblingSimulator.shouldPropagate(ev));
+
+        const event$ = fromEvent(rootElement, eventType, useCapture);
+
+        return eventTypesThatDontBubble.indexOf(eventType) !== -1
+          ? event$.filter(ev => matchesSelector((<Element> ev.target), selector))
+          : event$.filter(ev => bubblingSimulator.shouldPropagate(ev));
       })
       .flatten();
 
