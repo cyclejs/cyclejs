@@ -2,12 +2,12 @@ import {StreamAdapter} from '@cycle/base';
 import XStreamAdapter from '@cycle/xstream-adapter';
 import {Stream} from 'xstream';
 import {VNode} from 'snabbdom';
-import {BubblingSimulator} from './BubblingSimulator';
+import xs from 'xstream';
 import {ElementFinder} from './ElementFinder';
 import {fromEvent} from './fromEvent';
 import {isolateSink, isolateSource} from './isolate';
 import {IsolateModule} from './isolateModule';
-import {getSelectors} from './utils';
+import {EventDelegator} from './EventDelegator';
 
 interface MatchesSelector {
   (element: Element, selector: string): boolean;
@@ -56,11 +56,11 @@ export interface EventsFnOptions {
 
 function determineUseCapture(eventType: string, options: EventsFnOptions): boolean {
   let result = false;
-  if (eventTypesThatDontBubble.indexOf(eventType) !== -1) {
-    result = true;
-  }
   if (typeof options.useCapture === `boolean`) {
     result = options.useCapture;
+  }
+  if (eventTypesThatDontBubble.indexOf(eventType) !== -1) {
+    result = true;
   }
   return result;
 }
@@ -69,7 +69,8 @@ export class DOMSource {
   constructor(private rootElement$: Stream<Element>,
               private runStreamAdapter: StreamAdapter,
               private _namespace: Array<string> = [],
-              public isolateModule: IsolateModule) {
+              public isolateModule: IsolateModule,
+              public delegators: Map<string, EventDelegator>) {
   }
 
   get elements(): any {
@@ -106,7 +107,8 @@ export class DOMSource {
       this.rootElement$,
       this.runStreamAdapter,
       childNamespace,
-      this.isolateModule
+      this.isolateModule,
+      this.delegators
     );
   }
 
@@ -118,22 +120,24 @@ export class DOMSource {
     const useCapture: boolean = determineUseCapture(eventType, options);
 
     const originStream = this.rootElement$
-      .take(2) // 1st is the given container, 2nd is the re-rendered container
+      .drop(1) // Is the given container, 
+      .take(1) // Is the re-rendered container
       .map(rootElement => {
         const namespace = this._namespace;
-        const selector = getSelectors(namespace);
         if (!namespace || namespace.length === 0) {
           return fromEvent(rootElement, eventType, useCapture);
         }
-        const bubblingSimulator = new BubblingSimulator(
-          namespace, rootElement, this.isolateModule
-        );
 
-        const event$ = fromEvent(rootElement, eventType, useCapture);
+        const subject = xs.create(); // TODO use memoization to avoid recreating this
+        const key = `${eventType}~${useCapture}`;
+        if (!this.delegators.has(key)) {
+          this.delegators.set(key,
+            new EventDelegator(rootElement, eventType, useCapture, this.isolateModule)
+          );
+        }
+        this.delegators.get(key).addDestination(subject, namespace);
 
-        return eventTypesThatDontBubble.indexOf(eventType) !== -1
-          ? event$.filter(ev => matchesSelector((<Element> ev.target), selector))
-          : event$.filter(ev => bubblingSimulator.shouldPropagate(ev));
+        return subject;
       })
       .flatten();
 

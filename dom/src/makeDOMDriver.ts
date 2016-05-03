@@ -8,6 +8,7 @@ import {getElement} from './utils';
 import defaultModules from './modules';
 import {IsolateModule} from './isolateModule';
 import {makeTransposeVNode} from './transposition';
+import {EventDelegator} from './EventDelegator';
 import XStreamAdapter from '@cycle/xstream-adapter';
 
 function makeDOMDriverInputGuard(modules: any) {
@@ -39,6 +40,7 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions):
   const patch = init([isolateModule.createModule()].concat(modules));
   const rootElement = getElement(container);
   const vnodeWrapper = new VNodeWrapper(rootElement);
+  const delegators = new Map<string, EventDelegator>();
   makeDOMDriverInputGuard(modules);
 
   function DOMDriver(vnode$: Stream<VNode>, runStreamAdapter: StreamAdapter): DOMSource {
@@ -59,7 +61,7 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions):
     rootElement$.addListener({next: () => {}, error: () => {}, complete: () => {}});
     /* tslint:enable:no-empty */
 
-    return new DOMSource(rootElement$, runStreamAdapter, [], isolateModule);
+    return new DOMSource(rootElement$, runStreamAdapter, [], isolateModule, delegators);
   };
 
   (<any> DOMDriver).streamAdapter = XStreamAdapter;

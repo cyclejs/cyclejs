@@ -418,11 +418,6 @@ describe('DOMSource.events()', function () {
         done();
       });
 
-    sources.DOM.select('.wrong').events('blur', {useCapture: false})
-      .subscribe(() =>
-        done('should not capture blur events if useCapture is false')
-      );
-
     sources.DOM.select(':root').elements.skip(1).take(1).subscribe(root => {
       const correct = root.querySelector('.correct');
       const wrong = root.querySelector('.wrong');
@@ -460,11 +455,6 @@ describe('DOMSource.events()', function () {
         assert.strictEqual(ev.target.className, 'correct');
         done();
       });
-
-    sources.DOM.select('.wrong').events('blur', {useCapture: false})
-      .subscribe(() =>
-        done('should not capture blur events if useCapture is false')
-      );
 
     sources.DOM.select(':root').elements.skip(1).take(1).subscribe(root => {
       const correct = root.querySelector('.correct');
