@@ -1,73 +1,13 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.CycleDOM = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-"use strict";
-
-var ScopeChecker_1 = require('./ScopeChecker');
-var utils_1 = require('./utils');
-var matchesSelector;
-try {
-    matchesSelector = require("matches-selector");
-} catch (e) {
-    matchesSelector = Function.prototype;
-}
-var BubblingSimulator = function () {
-    function BubblingSimulator(namespace, rootEl, isolateModule) {
-        this.namespace = namespace;
-        this.rootEl = rootEl;
-        this.scope = utils_1.getScope(namespace);
-        this.selector = utils_1.getSelectors(namespace);
-        this.roof = rootEl.parentElement;
-        this.scopeChecker = new ScopeChecker_1.ScopeChecker(this.scope, isolateModule);
-    }
-    BubblingSimulator.prototype.shouldPropagate = function (ev) {
-        this.maybeMutateEventPropagationAttributes(ev);
-        if (ev.propagationHasBeenStopped) {
-            return false;
-        }
-        for (var el = ev.target; el && el !== this.roof; el = el.parentElement) {
-            if (!this.scopeChecker.isStrictlyInRootScope(el)) {
-                continue;
-            }
-            if (matchesSelector(el, this.selector)) {
-                this.mutateEventCurrentTarget(ev, el);
-                return true;
-            }
-        }
-        return false;
-    };
-    BubblingSimulator.prototype.maybeMutateEventPropagationAttributes = function (event) {
-        if (!event.hasOwnProperty("propagationHasBeenStopped")) {
-            event.propagationHasBeenStopped = false;
-            var oldStopPropagation_1 = event.stopPropagation;
-            event.stopPropagation = function stopPropagation() {
-                oldStopPropagation_1.call(this);
-                this.propagationHasBeenStopped = true;
-            };
-        }
-    };
-    BubblingSimulator.prototype.mutateEventCurrentTarget = function (event, currentTargetElement) {
-        try {
-            Object.defineProperty(event, "currentTarget", {
-                value: currentTargetElement,
-                configurable: true
-            });
-        } catch (err) {
-            console.log("please use event.ownerTarget");
-        }
-        event.ownerTarget = currentTargetElement;
-    };
-    return BubblingSimulator;
-}();
-exports.BubblingSimulator = BubblingSimulator;
-
-
-},{"./ScopeChecker":4,"./utils":17,"matches-selector":39}],2:[function(require,module,exports){
+(function (global){
 "use strict";
 
 var xstream_adapter_1 = require('@cycle/xstream-adapter');
-var BubblingSimulator_1 = require('./BubblingSimulator');
+var xstream_1 = (typeof window !== "undefined" ? window['xstream'] : typeof global !== "undefined" ? global['xstream'] : null);
 var ElementFinder_1 = require('./ElementFinder');
 var fromEvent_1 = require('./fromEvent');
 var isolate_1 = require('./isolate');
+var EventDelegator_1 = require('./EventDelegator');
 var utils_1 = require('./utils');
 var matchesSelector;
 try {
@@ -78,16 +18,16 @@ try {
 var eventTypesThatDontBubble = ["load", "unload", "focus", "blur", "mouseenter", "mouseleave", "submit", "change", "reset", "timeupdate", "playing", "waiting", "seeking", "seeked", "ended", "loadedmetadata", "loadeddata", "canplay", "canplaythrough", "durationchange", "play", "pause", "ratechange", "volumechange", "suspend", "emptied", "stalled"];
 function determineUseCapture(eventType, options) {
     var result = false;
-    if (eventTypesThatDontBubble.indexOf(eventType) !== -1) {
-        result = true;
-    }
     if (typeof options.useCapture === "boolean") {
         result = options.useCapture;
+    }
+    if (eventTypesThatDontBubble.indexOf(eventType) !== -1) {
+        result = true;
     }
     return result;
 }
 var DOMSource = function () {
-    function DOMSource(rootElement$, runStreamAdapter, _namespace, isolateModule) {
+    function DOMSource(rootElement$, runStreamAdapter, _namespace, isolateModule, delegators) {
         if (_namespace === void 0) {
             _namespace = [];
         }
@@ -95,6 +35,7 @@ var DOMSource = function () {
         this.runStreamAdapter = runStreamAdapter;
         this._namespace = _namespace;
         this.isolateModule = isolateModule;
+        this.delegators = delegators;
         this.isolateSource = isolate_1.isolateSource;
         this.isolateSink = isolate_1.isolateSink;
     }
@@ -125,7 +66,7 @@ var DOMSource = function () {
         }
         var trimmedSelector = selector.trim();
         var childNamespace = trimmedSelector === ":root" ? this._namespace : this._namespace.concat(trimmedSelector);
-        return new DOMSource(this.rootElement$, this.runStreamAdapter, childNamespace, this.isolateModule);
+        return new DOMSource(this.rootElement$, this.runStreamAdapter, childNamespace, this.isolateModule, this.delegators);
     };
     DOMSource.prototype.events = function (eventType, options) {
         var _this = this;
@@ -136,20 +77,22 @@ var DOMSource = function () {
             throw new Error("DOM driver's events() expects argument to be a " + "string representing the event type to listen for.");
         }
         var useCapture = determineUseCapture(eventType, options);
-        var originStream = this.rootElement$.take(2) // 1st is the given container, 2nd is the re-rendered container
+        var originStream = this.rootElement$.drop(1) // Is the given container,
+        .take(1) // Is the re-rendered container
         .map(function (rootElement) {
             var namespace = _this._namespace;
-            var selector = utils_1.getSelectors(namespace);
             if (!namespace || namespace.length === 0) {
                 return fromEvent_1.fromEvent(rootElement, eventType, useCapture);
             }
-            var bubblingSimulator = new BubblingSimulator_1.BubblingSimulator(namespace, rootElement, _this.isolateModule);
-            var event$ = fromEvent_1.fromEvent(rootElement, eventType, useCapture);
-            return eventTypesThatDontBubble.indexOf(eventType) !== -1 ? event$.filter(function (ev) {
-                return matchesSelector(ev.target, selector);
-            }) : event$.filter(function (ev) {
-                return bubblingSimulator.shouldPropagate(ev);
-            });
+            var scope = utils_1.getScope(namespace);
+            var top = !scope ? rootElement : _this.isolateModule.getIsolatedElement(scope);
+            var subject = xstream_1.default.create(); // TODO use memoization to avoid recreating this
+            var key = eventType + "~" + useCapture + "~" + scope;
+            if (!_this.delegators.has(key)) {
+                _this.delegators.set(key, new EventDelegator_1.EventDelegator(top, eventType, useCapture, _this.isolateModule));
+            }
+            _this.delegators.get(key).addDestination(subject, namespace);
+            return subject;
         }).flatten();
         return this.runStreamAdapter.adapt(originStream, xstream_adapter_1.default.streamSubscribe);
     };
@@ -161,7 +104,8 @@ var DOMSource = function () {
 exports.DOMSource = DOMSource;
 
 
-},{"./BubblingSimulator":1,"./ElementFinder":3,"./fromEvent":6,"./isolate":10,"./utils":17,"@cycle/xstream-adapter":18,"matches-selector":39}],3:[function(require,module,exports){
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./ElementFinder":2,"./EventDelegator":3,"./fromEvent":6,"./isolate":10,"./utils":17,"@cycle/xstream-adapter":18,"matches-selector":39}],2:[function(require,module,exports){
 "use strict";
 
 var ScopeChecker_1 = require('./ScopeChecker');
@@ -201,6 +145,100 @@ var ElementFinder = function () {
     return ElementFinder;
 }();
 exports.ElementFinder = ElementFinder;
+
+
+},{"./ScopeChecker":4,"./utils":17,"matches-selector":39}],3:[function(require,module,exports){
+"use strict";
+
+var ScopeChecker_1 = require('./ScopeChecker');
+var utils_1 = require('./utils');
+var matchesSelector;
+try {
+    matchesSelector = require("matches-selector");
+} catch (e) {
+    matchesSelector = Function.prototype;
+}
+/**
+ * Attaches an actual event listener to the DOM root element,
+ * handles "destinations" (interested DOMSource output subjects), and bubbling.
+ */
+var EventDelegator = function () {
+    function EventDelegator(topElement, eventType, useCapture, isolateModule) {
+        var _this = this;
+        this.eventType = eventType;
+        this.useCapture = useCapture;
+        this.isolateModule = isolateModule;
+        this.destinations = [];
+        this.roof = topElement.parentElement;
+        if (useCapture) {
+            topElement.addEventListener(eventType, function (ev) {
+                return _this.capture(ev);
+            }, useCapture);
+        } else {
+            topElement.addEventListener(eventType, function (ev) {
+                return _this.bubble(ev);
+            }, useCapture);
+        }
+    }
+    EventDelegator.prototype.bubble = function (rawEvent) {
+        var ev = this.patchEvent(rawEvent);
+        for (var el = ev.target; el && el !== this.roof; el = el.parentElement) {
+            if (ev.propagationHasBeenStopped) {
+                return;
+            }
+            this.matchEventAgainstDestinations(el, ev);
+        }
+    };
+    EventDelegator.prototype.matchEventAgainstDestinations = function (el, ev) {
+        for (var i = 0, n = this.destinations.length; i < n; i++) {
+            var dest = this.destinations[i];
+            if (!dest.scopeChecker.isStrictlyInRootScope(el)) {
+                continue;
+            }
+            if (matchesSelector(el, dest.selector)) {
+                this.mutateEventCurrentTarget(ev, el);
+                dest.subject._n(ev);
+            }
+        }
+    };
+    EventDelegator.prototype.capture = function (ev) {
+        for (var i = 0, n = this.destinations.length; i < n; i++) {
+            var dest = this.destinations[i];
+            if (matchesSelector(ev.target, dest.selector)) {
+                dest.subject._n(ev);
+            }
+        }
+    };
+    EventDelegator.prototype.addDestination = function (subject, namespace) {
+        var scope = utils_1.getScope(namespace);
+        var selector = utils_1.getSelectors(namespace);
+        var scopeChecker = new ScopeChecker_1.ScopeChecker(scope, this.isolateModule);
+        this.destinations.push({ subject: subject, scopeChecker: scopeChecker, selector: selector });
+    };
+    EventDelegator.prototype.patchEvent = function (event) {
+        var pEvent = event;
+        pEvent.propagationHasBeenStopped = false;
+        var oldStopPropagation = pEvent.stopPropagation;
+        pEvent.stopPropagation = function stopPropagation() {
+            oldStopPropagation.call(this);
+            this.propagationHasBeenStopped = true;
+        };
+        return pEvent;
+    };
+    EventDelegator.prototype.mutateEventCurrentTarget = function (event, currentTargetElement) {
+        try {
+            Object.defineProperty(event, "currentTarget", {
+                value: currentTargetElement,
+                configurable: true
+            });
+        } catch (err) {
+            console.log("please use event.ownerTarget");
+        }
+        event.ownerTarget = currentTargetElement;
+    };
+    return EventDelegator;
+}();
+exports.EventDelegator = EventDelegator;
 
 
 },{"./ScopeChecker":4,"./utils":17,"matches-selector":39}],4:[function(require,module,exports){
@@ -751,6 +789,7 @@ function makeDOMDriver(container, options) {
     var patch = snabbdom_1.init([isolateModule.createModule()].concat(modules));
     var rootElement = utils_1.getElement(container);
     var vnodeWrapper = new VNodeWrapper_1.VNodeWrapper(rootElement);
+    var delegators = new Map();
     makeDOMDriverInputGuard(modules);
     function DOMDriver(vnode$, runStreamAdapter) {
         domDriverInputGuard(vnode$);
@@ -765,7 +804,7 @@ function makeDOMDriver(container, options) {
         /* tslint:disable:no-empty */
         rootElement$.addListener({ next: function next() {}, error: function error() {}, complete: function complete() {} });
         /* tslint:enable:no-empty */
-        return new DOMSource_1.DOMSource(rootElement$, runStreamAdapter, [], isolateModule);
+        return new DOMSource_1.DOMSource(rootElement$, runStreamAdapter, [], isolateModule, delegators);
     }
     ;
     DOMDriver.streamAdapter = xstream_adapter_1.default;
@@ -774,7 +813,7 @@ function makeDOMDriver(container, options) {
 exports.makeDOMDriver = makeDOMDriver;
 
 
-},{"./DOMSource":2,"./VNodeWrapper":5,"./isolateModule":11,"./modules":15,"./transposition":16,"./utils":17,"@cycle/xstream-adapter":18,"snabbdom":58}],13:[function(require,module,exports){
+},{"./DOMSource":1,"./VNodeWrapper":5,"./isolateModule":11,"./modules":15,"./transposition":16,"./utils":17,"@cycle/xstream-adapter":18,"snabbdom":58}],13:[function(require,module,exports){
 (function (global){
 "use strict";
 
