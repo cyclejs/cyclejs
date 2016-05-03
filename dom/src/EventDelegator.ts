@@ -63,7 +63,7 @@ export class EventDelegator {
       }
       if (matchesSelector(el, dest.selector)) {
         this.mutateEventCurrentTarget(ev, el);
-        dest.subject.shamefullySendNext(ev);
+        dest.subject._n(ev);
       }
     }
   }
@@ -72,7 +72,7 @@ export class EventDelegator {
     for (let i = 0, n = this.destinations.length; i < n; i++) {
       const dest = this.destinations[i];
       if (matchesSelector((<Element> ev.target), dest.selector)) {
-        dest.subject.shamefullySendNext(ev);
+        dest.subject._n(ev);
       }
     }
   }
