@@ -143,7 +143,7 @@ describe('DOMSource.select()', function () {
       return {
         DOM: Rx.Observable.of(
           svg({width: 150, height: 150}, [
-            h('polygon', {
+            svg.polygon({
               attrs: {
                 class: 'triangle',
                 points: '20 0 20 150 150 20'

@@ -162,13 +162,13 @@ describe('DOM rendering with transposition', function () {
   it('should render a SVG VTree with a child Observable<VTree>', function (done) {
     function app() {
       const child$ = Rx.Observable.of(
-        h('g', {
+        svg.g({
           attrs: {'class': 'child'}
         })
       ).delay(80);
       return {
         DOM: Rx.Observable.of(svg([
-          h('g'),
+          svg.g(),
           child$
         ]))
       };
