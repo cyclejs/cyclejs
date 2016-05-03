@@ -1,3 +1,12 @@
+# v3.1.0 (2016-05-03)
+
+
+## Features
+
+- **ServerHistory:** allow imperatively completing history$ on the server.
+  ([777d256e](https://github.com/git+https://github.com/cyclejs/history.git/commits/777d256e8460917f1720ee79c40a131be31ce2ab))
+
+
 # v3.0.5 (2016-04-30)
 
 
