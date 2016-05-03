@@ -27,6 +27,9 @@ export interface History {
   replace(location: Location| Pathname): void;
   createHref(href: Pathname): string;
   createLocation(location: Location | Pathname): Location;
+
+  addCompleteCallback?: (fn: () => void) => void;
+  complete?: () => void;
 };
 
 export interface HistoryDriverOptions {

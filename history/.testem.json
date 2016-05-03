@@ -1,7 +1,7 @@
 {
   "framework": "mocha",
   "src_files": [
-    "test/index.js"
+    "test/browser/index.js"
   ],
   "before_tests": "npm run build-browser-tests",
   "serve_files": [

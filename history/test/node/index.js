@@ -4,9 +4,9 @@ import xs from 'xstream';
 import Cycle from '@cycle/xstream-run';
 import XSAdapter from '@cycle/xstream-adapter';
 import {
-  makeHistoryDriver, 
-  createServerHistory, 
-  createLocation, 
+  makeHistoryDriver,
+  createServerHistory,
+  createLocation,
   supportsHistory
 } from '../../lib/index';
 
@@ -104,14 +104,14 @@ describe('History', () => {
         assert.strictEqual(typeof history$.createHref, `function`);
         assert.strictEqual(typeof history$.createLocation, `function`);
       });
-      
+
     it('should allow pushing to a history object', (done) => {
       const history = createServerHistory();
       const app = () => ({})
       const {sources, run} = Cycle(app, {
         history: makeHistoryDriver(history)
       })
-      
+
       let dispose;
       sources.history.addListener({
         next(location) {
@@ -125,7 +125,7 @@ describe('History', () => {
         complete: () => {}
       })
       dispose = run();
-      
+
       history.push('/test')
     })
 
@@ -179,5 +179,39 @@ describe('History', () => {
       });
       dispose = run();
     });
+  });
+
+  it('should allow killing the stream with serverHistory.complete()', () => {
+    const app = () => ({});
+
+    const history = createServerHistory();
+    const {sources, run} = Cycle(app, {
+      history: makeHistoryDriver(history),
+    });
+
+    const expected = ['/path', '/other']
+
+    let dispose;
+    sources.history.addListener({
+      next(location) {
+        assert.strictEqual(typeof location, `object`);
+        assert.strictEqual(location.pathname, expected.shift());
+        if (expected.length === 0) {
+          setTimeout(() => history.complete(), 0)
+        }
+      },
+      error() { return void 0; },
+      complete() {
+        assert.strictEqual(expected.length, 0)
+        setTimeout(() => {
+          dispose();
+          done();
+        });
+      },
+    });
+    dispose = run();
+
+    history.push('/path');
+    history.push('/other');
   });
 });

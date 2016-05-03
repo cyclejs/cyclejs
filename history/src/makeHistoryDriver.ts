@@ -29,11 +29,11 @@ function defaultOnErrorFn(err: Error) {
 }
 
 export function makeHistoryDriver(history: History, options?: HistoryDriverOptions) {
-  if (!history || typeof history !== 'object' ||
-    typeof history.createLocation !== 'function' ||
-    typeof history.createHref !== 'function' ||
-    typeof history.listen !== 'function' ||
-    typeof history.push !== 'function') {
+  if (!history || typeof history !== 'object'
+    || typeof history.createLocation !== 'function'
+    || typeof history.createHref !== 'function'
+    || typeof history.listen !== 'function'
+    || typeof history.push !== 'function') {
     throw new TypeError('makeHistoryDriver requires an valid history object ' +
       'containing createLocation(), createHref(), push(), and listen() methods');
   }
@@ -45,6 +45,13 @@ export function makeHistoryDriver(history: History, options?: HistoryDriverOptio
     let unlisten = history.listen((location: Location) => {
       observer.next(location);
     });
+
+    if (typeof history.addCompleteCallback === 'function'
+        && typeof history.complete === 'function') {
+      history.addCompleteCallback(() => {
+        observer.complete();
+      });
+    }
 
     runSA.streamSubscribe(sink$, {
       next: makeUpdateHistory(history),

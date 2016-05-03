@@ -2,19 +2,17 @@ import {History, Listener, Location, Pathname} from './interfaces';
 
 import {createLocation} from './util';
 
-function noop(): void {
-  return void 0;
-}
-
 class ServerHistory implements History {
   private listeners: Array<Listener>;
+  private _completeCallback: () => void;
+
   constructor() {
     this.listeners = [];
   }
 
   listen(listener: Listener) {
     this.listeners.push(listener);
-    return noop;
+    return function noop(): void { return void 0; };
   }
 
   push(location: Location | Pathname) {
@@ -38,6 +36,14 @@ class ServerHistory implements History {
 
   createLocation(location: Location | Pathname) {
     return createLocation(location);
+  }
+
+  addCompleteCallback(complete: () => void) {
+    this._completeCallback = complete;
+  }
+
+  complete() {
+    this._completeCallback();
   }
 }
 
