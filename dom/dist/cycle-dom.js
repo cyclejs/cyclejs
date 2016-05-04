@@ -27,25 +27,25 @@ function determineUseCapture(eventType, options) {
     return result;
 }
 var DOMSource = function () {
-    function DOMSource(rootElement$, runStreamAdapter, _namespace, isolateModule, delegators) {
+    function DOMSource(_rootElement$, _runStreamAdapter, _namespace, _isolateModule, _delegators) {
         if (_namespace === void 0) {
             _namespace = [];
         }
-        this.rootElement$ = rootElement$;
-        this.runStreamAdapter = runStreamAdapter;
+        this._rootElement$ = _rootElement$;
+        this._runStreamAdapter = _runStreamAdapter;
         this._namespace = _namespace;
-        this.isolateModule = isolateModule;
-        this.delegators = delegators;
+        this._isolateModule = _isolateModule;
+        this._delegators = _delegators;
         this.isolateSource = isolate_1.isolateSource;
         this.isolateSink = isolate_1.isolateSink;
     }
     Object.defineProperty(DOMSource.prototype, "elements", {
         get: function get() {
             if (this._namespace.length === 0) {
-                return this.runStreamAdapter.adapt(this.rootElement$, xstream_adapter_1.default.streamSubscribe);
+                return this._runStreamAdapter.adapt(this._rootElement$, xstream_adapter_1.default.streamSubscribe);
             } else {
-                var elementFinder_1 = new ElementFinder_1.ElementFinder(this._namespace, this.isolateModule);
-                return this.runStreamAdapter.adapt(this.rootElement$.map(function (el) {
+                var elementFinder_1 = new ElementFinder_1.ElementFinder(this._namespace, this._isolateModule);
+                return this._runStreamAdapter.adapt(this._rootElement$.map(function (el) {
                     return elementFinder_1.call(el);
                 }), xstream_adapter_1.default.streamSubscribe);
             }
@@ -66,7 +66,7 @@ var DOMSource = function () {
         }
         var trimmedSelector = selector.trim();
         var childNamespace = trimmedSelector === ":root" ? this._namespace : this._namespace.concat(trimmedSelector);
-        return new DOMSource(this.rootElement$, this.runStreamAdapter, childNamespace, this.isolateModule, this.delegators);
+        return new DOMSource(this._rootElement$, this._runStreamAdapter, childNamespace, this._isolateModule, this._delegators);
     };
     DOMSource.prototype.events = function (eventType, options) {
         var _this = this;
@@ -77,27 +77,29 @@ var DOMSource = function () {
             throw new Error("DOM driver's events() expects argument to be a " + "string representing the event type to listen for.");
         }
         var useCapture = determineUseCapture(eventType, options);
-        var originStream = this.rootElement$.drop(1) // Is the given container
-        .take(1) // Is the re-rendered container
-        .map(function (rootElement) {
+        var originStream = this._rootElement$.filter(function (el) {
+            return el.renderedByCycleDOM;
+        }).take(1).map(function (rootElement) {
             var namespace = _this._namespace;
+            // Event listener just for the root element
             if (!namespace || namespace.length === 0) {
                 return fromEvent_1.fromEvent(rootElement, eventType, useCapture);
             }
+            // Event listener on the top element as an EventDelegator
             var scope = utils_1.getScope(namespace);
-            var top = !scope ? rootElement : _this.isolateModule.getIsolatedElement(scope);
-            var subject = xstream_1.default.create(); // TODO use memoization to avoid recreating this
             var key = eventType + "~" + useCapture + "~" + scope;
-            if (!_this.delegators.has(key)) {
-                _this.delegators.set(key, new EventDelegator_1.EventDelegator(top, eventType, useCapture, _this.isolateModule));
+            if (!_this._delegators.has(key)) {
+                var top_1 = !scope ? rootElement : _this._isolateModule.getIsolatedElement(scope);
+                _this._delegators.set(key, new EventDelegator_1.EventDelegator(top_1, eventType, useCapture, _this._isolateModule));
             }
-            _this.delegators.get(key).addDestination(subject, namespace);
+            var subject = xstream_1.default.create();
+            _this._delegators.get(key).addDestination(subject, namespace);
             return subject;
         }).flatten();
-        return this.runStreamAdapter.adapt(originStream, xstream_adapter_1.default.streamSubscribe);
+        return this._runStreamAdapter.adapt(originStream, xstream_adapter_1.default.streamSubscribe);
     };
     DOMSource.prototype.dispose = function () {
-        this.isolateModule.reset();
+        this._isolateModule.reset();
     };
     return DOMSource;
 }();
@@ -799,6 +801,7 @@ function makeDOMDriver(container, options) {
             return vnodeWrapper.call(vnode);
         }).fold(patch, rootElement).drop(1).map(function (_a) {
             var elm = _a.elm;
+            elm.renderedByCycleDOM = true;
             return elm;
         }).startWith(rootElement).remember();
         /* tslint:disable:no-empty */
