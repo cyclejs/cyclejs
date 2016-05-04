@@ -77,7 +77,7 @@ var DOMSource = function () {
             throw new Error("DOM driver's events() expects argument to be a " + "string representing the event type to listen for.");
         }
         var useCapture = determineUseCapture(eventType, options);
-        var originStream = this.rootElement$.drop(1) // Is the given container,
+        var originStream = this.rootElement$.drop(1) // Is the given container
         .take(1) // Is the re-rendered container
         .map(function (rootElement) {
             var namespace = _this._namespace;
