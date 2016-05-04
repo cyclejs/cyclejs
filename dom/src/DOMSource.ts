@@ -67,25 +67,25 @@ function determineUseCapture(eventType: string, options: EventsFnOptions): boole
 }
 
 export class DOMSource {
-  constructor(private rootElement$: Stream<Element>,
-              private runStreamAdapter: StreamAdapter,
+  constructor(private _rootElement$: Stream<Element>,
+              private _runStreamAdapter: StreamAdapter,
               private _namespace: Array<string> = [],
-              public isolateModule: IsolateModule,
-              public delegators: Map<string, EventDelegator>) {
+              public _isolateModule: IsolateModule,
+              public _delegators: Map<string, EventDelegator>) {
   }
 
   get elements(): any {
     if (this._namespace.length === 0) {
-      return this.runStreamAdapter.adapt(
-        this.rootElement$,
+      return this._runStreamAdapter.adapt(
+        this._rootElement$,
         XStreamAdapter.streamSubscribe
       );
     } else {
       const elementFinder = new ElementFinder(
-        this._namespace, this.isolateModule
+        this._namespace, this._isolateModule
       );
-      return this.runStreamAdapter.adapt(
-        this.rootElement$.map(el => elementFinder.call(el)),
+      return this._runStreamAdapter.adapt(
+        this._rootElement$.map(el => elementFinder.call(el)),
         XStreamAdapter.streamSubscribe
       );
     }
@@ -105,11 +105,11 @@ export class DOMSource {
       this._namespace :
       this._namespace.concat(trimmedSelector);
     return new DOMSource(
-      this.rootElement$,
-      this.runStreamAdapter,
+      this._rootElement$,
+      this._runStreamAdapter,
       childNamespace,
-      this.isolateModule,
-      this.delegators
+      this._isolateModule,
+      this._delegators
     );
   }
 
@@ -120,38 +120,41 @@ export class DOMSource {
     }
     const useCapture: boolean = determineUseCapture(eventType, options);
 
-    const originStream = this.rootElement$
-      .drop(1) // Is the given container
-      .take(1) // Is the re-rendered container
+    const originStream = this._rootElement$
+      .filter(el => (<any> el).renderedByCycleDOM)
+      .take(1)
       .map(rootElement => {
         const namespace = this._namespace;
+        // Event listener just for the root element
         if (!namespace || namespace.length === 0) {
           return fromEvent(rootElement, eventType, useCapture);
         }
-        const scope = getScope(namespace);
-        const top = !scope ? rootElement : this.isolateModule.getIsolatedElement(scope);
 
-        const subject = xs.create<Event>(); // TODO use memoization to avoid recreating this
+        // Event listener on the top element as an EventDelegator
+        const scope = getScope(namespace);
         const key = `${eventType}~${useCapture}~${scope}`;
-        if (!this.delegators.has(key)) {
-          this.delegators.set(key,
-            new EventDelegator(top, eventType, useCapture, this.isolateModule)
+        if (!this._delegators.has(key)) {
+          const top = !scope
+            ? rootElement
+            : this._isolateModule.getIsolatedElement(scope);
+          this._delegators.set(key,
+            new EventDelegator(top, eventType, useCapture, this._isolateModule)
           );
         }
-        this.delegators.get(key).addDestination(subject, namespace);
-
+        const subject = xs.create<Event>();
+        this._delegators.get(key).addDestination(subject, namespace);
         return subject;
       })
       .flatten();
 
-    return this.runStreamAdapter.adapt(
+    return this._runStreamAdapter.adapt(
       originStream,
       XStreamAdapter.streamSubscribe
     );
   }
 
   dispose(): void {
-    this.isolateModule.reset();
+    this._isolateModule.reset();
   }
 
   public isolateSource: (source: DOMSource, scope: string) => DOMSource = isolateSource;

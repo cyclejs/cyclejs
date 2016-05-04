@@ -47,6 +47,35 @@ describe('DOMSource.events()', function () {
     dispose = run();
   });
 
+  it('should setup click detection with events() after run() occurs', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.of(h3('.test2.myelementclass', 'Foobar'))
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+    let dispose = run();
+    sources.DOM.select('.myelementclass').events('click').subscribe(ev => {
+      assert.strictEqual(ev.type, 'click');
+      assert.strictEqual(ev.target.textContent, 'Foobar');
+      dispose();
+      done();
+    });
+    // Make assertions
+    setTimeout(() => {
+      const myElement = document.querySelector('.test2.myelementclass');
+      assert.notStrictEqual(myElement, null);
+      assert.notStrictEqual(typeof myElement, 'undefined');
+      assert.strictEqual(myElement.tagName, 'H3');
+      assert.doesNotThrow(function () {
+        setTimeout(() => myElement.click())
+      });
+    }, 200);
+  });
+
   it('should catch events using id of root element in DOM.select', function (done) {
     function app() {
       return {

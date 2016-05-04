@@ -53,7 +53,10 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions):
       .map(vnode => vnodeWrapper.call(vnode))
       .fold<VNode>(<(acc: VNode, v: VNode) => VNode>patch, <VNode> rootElement)
       .drop(1)
-      .map(({elm}: any) => elm)
+      .map(({elm}: any) => {
+        elm.renderedByCycleDOM = true;
+        return elm;
+      })
       .startWith(rootElement)
       .remember();
 
