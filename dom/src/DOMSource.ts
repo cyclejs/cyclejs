@@ -121,7 +121,7 @@ export class DOMSource {
     const useCapture: boolean = determineUseCapture(eventType, options);
 
     const originStream = this.rootElement$
-      .drop(1) // Is the given container, 
+      .drop(1) // Is the given container
       .take(1) // Is the re-rendered container
       .map(rootElement => {
         const namespace = this._namespace;
@@ -131,7 +131,7 @@ export class DOMSource {
         const scope = getScope(namespace);
         const top = !scope ? rootElement : this.isolateModule.getIsolatedElement(scope);
 
-        const subject = xs.create(); // TODO use memoization to avoid recreating this
+        const subject = xs.create<Event>(); // TODO use memoization to avoid recreating this
         const key = `${eventType}~${useCapture}~${scope}`;
         if (!this.delegators.has(key)) {
           this.delegators.set(key,
