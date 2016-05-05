@@ -46,7 +46,7 @@ function isolate(dataflowComponent, scope = newScope()) {
   return function scopedDataflowComponent(sources, ...rest) {
     const scopedSources = {}
     for (let key in sources) {
-      if (sources.hasOwnProperty(key) &&
+      if (sources.hasOwnProperty(key) && sources[key] &&
         typeof sources[key].isolateSource === `function`)
       {
         scopedSources[key] = sources[key].isolateSource(sources[key], scope)

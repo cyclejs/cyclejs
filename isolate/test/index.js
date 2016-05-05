@@ -108,5 +108,11 @@ describe('isolate', function () {
       assert.strictEqual(scopedSinks.other.length, 1);
       assert.strictEqual(scopedSinks.other[0], `a myScope`);
     });
+
+    it('should handle driver with no source without failing', function () {
+      const MyDataflowComponent = ()=> ({});
+      const scopedMyDataflowComponent = isolate(MyDataflowComponent, `myScope`);
+      assert.doesNotThrow(()=> scopedMyDataflowComponent({noSource:undefined}))
+    });
   });
 });
