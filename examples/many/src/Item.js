@@ -1,29 +1,39 @@
 import {button, div, input} from '@cycle/dom';
-import combineLatestObj from 'rx-combine-latest-obj';
+import xs from 'xstream';
 
 function intent(DOM) {
-  const changeColor$ = DOM.select('.color-field')
-    .events('input')
-    .map(ev => ({color: ev.target.value}));
-  const changeWidth$ = DOM.select('.width-slider')
-    .events('input')
-    .map(ev => ({width: parseInt(ev.target.value)}));
-  const destroy$ = DOM.select('.remove-btn')
-    .events('click')
-    .map(ev => true);
+  return xs.merge(
+    DOM.select('.color-field').events('input')
+      .map(ev => ({type: 'CHANGE_COLOR', payload: ev.target.value})),
 
-  return {changeColor$, changeWidth$, destroy$};
+    DOM.select('.width-slider').events('input')
+      .map(ev => ({type: 'CHANGE_WIDTH', payload: parseInt(ev.target.value)})),
+
+    DOM.select('.remove-btn').events('click')
+      .mapTo({type: 'REMOVE'})
+  );
 }
 
-function model(props, actions) {
-  const color$ = props.color$.take(1)
-    .startWith('#888')
-    .concat(actions.changeColor$.map(({color}) => color));
-  const width$ = props.width$.take(1)
-    .startWith(200)
-    .concat(actions.changeWidth$.map(({width}) => width));
+function model(props$, action$) {
+  const usePropsReducer$ = props$
+    .map(props => function usePropsReducer(oldState) {
+      return props;
+    });
 
-  return combineLatestObj({color$, width$});
+  const changeWidthReducer$ = action$
+    .filter(a => a.type === 'CHANGE_WIDTH')
+    .map(action => function changeWidthReducer(oldState) {
+      return {color: oldState.color, width: action.payload};
+    });
+
+  const changeColorReducer$ = action$
+    .filter(a => a.type === 'CHANGE_COLOR')
+    .map(action => function changeColorReducer(oldState) {
+      return {color: action.payload, width: oldState.width};
+    });
+
+  return xs.merge(usePropsReducer$, changeWidthReducer$, changeColorReducer$)
+    .fold((state, reducer) => reducer(state), {color: '#888', width: 200});
 }
 
 function view(state$) {
@@ -53,13 +63,13 @@ function view(state$) {
 }
 
 function Item(sources) {
-  const actions = intent(sources.DOM);
-  const state$ = model(sources.props, actions);
+  const action$ = intent(sources.DOM);
+  const state$ = model(sources.Props, action$);
   const vtree$ = view(state$);
 
   return {
     DOM: vtree$,
-    destroy$: actions.destroy$,
+    Remove: action$.filter(action => action.type === 'REMOVE'),
   };
 }
 
