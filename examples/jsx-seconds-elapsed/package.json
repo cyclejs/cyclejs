@@ -5,9 +5,10 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/dom": "10.0.0-rc5",
-    "@cycle/rx-run": "7.0.0-rc4",
-    "rx": "^4.0.7",
+    "@cycle/isolate": "1.2.x",
+    "@cycle/xstream-run": "1.0.1",
+    "@cycle/dom": "10.0.0-rc16",
+    "xstream": "2.2.x",
     "snabbdom-jsx": "^0.3.0"
   },
   "devDependencies": {
