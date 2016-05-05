@@ -41,6 +41,7 @@
   },
   "devDependencies": {
     "@cycle/base": "^2.0.1",
+    "@cycle/isolate": "^1.2.0",
     "@cycle/rxjs-run": "^1.0.2",
     "assert": "^1.3.0",
     "babel-cli": "^6.4.5",
@@ -60,7 +61,6 @@
     "eslint-plugin-no-class": "^0.1.0",
     "markdox": "0.1.10",
     "mocha": "2.3.4",
-    "xstream": "2.x.x",
     "rxjs": "^5.0.0-beta.5",
     "snabbdom-jsx": "^0.3.0",
     "testem": "0.9.11",
@@ -68,6 +68,7 @@
     "typescript": "^1.8.9",
     "typings": "^0.7.12",
     "uglify-js": "2.6.1",
+    "xstream": "2.x.x",
     "zuul": "3.8.0"
   },
   "engines": {

@@ -120,23 +120,29 @@ export class DOMSource {
     }
     const useCapture: boolean = determineUseCapture(eventType, options);
 
-    const originStream = this._rootElement$
-      .filter(el => (<any> el).renderedByCycleDOM)
+    const namespace = this._namespace;
+    const scope = getScope(namespace);
+    const key = `${eventType}~${useCapture}~${scope}`;
+    const rootElement$ = this._rootElement$.filter(rootElement => {
+      if (scope) {
+        return !!this._isolateModule.getIsolatedElement(scope);
+      } else {
+        return (<any> rootElement).renderedByCycleDOM;
+      }
+    });
+
+    const event$: Stream<Event> = rootElement$
       .take(1)
       .map(rootElement => {
-        const namespace = this._namespace;
         // Event listener just for the root element
         if (!namespace || namespace.length === 0) {
           return fromEvent(rootElement, eventType, useCapture);
         }
-
         // Event listener on the top element as an EventDelegator
-        const scope = getScope(namespace);
-        const key = `${eventType}~${useCapture}~${scope}`;
         if (!this._delegators.has(key)) {
-          const top = !scope
-            ? rootElement
-            : this._isolateModule.getIsolatedElement(scope);
+          const top = scope
+            ? this._isolateModule.getIsolatedElement(scope)
+            : rootElement;
           this._delegators.set(key,
             new EventDelegator(top, eventType, useCapture, this._isolateModule)
           );
@@ -148,7 +154,7 @@ export class DOMSource {
       .flatten();
 
     return this._runStreamAdapter.adapt(
-      originStream,
+      event$,
       XStreamAdapter.streamSubscribe
     );
   }

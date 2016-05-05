@@ -528,5 +528,5 @@ describe('DOMSource.events()', function () {
       setTimeout(() => form.reset());
     });
     run()
-  })
+  });
 });

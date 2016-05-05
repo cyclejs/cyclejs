@@ -3,6 +3,7 @@
 let assert = require('assert');
 let Cycle = require('@cycle/rxjs-run').default;
 let CycleDOM = require('../../lib/index');
+let isolate = require('@cycle/isolate');
 let Rx = require('rxjs');
 let {h, svg, div, p, span, h2, h3, h4, hJSX, select, option, makeDOMDriver} = CycleDOM;
 
@@ -126,7 +127,7 @@ describe('isolateSink', function () {
 
     let dispose;
     // Make assertions
-    sinks.DOM.skip(2).subscribe(function (vtree) {
+    sinks.DOM.skip(2).take(1).subscribe(function (vtree) {
       assert.strictEqual(vtree.sel, 'span.tab1');
       assert.strictEqual(vtree.data.isolate, '$$CYCLEDOM$$-1');
       dispose();
@@ -516,13 +517,15 @@ describe('isolation', function () {
     const {sinks, sources, run} = Cycle(app, {
       DOM: makeDOMDriver(createRenderTarget())
     });
+    let dispose;
     const isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'foo');
 
     let called = false
 
     sources.DOM.select('.top-most').events('click').subscribe(ev => {
       assert.strictEqual(called, true)
-      done()
+      dispose();
+      done();
     })
 
     isolatedDOMSource.select('h4.bar').events('click').subscribe(ev => {
@@ -538,8 +541,82 @@ describe('isolation', function () {
       assert.notStrictEqual(typeof correctElement, 'undefined');
       assert.strictEqual(correctElement.tagName, 'H4');
       assert.strictEqual(correctElement.textContent, 'Correct');
-      correctElement.click();
+      setTimeout(() => {
+        correctElement.click();
+      });
     });
-    run();
+    dispose = run();
   });
+
+  it('should handle a higher-order graph when events() are subscribed', done => {
+    let errorHappened = false;
+    let clickDetected = false;
+
+    function Child(sources) {
+      return {
+        DOM: sources.DOM.select('.foo').events('click')
+          .do({
+            next: () => {
+              clickDetected = true;
+            },
+            error: () => {
+              errorHappened = true;
+            },
+          })
+          .map(() => 1)
+          .startWith(0)
+          .map(num =>
+            div('.container', [
+              h3('.foo', 'Child foo')
+            ])
+          )
+      };
+    }
+
+    function main(sources) {
+      const first = isolate(Child, 'first')(sources);
+      first.DOM = first.DOM.publishReplay(1);
+      first.DOM.connect();
+      const second = isolate(Child, 'second')(sources);
+      second.DOM = second.DOM.publishReplay(1);
+      second.DOM.connect();
+      const oneChild = [first];
+      const twoChildren = [first, second];
+      const vnode$ = Rx.Observable.interval(50).take(1).startWith(-1)
+        .map(i => i === -1 ? oneChild : twoChildren)
+        .switchMap(children =>
+          Rx.Observable.combineLatest(children.map(child => child.DOM),
+            (...childVNodes) => div('.parent', childVNodes)
+          )
+        );
+      return {
+        DOM: vnode$
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(main, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    let dispose;
+    sources.DOM.select(':root').elements.skip(2).take(1).subscribe(function (root) {
+      const parentEl = root.querySelector('.parent');
+      const foo = parentEl.querySelectorAll('.foo')[1];
+      assert.notStrictEqual(parentEl, null);
+      assert.notStrictEqual(typeof parentEl, 'undefined');
+      assert.notStrictEqual(foo, null);
+      assert.notStrictEqual(typeof foo, 'undefined');
+      assert.strictEqual(parentEl.tagName, 'DIV');
+      setTimeout(() => {
+        assert.strictEqual(errorHappened, false);
+        foo.click();
+        setTimeout(() => {
+          assert.strictEqual(clickDetected, true);
+          dispose();
+          done();
+        }, 50);
+      }, 100);
+    });
+    dispose = run();
+  })
 });
