@@ -49,7 +49,7 @@ function isolate(dataflowComponent) {
   return function scopedDataflowComponent(sources) {
     var scopedSources = {};
     for (var key in sources) {
-      if (sources.hasOwnProperty(key) && typeof sources[key].isolateSource === "function") {
+      if (sources.hasOwnProperty(key) && sources[key] && typeof sources[key].isolateSource === "function") {
         scopedSources[key] = sources[key].isolateSource(sources[key], scope);
       } else if (sources.hasOwnProperty(key)) {
         scopedSources[key] = sources[key];
