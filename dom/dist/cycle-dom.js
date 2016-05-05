@@ -77,26 +77,31 @@ var DOMSource = function () {
             throw new Error("DOM driver's events() expects argument to be a " + "string representing the event type to listen for.");
         }
         var useCapture = determineUseCapture(eventType, options);
-        var originStream = this._rootElement$.filter(function (el) {
-            return el.renderedByCycleDOM;
-        }).take(1).map(function (rootElement) {
-            var namespace = _this._namespace;
+        var namespace = this._namespace;
+        var scope = utils_1.getScope(namespace);
+        var key = eventType + "~" + useCapture + "~" + scope;
+        var rootElement$ = this._rootElement$.filter(function (rootElement) {
+            if (scope) {
+                return !!_this._isolateModule.getIsolatedElement(scope);
+            } else {
+                return rootElement.renderedByCycleDOM;
+            }
+        });
+        var event$ = rootElement$.take(1).map(function (rootElement) {
             // Event listener just for the root element
             if (!namespace || namespace.length === 0) {
                 return fromEvent_1.fromEvent(rootElement, eventType, useCapture);
             }
             // Event listener on the top element as an EventDelegator
-            var scope = utils_1.getScope(namespace);
-            var key = eventType + "~" + useCapture + "~" + scope;
             if (!_this._delegators.has(key)) {
-                var top_1 = !scope ? rootElement : _this._isolateModule.getIsolatedElement(scope);
+                var top_1 = scope ? _this._isolateModule.getIsolatedElement(scope) : rootElement;
                 _this._delegators.set(key, new EventDelegator_1.EventDelegator(top_1, eventType, useCapture, _this._isolateModule));
             }
             var subject = xstream_1.default.create();
             _this._delegators.get(key).addDestination(subject, namespace);
             return subject;
         }).flatten();
-        return this._runStreamAdapter.adapt(originStream, xstream_adapter_1.default.streamSubscribe);
+        return this._runStreamAdapter.adapt(event$, xstream_adapter_1.default.streamSubscribe);
     };
     DOMSource.prototype.dispose = function () {
         this._isolateModule.reset();
