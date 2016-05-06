@@ -4,7 +4,7 @@
 let assert = require('assert');
 let Cycle = require('../lib/index').default;
 let xs = require('xstream').default;
-let delay = require('xstream/lib/extra/delay').default;
+let delay = require('xstream/extra/delay').default;
 let sinon = require('sinon');
 
 describe('Cycle', function () {

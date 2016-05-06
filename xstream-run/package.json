@@ -21,7 +21,7 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "@cycle/base": "^2.0.1",
+    "@cycle/base": "^2.0.2",
     "@cycle/xstream-adapter": "^1.0.2"
   },
   "peerDependencies": {
@@ -39,7 +39,7 @@
     "ghooks": "^1.0.3",
     "markdox": "0.1.10",
     "mocha": "2.3.3",
-    "xstream": "1.0.x",
+    "xstream": "2.2.x",
     "sinon": "1.17.2",
     "testem": "0.9.11",
     "tslint": "3.6.0",
