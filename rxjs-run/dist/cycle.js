@@ -93,7 +93,13 @@ function callDrivers(drivers, sinkProxies, streamAdapter) {
     var sources = {};
     for (var name_2 in drivers) {
         if (drivers.hasOwnProperty(name_2)) {
-            sources[name_2] = drivers[name_2](sinkProxies[name_2].stream, streamAdapter.adapt, name_2);
+            var driverOutput = drivers[name_2](sinkProxies[name_2].stream, streamAdapter, name_2);
+            var driverStreamAdapter = drivers[name_2].streamAdapter;
+            if (driverStreamAdapter && driverStreamAdapter.isValidStream(driverOutput)) {
+                sources[name_2] = streamAdapter.adapt(driverOutput, driverStreamAdapter.streamSubscribe);
+            } else {
+                sources[name_2] = driverOutput;
+            }
         }
     }
     return sources;
@@ -115,7 +121,7 @@ function replicateMany(sinks, sinkProxies, streamAdapter) {
 }
 function disposeSources(sources) {
     for (var k in sources) {
-        if (sources.hasOwnProperty(k) && typeof sources[k].dispose === 'function') {
+        if (sources.hasOwnProperty(k) && sources[k] && typeof sources[k].dispose === 'function') {
             sources[k].dispose();
         }
     }
@@ -212,6 +218,7 @@ var RxJSAdapter = {
     },
     isValidStream: function (stream) {
         return (typeof stream.subscribe === 'function' &&
+            typeof stream.subscribeOnNext !== 'function' &&
             typeof stream.onValue !== 'function');
     },
     streamSubscribe: function (stream, observer) {
