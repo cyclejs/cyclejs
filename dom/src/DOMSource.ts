@@ -122,33 +122,45 @@ export class DOMSource {
 
     const namespace = this._namespace;
     const scope = getScope(namespace);
-    const key = `${eventType}~${useCapture}~${scope}`;
-    const rootElement$ = this._rootElement$.filter(rootElement => {
-      if (scope) {
-        return !!this._isolateModule.getIsolatedElement(scope);
-      } else {
-        return (<any> rootElement).renderedByCycleDOM;
-      }
-    });
+    const keyParts = [eventType, useCapture];
+    if (scope) {
+      keyParts.push(scope);
+    }
+    const key = keyParts.join('~');
+    const domSource = this;
+    let rootElement$: Stream<Element>;
+    if (scope) {
+      rootElement$ = this._rootElement$
+        .filter(function checkRootHasRenderedScope(rootElement) {
+          return !!domSource._isolateModule.getIsolatedElement(scope);
+        }).take(1);
+    } else {
+      rootElement$ = this._rootElement$.take(2);
+    }
 
     const event$: Stream<Event> = rootElement$
-      .take(1)
-      .map(rootElement => {
+      .map(function setupEventDelegatorOnTopElement(rootElement) {
         // Event listener just for the root element
         if (!namespace || namespace.length === 0) {
           return fromEvent(rootElement, eventType, useCapture);
         }
         // Event listener on the top element as an EventDelegator
-        if (!this._delegators.has(key)) {
-          const top = scope
-            ? this._isolateModule.getIsolatedElement(scope)
-            : rootElement;
-          this._delegators.set(key,
-            new EventDelegator(top, eventType, useCapture, this._isolateModule)
+        const delegators = domSource._delegators;
+        const top = scope
+          ? domSource._isolateModule.getIsolatedElement(scope)
+          : rootElement;
+        let delegator: EventDelegator;
+        if (delegators.has(key)) {
+          delegator = delegators.get(key);
+          delegator.updateTopElement(top);
+        } else {
+          delegator = new EventDelegator(
+            top, eventType, useCapture, domSource._isolateModule
           );
+          delegators.set(key, delegator);
         }
         const subject = xs.create<Event>();
-        this._delegators.get(key).addDestination(subject, namespace);
+        delegator.addDestination(subject, namespace);
         return subject;
       })
       .flatten();

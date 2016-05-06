@@ -32,17 +32,19 @@ export interface PatchedEvent extends Event {
 export class EventDelegator {
   private destinations: Array<Destination> = [];
   private roof: Element;
+  private domListener: EventListener;
 
-  constructor(topElement: Element,
+  constructor(private topElement: Element,
               public eventType: string,
               public useCapture: boolean,
               public isolateModule: IsolateModule) {
     this.roof = topElement.parentElement;
     if (useCapture) {
-      topElement.addEventListener(eventType, ev => this.capture(ev), useCapture);
+      this.domListener = (ev: Event) => this.capture(ev);
     } else {
-      topElement.addEventListener(eventType, ev => this.bubble(ev), useCapture);
+      this.domListener = (ev: Event) => this.bubble(ev);
     }
+    topElement.addEventListener(eventType, this.domListener, useCapture);
   }
 
   bubble(rawEvent: Event): void {
@@ -105,5 +107,15 @@ export class EventDelegator {
       console.log(`please use event.ownerTarget`);
     }
     event.ownerTarget = currentTargetElement;
+  }
+
+  updateTopElement(newTopElement: Element) {
+    this.topElement.removeEventListener(
+      this.eventType, this.domListener, this.useCapture
+    );
+    newTopElement.addEventListener(
+      this.eventType, this.domListener, this.useCapture
+    );
+    this.topElement = newTopElement;
   }
 }

@@ -76,6 +76,41 @@ describe('DOMSource.events()', function () {
     }, 200);
   });
 
+  it('should setup click detection on a ready DOM element (e.g. from server)', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.never()
+      };
+    }
+
+    const containerElement = createRenderTarget();
+    let headerElement = document.createElement('H3');
+    headerElement.className = 'myelementclass';
+    headerElement.textContent = 'Foobar';
+    containerElement.appendChild(headerElement);
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(containerElement)
+    });
+    let dispose = run();
+    sources.DOM.select('.myelementclass').events('click').subscribe(ev => {
+      assert.strictEqual(ev.type, 'click');
+      assert.strictEqual(ev.target.textContent, 'Foobar');
+      dispose();
+      done();
+    });
+    // Make assertions
+    setTimeout(() => {
+      const myElement = containerElement.querySelector('.myelementclass');
+      assert.notStrictEqual(myElement, null);
+      assert.notStrictEqual(typeof myElement, 'undefined');
+      assert.strictEqual(myElement.tagName, 'H3');
+      assert.doesNotThrow(function () {
+        setTimeout(() => myElement.click())
+      });
+    }, 200);
+  });
+
   it('should catch events using id of root element in DOM.select', function (done) {
     function app() {
       return {

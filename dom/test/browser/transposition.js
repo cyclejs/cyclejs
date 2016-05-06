@@ -218,6 +218,7 @@ describe('DOM rendering with transposition', function () {
     sources.DOM.select('.target').elements
       .skip(1)
       .map(els => els[0].innerHTML)
+      .take(3)
       .subscribe((x) => {
         assert.strictEqual(x, expected.shift());
       }, err => done(err), () => {
