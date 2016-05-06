@@ -56,7 +56,7 @@ function replicateMany(sinks, sinkProxies, streamAdapter) {
 }
 function disposeSources(sources) {
     for (var k in sources) {
-        if (sources.hasOwnProperty(k) && typeof sources[k].dispose === 'function') {
+        if (sources.hasOwnProperty(k) && sources[k] && typeof sources[k].dispose === 'function') {
             sources[k].dispose();
         }
     }
