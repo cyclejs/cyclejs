@@ -5,15 +5,15 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/dom": "10.0.0-rc6",
-    "@cycle/rx-run": "7.0.0-rc4",
+    "@cycle/dom": "10.0.0-rc17",
+    "@cycle/xstream-run": "1.0.1",
+    "xstream": "2.2.x",
     "babel-cli": "^6.7.5",
     "babel-preset-es2015": "^6.3.13",
     "babel-register": "^6.4.3",
     "babelify": "^7.2.0",
     "browserify": "11.0.1",
     "express": "^4.12.3",
-    "rx": "^4.0.7",
     "serialize-javascript": "^1.0.0",
     "uglifyify": "^3.0.1"
   },

@@ -1,3 +1,4 @@
+let xs = require('xstream').default;
 let {div, ul, li, a, section, h1, p} = require('@cycle/dom');
 
 function renderMenu() {
@@ -31,17 +32,16 @@ function renderAboutPage() {
 }
 
 function app(sources) {
-  let routeFromClick$ = sources.DOM.select('.link').events('click')
-    .doOnNext(ev => ev.preventDefault())
-    .map(ev => ev.currentTarget.attributes.href.value);
+  let click$ = sources.DOM.select('.link').events('click');
 
-  let ongoingContext$ = sources.context
-    .merge(routeFromClick$).scan((acc, x) => {
-      acc.route = x;
-      return acc;
-    });
+  let preventedEvent$ = click$;
 
-  let vtree$ = ongoingContext$
+  let contextFromClick$ = click$
+    .map(ev => ({route: ev.currentTarget.attributes.href.value}));
+
+  let context$ = xs.merge(sources.context, contextFromClick$);
+
+  let vtree$ = context$
     .map(({route}) => {
       if (typeof window !== 'undefined') {
         window.history.pushState(null, '', route);
@@ -54,7 +54,8 @@ function app(sources) {
     });
 
   return {
-    DOM: vtree$
+    DOM: vtree$,
+    PreventDefault: preventedEvent$
   };
 }
 

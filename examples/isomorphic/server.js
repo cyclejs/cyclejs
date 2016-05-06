@@ -1,17 +1,9 @@
-import Cycle from '@cycle/rx-run';
+import Cycle from '@cycle/xstream-run';
+import xs from 'xstream';
 import express from 'express';
 import browserify from 'browserify';
 import serialize from 'serialize-javascript';
-import {Observable, ReplaySubject} from 'rx';
-import {
-  html,
-  head,
-  title,
-  body,
-  div,
-  script,
-  makeHTMLDriver
-} from '@cycle/dom';
+import {html, head, title, body, div, script, makeHTMLDriver} from '@cycle/dom';
 import app from './app';
 
 function wrapVTreeWithHTMLBoilerplate(vtree, context, clientBundle) {
@@ -36,9 +28,9 @@ function prependHTML5Doctype(html) {
 function wrapAppResultWithBoilerplate(appFn, context$, bundle$) {
   return function wrappedAppFn(sources) {
     let vtree$ = appFn(sources).DOM;
-    let wrappedVTree$ = Observable.combineLatest(vtree$, context$, bundle$,
-      wrapVTreeWithHTMLBoilerplate
-    );
+    let wrappedVTree$ = xs.combine(wrapVTreeWithHTMLBoilerplate,
+      vtree$, context$, bundle$
+    ).take(1);
     return {
       DOM: wrappedVTree$
     };
@@ -46,7 +38,7 @@ function wrapAppResultWithBoilerplate(appFn, context$, bundle$) {
 }
 
 let clientBundle$ = (() => {
-  let replaySubject = new ReplaySubject(1);
+  let bundle$ = xs.createWithMemory();
   let bundleString = '';
   let bundleStream = browserify()
     .transform('babelify')
@@ -57,11 +49,10 @@ let clientBundle$ = (() => {
     bundleString += data;
   });
   bundleStream.on('end', function () {
-    replaySubject.onNext(bundleString);
-    replaySubject.onCompleted();
+    bundle$.shamefullySendNext(bundleString);
     console.log('Client bundle successfully compiled.');
   });
-  return replaySubject;
+  return bundle$;
 })();
 
 let server = express();
@@ -75,14 +66,19 @@ server.use(function (req, res) {
   }
   console.log(`req: ${req.method} ${req.url}`);
 
-  let context$ = Observable.of({route: req.url});
+  let context$ = xs.of({route: req.url});
   let wrappedAppFn = wrapAppResultWithBoilerplate(app, context$, clientBundle$);
   let {sources, run} = Cycle(wrappedAppFn, {
     DOM: makeHTMLDriver(),
-    context: () => context$
+    context: () => context$,
+    PreventDefault: () => {},
   });
-  let html$ = sources.DOM.element$.map(prependHTML5Doctype);
-  html$.subscribe(html => res.send(html));
+  let html$ = sources.DOM.elements.map(prependHTML5Doctype);
+  html$.addListener({
+    next: html => res.send(html),
+    error: err => res.sendStatus(500),
+    complete: () => {}
+  });
   run();
 });
 
