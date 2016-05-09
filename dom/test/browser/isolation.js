@@ -618,5 +618,46 @@ describe('isolation', function () {
       }, 100);
     });
     dispose = run();
+  });
+  
+  it('should handle events when child is removed and re-added', done => {
+    let clicksCount = 0;
+
+    function Child(sources) {
+      sources.DOM.select('.foo').events('click')
+        .subscribe(() => clicksCount++)
+      return {
+        DOM: Rx.Observable.of(div('.foo', []))
+      };
+    }
+
+    function main(sources) {
+      const child = isolate(Child)(sources);
+      // make child.DOM be inserted, removed, and inserted again
+      const innerDOM$ = Rx.Observable.timer(0, 50).take(3)
+        .switchMap(x => x === 1 ? Rx.Observable.of(div()) : child.DOM)
+      return {
+        DOM: innerDOM$
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(main, {
+      DOM: makeDOMDriver(createRenderTarget(), {transposition: true})
+    });
+
+    let dispose;
+    sources.DOM.select(':root').elements.skip(1).subscribe(function (root) {
+      setTimeout(() => {
+        const foo = root.querySelector('.foo');
+        if (!foo) return
+        foo.click();
+      }, 0);
+    });
+    setTimeout(function(){
+      assert.strictEqual(clicksCount, 2)
+      dispose()
+      done()
+    }, 200)
+    dispose = run();
   })
 });

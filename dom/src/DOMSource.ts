@@ -160,6 +160,9 @@ export class DOMSource {
           delegators.set(key, delegator);
         }
         const subject = xs.create<Event>();
+        if (scope) {
+          domSource._isolateModule.addEventDelegator(scope, delegator);
+        }
         delegator.addDestination(subject, namespace);
         return subject;
       })
