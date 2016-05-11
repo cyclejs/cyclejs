@@ -4,6 +4,7 @@
 let assert = require('assert');
 let Cycle = require('../lib/index').default;
 let xs = require('xstream').default;
+let concat = require('xstream/extra/concat').default;
 let delay = require('xstream/extra/delay').default;
 let sinon = require('sinon');
 
@@ -49,10 +50,13 @@ describe('Cycle', function () {
   });
 
   // TODO PLEASE fix me
-  it.skip('should return a run() which in turn returns a dispose()', function (done) {
+  it('should return a run() which in turn returns a dispose()', function (done) {
     function app(sources) {
       return {
-        other: sources.other.take(6).map(x => String(x)).startWith('a')
+        other: concat(
+          sources.other.take(6).map(x => String(x)).startWith('a'),
+          xs.never()
+        )
       };
     }
     function driver(sink) {
@@ -73,7 +77,7 @@ describe('Cycle', function () {
   });
 
   // TODO PLEASE fix me
-  it.skip('should not work after has been disposed', function (done) {
+  it('should not work after has been disposed', function (done) {
     let number$ = xs.periodic(50).map(i => i+1);
     function app() {
       return {other: number$};
