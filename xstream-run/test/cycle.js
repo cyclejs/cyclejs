@@ -49,7 +49,6 @@ describe('Cycle', function () {
     assert.strictEqual(typeof sources.other.addListener, 'function');
   });
 
-  // TODO PLEASE fix me
   it('should return a run() which in turn returns a dispose()', function (done) {
     function app(sources) {
       return {
@@ -76,7 +75,6 @@ describe('Cycle', function () {
     dispose = run();
   });
 
-  // TODO PLEASE fix me
   it('should not work after has been disposed', function (done) {
     let number$ = xs.periodic(50).map(i => i+1);
     function app() {
