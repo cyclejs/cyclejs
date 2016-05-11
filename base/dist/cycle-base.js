@@ -81,6 +81,9 @@ function Cycle(main, drivers, options) {
     var sinkProxies = makeSinkProxies(drivers, streamAdapter);
     var sources = callDrivers(drivers, sinkProxies, streamAdapter);
     var sinks = main(sources);
+    if (typeof window !== 'undefined') {
+        window.Cyclejs = { sinks: sinks };
+    }
     var run = function run() {
         var disposeReplication = replicateMany(sinks, sinkProxies, streamAdapter);
         return function () {
