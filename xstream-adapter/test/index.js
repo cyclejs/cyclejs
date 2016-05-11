@@ -1,7 +1,8 @@
 import {describe, it} from 'mocha';
 import assert from 'assert';
 import XStreamAdapter from '../lib';
-import * as xs from 'xstream';
+import xs from 'xstream';
+import {MemoryStream} from 'xstream/core';
 
 describe('XStreamAdapter', () => {
   it('should conform to StreamLibrary interface', () => {
@@ -38,7 +39,7 @@ describe('XStreamAdapter', () => {
 
   it('should create a hold subject which can be fed and subscribed to', (done) => {
     const holdSubject = XStreamAdapter.makeHoldSubject();
-    assert.strictEqual(holdSubject.stream instanceof xs.MemoryStream, true);
+    assert.strictEqual(holdSubject.stream instanceof MemoryStream, true);
     assert.strictEqual(XStreamAdapter.isValidStream(holdSubject.stream), true);
 
     const observer1Expected = [1, 2, 3, 4];
@@ -64,5 +65,27 @@ describe('XStreamAdapter', () => {
     holdSubject.observer.complete();
 
     setTimeout(done, 20);
+  });
+
+  it('should not complete a sink stream when dispose() is called', (done) => {
+    const sinkProxy = XStreamAdapter.makeHoldSubject();
+    const sink = xs.periodic(50);
+
+    const expectedProxy = [0, 1];
+    sinkProxy.stream.addListener({
+      next: (x) => {
+        assert.strictEqual(x, expectedProxy.shift());
+        if (expectedProxy.length === 0) {
+          XStreamAdapter.dispose({A: sink}, {A: sinkProxy}, {});
+          setTimeout(() => {
+            done();
+          }, 75);
+        }
+      },
+      error: err => done(err),
+      complete: () => done('complete should not be called'),
+    });
+
+    sink._add(sinkProxy.stream);
   });
 });

@@ -45,8 +45,8 @@ const XStreamAdapter: StreamAdapter = {
         sources[k].dispose();
       }
     });
-    Object.keys(sinkProxies).forEach(k => {
-      sinkProxies[k].observer.complete();
+    Object.keys(sinks).forEach(k => {
+      sinks[k].removeListener(sinkProxies[k].stream);
     });
   },
 
