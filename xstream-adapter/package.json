@@ -1,6 +1,6 @@
 {
   "name": "@cycle/xstream-adapter",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Cycle.js xstream Stream Adapter",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
