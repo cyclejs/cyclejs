@@ -148,6 +148,9 @@ function Cycle<Sources, Sinks>(main: (sources: Sources) => Sinks,
   const sinkProxies: SinkProxies = makeSinkProxies(drivers, streamAdapter);
   const sources: Sources = callDrivers(drivers, sinkProxies, streamAdapter);
   const sinks: Sinks = main(sources);
+  if (typeof window !== 'undefined') {
+    (<any> window).Cyclejs = {sinks};
+  }
   const run: () => DisposeFunction = () => {
     const disposeReplication = replicateMany(sinks, sinkProxies, streamAdapter);
     return () => {
