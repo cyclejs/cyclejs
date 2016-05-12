@@ -1,1 +1,5 @@
+.DS_Store
 node_modules/
+/dist/
+/cyclejs-devtool.zip
+/ignore/

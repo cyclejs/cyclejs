@@ -1,16 +1,16 @@
 {
-  "name": "example",
-  "version": "0.0.0",
+  "name": "cycle-devtool",
+  "version": "0.0.1",
   "private": true,
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/dom": "10.0.0-rc5",
+    "@cycle/dom": "10.0.0-rc17",
     "@cycle/isolate": "1.1.x",
-    "@cycle/xstream-run": "1.0.1",
+    "@cycle/xstream-run": "1.1.0",
+    "cuid": "^1.3.8",
     "cycle-mermaid-driver": "^1.0.1",
-    "rx": "4.0.x",
-    "xstream": "1.1.x"
+    "xstream": "2.3.x"
   },
   "devDependencies": {
     "browserify": "11.0.1",
@@ -21,8 +21,10 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prebrowserify": "mkdirp dist",
-    "browserify": "browserify src/main.js -t babelify --outfile dist/main.js",
-    "start": "npm install && npm run browserify && echo 'OPEN index.html IN YOUR BROWSER'"
+    "compile-panel": "browserify src/panel.js -t babelify --outfile dist/panel.js",
+    "compile-graph-serializer": "browserify src/graphSerializer.js -t babelify --outfile dist/graphSerializer.js",
+    "copy-ready-src": "cp src/background.js src/contentScript.js src/launcher.html src/launcher.js src/manifest.json src/mermaid.css src/panel.html src/128.png dist/",
+    "dist": "mkdirp dist && npm install && npm run compile-panel && npm run compile-graph-serializer && npm run copy-ready-src",
+    "zip": "zip cyclejs-devtool.zip dist/*"
   }
 }
