@@ -140,4 +140,44 @@ describe('DOM Rendering', function () {
     });
     dispose = run();
   });
+
+  it('should filter out null/undefined children', function (done) {
+
+    // The Cycle.js app
+    function app() {
+      return {
+        DOM: Rx.Observable.interval(10).take(5).map(i =>
+          div('.parent', [
+            'Child 1',
+            null,
+            h4('.child3', [
+              null,
+              'Grandchild 31',
+              div('.grandchild32', [
+                null,
+                'Great grandchild 322'
+              ])
+            ]),
+            undefined
+          ])
+        ).do(x => console.log(x))
+      };
+    }
+
+    // Run it
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    let dispose;
+    // Assert it
+    sources.DOM.select(':root').elements.skip(1).take(1).subscribe(function (root) {
+      assert.strictEqual(root.querySelector('div.parent').childNodes.length, 2);
+      assert.strictEqual(root.querySelector('h4.child3').childNodes.length, 2);
+      assert.strictEqual(root.querySelector('div.grandchild32').childNodes.length, 1);
+      dispose();
+      done();
+    });
+    dispose = run();
+  });
 });

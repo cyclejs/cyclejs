@@ -47,6 +47,7 @@ function h(sel: string, b?: any, c?: any) {
     }
   }
   if (is.array(children)) {
+    children = children.filter(x => <boolean>x);
     for (i = 0; i < children.length; ++i) {
       if (is.primitive(children[i])) {
         children[i] = vnode(undefined, undefined, undefined, children[i]);
