@@ -133,7 +133,7 @@ export class DOMSource {
       rootElement$ = this._rootElement$
         .filter(function checkRootHasRenderedScope(rootElement) {
           return !!domSource._isolateModule.getIsolatedElement(scope);
-        }).take(1);
+        });
     } else {
       rootElement$ = this._rootElement$.take(2);
     }

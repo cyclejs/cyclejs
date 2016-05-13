@@ -627,7 +627,7 @@ describe('isolation', function () {
       sources.DOM.select('.foo').events('click')
         .subscribe(() => clicksCount++)
       return {
-        DOM: Rx.Observable.of(div('.foo', []))
+        DOM: Rx.Observable.of(div('.foo', ['This is foo']))
       };
     }
 
