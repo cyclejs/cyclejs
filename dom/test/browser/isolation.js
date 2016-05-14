@@ -548,6 +548,61 @@ describe('isolation', function () {
     dispose = run();
   });
 
+  it('should stop bubbling the event if the currentTarget was removed', function (done) {
+    function main(sources) {
+      const childExistence$ = sources.DOM.isolateSource(sources.DOM, 'foo')
+        .select('h4.bar').events('click')
+        .map(() => false)
+        .startWith(true);
+
+      return {
+        DOM: childExistence$.map(exists =>
+          div([
+            div('.top-most', {isolate: '$$CYCLEDOM$$-top'}, [
+              h2('.bar', 'Wrong'),
+              exists ? div({isolate: '$$CYCLEDOM$$-foo'}, [
+                h4('.bar', 'Correct')
+              ]) : null
+            ])
+          ])
+        )
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(main, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+    let dispose;
+    const topDOMSource = sources.DOM.isolateSource(sources.DOM, 'top');
+    const fooDOMSource = sources.DOM.isolateSource(sources.DOM, 'foo');
+
+    let parentEventHandlerCalled = false;
+
+    topDOMSource.select('.bar').events('click').subscribe(ev => {
+      parentEventHandlerCalled = true;
+      done('this should not be called');
+    })
+
+    // Make assertions
+    fooDOMSource.select('.bar').elements.skip(1).take(1).subscribe(elements => {
+      assert.strictEqual(elements.length, 1);
+      const correctElement = elements[0];
+      assert.notStrictEqual(correctElement, null);
+      assert.notStrictEqual(typeof correctElement, 'undefined');
+      assert.strictEqual(correctElement.tagName, 'H4');
+      assert.strictEqual(correctElement.textContent, 'Correct');
+      setTimeout(() => {
+        correctElement.click();
+        setTimeout(() => {
+          assert.strictEqual(parentEventHandlerCalled, false);
+          dispose();
+          done();
+        }, 150);
+      });
+    });
+    dispose = run();
+  });
+
   it('should handle a higher-order graph when events() are subscribed', done => {
     let errorHappened = false;
     let clickDetected = false;
@@ -619,7 +674,7 @@ describe('isolation', function () {
     });
     dispose = run();
   });
-  
+
   it('should handle events when child is removed and re-added', done => {
     let clicksCount = 0;
 
