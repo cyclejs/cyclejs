@@ -204,6 +204,9 @@ var EventDelegator = function () {
         topElement.addEventListener(eventType, this.domListener, useCapture);
     }
     EventDelegator.prototype.bubble = function (rawEvent) {
+        if (!document.body.contains(rawEvent.currentTarget)) {
+            return;
+        }
         var ev = this.patchEvent(rawEvent);
         for (var el = ev.target; el && el !== this.roof; el = el.parentElement) {
             if (ev.propagationHasBeenStopped) {
