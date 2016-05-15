@@ -130,9 +130,13 @@ export class DOMSource {
     const domSource = this;
     let rootElement$: Stream<Element>;
     if (scope) {
+      let hadIsolated_mutable = false;
       rootElement$ = this._rootElement$
-        .filter(function checkRootHasRenderedScope(rootElement) {
-          return !!domSource._isolateModule.getIsolatedElement(scope);
+        .filter(rootElement => {
+          const hasIsolated = !!domSource._isolateModule.getIsolatedElement(scope);
+          const shouldPass = hasIsolated && !hadIsolated_mutable;
+          hadIsolated_mutable = hasIsolated;
+          return shouldPass;
         });
     } else {
       rootElement$ = this._rootElement$.take(2);
