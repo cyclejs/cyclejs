@@ -9,9 +9,9 @@
   }],
   "dependencies": {
     "@cycle/isolate": "1.2.x",
-    "@cycle/xstream-run": "1.0.1",
-    "@cycle/dom": "10.0.0-rc16",
-    "xstream": "2.2.x"
+    "@cycle/xstream-run": "1.1.0",
+    "@cycle/dom": "10.0.0-rc20",
+    "xstream": "2.4.x"
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.3.13",
