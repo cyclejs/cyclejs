@@ -1,5 +1,6 @@
-import Cycle from '@cycle/rx-run';
-import {Observable} from 'rx';
+import Cycle from '@cycle/xstream-run';
+import xs from 'xstream';
+import debounce from 'xstream/extra/debounce';
 import {div, label, input, hr, ul, li, a, makeDOMDriver} from '@cycle/dom';
 import {makeHTTPDriver} from '@cycle/http';
 
@@ -7,7 +8,7 @@ function main(sources) {
   // Requests for Github repositories happen when the input field changes,
   // debounced by 500ms, ignoring empty input field.
   const searchRequest$ = sources.DOM.select('.field').events('input')
-    .debounce(500)
+    .compose(debounce(500))
     .map(ev => ev.target.value)
     .filter(query => query.length > 0)
     .map(q => ({
@@ -17,12 +18,12 @@ function main(sources) {
 
   // Requests unrelated to the Github search. This is to demonstrate
   // how filtering for the HTTP response category is necessary.
-  const otherRequest$ = Observable.interval(1000).take(2)
-    .map(() => ({url: 'http://www.google.com', category: 'google'}));
+  const otherRequest$ = xs.periodic(1000).take(2)
+    .mapTo({url: 'http://www.google.com', category: 'google'});
 
   // Convert the stream of HTTP responses to virtual DOM elements.
   const vtree$ = sources.HTTP.select('github')
-    .mergeAll()
+    .flatten()
     .map(res => res.body.items)
     .startWith([])
     .map(results =>

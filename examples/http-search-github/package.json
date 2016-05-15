@@ -5,10 +5,10 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/rx-run": "7.0.0-rc4",
-    "@cycle/dom": "10.0.0-rc6",
-    "@cycle/http": "9.0.0-rc1",
-    "rx": "^4.0.7"
+    "@cycle/xstream-run": "1.1.0",
+    "@cycle/dom": "10.0.0-rc20",
+    "@cycle/http": "9.0.0-rc3",
+    "xstream": "2.4.x"
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.3.13",
