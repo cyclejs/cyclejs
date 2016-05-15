@@ -1,4 +1,4 @@
-import Cycle from '@cycle/rxjs-run';
+import Cycle from '@cycle/xstream-run';
 import {div, button, h1, h4, a, makeDOMDriver} from '@cycle/dom';
 import {makeHTTPDriver} from '@cycle/http';
 
@@ -14,7 +14,7 @@ function main(sources) {
     });
 
   const user$ = sources.HTTP.select('users')
-    .mergeAll()
+    .flatten()
     .map(res => res.body)
     .startWith(null);
 
