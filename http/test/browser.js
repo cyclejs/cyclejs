@@ -7,6 +7,8 @@ var makeHTTPDriver = src.makeHTTPDriver;
 var uri = '//' + window.location.host;
 require('./common')(uri);
 
+global.mocha.globals(['Cyclejs']);
+
 describe('HTTP Driver in the browser', function () {
   it('should be able to emit progress events on the response stream', function(done) {
     function main() {

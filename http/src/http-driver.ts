@@ -1,7 +1,7 @@
-import {Observable} from 'rx';
+import xs, {Stream} from 'xstream';
 import {HTTPSource} from './HTTPSource';
 import {StreamAdapter} from '@cycle/base';
-import RxAdapter from '@cycle/rx-adapter';
+import XStreamAdapter from '@cycle/xstream-adapter';
 import * as superagent from 'superagent';
 import {RequestOptions, RequestInput, Response} from './interfaces';
 
@@ -65,35 +65,35 @@ export function optionsToSuperagent(rawReqOptions: RequestOptions) {
 }
 
 export function createResponse$(reqInput: RequestInput) {
-  return Observable.create(observer => {
-    let request: any;
-    try {
-      const reqOptions = normalizeRequestInput(reqInput);
-      request = optionsToSuperagent(reqOptions);
-      if (reqOptions.progress) {
-        request = request.on('progress', (res: Response) => {
-          res.request = reqOptions;
-          observer.onNext(res);
-        });
-      }
-      request.end((err: any, res: Response) => {
-        if (err) {
-          observer.onError(err);
-        } else {
-          res.request = reqOptions;
-          observer.onNext(res);
-          observer.onCompleted();
+  return xs.create<any>({
+    start: function startResponseStream(listener) {
+      try {
+        const reqOptions = normalizeRequestInput(reqInput);
+        this.request = optionsToSuperagent(reqOptions);
+        if (reqOptions.progress) {
+          this.request = this.request.on('progress', (res: Response) => {
+            res.request = reqOptions;
+            listener.next(res);
+          });
         }
-      });
-    } catch (err) {
-      observer.onError(err);
-    }
-
-    return function onDispose() {
-      if (request) {
-        request.abort();
+        this.request.end((err: any, res: Response) => {
+          if (err) {
+            listener.error(err);
+          } else {
+            res.request = reqOptions;
+            listener.next(res);
+            listener.complete();
+          }
+        });
+      } catch (err) {
+        listener.error(err);
       }
-    };
+    },
+    stop: function stopResponseStream() {
+      if (this.request && this.request.abort) {
+        this.request.abort();
+      }
+    },
   });
 }
 
@@ -120,10 +120,12 @@ function normalizeRequestInput(reqOptions: RequestInput): RequestOptions {
 
 function makeRequestInputToResponse$(runStreamAdapter: StreamAdapter) {
   return function requestInputToResponse$(reqInput: RequestInput): any {
-    let response$ = createResponse$(reqInput).replay(null, 1);
-    response$.connect();
+    let response$ = createResponse$(reqInput).remember();
+    /* tslint:disable:no-empty */
+    response$.addListener({next: () => {}, error: () => {}, complete: () => {}});
+    /* tslint:enable:no-empty */
     response$ = (runStreamAdapter) ?
-      runStreamAdapter.adapt(response$, RxAdapter.streamSubscribe) :
+      runStreamAdapter.adapt(response$, XStreamAdapter.streamSubscribe) :
       response$;
     Object.defineProperty(response$, 'request', <PropertyDescriptor> {
       value: softNormalizeRequestInput(reqInput),
@@ -176,14 +178,16 @@ function makeRequestInputToResponse$(runStreamAdapter: StreamAdapter) {
  * @function makeHTTPDriver
  */
 export function makeHTTPDriver(): Function {
-  function httpDriver(request$: Observable<RequestInput>, runSA: StreamAdapter): HTTPSource {
+  function httpDriver(request$: Stream<RequestInput>, runSA: StreamAdapter): HTTPSource {
     let response$$ = request$
       .map(makeRequestInputToResponse$(runSA))
-      .replay(null, 1);
+      .remember();
     let httpSource = new HTTPSource(response$$, runSA, []);
-    response$$.connect();
+    /* tslint:disable:no-empty */
+    response$$.addListener({next: () => {}, error: () => {}, complete: () => {}});
+    /* tslint:enable:no-empty */
     return httpSource;
   }
-  (<any> httpDriver).streamAdapter = RxAdapter;
+  (<any> httpDriver).streamAdapter = XStreamAdapter;
   return httpDriver;
 }

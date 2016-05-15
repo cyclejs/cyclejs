@@ -1,11 +1,11 @@
-import {Observable} from 'rx';
+import {Stream} from 'xstream';
 import {isolateSource, isolateSink} from './isolate';
 import {StreamAdapter} from '@cycle/base';
-import RxAdapter from '@cycle/rx-adapter';
+import XStreamAdapter from '@cycle/xstream-adapter';
 import {ResponseStream} from './interfaces';
 
 export class HTTPSource {
-  constructor(private _res$$: Observable<any>,
+  constructor(private _res$$: Stream<any>,
               private runStreamAdapter: StreamAdapter,
               private _namespace: Array<string> = []) {
   }
@@ -13,14 +13,12 @@ export class HTTPSource {
   get response$$(): any {
     return this.runStreamAdapter.adapt(
       this._res$$,
-      RxAdapter.streamSubscribe
+      XStreamAdapter.streamSubscribe
     );
   }
 
   filter(predicate: (response$: ResponseStream) => boolean): HTTPSource {
-    const filteredResponse$$ = this._res$$.filter(
-      (res$: ResponseStream) => predicate(res$)
-    );
+    const filteredResponse$$ = this._res$$.filter(predicate);
     return new HTTPSource(filteredResponse$$, this.runStreamAdapter, this._namespace);
   }
 
@@ -28,9 +26,9 @@ export class HTTPSource {
     const res$$ = this._res$$.filter(
       (res$: ResponseStream) => res$.request && res$.request.category === category
     );
-    return this.runStreamAdapter.adapt(res$$, RxAdapter.streamSubscribe);
+    return this.runStreamAdapter.adapt(res$$, XStreamAdapter.streamSubscribe);
   }
 
   public isolateSource: (source: HTTPSource, scope: string) => HTTPSource = isolateSource;
-  public isolateSink: (sink: Observable<any>, scope: string) => Observable<any> = isolateSink;
+  public isolateSink: (sink: Stream<any>, scope: string) => Stream<any> = isolateSink;
 }
