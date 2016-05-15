@@ -86,8 +86,12 @@ var DOMSource = function () {
         var domSource = this;
         var rootElement$;
         if (scope) {
-            rootElement$ = this._rootElement$.filter(function checkRootHasRenderedScope(rootElement) {
-                return !!domSource._isolateModule.getIsolatedElement(scope);
+            var hadIsolated_mutable_1 = false;
+            rootElement$ = this._rootElement$.filter(function (rootElement) {
+                var hasIsolated = !!domSource._isolateModule.getIsolatedElement(scope);
+                var shouldPass = hasIsolated && !hadIsolated_mutable_1;
+                hadIsolated_mutable_1 = hasIsolated;
+                return shouldPass;
             });
         } else {
             rootElement$ = this._rootElement$.take(2);
