@@ -1,4 +1,4 @@
-import {Observable, Subject} from 'rx';
+import xs from 'xstream';
 import {h3, div} from '@cycle/dom';
 import isolate from '@cycle/isolate';
 import Ticker from './Ticker.js';
@@ -12,38 +12,35 @@ function makeRandomColor() {
   return hexColor;
 }
 
-function intent(DOM, tickerActions) {
-  return {
-    removeTicker$: tickerActions.remove$
-  };
+function intent(DOM, tickerAction$) {
+  const tickerRemove$ = tickerAction$.filter(a => a.type === 'remove');
+  const action$ = xs.merge(
+    tickerRemove$
+  );
+  return action$;
 }
 
-function model(actions, TickerComponent) {
-  const color$ = Observable.interval(1000)
-    .map(makeRandomColor)
-    .startWith('#000000');
-
-  const insertMod$ = Observable.interval(5000).take(10)
-    .map(id => function (oldList) {
+function model(action$, TickerComponent) {
+  const insertReducer$ = xs.periodic(5000).take(10)
+    .map(id => function insertReducer(oldList) {
+      const color$ = xs.periodic(1000)
+        .map(makeRandomColor)
+        .startWith('#000000');
       const out = TickerComponent(color$, id);
-      out.DOM = out.DOM.replay(null, 1);
-      out.DOM.connect();
-      out.remove = out.remove.publish();
-      out.remove.connect();
-      return oldList.concat([{id, DOM: out.DOM, remove: out.remove}]);
+      return oldList.concat([{id, DOM: out.DOM, action$: out.action$}]);
     });
 
-  const removeMod$ = actions.removeTicker$
-    .map(id => function (oldList) {
-      return oldList.filter(item => item.id !== id);
+  const removeReducer$ = action$
+    .filter(a => a.type === 'remove')
+    .map(action => function removeReducer(oldList) {
+      return oldList.filter(item => item.id !== action.id);
     });
 
-  const mod$ = Observable.merge(insertMod$, removeMod$);
+  const list$ = xs.merge(insertReducer$, removeReducer$)
+    .fold((oldList, reducer) => reducer(oldList), [])
+    .remember();
 
-  return Observable.just([])
-    .merge(mod$)
-    .scan((acc, mod) => mod(acc))
-    .shareReplay(1);
+  return list$;
 }
 
 function view(children$, name = '') {
@@ -53,27 +50,31 @@ function view(children$, name = '') {
   );
 }
 
-const TickerWrapper = sources => (color$, id) => {
+const TickerWrapper = sources => function TickerComponent(color$, id) {
   const ticker = isolate(Ticker)({DOM: sources.DOM, color: color$});
   return {
     DOM: ticker.DOM,
-    remove: ticker.remove.map(() => id)
+    action$: ticker.action$.map(a => {
+      a.id = id;
+      return a;
+    }),
   };
 }
 
 function App(sources) {
-  const tickerProxyActions = {remove$: new Subject()};
-  const actions = intent(sources.DOM, tickerProxyActions);
-  const tickers$ = model(actions, TickerWrapper(sources));
+  const tickerProxyAction$ = xs.create();
+  const action$ = intent(sources.DOM, tickerProxyAction$);
+  const tickers$ = model(action$, TickerWrapper(sources));
   const tickerViews$ = tickers$.map(list => list.map(t => t.DOM));
-  const tickerRemove$ = tickers$.flatMapLatest(list =>
-    Observable.merge(list.map(t => t.remove))
-  );
-  tickerRemove$.subscribe(tickerProxyActions.remove$.asObserver());
+  const tickerAction$ = tickers$
+    .map(list => xs.merge(...list.map(t => t.action$)))
+    .flatten();
+  tickerProxyAction$.imitate(tickerAction$);
   const vtree$ = view(tickerViews$);
-  return {
+  const sinks = {
     DOM: vtree$
   };
+  return sinks;
 }
 
 export default App;
