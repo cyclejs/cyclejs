@@ -735,6 +735,10 @@ var IsolateModule = function () {
     };
     IsolateModule.prototype.addEventDelegator = function (scope, eventDelegator) {
         var delegators = this.eventDelegators.get(scope);
+        if (!delegators) {
+            delegators = [];
+            this.eventDelegators.set(scope, delegators);
+        }
         delegators[delegators.length] = eventDelegator;
     };
     IsolateModule.prototype.reset = function () {
@@ -749,24 +753,24 @@ var IsolateModule = function () {
                 var elm = vNode.elm,
                     _b = vNode.data,
                     data = _b === void 0 ? {} : _b;
-                var oldIsolate = oldData.isolate || "";
-                var isolate = data.isolate || "";
-                if (isolate) {
-                    if (oldIsolate) {
-                        self.removeScope(oldIsolate);
+                var oldScope = oldData.isolate || "";
+                var scope = data.isolate || "";
+                if (scope) {
+                    if (oldScope) {
+                        self.removeScope(oldScope);
                     }
-                    self.setScope(elm, isolate);
-                    var delegators = self.eventDelegators.get(isolate);
+                    self.setScope(elm, scope);
+                    var delegators = self.eventDelegators.get(scope);
                     if (delegators) {
                         for (var i = 0, len = delegators.length; i < len; ++i) {
                             delegators[i].updateTopElement(elm);
                         }
                     } else if (delegators === void 0) {
-                        self.eventDelegators.set(isolate, []);
+                        self.eventDelegators.set(scope, []);
                     }
                 }
-                if (oldIsolate && !isolate) {
-                    self.removeScope(isolate);
+                if (oldScope && !scope) {
+                    self.removeScope(scope);
                 }
             },
             update: function update(oldVNode, vNode) {
@@ -775,16 +779,16 @@ var IsolateModule = function () {
                 var elm = vNode.elm,
                     _b = vNode.data,
                     data = _b === void 0 ? {} : _b;
-                var oldIsolate = oldData.isolate || "";
-                var isolate = data.isolate || "";
-                if (isolate) {
-                    if (oldIsolate) {
-                        self.removeScope(oldIsolate);
+                var oldScope = oldData.isolate || "";
+                var scope = data.isolate || "";
+                if (scope) {
+                    if (oldScope) {
+                        self.removeScope(oldScope);
                     }
-                    self.setScope(elm, isolate);
+                    self.setScope(elm, scope);
                 }
-                if (oldIsolate && !isolate) {
-                    self.removeScope(isolate);
+                if (oldScope && !scope) {
+                    self.removeScope(scope);
                 }
             },
             remove: function remove(_a, cb) {
