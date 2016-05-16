@@ -20,53 +20,39 @@
     "url": "https://github.com/cyclejs/most-adapter/issues"
   },
   "homepage": "https://github.com/cyclejs/most-adapter#readme",
-  "typings": "lib/index.d.ts",
-  "browserify": {
-    "transform": [
-      [
-        "babelify",
-        {
-          "presets": [
-            "es2015"
-          ]
-        }
-      ]
-    ]
-  },
   "browserify-shim": {
     "most": "global:most"
   },
-  "peerDependencies": {
-    "@cycle/base": "*",
-    "most": "^0.17.1",
-    "most-subject": "2.x.x"
+  "dependencies": {
+    "most": "^0.19.3",
+    "most-subject": "^4.0.0"
   },
   "devDependencies": {
-    "@most/hold": "*",
-    "@cycle/base": "*",
+    "@cycle/base": "^2.1.0",
     "assert": "^1.3.0",
-    "babel-preset-es2015": "^6.3.13",
-    "babelify": "^7.2.0",
-    "browserify": "^13.0.0",
+    "babel-cli": "^6.8.0",
+    "babel-core": "^6.8.0",
+    "babel-preset-es2015": "^6.6.0",
+    "babel-register": "^6.8.0",
+    "babelify": "^7.3.0",
+    "browserify": "^13.0.1",
     "browserify-shim": "^3.8.12",
+    "eslint": "^2.10.2",
+    "eslint-config-standard": "^5.3.1",
+    "eslint-plugin-promise": "^1.1.0",
+    "eslint-plugin-standard": "^1.3.2",
     "mkdirp": "^0.5.1",
-    "mocha": "^2.3.4",
-    "most": "^0.17.1",
-    "most-subject": "^2.0.0",
-    "tslint": "^3.3.0",
-    "typescript": "^1.7.5",
-    "typings": "^0.6.3",
-    "uglify-js": "^2.6.1"
+    "mocha": "^2.4.5",
+    "uglify-js": "^2.6.2"
   },
   "scripts": {
-    "lint": "tslint -c tslint.json src/*.ts",
-    "premocha": "npm run lib",
+    "lint": "eslint src/",
     "mocha": "mocha --compilers js:babel-register test",
     "test": "npm run lint && npm run mocha",
-    "prelib": "rm -rf lib/ && mkdirp lib/ && typings install",
-    "lib": "tsc",
-    "predist": "rm -rf dist/ && mkdirp dist/ && npm run lib",
-    "dist": "browserify -t browserify-shim -t babelify --exclude most lib/index.js -o dist/cycle-most-adapter.js",
+    "prelib": "rm -rf lib/ && mkdirp lib/",
+    "lib": "babel src -d lib",
+    "predist": "rimraf dist/ && mkdirp dist/ && npm run lib",
+    "dist": "browserify -t browserify-shim -t babelify --exclude most src/index.js -o dist/cycle-most-adapter.js",
     "postdist": "uglifyjs dist/cycle-most-adapter.js -o dist/cycle-most-adapter.min.js",
     "start": "npm install && npm prune",
     "prepublish": "npm run lib",
