@@ -30,6 +30,10 @@ export class IsolateModule {
 
   addEventDelegator(scope: string, eventDelegator: EventDelegator) {
     let delegators = this.eventDelegators.get(scope);
+    if (!delegators) {
+      delegators = [];
+      this.eventDelegators.set(scope, delegators);
+    }
     delegators[delegators.length] = eventDelegator;
   }
 
@@ -43,36 +47,36 @@ export class IsolateModule {
       create(oldVNode: VNode, vNode: VNode) {
         const {data: oldData = {}} = oldVNode;
         const {elm, data = {}} = vNode;
-        const oldIsolate = oldData.isolate || ``;
-        const isolate = data.isolate || ``;
-        if (isolate) {
-          if (oldIsolate) { self.removeScope(oldIsolate); }
-          self.setScope(elm, isolate);
-          const delegators = self.eventDelegators.get(isolate);
+        const oldScope = oldData.isolate || ``;
+        const scope = data.isolate || ``;
+        if (scope) {
+          if (oldScope) { self.removeScope(oldScope); }
+          self.setScope(elm, scope);
+          const delegators = self.eventDelegators.get(scope);
           if (delegators) {
             for (let i = 0, len = delegators.length; i < len; ++i) {
               delegators[i].updateTopElement(elm);
             }
           } else if (delegators === void 0) {
-            self.eventDelegators.set(isolate, []);
+            self.eventDelegators.set(scope, []);
           }
         }
-        if (oldIsolate && !isolate) {
-          self.removeScope(isolate);
+        if (oldScope && !scope) {
+          self.removeScope(scope);
         }
       },
 
       update(oldVNode: VNode, vNode: VNode) {
         const {data: oldData = {}} = oldVNode;
         const {elm, data = {}} = vNode;
-        const oldIsolate = oldData.isolate || ``;
-        const isolate = data.isolate || ``;
-        if (isolate) {
-          if (oldIsolate) { self.removeScope(oldIsolate); }
-          self.setScope(elm, isolate);
+        const oldScope = oldData.isolate || ``;
+        const scope = data.isolate || ``;
+        if (scope) {
+          if (oldScope) { self.removeScope(oldScope); }
+          self.setScope(elm, scope);
         }
-        if (oldIsolate && !isolate) {
-          self.removeScope(isolate);
+        if (oldScope && !scope) {
+          self.removeScope(scope);
         }
       },
 
