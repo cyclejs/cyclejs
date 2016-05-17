@@ -24,8 +24,8 @@
     "most": "global:most"
   },
   "dependencies": {
-    "most": "^0.19.3",
-    "most-subject": "^4.0.0"
+    "most": "^0.19.4",
+    "most-subject": "^4.0.1"
   },
   "devDependencies": {
     "@cycle/base": "^2.1.0",
