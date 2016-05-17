@@ -823,12 +823,10 @@ ScheduledTask.prototype.error = function(e) {
 	return this.task.error(this.time, e);
 };
 
-ScheduledTask.prototype.cancel = function() {
+ScheduledTask.prototype.dispose = function() {
 	this.scheduler.cancel(this);
 	return this.task.dispose();
 };
-
-ScheduledTask.prototype.dispose = ScheduledTask.prototype.cancel;
 
 function runTask(task) {
 	try {
