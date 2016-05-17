@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "most": "^0.19.4",
-    "most-subject": "^4.0.1"
+    "most-subject": "^4.0.2"
   },
   "devDependencies": {
     "@cycle/base": "^2.1.0",
