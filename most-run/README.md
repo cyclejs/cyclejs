@@ -2,7 +2,7 @@
 
 ## Installing
 
-`npm install xstream @cycle/most-run`
+`npm install most @cycle/most-run`
 
 Note: `most` is a **required** dependency. Without it, nothing will work.
 
