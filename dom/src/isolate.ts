@@ -12,6 +12,19 @@ interface Mappable<T, R> {
 
 export function isolateSink(sink: any, scope: string): any {
   return <Mappable<VNode, VNode>>sink.map((vTree: VNode) => {
+    if (vTree.data.isolate) {
+      const existingScope =
+        parseInt(vTree.data.isolate.split(SCOPE_PREFIX + 'cycle')[1]);
+
+      const _scope = parseInt(scope.split('cycle')[1]);
+
+      if (Number.isNaN(existingScope) ||
+          Number.isNaN(_scope) ||
+          existingScope > _scope
+      ) {
+        return vTree;
+      }
+    }
     vTree.data.isolate = SCOPE_PREFIX + scope;
     return vTree;
   });
