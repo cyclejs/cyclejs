@@ -5,7 +5,7 @@ let Cycle = require('@cycle/rxjs-run').default;
 let CycleDOM = require('../../lib/index');
 let isolate = require('@cycle/isolate');
 let Rx = require('rxjs');
-let {h, svg, div, p, span, h2, h3, h4, hJSX, select, option, makeDOMDriver} = CycleDOM;
+let {h, svg, div, p, span, h2, h3, h4, hJSX, select, option, button, makeDOMDriver} = CycleDOM;
 
 function createRenderTarget(id = null) {
   let element = document.createElement('div');
@@ -714,5 +714,188 @@ describe('isolation', function () {
       done()
     }, 200)
     dispose = run();
+  });
+
+  it('should allow an isolated child to receive events when it is used as ' +
+    'the vTree of an isolated parent component', (done) => {
+    let dispose
+    function Component(sources) {
+      sources.DOM.select('.btn').events('click')
+        .subscribe(ev => {
+          assert.strictEqual(ev.target.tagName, 'BUTTON')
+          dispose()
+          done()
+        })
+      return {
+        DOM: Rx.Observable.of(
+          div('.component', {}, [
+            button('.btn', {}, 'Hello')
+          ])
+        )
+      }
+    }
+
+    function main(sources) {
+      const component = isolate(Component)(sources)
+
+      return {DOM: component.DOM}
+    }
+
+    function app(sources) {
+      return isolate(main)(sources)
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    })
+
+
+    sinks.DOM.subscribe(x => console.log('dom', x))
+
+    sources.DOM.elements.skip(1).take(1).subscribe(root => {
+      const element = root.querySelector('.btn')
+      assert.notStrictEqual(element, null)
+      setTimeout(() => element.click())
+    })
+
+    dispose = run()
+  })
+
+  it('should allow an isolated child to receive events when it is used as ' +
+    'the vTree of an isolated parent component when scope is explicitly ' +
+    'specified on child', (done) => {
+    let dispose
+    function Component(sources) {
+      sources.DOM.select('.btn').events('click')
+        .subscribe(ev => {
+          assert.strictEqual(ev.target.tagName, 'BUTTON')
+          dispose()
+          done()
+        })
+      return {
+        DOM: Rx.Observable.of(
+          div('.component', {}, [
+            button('.btn', {}, 'Hello')
+          ])
+        )
+      }
+    }
+
+    function main(sources) {
+      const component = isolate(Component, 'foo')(sources)
+
+      return {DOM: component.DOM}
+    }
+
+    function app(sources) {
+      return isolate(main)(sources)
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    })
+
+
+    sinks.DOM.subscribe(x => console.log('dom', x))
+
+    sources.DOM.elements.skip(1).take(1).subscribe(root => {
+      const element = root.querySelector('.btn')
+      assert.notStrictEqual(element, null)
+      setTimeout(() => element.click())
+    })
+
+    dispose = run()
+  })
+
+  it('should allow an isolated child to receive events when it is used as ' +
+    'the vTree of an isolated parent component when scope is explicitly ' +
+    'specified on parent', (done) => {
+    let dispose
+    function Component(sources) {
+      sources.DOM.select('.btn').events('click')
+        .subscribe(ev => {
+          assert.strictEqual(ev.target.tagName, 'BUTTON')
+          dispose()
+          done()
+        })
+      return {
+        DOM: Rx.Observable.of(
+          div('.component', {}, [
+            button('.btn', {}, 'Hello')
+          ])
+        )
+      }
+    }
+
+    function main(sources) {
+      const component = isolate(Component)(sources)
+
+      return {DOM: component.DOM}
+    }
+
+    function app(sources) {
+      return isolate(main, 'foo')(sources)
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    })
+
+
+    sinks.DOM.subscribe(x => console.log('dom', x))
+
+    sources.DOM.elements.skip(1).take(1).subscribe(root => {
+      const element = root.querySelector('.btn')
+      assert.notStrictEqual(element, null)
+      setTimeout(() => element.click())
+    })
+
+    dispose = run()
+  })
+
+  it('should allow an isolated child to receive events when it is used as ' +
+    'the vTree of an isolated parent component when scope is explicitly ' +
+    'specified on parent and child', (done) => {
+    let dispose
+    function Component(sources) {
+      sources.DOM.select('.btn').events('click')
+        .subscribe(ev => {
+          assert.strictEqual(ev.target.tagName, 'BUTTON')
+          dispose()
+          done()
+        })
+      return {
+        DOM: Rx.Observable.of(
+          div('.component', {}, [
+            button('.btn', {}, 'Hello')
+          ])
+        )
+      }
+    }
+
+    function main(sources) {
+      const component = isolate(Component, 'bar')(sources)
+
+      return {DOM: component.DOM}
+    }
+
+    function app(sources) {
+      return isolate(main, 'foo')(sources)
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    })
+
+
+    sinks.DOM.subscribe(x => console.log('dom', x))
+
+    sources.DOM.elements.skip(1).take(1).subscribe(root => {
+      const element = root.querySelector('.btn')
+      assert.notStrictEqual(element, null)
+      setTimeout(() => element.click())
+    })
+
+    dispose = run()
   })
 });
