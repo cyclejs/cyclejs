@@ -700,6 +700,13 @@ function isolateSource(source, scope) {
 exports.isolateSource = isolateSource;
 function isolateSink(sink, scope) {
     return sink.map(function (vTree) {
+        if (vTree.data.isolate) {
+            var existingScope = parseInt(vTree.data.isolate.split(utils_1.SCOPE_PREFIX + 'cycle')[1]);
+            var _scope = parseInt(scope.split('cycle')[1]);
+            if (Number.isNaN(existingScope) || Number.isNaN(_scope) || existingScope > _scope) {
+                return vTree;
+            }
+        }
         vTree.data.isolate = utils_1.SCOPE_PREFIX + scope;
         return vTree;
     });
