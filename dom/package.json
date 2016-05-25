@@ -29,6 +29,7 @@
     "virtual-dom"
   ],
   "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "dependencies": {
     "@cycle/xstream-adapter": "^1.0.2",
     "matches-selector": "1.0.0",
