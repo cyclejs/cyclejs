@@ -21,10 +21,16 @@ Note: `rx` is a **required** dependency. Without it, nothing will change.
 - File a bug report for anything Cycle-related: [open an issue](https://github.com/cyclejs/cycle-core/issues/new)
 - Ask a question such as "How do I ...?" on one of these channels:  
   - Ask it in the [Gitter chat room](https://gitter.im/cyclejs/cycle-core)
-  - [Open a StackOverflow question with `cyclejs` tag](http://stackoverflow.com/questions/tagged/cyclejs) 
-  - [Open an issue here](https://github.com/cyclejs/cycle-core/issues/new). Please note all discussion-like issues are labeled `discussion` and immediately closed. This doesn't mean we disconsidered your discussion. We only leave actual issues open.
-- [Read discussion issues](https://github.com/cyclejs/cycle-core/issues?q=is%3Aissue+is%3Aclosed+label%3A"discussion+%28is+always+a+closed+issue%29")
-- Contribute a new driver: [open an issue](https://github.com/cyclejs/cycle-core/issues/new)
+  - [Open a StackOverflow question with `cyclejs` tag](http://stackoverflow.com/questions/tagged/cyclejs)
+- [Open an issue here](https://github.com/cyclejs/cycle-core/issues/new).
+  - This repo accepts issues for the following repositories as well
+    - [cycle/dom](https://github.com/cyclejs/dom)
+    - [cycle/http](https://github.com/cyclejs/http)
+    - [cycle/isolate](https://github.com/cyclejs/isolate)
+  - Please note all discussion issues should be opened in our [cyclejs-community](https://github.com/cyclejs-community/cyclejs-community/issues/new) organization
+- [Read previous discussion issues](https://github.com/cyclejs/cycle-core/issues?q=is%3Aissue+is%3Aclosed+label%3A"discussion+%28is+always+a+closed+issue%29")
+- [Open a new discussion issue](https://github.com/cyclejs-community/cyclejs-community/issues/new)
+- [Contribute or request a new driver](https://github.com/cyclejs-community/cyclejs-community/issues/new)
 
 ## LICENSE
 
