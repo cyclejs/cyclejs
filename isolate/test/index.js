@@ -2,7 +2,7 @@
 'use strict';
 /* global describe, it */
 let assert = require('assert');
-let isolate = require('../src/index');
+let isolate = require('../lib/index').default;
 let Rx = require('rx');
 let sinon = require('sinon');
 
