@@ -26,6 +26,7 @@
     "virtual-dom"
   ],
   "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "devDependencies": {
     "babel": "5.8.23",
     "babelify": "6.3.0",
