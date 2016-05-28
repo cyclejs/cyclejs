@@ -15,8 +15,8 @@ function checkIsolateArgs(dataflowComponent: Function, scope: string) {
   }
 }
 
-function isolateAllSources(sources: Object, scope: string) {
-  const scopedSources = {};
+function isolateAllSources<So>(sources: So, scope: string): So {
+  const scopedSources = <So> {};
   for (let key in sources) {
     if (sources.hasOwnProperty(key) && sources[key]
     && typeof sources[key].isolateSource === `function`) {
@@ -28,8 +28,8 @@ function isolateAllSources(sources: Object, scope: string) {
   return scopedSources;
 }
 
-function isolateAllSinks(sources: Object, sinks: Object, scope: string) {
-  const scopedSinks = {};
+function isolateAllSinks<So, Si>(sources: So, sinks: Si, scope: string): Si {
+  const scopedSinks = <Si> {};
   for (let key in sinks) {
     if (sinks.hasOwnProperty(key)
     && sources.hasOwnProperty(key)
@@ -41,6 +41,8 @@ function isolateAllSinks(sources: Object, sinks: Object, scope: string) {
   }
   return scopedSinks;
 }
+
+export type Component<So, Si> = (sources: So, ...rest: Array<any>) => Si;
 
 /**
  * Takes a `dataflowComponent` function and an optional `scope` string, and
@@ -72,11 +74,11 @@ function isolateAllSinks(sources: Object, sinks: Object, scope: string) {
  * original `dataflowComponent` function, takes `sources` and returns `sinks`.
  * @function isolate
  */
-function isolate(dataflowComponent: Function, scope: string = newScope()): Function {
-  checkIsolateArgs(dataflowComponent, scope);
-  return function scopedDataflowComponent(sources: Object, ...rest: Array<any>) {
+function isolate<So, Si>(component: Component<So, Si>, scope: string = newScope()): Component<So, Si> {
+  checkIsolateArgs(component, scope);
+  return function scopedComponent(sources: So, ...rest: Array<any>): Si {
     const scopedSources = isolateAllSources(sources, scope);
-    const sinks = dataflowComponent(scopedSources, ...rest);
+    const sinks = component(scopedSources, ...rest);
     const scopedSinks = isolateAllSinks(sources, sinks, scope);
     return scopedSinks;
   };
