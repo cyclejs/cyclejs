@@ -1,4 +1,0 @@
-{
-  "extends": "eslint-config-standard",
-  "rules": {}
-}

@@ -1,0 +1,11 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "/home/tylor/code/cycle/most-adapter-ts/node_modules/@cycle/base/typings.json",
+    "raw": "npm:@cycle/base",
+    "main": "lib/index.d.ts",
+    "version": "2.1.0",
+    "global": false,
+    "name": "@cycle/base"
+  }
+}
