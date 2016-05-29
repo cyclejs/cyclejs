@@ -1,12 +1,12 @@
-<a name="1.0.0"></a>
-# 1.0.0 (2016-05-29)
+<a name="1.1.1"></a>
+## [1.1.1](https://github.com/TylorS/most-proxy/compare/9c638f9...v1.1.1) (2016-05-29)
 
 
 ### Features
 
 * catching up with type defs and expected features ([9c638f9](https://github.com/TylorS/most-proxy/commit/9c638f9))
 * rewrite in JS ([64f1dcb](https://github.com/TylorS/most-proxy/commit/64f1dcb))
-* **src:** rewrite in typescript ([213a93f](https://github.com/TylorS/most-proxy/commit/213a93f))
+* **src:** rewrite in typescript ([#4](https://github.com/TylorS/most-proxy/issues/4)) ([ec24df9](https://github.com/TylorS/most-proxy/commit/ec24df9))
 
 
 
