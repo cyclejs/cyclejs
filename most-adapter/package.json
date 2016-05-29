@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "typeings": "lib/index.d.ts",
   "scripts": {
-    "doc": "typedoc src/index.ts --excludeNotExported --out doc/ --module commonjs --target ES5 --name 'Most Subject' src/index.ts",
+    "doc": "typedoc --out doc/ --module commonjs --target ES5 --name 'Cycle.js Most Adapter' src/index.ts",
     "postdoc": "git add doc/ && git commit -m 'chore(docs): build doc/'",
     "changelog": "conventional-changelog --infile CHANGELOG.md --same-file --release-count 0 --preset angular",
     "postchangelog": "git add CHANGELOG.md && git commit -m 'chore(changelog): generate changelog'",
