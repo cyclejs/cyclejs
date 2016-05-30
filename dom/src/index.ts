@@ -36,11 +36,17 @@ export {
   tfoot, th, thead, title, tr, u, ul, video,
 };
 
-import {makeDOMDriver} from './makeDOMDriver';
-export {makeDOMDriver};
+import {makeDOMDriver, DOMDriverOptions} from './makeDOMDriver';
+export {makeDOMDriver, DOMDriverOptions};
+
+import {DOMSource} from './DOMSource';
+export {DOMSource};
 
 import {mockDOMSource} from './mockDOMSource';
 export {mockDOMSource};
 
 import {makeHTMLDriver} from './makeHTMLDriver';
 export {makeHTMLDriver};
+
+import {HTMLSource, HTMLDriverOptions} from './HTMLSource';
+export {HTMLSource, HTMLDriverOptions};
