@@ -1,6 +1,4 @@
-// import * as modules from './modules'
-// export {modules}
-
+/// <reference path="./custom-typings/main.d.ts" />
 const thunk = require('snabbdom/thunk');
 export {thunk};
 
