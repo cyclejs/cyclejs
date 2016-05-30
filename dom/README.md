@@ -27,6 +27,5 @@ These are the browsers we officially support currently. Cycle.js may not work (o
 - - -
 
 [![Build Status](https://travis-ci.org/cyclejs/cycle-dom.svg?branch=master)](https://travis-ci.org/cyclejs/cycle-dom)
-[![Code Climate](https://codeclimate.com/github/cyclejs/cycle-dom/badges/gpa.svg)](https://codeclimate.com/github/cyclejs/cycle-dom)
 [![Dependency Status](https://david-dm.org/cyclejs/cycle-dom.svg)](https://david-dm.org/cyclejs/cycle-dom)
 [![devDependency Status](https://david-dm.org/cyclejs/cycle-dom/dev-status.svg)](https://david-dm.org/cyclejs/cycle-dom#info=devDependencies)
