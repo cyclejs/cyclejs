@@ -125,7 +125,7 @@ function disposeSources<Sources>(sources: Sources) {
 const isObjectEmpty = (obj: any) => Object.keys(obj).length === 0;
 
 function Cycle<Sources, Sinks>(main: (sources: Sources) => Sinks,
-                               drivers: DriversDefinition,
+                               drivers: {[name: string]: Function},
                                options: CycleOptions): CycleExecution<Sources, Sinks> {
   if (typeof main !== `function`) {
     throw new Error(`First argument given to Cycle must be the 'main' ` +
@@ -145,8 +145,8 @@ function Cycle<Sources, Sinks>(main: (sources: Sources) => Sinks,
       `with the streamAdapter key supplied with a valid stream adapter.`);
   }
 
-  const sinkProxies: SinkProxies = makeSinkProxies(drivers, streamAdapter);
-  const sources: Sources = callDrivers(drivers, sinkProxies, streamAdapter);
+  const sinkProxies: SinkProxies = makeSinkProxies(<DriversDefinition> drivers, streamAdapter);
+  const sources: Sources = callDrivers(<DriversDefinition> drivers, sinkProxies, streamAdapter);
   const sinks: Sinks = main(sources);
   if (typeof window !== 'undefined') {
     (<any> window).Cyclejs = {sinks};
