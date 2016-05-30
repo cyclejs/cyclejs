@@ -22,8 +22,8 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "@cycle/base": "^2.0.2",
-    "@cycle/rxjs-adapter": "^1.0.5"
+    "@cycle/base": "^2.1.1",
+    "@cycle/rxjs-adapter": "^1.0.6"
   },
   "peerDependencies": {
     "rxjs": "*"

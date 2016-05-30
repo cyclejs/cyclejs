@@ -1,5 +1,4 @@
 import {
-  DriversDefinition,
   CycleExecution,
   CycleSetup,
   DisposeFunction
@@ -36,7 +35,7 @@ import RxJSAdapter from '@cycle/rxjs-adapter';
  */
 const Cycle: CycleSetup = <CycleSetup>
   function <Sources, Sinks>(main: (sources: Sources) => Sinks,
-                            drivers: DriversDefinition): CycleExecution<Sources, Sinks> {
+                            drivers: {[name: string]: Function}): CycleExecution<Sources, Sinks> {
     return CycleBase(main, drivers, {streamAdapter: RxJSAdapter});
   };
 
@@ -67,7 +66,7 @@ const Cycle: CycleSetup = <CycleSetup>
  * @function run
  */
 export function run<Sources, Sinks>(main: (sources: Sources) => Sinks,
-                                    drivers: DriversDefinition): DisposeFunction {
+                                    drivers: {[name: string]: Function}): DisposeFunction {
   const {run} = CycleBase(main, drivers, {streamAdapter: RxJSAdapter});
   return run();
 }
