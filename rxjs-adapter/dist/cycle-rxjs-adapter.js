@@ -59,7 +59,7 @@ var RxJSAdapter = {
         return { stream: stream, observer: observer };
     },
     isValidStream: function isValidStream(stream) {
-        return typeof stream.subscribe === 'function' && typeof stream.onValue !== 'function';
+        return typeof stream.subscribe === 'function' && typeof stream.subscribeOnNext !== 'function' && typeof stream.onValue !== 'function';
     },
     streamSubscribe: function streamSubscribe(stream, observer) {
         var subscription = stream.subscribe(observer);
