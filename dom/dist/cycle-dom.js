@@ -506,7 +506,6 @@ exports.default = h;
 
 },{"snabbdom/is":52,"snabbdom/vnode":61}],10:[function(require,module,exports){
 "use strict";
-/// <reference path="./custom-typings/main.d.ts" />
 
 var thunk = require('snabbdom/thunk');
 exports.thunk = thunk;
