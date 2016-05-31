@@ -62,7 +62,7 @@
     "testem": "0.9.11",
     "tslint": "3.6.0",
     "typescript": "^1.8.9",
-    "typings": "^0.7.12",
+    "typings": "^1.0.4",
     "uglify-js": "2.6.1",
     "xstream": "2.x.x",
     "zuul": "3.8.0"

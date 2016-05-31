@@ -1,4 +1,3 @@
-/// <reference path="./custom-typings/main.d.ts" />
 const thunk = require('snabbdom/thunk');
 export {thunk};
 
