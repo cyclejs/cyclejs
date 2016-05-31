@@ -25,7 +25,7 @@ function addNS(data: Object, children: Array<VNode | string | Stream<VNode>>): v
   }
 }
 
-function h(sel: string, b?: any, c?: any) {
+function h(sel: string, b?: any, c?: any): VNode {
   let data = {};
   let children: Array<VNode | string | Stream<VNode>>;
   let text: string;
