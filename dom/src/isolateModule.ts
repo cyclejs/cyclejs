@@ -51,7 +51,7 @@ export class IsolateModule {
         const scope = data.isolate || ``;
         if (scope) {
           if (oldScope) { self.removeScope(oldScope); }
-          self.setScope(elm, scope);
+          self.setScope(<Element> elm, scope);
           const delegators = self.eventDelegators.get(scope);
           if (delegators) {
             for (let i = 0, len = delegators.length; i < len; ++i) {
@@ -73,14 +73,14 @@ export class IsolateModule {
         const scope = data.isolate || ``;
         if (scope) {
           if (oldScope) { self.removeScope(oldScope); }
-          self.setScope(elm, scope);
+          self.setScope(<Element> elm, scope);
         }
         if (oldScope && !scope) {
           self.removeScope(scope);
         }
       },
 
-      remove({data}, cb: Function) {
+      remove({data}: VNode, cb: Function) {
         data = data || {};
         const scope = (<any> data).isolate;
         if (scope) {
@@ -92,7 +92,7 @@ export class IsolateModule {
         cb();
       },
 
-      destroy({data}) {
+      destroy({data}: VNode) {
         data = data || {};
         const scope = (<any> data).isolate;
         if (scope) {
