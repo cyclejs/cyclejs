@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "@cycle/base": "npm:@cycle/base",
+    "@cycle/isolate": "npm:@cycle/isolate",
+    "@cycle/dom": "npm:@cycle/dom"
+  },
+  "devDependencies": {},
+  "globalDependencies": {
+    "es6-shim": "github:DefinitelyTyped/DefinitelyTyped/es6-shim/es6-shim.d.ts#6697d6f7dadbf5773cb40ecda35a76027e0783b2",
+    "require": "github:DefinitelyTyped/DefinitelyTyped/requirejs/require.d.ts#56295f5058cac7ae458540423c50ac2dcf9fc711"
+  }
+}
