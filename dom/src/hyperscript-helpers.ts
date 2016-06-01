@@ -31,16 +31,16 @@ function createTagFunction(tagName: string): Function {
 
 const SVG_TAG_NAMES = [
   'a', 'altGlyph', 'altGlyphDef', 'altGlyphItem', 'animate', 'animateColor',
-  'animateMotion', 'animateTransform', 'circle', 'clipPath', 'color-profile',
+  'animateMotion', 'animateTransform', 'circle', 'clipPath', 'colorProfile',
   'cursor', 'defs', 'desc', 'ellipse', 'feBlend', 'feColorMatrix',
   'feComponentTransfer', 'feComposite', 'feConvolveMatrix', 'feDiffuseLighting',
   'feDisplacementMap', 'feDistantLight', 'feFlood', 'feFuncA', 'feFuncB',
   'feFuncG', 'feFuncR', 'feGaussianBlur', 'feImage', 'feMerge', 'feMergeNode',
   'feMorphology', 'feOffset', 'fePointLight', 'feSpecularLighting',
-  'feSpotlight', 'feTile', 'feTurbulence', 'filter', 'font', 'font-face',
-  'font-face-format', 'font-face-name', 'font-face-src', 'font-face-uri',
+  'feSpotlight', 'feTile', 'feTurbulence', 'filter', 'font', 'fontFace',
+  'fontFaceFormat', 'fontFaceName', 'fontFaceSrc', 'fontFaceUri',
   'foreignObject', 'g', 'glyph', 'glyphRef', 'hkern', 'image', 'line',
-  'linearGradient', 'marker', 'mask', 'metadata', 'missing-glyph', 'mpath',
+  'linearGradient', 'marker', 'mask', 'metadata', 'missingGlyph', 'mpath',
   'path', 'pattern', 'polygon', 'polyling', 'radialGradient', 'rect', 'script',
   'set', 'stop', 'style', 'switch', 'symbol', 'text', 'textPath', 'title',
   'tref', 'tspan', 'use', 'view', 'vkern'
@@ -77,85 +77,85 @@ export interface HyperScriptHelperFn {
 }
 
 export interface SVGHelperFn extends HyperScriptHelperFn {
-  'a': HyperScriptHelperFn;
-  'altGlyph': HyperScriptHelperFn;
-  'altGlyphDef': HyperScriptHelperFn;
-  'altGlyphItem': HyperScriptHelperFn;
-  'animate': HyperScriptHelperFn;
-  'animateColor': HyperScriptHelperFn;
-  'animateMotion': HyperScriptHelperFn;
-  'animateTransform': HyperScriptHelperFn;
-  'circle': HyperScriptHelperFn;
-  'clipPath': HyperScriptHelperFn;
-  'color-profile': HyperScriptHelperFn;
-  'cursor': HyperScriptHelperFn;
-  'defs': HyperScriptHelperFn;
-  'desc': HyperScriptHelperFn;
-  'ellipse': HyperScriptHelperFn;
-  'feBlend': HyperScriptHelperFn;
-  'feColorMatrix': HyperScriptHelperFn;
-  'feComponentTransfer': HyperScriptHelperFn;
-  'feComposite': HyperScriptHelperFn;
-  'feConvolveMatrix': HyperScriptHelperFn;
-  'feDiffuseLighting': HyperScriptHelperFn;
-  'feDisplacementMap': HyperScriptHelperFn;
-  'feDistantLight': HyperScriptHelperFn;
-  'feFlood': HyperScriptHelperFn;
-  'feFuncA': HyperScriptHelperFn;
-  'feFuncB': HyperScriptHelperFn;
-  'feFuncG': HyperScriptHelperFn;
-  'feFuncR': HyperScriptHelperFn;
-  'feGaussianBlur': HyperScriptHelperFn;
-  'feImage': HyperScriptHelperFn;
-  'feMerge': HyperScriptHelperFn;
-  'feMergeNode': HyperScriptHelperFn;
-  'feMorphology': HyperScriptHelperFn;
-  'feOffset': HyperScriptHelperFn;
-  'fePointLight': HyperScriptHelperFn;
-  'feSpecularLighting': HyperScriptHelperFn;
-  'feSpotlight': HyperScriptHelperFn;
-  'feTile': HyperScriptHelperFn;
-  'feTurbulence': HyperScriptHelperFn;
-  'filter': HyperScriptHelperFn;
-  'font': HyperScriptHelperFn;
-  'font-face': HyperScriptHelperFn;
-  'font-face-format': HyperScriptHelperFn;
-  'font-face-name': HyperScriptHelperFn;
-  'font-face-src': HyperScriptHelperFn;
-  'font-face-uri': HyperScriptHelperFn;
-  'foreignObject': HyperScriptHelperFn;
-  'g': HyperScriptHelperFn;
-  'glyph': HyperScriptHelperFn;
-  'glyphRef': HyperScriptHelperFn;
-  'hkern': HyperScriptHelperFn;
-  'image': HyperScriptHelperFn;
-  'line': HyperScriptHelperFn;
-  'linearGradient': HyperScriptHelperFn;
-  'marker': HyperScriptHelperFn;
-  'mask': HyperScriptHelperFn;
-  'metadata': HyperScriptHelperFn;
-  'missing-glyph': HyperScriptHelperFn;
-  'mpath': HyperScriptHelperFn;
-  'path': HyperScriptHelperFn;
-  'pattern': HyperScriptHelperFn;
-  'polygon': HyperScriptHelperFn;
-  'polyling': HyperScriptHelperFn;
-  'radialGradient': HyperScriptHelperFn;
-  'rect': HyperScriptHelperFn;
-  'script': HyperScriptHelperFn;
-  'set': HyperScriptHelperFn;
-  'stop': HyperScriptHelperFn;
-  'style': HyperScriptHelperFn;
-  'switch': HyperScriptHelperFn;
-  'symbol': HyperScriptHelperFn;
-  'text': HyperScriptHelperFn;
-  'textPath': HyperScriptHelperFn;
-  'title': HyperScriptHelperFn;
-  'tref': HyperScriptHelperFn;
-  'tspan': HyperScriptHelperFn;
-  'use': HyperScriptHelperFn;
-  'view': HyperScriptHelperFn;
-  'vkern': HyperScriptHelperFn;
+  a: HyperScriptHelperFn;
+  altGlyph: HyperScriptHelperFn;
+  altGlyphDef: HyperScriptHelperFn;
+  altGlyphItem: HyperScriptHelperFn;
+  animate: HyperScriptHelperFn;
+  animateColor: HyperScriptHelperFn;
+  animateMotion: HyperScriptHelperFn;
+  animateTransform: HyperScriptHelperFn;
+  circle: HyperScriptHelperFn;
+  clipPath: HyperScriptHelperFn;
+  colorProfile: HyperScriptHelperFn;
+  cursor: HyperScriptHelperFn;
+  defs: HyperScriptHelperFn;
+  desc: HyperScriptHelperFn;
+  ellipse: HyperScriptHelperFn;
+  feBlend: HyperScriptHelperFn;
+  feColorMatrix: HyperScriptHelperFn;
+  feComponentTransfer: HyperScriptHelperFn;
+  feComposite: HyperScriptHelperFn;
+  feConvolveMatrix: HyperScriptHelperFn;
+  feDiffuseLighting: HyperScriptHelperFn;
+  feDisplacementMap: HyperScriptHelperFn;
+  feDistantLight: HyperScriptHelperFn;
+  feFlood: HyperScriptHelperFn;
+  feFuncA: HyperScriptHelperFn;
+  feFuncB: HyperScriptHelperFn;
+  feFuncG: HyperScriptHelperFn;
+  feFuncR: HyperScriptHelperFn;
+  feGaussianBlur: HyperScriptHelperFn;
+  feImage: HyperScriptHelperFn;
+  feMerge: HyperScriptHelperFn;
+  feMergeNode: HyperScriptHelperFn;
+  feMorphology: HyperScriptHelperFn;
+  feOffset: HyperScriptHelperFn;
+  fePointLight: HyperScriptHelperFn;
+  feSpecularLighting: HyperScriptHelperFn;
+  feSpotlight: HyperScriptHelperFn;
+  feTile: HyperScriptHelperFn;
+  feTurbulence: HyperScriptHelperFn;
+  filter: HyperScriptHelperFn;
+  font: HyperScriptHelperFn;
+  fontFace: HyperScriptHelperFn;
+  fontFaceFormat: HyperScriptHelperFn;
+  fontFaceName: HyperScriptHelperFn;
+  fontFaceSrc: HyperScriptHelperFn;
+  fontFaceUri: HyperScriptHelperFn;
+  foreignObject: HyperScriptHelperFn;
+  g: HyperScriptHelperFn;
+  glyph: HyperScriptHelperFn;
+  glyphRef: HyperScriptHelperFn;
+  hkern: HyperScriptHelperFn;
+  image: HyperScriptHelperFn;
+  line: HyperScriptHelperFn;
+  linearGradient: HyperScriptHelperFn;
+  marker: HyperScriptHelperFn;
+  mask: HyperScriptHelperFn;
+  metadata: HyperScriptHelperFn;
+  missingGlyph: HyperScriptHelperFn;
+  mpath: HyperScriptHelperFn;
+  path: HyperScriptHelperFn;
+  pattern: HyperScriptHelperFn;
+  polygon: HyperScriptHelperFn;
+  polyling: HyperScriptHelperFn;
+  radialGradient: HyperScriptHelperFn;
+  rect: HyperScriptHelperFn;
+  script: HyperScriptHelperFn;
+  set: HyperScriptHelperFn;
+  stop: HyperScriptHelperFn;
+  style: HyperScriptHelperFn;
+  switch: HyperScriptHelperFn;
+  symbol: HyperScriptHelperFn;
+  text: HyperScriptHelperFn;
+  textPath: HyperScriptHelperFn;
+  title: HyperScriptHelperFn;
+  tref: HyperScriptHelperFn;
+  tspan: HyperScriptHelperFn;
+  use: HyperScriptHelperFn;
+  view: HyperScriptHelperFn;
+  vkern: HyperScriptHelperFn;
 }
 
 export interface HyperScriptHelpers {
