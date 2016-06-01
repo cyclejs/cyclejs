@@ -362,7 +362,7 @@ var VNodeWrapper = function () {
             className = _c.className;
         var elementId = id ? "#" + id : "";
         var elementClassName = className ? "." + className.split(" ").join(".") : "";
-        return hyperscript_1.default("" + tagName + elementId + elementClassName, {}, [vnode]);
+        return hyperscript_1.h("" + tagName + elementId + elementClassName, {}, [vnode]);
     };
     return VNodeWrapper;
 }();
@@ -410,22 +410,22 @@ function createTagFunction(tagName) {
     return function hyperscript(first, b, c) {
         if (isSelector(first)) {
             if (!!b && !!c) {
-                return hyperscript_1.default(tagName + first, b, c);
+                return hyperscript_1.h(tagName + first, b, c);
             } else if (!!b) {
-                return hyperscript_1.default(tagName + first, b);
+                return hyperscript_1.h(tagName + first, b);
             } else {
-                return hyperscript_1.default(tagName + first, {});
+                return hyperscript_1.h(tagName + first, {});
             }
         } else if (!!b) {
-            return hyperscript_1.default(tagName, first, b);
+            return hyperscript_1.h(tagName, first, b);
         } else if (!!first) {
-            return hyperscript_1.default(tagName, first);
+            return hyperscript_1.h(tagName, first);
         } else {
-            return hyperscript_1.default(tagName, {});
+            return hyperscript_1.h(tagName, {});
         }
     };
 }
-var SVG_TAG_NAMES = ['a', 'altGlyph', 'altGlyphDef', 'altGlyphItem', 'animate', 'animateColor', 'animateMotion', 'animateTransform', 'circle', 'clipPath', 'color-profile', 'cursor', 'defs', 'desc', 'ellipse', 'feBlend', 'feColorMatrix', 'feComponentTransfer', 'feComposite', 'feConvolveMatrix', 'feDiffuseLighting', 'feDisplacementMap', 'feDistantLight', 'feFlood', 'feFuncA', 'feFuncB', 'feFuncG', 'feFuncR', 'feGaussianBlur', 'feImage', 'feMerge', 'feMergeNode', 'feMorphology', 'feOffset', 'fePointLight', 'feSpecularLighting', 'feSpotlight', 'feTile', 'feTurbulence', 'filter', 'font', 'font-face', 'font-face-format', 'font-face-name', 'font-face-src', 'font-face-uri', 'foreignObject', 'g', 'glyph', 'glyphRef', 'hkern', 'image', 'line', 'linearGradient', 'marker', 'mask', 'metadata', 'missing-glyph', 'mpath', 'path', 'pattern', 'polygon', 'polyling', 'radialGradient', 'rect', 'script', 'set', 'stop', 'style', 'switch', 'symbol', 'text', 'textPath', 'title', 'tref', 'tspan', 'use', 'view', 'vkern'];
+var SVG_TAG_NAMES = ['a', 'altGlyph', 'altGlyphDef', 'altGlyphItem', 'animate', 'animateColor', 'animateMotion', 'animateTransform', 'circle', 'clipPath', 'colorProfile', 'cursor', 'defs', 'desc', 'ellipse', 'feBlend', 'feColorMatrix', 'feComponentTransfer', 'feComposite', 'feConvolveMatrix', 'feDiffuseLighting', 'feDisplacementMap', 'feDistantLight', 'feFlood', 'feFuncA', 'feFuncB', 'feFuncG', 'feFuncR', 'feGaussianBlur', 'feImage', 'feMerge', 'feMergeNode', 'feMorphology', 'feOffset', 'fePointLight', 'feSpecularLighting', 'feSpotlight', 'feTile', 'feTurbulence', 'filter', 'font', 'fontFace', 'fontFaceFormat', 'fontFaceName', 'fontFaceSrc', 'fontFaceUri', 'foreignObject', 'g', 'glyph', 'glyphRef', 'hkern', 'image', 'line', 'linearGradient', 'marker', 'mask', 'metadata', 'missingGlyph', 'mpath', 'path', 'pattern', 'polygon', 'polyling', 'radialGradient', 'rect', 'script', 'set', 'stop', 'style', 'switch', 'symbol', 'text', 'textPath', 'title', 'tref', 'tspan', 'use', 'view', 'vkern'];
 var svg = createTagFunction('svg');
 SVG_TAG_NAMES.forEach(function (tag) {
     svg[tag] = createTagFunction(tag);
@@ -499,9 +499,8 @@ function h(sel, b, c) {
     }
     return vnode(sel, data, children, text, undefined);
 }
+exports.h = h;
 ;
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = h;
 
 
 },{"snabbdom/is":52,"snabbdom/vnode":61}],10:[function(require,module,exports){
@@ -509,209 +508,6 @@ exports.default = h;
 
 var thunk = require('snabbdom/thunk');
 exports.thunk = thunk;
-var hyperscript_1 = require('./hyperscript');
-exports.h = hyperscript_1.default;
-var hyperscript_helpers_1 = require('./hyperscript-helpers');
-var a = hyperscript_helpers_1.default.a,
-    abbr = hyperscript_helpers_1.default.abbr,
-    address = hyperscript_helpers_1.default.address,
-    area = hyperscript_helpers_1.default.area,
-    article = hyperscript_helpers_1.default.article,
-    aside = hyperscript_helpers_1.default.aside,
-    audio = hyperscript_helpers_1.default.audio,
-    b = hyperscript_helpers_1.default.b,
-    base = hyperscript_helpers_1.default.base,
-    bdi = hyperscript_helpers_1.default.bdi,
-    bdo = hyperscript_helpers_1.default.bdo,
-    blockquote = hyperscript_helpers_1.default.blockquote,
-    body = hyperscript_helpers_1.default.body,
-    br = hyperscript_helpers_1.default.br,
-    button = hyperscript_helpers_1.default.button,
-    canvas = hyperscript_helpers_1.default.canvas,
-    caption = hyperscript_helpers_1.default.caption,
-    cite = hyperscript_helpers_1.default.cite,
-    code = hyperscript_helpers_1.default.code,
-    col = hyperscript_helpers_1.default.col,
-    colgroup = hyperscript_helpers_1.default.colgroup,
-    dd = hyperscript_helpers_1.default.dd,
-    del = hyperscript_helpers_1.default.del,
-    dfn = hyperscript_helpers_1.default.dfn,
-    dir = hyperscript_helpers_1.default.dir,
-    div = hyperscript_helpers_1.default.div,
-    dl = hyperscript_helpers_1.default.dl,
-    dt = hyperscript_helpers_1.default.dt,
-    em = hyperscript_helpers_1.default.em,
-    embed = hyperscript_helpers_1.default.embed,
-    fieldset = hyperscript_helpers_1.default.fieldset,
-    figcaption = hyperscript_helpers_1.default.figcaption,
-    figure = hyperscript_helpers_1.default.figure,
-    footer = hyperscript_helpers_1.default.footer,
-    form = hyperscript_helpers_1.default.form,
-    h1 = hyperscript_helpers_1.default.h1,
-    h2 = hyperscript_helpers_1.default.h2,
-    h3 = hyperscript_helpers_1.default.h3,
-    h4 = hyperscript_helpers_1.default.h4,
-    h5 = hyperscript_helpers_1.default.h5,
-    h6 = hyperscript_helpers_1.default.h6,
-    head = hyperscript_helpers_1.default.head,
-    header = hyperscript_helpers_1.default.header,
-    hgroup = hyperscript_helpers_1.default.hgroup,
-    hr = hyperscript_helpers_1.default.hr,
-    html = hyperscript_helpers_1.default.html,
-    i = hyperscript_helpers_1.default.i,
-    iframe = hyperscript_helpers_1.default.iframe,
-    img = hyperscript_helpers_1.default.img,
-    input = hyperscript_helpers_1.default.input,
-    ins = hyperscript_helpers_1.default.ins,
-    kbd = hyperscript_helpers_1.default.kbd,
-    keygen = hyperscript_helpers_1.default.keygen,
-    label = hyperscript_helpers_1.default.label,
-    legend = hyperscript_helpers_1.default.legend,
-    li = hyperscript_helpers_1.default.li,
-    link = hyperscript_helpers_1.default.link,
-    main = hyperscript_helpers_1.default.main,
-    map = hyperscript_helpers_1.default.map,
-    mark = hyperscript_helpers_1.default.mark,
-    menu = hyperscript_helpers_1.default.menu,
-    meta = hyperscript_helpers_1.default.meta,
-    nav = hyperscript_helpers_1.default.nav,
-    noscript = hyperscript_helpers_1.default.noscript,
-    object = hyperscript_helpers_1.default.object,
-    ol = hyperscript_helpers_1.default.ol,
-    optgroup = hyperscript_helpers_1.default.optgroup,
-    option = hyperscript_helpers_1.default.option,
-    p = hyperscript_helpers_1.default.p,
-    param = hyperscript_helpers_1.default.param,
-    pre = hyperscript_helpers_1.default.pre,
-    q = hyperscript_helpers_1.default.q,
-    rp = hyperscript_helpers_1.default.rp,
-    rt = hyperscript_helpers_1.default.rt,
-    ruby = hyperscript_helpers_1.default.ruby,
-    s = hyperscript_helpers_1.default.s,
-    samp = hyperscript_helpers_1.default.samp,
-    script = hyperscript_helpers_1.default.script,
-    section = hyperscript_helpers_1.default.section,
-    select = hyperscript_helpers_1.default.select,
-    small = hyperscript_helpers_1.default.small,
-    source = hyperscript_helpers_1.default.source,
-    span = hyperscript_helpers_1.default.span,
-    strong = hyperscript_helpers_1.default.strong,
-    style = hyperscript_helpers_1.default.style,
-    sub = hyperscript_helpers_1.default.sub,
-    sup = hyperscript_helpers_1.default.sup,
-    svg = hyperscript_helpers_1.default.svg,
-    table = hyperscript_helpers_1.default.table,
-    tbody = hyperscript_helpers_1.default.tbody,
-    td = hyperscript_helpers_1.default.td,
-    textarea = hyperscript_helpers_1.default.textarea,
-    tfoot = hyperscript_helpers_1.default.tfoot,
-    th = hyperscript_helpers_1.default.th,
-    thead = hyperscript_helpers_1.default.thead,
-    title = hyperscript_helpers_1.default.title,
-    tr = hyperscript_helpers_1.default.tr,
-    u = hyperscript_helpers_1.default.u,
-    ul = hyperscript_helpers_1.default.ul,
-    video = hyperscript_helpers_1.default.video;
-exports.a = a;
-exports.abbr = abbr;
-exports.address = address;
-exports.area = area;
-exports.article = article;
-exports.aside = aside;
-exports.audio = audio;
-exports.b = b;
-exports.base = base;
-exports.bdi = bdi;
-exports.bdo = bdo;
-exports.blockquote = blockquote;
-exports.body = body;
-exports.br = br;
-exports.button = button;
-exports.canvas = canvas;
-exports.caption = caption;
-exports.cite = cite;
-exports.code = code;
-exports.col = col;
-exports.colgroup = colgroup;
-exports.dd = dd;
-exports.del = del;
-exports.dfn = dfn;
-exports.dir = dir;
-exports.div = div;
-exports.dl = dl;
-exports.dt = dt;
-exports.em = em;
-exports.embed = embed;
-exports.fieldset = fieldset;
-exports.figcaption = figcaption;
-exports.figure = figure;
-exports.footer = footer;
-exports.form = form;
-exports.h1 = h1;
-exports.h2 = h2;
-exports.h3 = h3;
-exports.h4 = h4;
-exports.h5 = h5;
-exports.h6 = h6;
-exports.head = head;
-exports.header = header;
-exports.hgroup = hgroup;
-exports.hr = hr;
-exports.html = html;
-exports.i = i;
-exports.iframe = iframe;
-exports.img = img;
-exports.input = input;
-exports.ins = ins;
-exports.kbd = kbd;
-exports.keygen = keygen;
-exports.label = label;
-exports.legend = legend;
-exports.li = li;
-exports.link = link;
-exports.main = main;
-exports.map = map;
-exports.mark = mark;
-exports.menu = menu;
-exports.meta = meta;
-exports.nav = nav;
-exports.noscript = noscript;
-exports.object = object;
-exports.ol = ol;
-exports.optgroup = optgroup;
-exports.option = option;
-exports.p = p;
-exports.param = param;
-exports.pre = pre;
-exports.q = q;
-exports.rp = rp;
-exports.rt = rt;
-exports.ruby = ruby;
-exports.s = s;
-exports.samp = samp;
-exports.script = script;
-exports.section = section;
-exports.select = select;
-exports.small = small;
-exports.source = source;
-exports.span = span;
-exports.strong = strong;
-exports.style = style;
-exports.sub = sub;
-exports.sup = sup;
-exports.svg = svg;
-exports.table = table;
-exports.tbody = tbody;
-exports.td = td;
-exports.textarea = textarea;
-exports.tfoot = tfoot;
-exports.th = th;
-exports.thead = thead;
-exports.title = title;
-exports.tr = tr;
-exports.u = u;
-exports.ul = ul;
-exports.video = video;
 var makeDOMDriver_1 = require('./makeDOMDriver');
 exports.makeDOMDriver = makeDOMDriver_1.makeDOMDriver;
 var DOMSource_1 = require('./DOMSource');
@@ -722,6 +518,210 @@ var makeHTMLDriver_1 = require('./makeHTMLDriver');
 exports.makeHTMLDriver = makeHTMLDriver_1.makeHTMLDriver;
 var HTMLSource_1 = require('./HTMLSource');
 exports.HTMLSource = HTMLSource_1.HTMLSource;
+var hyperscript_1 = require('./hyperscript');
+exports.h = hyperscript_1.h;
+var hyperscript_helpers_1 = require('./hyperscript-helpers');
+var svg = hyperscript_helpers_1.default.svg;
+exports.svg = svg;
+var a = hyperscript_helpers_1.default.a;
+exports.a = a;
+var abbr = hyperscript_helpers_1.default.abbr;
+exports.abbr = abbr;
+var address = hyperscript_helpers_1.default.address;
+exports.address = address;
+var area = hyperscript_helpers_1.default.area;
+exports.area = area;
+var article = hyperscript_helpers_1.default.article;
+exports.article = article;
+var aside = hyperscript_helpers_1.default.aside;
+exports.aside = aside;
+var audio = hyperscript_helpers_1.default.audio;
+exports.audio = audio;
+var b = hyperscript_helpers_1.default.b;
+exports.b = b;
+var base = hyperscript_helpers_1.default.base;
+exports.base = base;
+var bdi = hyperscript_helpers_1.default.bdi;
+exports.bdi = bdi;
+var bdo = hyperscript_helpers_1.default.bdo;
+exports.bdo = bdo;
+var blockquote = hyperscript_helpers_1.default.blockquote;
+exports.blockquote = blockquote;
+var body = hyperscript_helpers_1.default.body;
+exports.body = body;
+var br = hyperscript_helpers_1.default.br;
+exports.br = br;
+var button = hyperscript_helpers_1.default.button;
+exports.button = button;
+var canvas = hyperscript_helpers_1.default.canvas;
+exports.canvas = canvas;
+var caption = hyperscript_helpers_1.default.caption;
+exports.caption = caption;
+var cite = hyperscript_helpers_1.default.cite;
+exports.cite = cite;
+var code = hyperscript_helpers_1.default.code;
+exports.code = code;
+var col = hyperscript_helpers_1.default.col;
+exports.col = col;
+var colgroup = hyperscript_helpers_1.default.colgroup;
+exports.colgroup = colgroup;
+var dd = hyperscript_helpers_1.default.dd;
+exports.dd = dd;
+var del = hyperscript_helpers_1.default.del;
+exports.del = del;
+var dfn = hyperscript_helpers_1.default.dfn;
+exports.dfn = dfn;
+var dir = hyperscript_helpers_1.default.dir;
+exports.dir = dir;
+var div = hyperscript_helpers_1.default.div;
+exports.div = div;
+var dl = hyperscript_helpers_1.default.dl;
+exports.dl = dl;
+var dt = hyperscript_helpers_1.default.dt;
+exports.dt = dt;
+var em = hyperscript_helpers_1.default.em;
+exports.em = em;
+var embed = hyperscript_helpers_1.default.embed;
+exports.embed = embed;
+var fieldset = hyperscript_helpers_1.default.fieldset;
+exports.fieldset = fieldset;
+var figcaption = hyperscript_helpers_1.default.figcaption;
+exports.figcaption = figcaption;
+var figure = hyperscript_helpers_1.default.figure;
+exports.figure = figure;
+var footer = hyperscript_helpers_1.default.footer;
+exports.footer = footer;
+var form = hyperscript_helpers_1.default.form;
+exports.form = form;
+var h1 = hyperscript_helpers_1.default.h1;
+exports.h1 = h1;
+var h2 = hyperscript_helpers_1.default.h2;
+exports.h2 = h2;
+var h3 = hyperscript_helpers_1.default.h3;
+exports.h3 = h3;
+var h4 = hyperscript_helpers_1.default.h4;
+exports.h4 = h4;
+var h5 = hyperscript_helpers_1.default.h5;
+exports.h5 = h5;
+var h6 = hyperscript_helpers_1.default.h6;
+exports.h6 = h6;
+var head = hyperscript_helpers_1.default.head;
+exports.head = head;
+var header = hyperscript_helpers_1.default.header;
+exports.header = header;
+var hgroup = hyperscript_helpers_1.default.hgroup;
+exports.hgroup = hgroup;
+var hr = hyperscript_helpers_1.default.hr;
+exports.hr = hr;
+var html = hyperscript_helpers_1.default.html;
+exports.html = html;
+var i = hyperscript_helpers_1.default.i;
+exports.i = i;
+var iframe = hyperscript_helpers_1.default.iframe;
+exports.iframe = iframe;
+var img = hyperscript_helpers_1.default.img;
+exports.img = img;
+var input = hyperscript_helpers_1.default.input;
+exports.input = input;
+var ins = hyperscript_helpers_1.default.ins;
+exports.ins = ins;
+var kbd = hyperscript_helpers_1.default.kbd;
+exports.kbd = kbd;
+var keygen = hyperscript_helpers_1.default.keygen;
+exports.keygen = keygen;
+var label = hyperscript_helpers_1.default.label;
+exports.label = label;
+var legend = hyperscript_helpers_1.default.legend;
+exports.legend = legend;
+var li = hyperscript_helpers_1.default.li;
+exports.li = li;
+var link = hyperscript_helpers_1.default.link;
+exports.link = link;
+var main = hyperscript_helpers_1.default.main;
+exports.main = main;
+var map = hyperscript_helpers_1.default.map;
+exports.map = map;
+var mark = hyperscript_helpers_1.default.mark;
+exports.mark = mark;
+var menu = hyperscript_helpers_1.default.menu;
+exports.menu = menu;
+var meta = hyperscript_helpers_1.default.meta;
+exports.meta = meta;
+var nav = hyperscript_helpers_1.default.nav;
+exports.nav = nav;
+var noscript = hyperscript_helpers_1.default.noscript;
+exports.noscript = noscript;
+var object = hyperscript_helpers_1.default.object;
+exports.object = object;
+var ol = hyperscript_helpers_1.default.ol;
+exports.ol = ol;
+var optgroup = hyperscript_helpers_1.default.optgroup;
+exports.optgroup = optgroup;
+var option = hyperscript_helpers_1.default.option;
+exports.option = option;
+var p = hyperscript_helpers_1.default.p;
+exports.p = p;
+var param = hyperscript_helpers_1.default.param;
+exports.param = param;
+var pre = hyperscript_helpers_1.default.pre;
+exports.pre = pre;
+var progress = hyperscript_helpers_1.default.progress;
+var q = hyperscript_helpers_1.default.q;
+exports.q = q;
+var rp = hyperscript_helpers_1.default.rp;
+exports.rp = rp;
+var rt = hyperscript_helpers_1.default.rt;
+exports.rt = rt;
+var ruby = hyperscript_helpers_1.default.ruby;
+exports.ruby = ruby;
+var s = hyperscript_helpers_1.default.s;
+exports.s = s;
+var samp = hyperscript_helpers_1.default.samp;
+exports.samp = samp;
+var script = hyperscript_helpers_1.default.script;
+exports.script = script;
+var section = hyperscript_helpers_1.default.section;
+exports.section = section;
+var select = hyperscript_helpers_1.default.select;
+exports.select = select;
+var small = hyperscript_helpers_1.default.small;
+exports.small = small;
+var source = hyperscript_helpers_1.default.source;
+exports.source = source;
+var span = hyperscript_helpers_1.default.span;
+exports.span = span;
+var strong = hyperscript_helpers_1.default.strong;
+exports.strong = strong;
+var style = hyperscript_helpers_1.default.style;
+exports.style = style;
+var sub = hyperscript_helpers_1.default.sub;
+exports.sub = sub;
+var sup = hyperscript_helpers_1.default.sup;
+exports.sup = sup;
+var table = hyperscript_helpers_1.default.table;
+exports.table = table;
+var tbody = hyperscript_helpers_1.default.tbody;
+exports.tbody = tbody;
+var td = hyperscript_helpers_1.default.td;
+exports.td = td;
+var textarea = hyperscript_helpers_1.default.textarea;
+exports.textarea = textarea;
+var tfoot = hyperscript_helpers_1.default.tfoot;
+exports.tfoot = tfoot;
+var th = hyperscript_helpers_1.default.th;
+exports.th = th;
+var thead = hyperscript_helpers_1.default.thead;
+exports.thead = thead;
+var title = hyperscript_helpers_1.default.title;
+exports.title = title;
+var tr = hyperscript_helpers_1.default.tr;
+exports.tr = tr;
+var u = hyperscript_helpers_1.default.u;
+exports.u = u;
+var ul = hyperscript_helpers_1.default.ul;
+exports.ul = ul;
+var video = hyperscript_helpers_1.default.video;
+exports.video = video;
 
 
 },{"./DOMSource":1,"./HTMLSource":4,"./hyperscript":9,"./hyperscript-helpers":8,"./makeDOMDriver":13,"./makeHTMLDriver":14,"./mockDOMSource":15,"snabbdom/thunk":60}],11:[function(require,module,exports){
@@ -833,8 +833,8 @@ var IsolateModule = function () {
                 }
             },
             remove: function remove(_a, cb) {
-                var _b = _a.data,
-                    data = _b === void 0 ? {} : _b;
+                var data = _a.data;
+                data = data || {};
                 var scope = data.isolate;
                 if (scope) {
                     self.removeScope(scope);
@@ -845,8 +845,8 @@ var IsolateModule = function () {
                 cb();
             },
             destroy: function destroy(_a) {
-                var _b = _a.data,
-                    data = _b === void 0 ? {} : _b;
+                var data = _a.data;
+                data = data || {};
                 var scope = data.isolate;
                 if (scope) {
                     self.removeScope(scope);
