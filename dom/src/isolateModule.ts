@@ -55,7 +55,7 @@ export class IsolateModule {
           const delegators = self.eventDelegators.get(scope);
           if (delegators) {
             for (let i = 0, len = delegators.length; i < len; ++i) {
-              delegators[i].updateTopElement(elm);
+              delegators[i].updateTopElement(<Element> elm);
             }
           } else if (delegators === void 0) {
             self.eventDelegators.set(scope, []);
