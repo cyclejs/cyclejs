@@ -1,8 +1,9 @@
 /* eslint-disable */
 'use strict';
 /* global describe, it */
-let assert = require('assert');
-let Cycle = require('../src/index').default;
+require('creed').shim()
+let assert = require('power-assert');
+let Cycle = require('../lib/index').default;
 let most = require('most');
 let sinon = require('sinon');
 
@@ -134,8 +135,8 @@ describe('Cycle', function () {
 
       function main(sources) {
         return {
-          other: sources.other.take(1).startWith('a').map(() => {
-            throw new Error('malfunction');
+          other: sources.other.map(() => {
+            throw new Error('malfunction')
           })
         };
       }
@@ -144,13 +145,13 @@ describe('Cycle', function () {
       }
 
       Cycle.run(main, {other: driver});
+
       setTimeout(() => {
         sinon.assert.calledOnce(console.error);
         sinon.assert.calledWithExactly(console.error, sinon.match("malfunction"));
-
         sandbox.restore();
         done();
-      }, 20);
+      }, 10);
     });
   });
 });

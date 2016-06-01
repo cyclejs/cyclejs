@@ -1,56 +1,80 @@
 {
   "name": "@cycle/most-run",
   "version": "1.0.0",
-  "description": "Cycle.run() for most.js",
+  "description": "Cycle.js Diversity run() for most.js",
   "main": "lib/index.js",
+  "typeings": "lib/index.d.ts",
   "scripts": {
-    "lint": "eslint src/",
-    "mocha": "mocha --compilers js:babel-register test",
-    "test": "npm run lint && npm run mocha",
-    "prelib": "rm -rf lib/ && mkdirp lib/",
-    "lib": "babel src -d lib",
-    "predist": "rimraf dist/ && mkdirp dist/ && npm run lib",
-    "dist": "browserify -t browserify-shim -t babelify --exclude most src/index.js -o dist/cycle-most-run.js",
-    "postdist": "uglifyjs dist/cycle-most-run.js -o dist/cycle-most-run.min.js",
-    "start": "npm install && npm prune",
+    "doc": "typedoc --out doc/ --module commonjs --target ES5 --name 'Cycle.js Most Adapter' src/index.ts",
+    "postdoc": "git add doc/ && git commit -m 'chore(docs): build doc/'",
+    "changelog": "conventional-changelog --infile CHANGELOG.md --same-file --release-count 0 --preset angular",
+    "postchangelog": "git add CHANGELOG.md && git commit -m 'chore(changelog): generate changelog'",
+    "commit": "git-cz",
+    "lint": "tslint -c tslint.json src/*.ts src/**/*.ts",
+    "unit-test": "mocha -r babel-register test/index.js",
+    "test": "npm run lib && npm run lint && npm run unit-test",
+    "dist": "rimraf dist/ && mkdirp dist && npm run lib && browserify lib/index.js -t babelify --outfile dist/cycle-most-run.js && uglifyjs dist/cycle-most-run.js -o dist/cycle-most-run.min.js",
+    "postdist": "git add dist/ && git commit -m 'chore(dist): build dist/'",
+    "lib": "rimraf lib/ && mkdirp lib/ && typings install && tsc",
     "prepublish": "npm run lib",
-    "preversion": "npm run dist"
+    "prerelease": "npm run doc && npm run dist",
+    "release-patch": "npm run prerelease && npm version patch -m \"chore(release): release new version\" && npm run changelog",
+    "release-minor": "npm run prerelease && npm version minor -m \"chore(release): release new version\" && npm run changelog",
+    "release-major": "npm run prerelease && npm version major -m \"chore(release): release new version\" && npm run changelog"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    },
+    "ghooks": {
+      "commit-msg": "node ./node_modules/.bin/validate-commit-msg"
+    }
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cyclejs/most-run.git"
+    "url": "git+https://github.com/TylorS/most-proxy.git"
   },
   "keywords": [
-    "most.js",
+    "Cycle",
     "Cycle.js",
-    "Diversity"
+    "Most",
+    "Most.js"
   ],
   "author": "Tylor Steinberger <tlsteinberger167@gmail.com> (github.com/TylorS)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/cyclejs/most-run/issues"
+    "url": "https://github.com/TylorS/most-proxy/issues"
   },
-  "homepage": "https://github.com/cyclejs/most-run#readme",
-  "dependencies": {
-    "@cycle/base": "^2.1.0",
-    "@cycle/most-adapter": "^1.0.0"
-  },
+  "homepage": "https://github.com/TylorS/most-proxy#readme",
   "devDependencies": {
-    "assert": "^1.3.0",
-    "babel-cli": "^6.8.0",
-    "babel-preset-es2015": "^6.6.0",
-    "babel-register": "^6.8.0",
+    "@cycle/base": "^2.1.0",
+    "babel-plugin-espower": "^2.1.2",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-register": "^6.9.0",
     "babelify": "^7.3.0",
     "browserify": "^13.0.1",
-    "browserify-shim": "^3.8.12",
-    "eslint": "^2.10.2",
-    "eslint-config-standard": "^5.3.1",
-    "eslint-plugin-promise": "^1.1.0",
-    "eslint-plugin-standard": "^1.3.2",
+    "commitizen": "^2.8.1",
+    "conventional-changelog": "^1.1.0",
+    "conventional-changelog-cli": "^1.2.0",
+    "creed": "^1.0.1",
+    "cz-conventional-changelog": "^1.1.6",
+    "ghooks": "^1.2.1",
     "mkdirp": "^0.5.1",
-    "mocha": "^2.4.5",
+    "mocha": "^2.5.3",
+    "power-assert": "^1.4.1",
     "rimraf": "^2.5.2",
     "sinon": "^1.17.4",
-    "uglifyjs": "^2.4.10"
+    "tslint": "^3.10.2",
+    "typedoc": "^0.3.12",
+    "typescript": "^1.8.10",
+    "typings": "^0.8.1",
+    "uglify-js": "^2.6.2",
+    "validate-commit-msg": "^2.6.1"
+  },
+  "dependencies": {
+    "@cycle/base": "^2.0.2",
+    "@cycle/most-adapter": "^1.1.2",
+    "most": "^0.19.7",
+    "most-subject": "^4.1.1"
   }
 }

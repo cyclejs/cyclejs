@@ -1,0 +1,6 @@
+{
+  "name": "@cycle/most-run",
+  "dependencies": {
+    "@cycle/most-adapter": "npm:@cycle/most-adapter"
+  }
+}

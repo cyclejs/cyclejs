@@ -1,3 +1,9 @@
-node_modules/
+.idea/
+*.sublime*
+
+node_modules
+npm-debug.log
+
 lib/
+coverage/
 typings/
