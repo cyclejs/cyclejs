@@ -20,15 +20,15 @@ function logToConsoleError(err: any) {
 }
 
 const MostAdapter: StreamAdapter = {
-  adapt<T>(originStream: any, originStreamSubscribe: StreamSubscribe): any {
+  adapt(originStream: any, originStreamSubscribe: StreamSubscribe): any {
     if (MostAdapter.isValidStream(originStream)) { return originStream; };
     let dispose: any;
-    const stream = subject<T>();
+    const stream = subject<any>();
 
     dispose = originStreamSubscribe(originStream, {
-      next: (x: T) => stream.next(x),
+      next: (x: any) => stream.next(x),
       error: (err: Error) => stream.error(err),
-      complete: (x?: T) => {
+      complete: (x?: any) => {
         stream.complete(x);
         if (typeof dispose === 'function') {
           <DisposeFunction> dispose();
@@ -45,16 +45,16 @@ const MostAdapter: StreamAdapter = {
     });
   },
 
-  makeHoldSubject<T>(): HoldSubject {
-    const stream = holdSubject<T>();
+  makeHoldSubject(): HoldSubject {
+    const stream = holdSubject<any>();
 
     const observer = {
-      next: (x: T) => { stream.next(x); },
+      next: (x: any) => { stream.next(x); },
       error: (err: Error) => {
         logToConsoleError(err);
         stream.error(err);
       },
-      complete: (x?: T) => { stream.complete(x); }
+      complete: (x?: any) => { stream.complete(x); }
     };
 
     return {observer, stream};
