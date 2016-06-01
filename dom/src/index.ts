@@ -1,49 +1,124 @@
 const thunk = require('snabbdom/thunk');
 export {thunk};
+export {VNode} from './interfaces';
+export {makeDOMDriver, DOMDriverOptions} from './makeDOMDriver';
+export {CycleDOMEvent} from './EventDelegator';
+export {DOMSource} from './DOMSource';
+export {mockDOMSource} from './mockDOMSource';
+export {makeHTMLDriver} from './makeHTMLDriver';
+export {HTMLSource, HTMLDriverOptions} from './HTMLSource';
+export {h} from './hyperscript';
+import hh, {HyperScriptHelpers, HyperScriptHelperFn, SVGHelperFn} from './hyperscript-helpers';
 
-import h from './hyperscript';
-export {h};
-
-import hh from './hyperscript-helpers';
-const {
-  a, abbr, address, area, article, aside, audio, b, base,
-  bdi, bdo, blockquote, body, br, button, canvas, caption,
-  cite, code, col, colgroup, dd, del, dfn, dir, div, dl,
-  dt, em, embed, fieldset, figcaption, figure, footer, form,
-  h1, h2, h3, h4, h5, h6, head, header, hgroup, hr, html,
-  i, iframe, img, input, ins, kbd, keygen, label, legend,
-  li, link, main, map, mark, menu, meta, nav, noscript,
-  object, ol, optgroup, option, p, param, pre, q, rp, rt,
-  ruby, s, samp, script, section, select, small, source, span,
-  strong, style, sub, sup, svg, table, tbody, td, textarea,
-  tfoot, th, thead, title, tr, u, ul, video,
-} = hh;
+const svg: SVGHelperFn = hh.svg;
+const a: HyperScriptHelperFn = hh.a;
+const abbr: HyperScriptHelperFn = hh.abbr;
+const address: HyperScriptHelperFn = hh.address;
+const area: HyperScriptHelperFn = hh.area;
+const article: HyperScriptHelperFn = hh.article;
+const aside: HyperScriptHelperFn = hh.aside;
+const audio: HyperScriptHelperFn = hh.audio;
+const b: HyperScriptHelperFn = hh.b;
+const base: HyperScriptHelperFn = hh.base;
+const bdi: HyperScriptHelperFn = hh.bdi;
+const bdo: HyperScriptHelperFn = hh.bdo;
+const blockquote: HyperScriptHelperFn = hh.blockquote;
+const body: HyperScriptHelperFn = hh.body;
+const br: HyperScriptHelperFn = hh.br;
+const button: HyperScriptHelperFn = hh.button;
+const canvas: HyperScriptHelperFn = hh.canvas;
+const caption: HyperScriptHelperFn = hh.caption;
+const cite: HyperScriptHelperFn = hh.cite;
+const code: HyperScriptHelperFn = hh.code;
+const col: HyperScriptHelperFn = hh.col;
+const colgroup: HyperScriptHelperFn = hh.colgroup;
+const dd: HyperScriptHelperFn = hh.dd;
+const del: HyperScriptHelperFn = hh.del;
+const dfn: HyperScriptHelperFn = hh.dfn;
+const dir: HyperScriptHelperFn = hh.dir;
+const div: HyperScriptHelperFn = hh.div;
+const dl: HyperScriptHelperFn = hh.dl;
+const dt: HyperScriptHelperFn = hh.dt;
+const em: HyperScriptHelperFn = hh.em;
+const embed: HyperScriptHelperFn = hh.embed;
+const fieldset: HyperScriptHelperFn = hh.fieldset;
+const figcaption: HyperScriptHelperFn = hh.figcaption;
+const figure: HyperScriptHelperFn = hh.figure;
+const footer: HyperScriptHelperFn = hh.footer;
+const form: HyperScriptHelperFn = hh.form;
+const h1: HyperScriptHelperFn = hh.h1;
+const h2: HyperScriptHelperFn = hh.h2;
+const h3: HyperScriptHelperFn = hh.h3;
+const h4: HyperScriptHelperFn = hh.h4;
+const h5: HyperScriptHelperFn = hh.h5;
+const h6: HyperScriptHelperFn = hh.h6;
+const head: HyperScriptHelperFn = hh.head;
+const header: HyperScriptHelperFn = hh.header;
+const hgroup: HyperScriptHelperFn = hh.hgroup;
+const hr: HyperScriptHelperFn = hh.hr;
+const html: HyperScriptHelperFn = hh.html;
+const i: HyperScriptHelperFn = hh.i;
+const iframe: HyperScriptHelperFn = hh.iframe;
+const img: HyperScriptHelperFn = hh.img;
+const input: HyperScriptHelperFn = hh.input;
+const ins: HyperScriptHelperFn = hh.ins;
+const kbd: HyperScriptHelperFn = hh.kbd;
+const keygen: HyperScriptHelperFn = hh.keygen;
+const label: HyperScriptHelperFn = hh.label;
+const legend: HyperScriptHelperFn = hh.legend;
+const li: HyperScriptHelperFn = hh.li;
+const link: HyperScriptHelperFn = hh.link;
+const main: HyperScriptHelperFn = hh.main;
+const map: HyperScriptHelperFn = hh.map;
+const mark: HyperScriptHelperFn = hh.mark;
+const menu: HyperScriptHelperFn = hh.menu;
+const meta: HyperScriptHelperFn = hh.meta;
+const nav: HyperScriptHelperFn = hh.nav;
+const noscript: HyperScriptHelperFn = hh.noscript;
+const object: HyperScriptHelperFn = hh.object;
+const ol: HyperScriptHelperFn = hh.ol;
+const optgroup: HyperScriptHelperFn = hh.optgroup;
+const option: HyperScriptHelperFn = hh.option;
+const p: HyperScriptHelperFn = hh.p;
+const param: HyperScriptHelperFn = hh.param;
+const pre: HyperScriptHelperFn = hh.pre;
+const progress: HyperScriptHelperFn = hh.progress;
+const q: HyperScriptHelperFn = hh.q;
+const rp: HyperScriptHelperFn = hh.rp;
+const rt: HyperScriptHelperFn = hh.rt;
+const ruby: HyperScriptHelperFn = hh.ruby;
+const s: HyperScriptHelperFn = hh.s;
+const samp: HyperScriptHelperFn = hh.samp;
+const script: HyperScriptHelperFn = hh.script;
+const section: HyperScriptHelperFn = hh.section;
+const select: HyperScriptHelperFn = hh.select;
+const small: HyperScriptHelperFn = hh.small;
+const source: HyperScriptHelperFn = hh.source;
+const span: HyperScriptHelperFn = hh.span;
+const strong: HyperScriptHelperFn = hh.strong;
+const style: HyperScriptHelperFn = hh.style;
+const sub: HyperScriptHelperFn = hh.sub;
+const sup: HyperScriptHelperFn = hh.sup;
+const table: HyperScriptHelperFn = hh.table;
+const tbody: HyperScriptHelperFn = hh.tbody;
+const td: HyperScriptHelperFn = hh.td;
+const textarea: HyperScriptHelperFn = hh.textarea;
+const tfoot: HyperScriptHelperFn = hh.tfoot;
+const th: HyperScriptHelperFn = hh.th;
+const thead: HyperScriptHelperFn = hh.thead;
+const title: HyperScriptHelperFn = hh.title;
+const tr: HyperScriptHelperFn = hh.tr;
+const u: HyperScriptHelperFn = hh.u;
+const ul: HyperScriptHelperFn = hh.ul;
+const video: HyperScriptHelperFn = hh.video;
 
 export {
-  a, abbr, address, area, article, aside, audio, b, base,
-  bdi, bdo, blockquote, body, br, button, canvas, caption,
-  cite, code, col, colgroup, dd, del, dfn, dir, div, dl,
-  dt, em, embed, fieldset, figcaption, figure, footer, form,
-  h1, h2, h3, h4, h5, h6, head, header, hgroup, hr, html,
-  i, iframe, img, input, ins, kbd, keygen, label, legend,
-  li, link, main, map, mark, menu, meta, nav, noscript,
-  object, ol, optgroup, option, p, param, pre, q, rp, rt,
-  ruby, s, samp, script, section, select, small, source, span,
-  strong, style, sub, sup, svg, table, tbody, td, textarea,
-  tfoot, th, thead, title, tr, u, ul, video,
+  svg, a, abbr, address, area, article, aside, audio, b, base, bdi, bdo,
+  blockquote, body, br, button, canvas, caption, cite, code, col, colgroup, dd,
+  del, dfn, dir, div, dl, dt, em, embed, fieldset, figcaption, figure, footer,
+  form, h1, h2, h3, h4, h5, h6, head, header, hgroup, hr, html, i, iframe, img,
+  input, ins, kbd, keygen, label, legend, li, link, main, map, mark, menu, meta,
+  nav, noscript, object, ol, optgroup, option, p, param, pre, q, rp, rt, ruby,
+  s, samp, script, section, select, small, source, span, strong, style, sub,
+  sup, table, tbody, td, textarea, tfoot, th, thead, title, tr, u, ul, video
 };
-
-import {makeDOMDriver, DOMDriverOptions} from './makeDOMDriver';
-export {makeDOMDriver, DOMDriverOptions};
-
-import {DOMSource} from './DOMSource';
-export {DOMSource};
-
-import {mockDOMSource} from './mockDOMSource';
-export {mockDOMSource};
-
-import {makeHTMLDriver} from './makeHTMLDriver';
-export {makeHTMLDriver};
-
-import {HTMLSource, HTMLDriverOptions} from './HTMLSource';
-export {HTMLSource, HTMLDriverOptions};

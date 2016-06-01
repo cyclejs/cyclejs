@@ -1,5 +1,5 @@
 import {Stream} from 'xstream';
-import {VNode} from 'snabbdom';
+import {VNode} from './interfaces';
 import * as is from 'snabbdom/is';
 const vnode = require('snabbdom/vnode');
 
@@ -25,7 +25,7 @@ function addNS(data: Object, children: Array<VNode | string | Stream<VNode>>): v
   }
 }
 
-function h(sel: string, b?: any, c?: any): VNode {
+export function h(sel: string, b?: any, c?: any): VNode {
   let data = {};
   let children: Array<VNode | string | Stream<VNode>>;
   let text: string;
@@ -59,5 +59,3 @@ function h(sel: string, b?: any, c?: any): VNode {
   }
   return vnode(sel, data, children, text, undefined);
 };
-
-export default h;

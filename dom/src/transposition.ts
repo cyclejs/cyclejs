@@ -1,7 +1,7 @@
 import {StreamAdapter} from '@cycle/base';
 import XStreamAdapter from '@cycle/xstream-adapter';
 import xs, {Stream} from 'xstream';
-import {VNode} from 'snabbdom';
+import {VNode} from './interfaces';
 
 function createVTree(vnode: VNode, children: Array<any>): any {
   return {

@@ -1,4 +1,4 @@
-import {VNode} from 'snabbdom';
+import {VNode} from './interfaces';
 import {SCOPE_PREFIX} from './utils';
 import {DOMSource} from './DOMSource';
 

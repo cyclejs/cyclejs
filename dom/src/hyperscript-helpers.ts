@@ -1,5 +1,5 @@
-import h from './hyperscript';
-import {VNode} from 'snabbdom';
+import {h} from './hyperscript';
+import {VNode} from './interfaces';
 
 function isValidString(param: any): boolean {
   return typeof param === 'string' && param.length > 0;

@@ -3,7 +3,7 @@ import {init} from 'snabbdom';
 import xs, {Stream} from 'xstream';
 import concat from 'xstream/extra/concat';
 import {DOMSource} from './DOMSource';
-import {VNode} from 'snabbdom';
+import {VNode} from './interfaces';
 import {VNodeWrapper} from './VNodeWrapper';
 import {getElement} from './utils';
 import defaultModules from './modules';

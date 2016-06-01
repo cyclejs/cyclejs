@@ -1,7 +1,7 @@
 import XStreamAdapter from '@cycle/xstream-adapter';
 import {StreamAdapter} from '@cycle/base';
 import {Stream} from 'xstream';
-import {VNode} from 'snabbdom';
+import {VNode} from './interfaces';
 import {makeTransposeVNode} from './transposition';
 import {HTMLDriverOptions, HTMLSource} from './HTMLSource';
 

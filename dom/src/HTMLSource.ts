@@ -1,5 +1,5 @@
 import xs, {Stream} from 'xstream';
-import {VNode} from 'snabbdom';
+import {VNode} from './interfaces';
 import {StreamAdapter} from '@cycle/base';
 import XStreamAdapter from '@cycle/xstream-adapter';
 const toHTML: (vnode: VNode) => string = require('snabbdom-to-html');

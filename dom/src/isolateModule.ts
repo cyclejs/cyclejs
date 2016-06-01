@@ -1,4 +1,4 @@
-import {VNode} from 'snabbdom';
+import {VNode} from './interfaces';
 import {EventDelegator} from './EventDelegator';
 
 export class IsolateModule {
@@ -80,7 +80,8 @@ export class IsolateModule {
         }
       },
 
-      remove({data = {}}, cb: Function) {
+      remove({data}, cb: Function) {
+        data = data || {};
         const scope = (<any> data).isolate;
         if (scope) {
           self.removeScope(scope);
@@ -91,7 +92,8 @@ export class IsolateModule {
         cb();
       },
 
-      destroy({data = {}}) {
+      destroy({data}) {
+        data = data || {};
         const scope = (<any> data).isolate;
         if (scope) {
           self.removeScope(scope);

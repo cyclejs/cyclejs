@@ -20,7 +20,7 @@ interface Destination {
   selector: string;
 }
 
-export interface PatchedEvent extends Event {
+export interface CycleDOMEvent extends Event {
   propagationHasBeenStopped?: boolean;
   ownerTarget?: Element;
 }
@@ -60,7 +60,7 @@ export class EventDelegator {
     }
   }
 
-  matchEventAgainstDestinations(el: Element, ev: PatchedEvent) {
+  matchEventAgainstDestinations(el: Element, ev: CycleDOMEvent) {
     for (let i = 0, n = this.destinations.length; i < n; i++) {
       const dest = this.destinations[i];
       if (!dest.scopeChecker.isStrictlyInRootScope(el)) {
@@ -89,8 +89,8 @@ export class EventDelegator {
     this.destinations.push({subject, scopeChecker, selector});
   }
 
-  patchEvent(event: Event): PatchedEvent {
-    const pEvent: PatchedEvent = <PatchedEvent> event;
+  patchEvent(event: Event): CycleDOMEvent {
+    const pEvent: CycleDOMEvent = <CycleDOMEvent> event;
     pEvent.propagationHasBeenStopped = false;
     const oldStopPropagation = pEvent.stopPropagation;
     pEvent.stopPropagation = function stopPropagation() {
@@ -100,7 +100,7 @@ export class EventDelegator {
     return pEvent;
   }
 
-  mutateEventCurrentTarget(event: PatchedEvent, currentTargetElement: Element) {
+  mutateEventCurrentTarget(event: CycleDOMEvent, currentTargetElement: Element) {
     try {
       Object.defineProperty(event, `currentTarget`, {
         value: currentTargetElement,

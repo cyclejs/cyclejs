@@ -1,4 +1,4 @@
-import h from './hyperscript';
+import {h} from './hyperscript';
 import classNameFromVNode from 'snabbdom-selector/lib/classNameFromVNode';
 import selectorParser from 'snabbdom-selector/lib/selectorParser';
 
