@@ -1,6 +1,6 @@
 const thunk = require('snabbdom/thunk');
 export {thunk};
-export {VNode} from './interfaces';
+export * from './interfaces';
 export {makeDOMDriver, DOMDriverOptions} from './makeDOMDriver';
 export {CycleDOMEvent} from './EventDelegator';
 export {DOMSource} from './DOMSource';
