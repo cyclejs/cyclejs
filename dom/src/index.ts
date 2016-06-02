@@ -1,6 +1,6 @@
 const thunk = require('snabbdom/thunk');
 export {thunk};
-export {VNode} from './interfaces';
+export * from './interfaces';
 export {makeDOMDriver, DOMDriverOptions} from './makeDOMDriver';
 export {CycleDOMEvent} from './EventDelegator';
 export {DOMSource} from './DOMSource';
@@ -8,7 +8,7 @@ export {mockDOMSource} from './mockDOMSource';
 export {makeHTMLDriver} from './makeHTMLDriver';
 export {HTMLSource, HTMLDriverOptions} from './HTMLSource';
 export {h} from './hyperscript';
-import hh, {HyperScriptHelpers, HyperScriptHelperFn, SVGHelperFn} from './hyperscript-helpers';
+import hh, {HyperScriptHelperFn, SVGHelperFn} from './hyperscript-helpers';
 
 const svg: SVGHelperFn = hh.svg;
 const a: HyperScriptHelperFn = hh.a;
@@ -118,7 +118,7 @@ export {
   del, dfn, dir, div, dl, dt, em, embed, fieldset, figcaption, figure, footer,
   form, h1, h2, h3, h4, h5, h6, head, header, hgroup, hr, html, i, iframe, img,
   input, ins, kbd, keygen, label, legend, li, link, main, map, mark, menu, meta,
-  nav, noscript, object, ol, optgroup, option, p, param, pre, q, rp, rt, ruby,
+  nav, noscript, object, ol, optgroup, option, p, param, pre, progress, q, rp, rt, ruby,
   s, samp, script, section, select, small, source, span, strong, style, sub,
   sup, table, tbody, td, textarea, tfoot, th, thead, title, tr, u, ul, video
 };
