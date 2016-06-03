@@ -45,8 +45,8 @@ export interface CycleExecution<Sources, Sinks> {
 }
 
 export interface CycleSetup {
-  (main: (sources: any) => any, drivers: DriversDefinition): CycleExecution<any, any>;
-  run: (main: (sources: any) => any, drivers: DriversDefinition) => DisposeFunction;
+  (main: (sources: any) => any, drivers: {[name: string]: Function}): CycleExecution<any, any>;
+  run: (main: (sources: any) => any, drivers: {[name: string]: Function}) => DisposeFunction;
 }
 
 function makeSinkProxies(drivers: DriversDefinition,
