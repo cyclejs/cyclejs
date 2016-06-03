@@ -78,7 +78,7 @@ function makeSinkProxies(drivers, streamAdapter) {
     var sinkProxies = {};
     for (var name_1 in drivers) {
         if (drivers.hasOwnProperty(name_1)) {
-            var holdSubject = streamAdapter.makeHoldSubject();
+            var holdSubject = streamAdapter.makeSubject();
             var driverStreamAdapter = drivers[name_1].streamAdapter || streamAdapter;
             var stream = driverStreamAdapter.adapt(holdSubject.stream, streamAdapter.streamSubscribe);
             sinkProxies[name_1] = {
@@ -208,8 +208,8 @@ var XStreamAdapter = {
             sinks[k].removeListener(sinkProxies[k].stream);
         });
     },
-    makeHoldSubject: function () {
-        var stream = xstream_1.default.createWithMemory();
+    makeSubject: function () {
+        var stream = xstream_1.default.create();
         var observer = {
             next: function (x) { stream.shamefullySendNext(x); },
             error: function (err) {
