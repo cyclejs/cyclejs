@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "description": "Subjects for most.js",
   "main": "lib/index.js",
-  "typeings": "lib/index.d.ts",
+  "typings": "lib/index.d.ts",
   "scripts": {
     "doc": "typedoc --out doc/ --module commonjs --target ES5 --name 'Cycle.js Most Adapter' src/index.ts",
     "postdoc": "git add doc/ && git commit -m 'chore(docs): build doc/'",
