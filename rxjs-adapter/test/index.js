@@ -1,14 +1,14 @@
 import {describe, it} from 'mocha';
 import assert from 'assert';
 import RxJSAdapter from '../lib';
-import {Observable, ReplaySubject} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 
 describe('RxJSAdapter', () => {
   it('should conform to StreamLibrary interface', () => {
     assert.strictEqual(typeof RxJSAdapter, 'object');
     assert.strictEqual(typeof RxJSAdapter.adapt, 'function');
     assert.strictEqual(typeof RxJSAdapter.dispose, 'function');
-    assert.strictEqual(typeof RxJSAdapter.makeHoldSubject, 'function');
+    assert.strictEqual(typeof RxJSAdapter.makeSubject, 'function');
     assert.strictEqual(typeof RxJSAdapter.isValidStream, 'function');
     assert.strictEqual(typeof RxJSAdapter.streamSubscribe, 'function');
   });
@@ -34,32 +34,32 @@ describe('RxJSAdapter', () => {
     });
   });
 
-  it('should create a hold subject which can be fed and subscribed to', (done) => {
-    const holdSubject = RxJSAdapter.makeHoldSubject();
-    assert.strictEqual(holdSubject.stream instanceof ReplaySubject, true);
-    assert.strictEqual(RxJSAdapter.isValidStream(holdSubject.stream), true);
+  it('should create a subject which can be fed and subscribed to', (done) => {
+    const subject = RxJSAdapter.makeSubject();
+    assert.strictEqual(subject.stream instanceof Subject, true);
+    assert.strictEqual(RxJSAdapter.isValidStream(subject.stream), true);
 
     const observer1Expected = [1, 2, 3, 4];
-    const observer2Expected = [2, 3, 4];
+    const observer2Expected = [3, 4];
 
-    RxJSAdapter.streamSubscribe(holdSubject.stream, {
+    RxJSAdapter.streamSubscribe(subject.stream, {
       next: (x) => assert.strictEqual(x, observer1Expected.shift()),
       error: done.fail,
       complete: () => assert.strictEqual(observer1Expected.length, 0),
     });
 
-    holdSubject.observer.next(1);
-    holdSubject.observer.next(2);
+    subject.observer.next(1);
+    subject.observer.next(2);
 
-    RxJSAdapter.streamSubscribe(holdSubject.stream, {
+    RxJSAdapter.streamSubscribe(subject.stream, {
       next: (x) => assert.strictEqual(x, observer2Expected.shift()),
       error: done.fail,
       complete: () => assert.strictEqual(observer2Expected.length, 0),
     });
 
-    holdSubject.observer.next(3);
-    holdSubject.observer.next(4);
-    holdSubject.observer.complete();
+    subject.observer.next(3);
+    subject.observer.next(4);
+    subject.observer.complete();
 
     setTimeout(done, 20);
   });

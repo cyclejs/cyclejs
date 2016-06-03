@@ -4,9 +4,9 @@ import {
   SinkProxies,
   StreamSubscribe,
   DisposeFunction,
-  HoldSubject,
+  Subject,
 } from '@cycle/base';
-import {Observable, Subject, ReplaySubject} from 'rxjs';
+import * as Rx from 'rxjs';
 
 function logToConsoleError(err: any) {
   const target = err.stack || err;
@@ -17,7 +17,7 @@ function logToConsoleError(err: any) {
   }
 }
 
-function attemptSubjectComplete<T>(subject: Subject<T>): void {
+function attemptSubjectComplete<T>(subject: Rx.Subject<T>): void {
   try {
     subject.complete();
   } catch (err) {
@@ -26,11 +26,11 @@ function attemptSubjectComplete<T>(subject: Subject<T>): void {
 }
 
 const RxJSAdapter: StreamAdapter = {
-  adapt<T>(originStream: any, originStreamSubscribe: StreamSubscribe): Observable<T> {
+  adapt<T>(originStream: any, originStreamSubscribe: StreamSubscribe): Rx.Observable<T> {
     if (this.isValidStream(originStream)) {
       return originStream;
     }
-    return Observable.create((observer: Observer) => {
+    return Rx.Observable.create((observer: Observer) => {
       const dispose = originStreamSubscribe(originStream, observer);
       return () => {
         if (typeof dispose === 'function') {
@@ -47,19 +47,19 @@ const RxJSAdapter: StreamAdapter = {
       }
     });
     Object.keys(sinkProxies).forEach(k => {
-      attemptSubjectComplete(<Subject<any>> sinkProxies[k].observer);
+      attemptSubjectComplete(<Rx.Subject<any>> sinkProxies[k].observer);
     });
   },
 
-  makeHoldSubject(): HoldSubject {
-    const stream: ReplaySubject<any> = new ReplaySubject(1);
-    const observer: Observer = {
+  makeSubject(): Subject {
+    const stream: Rx.Subject<any> = new Rx.Subject();
+    const observer: Rx.Observer<any> = {
       next: x => { stream.next(x); },
       error: err => {
         logToConsoleError(err);
         stream.error(err);
       },
-      complete: x => { stream.complete(); },
+      complete: () => { stream.complete(); },
     };
     return {stream, observer};
   },
@@ -71,7 +71,7 @@ const RxJSAdapter: StreamAdapter = {
       typeof stream.onValue !== 'function');
   },
 
-  streamSubscribe(stream: Observable<any>, observer: Observer) {
+  streamSubscribe(stream: Rx.Observable<any>, observer: Observer) {
     const subscription = stream.subscribe(<any> observer);
     return () => {
       subscription.unsubscribe();
