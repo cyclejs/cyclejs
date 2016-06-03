@@ -4,7 +4,7 @@ import {
   SinkProxies,
   StreamSubscribe,
   DisposeFunction,
-  HoldSubject,
+  Subject,
 } from '@cycle/base';
 import xs, {Stream, Producer} from 'xstream';
 
@@ -50,8 +50,8 @@ const XStreamAdapter: StreamAdapter = {
     });
   },
 
-  makeHoldSubject(): HoldSubject {
-    const stream = xs.createWithMemory();
+  makeSubject(): Subject {
+    const stream = xs.create();
 
     const observer = {
       next: (x: any) => { stream.shamefullySendNext(x); },

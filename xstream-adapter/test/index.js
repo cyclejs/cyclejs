@@ -2,14 +2,14 @@ import {describe, it} from 'mocha';
 import assert from 'assert';
 import XStreamAdapter from '../lib';
 import xs from 'xstream';
-import {MemoryStream} from 'xstream/core';
+import {MemoryStream, Stream} from 'xstream';
 
 describe('XStreamAdapter', () => {
   it('should conform to StreamLibrary interface', () => {
     assert.strictEqual(typeof XStreamAdapter, 'object');
     assert.strictEqual(typeof XStreamAdapter.adapt, 'function');
     assert.strictEqual(typeof XStreamAdapter.dispose, 'function');
-    assert.strictEqual(typeof XStreamAdapter.makeHoldSubject, 'function');
+    assert.strictEqual(typeof XStreamAdapter.makeSubject, 'function');
     assert.strictEqual(typeof XStreamAdapter.isValidStream, 'function');
     assert.strictEqual(typeof XStreamAdapter.streamSubscribe, 'function');
   });
@@ -37,38 +37,38 @@ describe('XStreamAdapter', () => {
     })
   });
 
-  it('should create a hold subject which can be fed and subscribed to', (done) => {
-    const holdSubject = XStreamAdapter.makeHoldSubject();
-    assert.strictEqual(holdSubject.stream instanceof MemoryStream, true);
-    assert.strictEqual(XStreamAdapter.isValidStream(holdSubject.stream), true);
+  it('should create a subject which can be fed and subscribed to', (done) => {
+    const subject = XStreamAdapter.makeSubject();
+    assert.strictEqual(subject.stream instanceof Stream, true);
+    assert.strictEqual(XStreamAdapter.isValidStream(subject.stream), true);
 
     const observer1Expected = [1, 2, 3, 4];
-    const observer2Expected = [2, 3, 4];
+    const observer2Expected = [3, 4];
 
-    XStreamAdapter.streamSubscribe(holdSubject.stream, {
+    XStreamAdapter.streamSubscribe(subject.stream, {
       next: (x) => assert.strictEqual(x, observer1Expected.shift()),
       error: done,
       complete: () => assert.strictEqual(observer1Expected.length, 0),
     });
 
-    holdSubject.observer.next(1);
-    holdSubject.observer.next(2);
+    subject.observer.next(1);
+    subject.observer.next(2);
 
-    XStreamAdapter.streamSubscribe(holdSubject.stream, {
+    XStreamAdapter.streamSubscribe(subject.stream, {
       next: (x) => assert.strictEqual(x, observer2Expected.shift()),
       error: done,
       complete: () => assert.strictEqual(observer2Expected.length, 0),
     });
 
-    holdSubject.observer.next(3);
-    holdSubject.observer.next(4);
-    holdSubject.observer.complete();
+    subject.observer.next(3);
+    subject.observer.next(4);
+    subject.observer.complete();
 
     setTimeout(done, 20);
   });
 
   it('should not complete a sink stream when dispose() is called', (done) => {
-    const sinkProxy = XStreamAdapter.makeHoldSubject();
+    const sinkProxy = XStreamAdapter.makeSubject();
     const sink = xs.periodic(50);
 
     const expectedProxy = [0, 1];
