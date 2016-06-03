@@ -68,7 +68,7 @@ const XStreamAdapter: StreamAdapter = {
   isValidStream(stream: any): boolean {
     return (
       typeof stream.addListener === 'function' &&
-      typeof stream.imitate === 'function');
+      typeof stream.shamefullySendNext === 'function');
   },
 
   streamSubscribe(stream: Stream<any>, observer: Observer) {
