@@ -1,10 +1,10 @@
-<a name="1.1.2"></a>
-## [1.1.2](https://github.com/TylorS/most-proxy/compare/v1.1.1...v1.1.2) (2016-06-01)
+<a name="2.0.0"></a>
+# [2.0.0](https://github.com/TylorS/most-proxy/compare/9c638f9...v2.0.0) (2016-06-03)
 
 
+### Bug Fixes
 
-<a name="1.1.1"></a>
-## [1.1.1](https://github.com/TylorS/most-proxy/compare/9c638f9...v1.1.1) (2016-05-29)
+* **package:** update [@cycle](https://github.com/cycle)/base to v3.0.0 ([7e00165](https://github.com/TylorS/most-proxy/commit/7e00165))
 
 
 ### Features
