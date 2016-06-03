@@ -40,8 +40,8 @@ var MostAdapter = {
             sinkProxies[k].observer.complete();
         });
     },
-    makeHoldSubject: function makeHoldSubject() {
-        var stream = most_subject_1.holdSubject();
+    makeSubject: function makeSubject() {
+        var stream = most_subject_1.subject();
         var observer = {
             next: function next(x) {
                 stream.next(x);
