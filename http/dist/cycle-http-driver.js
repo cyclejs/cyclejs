@@ -228,8 +228,10 @@ exports.makeHTTPDriver = makeHTTPDriver;
 "use strict";
 var http_driver_1 = require('./http-driver');
 exports.makeHTTPDriver = http_driver_1.makeHTTPDriver;
+var HTTPSource_1 = require('./HTTPSource');
+exports.HTTPSource = HTTPSource_1.HTTPSource;
 
-},{"./http-driver":2}],4:[function(require,module,exports){
+},{"./HTTPSource":1,"./http-driver":2}],4:[function(require,module,exports){
 "use strict";
 function isolateSource(httpSource, scope) {
     return httpSource.filter(function (res$) {
