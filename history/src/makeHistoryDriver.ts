@@ -41,7 +41,7 @@ export function makeHistoryDriver(history: History, options?: HistoryDriverOptio
   const onError: (err: Error) => void = options && options.onError || defaultOnErrorFn;
 
   return function historyDriver(sink$: any, runSA: StreamAdapter) {
-    let {observer, stream} = runSA.makeHoldSubject();
+    let {observer, stream} = runSA.makeSubject();
     let unlisten = history.listen((location: Location) => {
       observer.next(location);
     });
