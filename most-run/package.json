@@ -1,6 +1,6 @@
 {
   "name": "@cycle/most-run",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Cycle.js Diversity run() for most.js",
   "main": "lib/index.js",
   "typeings": "lib/index.d.ts",
