@@ -39,7 +39,7 @@ const testStreamAdapter = {
     });
   },
 
-  makeHoldSubject() {
+  makeSubject() {
     const stream = new ReplaySubject(1);
     const observer = {
       next: x => stream.onNext(x),

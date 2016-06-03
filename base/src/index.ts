@@ -4,13 +4,13 @@ export interface Observer {
   complete: (c?: any) => void;
 }
 
-export interface HoldSubject {
+export interface Subject {
   stream: any;
   observer: Observer;
 }
 
 export interface SinkProxies {
-  [driverName: string]: HoldSubject;
+  [driverName: string]: Subject;
 }
 
 export type DisposeFunction = () => void
@@ -20,7 +20,7 @@ export type StreamSubscribe = (stream: any, observer: Observer) => DisposeFuncti
 export interface StreamAdapter {
   adapt: (originStream: any, originStreamSubscribe: StreamSubscribe) => any;
   dispose: (sinks: any, sinkProxies: SinkProxies, sources: any) => void;
-  makeHoldSubject: () => HoldSubject;
+  makeSubject: () => Subject;
   isValidStream: (stream: any) => boolean;
   streamSubscribe: StreamSubscribe;
 }
@@ -54,7 +54,7 @@ function makeSinkProxies(drivers: DriversDefinition,
   const sinkProxies: SinkProxies = {};
   for (let name in drivers) {
     if (drivers.hasOwnProperty(name)) {
-      const holdSubject = streamAdapter.makeHoldSubject();
+      const holdSubject = streamAdapter.makeSubject();
       const driverStreamAdapter = drivers[name].streamAdapter || streamAdapter;
 
       const stream = driverStreamAdapter.adapt(

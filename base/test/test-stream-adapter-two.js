@@ -41,7 +41,7 @@ var RxJSAdapter = {
             attemptSubjectComplete(sinkProxies[k].observer);
         });
     },
-    makeHoldSubject: function () {
+    makeSubject: function () {
         var stream = new rxjs_1.ReplaySubject(1);
         var observer = {
             next: function (x) { stream.next(x); },
