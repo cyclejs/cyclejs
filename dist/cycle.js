@@ -78,7 +78,7 @@ function makeSinkProxies(drivers, streamAdapter) {
     var sinkProxies = {};
     for (var name_1 in drivers) {
         if (drivers.hasOwnProperty(name_1)) {
-            var holdSubject = streamAdapter.makeHoldSubject();
+            var holdSubject = streamAdapter.makeSubject();
             var driverStreamAdapter = drivers[name_1].streamAdapter || streamAdapter;
             var stream = driverStreamAdapter.adapt(holdSubject.stream, streamAdapter.streamSubscribe);
             sinkProxies[name_1] = {
@@ -165,7 +165,7 @@ exports.default = Cycle;
 
 },{}],3:[function(require,module,exports){
 "use strict";
-var rx_1 = require('rx');
+var Rx = require('rx');
 function logToConsoleError(err) {
     var target = err.stack || err;
     if (console && console.error) {
@@ -180,7 +180,7 @@ var RxJSAdapter = {
         if (this.isValidStream(originStream)) {
             return originStream;
         }
-        return rx_1.Observable.create(function (destinationObserver) {
+        return Rx.Observable.create(function (destinationObserver) {
             var originObserver = {
                 next: function (x) { return destinationObserver.onNext(x); },
                 error: function (e) { return destinationObserver.onError(e); },
@@ -204,8 +204,8 @@ var RxJSAdapter = {
             sinkProxies[k].observer.complete();
         });
     },
-    makeHoldSubject: function () {
-        var stream = new rx_1.ReplaySubject(1);
+    makeSubject: function () {
+        var stream = new Rx.Subject();
         var observer = {
             next: function (x) { stream.onNext(x); },
             error: function (err) {

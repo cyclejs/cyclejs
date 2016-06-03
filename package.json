@@ -1,6 +1,6 @@
 {
   "name": "@cycle/core",
-  "version": "7.0.0-rc6",
+  "version": "7.0.0-rc7",
   "author": "Andre Staltz",
   "description": "The Cycle run() function meant to be used with RxJS v4",
   "license": "MIT",
