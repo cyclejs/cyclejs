@@ -27,14 +27,14 @@ function BmiCalculator({DOM}) {
   );
 
   return {
-    DOM: bmi$.combine(
+    DOM: xs.combine(
       (bmi, weightVTree, heightVTree) =>
         div([
           weightVTree,
           heightVTree,
           h2('BMI is ' + bmi)
         ]),
-      weightSlider.DOM, heightSlider.DOM
+      bmi$, weightSlider.DOM, heightSlider.DOM
     )
   };
 }
