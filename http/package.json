@@ -10,7 +10,7 @@
     "url": "https://github.com/cyclejs/cycle-http-driver"
   },
   "dependencies": {
-    "@cycle/xstream-adapter": "^1.0.4",
+    "@cycle/xstream-adapter": "^1.0.5",
     "superagent": "1.7.2"
   },
   "peerDependencies": {
@@ -36,7 +36,7 @@
     "typescript": "^1.8.9",
     "typings": "^0.7.12",
     "uglify-js": "2.6.1",
-    "xstream": "2.4.x",
+    "xstream": "4.x.x",
     "zuul": "3.9.0"
   },
   "jspm": {
