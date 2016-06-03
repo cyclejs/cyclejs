@@ -19,7 +19,7 @@ function LabeledSlider(sources: LabeledSliderSources) {
   let initialValue$ = props$.map(props => props.initial).take(1);
   let newValue$ = sources.DOM.select('.slider').events('input')
     .map((ev: Event) => (<HTMLInputElement> ev.target).value);
-  let value$: Stream<number> = initialValue$.merge(newValue$).remember();
+  let value$: Stream<number> = xs.merge(initialValue$, newValue$).remember();
 
   let vtree$ = xs.combine(
     (props, value) =>
