@@ -1,9 +1,8 @@
 {
-  "dependencies": {
-    "@cycle/base": "npm:@cycle/base"
-  },
+  "dependencies": {},
   "devDependencies": {},
-  "ambientDependencies": {
-    "rx.all": "github:Reactive-Extensions/RxJS/ts/rx.all.d.ts"
+  "globalDependencies": {
+    "rx.all": "github:Reactive-Extensions/RxJS/ts/rx.all.d.ts",
+    "require": "github:DefinitelyTyped/DefinitelyTyped/requirejs/require.d.ts#56295f5058cac7ae458540423c50ac2dcf9fc711"
   }
 }

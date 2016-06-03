@@ -4,9 +4,9 @@ import {
   SinkProxies,
   StreamSubscribe,
   DisposeFunction,
-  HoldSubject,
+  Subject,
 } from '@cycle/base';
-import {Observable, ReplaySubject} from 'rx';
+const Rx = require('rx');
 
 function logToConsoleError(err: any) {
   const target = err.stack || err;
@@ -18,11 +18,11 @@ function logToConsoleError(err: any) {
 }
 
 const RxJSAdapter: StreamAdapter = {
-  adapt<T>(originStream: any, originStreamSubscribe: StreamSubscribe): Observable<T> {
+  adapt<T>(originStream: any, originStreamSubscribe: StreamSubscribe): Rx.Observable<T> {
     if (this.isValidStream(originStream)) {
       return originStream;
     }
-    return <Observable<T>> Observable.create((destinationObserver: any) => {
+    return <Rx.Observable<T>> Rx.Observable.create((destinationObserver: any) => {
       const originObserver: Observer = {
         next: (x: T) => destinationObserver.onNext(x),
         error: (e: any) => destinationObserver.onError(e),
@@ -48,8 +48,8 @@ const RxJSAdapter: StreamAdapter = {
     });
   },
 
-  makeHoldSubject(): HoldSubject {
-    const stream: ReplaySubject<any> = new ReplaySubject(1);
+  makeSubject(): Subject {
+    const stream: Rx.Subject<any> = new Rx.Subject();
     const observer: Observer = {
       next: x => { stream.onNext(x); },
       error: err => {
@@ -67,7 +67,7 @@ const RxJSAdapter: StreamAdapter = {
       typeof stream.onValue !== 'function');
   },
 
-  streamSubscribe(stream: Observable<any>, observer: Observer) {
+  streamSubscribe(stream: Rx.Observable<any>, observer: Observer) {
     const subscription = stream.subscribe(
       (x: any) => observer.next(x),
       (e: any) => observer.error(e),
