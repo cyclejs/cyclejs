@@ -31,7 +31,7 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "@cycle/xstream-adapter": "^1.0.2",
+    "@cycle/xstream-adapter": "^1.0.5",
     "matches-selector": "1.0.0",
     "snabbdom": "^0.4.1",
     "snabbdom-selector": "^0.3.2",
@@ -64,7 +64,7 @@
     "typescript": "1.8.7",
     "typings": "^1.0.4",
     "uglify-js": "2.6.1",
-    "xstream": "2.x.x",
+    "xstream": "4.x.x",
     "zuul": "3.8.0"
   },
   "engines": {

@@ -1,7 +1,6 @@
 import {StreamAdapter} from '@cycle/base';
 import {init} from 'snabbdom';
 import xs, {Stream} from 'xstream';
-import concat from 'xstream/extra/concat';
 import {DOMSource} from './DOMSource';
 import {VNode} from './interfaces';
 import {VNodeWrapper} from './VNodeWrapper';
@@ -55,9 +54,8 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions):
       .fold<VNode>(<(acc: VNode, v: VNode) => VNode>patch, <VNode> rootElement)
       .drop(1)
       .map(function unwrapElementFromVNode(vnode: VNode) { return vnode.elm; })
-      .startWith(rootElement)
-      .compose(stream => concat(stream, xs.never())) // don't complete this stream
-      .remember();
+      .compose(stream => xs.merge(stream, xs.never())) // don't complete this stream
+      .startWith(rootElement);
 
     /* tslint:disable:no-empty */
     rootElement$.addListener({next: () => {}, error: () => {}, complete: () => {}});
