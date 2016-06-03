@@ -1,8 +1,33 @@
 import Cycle from '@cycle/xstream-run';
-import {div, button, h1, h4, a, makeDOMDriver} from '@cycle/dom';
-import {makeHTTPDriver} from '@cycle/http';
+import {Stream} from 'xstream';
+import {div, button, h1, h4, a, makeDOMDriver, DOMSource} from '@cycle/dom';
+import {makeHTTPDriver, Response, HTTPSource} from '@cycle/http';
 
-function main(sources) {
+interface UserData {
+  id: number,
+  name: string,
+  username: string,
+  email: string,
+  address: {
+    street: string,
+    suite: string,
+    city: string,
+    zipcode: string,
+    geo: {
+      lat: string,
+      lng: string,
+    }
+  },
+  phone: string,
+  website: string,
+  company: {
+    name: string,
+    catchPhrase: string,
+    bs: string,
+  }
+}
+
+function main(sources: {DOM: DOMSource, HTTP: HTTPSource}) {
   const getRandomUser$ = sources.DOM.select('.get-random').events('click')
     .map(() => {
       const randomNum = Math.round(Math.random() * 9) + 1;
@@ -13,10 +38,11 @@ function main(sources) {
       };
     });
 
-  const user$ = sources.HTTP.select('users')
+  const user$ = (<Stream<Stream<Response>>> sources.HTTP.select('users'))
     .flatten()
     .map(res => res.body)
-    .startWith(null);
+    .startWith(null)
+    .compose(s => <Stream<UserData>> s);
 
   const vtree$ = user$.map(user =>
     div('.users', [
