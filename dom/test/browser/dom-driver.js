@@ -59,7 +59,7 @@ describe('makeDOMDriver', function () {
     assert.notStrictEqual(typeof DOMDriver.streamAdapter, 'undefined');
     assert.strictEqual(typeof DOMDriver.streamAdapter.adapt, 'function');
     assert.strictEqual(typeof DOMDriver.streamAdapter.dispose, 'function');
-    assert.strictEqual(typeof DOMDriver.streamAdapter.makeHoldSubject, 'function');
+    assert.strictEqual(typeof DOMDriver.streamAdapter.makeSubject, 'function');
     assert.strictEqual(typeof DOMDriver.streamAdapter.isValidStream, 'function');
     assert.strictEqual(typeof DOMDriver.streamAdapter.streamSubscribe, 'function');
   });
