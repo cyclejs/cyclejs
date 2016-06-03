@@ -22,8 +22,8 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "@cycle/base": "^2.1.1",
-    "@cycle/rxjs-adapter": "^1.0.6"
+    "@cycle/base": "^3.0.0",
+    "@cycle/rxjs-adapter": "^2.0.0"
   },
   "peerDependencies": {
     "rxjs": "*"
@@ -40,8 +40,8 @@
     "sinon": "1.17.2",
     "testem": "0.9.11",
     "tslint": "3.6.0",
-    "typescript": "^1.8.9",
-    "typings": "^0.6.3",
+    "typescript": "^1.8.7",
+    "typings": "^1.0.4",
     "uglify-js": "2.5.0"
   },
   "engines": {
