@@ -76,7 +76,7 @@ function makeSinkProxies(drivers, streamAdapter) {
     var sinkProxies = {};
     for (var name_1 in drivers) {
         if (drivers.hasOwnProperty(name_1)) {
-            var holdSubject = streamAdapter.makeHoldSubject();
+            var holdSubject = streamAdapter.makeSubject();
             var driverStreamAdapter = drivers[name_1].streamAdapter || streamAdapter;
             var stream = driverStreamAdapter.adapt(holdSubject.stream, streamAdapter.streamSubscribe);
             sinkProxies[name_1] = {
@@ -198,8 +198,8 @@ var MostAdapter = {
             sinkProxies[k].observer.complete();
         });
     },
-    makeHoldSubject: function () {
-        var stream = most_subject_1.holdSubject();
+    makeSubject: function () {
+        var stream = most_subject_1.subject();
         var observer = {
             next: function (x) { stream.next(x); },
             error: function (err) {
