@@ -310,7 +310,7 @@ var XStreamAdapter = {
     },
     isValidStream: function (stream) {
         return (typeof stream.addListener === 'function' &&
-            typeof stream.imitate === 'function');
+            typeof stream.shamefullySendNext === 'function');
     },
     streamSubscribe: function (stream, observer) {
         stream.addListener(observer);
@@ -1959,12 +1959,18 @@ var PeriodicProducer = (function () {
 }());
 exports.PeriodicProducer = PeriodicProducer;
 var DebugOperator = (function () {
-    function DebugOperator(spy, ins) {
-        if (spy === void 0) { spy = null; }
-        this.spy = spy;
+    function DebugOperator(arg, ins) {
         this.ins = ins;
         this.type = 'debug';
         this.out = null;
+        this.s = null; // spy
+        this.l = null; // label
+        if (typeof arg === 'string') {
+            this.l = arg;
+        }
+        else {
+            this.s = arg;
+        }
     }
     DebugOperator.prototype._start = function (out) {
         this.out = out;
@@ -1978,14 +1984,17 @@ var DebugOperator = (function () {
         var u = this.out;
         if (!u)
             return;
-        var spy = this.spy;
-        if (spy) {
+        var s = this.s, l = this.l;
+        if (s) {
             try {
-                spy(t);
+                s(t);
             }
             catch (e) {
                 u._e(e);
             }
+        }
+        else if (l) {
+            console.log(l + ':', t);
         }
         else {
             console.log(t);
@@ -2148,81 +2157,22 @@ var FilterOperator = (function () {
     return FilterOperator;
 }());
 exports.FilterOperator = FilterOperator;
-var FCIL = (function () {
-    function FCIL(out, op) {
+var FlattenListener = (function () {
+    function FlattenListener(out, op) {
         this.out = out;
         this.op = op;
     }
-    FCIL.prototype._n = function (t) {
+    FlattenListener.prototype._n = function (t) {
         this.out._n(t);
     };
-    FCIL.prototype._e = function (err) {
+    FlattenListener.prototype._e = function (err) {
         this.out._e(err);
     };
-    FCIL.prototype._c = function () {
-        this.op.less();
-    };
-    return FCIL;
-}());
-var FlattenConcOperator = (function () {
-    function FlattenConcOperator(ins) {
-        this.ins = ins;
-        this.type = 'flattenConcurrently';
-        this.active = 1; // number of outers and inners that have not yet ended
-        this.out = null;
-    }
-    FlattenConcOperator.prototype._start = function (out) {
-        this.out = out;
-        this.ins._add(this);
-    };
-    FlattenConcOperator.prototype._stop = function () {
-        this.ins._remove(this);
-        this.active = 1;
-        this.out = null;
-    };
-    FlattenConcOperator.prototype.less = function () {
-        if (--this.active === 0) {
-            var u = this.out;
-            if (!u)
-                return;
-            u._c();
-        }
-    };
-    FlattenConcOperator.prototype._n = function (s) {
-        var u = this.out;
-        if (!u)
-            return;
-        this.active++;
-        s._add(new FCIL(u, this));
-    };
-    FlattenConcOperator.prototype._e = function (err) {
-        var u = this.out;
-        if (!u)
-            return;
-        u._e(err);
-    };
-    FlattenConcOperator.prototype._c = function () {
-        this.less();
-    };
-    return FlattenConcOperator;
-}());
-exports.FlattenConcOperator = FlattenConcOperator;
-var FIL = (function () {
-    function FIL(out, op) {
-        this.out = out;
-        this.op = op;
-    }
-    FIL.prototype._n = function (t) {
-        this.out._n(t);
-    };
-    FIL.prototype._e = function (err) {
-        this.out._e(err);
-    };
-    FIL.prototype._c = function () {
+    FlattenListener.prototype._c = function () {
         this.op.inner = null;
         this.op.less();
     };
-    return FIL;
+    return FlattenListener;
 }());
 var FlattenOperator = (function () {
     function FlattenOperator(ins) {
@@ -2258,7 +2208,7 @@ var FlattenOperator = (function () {
         var _a = this, inner = _a.inner, il = _a.il;
         if (inner && il)
             inner._remove(il);
-        (this.inner = s)._add(this.il = new FIL(u, this));
+        (this.inner = s)._add(this.il = new FlattenListener(u, this));
     };
     FlattenOperator.prototype._e = function (err) {
         var u = this.out;
@@ -2361,87 +2311,22 @@ var LastOperator = (function () {
     return LastOperator;
 }());
 exports.LastOperator = LastOperator;
-var MFCIL = (function () {
-    function MFCIL(out, op) {
+var MapFlattenInner = (function () {
+    function MapFlattenInner(out, op) {
         this.out = out;
         this.op = op;
     }
-    MFCIL.prototype._n = function (r) {
+    MapFlattenInner.prototype._n = function (r) {
         this.out._n(r);
     };
-    MFCIL.prototype._e = function (err) {
+    MapFlattenInner.prototype._e = function (err) {
         this.out._e(err);
     };
-    MFCIL.prototype._c = function () {
-        this.op.less();
-    };
-    return MFCIL;
-}());
-var MapFlattenConcOperator = (function () {
-    function MapFlattenConcOperator(mapOp) {
-        this.mapOp = mapOp;
-        this.active = 1; // number of outers and inners that have not yet ended
-        this.out = null;
-        this.type = mapOp.type + "+flattenConcurrently";
-        this.ins = mapOp.ins;
-    }
-    MapFlattenConcOperator.prototype._start = function (out) {
-        this.out = out;
-        this.mapOp.ins._add(this);
-    };
-    MapFlattenConcOperator.prototype._stop = function () {
-        this.mapOp.ins._remove(this);
-        this.active = 1;
-        this.out = null;
-    };
-    MapFlattenConcOperator.prototype.less = function () {
-        if (--this.active === 0) {
-            var u = this.out;
-            if (!u)
-                return;
-            u._c();
-        }
-    };
-    MapFlattenConcOperator.prototype._n = function (v) {
-        var u = this.out;
-        if (!u)
-            return;
-        this.active++;
-        try {
-            this.mapOp.project(v)._add(new MFCIL(u, this));
-        }
-        catch (e) {
-            u._e(e);
-        }
-    };
-    MapFlattenConcOperator.prototype._e = function (err) {
-        var u = this.out;
-        if (!u)
-            return;
-        u._e(err);
-    };
-    MapFlattenConcOperator.prototype._c = function () {
-        this.less();
-    };
-    return MapFlattenConcOperator;
-}());
-exports.MapFlattenConcOperator = MapFlattenConcOperator;
-var MFIL = (function () {
-    function MFIL(out, op) {
-        this.out = out;
-        this.op = op;
-    }
-    MFIL.prototype._n = function (r) {
-        this.out._n(r);
-    };
-    MFIL.prototype._e = function (err) {
-        this.out._e(err);
-    };
-    MFIL.prototype._c = function () {
+    MapFlattenInner.prototype._c = function () {
         this.op.inner = null;
         this.op.less();
     };
-    return MFIL;
+    return MapFlattenInner;
 }());
 var MapFlattenOperator = (function () {
     function MapFlattenOperator(mapOp) {
@@ -2480,7 +2365,7 @@ var MapFlattenOperator = (function () {
         if (inner && il)
             inner._remove(il);
         try {
-            (this.inner = this.mapOp.project(v))._add(this.il = new MFIL(u, this));
+            (this.inner = this.mapOp.project(v))._add(this.il = new MapFlattenInner(u, this));
         }
         catch (e) {
             u._e(e);
@@ -2665,43 +2550,6 @@ exports.TakeOperator = TakeOperator;
 var Stream = (function () {
     function Stream(producer) {
         this._stopID = empty;
-        /**
-         * Combines multiple streams with the input stream to return a stream whose
-         * events are calculated from the latest events of each of its input streams.
-         *
-         * *combine* remembers the most recent event from each of the input streams.
-         * When any of the input streams emits an event, that event together with all
-         * the other saved events are combined in the `project` function which should
-         * return a value. That value will be emitted on the output stream. It's
-         * essentially a way of mixing the events from multiple streams according to a
-         * formula.
-         *
-         * Marble diagram:
-         *
-         * ```text
-         * --1----2-----3--------4---
-         * ----a-----b-----c--d------
-         *   combine((x,y) => x+y)
-         * ----1a-2a-2b-3b-3c-3d-4d--
-         * ```
-         *
-         * @param {Function} project A function of type `(x: T1, y: T2) => R` or
-         * similar that takes the most recent events `x` and `y` from the input
-         * streams and returns a value. The output stream will emit that value. The
-         * number of arguments for this function should match the number of input
-         * streams.
-         * @param {Stream} other Another stream to combine together with the input
-         * stream. There may be more of these arguments.
-         * @return {Stream}
-         */
-        this.combine = function combine(project) {
-            var streams = [];
-            for (var _i = 1; _i < arguments.length; _i++) {
-                streams[_i - 1] = arguments[_i];
-            }
-            streams.unshift(this);
-            return Stream.combine.apply(Stream, [project].concat(streams));
-        };
         this._prod = producer;
         this._ils = [];
     }
@@ -2796,6 +2644,9 @@ var Stream = (function () {
             }
         }
     };
+    Stream.prototype.ctor = function () {
+        return this instanceof MemoryStream ? MemoryStream : Stream;
+    };
     /**
      * Creates a new Stream given a Producer.
      *
@@ -2827,6 +2678,16 @@ var Stream = (function () {
             internalizeProducer(producer); // mutates the input
         }
         return new MemoryStream(producer);
+    };
+    /**
+     * Creates a new MimicStream, which can `imitate` another Stream. Only a
+     * MimicStream has the `imitate()` method.
+     *
+     * @factory true
+     * @return {MimicStream}
+     */
+    Stream.createMimic = function () {
+        return new MimicStream();
     };
     /**
      * Creates a Stream that does nothing when started. It never emits any event.
@@ -2995,6 +2856,20 @@ var Stream = (function () {
         }
         return new Stream(new MergeProducer(streams));
     };
+    Stream.prototype._map = function (project) {
+        var p = this._prod;
+        var ctor = this.ctor();
+        if (p instanceof FilterOperator) {
+            return new ctor(new FilterMapOperator(p.passes, project, p.ins));
+        }
+        if (p instanceof FilterMapOperator) {
+            return new ctor(new FilterMapOperator(p.passes, compose2(project, p.project), p.ins));
+        }
+        if (p instanceof MapOperator) {
+            return new ctor(new MapOperator(compose2(project, p.project), p.ins));
+        }
+        return new ctor(new MapOperator(project, this));
+    };
     /**
      * Transforms each event from the input Stream through a `project` function,
      * to get a Stream that emits those transformed events.
@@ -3013,17 +2888,7 @@ var Stream = (function () {
      * @return {Stream}
      */
     Stream.prototype.map = function (project) {
-        var p = this._prod;
-        if (p instanceof FilterOperator) {
-            return new Stream(new FilterMapOperator(p.passes, project, p.ins));
-        }
-        if (p instanceof FilterMapOperator) {
-            return new Stream(new FilterMapOperator(p.passes, compose2(project, p.project), p.ins));
-        }
-        if (p instanceof MapOperator) {
-            return new Stream(new MapOperator(compose2(project, p.project), p.ins));
-        }
-        return new Stream(new MapOperator(project, this));
+        return this._map(project);
     };
     /**
      * It's like `map`, but transforms each input event to always the same
@@ -3091,7 +2956,7 @@ var Stream = (function () {
      * @return {Stream}
      */
     Stream.prototype.take = function (amount) {
-        return new Stream(new TakeOperator(amount, this));
+        return new (this.ctor())(new TakeOperator(amount, this));
     };
     /**
      * Ignores the first `amount` many events from the input stream, and then
@@ -3132,7 +2997,8 @@ var Stream = (function () {
     };
     /**
      * Prepends the given `initial` value to the sequence of events emitted by the
-     * input stream.
+     * input stream. The returned stream is a MemoryStream, which means it is
+     * already `remember()`'d.
      *
      * Marble diagram:
      *
@@ -3143,10 +3009,10 @@ var Stream = (function () {
      * ```
      *
      * @param initial The value or event to prepend.
-     * @return {Stream}
+     * @return {MemoryStream}
      */
     Stream.prototype.startWith = function (initial) {
-        return new Stream(new StartWithOperator(this, initial));
+        return new MemoryStream(new StartWithOperator(this, initial));
     };
     /**
      * Uses another stream to determine when to complete the current stream.
@@ -3168,14 +3034,15 @@ var Stream = (function () {
      * @return {Stream}
      */
     Stream.prototype.endWhen = function (other) {
-        return new Stream(new EndWhenOperator(other, this));
+        return new (this.ctor())(new EndWhenOperator(other, this));
     };
     /**
      * "Folds" the stream onto itself.
      *
      * Combines events from the past throughout
      * the entire execution of the input stream, allowing you to accumulate them
-     * together. It's essentially like `Array.prototype.reduce`.
+     * together. It's essentially like `Array.prototype.reduce`. The returned
+     * stream is a MemoryStream, which means it is already `remember()`'d.
      *
      * The output stream starts by emitting the `seed` which you give as argument.
      * Then, when an event happens on the input stream, it is combined with that
@@ -3196,10 +3063,10 @@ var Stream = (function () {
      * takes the previous accumulated value `acc` and the incoming event from the
      * input stream and produces the new accumulated value.
      * @param seed The initial accumulated value, of type `R`.
-     * @return {Stream}
+     * @return {MemoryStream}
      */
     Stream.prototype.fold = function (accumulate, seed) {
-        return new Stream(new FoldOperator(accumulate, seed, this));
+        return new MemoryStream(new FoldOperator(accumulate, seed, this));
     };
     /**
      * Replaces an error with another stream.
@@ -3225,7 +3092,7 @@ var Stream = (function () {
      * @return {Stream}
      */
     Stream.prototype.replaceError = function (replace) {
-        return new Stream(new ReplaceErrorOperator(replace, this));
+        return new (this.ctor())(new ReplaceErrorOperator(replace, this));
     };
     /**
      * Flattens a "stream of streams", handling only one nested stream at a time
@@ -3259,59 +3126,6 @@ var Stream = (function () {
             new FlattenOperator(this));
     };
     /**
-     * Flattens a "stream of streams", handling multiple concurrent nested streams
-     * simultaneously.
-     *
-     * If the input stream is a stream that emits streams, then this operator will
-     * return an output stream which is a flat stream: emits regular events. The
-     * flattening happens concurrently. It works like this: when the input stream
-     * emits a nested stream, *flattenConcurrently* will start imitating that
-     * nested one. When the next nested stream is emitted on the input stream,
-     * *flattenConcurrently* will also imitate that new one, but will continue to
-     * imitate the previous nested streams as well.
-     *
-     * Marble diagram:
-     *
-     * ```text
-     * --+--------+---------------
-     *   \        \
-     *    \       ----1----2---3--
-     *    --a--b----c----d--------
-     *     flattenConcurrently
-     * -----a--b----c-1--d-2---3--
-     * ```
-     *
-     * @return {Stream}
-     */
-    Stream.prototype.flattenConcurrently = function () {
-        var p = this._prod;
-        return new Stream(p instanceof MapOperator && !(p instanceof FilterMapOperator) ?
-            new MapFlattenConcOperator(p) :
-            new FlattenConcOperator(this));
-    };
-    /**
-     * Blends two streams together, emitting events from both.
-     *
-     * *merge* takes an `other` stream and returns an output stream that imitates
-     * both the input stream and the `other` stream.
-     *
-     * Marble diagram:
-     *
-     * ```text
-     * --1----2-----3--------4---
-     * ----a-----b----c---d------
-     *            merge
-     * --1-a--2--b--3-c---d--4---
-     * ```
-     *
-     * @param {Stream} other Another stream to merge together with the input
-     * stream.
-     * @return {Stream}
-     */
-    Stream.prototype.merge = function (other) {
-        return Stream.merge(this, other);
-    };
-    /**
      * Passes the input stream to a custom operator, to produce an output stream.
      *
      * *compose* is a handy way of using an existing function in a chained style.
@@ -3340,18 +3154,6 @@ var Stream = (function () {
         });
     };
     /**
-     * Changes this current stream to imitate the `other` given stream.
-     *
-     * The *imitate* method returns nothing. Instead, it changes the behavior of
-     * the current stream, making it re-emit whatever events are emitted by the
-     * given `other` stream.
-  
-     * @param {Stream} other The stream to imitate on the current one.
-     */
-    Stream.prototype.imitate = function (other) {
-        other._add(this);
-    };
-    /**
      * Returns an output stream that identically imitates the input stream, but
      * also runs a `spy` function fo each event, to help you debug your app.
      *
@@ -3372,13 +3174,13 @@ var Stream = (function () {
      * --1----2-----3-----4--
      * ```
      *
-     * @param {function} spy A function that takes an event as argument, and
-     * returns nothing.
+     * @param {function} labelOrSpy A string to use as the label when printing
+     * debug information on the console, or a 'spy' function that takes an event
+     * as argument, and does not need to return anything.
      * @return {Stream}
      */
-    Stream.prototype.debug = function (spy) {
-        if (spy === void 0) { spy = null; }
-        return new Stream(new DebugOperator(spy, this));
+    Stream.prototype.debug = function (labelOrSpy) {
+        return new (this.ctor())(new DebugOperator(labelOrSpy, this));
     };
     /**
      * Forces the Stream to emit the given value to its listeners.
@@ -3457,6 +3259,46 @@ var Stream = (function () {
     return Stream;
 }());
 exports.Stream = Stream;
+var MimicStream = (function (_super) {
+    __extends(MimicStream, _super);
+    function MimicStream() {
+        _super.call(this);
+    }
+    MimicStream.prototype._add = function (il) {
+        var t = this._target;
+        if (!t)
+            return;
+        t._add(il);
+    };
+    MimicStream.prototype._remove = function (il) {
+        var t = this._target;
+        if (!t)
+            return;
+        t._remove(il);
+    };
+    /**
+     * This method exists only on a MimicStream, which is created through
+     * `xs.createMimic()`. `imitate` changes this current MimicStream to imitate
+     * the `other` given stream.
+     *
+     * The *imitate* method returns nothing. Instead, it changes the behavior of
+     * the current stream, making it re-emit whatever events are emitted by the
+     * given `other` stream.
+     *
+     * @param {Stream} other The stream to imitate on the current one. Must not be
+     * a MemoryStream.
+     */
+    MimicStream.prototype.imitate = function (other) {
+        if (other instanceof MemoryStream) {
+            throw new Error('A MemoryStream was given to imitate(), but it only ' +
+                'supports a Stream. Read more about this restriction here: ' +
+                'https://github.com/staltz/xstream#faq');
+        }
+        this._target = other;
+    };
+    return MimicStream;
+}(Stream));
+exports.MimicStream = MimicStream;
 var MemoryStream = (function (_super) {
     __extends(MemoryStream, _super);
     function MemoryStream(producer) {
@@ -3474,6 +3316,28 @@ var MemoryStream = (function (_super) {
         }
         _super.prototype._add.call(this, il);
     };
+    MemoryStream.prototype._x = function () {
+        this._has = false;
+        _super.prototype._x.call(this);
+    };
+    MemoryStream.prototype.map = function (project) {
+        return this._map(project);
+    };
+    MemoryStream.prototype.mapTo = function (projectedValue) {
+        return _super.prototype.mapTo.call(this, projectedValue);
+    };
+    MemoryStream.prototype.take = function (amount) {
+        return _super.prototype.take.call(this, amount);
+    };
+    MemoryStream.prototype.endWhen = function (other) {
+        return _super.prototype.endWhen.call(this, other);
+    };
+    MemoryStream.prototype.replaceError = function (replace) {
+        return _super.prototype.replaceError.call(this, replace);
+    };
+    MemoryStream.prototype.debug = function (labelOrSpy) {
+        return _super.prototype.debug.call(this, labelOrSpy);
+    };
     return MemoryStream;
 }(Stream));
 exports.MemoryStream = MemoryStream;
@@ -3485,6 +3349,7 @@ exports.default = Stream;
 var core_1 = require('./core');
 exports.Stream = core_1.Stream;
 exports.MemoryStream = core_1.MemoryStream;
+exports.MimicStream = core_1.MimicStream;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = core_1.Stream;
 
