@@ -1,17 +1,9 @@
-import {makeHTTPDriver} from './http-driver';
-import {
+export {makeHTTPDriver} from './http-driver';
+export {HTTPSource} from './HTTPSource';
+export {
   RequestOptions,
   Attachment,
   RequestInput,
   Response,
   ResponseStream
 } from './interfaces';
-
-export {
-  makeHTTPDriver,
-  RequestOptions,
-  Attachment,
-  RequestInput,
-  Response,
-  ResponseStream
-};
