@@ -222,7 +222,7 @@ var XStreamAdapter = {
     },
     isValidStream: function (stream) {
         return (typeof stream.addListener === 'function' &&
-            typeof stream.imitate === 'function');
+            typeof stream.shamefullySendNext === 'function');
     },
     streamSubscribe: function (stream, observer) {
         stream.addListener(observer);
