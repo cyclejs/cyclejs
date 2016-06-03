@@ -298,8 +298,8 @@ var XStreamAdapter = {
             sinks[k].removeListener(sinkProxies[k].stream);
         });
     },
-    makeHoldSubject: function () {
-        var stream = xstream_1.default.createWithMemory();
+    makeSubject: function () {
+        var stream = xstream_1.default.create();
         var observer = {
             next: function (x) { stream.shamefullySendNext(x); },
             error: function (err) {
