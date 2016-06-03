@@ -1,5 +1,10 @@
-<a name="1.0.1"></a>
-## [1.0.1](https://github.com/TylorS/most-proxy/compare/e15b460...v1.0.1) (2016-06-01)
+<a name="2.0.0"></a>
+# [2.0.0](https://github.com/TylorS/most-proxy/compare/e15b460...v2.0.0) (2016-06-03)
+
+
+### Bug Fixes
+
+* **package:** update most-adapter to v2.0.x ([e428724](https://github.com/TylorS/most-proxy/commit/e428724))
 
 
 ### Features
