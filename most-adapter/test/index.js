@@ -8,7 +8,7 @@ describe('StreamAdapter', () => {
     assert.strictEqual(typeof StreamAdapter, 'object')
     assert.strictEqual(typeof StreamAdapter.adapt, 'function')
     assert.strictEqual(typeof StreamAdapter.dispose, 'function')
-    assert.strictEqual(typeof StreamAdapter.makeHoldSubject, 'function')
+    assert.strictEqual(typeof StreamAdapter.makeSubject, 'function')
     assert.strictEqual(typeof StreamAdapter.isValidStream, 'function')
     assert.strictEqual(typeof StreamAdapter.streamSubscribe, 'function')
   })
@@ -42,32 +42,32 @@ describe('StreamAdapter', () => {
       .catch(done)
   })
 
-  it('should create a hold subject which can be fed and subscribed to', (done) => {
-    const holdSubject = StreamAdapter.makeHoldSubject()
-    assert.strictEqual(holdSubject.stream instanceof most.Stream, true)
-    assert.strictEqual(StreamAdapter.isValidStream(holdSubject.stream), true)
+  it('should create a subject which can be fed and subscribed to', (done) => {
+    const subject = StreamAdapter.makeSubject()
+    assert.strictEqual(subject.stream instanceof most.Stream, true)
+    assert.strictEqual(StreamAdapter.isValidStream(subject.stream), true)
 
     const observer1Expected = [1, 2, 3, 4]
-    const observer2Expected = [2, 3, 4]
+    const observer2Expected = [3, 4]
 
-    StreamAdapter.streamSubscribe(holdSubject.stream, {
+    StreamAdapter.streamSubscribe(subject.stream, {
       next: (x) => assert.strictEqual(x, observer1Expected.shift()),
       error: done,
       complete: () => assert.strictEqual(observer1Expected.length, 0)
     })
 
-    holdSubject.observer.next(1)
-    holdSubject.observer.next(2)
+    subject.observer.next(1)
+    subject.observer.next(2)
 
-    StreamAdapter.streamSubscribe(holdSubject.stream, {
+    StreamAdapter.streamSubscribe(subject.stream, {
       next: (x) => assert.strictEqual(x, observer2Expected.shift()),
       error: done,
       complete: () => assert.strictEqual(observer2Expected.length, 0)
     })
 
-    holdSubject.observer.next(3)
-    holdSubject.observer.next(4)
-    holdSubject.observer.complete()
+    subject.observer.next(3)
+    subject.observer.next(4)
+    subject.observer.complete()
 
     setTimeout(done, 20)
   })

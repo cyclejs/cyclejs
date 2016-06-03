@@ -4,11 +4,11 @@ import {
   SinkProxies,
   StreamSubscribe,
   DisposeFunction,
-  HoldSubject,
+  Subject,
 } from '@cycle/base';
 
 import {Stream} from 'most';
-import {subject, holdSubject} from 'most-subject';
+import {subject} from 'most-subject';
 
 function logToConsoleError(err: any) {
   const target = err.stack || err;
@@ -45,8 +45,8 @@ const MostAdapter: StreamAdapter = {
     });
   },
 
-  makeHoldSubject(): HoldSubject {
-    const stream = holdSubject<any>();
+  makeSubject(): Subject {
+    const stream = subject<any>();
 
     const observer = {
       next: (x: any) => { stream.next(x); },

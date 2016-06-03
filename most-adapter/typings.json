@@ -1,6 +1,4 @@
 {
   "name": "most-subject",
-  "dependencies": {
-    "@cycle/base": "npm:@cycle/base"
-  }
+  "dependencies": {}
 }
