@@ -13,12 +13,14 @@ describe('HTML Driver', function () {
         html: Rx.Observable.of(div('.test-element', ['Foobar']))
       };
     }
-    let {sinks, sources, run} = Cycle(app, {
-      html: makeHTMLDriver()
-    });
-    sources.html.elements.subscribe(html => {
+
+    function effect(html) {
       assert.strictEqual(html, '<div class="test-element">Foobar</div>');
       done();
+    }
+
+    let {sinks, sources, run} = Cycle(app, {
+      html: makeHTMLDriver(effect),
     });
     run()
   });
@@ -47,12 +49,14 @@ describe('HTML Driver', function () {
         html: Rx.Observable.of(div('.test-element', ['Foobar']))
       };
     }
-    let {sinks, sources, run} = Cycle(app, {
-      html: makeHTMLDriver()
-    });
-    sources.html.elements.subscribe(html => {
+
+    function effect(html) {
       assert.strictEqual(html, '<div class="test-element">Foobar</div>');
       done();
+    }
+
+    let {sinks, sources, run} = Cycle(app, {
+      html: makeHTMLDriver(effect),
     });
     run();
   });
@@ -63,12 +67,14 @@ describe('HTML Driver', function () {
         html: Rx.Observable.of(div('.test-element', ['Foobar']))
       };
     }
-    let {sinks, sources, run} = Cycle(app, {
-      html: makeHTMLDriver()
-    });
-    sources.html.elements.subscribe(html => {
+
+    function effect(html) {
       assert.strictEqual(html, '<div class="test-element">Foobar</div>');
       done();
+    }
+
+    let {sinks, sources, run} = Cycle(app, {
+      html: makeHTMLDriver(effect),
     });
     run();
   });
@@ -82,16 +88,18 @@ describe('HTML Driver', function () {
           ]))
         };
       }
-      let {sink, sources, run} = Cycle(app, {
-        DOM: makeHTMLDriver({transposition: true})
-      });
-      sources.DOM.elements.subscribe(html => {
+
+      function effect(html) {
         assert.strictEqual(html,
           '<div class="test-element">' +
-          '<h3 class="myelementclass"></h3>' +
+            '<h3 class="myelementclass"></h3>' +
           '</div>'
         );
         done();
+      }
+
+      let {sink, sources, run} = Cycle(app, {
+        DOM: makeHTMLDriver(effect, {transposition: true})
       });
       run()
     });
@@ -107,20 +115,22 @@ describe('HTML Driver', function () {
           ]))
         };
       }
-      let {sinks, sources, run} = Cycle(app, {
-        html: makeHTMLDriver({transposition: true})
-      })
 
-      sources.html.elements.subscribe(html => {
+      function effect(html) {
         assert.strictEqual(html,
           '<div class="test-element">' +
-          '<div class="a-nice-element">' +
-          'foobar<h3 class="myelementclass"></h3>' +
-          '</div>' +
+            '<div class="a-nice-element">' +
+              'foobar<h3 class="myelementclass"></h3>' +
+            '</div>' +
           '</div>'
         );
         done();
-      });
+      }
+
+      let {sinks, sources, run} = Cycle(app, {
+        html: makeHTMLDriver(effect, {transposition: true})
+      })
+
       run()
     });
 
@@ -139,18 +149,20 @@ describe('HTML Driver', function () {
           )
         };
       }
-      let {sink, sources, run} = Cycle(app, {
-        DOM: makeHTMLDriver({transposition: true})
-      });
 
-      sources.DOM.elements.subscribe(html => {
+      function effect(html) {
         assert.strictEqual(html,
           '<div class="test-element">' +
-          '<h3 class="myelementclass">YES</h3>' +
+            '<h3 class="myelementclass">YES</h3>' +
           '</div>'
         );
         done();
+      }
+
+      let {sink, sources, run} = Cycle(app, {
+        DOM: makeHTMLDriver(effect, {transposition: true})
       });
+
       run()
     });
 
@@ -175,11 +187,8 @@ describe('HTML Driver', function () {
           )
         };
       }
-      let {sink, sources, run} = Cycle(app, {
-        html: makeHTMLDriver({transposition: true})
-      });
 
-      sources.html.elements.subscribe(html => {
+      function effect(html) {
         assert.strictEqual(html,
           '<div class="test-element">' +
             '<div>' +
@@ -197,7 +206,12 @@ describe('HTML Driver', function () {
           '</div>'
         );
         done();
+      }
+
+      let {sink, sources, run} = Cycle(app, {
+        html: makeHTMLDriver(effect, {transposition: true})
       });
+
       run();
     });
   });

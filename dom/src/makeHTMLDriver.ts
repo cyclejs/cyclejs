@@ -4,8 +4,14 @@ import {Stream} from 'xstream';
 import {VNode} from './interfaces';
 import {makeTransposeVNode} from './transposition';
 import {HTMLDriverOptions, HTMLSource} from './HTMLSource';
+const toHTML: (vnode: VNode) => string = require('snabbdom-to-html');
 
-export function makeHTMLDriver(options?: HTMLDriverOptions) {
+export type EffectCallback = (html: string) => void;
+/* tslint:disable:no-empty */
+const noop = () => {};
+/* tslint:enable:no-empty */
+
+export function makeHTMLDriver(effect: EffectCallback, options?: HTMLDriverOptions) {
   if (!options) { options = {}; }
   const transposition = options.transposition || false;
   function htmlDriver(vnode$: Stream<VNode>, runStreamAdapter: StreamAdapter): any {
@@ -13,7 +19,13 @@ export function makeHTMLDriver(options?: HTMLDriverOptions) {
     const preprocessedVNode$ = (
       transposition ? vnode$.map(transposeVNode).flatten() : vnode$
     );
-    return new HTMLSource(preprocessedVNode$, runStreamAdapter);
+    const html$ = preprocessedVNode$.last().map(toHTML);
+    html$.addListener({
+      next: effect || noop,
+      error: noop,
+      complete: noop,
+    });
+    return new HTMLSource(html$, runStreamAdapter);
   };
   (<any> htmlDriver).streamAdapter = XStreamAdapter;
   return htmlDriver;
