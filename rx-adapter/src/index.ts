@@ -57,6 +57,10 @@ const RxJSAdapter: StreamAdapter = {
       subscription.dispose();
     };
   },
+
+  cast <T>(stream: Rx.Observable<any>): Rx.Observable<T> {
+    return stream;
+  }
 };
 
 export default RxJSAdapter;
