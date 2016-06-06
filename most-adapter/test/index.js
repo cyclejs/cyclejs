@@ -7,7 +7,7 @@ describe('StreamAdapter', () => {
   it('should conform to StreamLibrary interface', () => {
     assert.strictEqual(typeof StreamAdapter, 'object')
     assert.strictEqual(typeof StreamAdapter.adapt, 'function')
-    assert.strictEqual(typeof StreamAdapter.dispose, 'function')
+    assert.strictEqual(typeof StreamAdapter.remember, 'function')
     assert.strictEqual(typeof StreamAdapter.makeSubject, 'function')
     assert.strictEqual(typeof StreamAdapter.isValidStream, 'function')
     assert.strictEqual(typeof StreamAdapter.streamSubscribe, 'function')

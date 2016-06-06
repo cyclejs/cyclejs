@@ -1,7 +1,7 @@
 {
   "name": "@cycle/most-adapter",
   "version": "2.0.1",
-  "description": "Subjects for most.js",
+  "description": "Cycle.js Most Adapter",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
@@ -18,9 +18,9 @@
     "lib": "rimraf lib/ && mkdirp lib/ && typings install && tsc",
     "prepublish": "npm run lib",
     "prerelease": "npm run doc && npm run dist",
-    "release-patch": "npm run prerelease && npm version patch -m \"chore(release): release new version\" && npm run changelog",
-    "release-minor": "npm run prerelease && npm version minor -m \"chore(release): release new version\" && npm run changelog",
-    "release-major": "npm run prerelease && npm version major -m \"chore(release): release new version\" && npm run changelog"
+    "release-patch": "npm version patch -m \"chore(release): release new version\" && npm run changelog",
+    "release-minor": "npm version minor -m \"chore(release): release new version\" && npm run changelog",
+    "release-major": "npm version major -m \"chore(release): release new version\" && npm run changelog"
   },
   "browserify-shim": {
     "most": "global:most",
@@ -76,6 +76,7 @@
     "validate-commit-msg": "^2.6.1"
   },
   "dependencies": {
+    "@most/hold": "^1.3.0",
     "most": "^0.19.7",
     "most-subject": "^4.1.1"
   }
