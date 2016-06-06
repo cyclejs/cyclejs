@@ -68,18 +68,12 @@ server.use(function (req, res) {
 
   let context$ = xs.of({route: req.url});
   let wrappedAppFn = wrapAppResultWithBoilerplate(app, context$, clientBundle$);
-  let {sources, run} = Cycle(wrappedAppFn, {
-    DOM: makeHTMLDriver(),
+
+  Cycle.run(wrappedAppFn, {
+    DOM: makeHTMLDriver(html => res.send(prependHTML5Doctype(html))),
     context: () => context$,
     PreventDefault: () => {},
   });
-  let html$ = sources.DOM.elements.map(prependHTML5Doctype);
-  html$.addListener({
-    next: html => res.send(html),
-    error: err => res.sendStatus(500),
-    complete: () => {}
-  });
-  run();
 });
 
 let port = process.env.PORT || 3000;
