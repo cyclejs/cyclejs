@@ -282,11 +282,10 @@ exports.EventDelegator = EventDelegator;
 
 var xstream_1 = (typeof window !== "undefined" ? window['xstream'] : typeof global !== "undefined" ? global['xstream'] : null);
 var xstream_adapter_1 = require('@cycle/xstream-adapter');
-var toHTML = require('snabbdom-to-html');
 var HTMLSource = function () {
-    function HTMLSource(vnode$, runStreamAdapter) {
+    function HTMLSource(html$, runStreamAdapter) {
         this.runStreamAdapter = runStreamAdapter;
-        this._html$ = vnode$.last().map(toHTML);
+        this._html$ = html$;
         this._empty$ = runStreamAdapter.adapt(xstream_1.default.empty(), xstream_adapter_1.default.streamSubscribe);
     }
     Object.defineProperty(HTMLSource.prototype, "elements", {
@@ -308,7 +307,7 @@ exports.HTMLSource = HTMLSource;
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"@cycle/xstream-adapter":19,"snabbdom-to-html":44}],5:[function(require,module,exports){
+},{"@cycle/xstream-adapter":19}],5:[function(require,module,exports){
 "use strict";
 
 var ScopeChecker = function () {
@@ -929,7 +928,11 @@ exports.makeDOMDriver = makeDOMDriver;
 var xstream_adapter_1 = require('@cycle/xstream-adapter');
 var transposition_1 = require('./transposition');
 var HTMLSource_1 = require('./HTMLSource');
-function makeHTMLDriver(options) {
+var toHTML = require('snabbdom-to-html');
+/* tslint:disable:no-empty */
+var noop = function noop() {};
+/* tslint:enable:no-empty */
+function makeHTMLDriver(effect, options) {
     if (!options) {
         options = {};
     }
@@ -937,7 +940,13 @@ function makeHTMLDriver(options) {
     function htmlDriver(vnode$, runStreamAdapter) {
         var transposeVNode = transposition_1.makeTransposeVNode(runStreamAdapter);
         var preprocessedVNode$ = transposition ? vnode$.map(transposeVNode).flatten() : vnode$;
-        return new HTMLSource_1.HTMLSource(preprocessedVNode$, runStreamAdapter);
+        var html$ = preprocessedVNode$.last().map(toHTML);
+        html$.addListener({
+            next: effect || noop,
+            error: noop,
+            complete: noop
+        });
+        return new HTMLSource_1.HTMLSource(html$, runStreamAdapter);
     }
     ;
     htmlDriver.streamAdapter = xstream_adapter_1.default;
@@ -946,7 +955,7 @@ function makeHTMLDriver(options) {
 exports.makeHTMLDriver = makeHTMLDriver;
 
 
-},{"./HTMLSource":4,"./transposition":17,"@cycle/xstream-adapter":19}],15:[function(require,module,exports){
+},{"./HTMLSource":4,"./transposition":17,"@cycle/xstream-adapter":19,"snabbdom-to-html":44}],15:[function(require,module,exports){
 (function (global){
 "use strict";
 
