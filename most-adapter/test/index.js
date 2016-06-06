@@ -11,6 +11,7 @@ describe('StreamAdapter', () => {
     assert.strictEqual(typeof StreamAdapter.makeSubject, 'function')
     assert.strictEqual(typeof StreamAdapter.isValidStream, 'function')
     assert.strictEqual(typeof StreamAdapter.streamSubscribe, 'function')
+    assert.strictEqual(typeof StreamAdapter.cast, 'function')
   })
 
   it('should adapt from a dummy adapter to this adapter stream', (done) => {
