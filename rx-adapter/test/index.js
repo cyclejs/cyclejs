@@ -7,7 +7,7 @@ describe('RxJSAdapter', () => {
   it('should conform to StreamLibrary interface', () => {
     assert.strictEqual(typeof RxJSAdapter, 'object');
     assert.strictEqual(typeof RxJSAdapter.adapt, 'function');
-    assert.strictEqual(typeof RxJSAdapter.dispose, 'function');
+    assert.strictEqual(typeof RxJSAdapter.remember, 'function');
     assert.strictEqual(typeof RxJSAdapter.makeSubject, 'function');
     assert.strictEqual(typeof RxJSAdapter.isValidStream, 'function');
     assert.strictEqual(typeof RxJSAdapter.streamSubscribe, 'function');

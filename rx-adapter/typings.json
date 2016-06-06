@@ -1,5 +1,7 @@
 {
-  "dependencies": {},
+  "dependencies": {
+    "@cycle/base": "npm:@cycle/base"
+  },
   "devDependencies": {},
   "globalDependencies": {
     "rx.all": "github:Reactive-Extensions/RxJS/ts/rx.all.d.ts",

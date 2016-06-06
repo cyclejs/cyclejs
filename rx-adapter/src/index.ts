@@ -1,21 +1,11 @@
 import {
   StreamAdapter,
   Observer,
-  SinkProxies,
   StreamSubscribe,
   DisposeFunction,
   Subject,
 } from '@cycle/base';
 const Rx = require('rx');
-
-function logToConsoleError(err: any) {
-  const target = err.stack || err;
-  if (console && console.error) {
-    console.error(target);
-  } else if (console && console.log) {
-    console.log(target);
-  }
-}
 
 const RxJSAdapter: StreamAdapter = {
   adapt<T>(originStream: any, originStreamSubscribe: StreamSubscribe): Rx.Observable<T> {
@@ -23,7 +13,7 @@ const RxJSAdapter: StreamAdapter = {
       return originStream;
     }
     return <Rx.Observable<T>> Rx.Observable.create((destinationObserver: any) => {
-      const originObserver: Observer = {
+      const originObserver: Observer<T> = {
         next: (x: T) => destinationObserver.onNext(x),
         error: (e: any) => destinationObserver.onError(e),
         complete: () => destinationObserver.onCompleted(),
@@ -37,26 +27,16 @@ const RxJSAdapter: StreamAdapter = {
     });
   },
 
-  dispose(sinks: any, sinkProxies: SinkProxies, sources: any) {
-    Object.keys(sources).forEach(k => {
-      if (typeof sources[k].dispose === 'function') {
-        sources[k].dispose();
-      }
-    });
-    Object.keys(sinkProxies).forEach(k => {
-      sinkProxies[k].observer.complete();
-    });
+  remember <T>(observable: Rx.Observable<T>): Rx.Observable<T> {
+    return observable.shareReplay(1);
   },
 
-  makeSubject(): Subject {
+  makeSubject<T>(): Subject<T> {
     const stream: Rx.Subject<any> = new Rx.Subject();
-    const observer: Observer = {
-      next: x => { stream.onNext(x); },
-      error: err => {
-        logToConsoleError(err);
-        stream.onError(err);
-      },
-      complete: x => { stream.onCompleted(); },
+    const observer: Observer<T> = {
+      next: (x: T) => { stream.onNext(x); },
+      error: (err: any) => { stream.onError(err); },
+      complete: (x?: T) => { stream.onCompleted(); }
     };
     return {stream, observer};
   },
@@ -67,11 +47,11 @@ const RxJSAdapter: StreamAdapter = {
       typeof stream.onValue !== 'function');
   },
 
-  streamSubscribe(stream: Rx.Observable<any>, observer: Observer) {
+  streamSubscribe <T>(stream: Rx.Observable<any>, observer: Observer<T>) {
     const subscription = stream.subscribe(
-      (x: any) => observer.next(x),
+      (x: T) => observer.next(x),
       (e: any) => observer.error(e),
-      () => observer.complete()
+      (x?: T) => observer.complete(x)
     );
     return () => {
       subscription.dispose();
