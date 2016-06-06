@@ -11,6 +11,7 @@ describe('RxJSAdapter', () => {
     assert.strictEqual(typeof RxJSAdapter.makeSubject, 'function');
     assert.strictEqual(typeof RxJSAdapter.isValidStream, 'function');
     assert.strictEqual(typeof RxJSAdapter.streamSubscribe, 'function');
+    assert.strictEqual(typeof RxJSAdapter.cast, 'function');
   });
 
   it('should adapt from a dummy adapter to this adapter stream', (done) => {
