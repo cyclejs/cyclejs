@@ -8,7 +8,7 @@ import {
 import * as Rx from 'rxjs';
 
 const RxJSAdapter: StreamAdapter = {
-  adapt<T>(originStream: any, originStreamSubscribe: StreamSubscribe): Rx.Observable<T> {
+  adapt <T>(originStream: any, originStreamSubscribe: StreamSubscribe): Rx.Observable<T> {
     if (this.isValidStream(originStream)) {
       return originStream;
     }
@@ -22,11 +22,11 @@ const RxJSAdapter: StreamAdapter = {
     });
   },
 
-  remember<T>(observable: Rx.Observable<T>): Rx.Observable<T> {
+  remember <T>(observable: Rx.Observable<T>): Rx.Observable<T> {
     return observable.publishReplay(1);
   },
 
-  makeSubject<T>(): Subject<T> {
+  makeSubject <T>(): Subject<T> {
     const stream: Rx.Subject<T> = new Rx.Subject<T>();
     const observer: Rx.Observer<T> = {
       next: (x: T) => { stream.next(x); },
