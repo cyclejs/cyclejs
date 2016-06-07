@@ -1,3 +1,5 @@
+import {StreamAdapter} from '@cycle/base';
+import XStreamAdapter from '@cycle/xstream-adapter';
 import xs, {Stream} from 'xstream';
 
 export interface DOMSelection {
@@ -6,13 +8,17 @@ export interface DOMSelection {
 }
 
 export class MockedDOMSource {
-  public elements: Stream<any>;
+  public elements: any;
 
-  constructor(private _mockConfig: Object) {
+  constructor(private _streamAdapter: StreamAdapter,
+              private _mockConfig: Object) {
     if (_mockConfig['elements']) {
       this.elements = _mockConfig['elements'];
     } else {
-      this.elements = xs.empty();
+      this.elements = _streamAdapter.adapt(
+        xs.empty(),
+        XStreamAdapter.streamSubscribe
+      );
     }
   }
 
@@ -26,7 +32,7 @@ export class MockedDOMSource {
         return mockConfig[key];
       }
     }
-    return xs.empty();
+    return this._streamAdapter.adapt(xs.empty(), XStreamAdapter.streamSubscribe);
   }
 
   public select(selector: string): DOMSelection {
@@ -36,13 +42,14 @@ export class MockedDOMSource {
     for (let i = 0; i < keysLen; i++) {
       const key = keys[i];
       if (key === selector) {
-        return new MockedDOMSource(mockConfig[key]);
+        return new MockedDOMSource(this._streamAdapter, mockConfig[key]);
       }
     }
-    return new MockedDOMSource({});
+    return new MockedDOMSource(this._streamAdapter, {});
   }
 }
 
-export function mockDOMSource(mockConfig: Object): MockedDOMSource {
-  return new MockedDOMSource(mockConfig);
+export function mockDOMSource(streamAdapter: StreamAdapter,
+                              mockConfig: Object): MockedDOMSource {
+  return new MockedDOMSource(streamAdapter, mockConfig);
 }
