@@ -1,14 +1,5 @@
 "use strict";
 var rxjs_1 = require('rxjs');
-function logToConsoleError(err) {
-    var target = err.stack || err;
-    if (console && console.error) {
-        console.error(target);
-    }
-    else if (console && console.log) {
-        console.log(target);
-    }
-}
 function attemptSubjectComplete(subject) {
     try {
         subject.complete();
@@ -31,24 +22,11 @@ var RxJSAdapter = {
             };
         });
     },
-    dispose: function (sinks, sinkProxies, sources) {
-        Object.keys(sources).forEach(function (k) {
-            if (typeof sources[k].unsubscribe === 'function') {
-                sources[k].unsubscribe();
-            }
-        });
-        Object.keys(sinkProxies).forEach(function (k) {
-            attemptSubjectComplete(sinkProxies[k].observer);
-        });
-    },
     makeSubject: function () {
         var stream = new rxjs_1.ReplaySubject(1);
         var observer = {
             next: function (x) { stream.next(x); },
-            error: function (err) {
-                logToConsoleError(err);
-                stream.error(err);
-            },
+            error: function (err) { stream.error(err); },
             complete: function (x) { stream.complete(); },
         };
         return { stream: stream, observer: observer };
