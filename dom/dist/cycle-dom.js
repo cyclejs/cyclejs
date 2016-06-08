@@ -1,136 +1,4 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.CycleDOM = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-(function (global){
-"use strict";
-
-var xstream_adapter_1 = require('@cycle/xstream-adapter');
-var xstream_1 = (typeof window !== "undefined" ? window['xstream'] : typeof global !== "undefined" ? global['xstream'] : null);
-var ElementFinder_1 = require('./ElementFinder');
-var fromEvent_1 = require('./fromEvent');
-var isolate_1 = require('./isolate');
-var EventDelegator_1 = require('./EventDelegator');
-var utils_1 = require('./utils');
-var matchesSelector;
-try {
-    matchesSelector = require("matches-selector");
-} catch (e) {
-    matchesSelector = Function.prototype;
-}
-var eventTypesThatDontBubble = ["load", "unload", "focus", "blur", "mouseenter", "mouseleave", "submit", "change", "reset", "timeupdate", "playing", "waiting", "seeking", "seeked", "ended", "loadedmetadata", "loadeddata", "canplay", "canplaythrough", "durationchange", "play", "pause", "ratechange", "volumechange", "suspend", "emptied", "stalled"];
-function determineUseCapture(eventType, options) {
-    var result = false;
-    if (typeof options.useCapture === "boolean") {
-        result = options.useCapture;
-    }
-    if (eventTypesThatDontBubble.indexOf(eventType) !== -1) {
-        result = true;
-    }
-    return result;
-}
-var DOMSource = function () {
-    function DOMSource(_rootElement$, _runStreamAdapter, _namespace, _isolateModule, _delegators) {
-        if (_namespace === void 0) {
-            _namespace = [];
-        }
-        this._rootElement$ = _rootElement$;
-        this._runStreamAdapter = _runStreamAdapter;
-        this._namespace = _namespace;
-        this._isolateModule = _isolateModule;
-        this._delegators = _delegators;
-        this.isolateSource = isolate_1.isolateSource;
-        this.isolateSink = isolate_1.isolateSink;
-    }
-    Object.defineProperty(DOMSource.prototype, "elements", {
-        get: function get() {
-            if (this._namespace.length === 0) {
-                return this._runStreamAdapter.adapt(this._rootElement$, xstream_adapter_1.default.streamSubscribe);
-            } else {
-                var elementFinder_1 = new ElementFinder_1.ElementFinder(this._namespace, this._isolateModule);
-                return this._runStreamAdapter.adapt(this._rootElement$.map(function (el) {
-                    return elementFinder_1.call(el);
-                }), xstream_adapter_1.default.streamSubscribe);
-            }
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DOMSource.prototype, "namespace", {
-        get: function get() {
-            return this._namespace;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    DOMSource.prototype.select = function (selector) {
-        if (typeof selector !== 'string') {
-            throw new Error("DOM driver's select() expects the argument to be a " + "string as a CSS selector");
-        }
-        var trimmedSelector = selector.trim();
-        var childNamespace = trimmedSelector === ":root" ? this._namespace : this._namespace.concat(trimmedSelector);
-        return new DOMSource(this._rootElement$, this._runStreamAdapter, childNamespace, this._isolateModule, this._delegators);
-    };
-    DOMSource.prototype.events = function (eventType, options) {
-        if (options === void 0) {
-            options = {};
-        }
-        if (typeof eventType !== "string") {
-            throw new Error("DOM driver's events() expects argument to be a " + "string representing the event type to listen for.");
-        }
-        var useCapture = determineUseCapture(eventType, options);
-        var namespace = this._namespace;
-        var scope = utils_1.getScope(namespace);
-        var keyParts = [eventType, useCapture];
-        if (scope) {
-            keyParts.push(scope);
-        }
-        var key = keyParts.join('~');
-        var domSource = this;
-        var rootElement$;
-        if (scope) {
-            var hadIsolated_mutable_1 = false;
-            rootElement$ = this._rootElement$.filter(function (rootElement) {
-                var hasIsolated = !!domSource._isolateModule.getIsolatedElement(scope);
-                var shouldPass = hasIsolated && !hadIsolated_mutable_1;
-                hadIsolated_mutable_1 = hasIsolated;
-                return shouldPass;
-            });
-        } else {
-            rootElement$ = this._rootElement$.take(2);
-        }
-        var event$ = rootElement$.map(function setupEventDelegatorOnTopElement(rootElement) {
-            // Event listener just for the root element
-            if (!namespace || namespace.length === 0) {
-                return fromEvent_1.fromEvent(rootElement, eventType, useCapture);
-            }
-            // Event listener on the top element as an EventDelegator
-            var delegators = domSource._delegators;
-            var top = scope ? domSource._isolateModule.getIsolatedElement(scope) : rootElement;
-            var delegator;
-            if (delegators.has(key)) {
-                delegator = delegators.get(key);
-                delegator.updateTopElement(top);
-            } else {
-                delegator = new EventDelegator_1.EventDelegator(top, eventType, useCapture, domSource._isolateModule);
-                delegators.set(key, delegator);
-            }
-            var subject = xstream_1.default.create();
-            if (scope) {
-                domSource._isolateModule.addEventDelegator(scope, delegator);
-            }
-            delegator.addDestination(subject, namespace);
-            return subject;
-        }).flatten();
-        return this._runStreamAdapter.adapt(event$, xstream_adapter_1.default.streamSubscribe);
-    };
-    DOMSource.prototype.dispose = function () {
-        this._isolateModule.reset();
-    };
-    return DOMSource;
-}();
-exports.DOMSource = DOMSource;
-
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./ElementFinder":2,"./EventDelegator":3,"./fromEvent":7,"./isolate":11,"./utils":18,"@cycle/xstream-adapter":19,"matches-selector":40}],2:[function(require,module,exports){
 "use strict";
 
 var ScopeChecker_1 = require('./ScopeChecker');
@@ -172,7 +40,7 @@ var ElementFinder = function () {
 exports.ElementFinder = ElementFinder;
 
 
-},{"./ScopeChecker":5,"./utils":18,"matches-selector":40}],3:[function(require,module,exports){
+},{"./ScopeChecker":5,"./utils":18,"matches-selector":39}],2:[function(require,module,exports){
 "use strict";
 
 var ScopeChecker_1 = require('./ScopeChecker');
@@ -276,29 +144,25 @@ var EventDelegator = function () {
 exports.EventDelegator = EventDelegator;
 
 
-},{"./ScopeChecker":5,"./utils":18,"matches-selector":40}],4:[function(require,module,exports){
+},{"./ScopeChecker":5,"./utils":18,"matches-selector":39}],3:[function(require,module,exports){
 (function (global){
 "use strict";
 
 var xstream_1 = (typeof window !== "undefined" ? window['xstream'] : typeof global !== "undefined" ? global['xstream'] : null);
 var xstream_adapter_1 = require('@cycle/xstream-adapter');
 var HTMLSource = function () {
-    function HTMLSource(html$, runStreamAdapter) {
-        this.runStreamAdapter = runStreamAdapter;
+    function HTMLSource(html$, runSA) {
+        this.runSA = runSA;
         this._html$ = html$;
-        this._empty$ = runStreamAdapter.adapt(xstream_1.default.empty(), xstream_adapter_1.default.streamSubscribe);
+        this._empty$ = runSA.adapt(xstream_1.default.empty(), xstream_adapter_1.default.streamSubscribe);
     }
-    Object.defineProperty(HTMLSource.prototype, "elements", {
-        get: function get() {
-            return this.runStreamAdapter.adapt(this._html$, xstream_adapter_1.default.streamSubscribe);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    HTMLSource.prototype.select = function () {
-        return new HTMLSource(xstream_1.default.empty(), this.runStreamAdapter);
+    HTMLSource.prototype.elements = function () {
+        return this.runSA.adapt(this._html$, xstream_adapter_1.default.streamSubscribe);
     };
-    HTMLSource.prototype.events = function () {
+    HTMLSource.prototype.select = function (selector) {
+        return new HTMLSource(xstream_1.default.empty(), this.runSA);
+    };
+    HTMLSource.prototype.events = function (eventType, options) {
         return this._empty$;
     };
     return HTMLSource;
@@ -307,7 +171,135 @@ exports.HTMLSource = HTMLSource;
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"@cycle/xstream-adapter":19}],5:[function(require,module,exports){
+},{"@cycle/xstream-adapter":61}],4:[function(require,module,exports){
+(function (global){
+"use strict";
+
+var xstream_adapter_1 = require('@cycle/xstream-adapter');
+var xstream_1 = (typeof window !== "undefined" ? window['xstream'] : typeof global !== "undefined" ? global['xstream'] : null);
+var ElementFinder_1 = require('./ElementFinder');
+var fromEvent_1 = require('./fromEvent');
+var isolate_1 = require('./isolate');
+var EventDelegator_1 = require('./EventDelegator');
+var utils_1 = require('./utils');
+var matchesSelector;
+try {
+    matchesSelector = require("matches-selector");
+} catch (e) {
+    matchesSelector = Function.prototype;
+}
+var eventTypesThatDontBubble = ["load", "unload", "focus", "blur", "mouseenter", "mouseleave", "submit", "change", "reset", "timeupdate", "playing", "waiting", "seeking", "seeked", "ended", "loadedmetadata", "loadeddata", "canplay", "canplaythrough", "durationchange", "play", "pause", "ratechange", "volumechange", "suspend", "emptied", "stalled"];
+function determineUseCapture(eventType, options) {
+    var result = false;
+    if (typeof options.useCapture === "boolean") {
+        result = options.useCapture;
+    }
+    if (eventTypesThatDontBubble.indexOf(eventType) !== -1) {
+        result = true;
+    }
+    return result;
+}
+var MainDOMSource = function () {
+    function MainDOMSource(_rootElement$, _runStreamAdapter, _namespace, _isolateModule, _delegators) {
+        if (_namespace === void 0) {
+            _namespace = [];
+        }
+        this._rootElement$ = _rootElement$;
+        this._runStreamAdapter = _runStreamAdapter;
+        this._namespace = _namespace;
+        this._isolateModule = _isolateModule;
+        this._delegators = _delegators;
+        this.isolateSource = isolate_1.isolateSource;
+        this.isolateSink = isolate_1.isolateSink;
+    }
+    MainDOMSource.prototype.elements = function () {
+        if (this._namespace.length === 0) {
+            return this._runStreamAdapter.adapt(this._rootElement$, xstream_adapter_1.default.streamSubscribe);
+        } else {
+            var elementFinder_1 = new ElementFinder_1.ElementFinder(this._namespace, this._isolateModule);
+            return this._runStreamAdapter.adapt(this._rootElement$.map(function (el) {
+                return elementFinder_1.call(el);
+            }), xstream_adapter_1.default.streamSubscribe);
+        }
+    };
+    Object.defineProperty(MainDOMSource.prototype, "namespace", {
+        get: function get() {
+            return this._namespace;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    MainDOMSource.prototype.select = function (selector) {
+        if (typeof selector !== 'string') {
+            throw new Error("DOM driver's select() expects the argument to be a " + "string as a CSS selector");
+        }
+        var trimmedSelector = selector.trim();
+        var childNamespace = trimmedSelector === ":root" ? this._namespace : this._namespace.concat(trimmedSelector);
+        return new MainDOMSource(this._rootElement$, this._runStreamAdapter, childNamespace, this._isolateModule, this._delegators);
+    };
+    MainDOMSource.prototype.events = function (eventType, options) {
+        if (options === void 0) {
+            options = {};
+        }
+        if (typeof eventType !== "string") {
+            throw new Error("DOM driver's events() expects argument to be a " + "string representing the event type to listen for.");
+        }
+        var useCapture = determineUseCapture(eventType, options);
+        var namespace = this._namespace;
+        var scope = utils_1.getScope(namespace);
+        var keyParts = [eventType, useCapture];
+        if (scope) {
+            keyParts.push(scope);
+        }
+        var key = keyParts.join('~');
+        var domSource = this;
+        var rootElement$;
+        if (scope) {
+            var hadIsolated_mutable_1 = false;
+            rootElement$ = this._rootElement$.filter(function (rootElement) {
+                var hasIsolated = !!domSource._isolateModule.getIsolatedElement(scope);
+                var shouldPass = hasIsolated && !hadIsolated_mutable_1;
+                hadIsolated_mutable_1 = hasIsolated;
+                return shouldPass;
+            });
+        } else {
+            rootElement$ = this._rootElement$.take(2);
+        }
+        var event$ = rootElement$.map(function setupEventDelegatorOnTopElement(rootElement) {
+            // Event listener just for the root element
+            if (!namespace || namespace.length === 0) {
+                return fromEvent_1.fromEvent(rootElement, eventType, useCapture);
+            }
+            // Event listener on the top element as an EventDelegator
+            var delegators = domSource._delegators;
+            var top = scope ? domSource._isolateModule.getIsolatedElement(scope) : rootElement;
+            var delegator;
+            if (delegators.has(key)) {
+                delegator = delegators.get(key);
+                delegator.updateTopElement(top);
+            } else {
+                delegator = new EventDelegator_1.EventDelegator(top, eventType, useCapture, domSource._isolateModule);
+                delegators.set(key, delegator);
+            }
+            var subject = xstream_1.default.create();
+            if (scope) {
+                domSource._isolateModule.addEventDelegator(scope, delegator);
+            }
+            delegator.addDestination(subject, namespace);
+            return subject;
+        }).flatten();
+        return this._runStreamAdapter.adapt(event$, xstream_adapter_1.default.streamSubscribe);
+    };
+    MainDOMSource.prototype.dispose = function () {
+        this._isolateModule.reset();
+    };
+    return MainDOMSource;
+}();
+exports.MainDOMSource = MainDOMSource;
+
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./ElementFinder":1,"./EventDelegator":2,"./fromEvent":7,"./isolate":11,"./utils":18,"@cycle/xstream-adapter":61,"matches-selector":39}],5:[function(require,module,exports){
 "use strict";
 
 var ScopeChecker = function () {
@@ -368,7 +360,7 @@ var VNodeWrapper = function () {
 exports.VNodeWrapper = VNodeWrapper;
 
 
-},{"./hyperscript":9,"snabbdom-selector/lib/classNameFromVNode":41,"snabbdom-selector/lib/selectorParser":42}],7:[function(require,module,exports){
+},{"./hyperscript":9,"snabbdom-selector/lib/classNameFromVNode":40,"snabbdom-selector/lib/selectorParser":41}],7:[function(require,module,exports){
 (function (global){
 "use strict";
 
@@ -502,229 +494,124 @@ exports.h = h;
 ;
 
 
-},{"snabbdom/is":52,"snabbdom/vnode":61}],10:[function(require,module,exports){
+},{"snabbdom/is":51,"snabbdom/vnode":60}],10:[function(require,module,exports){
 "use strict";
 
 var thunk = require('snabbdom/thunk');
 exports.thunk = thunk;
 var makeDOMDriver_1 = require('./makeDOMDriver');
 exports.makeDOMDriver = makeDOMDriver_1.makeDOMDriver;
-var DOMSource_1 = require('./DOMSource');
-exports.DOMSource = DOMSource_1.DOMSource;
-var mockDOMSource_1 = require('./mockDOMSource');
-exports.mockDOMSource = mockDOMSource_1.mockDOMSource;
 var makeHTMLDriver_1 = require('./makeHTMLDriver');
 exports.makeHTMLDriver = makeHTMLDriver_1.makeHTMLDriver;
-var HTMLSource_1 = require('./HTMLSource');
-exports.HTMLSource = HTMLSource_1.HTMLSource;
+var mockDOMSource_1 = require('./mockDOMSource');
+exports.mockDOMSource = mockDOMSource_1.mockDOMSource;
 var hyperscript_1 = require('./hyperscript');
 exports.h = hyperscript_1.h;
 var hyperscript_helpers_1 = require('./hyperscript-helpers');
-var svg = hyperscript_helpers_1.default.svg;
-exports.svg = svg;
-var a = hyperscript_helpers_1.default.a;
-exports.a = a;
-var abbr = hyperscript_helpers_1.default.abbr;
-exports.abbr = abbr;
-var address = hyperscript_helpers_1.default.address;
-exports.address = address;
-var area = hyperscript_helpers_1.default.area;
-exports.area = area;
-var article = hyperscript_helpers_1.default.article;
-exports.article = article;
-var aside = hyperscript_helpers_1.default.aside;
-exports.aside = aside;
-var audio = hyperscript_helpers_1.default.audio;
-exports.audio = audio;
-var b = hyperscript_helpers_1.default.b;
-exports.b = b;
-var base = hyperscript_helpers_1.default.base;
-exports.base = base;
-var bdi = hyperscript_helpers_1.default.bdi;
-exports.bdi = bdi;
-var bdo = hyperscript_helpers_1.default.bdo;
-exports.bdo = bdo;
-var blockquote = hyperscript_helpers_1.default.blockquote;
-exports.blockquote = blockquote;
-var body = hyperscript_helpers_1.default.body;
-exports.body = body;
-var br = hyperscript_helpers_1.default.br;
-exports.br = br;
-var button = hyperscript_helpers_1.default.button;
-exports.button = button;
-var canvas = hyperscript_helpers_1.default.canvas;
-exports.canvas = canvas;
-var caption = hyperscript_helpers_1.default.caption;
-exports.caption = caption;
-var cite = hyperscript_helpers_1.default.cite;
-exports.cite = cite;
-var code = hyperscript_helpers_1.default.code;
-exports.code = code;
-var col = hyperscript_helpers_1.default.col;
-exports.col = col;
-var colgroup = hyperscript_helpers_1.default.colgroup;
-exports.colgroup = colgroup;
-var dd = hyperscript_helpers_1.default.dd;
-exports.dd = dd;
-var del = hyperscript_helpers_1.default.del;
-exports.del = del;
-var dfn = hyperscript_helpers_1.default.dfn;
-exports.dfn = dfn;
-var dir = hyperscript_helpers_1.default.dir;
-exports.dir = dir;
-var div = hyperscript_helpers_1.default.div;
-exports.div = div;
-var dl = hyperscript_helpers_1.default.dl;
-exports.dl = dl;
-var dt = hyperscript_helpers_1.default.dt;
-exports.dt = dt;
-var em = hyperscript_helpers_1.default.em;
-exports.em = em;
-var embed = hyperscript_helpers_1.default.embed;
-exports.embed = embed;
-var fieldset = hyperscript_helpers_1.default.fieldset;
-exports.fieldset = fieldset;
-var figcaption = hyperscript_helpers_1.default.figcaption;
-exports.figcaption = figcaption;
-var figure = hyperscript_helpers_1.default.figure;
-exports.figure = figure;
-var footer = hyperscript_helpers_1.default.footer;
-exports.footer = footer;
-var form = hyperscript_helpers_1.default.form;
-exports.form = form;
-var h1 = hyperscript_helpers_1.default.h1;
-exports.h1 = h1;
-var h2 = hyperscript_helpers_1.default.h2;
-exports.h2 = h2;
-var h3 = hyperscript_helpers_1.default.h3;
-exports.h3 = h3;
-var h4 = hyperscript_helpers_1.default.h4;
-exports.h4 = h4;
-var h5 = hyperscript_helpers_1.default.h5;
-exports.h5 = h5;
-var h6 = hyperscript_helpers_1.default.h6;
-exports.h6 = h6;
-var head = hyperscript_helpers_1.default.head;
-exports.head = head;
-var header = hyperscript_helpers_1.default.header;
-exports.header = header;
-var hgroup = hyperscript_helpers_1.default.hgroup;
-exports.hgroup = hgroup;
-var hr = hyperscript_helpers_1.default.hr;
-exports.hr = hr;
-var html = hyperscript_helpers_1.default.html;
-exports.html = html;
-var i = hyperscript_helpers_1.default.i;
-exports.i = i;
-var iframe = hyperscript_helpers_1.default.iframe;
-exports.iframe = iframe;
-var img = hyperscript_helpers_1.default.img;
-exports.img = img;
-var input = hyperscript_helpers_1.default.input;
-exports.input = input;
-var ins = hyperscript_helpers_1.default.ins;
-exports.ins = ins;
-var kbd = hyperscript_helpers_1.default.kbd;
-exports.kbd = kbd;
-var keygen = hyperscript_helpers_1.default.keygen;
-exports.keygen = keygen;
-var label = hyperscript_helpers_1.default.label;
-exports.label = label;
-var legend = hyperscript_helpers_1.default.legend;
-exports.legend = legend;
-var li = hyperscript_helpers_1.default.li;
-exports.li = li;
-var link = hyperscript_helpers_1.default.link;
-exports.link = link;
-var main = hyperscript_helpers_1.default.main;
-exports.main = main;
-var map = hyperscript_helpers_1.default.map;
-exports.map = map;
-var mark = hyperscript_helpers_1.default.mark;
-exports.mark = mark;
-var menu = hyperscript_helpers_1.default.menu;
-exports.menu = menu;
-var meta = hyperscript_helpers_1.default.meta;
-exports.meta = meta;
-var nav = hyperscript_helpers_1.default.nav;
-exports.nav = nav;
-var noscript = hyperscript_helpers_1.default.noscript;
-exports.noscript = noscript;
-var object = hyperscript_helpers_1.default.object;
-exports.object = object;
-var ol = hyperscript_helpers_1.default.ol;
-exports.ol = ol;
-var optgroup = hyperscript_helpers_1.default.optgroup;
-exports.optgroup = optgroup;
-var option = hyperscript_helpers_1.default.option;
-exports.option = option;
-var p = hyperscript_helpers_1.default.p;
-exports.p = p;
-var param = hyperscript_helpers_1.default.param;
-exports.param = param;
-var pre = hyperscript_helpers_1.default.pre;
-exports.pre = pre;
-var progress = hyperscript_helpers_1.default.progress;
-exports.progress = progress;
-var q = hyperscript_helpers_1.default.q;
-exports.q = q;
-var rp = hyperscript_helpers_1.default.rp;
-exports.rp = rp;
-var rt = hyperscript_helpers_1.default.rt;
-exports.rt = rt;
-var ruby = hyperscript_helpers_1.default.ruby;
-exports.ruby = ruby;
-var s = hyperscript_helpers_1.default.s;
-exports.s = s;
-var samp = hyperscript_helpers_1.default.samp;
-exports.samp = samp;
-var script = hyperscript_helpers_1.default.script;
-exports.script = script;
-var section = hyperscript_helpers_1.default.section;
-exports.section = section;
-var select = hyperscript_helpers_1.default.select;
-exports.select = select;
-var small = hyperscript_helpers_1.default.small;
-exports.small = small;
-var source = hyperscript_helpers_1.default.source;
-exports.source = source;
-var span = hyperscript_helpers_1.default.span;
-exports.span = span;
-var strong = hyperscript_helpers_1.default.strong;
-exports.strong = strong;
-var style = hyperscript_helpers_1.default.style;
-exports.style = style;
-var sub = hyperscript_helpers_1.default.sub;
-exports.sub = sub;
-var sup = hyperscript_helpers_1.default.sup;
-exports.sup = sup;
-var table = hyperscript_helpers_1.default.table;
-exports.table = table;
-var tbody = hyperscript_helpers_1.default.tbody;
-exports.tbody = tbody;
-var td = hyperscript_helpers_1.default.td;
-exports.td = td;
-var textarea = hyperscript_helpers_1.default.textarea;
-exports.textarea = textarea;
-var tfoot = hyperscript_helpers_1.default.tfoot;
-exports.tfoot = tfoot;
-var th = hyperscript_helpers_1.default.th;
-exports.th = th;
-var thead = hyperscript_helpers_1.default.thead;
-exports.thead = thead;
-var title = hyperscript_helpers_1.default.title;
-exports.title = title;
-var tr = hyperscript_helpers_1.default.tr;
-exports.tr = tr;
-var u = hyperscript_helpers_1.default.u;
-exports.u = u;
-var ul = hyperscript_helpers_1.default.ul;
-exports.ul = ul;
-var video = hyperscript_helpers_1.default.video;
-exports.video = video;
+exports.svg = hyperscript_helpers_1.default.svg;
+exports.a = hyperscript_helpers_1.default.a;
+exports.abbr = hyperscript_helpers_1.default.abbr;
+exports.address = hyperscript_helpers_1.default.address;
+exports.area = hyperscript_helpers_1.default.area;
+exports.article = hyperscript_helpers_1.default.article;
+exports.aside = hyperscript_helpers_1.default.aside;
+exports.audio = hyperscript_helpers_1.default.audio;
+exports.b = hyperscript_helpers_1.default.b;
+exports.base = hyperscript_helpers_1.default.base;
+exports.bdi = hyperscript_helpers_1.default.bdi;
+exports.bdo = hyperscript_helpers_1.default.bdo;
+exports.blockquote = hyperscript_helpers_1.default.blockquote;
+exports.body = hyperscript_helpers_1.default.body;
+exports.br = hyperscript_helpers_1.default.br;
+exports.button = hyperscript_helpers_1.default.button;
+exports.canvas = hyperscript_helpers_1.default.canvas;
+exports.caption = hyperscript_helpers_1.default.caption;
+exports.cite = hyperscript_helpers_1.default.cite;
+exports.code = hyperscript_helpers_1.default.code;
+exports.col = hyperscript_helpers_1.default.col;
+exports.colgroup = hyperscript_helpers_1.default.colgroup;
+exports.dd = hyperscript_helpers_1.default.dd;
+exports.del = hyperscript_helpers_1.default.del;
+exports.dfn = hyperscript_helpers_1.default.dfn;
+exports.dir = hyperscript_helpers_1.default.dir;
+exports.div = hyperscript_helpers_1.default.div;
+exports.dl = hyperscript_helpers_1.default.dl;
+exports.dt = hyperscript_helpers_1.default.dt;
+exports.em = hyperscript_helpers_1.default.em;
+exports.embed = hyperscript_helpers_1.default.embed;
+exports.fieldset = hyperscript_helpers_1.default.fieldset;
+exports.figcaption = hyperscript_helpers_1.default.figcaption;
+exports.figure = hyperscript_helpers_1.default.figure;
+exports.footer = hyperscript_helpers_1.default.footer;
+exports.form = hyperscript_helpers_1.default.form;
+exports.h1 = hyperscript_helpers_1.default.h1;
+exports.h2 = hyperscript_helpers_1.default.h2;
+exports.h3 = hyperscript_helpers_1.default.h3;
+exports.h4 = hyperscript_helpers_1.default.h4;
+exports.h5 = hyperscript_helpers_1.default.h5;
+exports.h6 = hyperscript_helpers_1.default.h6;
+exports.head = hyperscript_helpers_1.default.head;
+exports.header = hyperscript_helpers_1.default.header;
+exports.hgroup = hyperscript_helpers_1.default.hgroup;
+exports.hr = hyperscript_helpers_1.default.hr;
+exports.html = hyperscript_helpers_1.default.html;
+exports.i = hyperscript_helpers_1.default.i;
+exports.iframe = hyperscript_helpers_1.default.iframe;
+exports.img = hyperscript_helpers_1.default.img;
+exports.input = hyperscript_helpers_1.default.input;
+exports.ins = hyperscript_helpers_1.default.ins;
+exports.kbd = hyperscript_helpers_1.default.kbd;
+exports.keygen = hyperscript_helpers_1.default.keygen;
+exports.label = hyperscript_helpers_1.default.label;
+exports.legend = hyperscript_helpers_1.default.legend;
+exports.li = hyperscript_helpers_1.default.li;
+exports.link = hyperscript_helpers_1.default.link;
+exports.main = hyperscript_helpers_1.default.main;
+exports.map = hyperscript_helpers_1.default.map;
+exports.mark = hyperscript_helpers_1.default.mark;
+exports.menu = hyperscript_helpers_1.default.menu;
+exports.meta = hyperscript_helpers_1.default.meta;
+exports.nav = hyperscript_helpers_1.default.nav;
+exports.noscript = hyperscript_helpers_1.default.noscript;
+exports.object = hyperscript_helpers_1.default.object;
+exports.ol = hyperscript_helpers_1.default.ol;
+exports.optgroup = hyperscript_helpers_1.default.optgroup;
+exports.option = hyperscript_helpers_1.default.option;
+exports.p = hyperscript_helpers_1.default.p;
+exports.param = hyperscript_helpers_1.default.param;
+exports.pre = hyperscript_helpers_1.default.pre;
+exports.progress = hyperscript_helpers_1.default.progress;
+exports.q = hyperscript_helpers_1.default.q;
+exports.rp = hyperscript_helpers_1.default.rp;
+exports.rt = hyperscript_helpers_1.default.rt;
+exports.ruby = hyperscript_helpers_1.default.ruby;
+exports.s = hyperscript_helpers_1.default.s;
+exports.samp = hyperscript_helpers_1.default.samp;
+exports.script = hyperscript_helpers_1.default.script;
+exports.section = hyperscript_helpers_1.default.section;
+exports.select = hyperscript_helpers_1.default.select;
+exports.small = hyperscript_helpers_1.default.small;
+exports.source = hyperscript_helpers_1.default.source;
+exports.span = hyperscript_helpers_1.default.span;
+exports.strong = hyperscript_helpers_1.default.strong;
+exports.style = hyperscript_helpers_1.default.style;
+exports.sub = hyperscript_helpers_1.default.sub;
+exports.sup = hyperscript_helpers_1.default.sup;
+exports.table = hyperscript_helpers_1.default.table;
+exports.tbody = hyperscript_helpers_1.default.tbody;
+exports.td = hyperscript_helpers_1.default.td;
+exports.textarea = hyperscript_helpers_1.default.textarea;
+exports.tfoot = hyperscript_helpers_1.default.tfoot;
+exports.th = hyperscript_helpers_1.default.th;
+exports.thead = hyperscript_helpers_1.default.thead;
+exports.title = hyperscript_helpers_1.default.title;
+exports.tr = hyperscript_helpers_1.default.tr;
+exports.u = hyperscript_helpers_1.default.u;
+exports.ul = hyperscript_helpers_1.default.ul;
+exports.video = hyperscript_helpers_1.default.video;
 
 
-},{"./DOMSource":1,"./HTMLSource":4,"./hyperscript":9,"./hyperscript-helpers":8,"./makeDOMDriver":13,"./makeHTMLDriver":14,"./mockDOMSource":15,"snabbdom/thunk":60}],11:[function(require,module,exports){
+},{"./hyperscript":9,"./hyperscript-helpers":8,"./makeDOMDriver":13,"./makeHTMLDriver":14,"./mockDOMSource":15,"snabbdom/thunk":59}],11:[function(require,module,exports){
 "use strict";
 
 var utils_1 = require('./utils');
@@ -868,7 +755,7 @@ exports.IsolateModule = IsolateModule;
 
 var snabbdom_1 = require('snabbdom');
 var xstream_1 = (typeof window !== "undefined" ? window['xstream'] : typeof global !== "undefined" ? global['xstream'] : null);
-var DOMSource_1 = require('./DOMSource');
+var MainDOMSource_1 = require('./MainDOMSource');
 var VNodeWrapper_1 = require('./VNodeWrapper');
 var utils_1 = require('./utils');
 var modules_1 = require('./modules');
@@ -912,7 +799,7 @@ function makeDOMDriver(container, options) {
         /* tslint:disable:no-empty */
         rootElement$.addListener({ next: function next() {}, error: function error() {}, complete: function complete() {} });
         /* tslint:enable:no-empty */
-        return new DOMSource_1.DOMSource(rootElement$, runStreamAdapter, [], isolateModule, delegators);
+        return new MainDOMSource_1.MainDOMSource(rootElement$, runStreamAdapter, [], isolateModule, delegators);
     }
     ;
     DOMDriver.streamAdapter = xstream_adapter_1.default;
@@ -922,7 +809,7 @@ exports.makeDOMDriver = makeDOMDriver;
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./DOMSource":1,"./VNodeWrapper":6,"./isolateModule":12,"./modules":16,"./transposition":17,"./utils":18,"@cycle/xstream-adapter":19,"snabbdom":59}],14:[function(require,module,exports){
+},{"./MainDOMSource":4,"./VNodeWrapper":6,"./isolateModule":12,"./modules":16,"./transposition":17,"./utils":18,"@cycle/xstream-adapter":61,"snabbdom":58}],14:[function(require,module,exports){
 "use strict";
 
 var xstream_adapter_1 = require('@cycle/xstream-adapter');
@@ -955,21 +842,26 @@ function makeHTMLDriver(effect, options) {
 exports.makeHTMLDriver = makeHTMLDriver;
 
 
-},{"./HTMLSource":4,"./transposition":17,"@cycle/xstream-adapter":19,"snabbdom-to-html":44}],15:[function(require,module,exports){
+},{"./HTMLSource":3,"./transposition":17,"@cycle/xstream-adapter":61,"snabbdom-to-html":43}],15:[function(require,module,exports){
 (function (global){
 "use strict";
 
+var xstream_adapter_1 = require('@cycle/xstream-adapter');
 var xstream_1 = (typeof window !== "undefined" ? window['xstream'] : typeof global !== "undefined" ? global['xstream'] : null);
 var MockedDOMSource = function () {
-    function MockedDOMSource(_mockConfig) {
+    function MockedDOMSource(_streamAdapter, _mockConfig) {
+        this._streamAdapter = _streamAdapter;
         this._mockConfig = _mockConfig;
-        if (_mockConfig['elements']) {
-            this.elements = _mockConfig['elements'];
+        if (_mockConfig.elements) {
+            this._elements = _mockConfig.elements;
         } else {
-            this.elements = xstream_1.default.empty();
+            this._elements = _streamAdapter.adapt(xstream_1.default.empty(), xstream_adapter_1.default.streamSubscribe);
         }
     }
-    MockedDOMSource.prototype.events = function (eventType) {
+    MockedDOMSource.prototype.elements = function () {
+        return this._elements;
+    };
+    MockedDOMSource.prototype.events = function (eventType, options) {
         var mockConfig = this._mockConfig;
         var keys = Object.keys(mockConfig);
         var keysLen = keys.length;
@@ -979,7 +871,7 @@ var MockedDOMSource = function () {
                 return mockConfig[key];
             }
         }
-        return xstream_1.default.empty();
+        return this._streamAdapter.adapt(xstream_1.default.empty(), xstream_adapter_1.default.streamSubscribe);
     };
     MockedDOMSource.prototype.select = function (selector) {
         var mockConfig = this._mockConfig;
@@ -988,22 +880,22 @@ var MockedDOMSource = function () {
         for (var i = 0; i < keysLen; i++) {
             var key = keys[i];
             if (key === selector) {
-                return new MockedDOMSource(mockConfig[key]);
+                return new MockedDOMSource(this._streamAdapter, mockConfig[key]);
             }
         }
-        return new MockedDOMSource({});
+        return new MockedDOMSource(this._streamAdapter, {});
     };
     return MockedDOMSource;
 }();
 exports.MockedDOMSource = MockedDOMSource;
-function mockDOMSource(mockConfig) {
-    return new MockedDOMSource(mockConfig);
+function mockDOMSource(streamAdapter, mockConfig) {
+    return new MockedDOMSource(streamAdapter, mockConfig);
 }
 exports.mockDOMSource = mockDOMSource;
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],16:[function(require,module,exports){
+},{"@cycle/xstream-adapter":61}],16:[function(require,module,exports){
 "use strict";
 
 var ClassModule = require('snabbdom/modules/class');
@@ -1022,7 +914,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = [StyleModule, ClassModule, PropsModule, AttrsModule];
 
 
-},{"snabbdom/modules/attributes":53,"snabbdom/modules/class":54,"snabbdom/modules/eventlisteners":55,"snabbdom/modules/hero":56,"snabbdom/modules/props":57,"snabbdom/modules/style":58}],17:[function(require,module,exports){
+},{"snabbdom/modules/attributes":52,"snabbdom/modules/class":53,"snabbdom/modules/eventlisteners":54,"snabbdom/modules/hero":55,"snabbdom/modules/props":56,"snabbdom/modules/style":57}],17:[function(require,module,exports){
 (function (global){
 "use strict";
 
@@ -1072,7 +964,7 @@ exports.makeTransposeVNode = makeTransposeVNode;
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"@cycle/xstream-adapter":19}],18:[function(require,module,exports){
+},{"@cycle/xstream-adapter":61}],18:[function(require,module,exports){
 "use strict";
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -1107,75 +999,6 @@ exports.getSelectors = getSelectors;
 
 
 },{}],19:[function(require,module,exports){
-"use strict";
-var xstream_1 = require('xstream');
-function logToConsoleError(err) {
-    var target = err.stack || err;
-    if (console && console.error) {
-        console.error(target);
-    }
-    else if (console && console.log) {
-        console.log(target);
-    }
-}
-var XStreamAdapter = {
-    adapt: function (originStream, originStreamSubscribe) {
-        if (XStreamAdapter.isValidStream(originStream)) {
-            return originStream;
-        }
-        ;
-        var dispose = null;
-        return xstream_1.default.create({
-            start: function (out) {
-                var observer = {
-                    next: function (value) { return out.shamefullySendNext(value); },
-                    error: function (err) { return out.shamefullySendError(err); },
-                    complete: function () { return out.shamefullySendComplete(); },
-                };
-                dispose = originStreamSubscribe(originStream, observer);
-            },
-            stop: function () {
-                if (typeof dispose === 'function') {
-                    dispose();
-                }
-            }
-        });
-    },
-    dispose: function (sinks, sinkProxies, sources) {
-        Object.keys(sources).forEach(function (k) {
-            if (typeof sources[k].dispose === 'function') {
-                sources[k].dispose();
-            }
-        });
-        Object.keys(sinks).forEach(function (k) {
-            sinks[k].removeListener(sinkProxies[k].stream);
-        });
-    },
-    makeSubject: function () {
-        var stream = xstream_1.default.create();
-        var observer = {
-            next: function (x) { stream.shamefullySendNext(x); },
-            error: function (err) {
-                logToConsoleError(err);
-                stream.shamefullySendError(err);
-            },
-            complete: function () { stream.shamefullySendComplete(); }
-        };
-        return { observer: observer, stream: stream };
-    },
-    isValidStream: function (stream) {
-        return (typeof stream.addListener === 'function' &&
-            typeof stream.shamefullySendNext === 'function');
-    },
-    streamSubscribe: function (stream, observer) {
-        stream.addListener(observer);
-        return function () { return stream.removeListener(observer); };
-    }
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = XStreamAdapter;
-
-},{"xstream":undefined}],20:[function(require,module,exports){
 /*!
  * Cross-Browser Split 1.1.1
  * Copyright 2007-2012 Steven Levithan <stevenlevithan.com>
@@ -1283,7 +1106,7 @@ module.exports = (function split(undef) {
   return self;
 })();
 
-},{}],21:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 /**
  * lodash 3.1.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1416,7 +1239,7 @@ function isLength(value) {
 
 module.exports = baseFlatten;
 
-},{"lodash.isarguments":33,"lodash.isarray":34}],22:[function(require,module,exports){
+},{"lodash.isarguments":32,"lodash.isarray":33}],21:[function(require,module,exports){
 /**
  * lodash 3.0.3 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -1466,7 +1289,7 @@ function createBaseFor(fromRight) {
 
 module.exports = baseFor;
 
-},{}],23:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 /**
  * lodash 3.1.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1525,7 +1348,7 @@ function indexOfNaN(array, fromIndex, fromRight) {
 
 module.exports = baseIndexOf;
 
-},{}],24:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 /**
  * lodash 3.0.3 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1595,7 +1418,7 @@ function baseUniq(array, iteratee) {
 
 module.exports = baseUniq;
 
-},{"lodash._baseindexof":23,"lodash._cacheindexof":26,"lodash._createcache":27}],25:[function(require,module,exports){
+},{"lodash._baseindexof":22,"lodash._cacheindexof":25,"lodash._createcache":26}],24:[function(require,module,exports){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1662,7 +1485,7 @@ function identity(value) {
 
 module.exports = bindCallback;
 
-},{}],26:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1717,7 +1540,7 @@ function isObject(value) {
 
 module.exports = cacheIndexOf;
 
-},{}],27:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 (function (global){
 /**
  * lodash 3.1.2 (Custom Build) <https://lodash.com/>
@@ -1812,7 +1635,7 @@ SetCache.prototype.push = cachePush;
 module.exports = createCache;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"lodash._getnative":28}],28:[function(require,module,exports){
+},{"lodash._getnative":27}],27:[function(require,module,exports){
 /**
  * lodash 3.9.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1951,7 +1774,7 @@ function isNative(value) {
 
 module.exports = getNative;
 
-},{}],29:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 (function (global){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
@@ -2014,7 +1837,7 @@ function checkGlobal(value) {
 module.exports = root;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],30:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 /**
  * lodash 3.2.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -2199,7 +2022,7 @@ function deburr(string) {
 
 module.exports = deburr;
 
-},{"lodash._root":29}],31:[function(require,module,exports){
+},{"lodash._root":28}],30:[function(require,module,exports){
 /**
  * lodash 3.2.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -2381,7 +2204,7 @@ function escape(string) {
 
 module.exports = escape;
 
-},{"lodash._root":29}],32:[function(require,module,exports){
+},{"lodash._root":28}],31:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -2454,7 +2277,7 @@ var forOwn = createForOwn(baseForOwn);
 
 module.exports = forOwn;
 
-},{"lodash._basefor":22,"lodash._bindcallback":25,"lodash.keys":36}],33:[function(require,module,exports){
+},{"lodash._basefor":21,"lodash._bindcallback":24,"lodash.keys":35}],32:[function(require,module,exports){
 /**
  * lodash 3.0.8 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -2699,7 +2522,7 @@ function isObjectLike(value) {
 
 module.exports = isArguments;
 
-},{}],34:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 /**
  * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -2881,7 +2704,7 @@ function isNative(value) {
 
 module.exports = isArray;
 
-},{}],35:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 /**
  * lodash 3.1.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -2955,7 +2778,7 @@ var kebabCase = createCompounder(function(result, word, index) {
 
 module.exports = kebabCase;
 
-},{"lodash.deburr":30,"lodash.words":39}],36:[function(require,module,exports){
+},{"lodash.deburr":29,"lodash.words":38}],35:[function(require,module,exports){
 /**
  * lodash 3.1.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -3193,7 +3016,7 @@ function keysIn(object) {
 
 module.exports = keys;
 
-},{"lodash._getnative":28,"lodash.isarguments":33,"lodash.isarray":34}],37:[function(require,module,exports){
+},{"lodash._getnative":27,"lodash.isarguments":32,"lodash.isarray":33}],36:[function(require,module,exports){
 /**
  * lodash 3.6.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -3262,7 +3085,7 @@ function restParam(func, start) {
 
 module.exports = restParam;
 
-},{}],38:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 /**
  * lodash 3.1.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -3299,7 +3122,7 @@ var union = restParam(function(arrays) {
 
 module.exports = union;
 
-},{"lodash._baseflatten":21,"lodash._baseuniq":24,"lodash.restparam":37}],39:[function(require,module,exports){
+},{"lodash._baseflatten":20,"lodash._baseuniq":23,"lodash.restparam":36}],38:[function(require,module,exports){
 /**
  * lodash 3.2.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -3499,7 +3322,7 @@ function words(string, pattern, guard) {
 
 module.exports = words;
 
-},{"lodash._root":29}],40:[function(require,module,exports){
+},{"lodash._root":28}],39:[function(require,module,exports){
 'use strict';
 
 var proto = Element.prototype;
@@ -3529,7 +3352,7 @@ function match(el, selector) {
   }
   return false;
 }
-},{}],41:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3569,7 +3392,7 @@ function classNameFromVNode(vNode) {
 
   return cn.trim();
 }
-},{"./selectorParser":42}],42:[function(require,module,exports){
+},{"./selectorParser":41}],41:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3627,7 +3450,7 @@ function selectorParser() {
     className: classes.join(' ')
   };
 }
-},{"browser-split":20}],43:[function(require,module,exports){
+},{"browser-split":19}],42:[function(require,module,exports){
 
 // All SVG children elements, not in this list, should self-close
 
@@ -3650,12 +3473,12 @@ module.exports = {
   'metadata': true,
   'title': true
 };
-},{}],44:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 
 var init = require('./init');
 
 module.exports = init([require('./modules/attributes'), require('./modules/style')]);
-},{"./init":45,"./modules/attributes":46,"./modules/style":47}],45:[function(require,module,exports){
+},{"./init":44,"./modules/attributes":45,"./modules/style":46}],44:[function(require,module,exports){
 
 var parseSelector = require('./parse-selector');
 var VOID_ELEMENTS = require('./void-elements');
@@ -3715,7 +3538,7 @@ module.exports = function init(modules) {
     return tag.join('');
   };
 };
-},{"./container-elements":43,"./parse-selector":48,"./void-elements":49}],46:[function(require,module,exports){
+},{"./container-elements":42,"./parse-selector":47,"./void-elements":48}],45:[function(require,module,exports){
 
 var forOwn = require('lodash.forown');
 var escape = require('lodash.escape');
@@ -3780,7 +3603,7 @@ function setAttributes(values, target) {
     target[key] = value;
   });
 }
-},{"../parse-selector":48,"lodash.escape":31,"lodash.forown":32,"lodash.union":38}],47:[function(require,module,exports){
+},{"../parse-selector":47,"lodash.escape":30,"lodash.forown":31,"lodash.union":37}],46:[function(require,module,exports){
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var forOwn = require('lodash.forown');
@@ -3807,7 +3630,7 @@ module.exports = function style(vnode) {
 
   return styles.length ? 'style="' + styles.join('; ') + '"' : '';
 };
-},{"lodash.escape":31,"lodash.forown":32,"lodash.kebabcase":35}],48:[function(require,module,exports){
+},{"lodash.escape":30,"lodash.forown":31,"lodash.kebabcase":34}],47:[function(require,module,exports){
 
 // https://github.com/Matt-Esch/virtual-dom/blob/master/virtual-hyperscript/parse-tag.js
 
@@ -3854,7 +3677,7 @@ module.exports = function parseSelector(selector, upper) {
     className: classes.join(' ')
   };
 };
-},{"browser-split":20}],49:[function(require,module,exports){
+},{"browser-split":19}],48:[function(require,module,exports){
 
 // http://www.w3.org/html/wg/drafts/html/master/syntax.html#void-elements
 
@@ -3875,7 +3698,7 @@ module.exports = {
   track: true,
   wbr: true
 };
-},{}],50:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 var VNode = require('./vnode');
 var is = require('./is');
 
@@ -3910,7 +3733,7 @@ module.exports = function h(sel, b, c) {
   return VNode(sel, data, children, text, undefined);
 };
 
-},{"./is":52,"./vnode":61}],51:[function(require,module,exports){
+},{"./is":51,"./vnode":60}],50:[function(require,module,exports){
 function createElement(tagName){
   return document.createElement(tagName);
 }
@@ -3966,13 +3789,13 @@ module.exports = {
   setTextContent: setTextContent
 };
 
-},{}],52:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 module.exports = {
   array: Array.isArray,
   primitive: function(s) { return typeof s === 'string' || typeof s === 'number'; },
 };
 
-},{}],53:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 var booleanAttrs = ["allowfullscreen", "async", "autofocus", "autoplay", "checked", "compact", "controls", "declare", 
                 "default", "defaultchecked", "defaultmuted", "defaultselected", "defer", "disabled", "draggable", 
                 "enabled", "formnovalidate", "hidden", "indeterminate", "inert", "ismap", "itemscope", "loop", "multiple", 
@@ -4013,7 +3836,7 @@ function updateAttrs(oldVnode, vnode) {
 
 module.exports = {create: updateAttrs, update: updateAttrs};
 
-},{}],54:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 function updateClass(oldVnode, vnode) {
   var cur, name, elm = vnode.elm,
       oldClass = oldVnode.data.class || {},
@@ -4033,7 +3856,7 @@ function updateClass(oldVnode, vnode) {
 
 module.exports = {create: updateClass, update: updateClass};
 
-},{}],55:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 var is = require('../is');
 
 function arrInvoker(arr) {
@@ -4076,7 +3899,7 @@ function updateEventListeners(oldVnode, vnode) {
 
 module.exports = {create: updateEventListeners, update: updateEventListeners};
 
-},{"../is":52}],56:[function(require,module,exports){
+},{"../is":51}],55:[function(require,module,exports){
 var raf = (typeof window !== 'undefined' && window.requestAnimationFrame) || setTimeout;
 var nextFrame = function(fn) { raf(function() { raf(fn); }); };
 
@@ -4230,7 +4053,7 @@ function post() {
 
 module.exports = {pre: pre, create: create, destroy: destroy, post: post};
 
-},{}],57:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 function updateProps(oldVnode, vnode) {
   var key, cur, old, elm = vnode.elm,
       oldProps = oldVnode.data.props || {}, props = vnode.data.props || {};
@@ -4250,7 +4073,7 @@ function updateProps(oldVnode, vnode) {
 
 module.exports = {create: updateProps, update: updateProps};
 
-},{}],58:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 var raf = (typeof window !== 'undefined' && window.requestAnimationFrame) || setTimeout;
 var nextFrame = function(fn) { raf(function() { raf(fn); }); };
 
@@ -4316,7 +4139,7 @@ function applyRemoveStyle(vnode, rm) {
 
 module.exports = {create: updateStyle, update: updateStyle, destroy: applyDestroyStyle, remove: applyRemoveStyle};
 
-},{}],59:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 // jshint newcap: false
 /* global require, module, document, Node */
 'use strict';
@@ -4585,7 +4408,7 @@ function init(modules, api) {
 
 module.exports = {init: init};
 
-},{"./htmldomapi.js":51,"./is":52,"./vnode":61}],60:[function(require,module,exports){
+},{"./htmldomapi.js":50,"./is":51,"./vnode":60}],59:[function(require,module,exports){
 var h = require('./h');
 
 function init(thunk) {
@@ -4620,12 +4443,74 @@ module.exports = function(name, fn /* args */) {
   });
 };
 
-},{"./h":50}],61:[function(require,module,exports){
+},{"./h":49}],60:[function(require,module,exports){
 module.exports = function(sel, data, children, text, elm) {
   var key = data === undefined ? undefined : data.key;
   return {sel: sel, data: data, children: children,
           text: text, elm: elm, key: key};
 };
 
-},{}]},{},[10])(10)
+},{}],61:[function(require,module,exports){
+"use strict";
+var xstream_1 = require('xstream');
+function logToConsoleError(err) {
+    var target = err.stack || err;
+    if (console && console.error) {
+        console.error(target);
+    }
+    else if (console && console.log) {
+        console.log(target);
+    }
+}
+var XStreamAdapter = {
+    adapt: function (originStream, originStreamSubscribe) {
+        if (XStreamAdapter.isValidStream(originStream)) {
+            return originStream;
+        }
+        ;
+        var dispose = null;
+        return xstream_1.default.create({
+            start: function (out) {
+                var observer = {
+                    next: function (value) { return out.shamefullySendNext(value); },
+                    error: function (err) { return out.shamefullySendError(err); },
+                    complete: function () { return out.shamefullySendComplete(); },
+                };
+                dispose = originStreamSubscribe(originStream, observer);
+            },
+            stop: function () {
+                if (typeof dispose === 'function') {
+                    dispose();
+                }
+            }
+        });
+    },
+    makeSubject: function () {
+        var stream = xstream_1.default.create();
+        var observer = {
+            next: function (x) { stream.shamefullySendNext(x); },
+            error: function (err) {
+                logToConsoleError(err);
+                stream.shamefullySendError(err);
+            },
+            complete: function () { stream.shamefullySendComplete(); }
+        };
+        return { observer: observer, stream: stream };
+    },
+    remember: function (stream) {
+        return stream.remember();
+    },
+    isValidStream: function (stream) {
+        return (typeof stream.addListener === 'function' &&
+            typeof stream.shamefullySendNext === 'function');
+    },
+    streamSubscribe: function (stream, observer) {
+        stream.addListener(observer);
+        return function () { return stream.removeListener(observer); };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = XStreamAdapter;
+
+},{"xstream":undefined}]},{},[10])(10)
 });
