@@ -1,6 +1,6 @@
 {
   "name": "@cycle/xstream-run",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "author": "Andre Staltz",
   "description": "The Cycle run() function to use with xstream",
   "license": "MIT",
