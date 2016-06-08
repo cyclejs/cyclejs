@@ -9,6 +9,14 @@ var _typeof = typeof Symbol === "function" && _typeof2(Symbol.iterator) === "sym
     return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof2(obj);
 };
 
+function logToConsoleError(err) {
+    var target = err.stack || err;
+    if (console && console.error) {
+        console.error(target);
+    } else if (console && console.log) {
+        console.log(target);
+    }
+}
 function makeSinkProxies(drivers, streamAdapter) {
     var sinkProxies = {};
     for (var name_1 in drivers) {
@@ -43,7 +51,18 @@ function replicateMany(sinks, sinkProxies, streamAdapter) {
     var results = Object.keys(sinks).filter(function (name) {
         return !!sinkProxies[name];
     }).map(function (name) {
-        return streamAdapter.streamSubscribe(sinks[name], sinkProxies[name].observer);
+        return streamAdapter.streamSubscribe(sinks[name], {
+            next: function next(x) {
+                sinkProxies[name].observer.next(x);
+            },
+            error: function error(err) {
+                logToConsoleError(err);
+                sinkProxies[name].observer.error(err);
+            },
+            complete: function complete(x) {
+                sinkProxies[name].observer.complete(x);
+            }
+        });
     });
     var disposeFunctions = results.filter(function (dispose) {
         return typeof dispose === 'function';
@@ -87,7 +106,6 @@ function Cycle(main, drivers, options) {
     var run = function run() {
         var disposeReplication = replicateMany(sinks, sinkProxies, streamAdapter);
         return function () {
-            streamAdapter.dispose(sinks, sinkProxies, sources);
             disposeSources(sources);
             disposeReplication();
         };
