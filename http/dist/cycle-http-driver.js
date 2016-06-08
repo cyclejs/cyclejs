@@ -2,8 +2,8 @@
 "use strict";
 var isolate_1 = require('./isolate');
 var xstream_adapter_1 = require('@cycle/xstream-adapter');
-var HTTPSource = (function () {
-    function HTTPSource(_res$$, runStreamAdapter, _namespace) {
+var MainHTTPSource = (function () {
+    function MainHTTPSource(_res$$, runStreamAdapter, _namespace) {
         if (_namespace === void 0) { _namespace = []; }
         this._res$$ = _res$$;
         this.runStreamAdapter = runStreamAdapter;
@@ -11,29 +11,32 @@ var HTTPSource = (function () {
         this.isolateSource = isolate_1.isolateSource;
         this.isolateSink = isolate_1.isolateSink;
     }
-    Object.defineProperty(HTTPSource.prototype, "response$$", {
+    Object.defineProperty(MainHTTPSource.prototype, "response$$", {
         get: function () {
             return this.runStreamAdapter.adapt(this._res$$, xstream_adapter_1.default.streamSubscribe);
         },
         enumerable: true,
         configurable: true
     });
-    HTTPSource.prototype.filter = function (predicate) {
+    MainHTTPSource.prototype.filter = function (predicate) {
         var filteredResponse$$ = this._res$$.filter(predicate);
-        return new HTTPSource(filteredResponse$$, this.runStreamAdapter, this._namespace);
+        return new MainHTTPSource(filteredResponse$$, this.runStreamAdapter, this._namespace);
     };
-    HTTPSource.prototype.select = function (category) {
-        var res$$ = this._res$$.filter(function (res$) { return res$.request && res$.request.category === category; });
+    MainHTTPSource.prototype.select = function (category) {
+        var res$$ = this._res$$;
+        if (category) {
+            res$$ = this._res$$.filter(function (res$) { return res$.request && res$.request.category === category; });
+        }
         return this.runStreamAdapter.adapt(res$$, xstream_adapter_1.default.streamSubscribe);
     };
-    return HTTPSource;
+    return MainHTTPSource;
 }());
-exports.HTTPSource = HTTPSource;
+exports.MainHTTPSource = MainHTTPSource;
 
 },{"./isolate":4,"@cycle/xstream-adapter":5}],2:[function(require,module,exports){
 "use strict";
 var xstream_1 = require('xstream');
-var HTTPSource_1 = require('./HTTPSource');
+var MainHTTPSource_1 = require('./MainHTTPSource');
 var xstream_adapter_1 = require('@cycle/xstream-adapter');
 var superagent = require('superagent');
 function preprocessReqOptions(reqOptions) {
@@ -213,7 +216,7 @@ function makeHTTPDriver() {
         var response$$ = request$
             .map(makeRequestInputToResponse$(runSA))
             .remember();
-        var httpSource = new HTTPSource_1.HTTPSource(response$$, runSA, []);
+        var httpSource = new MainHTTPSource_1.MainHTTPSource(response$$, runSA, []);
         /* tslint:disable:no-empty */
         response$$.addListener({ next: function () { }, error: function () { }, complete: function () { } });
         /* tslint:enable:no-empty */
@@ -224,14 +227,12 @@ function makeHTTPDriver() {
 }
 exports.makeHTTPDriver = makeHTTPDriver;
 
-},{"./HTTPSource":1,"@cycle/xstream-adapter":5,"superagent":8,"xstream":10}],3:[function(require,module,exports){
+},{"./MainHTTPSource":1,"@cycle/xstream-adapter":5,"superagent":8,"xstream":10}],3:[function(require,module,exports){
 "use strict";
 var http_driver_1 = require('./http-driver');
 exports.makeHTTPDriver = http_driver_1.makeHTTPDriver;
-var HTTPSource_1 = require('./HTTPSource');
-exports.HTTPSource = HTTPSource_1.HTTPSource;
 
-},{"./HTTPSource":1,"./http-driver":2}],4:[function(require,module,exports){
+},{"./http-driver":2}],4:[function(require,module,exports){
 "use strict";
 function isolateSource(httpSource, scope) {
     return httpSource.filter(function (res$) {
