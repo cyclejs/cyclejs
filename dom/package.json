@@ -41,7 +41,7 @@
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/base": "^3.0.0",
+    "@cycle/base": "^4.0.0",
     "@cycle/isolate": "^1.2.0",
     "@cycle/rxjs-run": "^2.0.0",
     "@cycle/rxjs-adapter": "^2.0.0",

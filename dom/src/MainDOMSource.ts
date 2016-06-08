@@ -76,20 +76,17 @@ export class MainDOMSource implements DOMSource {
   }
 
   elements(): any {
+    let output$: Stream<Element | Array<Element>>;
     if (this._namespace.length === 0) {
-      return this._runStreamAdapter.adapt(
-        this._rootElement$,
-        xsSA.streamSubscribe
-      );
+      output$ = this._rootElement$;
     } else {
       const elementFinder = new ElementFinder(
         this._namespace, this._isolateModule
       );
-      return this._runStreamAdapter.adapt(
-        this._rootElement$.map(el => elementFinder.call(el)),
-        xsSA.streamSubscribe
-      );
+      output$ = this._rootElement$.map(el => elementFinder.call(el));
     }
+    const runSA = this._runStreamAdapter;
+    return runSA.remember(runSA.adapt(output$, xsSA.streamSubscribe));
   }
 
   get namespace(): Array<string> {

@@ -106,6 +106,50 @@ describe('DOM Rendering', function () {
     dispose = run();
   });
 
+  it('should give elements as a value-over-time', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.of(h2('.value-over-time', 'Hello test'))
+          .merge(Rx.Observable.never())
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    let dispose;
+    let firstSubscriberRan = false;
+    let secondSubscriberRan = false;
+
+    const element$ = sources.DOM.select(':root').elements();
+
+    element$.skip(1).subscribe(function (root) {
+      assert.strictEqual(firstSubscriberRan, false);
+      firstSubscriberRan = true;
+      const header = root.querySelector('.value-over-time');
+      assert.notStrictEqual(header, null);
+      assert.notStrictEqual(typeof header, 'undefined');
+      assert.strictEqual(header.tagName, 'H2');
+    });
+
+    setTimeout(() => {
+      element$.subscribe(function (root) {
+        assert.strictEqual(secondSubscriberRan, false);
+        secondSubscriberRan = true;
+        const header = root.querySelector('.value-over-time');
+        assert.notStrictEqual(header, null);
+        assert.notStrictEqual(typeof header, 'undefined');
+        assert.strictEqual(header.tagName, 'H2');
+        setTimeout(() => {
+          dispose();
+          done();
+        });
+      });
+    }, 100);
+    dispose = run();
+  });
+
   it('should allow snabbdom Thunks in the VTree', function (done) {
     function renderThunk(greeting) {
       return h4('Constantly ' + greeting)
