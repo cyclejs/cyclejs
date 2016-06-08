@@ -3,7 +3,7 @@ import {Stream, MemoryStream} from 'xstream';
 export interface HTTPSource {
   response$$: Stream<MemoryStream<Response> & ResponseStream>;
   filter(predicate: (response$: ResponseStream & MemoryStream<Response>) => boolean): HTTPSource;
-  select(category: string): MemoryStream<Response> & ResponseStream;
+  select(category: string): Stream<MemoryStream<Response> & ResponseStream>;
 }
 
 // export interface DOMSource {
