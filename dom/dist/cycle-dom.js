@@ -213,14 +213,17 @@ var MainDOMSource = function () {
         this.isolateSink = isolate_1.isolateSink;
     }
     MainDOMSource.prototype.elements = function () {
+        var output$;
         if (this._namespace.length === 0) {
-            return this._runStreamAdapter.adapt(this._rootElement$, xstream_adapter_1.default.streamSubscribe);
+            output$ = this._rootElement$;
         } else {
             var elementFinder_1 = new ElementFinder_1.ElementFinder(this._namespace, this._isolateModule);
-            return this._runStreamAdapter.adapt(this._rootElement$.map(function (el) {
+            output$ = this._rootElement$.map(function (el) {
                 return elementFinder_1.call(el);
-            }), xstream_adapter_1.default.streamSubscribe);
+            });
         }
+        var runSA = this._runStreamAdapter;
+        return runSA.remember(runSA.adapt(output$, xstream_adapter_1.default.streamSubscribe));
     };
     Object.defineProperty(MainDOMSource.prototype, "namespace", {
         get: function get() {
@@ -4453,15 +4456,6 @@ module.exports = function(sel, data, children, text, elm) {
 },{}],61:[function(require,module,exports){
 "use strict";
 var xstream_1 = require('xstream');
-function logToConsoleError(err) {
-    var target = err.stack || err;
-    if (console && console.error) {
-        console.error(target);
-    }
-    else if (console && console.log) {
-        console.log(target);
-    }
-}
 var XStreamAdapter = {
     adapt: function (originStream, originStreamSubscribe) {
         if (XStreamAdapter.isValidStream(originStream)) {
@@ -4471,11 +4465,7 @@ var XStreamAdapter = {
         var dispose = null;
         return xstream_1.default.create({
             start: function (out) {
-                var observer = {
-                    next: function (value) { return out.shamefullySendNext(value); },
-                    error: function (err) { return out.shamefullySendError(err); },
-                    complete: function () { return out.shamefullySendComplete(); },
-                };
+                var observer = out;
                 dispose = originStreamSubscribe(originStream, observer);
             },
             stop: function () {
@@ -4489,10 +4479,7 @@ var XStreamAdapter = {
         var stream = xstream_1.default.create();
         var observer = {
             next: function (x) { stream.shamefullySendNext(x); },
-            error: function (err) {
-                logToConsoleError(err);
-                stream.shamefullySendError(err);
-            },
+            error: function (err) { stream.shamefullySendError(err); },
             complete: function () { stream.shamefullySendComplete(); }
         };
         return { observer: observer, stream: stream };
