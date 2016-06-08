@@ -136,10 +136,12 @@ describe('mockDOMSource', function () {
     })
   })
 
-  it('multiple .select()s should return empty observable if not defined', () => {
+  it('multiple .select()s should return some observable if not defined', () => {
     const DOM = mockDOMSource(RxJSAdapter, {})
-    const selector = DOM.select('.something').select('.other')
-    assert.strictEqual(selector.events('click') instanceof Observable, true)
-    assert.strictEqual(selector.elements() instanceof Observable, true)
+    const domSource = DOM.select('.something').select('.other')
+    assert.strictEqual(RxJSAdapter.isValidStream(domSource.events('click')), true,
+      'domSource.events(click) should be an Observable instance');
+    assert.strictEqual(RxJSAdapter.isValidStream(domSource.elements()), true,
+      'domSource.elements() should be an Observable instance');
   })
 });
