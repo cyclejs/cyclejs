@@ -1,12 +1,11 @@
 const thunk = require('snabbdom/thunk');
 export {thunk};
 export * from './interfaces';
+export {DOMSource, EventsFnOptions} from './DOMSource';
 export {makeDOMDriver, DOMDriverOptions} from './makeDOMDriver';
+export {makeHTMLDriver, HTMLDriverOptions} from './makeHTMLDriver';
+export {mockDOMSource, MockConfig} from './mockDOMSource';
 export {CycleDOMEvent} from './EventDelegator';
-export {DOMSource} from './DOMSource';
-export {mockDOMSource} from './mockDOMSource';
-export {makeHTMLDriver} from './makeHTMLDriver';
-export {HTMLSource, HTMLDriverOptions} from './HTMLSource';
 export {h} from './hyperscript';
 import hh, {HyperScriptHelperFn, SVGHelperFn} from './hyperscript-helpers';
 

@@ -62,7 +62,7 @@ describe('DOM Rendering', function () {
     });
 
     let dispose;
-    sources.DOM.select(':root').elements.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(function (root) {
       const selectEl = root.querySelector('.my-class');
       assert.notStrictEqual(selectEl, null);
       assert.notStrictEqual(typeof selectEl, 'undefined');
@@ -93,7 +93,7 @@ describe('DOM Rendering', function () {
     });
 
     let dispose;
-    sources.DOM.select(':root').elements.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(function (root) {
       const selectEl = root.querySelector('.my-class');
       assert.notStrictEqual(selectEl, null);
       assert.notStrictEqual(typeof selectEl, 'undefined');
@@ -129,7 +129,7 @@ describe('DOM Rendering', function () {
 
     let dispose;
     // Assert it
-    sources.DOM.select(':root').elements.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(function (root) {
       const selectEl = root.querySelector('h4');
       assert.notStrictEqual(selectEl, null);
       assert.notStrictEqual(typeof selectEl, 'undefined');
@@ -171,7 +171,7 @@ describe('DOM Rendering', function () {
 
     let dispose;
     // Assert it
-    sources.DOM.select(':root').elements.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(function (root) {
       assert.strictEqual(root.querySelector('div.parent').childNodes.length, 2);
       assert.strictEqual(root.querySelector('h4.child3').childNodes.length, 2);
       assert.strictEqual(root.querySelector('div.grandchild32').childNodes.length, 1);

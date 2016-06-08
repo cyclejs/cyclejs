@@ -35,7 +35,7 @@ describe('DOMSource.events()', function () {
       done();
     });
     // Make assertions
-    sources.DOM.select(':root').elements.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(function (root) {
       const myElement = root.querySelector('.myelementclass');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
@@ -131,7 +131,7 @@ describe('DOMSource.events()', function () {
       done();
     });
 
-    sources.DOM.select(':root').elements.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(function (root) {
       const myElement = root.querySelector('.myelementclass');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
@@ -163,7 +163,7 @@ describe('DOMSource.events()', function () {
       done();
     });
 
-    sources.DOM.select(':root').elements.skip(1).take(1)
+    sources.DOM.select(':root').elements().skip(1).take(1)
       .subscribe(function (root) {
         const myElement = root.querySelector('#myElementId');
         assert.notStrictEqual(myElement, null);
@@ -198,7 +198,7 @@ describe('DOMSource.events()', function () {
       done();
     });
 
-    sources.DOM.select(':root').elements.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(function (root) {
       const myElement = root.querySelector('.myelementclass');
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
@@ -237,7 +237,7 @@ describe('DOMSource.events()', function () {
       done();
     });
 
-    sources.DOM.select(':root').elements.skip(1).take(1)
+    sources.DOM.select(':root').elements().skip(1).take(1)
       .subscribe(function (root) {
         const wrongElement = root.querySelector('.bar');
         const correctElement = root.querySelector('.foo .bar');
@@ -285,7 +285,7 @@ describe('DOMSource.events()', function () {
         done();
       });
 
-    sources.DOM.select(':root').elements.skip(1).take(1)
+    sources.DOM.select(':root').elements().skip(1).take(1)
       .subscribe(function (root) {
         const firstElem = root.querySelector('.first');
         const secondElem = root.querySelector('.second');
@@ -325,7 +325,7 @@ describe('DOMSource.events()', function () {
       done();
     });
 
-    sources.DOM.select(':root').elements.skip(3).take(1)
+    sources.DOM.select(':root').elements().skip(3).take(1)
       .subscribe(function (root) {
         const myElement = root.querySelector('.blosh');
         assert.notStrictEqual(myElement, null);
@@ -369,7 +369,7 @@ describe('DOMSource.events()', function () {
       done();
     });
     // Make assertions
-    sources.DOM.select(':root').elements.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(function (root) {
       const child = root.querySelector('.child');
       assert.notStrictEqual(child, null);
       assert.notStrictEqual(typeof child, 'undefined');
@@ -404,7 +404,7 @@ describe('DOMSource.events()', function () {
       done();
     });
 
-    sources.DOM.select(':root').elements.skip(1).take(1).subscribe(root => {
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(root => {
       const form = root.querySelector('.form');
       setTimeout(() => form.reset());
     });
@@ -449,7 +449,7 @@ describe('DOMSource.events()', function () {
     sources.DOM.select('.clickable').events('click', {useCapture: false})
       .subscribe(assert.fail);
 
-    sources.DOM.select(':root').elements.skip(1).take(1).subscribe(root => {
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(root => {
       const clickable = root.querySelector('.clickable');
       setTimeout(() => click(clickable));
     });
@@ -482,7 +482,7 @@ describe('DOMSource.events()', function () {
         done();
       });
 
-    sources.DOM.select(':root').elements.skip(1).take(1).subscribe(root => {
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(root => {
       const correct = root.querySelector('.correct');
       const wrong = root.querySelector('.wrong');
       const dummy = root.querySelector('.dummy');
@@ -520,7 +520,7 @@ describe('DOMSource.events()', function () {
         done();
       });
 
-    sources.DOM.select(':root').elements.skip(1).take(1).subscribe(root => {
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(root => {
       const correct = root.querySelector('.correct');
       const wrong = root.querySelector('.wrong');
       const dummy = root.querySelector('.dummy');
@@ -558,7 +558,7 @@ describe('DOMSource.events()', function () {
       done();
     });
 
-    sources.DOM.select(':root').elements.skip(1).take(1).subscribe(root => {
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(root => {
       const form = root.querySelector('.form');
       setTimeout(() => form.reset());
     });

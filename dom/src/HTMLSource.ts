@@ -1,30 +1,27 @@
 import xs, {Stream} from 'xstream';
 import {StreamAdapter} from '@cycle/base';
-import XStreamAdapter from '@cycle/xstream-adapter';
+import {DOMSource, EventsFnOptions} from './DOMSource';
+import xsSA from '@cycle/xstream-adapter';
 
-export class HTMLSource {
+export class HTMLSource implements DOMSource {
   private _html$: any;
   private _empty$: any;
 
   constructor(html$: Stream<string>,
-              private runStreamAdapter: StreamAdapter) {
+              private runSA: StreamAdapter) {
     this._html$ = html$;
-    this._empty$ = runStreamAdapter.adapt(xs.empty(), XStreamAdapter.streamSubscribe);
+    this._empty$ = runSA.adapt(xs.empty(), xsSA.streamSubscribe);
   }
 
-  get elements(): any {
-    return this.runStreamAdapter.adapt(this._html$, XStreamAdapter.streamSubscribe);
+  elements(): any {
+    return this.runSA.adapt(this._html$, xsSA.streamSubscribe);
   }
 
-  public select(): HTMLSource {
-    return new HTMLSource(xs.empty(), this.runStreamAdapter);
+  public select(selector: string): DOMSource {
+    return new HTMLSource(xs.empty(), this.runSA);
   }
 
-  public events(): any {
+  public events(eventType: string, options?: EventsFnOptions): any {
     return this._empty$;
   }
-}
-
-export interface HTMLDriverOptions {
-  transposition?: boolean;
 }

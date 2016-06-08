@@ -40,7 +40,7 @@ describe('isolateSource', function () {
     const isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'foo');
 
     // Make assertions
-    isolatedDOMSource.select('.bar').elements.skip(1).take(1).subscribe(elements => {
+    isolatedDOMSource.select('.bar').elements().skip(1).take(1).subscribe(elements => {
       assert.strictEqual(elements.length, 1);
       const correctElement = elements[0];
       assert.notStrictEqual(correctElement, null);
@@ -158,7 +158,7 @@ describe('isolation', function () {
       DOM: makeDOMDriver(createRenderTarget(), {transposition: true})
     });
 
-    sources.DOM.select('.bar').elements.skip(1).take(1).subscribe(function (elements) {
+    sources.DOM.select('.bar').elements().skip(1).take(1).subscribe(function (elements) {
       assert.strictEqual(Array.isArray(elements), true);
       assert.strictEqual(elements.length, 1);
       const correctElement = elements[0];
@@ -175,7 +175,7 @@ describe('isolation', function () {
     function app(sources) {
       const {isolateSource, isolateSink} = sources.DOM;
       const islandElement$ = isolateSource(sources.DOM, 'island')
-        .select('.bar').elements;
+        .select('.bar').elements();
       const islandVTree$ = isolateSink(
         Rx.Observable.of(div([h3('.bar', 'Correct')])), 'island'
       );
@@ -292,7 +292,7 @@ describe('isolation', function () {
       assert.strictEqual(event.tagName, e.tagName);
     });
 
-    sources.DOM.select(':root').elements.skip(1).take(1).subscribe(root => {
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(root => {
       const frameFoo = root.querySelector('.foo.frame');
       const monalisaFoo = root.querySelector('.foo.monalisa');
       assert.notStrictEqual(frameFoo, null);
@@ -332,7 +332,7 @@ describe('isolation', function () {
     const {isolateSource} = sources.DOM;
     let dispose;
     isolateSource(sources.DOM, 'ISOLATION')
-      .select('.foo').elements
+      .select('.foo').elements()
       .skip(1).take(1)
       .subscribe(function (elements) {
         assert.strictEqual(Array.isArray(elements), true);
@@ -351,7 +351,7 @@ describe('isolation', function () {
 
   it('should allow DOM.selecting svg elements', function (done) {
     function App(sources) {
-      const triangleElement$ = sources.DOM.select('.triangle').elements;
+      const triangleElement$ = sources.DOM.select('.triangle').elements();
 
       const svgTriangle = svg({width: 150, height: 150}, [
         svg.polygon({
@@ -417,7 +417,7 @@ describe('isolation', function () {
     const {isolateSource} = sources.DOM;
 
     isolateSource(sources.DOM, 'ISOLATION')
-      .select('span').elements
+      .select('span').elements()
       .skip(1).take(1)
       .subscribe(function (elements) {
         assert.strictEqual(Array.isArray(elements), true);
@@ -457,7 +457,7 @@ describe('isolation', function () {
     const {isolateSource} = sources.DOM;
 
     isolateSource(sources.DOM, 'ISOLATION')
-      .select('*').elements
+      .select('*').elements()
       .skip(1).take(1)
       .subscribe(function (elements) {
         assert.strictEqual(Array.isArray(elements), true);
@@ -488,7 +488,7 @@ describe('isolation', function () {
     const isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'foo');
 
     // Make assertions
-    isolatedDOMSource.select('h4.bar').elements.skip(1).take(1).subscribe(elements => {
+    isolatedDOMSource.select('h4.bar').elements().skip(1).take(1).subscribe(elements => {
       assert.strictEqual(elements.length, 1);
       const correctElement = elements[0];
       assert.notStrictEqual(correctElement, null);
@@ -534,7 +534,7 @@ describe('isolation', function () {
     })
 
     // Make assertions
-    isolatedDOMSource.select('h4.bar').elements.skip(1).take(1).subscribe(elements => {
+    isolatedDOMSource.select('h4.bar').elements().skip(1).take(1).subscribe(elements => {
       assert.strictEqual(elements.length, 1);
       const correctElement = elements[0];
       assert.notStrictEqual(correctElement, null);
@@ -584,7 +584,7 @@ describe('isolation', function () {
     })
 
     // Make assertions
-    fooDOMSource.select('.bar').elements.skip(1).take(1).subscribe(elements => {
+    fooDOMSource.select('.bar').elements().skip(1).take(1).subscribe(elements => {
       assert.strictEqual(elements.length, 1);
       const correctElement = elements[0];
       assert.notStrictEqual(correctElement, null);
@@ -654,7 +654,7 @@ describe('isolation', function () {
     });
 
     let dispose;
-    sources.DOM.select(':root').elements.skip(2).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').elements().skip(2).take(1).subscribe(function (root) {
       const parentEl = root.querySelector('.parent');
       const foo = parentEl.querySelectorAll('.foo')[1];
       assert.notStrictEqual(parentEl, null);
@@ -701,7 +701,7 @@ describe('isolation', function () {
     });
 
     let dispose;
-    sources.DOM.select(':root').elements.skip(1).subscribe(function (root) {
+    sources.DOM.select(':root').elements().skip(1).subscribe(function (root) {
       setTimeout(() => {
         const foo = root.querySelector('.foo');
         if (!foo) return
@@ -752,7 +752,7 @@ describe('isolation', function () {
 
     sinks.DOM.subscribe(x => console.log('dom', x))
 
-    sources.DOM.elements.skip(1).take(1).subscribe(root => {
+    sources.DOM.elements().skip(1).take(1).subscribe(root => {
       const element = root.querySelector('.btn')
       assert.notStrictEqual(element, null)
       setTimeout(() => element.click())
@@ -798,7 +798,7 @@ describe('isolation', function () {
 
     sinks.DOM.subscribe(x => console.log('dom', x))
 
-    sources.DOM.elements.skip(1).take(1).subscribe(root => {
+    sources.DOM.elements().skip(1).take(1).subscribe(root => {
       const element = root.querySelector('.btn')
       assert.notStrictEqual(element, null)
       setTimeout(() => element.click())
@@ -844,7 +844,7 @@ describe('isolation', function () {
 
     sinks.DOM.subscribe(x => console.log('dom', x))
 
-    sources.DOM.elements.skip(1).take(1).subscribe(root => {
+    sources.DOM.elements().skip(1).take(1).subscribe(root => {
       const element = root.querySelector('.btn')
       assert.notStrictEqual(element, null)
       setTimeout(() => element.click())
@@ -890,7 +890,7 @@ describe('isolation', function () {
 
     sinks.DOM.subscribe(x => console.log('dom', x))
 
-    sources.DOM.elements.skip(1).take(1).subscribe(root => {
+    sources.DOM.elements().skip(1).take(1).subscribe(root => {
       const element = root.querySelector('.btn')
       assert.notStrictEqual(element, null)
       setTimeout(() => element.click())

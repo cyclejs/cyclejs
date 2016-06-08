@@ -34,16 +34,16 @@ describe('HTML Driver', function () {
     let {sinks, sources, run} = Cycle(app, {
       html: makeHTMLDriver()
     });
-    assert.strictEqual(typeof sources.html.elements.lift, 'function');
-    assert.strictEqual(typeof sources.html.elements.debounceTime, 'function');
-    assert.strictEqual(typeof sources.html.elements.switchMap, 'function');
+    assert.strictEqual(typeof sources.html.elements().lift, 'function');
+    assert.strictEqual(typeof sources.html.elements().debounceTime, 'function');
+    assert.strictEqual(typeof sources.html.elements().switchMap, 'function');
     done();
   });
 
   it('should make bogus select().events() as sources', function (done) {
     function app({html}) {
       assert.strictEqual(typeof html.select, 'function');
-      assert.strictEqual(typeof html.select('whatever').elements.subscribe, 'function');
+      assert.strictEqual(typeof html.select('whatever').elements().subscribe, 'function');
       assert.strictEqual(typeof html.select('whatever').events().subscribe, 'function');
       return {
         html: Rx.Observable.of(div('.test-element', ['Foobar']))

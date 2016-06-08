@@ -2,6 +2,7 @@ import {StreamAdapter} from '@cycle/base';
 import {init} from 'snabbdom';
 import xs, {Stream} from 'xstream';
 import {DOMSource} from './DOMSource';
+import {MainDOMSource} from './MainDOMSource';
 import {VNode} from './interfaces';
 import {VNodeWrapper} from './VNodeWrapper';
 import {getElement} from './utils';
@@ -9,7 +10,7 @@ import defaultModules from './modules';
 import {IsolateModule} from './isolateModule';
 import {makeTransposeVNode} from './transposition';
 import {EventDelegator} from './EventDelegator';
-import XStreamAdapter from '@cycle/xstream-adapter';
+import xsSA from '@cycle/xstream-adapter';
 
 function makeDOMDriverInputGuard(modules: any) {
   if (!Array.isArray(modules)) {
@@ -61,10 +62,10 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions):
     rootElement$.addListener({next: () => {}, error: () => {}, complete: () => {}});
     /* tslint:enable:no-empty */
 
-    return new DOMSource(rootElement$, runStreamAdapter, [], isolateModule, delegators);
+    return new MainDOMSource(rootElement$, runStreamAdapter, [], isolateModule, delegators);
   };
 
-  (<any> DOMDriver).streamAdapter = XStreamAdapter;
+  (<any> DOMDriver).streamAdapter = xsSA;
 
   return DOMDriver;
 }

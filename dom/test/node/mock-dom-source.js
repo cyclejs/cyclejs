@@ -87,7 +87,7 @@ describe('mockDOMSource', function () {
         'click': Observable.of(135)
       }
     });
-    userEvents.select('.foo').elements
+    userEvents.select('.foo').elements()
       .subscribe({next: assert.fail, error: assert.fail, complete: done});
   });
 
@@ -97,7 +97,7 @@ describe('mockDOMSource', function () {
         elements: Observable.of(135)
       }
     });
-    mockedDOMSource.select('.foo').elements
+    mockedDOMSource.select('.foo').elements()
       .subscribe({
         next: e => {
           assert.strictEqual(e, 135)
@@ -118,7 +118,7 @@ describe('mockDOMSource', function () {
         }
       }
     });
-    mockedDOMSource.select('.bar').select('.foo').select('.baz').elements
+    mockedDOMSource.select('.bar').select('.foo').select('.baz').elements()
       .subscribe({
         next: e => {
           assert.strictEqual(e, 135)
@@ -140,6 +140,6 @@ describe('mockDOMSource', function () {
     const DOM = mockDOMSource(RxJSAdapter, {})
     const selector = DOM.select('.something').select('.other')
     assert.strictEqual(selector.events('click') instanceof Observable, true)
-    assert.strictEqual(selector.elements instanceof Observable, true)
+    assert.strictEqual(selector.elements() instanceof Observable, true)
   })
 });

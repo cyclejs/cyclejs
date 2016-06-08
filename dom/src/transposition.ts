@@ -1,5 +1,5 @@
 import {StreamAdapter} from '@cycle/base';
-import XStreamAdapter from '@cycle/xstream-adapter';
+import xsSA from '@cycle/xstream-adapter';
 import xs, {Stream} from 'xstream';
 import {VNode} from './interfaces';
 
@@ -21,7 +21,7 @@ export function makeTransposeVNode(runStreamAdapter: StreamAdapter): (vnode: any
     } else if (vnode && typeof vnode.data === `object` && vnode.data.static) {
       return xs.of(vnode);
     } else if (runStreamAdapter.isValidStream(vnode)) {
-      const xsStream: Stream<any> = XStreamAdapter.adapt(vnode, runStreamAdapter.streamSubscribe);
+      const xsStream: Stream<VNode> = xsSA.adapt(vnode, runStreamAdapter.streamSubscribe);
       return <any> xsStream.map(transposeVNode).flatten();
     } else if (typeof vnode === `object`) {
       if (!vnode.children || vnode.children.length === 0) {

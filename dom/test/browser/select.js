@@ -35,7 +35,7 @@ describe('DOMSource.select()', function () {
     });
 
     let dispose;
-    sources.DOM.select(':root').elements.skip(1).take(1).subscribe(root => {
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(root => {
       const classNameRegex = /top\-most/;
       assert.strictEqual(root.tagName, 'DIV');
       const child = root.children[0];
@@ -49,7 +49,7 @@ describe('DOMSource.select()', function () {
     dispose = run();
   });
 
-  it('should return an object with observable and events()', function (done) {
+  it('should return a DOMSource with elements(), events(), select()', function (done) {
     function app() {
       return {
         DOM: Rx.Observable.of(h3('.myelementclass', 'Foobar'))
@@ -64,9 +64,14 @@ describe('DOMSource.select()', function () {
     // Make assertions
     const selection = sources.DOM.select('.myelementclass');
     assert.strictEqual(typeof selection, 'object');
-    assert.strictEqual(typeof selection.elements, 'object');
-    assert.strictEqual(typeof selection.elements.subscribe, 'function');
+    assert.strictEqual(typeof selection.select, 'function');
+    assert.strictEqual(typeof selection.select('h3'), 'object');
+    assert.strictEqual(typeof selection.elements, 'function');
+    assert.strictEqual(typeof selection.elements(), 'object');
+    assert.strictEqual(typeof selection.elements().subscribe, 'function');
     assert.strictEqual(typeof selection.events, 'function');
+    assert.strictEqual(typeof selection.events('click'), 'object');
+    assert.strictEqual(typeof selection.events('click').subscribe, 'function');
     dispose();
     done();
   });
@@ -84,7 +89,7 @@ describe('DOMSource.select()', function () {
 
     let dispose;
     // Make assertions
-    sources.DOM.select('.myelementclass').elements.skip(1).take(1)
+    sources.DOM.select('.myelementclass').elements().skip(1).take(1)
       .subscribe(elements => {
         assert.notStrictEqual(elements, null);
         assert.notStrictEqual(typeof elements, 'undefined');
@@ -122,7 +127,7 @@ describe('DOMSource.select()', function () {
 
     let dispose;
     // Make assertions
-    sources.DOM.select('.foo').select('.bar').elements.skip(1).take(1)
+    sources.DOM.select('.foo').select('.bar').elements().skip(1).take(1)
       .subscribe(elements => {
         assert.strictEqual(elements.length, 1);
         const element = elements[0];
@@ -159,7 +164,7 @@ describe('DOMSource.select()', function () {
     });
 
     // Make assertions
-    const selection = sources.DOM.select('.triangle').elements.skip(1).take(1)
+    const selection = sources.DOM.select('.triangle').elements().skip(1).take(1)
       .subscribe(elements => {
         assert.strictEqual(elements.length, 1);
         const triangleElement = elements[0];
