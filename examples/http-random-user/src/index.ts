@@ -1,7 +1,9 @@
 import Cycle from '@cycle/xstream-run';
 import {Stream} from 'xstream';
-import {div, button, h1, h4, a, makeDOMDriver, DOMSource} from '@cycle/dom';
-import {makeHTTPDriver, Response, HTTPSource} from '@cycle/http';
+import {div, button, h1, h4, a, makeDOMDriver} from '@cycle/dom';
+import {makeHTTPDriver, Response} from '@cycle/http';
+import {DOMSource} from '@cycle/dom/xstream-typings';
+import {HTTPSource} from '@cycle/http/xstream-typings';
 
 interface UserData {
   id: number,
@@ -38,7 +40,7 @@ function main(sources: {DOM: DOMSource, HTTP: HTTPSource}) {
       };
     });
 
-  const user$ = (<Stream<Stream<Response>>> sources.HTTP.select('users'))
+  const user$ = sources.HTTP.select('users')
     .flatten()
     .map(res => res.body)
     .startWith(null)
