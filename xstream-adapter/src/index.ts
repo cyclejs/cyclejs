@@ -1,34 +1,20 @@
 import {
   StreamAdapter,
   Observer,
-  SinkProxies,
   StreamSubscribe,
   DisposeFunction,
   Subject,
 } from '@cycle/base';
-import xs, {Stream, Producer} from 'xstream';
-
-function logToConsoleError(err: any) {
-  const target = err.stack || err;
-  if (console && console.error) {
-    console.error(target);
-  } else if (console && console.log) {
-    console.log(target);
-  }
-}
+import xs, {Stream, MemoryStream, Listener, Producer} from 'xstream';
 
 const XStreamAdapter: StreamAdapter = {
-  adapt(originStream: any, originStreamSubscribe: StreamSubscribe): any {
+  adapt<T>(originStream: any, originStreamSubscribe: StreamSubscribe): Stream<T> {
     if (XStreamAdapter.isValidStream(originStream)) { return originStream; };
     let dispose: any = null;
 
-    return xs.create((<Producer<any>>{
-      start(out: any) {
-        const observer: Observer = {
-          next: (value: any) => out.shamefullySendNext(value),
-          error: (err: any) => out.shamefullySendError(err),
-          complete: () => out.shamefullySendComplete(),
-        };
+    return xs.create<T>((<Producer<T>>{
+      start(out: Listener<T>) {
+        const observer: Observer<T> = out;
         dispose = originStreamSubscribe(originStream, observer);
       },
       stop() {
@@ -39,30 +25,20 @@ const XStreamAdapter: StreamAdapter = {
     }));
   },
 
-  dispose(sinks: any, sinkProxies: SinkProxies, sources: any) {
-    Object.keys(sources).forEach(k => {
-      if (typeof sources[k].dispose === 'function') {
-        sources[k].dispose();
-      }
-    });
-    Object.keys(sinks).forEach(k => {
-      sinks[k].removeListener(sinkProxies[k].stream);
-    });
-  },
-
-  makeSubject(): Subject {
+  makeSubject<T>(): Subject<T> {
     const stream = xs.create();
 
     const observer = {
       next: (x: any) => { stream.shamefullySendNext(x); },
-      error: (err: any) => {
-        logToConsoleError(err);
-        stream.shamefullySendError(err);
-      },
+      error: (err: any) => { stream.shamefullySendError(err); },
       complete: () => { stream.shamefullySendComplete(); }
     };
 
     return {observer, stream};
+  },
+
+  remember<T>(stream: Stream<T>): MemoryStream<T> {
+    return stream.remember();
   },
 
   isValidStream(stream: any): boolean {
@@ -71,7 +47,7 @@ const XStreamAdapter: StreamAdapter = {
       typeof stream.shamefullySendNext === 'function');
   },
 
-  streamSubscribe(stream: Stream<any>, observer: Observer) {
+  streamSubscribe(stream: Stream<any>, observer: Observer<any>) {
     stream.addListener(observer);
     return () => stream.removeListener(observer);
   }
