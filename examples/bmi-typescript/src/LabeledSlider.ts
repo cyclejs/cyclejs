@@ -1,5 +1,6 @@
-import xs, {Stream} from 'xstream';
-import {div, span, input, VNode, DOMSource} from '@cycle/dom';
+import xs, {Stream, MemoryStream} from 'xstream';
+import {div, span, input, VNode} from '@cycle/dom';
+import {DOMSource} from '@cycle/dom/xstream-typings.d.ts';
 
 export interface LabeledSliderProps {
   label: string;
@@ -9,17 +10,22 @@ export interface LabeledSliderProps {
   max: number;
 }
 
-export interface LabeledSliderSources {
-  props$: Stream<LabeledSliderProps>;
-  DOM: DOMSource;
+export type Sources = {
+  DOM: DOMSource,
+  props$: Stream<LabeledSliderProps>,
+}
+export type Sinks = {
+  DOM: Stream<VNode>,
+  value$: MemoryStream<number>,
 }
 
-function LabeledSlider(sources: LabeledSliderSources) {
+function LabeledSlider(sources: Sources): Sinks {
   let props$: Stream<LabeledSliderProps> = sources.props$;
   let initialValue$ = props$.map(props => props.initial).take(1);
+  let el$ = sources.DOM.select('.slider').elements();
   let newValue$ = sources.DOM.select('.slider').events('input')
-    .map((ev: Event) => (<HTMLInputElement> ev.target).value);
-  let value$: Stream<number> = xs.merge(initialValue$, newValue$).remember();
+    .map(ev => parseInt((<HTMLInputElement> ev.target).value));
+  let value$ = xs.merge(initialValue$, newValue$).remember();
 
   let vtree$ = xs.combine(
     (props, value) =>
