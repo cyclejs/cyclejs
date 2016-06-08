@@ -5,9 +5,3 @@ export interface HTTPSource {
   filter(predicate: (response$: ResponseStream & MemoryStream<Response>) => boolean): HTTPSource;
   select(category: string): Stream<MemoryStream<Response> & ResponseStream>;
 }
-
-// export interface DOMSource {
-//   select(selector: string): DOMSource;
-//   elements(): MemoryStream<Element>;
-//   events(eventType: string, options?: EventsFnOptions): Stream<Event>;
-// }
