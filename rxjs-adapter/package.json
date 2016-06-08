@@ -35,7 +35,7 @@
     "rxjs": "global:Rx"
   },
   "devDependencies": {
-    "@cycle/base": "^3.0.0",
+    "@cycle/base": "^4.0.0",
     "assert": "^1.3.0",
     "babel-preset-es2015": "^6.3.13",
     "babel-register": "^6.4.3",

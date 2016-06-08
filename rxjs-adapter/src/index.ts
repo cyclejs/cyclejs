@@ -23,7 +23,7 @@ const RxJSAdapter: StreamAdapter = {
   },
 
   remember <T>(observable: Rx.Observable<T>): Rx.Observable<T> {
-    return observable.publishReplay(1);
+    return observable.publishReplay(1).refCount();
   },
 
   makeSubject <T>(): Subject<T> {
@@ -48,10 +48,6 @@ const RxJSAdapter: StreamAdapter = {
     return () => {
       subscription.unsubscribe();
     };
-  },
-
-  cast <T>(stream: Rx.Observable<any>): Rx.Observable<T> {
-    return stream;
   }
 };
 
