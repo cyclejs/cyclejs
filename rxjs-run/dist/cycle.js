@@ -74,6 +74,14 @@ exports.default = Cycle;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
+function logToConsoleError(err) {
+    var target = err.stack || err;
+    if (console && console.error) {
+        console.error(target);
+    } else if (console && console.log) {
+        console.log(target);
+    }
+}
 function makeSinkProxies(drivers, streamAdapter) {
     var sinkProxies = {};
     for (var name_1 in drivers) {
@@ -108,7 +116,18 @@ function replicateMany(sinks, sinkProxies, streamAdapter) {
     var results = Object.keys(sinks).filter(function (name) {
         return !!sinkProxies[name];
     }).map(function (name) {
-        return streamAdapter.streamSubscribe(sinks[name], sinkProxies[name].observer);
+        return streamAdapter.streamSubscribe(sinks[name], {
+            next: function next(x) {
+                sinkProxies[name].observer.next(x);
+            },
+            error: function error(err) {
+                logToConsoleError(err);
+                sinkProxies[name].observer.error(err);
+            },
+            complete: function complete(x) {
+                sinkProxies[name].observer.complete(x);
+            }
+        });
     });
     var disposeFunctions = results.filter(function (dispose) {
         return typeof dispose === 'function';
@@ -152,7 +171,6 @@ function Cycle(main, drivers, options) {
     var run = function run() {
         var disposeReplication = replicateMany(sinks, sinkProxies, streamAdapter);
         return function () {
-            streamAdapter.dispose(sinks, sinkProxies, sources);
             disposeSources(sources);
             disposeReplication();
         };
@@ -166,23 +184,6 @@ exports.default = Cycle;
 },{}],3:[function(require,module,exports){
 "use strict";
 var Rx = require('rxjs');
-function logToConsoleError(err) {
-    var target = err.stack || err;
-    if (console && console.error) {
-        console.error(target);
-    }
-    else if (console && console.log) {
-        console.log(target);
-    }
-}
-function attemptSubjectComplete(subject) {
-    try {
-        subject.complete();
-    }
-    catch (err) {
-        return void 0;
-    }
-}
 var RxJSAdapter = {
     adapt: function (originStream, originStreamSubscribe) {
         if (this.isValidStream(originStream)) {
@@ -197,24 +198,14 @@ var RxJSAdapter = {
             };
         });
     },
-    dispose: function (sinks, sinkProxies, sources) {
-        Object.keys(sources).forEach(function (k) {
-            if (typeof sources[k].unsubscribe === 'function') {
-                sources[k].unsubscribe();
-            }
-        });
-        Object.keys(sinkProxies).forEach(function (k) {
-            attemptSubjectComplete(sinkProxies[k].observer);
-        });
+    remember: function (observable) {
+        return observable.publishReplay(1).refCount();
     },
     makeSubject: function () {
         var stream = new Rx.Subject();
         var observer = {
             next: function (x) { stream.next(x); },
-            error: function (err) {
-                logToConsoleError(err);
-                stream.error(err);
-            },
+            error: function (err) { stream.error(err); },
             complete: function () { stream.complete(); },
         };
         return { stream: stream, observer: observer };
@@ -229,7 +220,7 @@ var RxJSAdapter = {
         return function () {
             subscription.unsubscribe();
         };
-    },
+    }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = RxJSAdapter;
