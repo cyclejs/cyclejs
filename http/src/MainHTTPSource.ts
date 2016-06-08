@@ -1,11 +1,12 @@
-import {Stream} from 'xstream';
+import {Stream, MemoryStream} from 'xstream';
+import {HTTPSource} from './interfaces';
 import {isolateSource, isolateSink} from './isolate';
 import {StreamAdapter} from '@cycle/base';
 import XStreamAdapter from '@cycle/xstream-adapter';
-import {ResponseStream} from './interfaces';
+import {Response, ResponseStream} from './interfaces';
 
-export class HTTPSource {
-  constructor(private _res$$: Stream<any>,
+export class MainHTTPSource implements HTTPSource {
+  constructor(private _res$$: Stream<MemoryStream<Response> & ResponseStream>,
               private runStreamAdapter: StreamAdapter,
               private _namespace: Array<string> = []) {
   }
@@ -17,15 +18,18 @@ export class HTTPSource {
     );
   }
 
-  filter(predicate: (response$: ResponseStream) => boolean): HTTPSource {
+  filter(predicate: (response$: ResponseStream & MemoryStream<Response>) => boolean): HTTPSource {
     const filteredResponse$$ = this._res$$.filter(predicate);
-    return new HTTPSource(filteredResponse$$, this.runStreamAdapter, this._namespace);
+    return new MainHTTPSource(filteredResponse$$, this.runStreamAdapter, this._namespace);
   }
 
-  select(category: string): any {
-    const res$$ = this._res$$.filter(
-      (res$: ResponseStream) => res$.request && res$.request.category === category
-    );
+  select(category?: string): any {
+    let res$$ = this._res$$;
+    if (category) {
+      res$$ = this._res$$.filter(
+        res$ => res$.request && res$.request.category === category
+      );
+    }
     return this.runStreamAdapter.adapt(res$$, XStreamAdapter.streamSubscribe);
   }
 

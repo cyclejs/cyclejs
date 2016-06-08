@@ -116,7 +116,7 @@ function run(uri) {
 
         var output = Cycle(main, { HTTP: makeHTTPDriver() });
 
-        var response$$ = output.sources.HTTP.response$$;
+        var response$$ = output.sources.HTTP.select();
         response$$.subscribe(function(response$) {
           assert.strictEqual(response$.request.url, uri + '/pet');
           assert.strictEqual(response$.request.method, 'POST');

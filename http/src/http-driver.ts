@@ -1,9 +1,15 @@
-import xs, {Stream} from 'xstream';
-import {HTTPSource} from './HTTPSource';
+import xs, {Stream, MemoryStream} from 'xstream';
+import {MainHTTPSource} from './MainHTTPSource';
 import {StreamAdapter} from '@cycle/base';
 import XStreamAdapter from '@cycle/xstream-adapter';
 import * as superagent from 'superagent';
-import {RequestOptions, RequestInput, Response} from './interfaces';
+import {
+  HTTPSource,
+  ResponseStream,
+  RequestOptions,
+  RequestInput,
+  Response
+} from './interfaces';
 
 function preprocessReqOptions(reqOptions: RequestOptions): RequestOptions {
   reqOptions.withCredentials = reqOptions.withCredentials || false;
@@ -64,8 +70,8 @@ export function optionsToSuperagent(rawReqOptions: RequestOptions) {
   return request;
 }
 
-export function createResponse$(reqInput: RequestInput) {
-  return xs.create<any>({
+export function createResponse$(reqInput: RequestInput): Stream<Response> {
+  return xs.create<Response>({
     start: function startResponseStream(listener) {
       try {
         const reqOptions = normalizeRequestInput(reqInput);
@@ -119,7 +125,7 @@ function normalizeRequestInput(reqOptions: RequestInput): RequestOptions {
 }
 
 function makeRequestInputToResponse$(runStreamAdapter: StreamAdapter) {
-  return function requestInputToResponse$(reqInput: RequestInput): any {
+  return function requestInputToResponse$(reqInput: RequestInput): MemoryStream<Response> & ResponseStream {
     let response$ = createResponse$(reqInput).remember();
     /* tslint:disable:no-empty */
     response$.addListener({next: () => {}, error: () => {}, complete: () => {}});
@@ -131,7 +137,7 @@ function makeRequestInputToResponse$(runStreamAdapter: StreamAdapter) {
       value: softNormalizeRequestInput(reqInput),
       writable: false,
     });
-    return response$;
+    return <MemoryStream<Response> & ResponseStream> response$;
   };
 }
 
@@ -182,7 +188,7 @@ export function makeHTTPDriver(): Function {
     let response$$ = request$
       .map(makeRequestInputToResponse$(runSA))
       .remember();
-    let httpSource = new HTTPSource(response$$, runSA, []);
+    let httpSource = new MainHTTPSource(response$$, runSA, []);
     /* tslint:disable:no-empty */
     response$$.addListener({next: () => {}, error: () => {}, complete: () => {}});
     /* tslint:enable:no-empty */

@@ -1,5 +1,4 @@
-import {RequestOptions, RequestInput, ResponseStream} from './interfaces';
-import {HTTPSource} from './HTTPSource';
+import {HTTPSource, RequestOptions, RequestInput, ResponseStream} from './interfaces';
 
 export interface Mappable<T, R> {
   map(project: (x: T) => R): Mappable<R, any>;
