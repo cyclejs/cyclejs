@@ -1,6 +1,6 @@
 import xs, {Stream, MemoryStream} from 'xstream';
 import {div, span, input, VNode} from '@cycle/dom';
-import {DOMSource} from '@cycle/dom/xstream-typings.d.ts';
+import {DOMSource} from '@cycle/dom/xstream-typings';
 
 export interface LabeledSliderProps {
   label: string;
