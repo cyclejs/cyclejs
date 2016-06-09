@@ -27,7 +27,7 @@ const RxJSAdapter: StreamAdapter = {
     });
   },
 
-  remember <T>(observable: Rx.Observable<T>): Rx.Observable<T> {
+  remember<T>(observable: Rx.Observable<T>): Rx.Observable<T> {
     return observable.shareReplay(1);
   },
 
@@ -56,10 +56,6 @@ const RxJSAdapter: StreamAdapter = {
     return () => {
       subscription.dispose();
     };
-  },
-
-  cast <T>(stream: Rx.Observable<any>): Rx.Observable<T> {
-    return stream;
   }
 };
 

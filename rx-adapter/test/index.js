@@ -11,7 +11,6 @@ describe('RxJSAdapter', () => {
     assert.strictEqual(typeof RxJSAdapter.makeSubject, 'function');
     assert.strictEqual(typeof RxJSAdapter.isValidStream, 'function');
     assert.strictEqual(typeof RxJSAdapter.streamSubscribe, 'function');
-    assert.strictEqual(typeof RxJSAdapter.cast, 'function');
   });
 
   it('should adapt from a dummy adapter to this adapter stream', (done) => {
@@ -53,6 +52,37 @@ describe('RxJSAdapter', () => {
     subject.observer.next(2);
 
     RxJSAdapter.streamSubscribe(subject.stream, {
+      next: (x) => assert.strictEqual(x, observer2Expected.shift()),
+      error: done.fail,
+      complete: () => assert.strictEqual(observer2Expected.length, 0),
+    });
+
+    subject.observer.next(3);
+    subject.observer.next(4);
+    subject.observer.complete();
+
+    setTimeout(done, 20);
+  });
+
+  it('should create a remembered subject which can be fed and subscribed to', (done) => {
+    const subject = RxJSAdapter.makeSubject();
+    assert.strictEqual(subject.stream instanceof Subject, true);
+    assert.strictEqual(RxJSAdapter.isValidStream(subject.stream), true);
+    const remembered = RxJSAdapter.remember(subject.stream);
+
+    const observer1Expected = [1, 2, 3, 4];
+    const observer2Expected = [2, 3, 4];
+
+    RxJSAdapter.streamSubscribe(remembered, {
+      next: (x) => assert.strictEqual(x, observer1Expected.shift()),
+      error: done.fail,
+      complete: () => assert.strictEqual(observer1Expected.length, 0),
+    });
+
+    subject.observer.next(1);
+    subject.observer.next(2);
+
+    RxJSAdapter.streamSubscribe(remembered, {
       next: (x) => assert.strictEqual(x, observer2Expected.shift()),
       error: done.fail,
       complete: () => assert.strictEqual(observer2Expected.length, 0),
