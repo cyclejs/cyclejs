@@ -151,7 +151,7 @@ describe('Cycle', function () {
         sinon.assert.calledWithExactly(console.error, sinon.match("malfunction"));
         sandbox.restore();
         done();
-      }, 100);
+      }, 200);
     });
   });
 });

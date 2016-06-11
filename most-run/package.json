@@ -71,8 +71,8 @@
     "validate-commit-msg": "^2.6.1"
   },
   "dependencies": {
-    "@cycle/base": "^3.0.0",
-    "@cycle/most-adapter": "^2.0.1",
+    "@cycle/base": "^4.0.0",
+    "@cycle/most-adapter": "^3.0.0",
     "most": "^0.19.7",
     "most-subject": "^4.1.1"
   }
