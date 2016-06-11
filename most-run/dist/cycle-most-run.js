@@ -72,6 +72,14 @@ exports.default = Cycle;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
+function logToConsoleError(err) {
+    var target = err.stack || err;
+    if (console && console.error) {
+        console.error(target);
+    } else if (console && console.log) {
+        console.log(target);
+    }
+}
 function makeSinkProxies(drivers, streamAdapter) {
     var sinkProxies = {};
     for (var name_1 in drivers) {
@@ -106,7 +114,18 @@ function replicateMany(sinks, sinkProxies, streamAdapter) {
     var results = Object.keys(sinks).filter(function (name) {
         return !!sinkProxies[name];
     }).map(function (name) {
-        return streamAdapter.streamSubscribe(sinks[name], sinkProxies[name].observer);
+        return streamAdapter.streamSubscribe(sinks[name], {
+            next: function next(x) {
+                sinkProxies[name].observer.next(x);
+            },
+            error: function error(err) {
+                logToConsoleError(err);
+                sinkProxies[name].observer.error(err);
+            },
+            complete: function complete(x) {
+                sinkProxies[name].observer.complete(x);
+            }
+        });
     });
     var disposeFunctions = results.filter(function (dispose) {
         return typeof dispose === 'function';
@@ -150,7 +169,6 @@ function Cycle(main, drivers, options) {
     var run = function run() {
         var disposeReplication = replicateMany(sinks, sinkProxies, streamAdapter);
         return function () {
-            streamAdapter.dispose(sinks, sinkProxies, sources);
             disposeSources(sources);
             disposeReplication();
         };
@@ -164,15 +182,7 @@ exports.default = Cycle;
 },{}],3:[function(require,module,exports){
 "use strict";
 var most_subject_1 = require('most-subject');
-function logToConsoleError(err) {
-    var target = err.stack || err;
-    if (console && console.error) {
-        console.error(target);
-    }
-    else if (console && console.log) {
-        console.log(target);
-    }
-}
+var hold_1 = require('@most/hold');
 var MostAdapter = {
     adapt: function (originStream, originStreamSubscribe) {
         if (MostAdapter.isValidStream(originStream)) {
@@ -193,19 +203,14 @@ var MostAdapter = {
         });
         return stream;
     },
-    dispose: function (sinks, sinkProxies, sources) {
-        Object.keys(sinkProxies).forEach(function (k) {
-            sinkProxies[k].observer.complete();
-        });
+    remember: function (stream) {
+        return stream.thru(hold_1.default);
     },
     makeSubject: function () {
         var stream = most_subject_1.subject();
         var observer = {
             next: function (x) { stream.next(x); },
-            error: function (err) {
-                logToConsoleError(err);
-                stream.error(err);
-            },
+            error: function (err) { stream.error(err); },
             complete: function (x) { stream.complete(x); }
         };
         return { observer: observer, stream: stream };
@@ -222,7 +227,106 @@ var MostAdapter = {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = MostAdapter;
 
-},{"most-subject":9}],4:[function(require,module,exports){
+},{"@most/hold":4,"most-subject":10}],4:[function(require,module,exports){
+(function (global, factory) {
+  if (typeof define === "function" && define.amd) {
+    define('@most/hold', ['exports', '@most/multicast'], factory);
+  } else if (typeof exports !== "undefined") {
+    factory(exports, require('@most/multicast'));
+  } else {
+    var mod = {
+      exports: {}
+    };
+    factory(mod.exports, global.multicast);
+    global.mostHold = mod.exports;
+  }
+})(this, function (exports, _multicast) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _createClass = function () {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }
+
+    return function (Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) defineProperties(Constructor, staticProps);
+      return Constructor;
+    };
+  }();
+
+  // hold :: Stream a -> Stream a
+  var index = function index(stream) {
+    return new stream.constructor(new _multicast.MulticastSource(new Hold(stream.source)));
+  };
+
+  var Hold = function () {
+    function Hold(source) {
+      _classCallCheck(this, Hold);
+
+      this.source = source;
+      this.time = -Infinity;
+      this.value = void 0;
+    }
+
+    _createClass(Hold, [{
+      key: 'run',
+      value: function run(sink, scheduler) {
+        /* istanbul ignore else */
+        if (sink._hold !== this) {
+          sink._hold = this;
+          sink._holdAdd = sink.add;
+          sink.add = holdAdd;
+
+          sink._holdEvent = sink.event;
+          sink.event = holdEvent;
+        }
+
+        return this.source.run(sink, scheduler);
+      }
+    }]);
+
+    return Hold;
+  }();
+
+  function holdAdd(sink) {
+    var len = this._holdAdd(sink);
+    /* istanbul ignore else */
+    if (this._hold.time >= 0) {
+      sink.event(this._hold.time, this._hold.value);
+    }
+    return len;
+  }
+
+  function holdEvent(t, x) {
+    /* istanbul ignore else */
+    if (t >= this._hold.time) {
+      this._hold.time = t;
+      this._hold.value = x;
+    }
+    return this._holdEvent(t, x);
+  }
+
+  exports.default = index;
+});
+
+},{"@most/multicast":5}],5:[function(require,module,exports){
 (function (global, factory) {
   if (typeof define === "function" && define.amd) {
     define('@most/multicast', ['exports', '@most/prelude'], factory);
@@ -398,7 +502,7 @@ exports.default = MostAdapter;
   exports.default = multicast;
 });
 
-},{"@most/prelude":5}],5:[function(require,module,exports){
+},{"@most/prelude":6}],6:[function(require,module,exports){
 (function (global, factory) {
   if (typeof define === "function" && define.amd) {
     define('@most/prelude', ['exports'], factory);
@@ -679,7 +783,7 @@ exports.default = MostAdapter;
   exports.curry3 = curry3;
 });
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -714,7 +818,7 @@ var HoldSubjectSource = (function (_super) {
 }(SubjectSource_1.BasicSubjectSource));
 exports.HoldSubjectSource = HoldSubjectSource;
 
-},{"./SubjectSource":8,"./util":10}],7:[function(require,module,exports){
+},{"./SubjectSource":9,"./util":11}],8:[function(require,module,exports){
 "use strict";
 var SubjectDisposable = (function () {
     function SubjectDisposable(source, sink) {
@@ -733,7 +837,7 @@ var SubjectDisposable = (function () {
 }());
 exports.SubjectDisposable = SubjectDisposable;
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
 var SubjectDisposable_1 = require('./SubjectDisposable');
 var util_1 = require('./util');
@@ -806,7 +910,7 @@ var BasicSubjectSource = (function () {
 }());
 exports.BasicSubjectSource = BasicSubjectSource;
 
-},{"./SubjectDisposable":7,"./util":10,"most/lib/scheduler/defaultScheduler":56}],9:[function(require,module,exports){
+},{"./SubjectDisposable":8,"./util":11,"most/lib/scheduler/defaultScheduler":57}],10:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -846,7 +950,7 @@ var Subject = (function (_super) {
 }(most_1.Stream));
 exports.Subject = Subject;
 
-},{"./HoldSubjectSource":6,"./SubjectSource":8,"most":76}],10:[function(require,module,exports){
+},{"./HoldSubjectSource":7,"./SubjectSource":9,"most":77}],11:[function(require,module,exports){
 "use strict";
 function tryEvent(t, x, sink) {
     try {
@@ -949,7 +1053,7 @@ function findIndex(x, a) {
 }
 exports.findIndex = findIndex;
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -1027,7 +1131,7 @@ LinkedList.prototype.dispose = function() {
 	return Promise.all(promises);
 };
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -1038,7 +1142,7 @@ function isPromise(p) {
 	return p !== null && typeof p === 'object' && typeof p.then === 'function';
 }
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -1105,7 +1209,7 @@ function copy(src, srcIndex, dst, dstIndex, len) {
 }
 
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -1116,7 +1220,7 @@ function Stream(source) {
 	this.source = source;
 }
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -1212,7 +1316,7 @@ ReduceSink.prototype.end = function(t) {
 
 function noop() {}
 
-},{"../Stream":14,"../disposable/dispose":43,"../runSource":53,"../scheduler/PropagateTask":54,"../sink/Pipe":61}],16:[function(require,module,exports){
+},{"../Stream":15,"../disposable/dispose":44,"../runSource":54,"../scheduler/PropagateTask":55,"../sink/Pipe":62}],17:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -1236,7 +1340,7 @@ function ap(fs, xs) {
 	return combine(apply, fs, xs);
 }
 
-},{"./combine":18,"@most/prelude":5}],17:[function(require,module,exports){
+},{"./combine":19,"@most/prelude":6}],18:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -1281,7 +1385,7 @@ function cycle(stream) {
 	}, stream);
 }
 
-},{"../source/core":65,"./continueWith":20}],18:[function(require,module,exports){
+},{"../source/core":66,"./continueWith":21}],19:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -1399,7 +1503,7 @@ CombineSink.prototype.end = function(t, indexedValue) {
 	}
 };
 
-},{"../Stream":14,"../disposable/dispose":43,"../invoke":48,"../sink/IndexSink":60,"../sink/Pipe":61,"../source/core":65,"./transform":38,"@most/prelude":5}],19:[function(require,module,exports){
+},{"../Stream":15,"../disposable/dispose":44,"../invoke":49,"../sink/IndexSink":61,"../sink/Pipe":62,"../source/core":66,"./transform":39,"@most/prelude":6}],20:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -1423,7 +1527,7 @@ function concatMap(f, stream) {
 	return mergeMapConcurrently(f, 1, stream);
 }
 
-},{"./mergeConcurrently":28}],20:[function(require,module,exports){
+},{"./mergeConcurrently":29}],21:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -1491,7 +1595,7 @@ ContinueWithSink.prototype.dispose = function() {
 	return this.disposable.dispose();
 };
 
-},{"../Promise":12,"../Stream":14,"../disposable/dispose":43,"../sink/Pipe":61}],21:[function(require,module,exports){
+},{"../Promise":13,"../Stream":15,"../disposable/dispose":44,"../sink/Pipe":62}],22:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -1546,7 +1650,7 @@ DelaySink.prototype.end = function(t, x) {
 
 DelaySink.prototype.error = Sink.prototype.error;
 
-},{"../Stream":14,"../disposable/dispose":43,"../scheduler/PropagateTask":54,"../sink/Pipe":61}],22:[function(require,module,exports){
+},{"../Stream":15,"../disposable/dispose":44,"../scheduler/PropagateTask":55,"../sink/Pipe":62}],23:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -1643,7 +1747,7 @@ RecoverWithSink.prototype.dispose = function() {
 	return this.disposable.dispose();
 };
 
-},{"../Promise":12,"../Stream":14,"../disposable/dispose":43,"../scheduler/PropagateTask":54,"../sink/Pipe":61,"../sink/SafeSink":62,"../source/tryEvent":74}],23:[function(require,module,exports){
+},{"../Promise":13,"../Stream":15,"../disposable/dispose":44,"../scheduler/PropagateTask":55,"../sink/Pipe":62,"../sink/SafeSink":63,"../source/tryEvent":75}],24:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -1719,7 +1823,7 @@ function same(a, b) {
 	return a === b;
 }
 
-},{"../Stream":14,"../fusion/Filter":45,"../sink/Pipe":61}],24:[function(require,module,exports){
+},{"../Stream":15,"../fusion/Filter":46,"../sink/Pipe":62}],25:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -1751,7 +1855,7 @@ function join(stream) {
 	return mergeConcurrently(Infinity, stream);
 }
 
-},{"./mergeConcurrently":28}],25:[function(require,module,exports){
+},{"./mergeConcurrently":29}],26:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -1878,7 +1982,7 @@ DebounceSink.prototype._clearTimer = function() {
 	return true;
 };
 
-},{"../Stream":14,"../disposable/dispose":43,"../fusion/Map":47,"../scheduler/PropagateTask":54,"../sink/Pipe":61}],26:[function(require,module,exports){
+},{"../Stream":15,"../disposable/dispose":44,"../fusion/Map":48,"../scheduler/PropagateTask":55,"../sink/Pipe":62}],27:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -1931,7 +2035,7 @@ LoopSink.prototype.end = function(t) {
 	this.sink.end(t, this.seed);
 };
 
-},{"../Stream":14,"../sink/Pipe":61}],27:[function(require,module,exports){
+},{"../Stream":15,"../sink/Pipe":62}],28:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -2029,7 +2133,7 @@ MergeSink.prototype.end = function(t, indexedValue) {
 	}
 };
 
-},{"../Stream":14,"../disposable/dispose":43,"../sink/IndexSink":60,"../sink/Pipe":61,"../source/core":65,"@most/prelude":5}],28:[function(require,module,exports){
+},{"../Stream":15,"../disposable/dispose":44,"../sink/IndexSink":61,"../sink/Pipe":62,"../source/core":66,"@most/prelude":6}],29:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -2159,7 +2263,7 @@ Inner.prototype.dispose = function() {
 	return this.disposable.dispose();
 };
 
-},{"../LinkedList":11,"../Stream":14,"../disposable/dispose":43,"@most/prelude":5}],29:[function(require,module,exports){
+},{"../LinkedList":12,"../Stream":15,"../disposable/dispose":44,"@most/prelude":6}],30:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -2195,7 +2299,7 @@ function drain(stream) {
 	return run(stream.source);
 }
 
-},{"../disposable/dispose":43,"../runSource":53,"../scheduler/defaultScheduler":56,"./transform":38}],30:[function(require,module,exports){
+},{"../disposable/dispose":44,"../runSource":54,"../scheduler/defaultScheduler":57,"./transform":39}],31:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -2287,7 +2391,7 @@ AwaitSink.prototype._end = function(x) {
 	return Promise.resolve(x).then(this._endBound);
 };
 
-},{"../Stream":14,"../fatalError":44,"../source/core":65}],31:[function(require,module,exports){
+},{"../Stream":15,"../fatalError":45,"../source/core":66}],32:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -2400,7 +2504,7 @@ function getValue(hold) {
 	return hold.value;
 }
 
-},{"../Stream":14,"../disposable/dispose":43,"../invoke":48,"../sink/Pipe":61,"@most/prelude":5}],32:[function(require,module,exports){
+},{"../Stream":15,"../disposable/dispose":44,"../invoke":49,"../sink/Pipe":62,"@most/prelude":6}],33:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -2581,7 +2685,7 @@ SkipWhileSink.prototype.event = function(t, x) {
 	this.sink.event(t, x);
 };
 
-},{"../Stream":14,"../disposable/dispose":43,"../fusion/Map":47,"../sink/Pipe":61,"../source/core":65}],33:[function(require,module,exports){
+},{"../Stream":15,"../disposable/dispose":44,"../fusion/Map":48,"../sink/Pipe":62,"../source/core":66}],34:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -2693,7 +2797,7 @@ Segment.prototype._dispose = function(t) {
 	dispose.tryDispose(t, this.disposable, this.sink)
 };
 
-},{"../Stream":14,"../disposable/dispose":43}],34:[function(require,module,exports){
+},{"../Stream":15,"../disposable/dispose":44}],35:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -2702,7 +2806,7 @@ exports.thru = function thru(f, stream) {
 	return f(stream);
 }
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -2820,7 +2924,7 @@ UpperBound.prototype.dispose = function() {
 
 function noop() {}
 
-},{"../Stream":14,"../combinator/flatMap":24,"../disposable/dispose":43,"../sink/Pipe":61}],36:[function(require,module,exports){
+},{"../Stream":15,"../combinator/flatMap":25,"../disposable/dispose":44,"../sink/Pipe":62}],37:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -2853,7 +2957,7 @@ TimestampSink.prototype.event = function(t, x) {
 	this.sink.event(t, { time: t, value: x });
 };
 
-},{"../Stream":14,"../sink/Pipe":61}],37:[function(require,module,exports){
+},{"../Stream":15,"../sink/Pipe":62}],38:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -2978,7 +3082,7 @@ LegacyTxAdapter.prototype.getResult = function(x) {
 	return x.value;
 };
 
-},{"../Stream":14}],38:[function(require,module,exports){
+},{"../Stream":15}],39:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -3047,7 +3151,7 @@ TapSink.prototype.event = function(t, x) {
 	this.sink.event(t, x);
 }
 
-},{"../Stream":14,"../fusion/Map":47,"../sink/Pipe":61}],39:[function(require,module,exports){
+},{"../Stream":15,"../fusion/Map":48,"../sink/Pipe":62}],40:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -3182,7 +3286,7 @@ function ready(buffers) {
 	return true;
 }
 
-},{"../Queue":13,"../Stream":14,"../disposable/dispose":43,"../invoke":48,"../sink/IndexSink":60,"../sink/Pipe":61,"../source/core":65,"./transform":38,"@most/prelude":5}],40:[function(require,module,exports){
+},{"../Queue":14,"../Stream":15,"../disposable/dispose":44,"../invoke":49,"../sink/IndexSink":61,"../sink/Pipe":62,"../source/core":66,"./transform":39,"@most/prelude":6}],41:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -3201,7 +3305,7 @@ function runTask(task) {
 	}
 }
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -3223,7 +3327,7 @@ Disposable.prototype.dispose = function() {
 	return this._dispose(this._data);
 };
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -3267,7 +3371,7 @@ SettableDisposable.prototype.dispose = function() {
 	return this.result;
 };
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -3396,7 +3500,7 @@ function memoized(disposable) {
 	return { disposed: false, disposable: disposable, value: void 0 };
 }
 
-},{"../Promise":12,"./Disposable":41,"./SettableDisposable":42,"@most/prelude":5}],44:[function(require,module,exports){
+},{"../Promise":13,"./Disposable":42,"./SettableDisposable":43,"@most/prelude":6}],45:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -3409,7 +3513,7 @@ function fatalError (e) {
 	}, 0);
 }
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -3460,7 +3564,7 @@ function and(p, q) {
 	};
 }
 
-},{"../sink/Pipe":61}],46:[function(require,module,exports){
+},{"../sink/Pipe":62}],47:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -3494,7 +3598,7 @@ FilterMapSink.prototype.event = function(t, x) {
 FilterMapSink.prototype.end = Pipe.prototype.end;
 FilterMapSink.prototype.error = Pipe.prototype.error;
 
-},{"../sink/Pipe":61}],47:[function(require,module,exports){
+},{"../sink/Pipe":62}],48:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -3547,7 +3651,7 @@ MapSink.prototype.event = function(t, x) {
 	this.sink.event(t, f(x));
 };
 
-},{"../sink/Pipe":61,"./Filter":45,"./FilterMap":46,"@most/prelude":5}],48:[function(require,module,exports){
+},{"../sink/Pipe":62,"./Filter":46,"./FilterMap":47,"@most/prelude":6}],49:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -3568,7 +3672,7 @@ function invoke(f, args) {
 	}
 }
 
-},{}],49:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -3601,7 +3705,7 @@ function makeIterable(f, o) {
 	return o;
 }
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -3653,7 +3757,7 @@ function unsubscribe(subscription) {
 	return subscription.unsubscribe();
 }
 
-},{"../Stream":14,"../disposable/dispose":43}],51:[function(require,module,exports){
+},{"../Stream":15,"../disposable/dispose":44}],52:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -3677,7 +3781,7 @@ function getObservable(o) {
 	return obs;
 }
 
-},{"symbol-observable":78}],52:[function(require,module,exports){
+},{"symbol-observable":79}],53:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -3745,7 +3849,7 @@ function doDispose(fatal, subscriber, complete, error, disposable, x) {
 	}).catch(fatal);
 }
 
-},{"../disposable/dispose":43,"../fatalError":44,"../scheduler/defaultScheduler":56}],53:[function(require,module,exports){
+},{"../disposable/dispose":44,"../fatalError":45,"../scheduler/defaultScheduler":57}],54:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -3801,7 +3905,7 @@ function disposeThen(end, error, disposable, x) {
 	}, error);
 }
 
-},{"./disposable/dispose":43,"./scheduler/defaultScheduler":56}],54:[function(require,module,exports){
+},{"./disposable/dispose":44,"./scheduler/defaultScheduler":57}],55:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -3859,7 +3963,7 @@ function end(t, x, sink) {
 	sink.end(t, x);
 }
 
-},{"../fatalError":44}],55:[function(require,module,exports){
+},{"../fatalError":45}],56:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4083,7 +4187,7 @@ function newTimeslot(t, events) {
 	return { time: t, events: events };
 }
 
-},{"@most/prelude":5}],56:[function(require,module,exports){
+},{"@most/prelude":6}],57:[function(require,module,exports){
 (function (process){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
@@ -4099,7 +4203,7 @@ var isNode = typeof process === 'object'
 module.exports = new Scheduler(isNode ? nodeTimer : setTimeoutTimer);
 
 }).call(this,require('_process'))
-},{"./Scheduler":55,"./nodeTimer":57,"./timeoutTimer":58,"_process":77}],57:[function(require,module,exports){
+},{"./Scheduler":56,"./nodeTimer":58,"./timeoutTimer":59,"_process":78}],58:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4145,7 +4249,7 @@ module.exports = {
 	}
 };
 
-},{"../defer":40}],58:[function(require,module,exports){
+},{"../defer":41}],59:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4162,7 +4266,7 @@ module.exports = {
 	}
 };
 
-},{}],59:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4253,7 +4357,7 @@ ErrorTask.prototype.error = function(e) {
 	throw e;
 };
 
-},{"../defer":40}],60:[function(require,module,exports){
+},{"../defer":41}],61:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4287,7 +4391,7 @@ IndexSink.prototype.end = function(t, x) {
 
 IndexSink.prototype.error = Sink.prototype.error;
 
-},{"./Pipe":61}],61:[function(require,module,exports){
+},{"./Pipe":62}],62:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4316,7 +4420,7 @@ Pipe.prototype.error = function(t, e) {
 	return this.sink.error(t, e);
 };
 
-},{}],62:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4353,7 +4457,7 @@ SafeSink.prototype.disable = function() {
 	return this.sink;
 }
 
-},{}],63:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4400,7 +4504,7 @@ function disposeEventEmitter(info) {
 	target.source.removeListener(target.event, info.addEvent);
 }
 
-},{"../disposable/dispose":43,"../sink/DeferredSink":59,"./tryEvent":74}],64:[function(require,module,exports){
+},{"../disposable/dispose":44,"../sink/DeferredSink":60,"./tryEvent":75}],65:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4432,7 +4536,7 @@ function disposeEventTarget(info) {
 	target.source.removeEventListener(target.event, info.addEvent, target.capture);
 }
 
-},{"../disposable/dispose":43,"./tryEvent":74}],65:[function(require,module,exports){
+},{"../disposable/dispose":44,"./tryEvent":75}],66:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4506,7 +4610,7 @@ NeverSource.prototype.run = function() {
 
 var NEVER = new Stream(new NeverSource());
 
-},{"../Stream":14,"../disposable/dispose":43,"../scheduler/PropagateTask":54}],66:[function(require,module,exports){
+},{"../Stream":15,"../disposable/dispose":44,"../scheduler/PropagateTask":55}],67:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4587,7 +4691,7 @@ Subscription.prototype.dispose = function() {
 	}
 };
 
-},{"../Stream":14,"../sink/DeferredSink":59,"./tryEvent":74,"@most/multicast":4}],67:[function(require,module,exports){
+},{"../Stream":15,"../sink/DeferredSink":60,"./tryEvent":75,"@most/multicast":5}],68:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4623,7 +4727,7 @@ function from(a) { // eslint-disable-line complexity
 	throw new TypeError('from(x) must be observable, iterable, or array-like: ' + a);
 }
 
-},{"../Stream":14,"../iterable":49,"../observable/fromObservable":50,"../observable/getObservable":51,"./fromArray":68,"./fromIterable":70,"@most/prelude":5}],68:[function(require,module,exports){
+},{"../Stream":15,"../iterable":50,"../observable/fromObservable":51,"../observable/getObservable":52,"./fromArray":69,"./fromIterable":71,"@most/prelude":6}],69:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4657,7 +4761,7 @@ function runProducer(t, array, sink) {
 	}
 }
 
-},{"../Stream":14,"../scheduler/PropagateTask":54}],69:[function(require,module,exports){
+},{"../Stream":15,"../scheduler/PropagateTask":55}],70:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4693,7 +4797,7 @@ function fromEvent(event, source /*, useCapture = false */) {
 	return new Stream(s);
 }
 
-},{"../Stream":14,"./EventEmitterSource":63,"./EventTargetSource":64,"@most/multicast":4}],70:[function(require,module,exports){
+},{"../Stream":15,"./EventEmitterSource":64,"./EventTargetSource":65,"@most/multicast":5}],71:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4738,7 +4842,7 @@ function runProducer(t, producer, sink) {
 	producer.scheduler.asap(producer.task);
 }
 
-},{"../Stream":14,"../iterable":49,"../scheduler/PropagateTask":54}],71:[function(require,module,exports){
+},{"../Stream":15,"../iterable":50,"../scheduler/PropagateTask":55}],72:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2014 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4810,7 +4914,7 @@ Generate.prototype.dispose = function() {
 	this.active = false;
 };
 
-},{"../Stream":14,"@most/prelude":5}],72:[function(require,module,exports){
+},{"../Stream":15,"@most/prelude":6}],73:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4880,7 +4984,7 @@ function continueIterate(iterate, x) {
 	return !iterate.active ? iterate.value : stepIterate(iterate, x);
 }
 
-},{"../Stream":14}],73:[function(require,module,exports){
+},{"../Stream":15}],74:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4915,7 +5019,7 @@ function emit(t, x, sink) {
 	sink.event(t, x);
 }
 
-},{"../Stream":14,"../disposable/dispose":43,"../scheduler/PropagateTask":54,"@most/multicast":4}],74:[function(require,module,exports){
+},{"../Stream":15,"../disposable/dispose":44,"../scheduler/PropagateTask":55,"@most/multicast":5}],75:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4939,7 +5043,7 @@ function tryEnd(t, x, sink) {
 	}
 }
 
-},{}],75:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -5014,7 +5118,7 @@ function continueUnfold(unfold, tuple) {
 	return stepUnfold(unfold, tuple.seed);
 }
 
-},{"../Stream":14}],76:[function(require,module,exports){
+},{"../Stream":15}],77:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2016 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -5728,7 +5832,7 @@ Stream.prototype.multicast = function() {
 	return multicast(this);
 };
 
-},{"./lib/Stream":14,"./lib/combinator/accumulate":15,"./lib/combinator/applicative":16,"./lib/combinator/build":17,"./lib/combinator/combine":18,"./lib/combinator/concatMap":19,"./lib/combinator/continueWith":20,"./lib/combinator/delay":21,"./lib/combinator/errors":22,"./lib/combinator/filter":23,"./lib/combinator/flatMap":24,"./lib/combinator/limit":25,"./lib/combinator/loop":26,"./lib/combinator/merge":27,"./lib/combinator/mergeConcurrently":28,"./lib/combinator/observe":29,"./lib/combinator/promises":30,"./lib/combinator/sample":31,"./lib/combinator/slice":32,"./lib/combinator/switch":33,"./lib/combinator/thru":34,"./lib/combinator/timeslice":35,"./lib/combinator/timestamp":36,"./lib/combinator/transduce":37,"./lib/combinator/transform":38,"./lib/combinator/zip":39,"./lib/observable/subscribe":52,"./lib/source/core":65,"./lib/source/create":66,"./lib/source/from":67,"./lib/source/fromEvent":69,"./lib/source/generate":71,"./lib/source/iterate":72,"./lib/source/periodic":73,"./lib/source/unfold":75,"@most/multicast":4,"@most/prelude":5,"symbol-observable":78}],77:[function(require,module,exports){
+},{"./lib/Stream":15,"./lib/combinator/accumulate":16,"./lib/combinator/applicative":17,"./lib/combinator/build":18,"./lib/combinator/combine":19,"./lib/combinator/concatMap":20,"./lib/combinator/continueWith":21,"./lib/combinator/delay":22,"./lib/combinator/errors":23,"./lib/combinator/filter":24,"./lib/combinator/flatMap":25,"./lib/combinator/limit":26,"./lib/combinator/loop":27,"./lib/combinator/merge":28,"./lib/combinator/mergeConcurrently":29,"./lib/combinator/observe":30,"./lib/combinator/promises":31,"./lib/combinator/sample":32,"./lib/combinator/slice":33,"./lib/combinator/switch":34,"./lib/combinator/thru":35,"./lib/combinator/timeslice":36,"./lib/combinator/timestamp":37,"./lib/combinator/transduce":38,"./lib/combinator/transform":39,"./lib/combinator/zip":40,"./lib/observable/subscribe":53,"./lib/source/core":66,"./lib/source/create":67,"./lib/source/from":68,"./lib/source/fromEvent":70,"./lib/source/generate":72,"./lib/source/iterate":73,"./lib/source/periodic":74,"./lib/source/unfold":76,"@most/multicast":5,"@most/prelude":6,"symbol-observable":79}],78:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -5824,7 +5928,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],78:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 (function (global){
 /* global window */
 'use strict';
@@ -5832,7 +5936,7 @@ process.umask = function() { return 0; };
 module.exports = require('./ponyfill')(global || window || this);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./ponyfill":79}],79:[function(require,module,exports){
+},{"./ponyfill":80}],80:[function(require,module,exports){
 'use strict';
 
 module.exports = function symbolObservablePonyfill(root) {
