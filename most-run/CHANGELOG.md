@@ -1,3 +1,13 @@
+<a name="3.0.0"></a>
+# [3.0.0](https://github.com/TylorS/most-proxy/compare/v2.0.0...v3.0.0) (2016-06-11)
+
+
+### Bug Fixes
+
+* **package:** update most-adapter to v3, base to v4 ([bf66b9f](https://github.com/TylorS/most-proxy/commit/bf66b9f))
+
+
+
 <a name="2.0.0"></a>
 # [2.0.0](https://github.com/TylorS/most-proxy/compare/e15b460...v2.0.0) (2016-06-03)
 
