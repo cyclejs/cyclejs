@@ -11,7 +11,7 @@ import {subject} from 'most-subject';
 import hold from '@most/hold';
 
 const MostAdapter: StreamAdapter = {
-  adapt <T>(originStream: any, originStreamSubscribe: StreamSubscribe): Stream<T> {
+  adapt<T>(originStream: any, originStreamSubscribe: StreamSubscribe): Stream<T> {
     if (MostAdapter.isValidStream(originStream)) { return originStream; };
     let dispose: any;
     const stream = subject<any>();
@@ -30,11 +30,11 @@ const MostAdapter: StreamAdapter = {
     return stream;
   },
 
-  remember <T>(stream: Stream<T>): Stream<T> {
+  remember<T>(stream: Stream<T>): Stream<T> {
     return stream.thru(hold);
   },
 
-  makeSubject <T>(): Subject<T> {
+  makeSubject<T>(): Subject<T> {
     const stream = subject<any>();
 
     const observer = {
@@ -55,10 +55,6 @@ const MostAdapter: StreamAdapter = {
   streamSubscribe<T>(stream: Stream<any>, observer: Observer<T>) {
     const subscription = stream.subscribe(observer);
     return () => subscription.unsubscribe();
-  },
-
-  cast <T>(stream: Stream<any>): Stream<T> {
-    return stream;
   }
 };
 

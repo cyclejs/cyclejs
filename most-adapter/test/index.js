@@ -1,17 +1,16 @@
 import {describe, it} from 'mocha'
 import assert from 'power-assert'
-import StreamAdapter from '../lib/index'
+import MostAdapter from '../lib/index'
 import most from 'most'
 
-describe('StreamAdapter', () => {
+describe('MostAdapter', () => {
   it('should conform to StreamLibrary interface', () => {
-    assert.strictEqual(typeof StreamAdapter, 'object')
-    assert.strictEqual(typeof StreamAdapter.adapt, 'function')
-    assert.strictEqual(typeof StreamAdapter.remember, 'function')
-    assert.strictEqual(typeof StreamAdapter.makeSubject, 'function')
-    assert.strictEqual(typeof StreamAdapter.isValidStream, 'function')
-    assert.strictEqual(typeof StreamAdapter.streamSubscribe, 'function')
-    assert.strictEqual(typeof StreamAdapter.cast, 'function')
+    assert.strictEqual(typeof MostAdapter, 'object')
+    assert.strictEqual(typeof MostAdapter.adapt, 'function')
+    assert.strictEqual(typeof MostAdapter.remember, 'function')
+    assert.strictEqual(typeof MostAdapter.makeSubject, 'function')
+    assert.strictEqual(typeof MostAdapter.isValidStream, 'function')
+    assert.strictEqual(typeof MostAdapter.streamSubscribe, 'function')
   })
 
   it('should adapt from a dummy adapter to this adapter stream', (done) => {
@@ -28,9 +27,9 @@ describe('StreamAdapter', () => {
 
     const dummyStream = [1, 2, 3]
 
-    const stream = StreamAdapter.adapt(dummyStream, arraySubscribe)
+    const stream = MostAdapter.adapt(dummyStream, arraySubscribe)
 
-    assert.strictEqual(StreamAdapter.isValidStream(stream), true)
+    assert.strictEqual(MostAdapter.isValidStream(stream), true)
 
     const expected = [1, 2, 3]
 
@@ -44,14 +43,14 @@ describe('StreamAdapter', () => {
   })
 
   it('should create a subject which can be fed and subscribed to', (done) => {
-    const subject = StreamAdapter.makeSubject()
+    const subject = MostAdapter.makeSubject()
     assert.strictEqual(subject.stream instanceof most.Stream, true)
-    assert.strictEqual(StreamAdapter.isValidStream(subject.stream), true)
+    assert.strictEqual(MostAdapter.isValidStream(subject.stream), true)
 
     const observer1Expected = [1, 2, 3, 4]
     const observer2Expected = [3, 4]
 
-    StreamAdapter.streamSubscribe(subject.stream, {
+    MostAdapter.streamSubscribe(subject.stream, {
       next: (x) => assert.strictEqual(x, observer1Expected.shift()),
       error: done,
       complete: () => assert.strictEqual(observer1Expected.length, 0)
@@ -60,7 +59,38 @@ describe('StreamAdapter', () => {
     subject.observer.next(1)
     subject.observer.next(2)
 
-    StreamAdapter.streamSubscribe(subject.stream, {
+    MostAdapter.streamSubscribe(subject.stream, {
+      next: (x) => assert.strictEqual(x, observer2Expected.shift()),
+      error: done,
+      complete: () => assert.strictEqual(observer2Expected.length, 0)
+    })
+
+    subject.observer.next(3)
+    subject.observer.next(4)
+    subject.observer.complete()
+
+    setTimeout(done, 20)
+  })
+
+  it('should create a remembered subject which can be fed and subscribed to', (done) => {
+    const subject = MostAdapter.makeSubject()
+    assert.strictEqual(subject.stream instanceof most.Stream, true)
+    assert.strictEqual(MostAdapter.isValidStream(subject.stream), true)
+    const remembered = MostAdapter.remember(subject.stream);
+
+    const observer1Expected = [1, 2, 3, 4]
+    const observer2Expected = [2, 3, 4]
+
+    MostAdapter.streamSubscribe(remembered, {
+      next: (x) => assert.strictEqual(x, observer1Expected.shift()),
+      error: done,
+      complete: () => assert.strictEqual(observer1Expected.length, 0)
+    })
+
+    subject.observer.next(1)
+    subject.observer.next(2)
+
+    MostAdapter.streamSubscribe(remembered, {
       next: (x) => assert.strictEqual(x, observer2Expected.shift()),
       error: done,
       complete: () => assert.strictEqual(observer2Expected.length, 0)
