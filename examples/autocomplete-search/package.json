@@ -5,10 +5,10 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/xstream-run": "1.1.0",
-    "@cycle/dom": "10.0.0-rc18",
-    "@cycle/jsonp": "6.0.0-rc3",
-    "xstream": "2.4.x",
+    "@cycle/xstream-run": "3.0.0",
+    "@cycle/dom": "10.0.0-rc31",
+    "@cycle/jsonp": "6.0.0-rc4",
+    "xstream": "4.x",
     "cycle-restart": "0.0.9",
     "immutable": "^3.7.4"
   },
