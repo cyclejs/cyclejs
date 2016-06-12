@@ -27,16 +27,15 @@ function LabeledSlider(sources: Sources): Sinks {
     .map(ev => parseInt((<HTMLInputElement> ev.target).value));
   let value$ = xs.merge(initialValue$, newValue$).remember();
 
-  let vtree$ = xs.combine(
-    (props, value) =>
+  let vtree$ = xs.combine(props$, value$)
+    .map(([props, value]) =>
       div('.labeled-slider', [
         span('.label', [ props.label + ' ' + value + props.unit ]),
         input('.slider', {
           attrs: {type: 'range', min: props.min, max: props.max, value: value}
         })
-      ]),
-    props$, value$
-  );
+      ])
+    );
 
   return {
     DOM: vtree$,
