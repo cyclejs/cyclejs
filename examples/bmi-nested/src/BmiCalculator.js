@@ -17,25 +17,22 @@ function BmiCalculator({DOM}) {
   let weightSlider = WeightSlider({DOM, props$: weightProps$});
   let heightSlider = HeightSlider({DOM, props$: heightProps$});
 
-  let bmi$ = xs.combine(
-    (weight, height) => {
+  let bmi$ = xs.combine(weightSlider.value$, heightSlider.value$)
+    .map(([weight, height]) => {
       let heightMeters = height * 0.01;
       let bmi = Math.round(weight / (heightMeters * heightMeters));
       return bmi;
-    },
-    weightSlider.value$, heightSlider.value$
-  );
+    });
 
   return {
-    DOM: xs.combine(
-      (bmi, weightVTree, heightVTree) =>
+    DOM: xs.combine(bmi$, weightSlider.DOM, heightSlider.DOM)
+      .map(([bmi, weightVTree, heightVTree]) =>
         div([
           weightVTree,
           heightVTree,
           h2('BMI is ' + bmi)
-        ]),
-      bmi$, weightSlider.DOM, heightSlider.DOM
-    )
+        ])
+      )
   };
 }
 
