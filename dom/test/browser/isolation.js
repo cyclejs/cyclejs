@@ -3,7 +3,7 @@
 let assert = require('assert');
 let Cycle = require('@cycle/rxjs-run').default;
 let CycleDOM = require('../../lib/index');
-let isolate = require('@cycle/isolate');
+let isolate = require('@cycle/isolate').default;
 let Rx = require('rxjs');
 let {h, svg, div, p, span, h2, h3, h4, hJSX, select, option, button, makeDOMDriver} = CycleDOM;
 

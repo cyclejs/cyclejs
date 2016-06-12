@@ -14,8 +14,8 @@ function createVTree(vnode: VNode, children: Array<any>): any {
   };
 }
 
-export function makeTransposeVNode(runStreamAdapter: StreamAdapter): (vnode: any) => Stream<VNode> {
-  return function transposeVNode(vnode: any): any {
+export function makeTransposeVNode(runStreamAdapter: StreamAdapter): (vnode: VNode) => Stream<VNode> {
+  return function transposeVNode(vnode: VNode): Stream<VNode> {
     if (!vnode) {
       return null;
     } else if (vnode && typeof vnode.data === `object` && vnode.data.static) {
@@ -32,12 +32,14 @@ export function makeTransposeVNode(runStreamAdapter: StreamAdapter): (vnode: any
         .map(transposeVNode)
         .filter((x: any) => x !== null);
 
-      return vnodeChildren.length === 0 ?
-        xs.of(createVTree(vnode, vnodeChildren)) :
-        xs.combine(
-          (...children) => createVTree(vnode, children),
-          ...vnodeChildren
-        );
+      if (vnodeChildren.length === 0) {
+        return xs.of(createVTree(vnode, []));
+      } else if (vnodeChildren.length === 1) {
+        return vnodeChildren[0].map(child => createVTree(vnode, [child]));
+      } else {
+        return xs.combine(...vnodeChildren)
+          .map(children => createVTree(vnode, children));
+      }
     } else {
       throw new Error(`Unhandled vTree Value`);
     }

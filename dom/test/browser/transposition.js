@@ -199,7 +199,7 @@ describe('DOM rendering with transposition', function () {
           div([
             Rx.Observable.of(1).concat(Rx.Observable.of(2).delay(5)).map(outer =>
               Rx.Observable.of(1).concat(Rx.Observable.of(2).delay(10)).map(inner =>
-                div('.target', outer+'/'+inner)
+                div('.target', [outer+'/'+inner])
               )
             )
           ])
