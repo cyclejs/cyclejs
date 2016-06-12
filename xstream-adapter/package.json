@@ -50,10 +50,10 @@
     "typings": "^0.8.0",
     "uglify-js": "^2.6.2",
     "validate-commit-msg": "^2.4.0",
-    "xstream": "4.x.x"
+    "xstream": "5.x.x"
   },
   "peerDependencies": {
-    "xstream": "4.x.x"
+    "xstream": "4.x - 5.x"
   },
   "config": {
     "commitizen": {
