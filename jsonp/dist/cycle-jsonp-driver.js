@@ -1,103 +1,50 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.CycleJSONPDriver = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-/**
- * Module dependencies
- */
-
-var debug = require('debug')('jsonp');
-
-/**
- * Module exports.
- */
-
-module.exports = jsonp;
-
-/**
- * Callback index.
- */
-
-var count = 0;
-
-/**
- * Noop function.
- */
-
-function noop(){}
-
-/**
- * JSONP handler
- *
- * Options:
- *  - param {String} qs parameter (`callback`)
- *  - prefix {String} qs parameter (`__jp`)
- *  - name {String} qs parameter (`prefix` + incr)
- *  - timeout {Number} how long after a timeout error is emitted (`60000`)
- *
- * @param {String} url
- * @param {Object|Function} optional options / callback
- * @param {Function} optional callback
- */
-
-function jsonp(url, opts, fn){
-  if ('function' == typeof opts) {
-    fn = opts;
-    opts = {};
-  }
-  if (!opts) opts = {};
-
-  var prefix = opts.prefix || '__jp';
-
-  // use the callback name that was passed if one was provided.
-  // otherwise generate a unique name by incrementing our counter.
-  var id = opts.name || (prefix + (count++));
-
-  var param = opts.param || 'callback';
-  var timeout = null != opts.timeout ? opts.timeout : 60000;
-  var enc = encodeURIComponent;
-  var target = document.getElementsByTagName('script')[0] || document.head;
-  var script;
-  var timer;
-
-
-  if (timeout) {
-    timer = setTimeout(function(){
-      cleanup();
-      if (fn) fn(new Error('Timeout'));
-    }, timeout);
-  }
-
-  function cleanup(){
-    if (script.parentNode) script.parentNode.removeChild(script);
-    window[id] = noop;
-    if (timer) clearTimeout(timer);
-  }
-
-  function cancel(){
-    if (window[id]) {
-      cleanup();
+"use strict";
+var xstream_1 = require('xstream');
+var XStreamAdapter = {
+    adapt: function (originStream, originStreamSubscribe) {
+        if (XStreamAdapter.isValidStream(originStream)) {
+            return originStream;
+        }
+        ;
+        var dispose = null;
+        return xstream_1.default.create({
+            start: function (out) {
+                var observer = out;
+                dispose = originStreamSubscribe(originStream, observer);
+            },
+            stop: function () {
+                if (typeof dispose === 'function') {
+                    dispose();
+                }
+            }
+        });
+    },
+    makeSubject: function () {
+        var stream = xstream_1.default.create();
+        var observer = {
+            next: function (x) { stream.shamefullySendNext(x); },
+            error: function (err) { stream.shamefullySendError(err); },
+            complete: function () { stream.shamefullySendComplete(); }
+        };
+        return { observer: observer, stream: stream };
+    },
+    remember: function (stream) {
+        return stream.remember();
+    },
+    isValidStream: function (stream) {
+        return (typeof stream.addListener === 'function' &&
+            typeof stream.shamefullySendNext === 'function');
+    },
+    streamSubscribe: function (stream, observer) {
+        stream.addListener(observer);
+        return function () { return stream.removeListener(observer); };
     }
-  }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = XStreamAdapter;
 
-  window[id] = function(data){
-    debug('jsonp got', data);
-    cleanup();
-    if (fn) fn(null, data);
-  };
-
-  // add qs component
-  url += (~url.indexOf('?') ? '&' : '?') + param + '=' + enc(id);
-  url = url.replace('?&', '?');
-
-  debug('jsonp req "%s"', url);
-
-  // create script
-  script = document.createElement('script');
-  script.src = url;
-  target.parentNode.insertBefore(script, target);
-
-  return cancel;
-}
-
-},{"debug":2}],2:[function(require,module,exports){
+},{"xstream":undefined}],2:[function(require,module,exports){
 
 /**
  * This is the web browser implementation of `debug()`.
@@ -473,7 +420,106 @@ function coerce(val) {
   return val;
 }
 
-},{"ms":4}],4:[function(require,module,exports){
+},{"ms":5}],4:[function(require,module,exports){
+/**
+ * Module dependencies
+ */
+
+var debug = require('debug')('jsonp');
+
+/**
+ * Module exports.
+ */
+
+module.exports = jsonp;
+
+/**
+ * Callback index.
+ */
+
+var count = 0;
+
+/**
+ * Noop function.
+ */
+
+function noop(){}
+
+/**
+ * JSONP handler
+ *
+ * Options:
+ *  - param {String} qs parameter (`callback`)
+ *  - prefix {String} qs parameter (`__jp`)
+ *  - name {String} qs parameter (`prefix` + incr)
+ *  - timeout {Number} how long after a timeout error is emitted (`60000`)
+ *
+ * @param {String} url
+ * @param {Object|Function} optional options / callback
+ * @param {Function} optional callback
+ */
+
+function jsonp(url, opts, fn){
+  if ('function' == typeof opts) {
+    fn = opts;
+    opts = {};
+  }
+  if (!opts) opts = {};
+
+  var prefix = opts.prefix || '__jp';
+
+  // use the callback name that was passed if one was provided.
+  // otherwise generate a unique name by incrementing our counter.
+  var id = opts.name || (prefix + (count++));
+
+  var param = opts.param || 'callback';
+  var timeout = null != opts.timeout ? opts.timeout : 60000;
+  var enc = encodeURIComponent;
+  var target = document.getElementsByTagName('script')[0] || document.head;
+  var script;
+  var timer;
+
+
+  if (timeout) {
+    timer = setTimeout(function(){
+      cleanup();
+      if (fn) fn(new Error('Timeout'));
+    }, timeout);
+  }
+
+  function cleanup(){
+    if (script.parentNode) script.parentNode.removeChild(script);
+    window[id] = noop;
+    if (timer) clearTimeout(timer);
+  }
+
+  function cancel(){
+    if (window[id]) {
+      cleanup();
+    }
+  }
+
+  window[id] = function(data){
+    debug('jsonp got', data);
+    cleanup();
+    if (fn) fn(null, data);
+  };
+
+  // add qs component
+  url += (~url.indexOf('?') ? '&' : '?') + param + '=' + enc(id);
+  url = url.replace('?&', '?');
+
+  debug('jsonp req "%s"', url);
+
+  // create script
+  script = document.createElement('script');
+  script.src = url;
+  target.parentNode.insertBefore(script, target);
+
+  return cancel;
+}
+
+},{"debug":2}],5:[function(require,module,exports){
 /**
  * Helpers.
  */
@@ -598,43 +644,48 @@ function plural(ms, n, name) {
   return Math.ceil(ms / n) + ' ' + name + 's';
 }
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 (function (global){
 "use strict";
 
-var Rx = (typeof window !== "undefined" ? window['Rx'] : typeof global !== "undefined" ? global['Rx'] : null);
+var xs = (typeof window !== "undefined" ? window['xstream'] : typeof global !== "undefined" ? global['xstream'] : null)["default"];
 var jsonp = require("jsonp");
+var xsSA = require("@cycle/xstream-adapter")["default"];
 
 function createResponse$(url) {
-  return Rx.Observable.create(function (observer) {
-    if (typeof url !== "string") {
-      observer.onError(new Error("Observable of requests given to JSONP " + "Driver must emit URL strings."));
-      return function () {}; // noop
-    }
+  return xs.create({
+    start: function start(listener) {
+      if (typeof url !== "string") {
+        listener.error(new Error("Observable of requests given to JSONP " + "Driver must emit URL strings."));
+      }
 
-    try {
-      jsonp(url, function (err, res) {
-        if (err) {
-          observer.onError(err);
-        } else {
-          observer.onNext(res);
-          observer.onCompleted();
-        }
-      });
-    } catch (err) {
-      observer.onError(err);
-    }
+      try {
+        jsonp(url, function (err, res) {
+          if (err) {
+            listener.error(err);
+          } else {
+            listener.next(res);
+            listener.completed();
+          }
+        });
+      } catch (err) {
+        listener.error(err);
+      }
+    },
+    stop: function stop() {}
   });
 }
 
 function makeJSONPDriver() {
-  return function jsonpDriver(request$) {
+  function jsonpDriver(request$) {
     return request$.map(function (url) {
       var response$ = createResponse$(url);
       response$.request = url;
       return response$;
     });
-  };
+  }
+  jsonpDriver.streamAdapter = xsSA;
+  return jsonpDriver;
 }
 
 module.exports = {
@@ -662,5 +713,5 @@ module.exports = {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jsonp":1}]},{},[5])(5)
+},{"@cycle/xstream-adapter":1,"jsonp":4}]},{},[6])(6)
 });
