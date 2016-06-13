@@ -56,8 +56,7 @@ function model(action$, itemFn) {
   const initialState = [createNewItem({color: 'red', width: 300})]
 
   return xs.merge(addItemReducer$, removeItemReducer$)
-    .fold((listItems, reducer) => reducer(listItems), initialState)
-    .remember();
+    .fold((listItems, reducer) => reducer(listItems), initialState);
 }
 
 function view(items$) {
@@ -72,10 +71,8 @@ function view(items$) {
         vnode.key = item.id; return vnode;
       })
     );
-    return xs.combine(
-      (...vnodes) => div('.list', [addButtons].concat(vnodes)),
-      ...itemVNodeStreamsByKey
-    );
+    return xs.combine(...itemVNodeStreamsByKey)
+      .map(vnodes => div('.list', [addButtons].concat(vnodes)));
   }).flatten();
 }
 
