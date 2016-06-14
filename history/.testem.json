@@ -8,7 +8,6 @@
     "test/browser/bundle.js"
   ],
   "after_tests": "rm test/browser/bundle.js",
-  "script": "npm run test-ci",
   "launch_in_ci": [
     "firefox"
   ],

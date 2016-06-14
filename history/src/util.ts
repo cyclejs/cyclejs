@@ -27,7 +27,7 @@ const locationDefaults: Location = {
   action: 'POP',
   hash: '',
   search: '',
-  state: null,
+  state: undefined,
   key: null,
   query: null,
 };
@@ -38,4 +38,3 @@ export function createLocation(location?: Location | Pathname): Location {
   }
   return (<any> Object).assign({}, locationDefaults, location);
 }
-

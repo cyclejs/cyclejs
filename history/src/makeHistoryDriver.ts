@@ -42,6 +42,10 @@ export function makeHistoryDriver(history: History, options?: HistoryDriverOptio
 
   return function historyDriver(sink$: any, runSA: StreamAdapter) {
     let {observer, stream} = runSA.makeSubject();
+    let history$ = runSA.remember(stream
+      .startWith(history.getCurrentLocation())
+      .filter(Boolean));
+
     let unlisten = history.listen((location: Location) => {
       observer.next(location);
     });
@@ -69,9 +73,9 @@ export function makeHistoryDriver(history: History, options?: HistoryDriverOptio
       });
     }
 
-    stream.createHref = history.createHref;
-    stream.createLocation = history.createLocation;
+    history$.createHref = (href: Pathname) => history.createHref(href);
+    history$.createLocation = (location: Location | Pathname) => history.createLocation(location);
 
-    return stream;
+    return history$;
   };
 }
