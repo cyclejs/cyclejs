@@ -31,7 +31,7 @@ function isolateAllSinks(sources, sinks, scope) {
     var scopedSinks = {};
     for (var key in sinks) {
         if (sinks.hasOwnProperty(key)
-            && sources.hasOwnProperty(key)
+            && sources[key]
             && typeof sources[key].isolateSink === "function") {
             scopedSinks[key] = sources[key].isolateSink(sinks[key], scope);
         }
@@ -71,16 +71,16 @@ function isolateAllSinks(sources, sinks, scope) {
  * original `dataflowComponent` function, takes `sources` and returns `sinks`.
  * @function isolate
  */
-function isolate(dataflowComponent, scope) {
+function isolate(component, scope) {
     if (scope === void 0) { scope = newScope(); }
-    checkIsolateArgs(dataflowComponent, scope);
-    return function scopedDataflowComponent(sources) {
+    checkIsolateArgs(component, scope);
+    return function scopedComponent(sources) {
         var rest = [];
         for (var _i = 1; _i < arguments.length; _i++) {
             rest[_i - 1] = arguments[_i];
         }
         var scopedSources = isolateAllSources(sources, scope);
-        var sinks = dataflowComponent.apply(void 0, [scopedSources].concat(rest));
+        var sinks = component.apply(void 0, [scopedSources].concat(rest));
         var scopedSinks = isolateAllSinks(sources, sinks, scope);
         return scopedSinks;
     };
