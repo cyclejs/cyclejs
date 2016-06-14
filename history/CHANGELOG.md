@@ -1,3 +1,12 @@
+# v4.0.0 (2016-06-14)
+
+
+## Features
+
+- **src:** Updates to history 3.x.x (#26)
+  ([8e7d0bc4](https://github.com/git+https://github.com/cyclejs/history.git/commits/8e7d0bc4ac122deca4b64c4b84f9f3f73ba29b7a))
+
+
 # v3.1.0 (2016-05-03)
 
 
