@@ -88,6 +88,24 @@ describe('isolate', function () {
       assert.strictEqual(scopedSinks.other.scope[1], `a`);
     });
 
+    it('should not call `isolateSink` for a sink-only driver', function () {
+      function driver(sink) {
+      }
+
+      function MyDataflowComponent(sources) {
+        return {
+          other: ['a']
+        };
+      }
+      let scopedMyDataflowComponent;
+      assert.doesNotThrow(function () {
+        scopedMyDataflowComponent = isolate(MyDataflowComponent, `myScope`);
+      });
+      const scopedSinks = scopedMyDataflowComponent({other: driver()});
+      assert.strictEqual(scopedSinks.other.length, 1);
+      assert.strictEqual(scopedSinks.other[0], 'a');
+    });
+
     it('should call `isolateSink` of drivers', function () {
       function driver() {
         const isolateSink = function (sink, scope) {

@@ -32,7 +32,7 @@ function isolateAllSinks<So, Si>(sources: So, sinks: Si, scope: string): Si {
   const scopedSinks = <Si> {};
   for (let key in sinks) {
     if (sinks.hasOwnProperty(key)
-    && sources.hasOwnProperty(key)
+    && sources[key]
     && typeof sources[key].isolateSink === `function`) {
       scopedSinks[key] = sources[key].isolateSink(sinks[key], scope);
     } else if (sinks.hasOwnProperty(key)) {
