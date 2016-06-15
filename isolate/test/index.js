@@ -17,11 +17,18 @@ describe('isolate', function () {
     }, /First argument given to isolate\(\) must be a 'dataflowComponent' function/i);
   });
 
-  it('should throw if second argument is not a string', function () {
+  it('should throw if second argument is null', function () {
     function MyDataflowComponent() {}
     assert.throws(() => {
       isolate(MyDataflowComponent, null);
-    }, /Second argument given to isolate\(\) must be a string for 'scope'/i);
+    }, /Second argument given to isolate\(\) must not be null/i);
+  });
+
+  it('should convert the second argument to string if second argument is not a string', function () {
+    function MyDataflowComponent() {}
+    assert.doesNotThrow(() => {
+      isolate(MyDataflowComponent, 12);
+    });
   });
 
   it('should return a function', function () {

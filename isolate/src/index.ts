@@ -4,14 +4,13 @@ function newScope(): string {
   return `cycle${++counter}`;
 }
 
-function checkIsolateArgs(dataflowComponent: Function, scope: string) {
+function checkIsolateArgs(dataflowComponent: Function, scope: any) {
   if (typeof dataflowComponent !== `function`) {
     throw new Error(`First argument given to isolate() must be a ` +
       `'dataflowComponent' function`);
   }
-  if (typeof scope !== `string`) {
-    throw new Error(`Second argument given to isolate() must be a ` +
-      `string for 'scope'`);
+  if (scope === null) {
+    throw new Error(`Second argument given to isolate() must not be null`);
   }
 }
 
@@ -74,12 +73,13 @@ export type Component<So, Si> = (sources: So, ...rest: Array<any>) => Si;
  * original `dataflowComponent` function, takes `sources` and returns `sinks`.
  * @function isolate
  */
-function isolate<So, Si>(component: Component<So, Si>, scope: string = newScope()): Component<So, Si> {
+function isolate<So, Si>(component: Component<So, Si>, scope: any = newScope()): Component<So, Si> {
   checkIsolateArgs(component, scope);
+  let convertedScope: string = typeof scope === 'string' ? scope : scope.toString();
   return function scopedComponent(sources: So, ...rest: Array<any>): Si {
-    const scopedSources = isolateAllSources(sources, scope);
+    const scopedSources = isolateAllSources(sources, convertedScope);
     const sinks = component(scopedSources, ...rest);
-    const scopedSinks = isolateAllSinks(sources, sinks, scope);
+    const scopedSinks = isolateAllSinks(sources, sinks, convertedScope);
     return scopedSinks;
   };
 }
