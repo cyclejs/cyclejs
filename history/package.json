@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@cycle/base": "^4.0.0",
-    "@cycle/dom": "^10.0.0-rc32",
+    "@cycle/dom": "10.0.0-rc32",
     "@cycle/most-adapter": "^3.0.0",
     "@cycle/most-run": "^3.0.0",
     "@cycle/rxjs-adapter": "^3.0.0",
