@@ -35,7 +35,7 @@ function model(action$, createIsolatedFolder) {
   const children$ = xs.merge(addFolderUpdate$, removeFolderUpdate$)
     .fold((children, update) => update(children), new Map())
 
-  return children$.remember()
+  return children$
 }
 
 function style(backgroundColor) {
@@ -45,14 +45,6 @@ function style(backgroundColor) {
     width: 'auto',
     border: '2px solid black',
   }
-}
-
-function makeRandomColor() {
-  let hexColor = Math.floor(Math.random() * 16777215).toString(16)
-  while (hexColor.length < 6) {
-    hexColor = '0' + hexColor
-  }
-  return '#' + hexColor
 }
 
 function makeView(removable, color) {
@@ -65,6 +57,14 @@ function makeView(removable, color) {
       ))
     ])
   }
+}
+
+function makeRandomColor() {
+  let hexColor = Math.floor(Math.random() * 16777215).toString(16)
+  while (hexColor.length < 6) {
+    hexColor = '0' + hexColor
+  }
+  return '#' + hexColor
 }
 
 function createFolderComponent({id, removable = true}) {
