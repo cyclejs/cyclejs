@@ -953,13 +953,9 @@ function makeTransposeVNode(runStreamAdapter) {
             });
             if (vnodeChildren.length === 0) {
                 return xstream_1.default.of(createVTree(vnode, []));
-            } else if (vnodeChildren.length === 1) {
-                return vnodeChildren[0].map(function (child) {
-                    return createVTree(vnode, [child]);
-                });
             } else {
                 return xstream_1.default.combine.apply(xstream_1.default, vnodeChildren).map(function (children) {
-                    return createVTree(vnode, children);
+                    return createVTree(vnode, children.slice());
                 });
             }
         } else {
