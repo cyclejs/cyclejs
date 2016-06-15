@@ -34,11 +34,9 @@ export function makeTransposeVNode(runStreamAdapter: StreamAdapter): (vnode: VNo
 
       if (vnodeChildren.length === 0) {
         return xs.of(createVTree(vnode, []));
-      } else if (vnodeChildren.length === 1) {
-        return vnodeChildren[0].map(child => createVTree(vnode, [child]));
       } else {
         return xs.combine(...vnodeChildren)
-          .map(children => createVTree(vnode, children));
+          .map(children => createVTree(vnode, children.slice()));
       }
     } else {
       throw new Error(`Unhandled vTree Value`);

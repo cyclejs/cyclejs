@@ -38,7 +38,7 @@
     "snabbdom-to-html": "^2.0.1"
   },
   "peerDependencies": {
-    "xstream": "^5.0.2"
+    "xstream": "^5.0.5"
   },
   "devDependencies": {
     "@cycle/base": "^4.0.0",
