@@ -30,6 +30,7 @@
   ],
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
+  "dependencies": {},
   "devDependencies": {
     "assert": "^1.3.0",
     "babel-preset-es2015": "^6.3.13",
