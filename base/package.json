@@ -1,6 +1,6 @@
 {
   "name": "@cycle/base",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Base infrastructure for a generic run() function for Cycle.js",
   "license": "MIT",
   "homepage": "https://cyclejs.github.io",
