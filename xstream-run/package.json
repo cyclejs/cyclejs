@@ -21,8 +21,8 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "@cycle/base": "^4.0.0",
-    "@cycle/xstream-adapter": "^3.0.0"
+    "@cycle/base": "^4.0.1",
+    "@cycle/xstream-adapter": "^3.0.2"
   },
   "peerDependencies": {
     "xstream": "*"
