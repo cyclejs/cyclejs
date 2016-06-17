@@ -182,8 +182,9 @@ exports.default = Cycle;
 
 
 },{}],3:[function(require,module,exports){
+(function (global){
 "use strict";
-var xstream_1 = require('xstream');
+var xstream_1 = (typeof window !== "undefined" ? window['xstream'] : typeof global !== "undefined" ? global['xstream'] : null);
 var XStreamAdapter = {
     adapt: function (originStream, originStreamSubscribe) {
         if (XStreamAdapter.isValidStream(originStream)) {
@@ -227,5 +228,6 @@ var XStreamAdapter = {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = XStreamAdapter;
 
-},{"xstream":undefined}]},{},[1])(1)
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}]},{},[1])(1)
 });

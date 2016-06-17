@@ -65,7 +65,7 @@
     "posttest-browser": "rm test/browser/tests-bundle.js",
     "predist": "rm -rf dist/ && mkdirp dist/ && npm run lib && npm run docs",
     "postdist": "uglifyjs dist/cycle.js -o dist/cycle.min.js",
-    "dist": "browserify lib/index.js -t babelify -t browserify-shim --standalone Cycle --exclude xstream -o dist/cycle.js",
+    "dist": "browserify lib/index.js -t babelify --global-transform=browserify-shim --standalone Cycle --exclude xstream -o dist/cycle.js",
     "docs": "node ./scripts/make-api-docs.js",
     "prelib": "rm -rf lib/ && mkdirp lib",
     "lib": "tsc",
