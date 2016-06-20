@@ -182,8 +182,9 @@ exports.default = Cycle;
 
 
 },{}],3:[function(require,module,exports){
+(function (global){
 "use strict";
-var Rx = require('rxjs');
+var Rx = (typeof window !== "undefined" ? window['Rx'] : typeof global !== "undefined" ? global['Rx'] : null);
 var RxJSAdapter = {
     adapt: function (originStream, originStreamSubscribe) {
         if (this.isValidStream(originStream)) {
@@ -225,5 +226,6 @@ var RxJSAdapter = {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = RxJSAdapter;
 
-},{"rxjs":undefined}]},{},[1])(1)
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}]},{},[1])(1)
 });
