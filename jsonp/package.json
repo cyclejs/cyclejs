@@ -40,7 +40,7 @@
     "uglify": "uglifyjs dist/cycle-jsonp-driver.js -o dist/cycle-jsonp-driver.min.js",
     "precompile-lib": "rm -rf lib/ && mkdir -p lib",
     "compile-lib": "babel -d lib/ src/",
-    "dist": "npm run browserify && npm run uglify",
+    "dist": "npm run browserify && npm run uglify && npm run docs",
     "docs": "node ./scripts/make-api-docs.js",
     "prepublish": "npm run compile-lib",
     "release": "npm run release-patch",
