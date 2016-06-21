@@ -7,44 +7,12 @@ import CycleBase from '@cycle/base';
 import RxAdapter from '@cycle/rx-adapter';
 
 /**
- * A function that prepares the Cycle application to be executed. Takes a `main`
- * function and prepares to circularly connects it to the given collection of
- * driver functions. As an output, `Cycle()` returns an object with three
- * properties: `sources`, `sinks` and `run`. Only when `run()` is called will
- * the application actually execute. Refer to the documentation of `run()` for
- * more details.
- *
- * **Example:**
- * ```js
- * const {sources, sinks, run} = Cycle(main, drivers);
- * // ...
- * const dispose = run(); // Executes the application
- * // ...
- * dispose();
- * ```
- *
- * @param {Function} main a function that takes `sources` as input
- * and outputs a collection of `sinks` Observables.
- * @param {Object} drivers an object where keys are driver names and values
- * are driver functions.
- * @return {Object} an object with three properties: `sources`, `sinks` and
- * `run`. `sources` is the collection of driver sources, `sinks` is the
- * collection of driver sinks, these can be used for debugging or testing. `run`
- * is the function that once called will execute the application.
- * @function Cycle
- */
-const Cycle: CycleSetup = <CycleSetup>
-  function <Sources, Sinks>(main: (sources: Sources) => Sinks,
-                            drivers: {[name: string]: Function}): CycleExecution<Sources, Sinks> {
-    return CycleBase(main, drivers, {streamAdapter: RxAdapter});
-  };
-
-/**
  * Takes a `main` function and circularly connects it to the given collection
  * of driver functions.
  *
  * **Example:**
  * ```js
+ * import {run} from '@cycle/rx-run';
  * const dispose = Cycle.run(main, drivers);
  * // ...
  * dispose();
@@ -70,6 +38,40 @@ export function run<Sources, Sinks>(main: (sources: Sources) => Sinks,
   const {run} = CycleBase(main, drivers, {streamAdapter: RxAdapter});
   return run();
 }
+
+/**
+ * A function that prepares the Cycle application to be executed. Takes a `main`
+ * function and prepares to circularly connects it to the given collection of
+ * driver functions. As an output, `Cycle()` returns an object with three
+ * properties: `sources`, `sinks` and `run`. Only when `run()` is called will
+ * the application actually execute. Refer to the documentation of `run()` for
+ * more details.
+ *
+ * **Example:**
+ * ```js
+ * import Cycle from '@cycle/rx-run';
+ * const {sources, sinks, run} = Cycle(main, drivers);
+ * // ...
+ * const dispose = run(); // Executes the application
+ * // ...
+ * dispose();
+ * ```
+ *
+ * @param {Function} main a function that takes `sources` as input
+ * and outputs a collection of `sinks` Observables.
+ * @param {Object} drivers an object where keys are driver names and values
+ * are driver functions.
+ * @return {Object} an object with three properties: `sources`, `sinks` and
+ * `run`. `sources` is the collection of driver sources, `sinks` is the
+ * collection of driver sinks, these can be used for debugging or testing. `run`
+ * is the function that once called will execute the application.
+ * @function Cycle
+ */
+const Cycle: CycleSetup = <CycleSetup>
+  function <Sources, Sinks>(main: (sources: Sources) => Sinks,
+                            drivers: {[name: string]: Function}): CycleExecution<Sources, Sinks> {
+    return CycleBase(main, drivers, {streamAdapter: RxAdapter});
+  };
 
 Cycle.run = run;
 
