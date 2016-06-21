@@ -1,3 +1,8 @@
+<a name="3.0.1"></a>
+## [3.0.1](https://github.com/TylorS/most-proxy/compare/v3.0.0...v3.0.1) (2016-06-21)
+
+
+
 <a name="3.0.0"></a>
 # [3.0.0](https://github.com/TylorS/most-proxy/compare/v2.0.0...v3.0.0) (2016-06-11)
 
