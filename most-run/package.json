@@ -5,8 +5,6 @@
   "main": "lib/index.js",
   "typeings": "lib/index.d.ts",
   "scripts": {
-    "doc": "typedoc --out doc/ --module commonjs --target ES5 --name 'Cycle.js Most Adapter' src/index.ts",
-    "postdoc": "git add doc/ && git commit -m 'chore(docs): build doc/'",
     "changelog": "conventional-changelog --infile CHANGELOG.md --same-file --release-count 0 --preset angular",
     "postchangelog": "git add CHANGELOG.md && git commit -m 'chore(changelog): generate changelog'",
     "commit": "git-cz",
@@ -16,8 +14,9 @@
     "dist": "rimraf dist/ && mkdirp dist && npm run lib && browserify lib/index.js -t babelify --outfile dist/cycle-most-run.js && uglifyjs dist/cycle-most-run.js -o dist/cycle-most-run.min.js",
     "postdist": "git add dist/ && git commit -m 'chore(dist): build dist/'",
     "lib": "rimraf lib/ && mkdirp lib/ && typings install && tsc",
+    "docs": "node ./scripts/make-api-docs.js",
     "prepublish": "npm run lib",
-    "prerelease": "npm run doc && npm run dist",
+    "prerelease": " npm run dist && npm run docs",
     "release-patch": "npm run prerelease && npm version patch -m \"chore(release): release new version\" && npm run changelog",
     "release-minor": "npm run prerelease && npm version minor -m \"chore(release): release new version\" && npm run changelog",
     "release-major": "npm run prerelease && npm version major -m \"chore(release): release new version\" && npm run changelog"
@@ -58,6 +57,7 @@
     "creed": "^1.0.1",
     "cz-conventional-changelog": "^1.1.6",
     "ghooks": "^1.2.1",
+    "markdox": "0.1.10",
     "mkdirp": "^0.5.1",
     "mocha": "^2.5.3",
     "power-assert": "^1.4.1",

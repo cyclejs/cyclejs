@@ -4,8 +4,39 @@ import CycleBase, {
   CycleSetup,
   DisposeFunction
 } from '@cycle/base';
-
 import MostAdapter from '@cycle/most-adapter';
+
+/**
+ * Takes a `main` function and circularly connects it to the given collection
+ * of driver functions.
+ *
+ * **Example:**
+ * ```js
+ * import {run} from '@cycle/most-run';
+ * const dispose = run(main, drivers);
+ * // ...
+ * dispose();
+ * ```
+ *
+ * The `main` function expects a collection of "source" streams (returned from
+ * drivers) as input, and should return a collection of "sink" streams (to be
+ * given to drivers). A "collection of streams" is a JavaScript object where
+ * keys match the driver names registered by the `drivers` object, and values
+ * are the streams. Refer to the documentation of each driver to see more
+ * details on what types of sources it outputs and sinks it receives.
+ *
+ * @param {Function} main a function that takes `sources` as input and outputs
+ * `sinks`.
+ * @param {Object} drivers an object where keys are driver names and values
+ * are driver functions.
+ * @return {Function} a dispose function, used to terminate the execution of the
+ * Cycle.js program, cleaning up resources used.
+ * @function run
+ */
+function run<Sources, Sinks>(main: (sources: Sources) => Sinks,
+                             drivers: DriversDefinition): DisposeFunction {
+  return CycleBase(main, drivers, {streamAdapter: MostAdapter}).run();
+}
 
 /**
  * A function that prepares the Cycle application to be executed. Takes a `main`
@@ -17,6 +48,7 @@ import MostAdapter from '@cycle/most-adapter';
  *
  * **Example:**
  * ```js
+ * import Cycle from '@cycle/most-run';
  * const {sources, sinks, run} = Cycle(main, drivers);
  * // ...
  * const dispose = run(); // Executes the application
@@ -25,7 +57,7 @@ import MostAdapter from '@cycle/most-adapter';
  * ```
  *
  * @param {Function} main a function that takes `sources` as input
- * and outputs a collection of `sinks` Observables.
+ * and outputs `sinks`.
  * @param {Object} drivers an object where keys are driver names and values
  * are driver functions.
  * @return {Object} an object with three properties: `sources`, `sinks` and
@@ -39,37 +71,6 @@ const Cycle: CycleSetup = <CycleSetup>
                             drivers: DriversDefinition): CycleExecution<Sources, Sinks> {
     return CycleBase(main, drivers, {streamAdapter: MostAdapter});
   };
-
-/**
- * Takes a `main` function and circularly connects it to the given collection
- * of driver functions.
- *
- * **Example:**
- * ```js
- * const dispose = Cycle.run(main, drivers);
- * // ...
- * dispose();
- * ```
- *
- * The `main` function expects a collection of "source" Observables (returned
- * from drivers) as input, and should return a collection of "sink" Observables
- * (to be given to drivers). A "collection of Observables" is a JavaScript
- * object where keys match the driver names registered by the `drivers` object,
- * and values are the Observables. Refer to the documentation of each driver to
- * see more details on what types of sources it outputs and sinks it receives.
- *
- * @param {Function} main a function that takes `sources` as input
- * and outputs a collection of `sinks` Observables.
- * @param {Object} drivers an object where keys are driver names and values
- * are driver functions.
- * @return {Function} a dispose function, used to terminate the execution of the
- * Cycle.js program, cleaning up resources used.
- * @function run
- */
-function run<Sources, Sinks>(main: (sources: Sources) => Sinks,
-                             drivers: DriversDefinition): DisposeFunction {
-  return CycleBase(main, drivers, {streamAdapter: MostAdapter}).run();
-}
 
 Cycle.run = run;
 
