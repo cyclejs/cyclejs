@@ -1,5 +1,5 @@
 <? docfiles.forEach(function(doc) { ?>
-  # `Cycle` API
+  # Cycle Run API with RxJS v4
 
   <? doc.javadoc.forEach(function(x) { if (!x.ignore) { if (x.name) { ?>
   - [`<?= x.name ?>`](#<?= x.name ?>)<? } } }) ?>
@@ -35,7 +35,7 @@
       <? if (comment.paramTags.length > 0) { ?>
         #### Arguments:
         <? comment.paramTags.forEach(function(paramTag) { ?>
-          - `<?= paramTag.name ?><? if (paramTag.joinedTypes) { ?> :: <?= paramTag.joinedTypes.replace('.', '') ?><? } ?>`<? if (paramTag.description) { ?> <?= paramTag.description ?><? } ?><? }) ?>
+          - `<?= paramTag.name ?><? if (paramTag.joinedTypes) { ?>: <?= paramTag.joinedTypes.replace('.', '') ?><? } ?>`<? if (paramTag.description) { ?> <?= paramTag.description ?><? } ?><? }) ?>
       <? } ?>
 
       <? if (comment.returnTags.length > 0) { ?>
