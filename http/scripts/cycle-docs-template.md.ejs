@@ -1,5 +1,5 @@
 <? docfiles.forEach(function(doc) { ?>
-  # `CycleHTTP` object API
+  # Cycle HTTP
 
   <? doc.javadoc.forEach(function(comment) { ?>
     <? if (!comment.ignore) { ?><? if (comment.name) { ?>- [`<?= comment.name ?>`](#<?= comment.name ?>)<? } ?><? } ?><? }) ?>
@@ -35,7 +35,7 @@
       <? if (comment.paramTags.length > 0) { ?>
         #### Arguments:
         <? comment.paramTags.forEach(function(paramTag) { ?>
-          - `<?= paramTag.name ?><? if (paramTag.joinedTypes) { ?> :: <?= paramTag.joinedTypes.replace('.', '') ?><? } ?>`<? if (paramTag.description) { ?> <?= paramTag.description ?><? } ?><? }) ?>
+          - `<?= paramTag.name ?><? if (paramTag.joinedTypes) { ?>: <?= paramTag.joinedTypes.replace('.', '') ?><? } ?>`<? if (paramTag.description) { ?> <?= paramTag.description ?><? } ?><? }) ?>
       <? } ?>
 
       <? if (comment.returnTags.length > 0) { ?>

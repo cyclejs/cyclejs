@@ -16,7 +16,7 @@ function generateDocs(options) {
 }
 
 generateDocs({
-  src: './src/index.js',
+  src: './lib/index.js',
   output: './docs/api.md',
   template: './scripts/cycle-docs-template.md.ejs'
 });

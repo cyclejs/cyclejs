@@ -17,10 +17,11 @@ We use only one repository for issues. [**Open the issue at Cycle Core repo.**](
 Basics:
 
 ```js
-import Cycle from '@cycle/core';
+import xs from 'xstream';
+import {run} from '@cycle/xstream-run';
 import {makeHTTPDriver} from '@cycle/http';
 
-function main(responses) {
+function main(sources) {
   // ...
 }
 
@@ -28,20 +29,23 @@ const drivers = {
   HTTP: makeHTTPDriver()
 }
 
-Cycle.run(main, drivers);
+run(main, drivers);
 ```
 
 Simple and normal use case:
 
 ```js
-function main(responses) {
-  let request$ = Rx.Observable.of({
+function main(sources) {
+  let request$ = xs.of({
     url: 'http://localhost:8080/hello', // GET method by default
     category: 'hello',
   });
-  let vtree$ = responses.HTTP
+
+  let response$ = sources.HTTP
     .select('hello')
-    .mergeAll()
+    .flatten();
+
+  let vdom$ = response$
     .map(res => res.text) // We expect this to be "Hello World"
     .startWith('Loading...')
     .map(text =>
@@ -57,47 +61,58 @@ function main(responses) {
 }
 ```
 
-A thorough guide to the Observable API inside `main`:
+A thorough guide to the API inside `main`:
 
 ```js
-function main(responses) {
-  // The HTTPSource has properties:
-  // - response$$
+function main(source) {
+  // The HTTP Source has properties:
   // - select(category)
   // - filter(predicate)
-  // Notice $$: it means this is a metastream, in other words, an Observable
-  // of Observables.
-  let httpResponse$$ = responses.HTTP.response$$;
+  // - response$$
+  // Notice $$: it means this is a metastream, in other words,
+  // a stream of streams.
+  let httpResponse$$ = source.HTTP.response$$;
 
-  httpResponse$$.subscribe(httpResponse$ => {
-    // Notice that httpResponse$$ emits httpResponse$.
+  httpResponse$$.addListener({
+    next: httpResponse$ => {
+      // Notice that httpResponse$$ emits httpResponse$.
 
-    // The response Observable has a special field attached to it:
-    // `request`, which is the same object we emit in the Observable at the
-    // return of `main`. This is useful for filtering: you can find the
-    // httpResponse$ corresponding to a certain request.
-    console.log(httpResponse$.request);
+      // The response stream has a special field attached to it:
+      // `request`, which is the same object we emit in the sink stream.
+      // This is useful for filtering: you can find the
+      // httpResponse$ corresponding to a certain request.
+      console.log(httpResponse$.request);
+    },
+    error: () => {},
+    complete: () => {},
   });
 
-  let httpResponse$ = httpResponse$$.mergeAll(); // flattens the metastream
-  // OR `httpResponse$$.switch()` to ignore past response streams.
+  let httpResponse$ = httpResponse$$.flatten(); // flattens the metastream
+  // the reason why we need to flatten in this API is that you
+  // should choose which concurrency strategy to use.
+  // Normal xstream flatten() has limited concurrency of 1, meaning that
+  // the previous request will be canceled once the next request to the
+  // same resource occurs.
+  // To have full concurrency (no cancelling), use flattenConcurrently()
 
-  httpResponse$.subscribe(httpResponse => {
-    // httpResponse is the object we get as response from superagent.
-    // Check the documentation in superagent to know the structure of
-    // this object.
-    console.log(httpResponse.status); // 200
+  httpResponse$.addListener({
+    next: httpResponse => {
+      // httpResponse is the object we get as response from superagent.
+      // Check the documentation in superagent to know the structure of
+      // this object.
+      console.log(httpResponse.status); // 200
+    },
+    error: (err) => {
+      // This is a network error
+      console.error(err);
+    },
+    complete: () => {},
   });
 
-  // The request Observable is an object with property `url` and value
-  // `http://localhost:8080/ping` emitted every second.
-  let request$ = Rx.Observable.interval(1000)
-    .map(() => {
-      return {
-        url: 'http://localhost:8080/ping',
-        method: 'GET',
-      };
-    });
+  // The request stream is an object with property `url` and value
+  // `http://localhost:8080/ping` emitted periodically, every second.
+  let request$ = xs.periodic(1000)
+    .mapTo({ url: 'http://localhost:8080/ping', method: 'GET' });
 
   return {
     HTTP: request$ // HTTP driver expects the request$ as input
@@ -107,16 +122,16 @@ function main(responses) {
 
 ## Error handling
 
-You can handle errors using standard RxJS operators. The response stream is a stream of streams, i.e. each response will be its own stream so usually you want to catch errors for that single response stream:
+You can handle errors using standard xstream or RxJS operators. The response stream is a stream of streams, i.e. each response will be its own stream so usually you want to catch errors for that single response stream:
 
 ```js
-responses.HTTP
+sources.HTTP
   .select('hello')
-  .flatMap((response$) =>
-    response$.catch(Observable.of(errorObject))
-  )
+  .map((response$) =>
+    response$.replaceError(xs.of(errorObject))
+  ).flatten()
 ```
-For more information, refer to the [RxJS documention for catch](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/catch.md).
+For more information, refer to the [xstream documentation for replaceError](https://github.com/staltz/xstream#replaceError) or the [RxJS documention for catch](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/catch.md).
 
 ## More information
 
