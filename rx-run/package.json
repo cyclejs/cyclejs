@@ -1,14 +1,14 @@
 {
   "name": "@cycle/core",
-  "version": "7.0.0-rc9",
+  "version": "7.0.0",
   "author": "Andre Staltz",
   "description": "The Cycle run() function meant to be used with RxJS v4",
   "license": "MIT",
   "homepage": "https://cyclejs.github.io",
-  "bugs": "https://github.com/cyclejs/cycle-core/issues",
+  "bugs": "https://github.com/cyclejs/core/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cyclejs/cycle-core"
+    "url": "https://github.com/cyclejs/core"
   },
   "keywords": [
     "reactive",
