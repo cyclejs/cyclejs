@@ -6,8 +6,8 @@
   "license": "MIT",
   "dependencies": {
     "@cycle/xstream-run": "3.0.0",
-    "@cycle/dom": "10.0.0-rc33",
-    "@cycle/jsonp": "6.0.0-rc4",
+    "@cycle/dom": "10.0.0",
+    "@cycle/jsonp": "6.0.0",
     "xstream": "5.x",
     "cycle-restart": "0.0.9",
     "immutable": "^3.7.4"
