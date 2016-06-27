@@ -1,12 +1,11 @@
-/** @jsx hJSX */
 'use strict';
 /* global describe, it, beforeEach */
 let assert = require('assert');
-let Cycle = require('@cycle/core');
-let CycleDOM = require('../../src/cycle-dom');
-let Fixture89 = require('./fixtures/issue-89');
-let Rx = require('rx');
-let {h, svg, div, input, p, span, h2, h3, h4, hJSX, select, option, makeDOMDriver} = CycleDOM;
+let Cycle = require('@cycle/rxjs-run').default;
+let CycleDOM = require('../../lib/index');
+let Rx = require('rxjs');
+let {html} = require('snabbdom-jsx');
+let {h, svg, div, input, p, span, h2, h3, h4, select, option, thunk, makeDOMDriver} = CycleDOM;
 
 function createRenderTarget(id = null) {
   let element = document.createElement('div');
@@ -19,10 +18,38 @@ function createRenderTarget(id = null) {
 }
 
 describe('DOM Rendering', function () {
+  it('should render DOM elements even when DOMSource is not utilized', function (done) {
+    function main() {
+      return {
+        DOM: Rx.Observable.of(
+          div('.my-render-only-container', [
+            h2('Cycle.js framework')
+          ])
+        )
+      };
+    }
+
+    Cycle.run(main, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    setTimeout(() => {
+      const myContainer = document.querySelector('.my-render-only-container');
+      assert.notStrictEqual(myContainer, null);
+      assert.notStrictEqual(typeof myContainer, 'undefined');
+      assert.strictEqual(myContainer.tagName, 'DIV');
+      const header = myContainer.querySelector('h2');
+      assert.notStrictEqual(header, null);
+      assert.notStrictEqual(typeof header, 'undefined');
+      assert.strictEqual(header.textContent, 'Cycle.js framework');
+      done();
+    }, 150);
+  });
+
   it('should convert a simple virtual-dom <select> to DOM element', function (done) {
     function app() {
       return {
-        DOM: Rx.Observable.just(select('.my-class', [
+        DOM: Rx.Observable.of(select('.my-class', [
           option({value: 'foo'}, 'Foo'),
           option({value: 'bar'}, 'Bar'),
           option({value: 'baz'}, 'Baz')
@@ -30,24 +57,28 @@ describe('DOM Rendering', function () {
       };
     }
 
-    const {sinks, sources} = Cycle.run(app, {
+    const {sinks, sources, run} = Cycle(app, {
       DOM: makeDOMDriver(createRenderTarget())
     });
 
-    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    let dispose;
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(function (root) {
       const selectEl = root.querySelector('.my-class');
       assert.notStrictEqual(selectEl, null);
       assert.notStrictEqual(typeof selectEl, 'undefined');
       assert.strictEqual(selectEl.tagName, 'SELECT');
-      sources.dispose();
-      done();
+      setTimeout(() => {
+        dispose();
+        done();
+      });
     });
+    dispose = run();
   });
 
   it('should convert a simple virtual-dom <select> (JSX) to DOM element', function (done) {
     function app() {
       return {
-        DOM: Rx.Observable.just(
+        DOM: Rx.Observable.of(
           <select className="my-class">
             <option value="foo">Foo</option>
             <option value="bar">Bar</option>
@@ -57,312 +88,140 @@ describe('DOM Rendering', function () {
       };
     }
 
-    const {sinks, sources} = Cycle.run(app, {
+    const {sinks, sources, run} = Cycle(app, {
       DOM: makeDOMDriver(createRenderTarget())
     });
 
-    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    let dispose;
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(function (root) {
       const selectEl = root.querySelector('.my-class');
       assert.notStrictEqual(selectEl, null);
       assert.notStrictEqual(typeof selectEl, 'undefined');
       assert.strictEqual(selectEl.tagName, 'SELECT');
-      sources.dispose();
-      done();
+      setTimeout(() => {
+        dispose();
+        done();
+      })
     });
+    dispose = run();
   });
 
-  it('should convert a simple virtual-dom <svg> (JSX) to SVG DOM element', function (done) {
+  it('should give elements as a value-over-time', function (done) {
     function app() {
       return {
-        DOM: Rx.Observable.just(
-          <svg class="svg-test" width="800" height="600">
-            <circle cx="100" cy="100" r="50"></circle>
-          </svg>
-        )
+        DOM: Rx.Observable.of(h2('.value-over-time', 'Hello test'))
+          .merge(Rx.Observable.never())
       };
     }
 
-    const {sinks, sources} = Cycle.run(app, {
+    const {sinks, sources, run} = Cycle(app, {
       DOM: makeDOMDriver(createRenderTarget())
     });
 
-    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
-      const svgEl = root.querySelector('.svg-test');
-      assert.notStrictEqual(svgEl, null);
-      assert.notStrictEqual(typeof svgEl, 'undefined');
-      assert.strictEqual(svgEl.tagName, 'svg');
-      assert.ok(svgEl instanceof SVGElement);
-      sources.dispose();
-      done();
+    let dispose;
+    let firstSubscriberRan = false;
+    let secondSubscriberRan = false;
+
+    const element$ = sources.DOM.select(':root').elements();
+
+    element$.skip(1).subscribe(function (root) {
+      assert.strictEqual(firstSubscriberRan, false);
+      firstSubscriberRan = true;
+      const header = root.querySelector('.value-over-time');
+      assert.notStrictEqual(header, null);
+      assert.notStrictEqual(typeof header, 'undefined');
+      assert.strictEqual(header.tagName, 'H2');
     });
+
+    setTimeout(() => {
+      element$.subscribe(function (root) {
+        assert.strictEqual(secondSubscriberRan, false);
+        secondSubscriberRan = true;
+        const header = root.querySelector('.value-over-time');
+        assert.notStrictEqual(header, null);
+        assert.notStrictEqual(typeof header, 'undefined');
+        assert.strictEqual(header.tagName, 'H2');
+        setTimeout(() => {
+          dispose();
+          done();
+        });
+      });
+    }, 100);
+    dispose = run();
   });
 
-  it('should allow virtual-dom Thunks in the VTree', function (done) {
-    // The thunk
-    const ConstantlyThunk = function ConstantlyThunk(greeting){
-      this.greeting = greeting;
-    };
-    ConstantlyThunk.prototype.type = 'Thunk';
-    ConstantlyThunk.prototype.render = function(previous) {
-      if (previous && previous.vnode) {
-        return previous.vnode;
-      } else {
-        return h4('Constantly ' + this.greeting);
-      }
-    };
+  it('should allow snabbdom Thunks in the VTree', function (done) {
+    function renderThunk(greeting) {
+      return h4('Constantly ' + greeting)
+    }
 
     // The Cycle.js app
     function app() {
       return {
         DOM: Rx.Observable.interval(10).take(5).map(i =>
           div([
-            new ConstantlyThunk('hello' + i)
+            thunk('thunk', renderThunk, 'hello' + 0)
           ])
         )
       };
     }
 
     // Run it
-    const {sinks, sources} = Cycle.run(app, {
+    const {sinks, sources, run} = Cycle(app, {
       DOM: makeDOMDriver(createRenderTarget())
     });
 
+    let dispose;
     // Assert it
-    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(function (root) {
       const selectEl = root.querySelector('h4');
       assert.notStrictEqual(selectEl, null);
       assert.notStrictEqual(typeof selectEl, 'undefined');
       assert.strictEqual(selectEl.tagName, 'H4');
       assert.strictEqual(selectEl.textContent, 'Constantly hello0');
-      sources.dispose();
+      dispose();
       done();
     });
+    dispose = run();
   });
 
-  it('should allow plain virtual-dom Widgets in the VTree', function (done) {
-    // The widget
-    const MyTestWidget = function (content) {
-      this.content = content;
-    };
-    MyTestWidget.prototype.type = 'Widget';
-    MyTestWidget.prototype.init = function() {
-      const divElem = document.createElement('H4');
-      const textElem = document.createTextNode('Content is ' + this.content);
-      divElem.appendChild(textElem);
-      return divElem;
-    }
-    MyTestWidget.prototype.update = function(previous, domNode) {
-      return null
-    }
+  it('should filter out null/undefined children', function (done) {
 
     // The Cycle.js app
     function app() {
       return {
-        DOM: Rx.Observable.just(div('.top-most', [
-          p('Just a paragraph'),
-          new MyTestWidget('hello world')
-        ]))
+        DOM: Rx.Observable.interval(10).take(5).map(i =>
+          div('.parent', [
+            'Child 1',
+            null,
+            h4('.child3', [
+              null,
+              'Grandchild 31',
+              div('.grandchild32', [
+                null,
+                'Great grandchild 322'
+              ])
+            ]),
+            undefined
+          ])
+        ).do(x => console.log(x))
       };
     }
 
     // Run it
-    const {sinks, sources} = Cycle.run(app, {
+    const {sinks, sources, run} = Cycle(app, {
       DOM: makeDOMDriver(createRenderTarget())
     });
 
+    let dispose;
     // Assert it
-    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
-      const selectEl = root.querySelector('h4');
-      assert.notStrictEqual(selectEl, null);
-      assert.notStrictEqual(typeof selectEl, 'undefined');
-      assert.strictEqual(selectEl.tagName, 'H4');
-      assert.strictEqual(selectEl.textContent, 'Content is hello world');
-      sources.dispose();
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(function (root) {
+      assert.strictEqual(root.querySelector('div.parent').childNodes.length, 2);
+      assert.strictEqual(root.querySelector('h4.child3').childNodes.length, 2);
+      assert.strictEqual(root.querySelector('div.grandchild32').childNodes.length, 1);
+      dispose();
       done();
     });
-  });
-
-  it('should accept a view wrapping a VTree$ (#89)', function (done) {
-    function app() {
-      const number$ = Fixture89.makeModelNumber$();
-      return {
-        DOM: Fixture89.viewWithContainerFn(number$)
-      };
-    }
-
-    const {sinks, sources} = Cycle.run(app, {
-      DOM: makeDOMDriver(createRenderTarget())
-    });
-
-    sources.DOM.select('.myelementclass').observable.skip(1).first() // 1st
-      .subscribe(function (elements) {
-        const myelement = elements[0];
-        assert.notStrictEqual(myelement, null);
-        assert.strictEqual(myelement.tagName, 'H3');
-        assert.strictEqual(myelement.textContent, '123');
-      });
-    sources.DOM.select('.myelementclass').observable.skip(2).first() // 2nd
-      .subscribe(function (elements) {
-        const myelement = elements[0];
-        assert.notStrictEqual(myelement, null);
-        assert.strictEqual(myelement.tagName, 'H3');
-        assert.strictEqual(myelement.textContent, '456');
-        sources.dispose();
-        done();
-      });
-  });
-
-  it('should accept a view with VTree$ as the root of VTree', function (done) {
-    function app() {
-      const number$ = Fixture89.makeModelNumber$();
-      return {
-        DOM: Fixture89.viewWithoutContainerFn(number$)
-      };
-    }
-
-    const {sinks, sources} = Cycle.run(app, {
-      DOM: makeDOMDriver(createRenderTarget())
-    });
-
-    sources.DOM.select('.myelementclass').observable.skip(1).first() // 1st
-      .subscribe(function (elements) {
-        const myelement = elements[0];
-        assert.notStrictEqual(myelement, null);
-        assert.strictEqual(myelement.tagName, 'H3');
-        assert.strictEqual(myelement.textContent, '123');
-      });
-    sources.DOM.select('.myelementclass').observable.skip(2).first() // 1st
-      .subscribe(function (elements) {
-        const myelement = elements[0];
-        assert.notStrictEqual(myelement, null);
-        assert.strictEqual(myelement.tagName, 'H3');
-        assert.strictEqual(myelement.textContent, '456');
-        sources.dispose();
-        done();
-      });
-  });
-
-  it('should render a VTree with a child Observable<VTree>', function (done) {
-    function app() {
-      const child$ = Rx.Observable.just(
-        h4('.child', {}, 'I am a kid')
-      ).delay(80);
-      return {
-        DOM: Rx.Observable.just(div('.my-class', [
-          p({}, 'Ordinary paragraph'),
-          child$
-        ]))
-      };
-    }
-
-    const {sinks, sources} = Cycle.run(app, {
-      DOM: makeDOMDriver(createRenderTarget())
-    });
-
-    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
-      const selectEl = root.querySelector('.child');
-      assert.notStrictEqual(selectEl, null);
-      assert.notStrictEqual(typeof selectEl, 'undefined');
-      assert.strictEqual(selectEl.tagName, 'H4');
-      assert.strictEqual(selectEl.textContent, 'I am a kid');
-      sources.dispose();
-      done();
-    });
-  });
-
-  it('should render a VTree with a grandchild Observable<VTree>', function (done) {
-    function app() {
-      const grandchild$ = Rx.Observable.just(
-          h4('.grandchild', {}, [
-            'I am a baby'
-          ])
-        ).delay(20);
-      const child$ = Rx.Observable.just(
-          h3('.child', {}, [
-            'I am a kid',
-            grandchild$
-          ])
-        ).delay(80);
-      return {
-        DOM: Rx.Observable.just(div('.my-class', [
-          p({}, 'Ordinary paragraph'),
-          child$
-        ]))
-      };
-    }
-
-    const {sinks, sources} = Cycle.run(app, {
-      DOM: makeDOMDriver(createRenderTarget())
-    });
-
-    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
-      const selectEl = root.querySelector('.grandchild');
-      assert.notStrictEqual(selectEl, null);
-      assert.notStrictEqual(typeof selectEl, 'undefined');
-      assert.strictEqual(selectEl.tagName, 'H4');
-      assert.strictEqual(selectEl.textContent, 'I am a baby');
-      sources.dispose();
-      done();
-    });
-  });
-
-  it('should render a SVG VTree with a child Observable<VTree>', function (done) {
-    function app() {
-      const child$ = Rx.Observable.just(
-        svg('g', {
-          attributes: {'class': 'child'}
-        })
-      ).delay(80);
-      return {
-        DOM: Rx.Observable.just(svg('svg', [
-          svg('g'),
-          child$
-        ]))
-      };
-    }
-
-    const {sinks, sources} = Cycle.run(app, {
-      DOM: makeDOMDriver(createRenderTarget())
-    });
-
-    sources.DOM.select(':root').observable.skip(1).take(1).subscribe(function (root) {
-      const selectEl = root.querySelector('.child');
-      assert.notStrictEqual(selectEl, null);
-      assert.notStrictEqual(typeof selectEl, 'undefined');
-      assert.strictEqual(selectEl.tagName, 'g');
-      sources.dispose();
-      done();
-    });
-  });
-
-  it('should only be concerned with values from the most recent nested Observable', function (done) {
-    function app() {
-      return {
-        DOM: Rx.Observable.just(div([
-          Rx.Observable.just(2).startWith(1).map(outer =>
-            Rx.Observable.just(2).delay(0).startWith(1).map(inner =>
-              div('.target', outer+'/'+inner)
-            )
-          )
-        ]))
-      };
-    };
-
-    const {sinks, sources} = Cycle.run(app, {
-      DOM: makeDOMDriver(createRenderTarget())
-    });
-
-    const expected = Rx.Observable.from(['1/1','2/1','2/2'])
-
-    sources.DOM.select('.target').observable
-      .skip(1)
-      .map(els => els[0].innerHTML)
-      .sequenceEqual(expected)
-      .subscribe((areSame) => {
-        assert.strictEqual(areSame, true);
-        sources.dispose();
-        sinks.dispose();
-        done();
-      });
+    dispose = run();
   });
 });

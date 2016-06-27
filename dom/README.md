@@ -26,6 +26,6 @@ These are the browsers we officially support currently. Cycle.js may not work (o
 
 - - -
 
-[![Build Status](https://travis-ci.org/cyclejs/cycle-dom.svg?branch=master)](https://travis-ci.org/cyclejs/dom)
-[![Dependency Status](https://david-dm.org/cyclejs/dom.svg)](https://david-dm.org/cyclejs/dom)
-[![devDependency Status](https://david-dm.org/cyclejs/dom/dev-status.svg)](https://david-dm.org/cyclejs/dom#info=devDependencies)
+[![Build Status](https://travis-ci.org/cyclejs/cycle-dom.svg?branch=master)](https://travis-ci.org/cyclejs/cycle-dom)
+[![Dependency Status](https://david-dm.org/cyclejs/cycle-dom.svg)](https://david-dm.org/cyclejs/cycle-dom)
+[![devDependency Status](https://david-dm.org/cyclejs/cycle-dom/dev-status.svg)](https://david-dm.org/cyclejs/cycle-dom#info=devDependencies)

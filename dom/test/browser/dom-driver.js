@@ -1,10 +1,10 @@
 'use strict';
 /* global describe, it */
 let assert = require('assert');
-let Cycle = require('@cycle/core');
-let CycleDOM = require('../../src/cycle-dom');
+let Cycle = require('@cycle/rxjs-run').default;
+let CycleDOM = require('../../lib/index');
 let Fixture89 = require('./fixtures/issue-89');
-let Rx = require('rx');
+let Rx = require('rxjs');
 let {h, svg, div, input, p, span, h2, h3, h4, select, option, makeDOMDriver} = CycleDOM;
 
 function createRenderTarget(id = null) {
@@ -53,19 +53,15 @@ describe('makeDOMDriver', function () {
     }, /Given container is not a DOM element neither a selector string/);
   });
 
-  it('should accept function as error callback', function () {
-    const element = document.createDocumentFragment();
-    const onError = function() {};
-    assert.doesNotThrow(function () {
-      makeDOMDriver(element, {onError});
-    });
-  });
-
-  it('should not accept number as error callback', function () {
-    const element = document.createDocumentFragment();
-    assert.throws(function () {
-      makeDOMDriver(element, {onError: 42});
-    });
+  it('should have a streamAdapter property', function () {
+    const element = createRenderTarget();
+    const DOMDriver = makeDOMDriver(element);
+    assert.notStrictEqual(typeof DOMDriver.streamAdapter, 'undefined');
+    assert.strictEqual(typeof DOMDriver.streamAdapter.adapt, 'function');
+    assert.strictEqual(typeof DOMDriver.streamAdapter.makeSubject, 'function');
+    assert.strictEqual(typeof DOMDriver.streamAdapter.remember, 'function');
+    assert.strictEqual(typeof DOMDriver.streamAdapter.isValidStream, 'function');
+    assert.strictEqual(typeof DOMDriver.streamAdapter.streamSubscribe, 'function');
   });
 });
 
@@ -74,47 +70,29 @@ describe('DOM Driver', function () {
     const domDriver = makeDOMDriver(createRenderTarget());
     assert.throws(function () {
       domDriver({});
-    }, /The DOM driver function expects as input an Observable of virtual/);
-  });
-
-  it('should pass errors to error callback', function (done) {
-    const error = new Error();
-    const errorCallback = function(e) {
-      assert.strictEqual(e, error);
-      done();
-    };
-
-    function app() {
-      return {
-        DOM: Rx.Observable.throw(error)
-      };
-    }
-
-    const {sinks, sources} = Cycle.run(app, {
-      DOM: makeDOMDriver(createRenderTarget(), {onError: errorCallback})
-    });
+    }, /The DOM driver function expects as input a Stream of virtual/);
   });
 
   it('should have isolateSource() and isolateSink() in source', function (done) {
     function app() {
       return {
-        DOM: Rx.Observable.just(div())
+        DOM: Rx.Observable.of(div())
       };
     }
 
-    const {sinks, sources} = Cycle.run(app, {
+    const {sinks, sources, run} = Cycle(app, {
       DOM: makeDOMDriver(createRenderTarget())
     });
-
+    let dispose = run();
     assert.strictEqual(typeof sources.DOM.isolateSource, 'function');
     assert.strictEqual(typeof sources.DOM.isolateSink, 'function');
-    sources.dispose();
+    dispose();
     done();
   });
 
   it('should not work after has been disposed', function (done) {
     const number$ = Rx.Observable.range(1, 3)
-      .concatMap(x => Rx.Observable.just(x).delay(50));
+      .concatMap(x => Rx.Observable.of(x).delay(50));
 
     function app() {
       return {
@@ -124,23 +102,24 @@ describe('DOM Driver', function () {
       };
     }
 
-    const {sinks, sources} = Cycle.run(app, {
+    const {sinks, sources, run} = Cycle(app, {
       DOM: makeDOMDriver(createRenderTarget())
     });
 
-    sources.DOM.select(':root').observable.skip(1).subscribe(function (root) {
+    let dispose;
+    sources.DOM.select(':root').elements().skip(1).subscribe(function (root) {
       const selectEl = root.querySelector('.target');
       assert.notStrictEqual(selectEl, null);
       assert.notStrictEqual(typeof selectEl, 'undefined');
       assert.strictEqual(selectEl.tagName, 'H3');
       assert.notStrictEqual(selectEl.textContent, '3');
       if (selectEl.textContent === '2') {
-        sources.dispose();
-        sinks.dispose();
+        dispose();
         setTimeout(() => {
           done();
         }, 100);
       }
     });
+    dispose = run();
   });
 });
