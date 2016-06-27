@@ -1,4 +1,6 @@
-import {Observable} from 'rx'
+import xs from 'xstream'
+import debounce from 'xstream/extra/debounce'
+import dropUntil from 'xstream/extra/dropUntil'
 import {ul, li, span, input, div, section, label} from '@cycle/dom'
 import Immutable from 'immutable'
 
@@ -64,24 +66,28 @@ const autocompleteItemStyle = {
 
 const LIGHT_GREEN = '#8FE8B4'
 
-function ControlledInputHook(injectedText) {
-  this.injectedText = injectedText
-}
-
-ControlledInputHook.prototype.hook = function hook(element) {
-  if (this.injectedText !== null) {
-    element.value = this.injectedText
-  }
-}
-
+/**
+ * source: --a--b----c----d---e-f--g----h---i--j-----
+ * first:  -------F------------------F---------------
+ * second: -----------------S-----------------S------
+ *                         between
+ * output: ----------c----d-------------h---i--------
+ */
 function between(first, second) {
-  return (source) => source.window(first, () => second).switch()
+  return (source) => first.mapTo(source.endWhen(second)).flatten()
 }
 
+/**
+ * source: --a--b----c----d---e-f--g----h---i--j-----
+ * first:  -------F------------------F---------------
+ * second: -----------------S-----------------S------
+ *                       notBetween
+ * output: --a--b-------------e-f--g-----------j-----
+ */
 function notBetween(first, second) {
-  return source => Observable.merge(
-    source.takeUntil(first),
-    first.flatMapLatest(() => source.skipUntil(second))
+  return source => xs.merge(
+    source.endWhen(first),
+    first.map(() => source.compose(dropUntil(second))).flatten()
   )
 }
 
@@ -102,16 +108,16 @@ function intent(DOM) {
   const enterPressed$ = keydown$.filter(({keyCode}) => keyCode === ENTER_KEYCODE)
   const tabPressed$ = keydown$.filter(({keyCode}) => keyCode === TAB_KEYCODE)
   const clearField$ = input$.filter(ev => ev.target.value.length === 0)
-  const inputBlurToItem$ = inputBlur$.let(between(itemMouseDown$, itemMouseUp$))
-  const inputBlurToElsewhere$ = inputBlur$.let(notBetween(itemMouseDown$, itemMouseUp$))
-  const itemMouseClick$ = itemMouseDown$.flatMapLatest(mousedown =>
-    itemMouseUp$.filter(mouseup => mousedown.target === mouseup.target)
-  )
+  const inputBlurToItem$ = inputBlur$.compose(between(itemMouseDown$, itemMouseUp$))
+  const inputBlurToElsewhere$ = inputBlur$.compose(notBetween(itemMouseDown$, itemMouseUp$))
+  const itemMouseClick$ = itemMouseDown$
+    .map(down => itemMouseUp$.filter(up => down.target === up.target))
+    .flatten()
 
   return {
     search$: input$
-      .debounce(500)
-      .let(between(inputFocus$, inputBlur$))
+      .compose(debounce(500))
+      .compose(between(inputFocus$, inputBlur$))
       .map(ev => ev.target.value)
       .filter(query => query.length > 0),
     moveHighlight$: keydown$
@@ -123,22 +129,20 @@ function intent(DOM) {
       .filter(delta => delta !== 0),
     setHighlight$: itemHover$
       .map(ev => parseInt(ev.target.dataset.index)),
-    keepFocusOnInput$: Observable
-      .merge(inputBlurToItem$, enterPressed$, tabPressed$),
-    selectHighlighted$: Observable
-      .merge(itemMouseClick$, enterPressed$, tabPressed$),
-    wantsSuggestions$: Observable.merge(
-      inputFocus$.map(() => true),
-      inputBlur$.map(() => false)
-    ),
-    quitAutocomplete$: Observable
-      .merge(clearField$, inputBlurToElsewhere$),
+    keepFocusOnInput$:
+      xs.merge(inputBlurToItem$, enterPressed$, tabPressed$),
+    selectHighlighted$:
+      xs.merge(itemMouseClick$, enterPressed$, tabPressed$).compose(debounce(1)),
+    wantsSuggestions$:
+      xs.merge(inputFocus$.mapTo(true), inputBlur$.mapTo(false)),
+    quitAutocomplete$:
+      xs.merge(clearField$, inputBlurToElsewhere$),
   }
 }
 
-function modifications(actions) {
-  const moveHighlightMod$ = actions.moveHighlight$
-    .map(delta => function (state) {
+function reducers(actions) {
+  const moveHighlightReducer$ = actions.moveHighlight$
+    .map(delta => function moveHighlightReducer(state) {
       const suggestions = state.get('suggestions')
       const wrapAround = x => (x + suggestions.length) % suggestions.length
       return state.update('highlighted', highlighted => {
@@ -150,14 +154,15 @@ function modifications(actions) {
       })
     })
 
-  const setHighlightMod$ = actions.setHighlight$
-    .map(highlighted => function (state) {
+  const setHighlightReducer$ = actions.setHighlight$
+    .map(highlighted => function setHighlightReducer(state) {
       return state.set('highlighted', highlighted)
     })
 
-  const selectHighlightedMod$ = actions.selectHighlighted$
-    .flatMap(() => Observable.from([true, false]))
-    .map(selected => function (state) {
+  const selectHighlightedReducer$ = actions.selectHighlighted$
+    .mapTo(xs.of(true, false))
+    .flatten()
+    .map(selected => function selectHighlightedReducer(state) {
       const suggestions = state.get('suggestions')
       const highlighted = state.get('highlighted')
       const hasHighlight = highlighted !== null
@@ -171,35 +176,39 @@ function modifications(actions) {
       }
     })
 
-  const hideMod$ = actions.quitAutocomplete$
-    .map(() => function (state) {
+  const hideReducer$ = actions.quitAutocomplete$
+    .mapTo(function hideReducer(state) {
       return state.set('suggestions', [])
     })
 
-  return Observable.merge(
-    moveHighlightMod$, setHighlightMod$, selectHighlightedMod$, hideMod$
+  return xs.merge(
+    moveHighlightReducer$,
+    setHighlightReducer$,
+    selectHighlightedReducer$,
+    hideReducer$
   )
 }
 
 function model(suggestionsFromResponse$, actions) {
-  const mod$ = modifications(actions)
+  const reducer$ = reducers(actions)
 
-  const state$ = suggestionsFromResponse$
-    .withLatestFrom(actions.wantsSuggestions$,
-      (suggestions, accepted) => accepted ? suggestions : []
+  const state$ = actions.wantsSuggestions$
+    .map(accepted =>
+      suggestionsFromResponse$.map(suggestions => accepted ? suggestions : [])
     )
+    .flatten()
     .startWith([])
     .map(suggestions => Immutable.Map(
       {suggestions, highlighted: null, selected: null}
     ))
-    .flatMapLatest(state => mod$.startWith(state).scan((acc, mod) => mod(acc)))
-    .share()
+    .map(state => reducer$.fold((acc, reducer) => reducer(acc), state))
+    .flatten()
 
   return state$
 }
 
 function renderAutocompleteMenu({suggestions, highlighted}) {
-  if (suggestions.length === 0) { return null }
+  if (suggestions.length === 0) { return ul() }
   const childStyle = index => (Object.assign({}, autocompleteItemStyle, {
     backgroundColor: highlighted === index ? LIGHT_GREEN : null
   }))
@@ -207,7 +216,7 @@ function renderAutocompleteMenu({suggestions, highlighted}) {
   return ul('.autocomplete-menu', {style: autocompleteMenuStyle},
     suggestions.map((suggestion, index) =>
       li('.autocomplete-item',
-        {attributes: {'data-index': index}, style: childStyle(index)},
+        {style: childStyle(index), attrs: {'data-index': index}},
         suggestion
       )
     )
@@ -217,10 +226,16 @@ function renderAutocompleteMenu({suggestions, highlighted}) {
 function renderComboBox({suggestions, highlighted, selected}) {
   return span('.combo-box', {style: comboBoxStyle}, [
     input('.autocompleteable', {
-      type: 'text',
       style: autocompleteableStyle,
-      'data-hook': new ControlledInputHook(selected)}
-    ),
+      attrs: {type: 'text'},
+      hook: {
+        update: (old, {elm}) => {
+          if (selected !== null) {
+            elm.value = selected
+          }
+        }
+      }
+    }),
     renderAutocompleteMenu({suggestions, highlighted})
   ])
 }
@@ -238,7 +253,7 @@ function view(state$) {
         ]),
         section({style: sectionStyle}, [
           label({style: searchLabelStyle}, 'Some field:'),
-          input({type: 'text', style: inputTextStyle})
+          input({style: inputTextStyle, attrs: {type: 'text'}})
         ])
       ])
     )
@@ -251,7 +266,7 @@ const BASE_URL =
 const networking = {
   processResponses(JSONP) {
     return JSONP.filter(res$ => res$.request.indexOf(BASE_URL) === 0)
-      .switch()
+      .flatten()
       .map(res => res[1])
   },
 
@@ -261,15 +276,18 @@ const networking = {
 }
 
 function preventedEvents(actions, state$) {
-  return actions.keepFocusOnInput$
-    .withLatestFrom(state$, (event, state) => {
-      if (state.get('suggestions').length > 0
-      && state.get('highlighted') !== null) {
-        return event
-      } else {
-        return null
-      }
-    })
+  return state$
+    .map(state =>
+      actions.keepFocusOnInput$.map(event => {
+        if (state.get('suggestions').length > 0
+        && state.get('highlighted') !== null) {
+          return event
+        } else {
+          return null
+        }
+      })
+    )
+    .flatten()
     .filter(ev => ev !== null)
 }
 

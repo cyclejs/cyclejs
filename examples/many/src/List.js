@@ -1,22 +1,21 @@
-import {Observable, Subject} from 'rx';
+import xs from 'xstream';
 import {button, div} from '@cycle/dom';
 import isolate from '@cycle/isolate'
 import Item from './Item';
 
-function intent(DOM, itemActions) {
-  const addItem$ = Observable.merge(
-    DOM.select('.add-one-btn').events('click').map(() => 1),
-    DOM.select('.add-many-btn').events('click').map(() => 1000)
-  );
-  const removeItem$ = itemActions.destroy$;
+function intent(DOM, itemRemove$) {
+  return xs.merge(
+    DOM.select('.add-one-btn').events('click')
+      .mapTo({type: 'ADD_ITEM', payload: 1}),
 
-  return {
-    addItem$,
-    removeItem$,
-  };
+    DOM.select('.add-many-btn').events('click')
+      .mapTo({type: 'ADD_ITEM', payload: 1000}),
+
+    itemRemove$.map(id => ({type: 'REMOVE_ITEM', payload: id}))
+  );
 }
 
-function model(actions, itemFn) {
+function model(action$, itemFn) {
   function createRandomItemProps() {
     let hexColor = Math.floor(Math.random() * 16777215).toString(16);
     while (hexColor.length < 6) {
@@ -32,79 +31,71 @@ function model(actions, itemFn) {
   function createNewItem(props) {
     const id = mutableLastId++;
     const sinks = itemFn(props, id);
-    sinks.DOM = sinks.DOM.replay(null, 1);
-    sinks.DOM.connect();
-    sinks.destroy$ = sinks.destroy$.publish();
-    sinks.destroy$.connect();
-    return {id, DOM: sinks.DOM, destroy$: sinks.destroy$};
+    return {id, DOM: sinks.DOM.remember(), Remove: sinks.Remove};
   }
+
+  const addItemReducer$ = action$
+    .filter(a => a.type === 'ADD_ITEM')
+    .map(action => {
+      const amount = action.payload;
+      let newItems = [];
+      for (let i = 0; i < amount; i++) {
+        newItems.push(createNewItem(createRandomItemProps()));
+      }
+      return function addItemReducer(listItems) {
+        return listItems.concat(newItems);
+      };
+    });
+
+  const removeItemReducer$ = action$
+    .filter(a => a.type === 'REMOVE_ITEM')
+    .map(action => function removeItemReducer(listItems) {
+      return listItems.filter(item => item.id !== action.payload);
+    });
 
   const initialState = [createNewItem({color: 'red', width: 300})]
 
-  const addItemMod$ = actions.addItem$.map(amount => {
-    let newItems = [];
-    for (let i = 0; i < amount; i++) {
-      newItems.push(createNewItem(createRandomItemProps()));
-    }
-    return function (listItems) {
-      return listItems.concat(newItems);
-    };
-  });
-
-  const removeItemMod$ = actions.removeItem$.map(id =>
-    function (listItems) {
-      return listItems.filter(item => item.id !== id);
-    }
-  );
-
-  return Observable.merge(addItemMod$, removeItemMod$)
-    .startWith(initialState)
-    .scan((listItems, modification) => modification(listItems))
-    .publishValue(initialState).refCount();
+  return xs.merge(addItemReducer$, removeItemReducer$)
+    .fold((listItems, reducer) => reducer(listItems), initialState);
 }
 
-function view(itemDOMs$) {
-  function renderTopButtons() {
-    return div('.topButtons', [
-      button('.add-one-btn', 'Add New Item'),
-      button('.add-many-btn', 'Add Many Items')
-    ]);
-  }
+function view(items$) {
+  const addButtons = div('.addButtons', [
+    button('.add-one-btn', 'Add New Item'),
+    button('.add-many-btn', 'Add Many Items')
+  ]);
 
-  return itemDOMs$.map(itemDOMs =>
-    div('.list',
-      [renderTopButtons()].concat(itemDOMs)
-    )
-  );
+  return items$.map(items => {
+    const itemVNodeStreamsByKey = items.map(item =>
+      item.DOM.map(vnode => {
+        vnode.key = item.id; return vnode;
+      })
+    );
+    return xs.combine(...itemVNodeStreamsByKey)
+      .map(vnodes => div('.list', [addButtons].concat(vnodes)));
+  }).flatten();
 }
 
 function makeItemWrapper(DOM) {
   return function itemWrapper(props, id) {
-    const propsObservables = {
-      color$: Observable.just(props.color),
-      width$: Observable.just(props.width),
-    };
-    const item = isolate(Item)({DOM, props: propsObservables});
+    const item = isolate(Item)({DOM, Props: xs.of(props)});
     return {
       DOM: item.DOM,
-      destroy$: item.destroy$.map(() => id)
+      Remove: item.Remove.mapTo(id)
     }
   }
 }
 
 function List(sources) {
-  const itemActions = {destroy$: new Subject()};
-  const actions = intent(sources.DOM, itemActions);
+  const proxyItemRemove$ = xs.create();
+  const action$ = intent(sources.DOM, proxyItemRemove$);
   const itemWrapper = makeItemWrapper(sources.DOM);
-  const items$ = model(actions, itemWrapper);
-  const itemDOMs$ = items$.map(items => items.map(item => item.DOM));
-  const itemDestroy$ = items$
-    .filter(items => items.length)
-    .flatMapLatest(items =>
-      Observable.merge(items.map(item => item.destroy$))
-    );
-  itemDestroy$.subscribe(itemActions.destroy$.asObserver());
-  const vtree$ = view(itemDOMs$);
+  const items$ = model(action$, itemWrapper);
+  const itemRemove$ = items$
+    .map(items => xs.merge(...items.map(item => item.Remove)))
+    .flatten();
+  proxyItemRemove$.imitate(itemRemove$);
+  const vtree$ = view(items$);
 
   return {
     DOM: vtree$

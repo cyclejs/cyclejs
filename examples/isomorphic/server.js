@@ -1,18 +1,10 @@
-let Cycle = require('@cycle/core');
-let express = require('express');
-let browserify = require('browserify');
-let serialize = require('serialize-javascript');
-let {Observable, ReplaySubject} = require('rx');
-let {
-  html,
-  head,
-  title,
-  body,
-  div,
-  script,
-  makeHTMLDriver
-} = require('@cycle/dom');
-let app = require('./app');
+import Cycle from '@cycle/xstream-run';
+import xs from 'xstream';
+import express from 'express';
+import browserify from 'browserify';
+import serialize from 'serialize-javascript';
+import {html, head, title, body, div, script, makeHTMLDriver} from '@cycle/dom';
+import app from './app';
 
 function wrapVTreeWithHTMLBoilerplate(vtree, context, clientBundle) {
   return (
@@ -36,9 +28,9 @@ function prependHTML5Doctype(html) {
 function wrapAppResultWithBoilerplate(appFn, context$, bundle$) {
   return function wrappedAppFn(sources) {
     let vtree$ = appFn(sources).DOM;
-    let wrappedVTree$ = Observable.combineLatest(vtree$, context$, bundle$,
-      wrapVTreeWithHTMLBoilerplate
-    );
+    let wrappedVTree$ = xs.combine(wrapVTreeWithHTMLBoilerplate,
+      vtree$, context$, bundle$
+    ).take(1);
     return {
       DOM: wrappedVTree$
     };
@@ -46,7 +38,7 @@ function wrapAppResultWithBoilerplate(appFn, context$, bundle$) {
 }
 
 let clientBundle$ = (() => {
-  let replaySubject = new ReplaySubject(1);
+  let bundle$ = xs.createWithMemory();
   let bundleString = '';
   let bundleStream = browserify()
     .transform('babelify')
@@ -57,11 +49,10 @@ let clientBundle$ = (() => {
     bundleString += data;
   });
   bundleStream.on('end', function () {
-    replaySubject.onNext(bundleString);
-    replaySubject.onCompleted();
+    bundle$.shamefullySendNext(bundleString);
     console.log('Client bundle successfully compiled.');
   });
-  return replaySubject;
+  return bundle$;
 })();
 
 let server = express();
@@ -75,14 +66,14 @@ server.use(function (req, res) {
   }
   console.log(`req: ${req.method} ${req.url}`);
 
-  let context$ = Observable.just({route: req.url});
+  let context$ = xs.of({route: req.url});
   let wrappedAppFn = wrapAppResultWithBoilerplate(app, context$, clientBundle$);
-  let {sources} = Cycle.run(wrappedAppFn, {
-    DOM: makeHTMLDriver(),
-    context: () => context$
+
+  Cycle.run(wrappedAppFn, {
+    DOM: makeHTMLDriver(html => res.send(prependHTML5Doctype(html))),
+    context: () => context$,
+    PreventDefault: () => {},
   });
-  let html$ = sources.DOM.map(prependHTML5Doctype);
-  html$.subscribe(html => res.send(html));
 });
 
 let port = process.env.PORT || 3000;

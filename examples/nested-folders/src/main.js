@@ -1,6 +1,5 @@
-import {Subject} from 'rx'
-import {run} from '@cycle/core'
-import {makeDOMDriver} from 'cycle-snabbdom'
+import {run} from '@cycle/xstream-run'
+import {makeDOMDriver} from '@cycle/dom'
 
 import {createFolderComponent} from './Folder'
 
@@ -9,4 +8,4 @@ function main(sources) {
   return Folder(sources)
 }
 
-run(main, {DOM: makeDOMDriver('#app')})
+run(main, {DOM: makeDOMDriver('#app', {transposition: true})})

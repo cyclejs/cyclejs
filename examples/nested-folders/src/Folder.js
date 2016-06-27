@@ -1,21 +1,18 @@
-import {Observable, Subject} from 'rx'
-const {merge} = Observable
+import xs from 'xstream'
 import isolate from '@cycle/isolate'
-import {div, button} from 'cycle-snabbdom'
+import {div, button} from '@cycle/dom'
 
 function intent(DOMSource, childAction$, selfId) {
-  return merge(
+  return xs.merge(
     DOMSource.select('.add').events('click')
-      .map(() => ({selfId, type: 'addChild'})),
+      .mapTo({selfId, type: 'addChild'}),
 
     DOMSource.select('.remove').events('click')
-      .map(() => ({selfId, type: 'removeSelf'}))
-      .share(),
+      .mapTo({selfId, type: 'removeSelf'}),
 
     childAction$
       .filter(action => action.type === 'removeSelf')
       .map(action => ({...action, type: 'removeChild'}))
-      .share()
   )
 }
 
@@ -35,11 +32,10 @@ function model(action$, createIsolatedFolder) {
       return childrenMap
     })
 
-  const children$ = Observable.merge(addFolderUpdate$, removeFolderUpdate$)
-    .startWith(new Map())
-    .scan((children, update) => update(children))
+  const children$ = xs.merge(addFolderUpdate$, removeFolderUpdate$)
+    .fold((children, update) => update(children), new Map())
 
-  return children$.shareReplay(1)
+  return children$
 }
 
 function style(backgroundColor) {
@@ -49,14 +45,6 @@ function style(backgroundColor) {
     width: 'auto',
     border: '2px solid black',
   }
-}
-
-function makeRandomColor() {
-  let hexColor = Math.floor(Math.random() * 16777215).toString(16)
-  while (hexColor.length < 6) {
-    hexColor = '0' + hexColor
-  }
-  return '#' + hexColor
 }
 
 function makeView(removable, color) {
@@ -71,6 +59,13 @@ function makeView(removable, color) {
   }
 }
 
+function makeRandomColor() {
+  let hexColor = Math.floor(Math.random() * 16777215).toString(16)
+  while (hexColor.length < 6) {
+    hexColor = '0' + hexColor
+  }
+  return '#' + hexColor
+}
 
 function createFolderComponent({id, removable = true}) {
   function Folder(sources) {
@@ -78,7 +73,7 @@ function createFolderComponent({id, removable = true}) {
       return createFolderComponent(({id: childId}))(sources)
     }
 
-    const proxyChildAction$ = new Subject()
+    const proxyChildAction$ = xs.create();
     const action$ = intent(sources.DOM, proxyChildAction$, id)
     const children$ = model(action$, createFolder)
     const color = makeRandomColor()
@@ -86,10 +81,14 @@ function createFolderComponent({id, removable = true}) {
     const removeSelf$ = action$.filter(({type}) => type === 'removeSelf')
 
     const childAction$ = children$
-      .map(children => merge(Array.from(children.values()).map(c => c.action$)))
-      .switch()
+      .map(children => {
+        const childActionStreams = Array.from(children.values())
+          .map(c => c.action$)
+        return xs.merge(...childActionStreams)
+      })
+      .flatten()
 
-    childAction$.takeUntil(removeSelf$).subscribe(proxyChildAction$)
+    proxyChildAction$.imitate(childAction$.endWhen(removeSelf$.take(1)))
 
     return {
       DOM: vdom$,

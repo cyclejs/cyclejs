@@ -1,11 +1,11 @@
-import Cycle from '@cycle/core';
-import {Observable} from 'rx';
-import {h, makeDOMDriver} from '@cycle/dom';
+import Cycle from '@cycle/rxjs-run';
+import {Observable} from 'rxjs';
+import {div, input, h2, makeDOMDriver} from '@cycle/dom';
 
-function main({DOM}) {
-  let changeWeight$ = DOM.select('#weight').events('input')
+function main(sources) {
+  let changeWeight$ = sources.DOM.select('#weight').events('input')
     .map(ev => ev.target.value);
-  let changeHeight$ = DOM.select('#height').events('input')
+  let changeHeight$ = sources.DOM.select('#height').events('input')
     .map(ev => ev.target.value);
 
   let state$ = Observable.combineLatest(
@@ -20,16 +20,20 @@ function main({DOM}) {
 
   return {
     DOM: state$.map(({weight, height, bmi}) =>
-      h('div', [
-        h('div', [
+      div([
+        div([
           'Weight ' + weight + 'kg',
-          h('input#weight', {type: 'range', min: 40, max: 140, value: weight})
+          input('#weight', {
+            attrs: {type: 'range', min: 40, max: 140, value: weight}
+          })
         ]),
-        h('div', [
+        div([
           'Height ' + height + 'cm',
-          h('input#height', {type: 'range', min: 140, max: 210, value: height})
+          input('#height', {
+            attrs: {type: 'range', min: 140, max: 210, value: height}
+          })
         ]),
-        h('h2', 'BMI is ' + bmi)
+        h2('BMI is ' + bmi)
       ])
     )
   };

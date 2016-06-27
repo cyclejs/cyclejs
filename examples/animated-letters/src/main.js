@@ -1,6 +1,8 @@
-import Cycle from '@cycle/core'
-import {Observable} from 'rx'
-import {div, ul, li, makeDOMDriver} from 'cycle-snabbdom'
+import Cycle from '@cycle/xstream-run'
+import xs from 'xstream'
+import pairwise from 'xstream/extra/pairwise'
+import fromEvent from 'xstream/extra/fromEvent'
+import {div, ul, li, makeDOMDriver} from '@cycle/dom'
 import {intersection, difference, sortBy} from 'lodash'
 
 function intent(keydownSource) {
@@ -11,7 +13,7 @@ function intent(keydownSource) {
 
 function model(action$) {
   const initialState = ['A']
-  return action$.startWith(initialState).startWith([]).scan((acc, key) => {
+  return action$.startWith(initialState).fold((acc, key) => {
     const index = acc.indexOf(key)
     if (index === -1) {
       return acc.concat(key).sort()
@@ -19,11 +21,11 @@ function model(action$) {
     const newAcc = acc.slice()
     newAcc.splice(index, 1)
     return newAcc
-  })
+  }, [])
 }
 
 function determineDeltaPoints(state$) {
-  return state$.pairwise().flatMap(([before, after]) => {
+  return state$.compose(pairwise()).map(([before, after]) => {
     const addedPoints = difference(after, before).map(key =>
       ({key, value: 0, target: 1})
     )
@@ -31,14 +33,14 @@ function determineDeltaPoints(state$) {
       ({key, value: 1, target: 0})
     )
     const points = addedPoints.concat(removedPoints)
-    return Observable.from(sortBy(points, 'key'))
-  })
+    return xs.fromArray(sortBy(points, 'key'))
+  }).flatten()
 }
 
 function expandAsRenderingFrames(point$) {
-  return point$.flatMapLatest(point =>
-    Observable.interval(10).map(point).take(100)
-  )
+  return point$.map(point =>
+    xs.periodic(10).mapTo(point).take(100)
+  ).flatten()
 }
 
 function calculateAnimationSteps(point$) {
@@ -68,7 +70,7 @@ function calculateAnimationSteps(point$) {
     })
   }
 
-  return point$.scan((acc, point) => {
+  return point$.fold((acc, point) => {
     const newAcc = incorporateNewPoint(acc, point)
     const progressedAcc = progressEachPoint(acc, newAcc)
     const sanitizedAcc = progressedAcc.filter(point =>
@@ -81,9 +83,9 @@ function calculateAnimationSteps(point$) {
 
 function animate(state$) {
   return state$
-    .let(determineDeltaPoints)
-    .let(expandAsRenderingFrames)
-    .let(calculateAnimationSteps)
+    .compose(determineDeltaPoints)
+    .compose(expandAsRenderingFrames)
+    .compose(calculateAnimationSteps)
 }
 
 function view(state$) {
@@ -107,6 +109,6 @@ function main(sources) {
 }
 
 Cycle.run(main, {
-  Keydown: () => Observable.fromEvent(document, 'keydown'),
+  Keydown: () => fromEvent(document, 'keydown'),
   DOM: makeDOMDriver('#main-container')
 })

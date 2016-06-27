@@ -1,4 +1,4 @@
-import Cycle from '@cycle/core';
+import Cycle from '@cycle/xstream-run';
 import {div, input, p, makeDOMDriver} from '@cycle/dom';
 
 function main(sources) {
@@ -8,7 +8,7 @@ function main(sources) {
       .startWith(false)
       .map(toggled =>
         div([
-          input({type: 'checkbox'}), 'Toggle me',
+          input({attrs: {type: 'checkbox'}}), 'Toggle me',
           p(toggled ? 'ON' : 'off')
         ])
       )
