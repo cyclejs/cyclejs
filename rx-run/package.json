@@ -35,6 +35,7 @@
     "browserify": "12.0.1",
     "browserify-shim": "3.8.11",
     "markdox": "0.1.10",
+    "mkdirp": "^0.5.1",
     "mocha": "2.3.3",
     "rx": "4.0.7",
     "sinon": "1.17.2",
