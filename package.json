@@ -1,8 +1,8 @@
 {
   "name": "@cycle/core",
-  "version": "6.0.3",
+  "version": "7.0.0-rc9",
   "author": "Andre Staltz",
-  "description": "A fully reactive JavaScript framework for Human-Computer Interaction",
+  "description": "The Cycle run() function meant to be used with RxJS v4",
   "license": "MIT",
   "homepage": "https://cyclejs.github.io",
   "bugs": "https://github.com/cyclejs/cycle-core/issues",
@@ -19,25 +19,29 @@
     "mvi",
     "virtual-dom"
   ],
-  "main": "lib/cycle.js",
-  "dependencies": {},
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "dependencies": {
+    "@cycle/base": "^4.0.0",
+    "@cycle/rx-adapter": "^3.0.0"
+  },
   "peerDependencies": {
     "rx": "*"
   },
   "devDependencies": {
-    "babel": "5.8.29",
-    "babelify": "6.4.0",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-register": "^6.4.3",
+    "babelify": "^7.2.0",
     "browserify": "12.0.1",
     "browserify-shim": "3.8.11",
-    "eslint": "1.0.0",
-    "eslint-config-cycle": "3.0.0",
-    "eslint-plugin-cycle": "1.0.1",
-    "eslint-plugin-no-class": "0.1.0",
     "markdox": "0.1.10",
     "mocha": "2.3.3",
-    "rx": "4.0.6",
+    "rx": "4.0.7",
     "sinon": "1.17.2",
     "testem": "0.9.11",
+    "tslint": "3.6.0",
+    "typescript": "^1.8.7",
+    "typings": "^1.0.4",
     "uglify-js": "2.5.0"
   },
   "engines": {
@@ -47,22 +51,24 @@
     "rx": "global:Rx"
   },
   "scripts": {
-    "eslint": "eslint src/",
-    "mocha": "mocha --compilers js:babel/register test",
-    "test": "npm run eslint && npm run mocha",
+    "lint": "tslint -c tslint.json src/*.ts",
+    "premocha": "npm run lib",
+    "mocha": "mocha --compilers js:babel-register test",
+    "test": "npm run lint && npm run mocha",
     "test-browser": "testem",
     "pretest-browser": "browserify test/cycle.js -t babelify -o test/browser/tests-bundle.js",
     "posttest-browser": "rm test/browser/tests-bundle.js",
-    "browserify": "browserify src/cycle.js -t babelify -t browserify-shim --standalone Cycle --exclude rx --outfile dist/cycle.js",
-    "uglify": "uglifyjs dist/cycle.js -o dist/cycle.min.js",
-    "dist": "npm run browserify && npm run uglify",
+    "predist": "rm -rf dist/ && mkdirp dist/ && npm run lib && npm run docs",
+    "postdist": "uglifyjs dist/cycle.js -o dist/cycle.min.js",
+    "dist": "browserify lib/index.js -t babelify -t browserify-shim --standalone Cycle --exclude rx -o dist/cycle.js",
     "docs": "node ./scripts/make-api-docs.js",
-    "precompile-lib": "rm -rf lib/ && mkdir -p lib",
-    "compile-lib": "babel -d lib/ src/",
-    "prepublish": "npm run compile-lib",
-    "release": "npm run release-patch",
-    "release-patch": "git checkout master && npm run dist; git commit -a -m 'Build dist/'; npm version patch && git push origin master --tags && npm publish --access=public",
-    "release-minor": "git checkout master && npm run dist; git commit -a -m 'Build dist/'; npm version minor && git push origin master --tags && npm publish --access=public",
-    "release-major": "git checkout master && npm run dist; git commit -a -m 'Build dist/'; npm version major && git push origin master --tags && npm publish --access=public"
+    "prelib": "rm -rf lib/ && mkdirp lib",
+    "lib": "tsc",
+    "prepublish": "npm run lib",
+    "preversion": "npm run dist && git add dist/ && git diff --quiet --exit-code --cached || git commit -a -m 'chore(dist): build dist/'",
+    "version-patch": "npm version patch --message 'chore(version): %s'",
+    "version-minor": "npm version minor --message 'chore(version): %s'",
+    "version-major": "npm version major --message 'chore(version): %s'",
+    "postversion": "npm publish --access=public && node scripts/publish-package-rx-run.js"
   }
 }
