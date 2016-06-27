@@ -1,6 +1,6 @@
 {
   "name": "@cycle/http",
-  "version": "9.0.1",
+  "version": "9.0.2",
   "description": "A Cycle.js Driver for making HTTP requests",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
