@@ -22,7 +22,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prebrowserify": "mkdirp dist && typings install && tsc",
-    "browserify": "browserify lib/main.js -t babelify --outfile dist/main.js",
+    "browserify": "browserify lib/index.js -t babelify --outfile dist/main.js",
     "start": "npm install && npm run browserify && echo 'OPEN index.html IN YOUR BROWSER'"
   }
 }
