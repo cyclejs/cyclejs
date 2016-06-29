@@ -10,7 +10,7 @@
   "dependencies": {
     "@cycle/isolate": "1.4.x",
     "@cycle/xstream-run": "3.0.x",
-    "@cycle/dom": "10.0.0-rc33",
+    "@cycle/dom": "10.0.3",
     "xstream": "5.0.x"
   },
   "devDependencies": {
