@@ -876,7 +876,7 @@ var IsolateModule = function () {
                     data = _b === void 0 ? {} : _b;
                 var oldScope = oldData.isolate || "";
                 var scope = data.isolate || "";
-                if (scope) {
+                if (scope && scope !== oldScope) {
                     if (oldScope) {
                         self.removeScope(oldScope);
                     }
