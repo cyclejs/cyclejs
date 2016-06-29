@@ -71,7 +71,7 @@ export class IsolateModule {
         const {elm, data = {}} = vNode;
         const oldScope = oldData.isolate || ``;
         const scope = data.isolate || ``;
-        if (scope) {
+        if (scope && scope !== oldScope) {
           if (oldScope) { self.removeScope(oldScope); }
           self.setScope(<Element> elm, scope);
         }
