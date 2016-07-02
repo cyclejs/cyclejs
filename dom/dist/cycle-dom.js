@@ -442,17 +442,17 @@ function isGenericStream(x) {
     return !Array.isArray(x) && typeof x.map === "function";
 }
 function mutateStreamWithNS(vNode) {
-    addNS(vNode.data, vNode.children);
+    addNS(vNode.data, vNode.children, vNode.sel);
     return vNode;
 }
-function addNS(data, children) {
+function addNS(data, children, selector) {
     data.ns = "http://www.w3.org/2000/svg";
-    if (typeof children !== "undefined" && is.array(children)) {
+    if (selector !== "foreignObject" && typeof children !== "undefined" && is.array(children)) {
         for (var i = 0; i < children.length; ++i) {
             if (isGenericStream(children[i])) {
                 children[i] = children[i].map(mutateStreamWithNS);
             } else {
-                addNS(children[i].data, children[i].children);
+                addNS(children[i].data, children[i].children, children[i].sel);
             }
         }
     }
@@ -489,7 +489,7 @@ function h(sel, b, c) {
         }
     }
     if (sel[0] === 's' && sel[1] === 'v' && sel[2] === 'g') {
-        addNS(data, children);
+        addNS(data, children, sel);
     }
     return vnode(sel, data, children, text, undefined);
 }
