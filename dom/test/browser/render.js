@@ -185,6 +185,43 @@ describe('DOM Rendering', function () {
     dispose = run();
   });
 
+  it('should render embedded HTML within SVG <foreignObject>', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.of(
+          svg({ attrs: { width: 150, height: 50 }}, [
+            svg.foreignObject({ attrs: { width: '100%', height: '100%' }}, [
+              p('.embedded-text', 'This is HTML embedded in SVG')
+            ])
+          ])
+        )
+      }
+    }
+
+    // Run it
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    let dispose;
+
+    // Make assertions
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(function (root) {
+      const embeddedHTML = root.querySelector('p.embedded-text');
+
+      assert.strictEqual(embeddedHTML.namespaceURI, 'http://www.w3.org/1999/xhtml');
+      assert.notStrictEqual(embeddedHTML.clientWidth, 0);
+      assert.notStrictEqual(embeddedHTML.clientHeight, 0);
+
+      setTimeout(() => {
+        dispose();
+        done();
+      });
+    });
+
+    dispose = run();
+  });
+
   it('should filter out null/undefined children', function (done) {
 
     // The Cycle.js app
