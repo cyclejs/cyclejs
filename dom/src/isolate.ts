@@ -18,10 +18,7 @@ export function isolateSink(sink: any, scope: string): any {
 
       const _scope = parseInt(scope.split('cycle')[1]);
 
-      if (Number.isNaN(existingScope) ||
-          Number.isNaN(_scope) ||
-          existingScope > _scope
-      ) {
+      if (isNaN(existingScope) || isNaN(_scope) || existingScope > _scope) {
         return vTree;
       }
     }
