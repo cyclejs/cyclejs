@@ -12,9 +12,9 @@ function isSelector(param: any): boolean {
 function createTagFunction(tagName: string): Function {
   return function hyperscript(first: any, b?: any, c?: any): VNode {
     if (isSelector(first)) {
-      if (!!b && !!c) {
+      if (typeof b !== 'undefined' && typeof c !== 'undefined') {
         return h(tagName + first, b, c);
-      } else if (!!b) {
+      } else if (typeof b !== 'undefined') {
         return h(tagName + first, b);
       } else {
         return h(tagName + first, {});

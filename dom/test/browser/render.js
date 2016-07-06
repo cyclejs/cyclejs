@@ -261,4 +261,27 @@ describe('DOM Rendering', function () {
     });
     dispose = run();
   });
+  
+  it('should render textContent "0" given hyperscript content value number 0', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.of(div('.my-class', 0))
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    let dispose;
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(function (root) {
+      const divEl = root.querySelector('.my-class');
+      assert.strictEqual(divEl.textContent, '0');
+      setTimeout(() => {
+        dispose();
+        done();
+      });
+    });
+    dispose = run();
+  });
 });
