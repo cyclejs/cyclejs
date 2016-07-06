@@ -6,7 +6,7 @@ const EventsModule = require('snabbdom/modules/eventlisteners');
 const StyleModule = require('snabbdom/modules/style');
 const HeroModule = require('snabbdom/modules/hero');
 
-export default [StyleModule, ClassModule, PropsModule, AttrsModule]
+export default [StyleModule, ClassModule, PropsModule, AttrsModule];
 
 export {
   StyleModule, ClassModule,

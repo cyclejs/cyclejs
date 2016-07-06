@@ -65,7 +65,7 @@
     "saucie": "^1.4.0",
     "snabbdom-jsx": "^0.3.0",
     "testem": "1.9.1",
-    "tslint": "3.6.0",
+    "tslint": "3.13.0",
     "typescript": "1.8.7",
     "typings": "^1.0.4",
     "uglify-js": "2.6.1",
