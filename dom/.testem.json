@@ -1,9 +1,6 @@
 {
   "framework": "mocha",
   "test_page": "test/browser/page/index.html",
-  "launch_in_dev": [
-    "Chrome"
-  ],
   "disable_watching": true,
   "on_start": "./scripts/saucie-connect.js",
   "on_exit": "./scripts/saucie-disconnect.js",
@@ -76,6 +73,11 @@
       "protocol": "browser"
     }
   },
+  "launch_in_dev": [
+    "Chrome",
+    "Firefox",
+    "Safari"
+  ],
   "launch_in_ci": [
     "SL_Chrome_Current",
     "SL_Firefox_Current",
