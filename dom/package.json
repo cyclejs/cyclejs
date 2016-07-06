@@ -61,14 +61,14 @@
     "most": "^0.19.7",
     "rx": "^4.1.0",
     "rxjs": "^5.0.0-beta.8",
+    "saucie": "^1.4.0",
     "snabbdom-jsx": "^0.3.0",
     "testem": "0.9.11",
     "tslint": "3.6.0",
     "typescript": "1.8.7",
     "typings": "^1.0.4",
     "uglify-js": "2.6.1",
-    "xstream": "5.x.x",
-    "zuul": "3.8.0"
+    "xstream": "5.x.x"
   },
   "engines": {
     "node": ">=0.10.0"
@@ -84,13 +84,12 @@
     "test-browser-perf": "testem -f test/browser/perf/.testem-perf.json",
     "test-node": "mocha --compilers js:babel-register test/node",
     "test-browser": "testem",
-    "test-zuul": "zuul --open --no-coverage --local 4000 -- test/browser/index.js",
     "pretest-browser-perf": "browserify test/browser/perf/index.js -t babelify -o test/browser/perf/tests-bundle.js",
     "posttest-browser-perf": "rm test/browser/perf/tests-bundle.js",
     "pretest-browser": "browserify test/browser/index.js -t babelify -o test/browser/page/tests-bundle.js",
     "posttest-browser": "rm test/browser/page/tests-bundle.js",
     "test": "npm run lint && npm run lib && npm run test-node && npm run test-browser",
-    "test-ci": "npm run lint && npm run lib && npm run test-node && zuul --no-coverage -- test/browser/index.js",
+    "test-ci": "npm run lint && npm run lib && npm run test-node && npm run pretest-browser && testem ci",
     "browserify": "browserify lib/index.js -t babelify --global-transform=browserify-shim --standalone CycleDOM --exclude xstream --outfile dist/cycle-dom.js",
     "uglify": "uglifyjs dist/cycle-dom.js --compress --mangle -o dist/cycle-dom.min.js",
     "dist": "npm run lib && npm run browserify && npm run uglify",

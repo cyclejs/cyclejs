@@ -1,6 +1,76 @@
 {
+  "framework": "mocha",
   "test_page": "test/browser/page/index.html",
   "launch_in_dev": [
     "Chrome"
+  ],
+  "disable_watching": true,
+  "on_start": "./scripts/saucie-connect.js",
+  "on_exit": "./scripts/saucie-disconnect.js",
+  "port": 7000,
+  "browser_start_timeout": 90,
+  "launchers": {
+    "SL_Chrome_Current": {
+      "exe": "./node_modules/.bin/saucie",
+      "args": ["-b", "chrome", "-p", "Windows 10", "-v", "latest", "--no-ct", "--at", "-u"],
+      "protocol": "browser"
+    },
+    "SL_Chrome_Current_No_Details": {
+      "exe": "./node_modules/.bin/saucie",
+      "args": ["-b", "chrome", "-p", "Windows 10", "-v", "latest", "--no-ct", "-u"],
+      "protocol": "tap"
+    },
+    "SL_Firefox_Current": {
+      "exe": "./node_modules/.bin/saucie",
+      "args": ["-b", "firefox", "-p", "Windows 10", "-v", "latest", "--no-ct", "--at", "-u"],
+      "protocol": "browser"
+    },
+    "SL_Safari_Current": {
+      "exe": "./node_modules/.bin/saucie",
+      "args": ["-b", "safari", "-v", "9", "--no-ct", "--at", "-u"],
+      "protocol": "browser"
+    },
+    "SL_Safari_Last": {
+      "exe": "./node_modules/.bin/saucie",
+      "args": ["-b", "safari", "-v", "8", "--no-ct", "--at", "-u"],
+      "protocol": "browser"
+    },
+    "SL_MS_Edge": {
+      "exe": "./node_modules/.bin/saucie",
+      "args": ["-b", "microsoftedge", "--no-ct", "--at", "-u"],
+      "protocol": "browser"
+    },
+    "SL_IE_11": {
+      "exe": "./node_modules/.bin/saucie",
+      "args": ["-b", "internet explorer", "-v", "11", "--no-ct", "--at", "-u"],
+      "protocol": "browser"
+    },
+    "SL_IE_10": {
+      "exe": "./node_modules/.bin/saucie",
+      "args": ["-b", "internet explorer", "-v", "10", "--no-ct", "--at", "-u"],
+      "protocol": "browser"
+    },
+    "SL_IE_9": {
+      "exe": "./node_modules/.bin/saucie",
+      "args": ["-b", "internet explorer", "-v", "9", "--no-ct", "--at", "-u"],
+      "protocol": "browser"
+    },
+    "SL_IE_8": {
+      "exe": "./node_modules/.bin/saucie",
+      "args": ["-b", "internet explorer", "-v", "8", "--no-ct", "--at", "-u"],
+      "protocol": "browser"
+    }
+  },
+  "launch_in_ci": [
+    "SL_Chrome_Current",
+    "SL_Chrome_Current_No_Details",
+    "SL_Firefox_Current",
+    "SL_Safari_Current",
+    "SL_Safari_Last",
+    "SL_MS_Edge",
+    "SL_IE_11",
+    "SL_IE_10",
+    "SL_IE_9",
+    "SL_IE_8"
   ]
 }
