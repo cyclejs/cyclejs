@@ -32,6 +32,7 @@
   "typings": "lib/index.d.ts",
   "dependencies": {
     "@cycle/xstream-adapter": "^3.0.1",
+    "es6-map": "^0.1.4",
     "matches-selector": "1.0.0",
     "snabbdom": "^0.4.1",
     "snabbdom-selector": "^0.3.2",

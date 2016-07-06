@@ -7,7 +7,7 @@
   "disable_watching": true,
   "on_start": "./scripts/saucie-connect.js",
   "on_exit": "./scripts/saucie-disconnect.js",
-  "port": 7000,
+  "port": 8080,
   "browser_start_timeout": 90,
   "launchers": {
     "SL_Chrome_Current": {
@@ -30,6 +30,31 @@
       "args": ["-b", "safari", "-v", "9", "--no-ct", "--at", "-u"],
       "protocol": "browser"
     },
+    "SL_iphone_7": {
+      "exe": "./node_modules/.bin/saucie",
+      "args": ["-b", "iphone", "-v", "7.1"],
+      "protocol": "browser"
+    },
+    "SL_iphone_8": {
+      "exe": "./node_modules/.bin/saucie",
+      "args": ["-b", "iphone", "-v", "8.4"],
+      "protocol": "browser"
+    },
+    "SL_iphone_9": {
+      "exe": "./node_modules/.bin/saucie",
+      "args": ["-b", "iphone", "-v", "9.1"],
+      "protocol": "browser"
+    },
+    "SL_android_4_1": {
+      "exe": "./node_modules/.bin/saucie",
+      "args": ["-b", "android", "-p", "Linux", "-v", "4.1"],
+      "protocol": "browser"
+    },
+    "SL_android_5_1": {
+      "exe": "./node_modules/.bin/saucie",
+      "args": ["-b", "android", "-p", "Linux", "-v", "5.1"],
+      "protocol": "browser"
+    },
     "SL_Safari_Last": {
       "exe": "./node_modules/.bin/saucie",
       "args": ["-b", "safari", "-v", "8", "--no-ct", "--at", "-u"],
@@ -49,16 +74,6 @@
       "exe": "./node_modules/.bin/saucie",
       "args": ["-b", "internet explorer", "-v", "10", "--no-ct", "--at", "-u"],
       "protocol": "browser"
-    },
-    "SL_IE_9": {
-      "exe": "./node_modules/.bin/saucie",
-      "args": ["-b", "internet explorer", "-v", "9", "--no-ct", "--at", "-u"],
-      "protocol": "browser"
-    },
-    "SL_IE_8": {
-      "exe": "./node_modules/.bin/saucie",
-      "args": ["-b", "internet explorer", "-v", "8", "--no-ct", "--at", "-u"],
-      "protocol": "browser"
     }
   },
   "launch_in_ci": [
@@ -66,11 +81,15 @@
     "SL_Chrome_Current_No_Details",
     "SL_Firefox_Current",
     "SL_Safari_Current",
+    "SL_Opera_Current",
     "SL_Safari_Last",
+    "SL_iphone_7",
+    "SL_iphone_8",
+    "SL_iphone_9",
+    "SL_android_4_1",
+    "SL_android_5_1",
     "SL_MS_Edge",
     "SL_IE_11",
-    "SL_IE_10",
-    "SL_IE_9",
-    "SL_IE_8"
+    "SL_IE_10"
   ]
 }

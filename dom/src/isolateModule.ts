@@ -1,8 +1,9 @@
 import {VNode} from './interfaces';
 import {EventDelegator} from './EventDelegator';
+let MapPolyfill: typeof Map = require('es6-map');
 
 export class IsolateModule {
-  private eventDelegators = new Map<string, Array<EventDelegator>>();
+  private eventDelegators = new MapPolyfill<string, Array<EventDelegator>>();
   constructor (private isolatedElements: Map<string, Element>) {
   }
 
@@ -19,10 +20,17 @@ export class IsolateModule {
   }
 
   isIsolatedElement(elm: Element): string | boolean {
-    const elements = Array.from(this.isolatedElements.entries());
-    for (let i = 0; i < elements.length; ++i) {
-      if (elm === elements[i][1]) {
-        return elements[i][0];
+    let iterator = this.isolatedElements.entries();
+    let hasNext = true;
+    while (hasNext) {
+      try {
+        const result = iterator.next();
+        const [scope, element] = result.value;
+        if (elm === element) {
+          return scope;
+        }
+      } catch (err) {
+        hasNext = false;
       }
     }
     return false;
