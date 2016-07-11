@@ -223,7 +223,6 @@ describe('DOM Rendering', function () {
   });
 
   it('should filter out null/undefined children', function (done) {
-
     // The Cycle.js app
     function app() {
       return {
@@ -241,7 +240,7 @@ describe('DOM Rendering', function () {
             ]),
             undefined
           ])
-        ).do(x => console.log(x))
+        )
       };
     }
 
@@ -261,7 +260,7 @@ describe('DOM Rendering', function () {
     });
     dispose = run();
   });
-  
+
   it('should render textContent "0" given hyperscript content value number 0', function (done) {
     function app() {
       return {

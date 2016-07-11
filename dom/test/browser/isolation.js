@@ -749,9 +749,6 @@ describe('isolation', function () {
       DOM: makeDOMDriver(createRenderTarget())
     })
 
-
-    sinks.DOM.subscribe(x => console.log('dom', x))
-
     sources.DOM.elements().skip(1).take(1).subscribe(root => {
       const element = root.querySelector('.btn')
       assert.notStrictEqual(element, null)
@@ -794,9 +791,6 @@ describe('isolation', function () {
     const {sinks, sources, run} = Cycle(app, {
       DOM: makeDOMDriver(createRenderTarget())
     })
-
-
-    sinks.DOM.subscribe(x => console.log('dom', x))
 
     sources.DOM.elements().skip(1).take(1).subscribe(root => {
       const element = root.querySelector('.btn')
@@ -841,9 +835,6 @@ describe('isolation', function () {
       DOM: makeDOMDriver(createRenderTarget())
     })
 
-
-    sinks.DOM.subscribe(x => console.log('dom', x))
-
     sources.DOM.elements().skip(1).take(1).subscribe(root => {
       const element = root.querySelector('.btn')
       assert.notStrictEqual(element, null)
@@ -886,9 +877,6 @@ describe('isolation', function () {
     const {sinks, sources, run} = Cycle(app, {
       DOM: makeDOMDriver(createRenderTarget())
     })
-
-
-    sinks.DOM.subscribe(x => console.log('dom', x))
 
     sources.DOM.elements().skip(1).take(1).subscribe(root => {
       const element = root.querySelector('.btn')
