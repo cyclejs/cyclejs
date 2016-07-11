@@ -11,6 +11,7 @@ import {IsolateModule} from './isolateModule';
 import {makeTransposeVNode} from './transposition';
 import {EventDelegator} from './EventDelegator';
 import xsSA from '@cycle/xstream-adapter';
+let MapPolyfill: typeof Map = require('es6-map');
 
 function makeDOMDriverInputGuard(modules: any) {
   if (!Array.isArray(modules)) {
@@ -37,11 +38,11 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions):
   if (!options) { options = {}; }
   const transposition = options.transposition || false;
   const modules = options.modules || defaultModules;
-  const isolateModule = new IsolateModule((<Map<string, Element>>new Map()));
+  const isolateModule = new IsolateModule((new MapPolyfill<string, Element>()));
   const patch = init([isolateModule.createModule()].concat(modules));
   const rootElement = getElement(container);
   const vnodeWrapper = new VNodeWrapper(rootElement);
-  const delegators = new Map<string, EventDelegator>();
+  const delegators = new MapPolyfill<string, EventDelegator>();
   makeDOMDriverInputGuard(modules);
 
   function DOMDriver(vnode$: Stream<VNode>, runStreamAdapter: StreamAdapter): DOMSource {
