@@ -679,8 +679,7 @@ describe('isolation', function () {
     let clicksCount = 0;
 
     function Child(sources) {
-      sources.DOM.select('.foo').events('click')
-        .subscribe(() => clicksCount++)
+      sources.DOM.select('.foo').events('click').subscribe(() => clicksCount++);
       return {
         DOM: Rx.Observable.of(div('.foo', ['This is foo']))
       };
@@ -689,30 +688,30 @@ describe('isolation', function () {
     function main(sources) {
       const child = isolate(Child)(sources);
       // make child.DOM be inserted, removed, and inserted again
-      const innerDOM$ = Rx.Observable.timer(0, 50).take(3)
-        .switchMap(x => x === 1 ? Rx.Observable.of(div()) : child.DOM)
+      const innerDOM$ = Rx.Observable.timer(0, 120).take(3)
+        .switchMap(x => x === 1 ? Rx.Observable.of(div()) : child.DOM);
       return {
         DOM: innerDOM$
       };
     }
 
     const {sinks, sources, run} = Cycle(main, {
-      DOM: makeDOMDriver(createRenderTarget(), {transposition: true})
+      DOM: makeDOMDriver(createRenderTarget(), {transposition: true}),
     });
 
     let dispose;
     sources.DOM.select(':root').elements().skip(1).subscribe(function (root) {
       setTimeout(() => {
         const foo = root.querySelector('.foo');
-        if (!foo) return
+        if (!foo) return;
         foo.click();
       }, 0);
     });
     setTimeout(function(){
-      assert.strictEqual(clicksCount, 2)
-      dispose()
-      done()
-    }, 200)
+      assert.strictEqual(clicksCount, 2);
+      dispose();
+      done();
+    }, 500);
     dispose = run();
   });
 
