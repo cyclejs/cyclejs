@@ -581,7 +581,7 @@ describe('isolation', function () {
     topDOMSource.select('.bar').events('click').subscribe(ev => {
       parentEventHandlerCalled = true;
       done('this should not be called');
-    })
+    });
 
     // Make assertions
     fooDOMSource.select('.bar').elements().skip(1).take(1).subscribe(elements => {

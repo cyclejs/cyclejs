@@ -53,6 +53,9 @@ export class EventDelegator {
     }
     const ev = this.patchEvent(rawEvent);
     for (let el = <Element> ev.target; el && el !== this.roof; el = el.parentElement) {
+      if (!document.body.contains(el)) {
+        ev.stopPropagation();
+      }
       if (ev.propagationHasBeenStopped) {
         return;
       }
