@@ -32,11 +32,6 @@
       "args": ["-b", "chrome", "-p", "Windows 10", "-v", "50", "--no-ct", "--at", "-u"],
       "protocol": "browser"
     },
-    "SL_iphone_7": {
-      "exe": "./node_modules/.bin/saucie",
-      "args": ["-b", "iphone", "-v", "7.1", "--no-ct", "--at", "-u"],
-      "protocol": "browser"
-    },
     "SL_iphone_8": {
       "exe": "./node_modules/.bin/saucie",
       "args": ["-b", "iphone", "-v", "8.4", "--no-ct", "--at", "-u"],
@@ -47,9 +42,9 @@
       "args": ["-b", "iphone", "-v", "9.1", "--no-ct", "--at", "-u"],
       "protocol": "browser"
     },
-    "SL_android_4_1": {
+    "SL_android_4_4": {
       "exe": "./node_modules/.bin/saucie",
-      "args": ["-b", "android", "-p", "Linux", "-v", "4.1", "--no-ct", "--at", "-u"],
+      "args": ["-b", "android", "-p", "Linux", "-v", "4.4", "--no-ct", "--at", "-u"],
       "protocol": "browser"
     },
     "SL_android_5_1": {
