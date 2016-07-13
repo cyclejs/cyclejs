@@ -21,6 +21,7 @@ We use only one repository for issues. [**Open the issue at Cycle Core repo.**](
 
 ```js
 import isolate from '@cycle/isolate';
+import LabeledSlider from './LabeledSlider';
 
 function bmiCalculator({DOM}) {
   let weightProps$ = Rx.Observable.just({
