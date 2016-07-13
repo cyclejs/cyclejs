@@ -624,6 +624,12 @@ exports.makeHTMLDriver = makeHTMLDriver_1.makeHTMLDriver;
  * const element$ = domSource.select('.bar').elements();
  * ```
  *
+ * The mocked DOM Source supports isolation. It has the functions `isolateSink`
+ * and `isolateSource` attached to it, and performs simple isolation using
+ * classNames. *isolateSink* with scope `foo` will append the class `___foo` to
+ * the stream of virtual DOM nodes, and *isolateSource* with scope `foo` will
+ * perform a conventional `mockedDOMSource.select('.__foo')` call.
+ *
  * @param {Object} mockConfig an object where keys are selector strings
  * and values are objects. Those nested objects have `eventType` strings as keys
  * and values are streams you created.
@@ -1029,6 +1035,7 @@ exports.makeHTMLDriver = makeHTMLDriver;
 
 var xstream_adapter_1 = require('@cycle/xstream-adapter');
 var xstream_1 = (typeof window !== "undefined" ? window['xstream'] : typeof global !== "undefined" ? global['xstream'] : null);
+var SCOPE_PREFIX = '___';
 var MockedDOMSource = function () {
     function MockedDOMSource(_streamAdapter, _mockConfig) {
         this._streamAdapter = _streamAdapter;
@@ -1065,6 +1072,19 @@ var MockedDOMSource = function () {
             }
         }
         return new MockedDOMSource(this._streamAdapter, {});
+    };
+    MockedDOMSource.prototype.isolateSource = function (source, scope) {
+        return source.select('.' + SCOPE_PREFIX + scope);
+    };
+    MockedDOMSource.prototype.isolateSink = function (sink, scope) {
+        return sink.map(function (vnode) {
+            if (vnode.sel.indexOf(SCOPE_PREFIX + scope) !== -1) {
+                return vnode;
+            } else {
+                vnode.sel += "." + SCOPE_PREFIX + scope;
+                return vnode;
+            }
+        });
     };
     return MockedDOMSource;
 }();
