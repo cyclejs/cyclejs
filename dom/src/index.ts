@@ -119,6 +119,12 @@ export {makeHTMLDriver, HTMLDriverOptions} from './makeHTMLDriver';
  * const element$ = domSource.select('.bar').elements();
  * ```
  *
+ * The mocked DOM Source supports isolation. It has the functions `isolateSink`
+ * and `isolateSource` attached to it, and performs simple isolation using
+ * classNames. *isolateSink* with scope `foo` will append the class `___foo` to
+ * the stream of virtual DOM nodes, and *isolateSource* with scope `foo` will
+ * perform a conventional `mockedDOMSource.select('.__foo')` call.
+ *
  * @param {Object} mockConfig an object where keys are selector strings
  * and values are objects. Those nested objects have `eventType` strings as keys
  * and values are streams you created.
