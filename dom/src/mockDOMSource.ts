@@ -1,4 +1,5 @@
 import {StreamAdapter} from '@cycle/base';
+import {VNode} from './interfaces';
 import xsSA from '@cycle/xstream-adapter';
 import {DOMSource, EventsFnOptions} from './DOMSource';
 import xs from 'xstream';
@@ -11,6 +12,8 @@ export type MockConfig = {
   [name: string]: GenericStream | MockConfig;
   elements?: GenericStream;
 }
+
+const SCOPE_PREFIX = '___';
 
 export class MockedDOMSource implements DOMSource {
   private _elements: any;
@@ -52,6 +55,21 @@ export class MockedDOMSource implements DOMSource {
       }
     }
     return new MockedDOMSource(this._streamAdapter, {});
+  }
+
+  public isolateSource(source: MockedDOMSource, scope: string): DOMSource {
+    return source.select('.' + SCOPE_PREFIX + scope);
+  }
+
+  public isolateSink(sink: any, scope: string): any {
+    return sink.map((vnode: VNode) => {
+      if (vnode.sel.indexOf(SCOPE_PREFIX + scope) !== -1) {
+        return vnode;
+      } else {
+        vnode.sel += `.${SCOPE_PREFIX}${scope}`;
+        return vnode;
+      }
+    });
   }
 }
 

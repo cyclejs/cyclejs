@@ -3,8 +3,11 @@
 let assert = require('assert');
 let CycleDOM = require('../../lib/index');
 let {Observable} = require('rxjs');
+let Cycle = require('@cycle/rxjs-run').default;
+let Rx = require('rxjs');
 let RxJSAdapter = require('@cycle/rxjs-adapter').default;
 let mockDOMSource = CycleDOM.mockDOMSource;
+let {h4, h3, h2, div, h} = CycleDOM;
 
 describe('mockDOMSource', function () {
   it('should be in accessible in the API', function () {
@@ -144,4 +147,99 @@ describe('mockDOMSource', function () {
     assert.strictEqual(RxJSAdapter.isValidStream(domSource.elements()), true,
       'domSource.elements() should be an Observable instance');
   })
+});
+
+describe('isolation on MockedDOMSource', function () {
+  it('should have the same effect as DOM.select()', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.of(
+          h3('.top-most', [
+            h2('.bar', 'Wrong'),
+            div('.child.___foo', [
+              h4('.bar', 'Correct')
+            ])
+          ])
+        )
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: () => mockDOMSource(RxJSAdapter, {
+        '.___foo': {
+          '.bar': {
+            elements: Observable.of('skipped', 135)
+          }
+        }
+      })
+    });
+
+    let dispose;
+    const isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'foo');
+
+    // Make assertions
+    isolatedDOMSource.select('.bar').elements().skip(1).take(1).subscribe(elements => {
+      assert.strictEqual(elements, 135);
+      setTimeout(() => {
+        dispose();
+        done();
+      })
+    });
+    dispose = run();
+  });
+
+  it('should have isolateSource and isolateSink', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.of(h('h3.top-most.___foo'))
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: () => mockDOMSource(RxJSAdapter, {})
+    });
+    let dispose = run();
+    const isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'foo');
+    // Make assertions
+    assert.strictEqual(typeof isolatedDOMSource.isolateSource, 'function');
+    assert.strictEqual(typeof isolatedDOMSource.isolateSink, 'function');
+    dispose();
+    done();
+  });
+
+  it('should prevent parent from DOM.selecting() inside the isolation', function (done) {
+    function app(sources) {
+      return {
+        DOM: Rx.Observable.of(
+          h3('.top-most', [
+            sources.DOM.isolateSink(Rx.Observable.of(
+              div('.foo', [
+                h4('.bar', 'Wrong')
+              ])
+            ), 'ISOLATION'),
+            h2('.bar', 'Correct'),
+          ])
+        )
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: () => mockDOMSource(RxJSAdapter, {
+        '.___ISOLATION': {
+          '.bar': {
+            elements: Rx.Observable.of('skipped', 'Wrong'),
+          },
+        },
+        '.bar': {
+          elements: Rx.Observable.of('skipped', 'Correct'),
+        },
+      })
+    });
+
+    sources.DOM.select('.bar').elements().skip(1).take(1).subscribe(function (x) {
+      assert.strictEqual(x, 'Correct');
+      done();
+    });
+    run()
+  });
 });
