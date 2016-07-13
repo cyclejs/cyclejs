@@ -35,12 +35,13 @@
     "most": "^0.19.7",
     "rx": "^4.1.0",
     "rxjs": "^5.0.0-beta.5",
+    "saucie": "^1.4.0",
+    "testem": "1.9.1",
     "tslint": "3.7.4",
     "typescript": "^1.8.9",
     "typings": "^0.7.12",
     "uglify-js": "2.6.1",
-    "xstream": "5.x.x",
-    "zuul": "3.9.0"
+    "xstream": "5.x.x"
   },
   "jspm": {
     "main": "dist/cycle-http-driver"
@@ -51,11 +52,11 @@
   "scripts": {
     "lint": "tslint -c tslint.json src/*.ts",
     "test-node": "mocha test/node.js",
-    "test-browser": "zuul --open --no-coverage --ui mocha-bdd --local 4000 -- test/browser.js",
-    "pretest-ci": "npm run lib",
-    "pretest": "npm run lib",
-    "test-ci": "npm run lint && npm run test-node && zuul --no-coverage -- test/browser.js",
-    "test": "npm run lint && npm run test-node && npm run test-browser",
+    "test-browser": "npm run start-test-support-server && testem && npm run stop-test-support-server",
+    "start-test-support-server": "PORT=8070 node test/support/server.js & echo $! > test-support-server.pid",
+    "stop-test-support-server": "kill -KILL $(cat test-support-server.pid) && rm test-support-server.pid",
+    "test-ci": "npm run lib && npm run lint && npm run test-node && npm run start-test-support-server && testem ci && npm run stop-test-support-server",
+    "test": "npm run lib && npm run lint && npm run test-node && npm run test-browser",
     "browserify": "npm run lib && browserify lib/index.js --global-transform=browserify-shim --standalone CycleHTTPDriver --exclude xstream --outfile dist/cycle-http-driver.js",
     "uglify": "uglifyjs dist/cycle-http-driver.js -o dist/cycle-http-driver.min.js",
     "prelib": "rm -rf lib/ && mkdirp lib && typings install",

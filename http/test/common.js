@@ -16,6 +16,8 @@ function run(uri) {
   });
 
   describe('HTTP Driver', function () {
+    this.timeout(8000);
+
     it('should throw when request stream emits neither string nor object',
       function(done) {
         function main(sources) {

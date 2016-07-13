@@ -14,29 +14,41 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 app.get('/hello', function(req, res){
-  res.send('Hello World');
+  setTimeout(function () {
+    res.send('Hello World');
+  }, 150);
 });
 
 app.post('/pet', function(req, res){
-  var result = 'added ' + req.body.name + ' the ' + req.body.species;
-  globalSandbox.petPOSTResponse = result;
-  res.send(result);
+  setTimeout(function () {
+    var result = 'added ' + req.body.name + ' the ' + req.body.species;
+    globalSandbox.petPOSTResponse = result;
+    res.send(result);
+  }, 150);
 });
 
 app.get('/json', function(req, res){
-  res.status(200).json({ name: 'manny' });
+  setTimeout(function () {
+    res.status(200).json({ name: 'manny' });
+  }, 150);
 });
 
 app.get('/querystring', function(req, res){
-  res.send(req.query);
+  setTimeout(function () {
+    res.send(req.query);
+  }, 150);
 });
 
 app.get('/error', function(req, res){
-  res.status(500).send('boom');
+  setTimeout(function () {
+    res.status(500).send('boom');
+  }, 150);
 });
 
 app.delete('/delete', function(req, res){
-  res.status(200).json({deleted: true})
+  setTimeout(function () {
+    res.status(200).json({deleted: true})
+  }, 150);
 })
 
-app.listen(process.env.ZUUL_PORT);
+app.listen(process.env.PORT);

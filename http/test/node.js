@@ -1,7 +1,7 @@
 'use strict';
 
 var uri = 'http://localhost:5000';
-process.env.ZUUL_PORT = 5000;
+process.env.PORT = 5000;
 require('./support/server');
 require('./common')(uri);
 
@@ -35,7 +35,7 @@ describe('HTTP Driver in Node.js', function () {
         assert.strictEqual(globalSandbox.petPOSTResponse, 'added Woof the Dog');
         globalSandbox.petPOSTResponse = null;
         done();
-      }, 100);
+      }, 250);
     }
   );
 
