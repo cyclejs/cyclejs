@@ -1,15 +1,11 @@
 {
-  "name": "@cycle/xstream-run",
+  "name": "cycle-monorepo-sandbox-xstream-run",
   "version": "3.0.3",
-  "author": "Andre Staltz",
   "description": "The Cycle run() function to use with xstream",
   "license": "MIT",
-  "homepage": "https://cyclejs.github.io",
-  "bugs": "https://github.com/cyclejs/xstream-run/issues",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/cyclejs/xstream-run"
-  },
+  "homepage": "https://cycle.js.org",
+  "bugs": "https://github.com/cyclejs/cyclejs/issues",
+  "repository": "https://github.com/cyclejs/cyclejs/tree/master/packages/xstream-run",
   "keywords": [
     "reactive",
     "framework",
@@ -28,24 +24,6 @@
     "xstream": "*"
   },
   "devDependencies": {
-    "babel-preset-es2015": "^6.3.13",
-    "babel-register": "^6.4.3",
-    "babelify": "^7.2.0",
-    "browserify": "12.0.1",
-    "browserify-shim": "3.8.11",
-    "commitizen": "^2.7.3",
-    "conventional-changelog": "^1.1.0",
-    "cz-conventional-changelog": "^1.1.5",
-    "ghooks": "^1.0.3",
-    "markdox": "0.1.10",
-    "mocha": "2.3.3",
-    "sinon": "1.17.2",
-    "testem": "0.9.11",
-    "tslint": "3.6.0",
-    "typescript": "^1.8.9",
-    "typings": "^0.6.3",
-    "validate-commit-msg": "^2.4.0",
-    "uglify-js": "2.5.0",
     "xstream": "4.0.x"
   },
   "engines": {
@@ -55,21 +33,19 @@
     "xstream": "global:xstream"
   },
   "scripts": {
-    "commit": "git-cz",
-    "lint": "tslint -c tslint.json src/*.ts",
-    "premocha": "npm run lib",
-    "mocha": "mocha --compilers js:babel-register test",
-    "test": "npm run lint && npm run mocha",
-    "test-browser": "testem",
-    "pretest-browser": "browserify test/cycle.js -t babelify -o test/browser/tests-bundle.js",
+    "lint": "../node_modules/.bin/tslint -c tslint.json src/*.ts",
+    "mocha": "../node_modules/.bin/mocha --compilers js:babel-register test",
+    "test": "npm run lint && npm run lib && npm run mocha",
+    "test-browser": "../node_modules/.bin/testem",
+    "pretest-browser": "../node_modules/.bin/browserify test/cycle.js -t babelify -o test/browser/tests-bundle.js",
     "posttest-browser": "rm test/browser/tests-bundle.js",
-    "predist": "rm -rf dist/ && mkdirp dist/ && npm run lib && npm run docs",
-    "postdist": "uglifyjs dist/cycle.js -o dist/cycle.min.js",
-    "dist": "browserify lib/index.js -t babelify --global-transform=browserify-shim --standalone Cycle --exclude xstream -o dist/cycle.js",
+    "browserify": "../node_modules/.bin/browserify lib/index.js -t babelify --global-transform=browserify-shim --standalone Cycle --exclude xstream -o dist/cycle.js",
+    "uglify": "../node_modules/.bin/uglifyjs dist/cycle.js -o dist/cycle.min.js",
+    "predist": "rm -rf dist/ && mkdir -p dist/",
+    "dist": "npm run lib && npm run docs && npm run browserify && npm run uglify",
     "docs": "node ./scripts/make-api-docs.js",
-    "prelib": "rm -rf lib/ && mkdirp lib",
-    "lib": "tsc",
-    "prepublish": "npm run lib",
+    "prelib": "rm -rf lib/ && mkdir -p lib",
+    "lib": "../node_modules/.bin/tsc",
     "preversion": "npm run dist && git add dist/ && git diff --quiet --exit-code --cached || git commit -a -m 'chore(dist): build dist/'",
     "version-patch": "npm version patch --message 'chore(version): %s'",
     "version-minor": "npm version minor --message 'chore(version): %s'",
@@ -83,5 +59,15 @@
     "ghooks": {
       "commit-msg": "node ./node_modules/validate-commit-msg/index.js"
     }
-  }
+  },
+  "contributors": [
+    {
+      "name": "Andre Staltz",
+      "email": "andre@staltz.com"
+    },
+    {
+      "name": "Tylor Steinberger",
+      "email": "tlsteinberger167@gmail.com"
+    }
+  ]
 }

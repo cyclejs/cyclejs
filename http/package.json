@@ -1,15 +1,11 @@
 {
-  "name": "@cycle/http",
+  "name": "cycle-monorepo-sandbox-http",
   "version": "9.0.2",
   "description": "A Cycle.js Driver for making HTTP requests",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
-  "author": "Andre Staltz",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/cyclejs/cycle-http-driver"
-  },
+  "repository": "https://github.com/cyclejs/cyclejs/tree/master/packages/http",
   "dependencies": {
     "@cycle/xstream-adapter": "^3.0.2",
     "superagent": "1.7.2"
@@ -18,29 +14,14 @@
     "xstream": "^5.0.6"
   },
   "devDependencies": {
-    "@cycle/base": "^3.0.0",
-    "@cycle/rxjs-run": "^2.0.0",
-    "babel-core": "6.3.26",
-    "babel-preset-es2015": "6.3.13",
-    "babel-register": "^6.4.3",
-    "babelify": "^7.2.0",
+    "@cycle/base": "^4.0.1",
+    "@cycle/rxjs-run": "^3.0.2",
     "body-parser": "1.14.2",
-    "browserify": "12.0.1",
-    "browserify-shim": "^3.8.11",
     "cookie-parser": "1.4.1",
     "express": "4.13.4",
-    "markdox": "0.1.10",
-    "mkdirp": "^0.5.1",
-    "mocha": "2.3.4",
     "most": "^0.19.7",
     "rx": "^4.1.0",
     "rxjs": "^5.0.0-beta.5",
-    "saucie": "^1.4.0",
-    "testem": "1.9.1",
-    "tslint": "3.7.4",
-    "typescript": "^1.8.9",
-    "typings": "^0.7.12",
-    "uglify-js": "2.6.1",
     "xstream": "5.x.x"
   },
   "jspm": {
@@ -50,23 +31,34 @@
     "xstream": "global:xstream"
   },
   "scripts": {
-    "lint": "tslint -c tslint.json src/*.ts",
-    "test-node": "mocha test/node.js",
-    "test-browser": "npm run start-test-support-server && testem && npm run stop-test-support-server",
+    "lint": "../node_modules/.bin/tslint -c tslint.json src/*.ts",
+    "test-node": "../node_modules/.bin/mocha test/node.js",
+    "test-browser": "npm run start-test-support-server && ../node_modules/.bin/testem ci -l Chrome,Firefox && npm run stop-test-support-server",
     "start-test-support-server": "PORT=8070 node test/support/server.js & echo $! > test-support-server.pid",
     "stop-test-support-server": "kill -KILL $(cat test-support-server.pid) && rm test-support-server.pid",
-    "test-ci": "npm run lib && npm run lint && npm run test-node && npm run start-test-support-server && testem ci && npm run stop-test-support-server",
+    "test-ci": "npm run lib && npm run lint && npm run test-node && npm run start-test-support-server && ../node_modules/.bin/testem ci && npm run stop-test-support-server",
     "test": "npm run lib && npm run lint && npm run test-node && npm run test-browser",
-    "browserify": "npm run lib && browserify lib/index.js --global-transform=browserify-shim --standalone CycleHTTPDriver --exclude xstream --outfile dist/cycle-http-driver.js",
-    "uglify": "uglifyjs dist/cycle-http-driver.js -o dist/cycle-http-driver.min.js",
-    "prelib": "rm -rf lib/ && mkdirp lib && typings install",
-    "lib": "tsc",
-    "dist": "npm run browserify && npm run uglify && npm run docs",
+    "browserify": "npm run lib && ../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleHTTPDriver --exclude xstream --outfile dist/cycle-http-driver.js",
+    "uglify": "../node_modules/.bin/uglifyjs dist/cycle-http-driver.js -o dist/cycle-http-driver.min.js",
+    "prelib": "rm -rf lib/ && mkdir -p lib && ../node_modules/.bin/typings install",
+    "lib": "../node_modules/.bin/tsc",
+    "dist": "npm run lib && npm run browserify && npm run uglify && npm run docs",
     "docs": "node ./scripts/make-api-docs.js",
-    "prepublish": "npm run lib",
     "release": "npm run release-patch",
     "release-patch": "git checkout master && npm run dist; git commit -a -m 'Build dist/'; npm version patch && git push origin master --tags && npm publish --access=public",
     "release-minor": "git checkout master && npm run dist; git commit -a -m 'Build dist/'; npm version minor && git push origin master --tags && npm publish --access=public",
     "release-major": "git checkout master && npm run dist; git commit -a -m 'Build dist/'; npm version major && git push origin master --tags && npm publish --access=public"
-  }
+  },
+  "homepage": "https://cycle.js.org",
+  "bugs": "https://github.com/cyclejs/cyclejs/issues",
+  "contributors": [
+    {
+      "name": "Andre Staltz",
+      "email": "andre@staltz.com"
+    },
+    {
+      "name": "Tylor Steinberger",
+      "email": "tlsteinberger167@gmail.com"
+    }
+  ]
 }

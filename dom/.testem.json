@@ -2,8 +2,10 @@
   "framework": "mocha",
   "test_page": "test/browser/page/index.html",
   "disable_watching": true,
+  "before_tests": "cp ../node_modules/mocha/mocha.* ./test/browser/page/",
   "on_start": "./scripts/saucie-connect.js",
   "on_exit": "./scripts/saucie-disconnect.js",
+  "after_tests": "rm ./test/browser/page/mocha.*",
   "port": 8080,
   "browser_start_timeout": 90,
   "launchers": {
@@ -75,8 +77,7 @@
   },
   "launch_in_dev": [
     "Chrome",
-    "Firefox",
-    "Safari"
+    "Firefox"
   ],
   "launch_in_ci": [
     "SL_Chrome_Current",
