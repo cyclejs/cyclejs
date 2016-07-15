@@ -128,7 +128,7 @@ You can handle errors using standard xstream or RxJS operators. The response str
 sources.HTTP
   .select('hello')
   .map((response$) =>
-    response$.replaceError(xs.of(errorObject))
+    response$.replaceError(() => xs.of(errorObject))
   ).flatten()
 ```
 For more information, refer to the [xstream documentation for replaceError](https://github.com/staltz/xstream#replaceError) or the [RxJS documention for catch](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/catch.md).
