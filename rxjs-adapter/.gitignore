@@ -1,0 +1,4 @@
+node_modules/
+lib/
+typings/
+npm-debug.log
