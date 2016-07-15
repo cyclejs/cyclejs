@@ -1,0 +1,9 @@
+sudo: false
+language: node_js
+node_js:
+  - "0.12"
+  - "5.10"
+script: npm run test
+branches:
+  only:
+    - master
