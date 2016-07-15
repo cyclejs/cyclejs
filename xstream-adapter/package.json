@@ -1,0 +1,67 @@
+{
+  "name": "@cycle/xstream-adapter",
+  "version": "3.0.2",
+  "description": "Cycle.js xstream Stream Adapter",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "commit": "git-cz",
+    "lint": "tslint -c tslint.json src/**/*.ts",
+    "premocha": "npm run lib",
+    "mocha": "mocha --compilers js:babel-register",
+    "postmocha": "rm -rf tests/**/*.js",
+    "test": "npm run lint && npm run mocha",
+    "prelib": "typings install && rm -rf lib/ && mkdirp lib/",
+    "lib": "tsc",
+    "predist": "rm -rf dist/ && mkdirp dist/ && npm run lib",
+    "dist": "browserify lib/index.js --standalone xstream --outfile dist/xstream.js",
+    "postdist": "uglifyjs dist/xstream.js -o dist/xstream.min.js",
+    "start": "npm install && npm prune",
+    "prepublish": "npm run lib",
+    "preversion": "npm run dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/staltz/xstream.git"
+  },
+  "author": "Andre Staltz <andre+npm@staltz.com> (http://andre.staltz.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/staltz/xstream/issues"
+  },
+  "homepage": "https://github.com/staltz/xstream#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "@cycle/base": "^4.0.1",
+    "assert": "^1.3.0",
+    "babel-preset-es2015": "^6.6.0",
+    "babel-register": "^6.7.2",
+    "browserify": "^13.0.0",
+    "commitizen": "^2.7.3",
+    "conventional-changelog": "^1.1.0",
+    "cz-conventional-changelog": "^1.1.5",
+    "es6-promise": "^3.1.2",
+    "ghooks": "^1.0.3",
+    "markdox": "^0.1.10",
+    "mkdirp": "^0.5.1",
+    "mocha": "^2.4.5",
+    "ts-node": "^0.5.5",
+    "tslint": "^3.6.0",
+    "typescript": "^1.8.9",
+    "typings": "^0.8.0",
+    "uglify-js": "^2.6.2",
+    "validate-commit-msg": "^2.4.0",
+    "xstream": "5.x.x"
+  },
+  "peerDependencies": {
+    "xstream": "4.x - 5.x"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    },
+    "ghooks": {
+      "commit-msg": "node ./node_modules/validate-commit-msg/index.js"
+    }
+  }
+}
