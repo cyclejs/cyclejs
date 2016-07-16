@@ -1,6 +1,6 @@
-import {StreamAdapter} from '@cycle/base';
+import {StreamAdapter} from 'cycle-monorepo-sandbox-base';
 import {VNode} from './interfaces';
-import xsSA from '@cycle/xstream-adapter';
+import xsSA from 'cycle-monorepo-sandbox-xstream-adapter';
 import {DOMSource, EventsFnOptions} from './DOMSource';
 import xs from 'xstream';
 

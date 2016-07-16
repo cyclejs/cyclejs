@@ -7,15 +7,15 @@
   "license": "MIT",
   "repository": "https://github.com/cyclejs/cyclejs/tree/master/packages/http",
   "dependencies": {
-    "@cycle/xstream-adapter": "^3.0.2",
+    "cycle-monorepo-sandbox-xstream-adapter": "*",
     "superagent": "1.7.2"
   },
   "peerDependencies": {
-    "xstream": "^5.0.6"
+    "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/base": "^4.0.1",
-    "@cycle/rxjs-run": "^3.0.2",
+    "cycle-monorepo-sandbox-base": "*",
+    "cycle-monorepo-sandbox-rxjs-run": "*",
     "body-parser": "1.14.2",
     "cookie-parser": "1.4.1",
     "express": "4.13.4",
@@ -36,7 +36,7 @@
     "test-node": "../node_modules/.bin/mocha test/node.js",
     "test-browser": "npm run start-test-support-server && ../node_modules/.bin/testem ci -l Chrome,Firefox && npm run stop-test-support-server",
     "start-test-support-server": "PORT=8070 node test/support/server.js & echo $! > test-support-server.pid",
-    "stop-test-support-server": "kill -KILL $(cat test-support-server.pid) && rm test-support-server.pid",
+    "stop-test-support-server": "if ps -p $(cat test-support-server.pid)> /dev/null; then kill -KILL $(cat test-support-server.pid); fi && rm test-support-server.pid",
     "test-ci": "npm run lib && npm run lint && npm run test-node && npm run start-test-support-server && ../node_modules/.bin/testem ci && npm run stop-test-support-server",
     "test": "npm run lib && npm run lint && npm run test-node && npm run test-browser",
     "browserify": "npm run lib && ../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleHTTPDriver --exclude xstream --outfile dist/cycle-http-driver.js",

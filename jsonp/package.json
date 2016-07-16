@@ -10,18 +10,18 @@
     "url": "https://github.com/cyclejs/jsonp"
   },
   "dependencies": {
-    "@cycle/xstream-adapter": "^3.0.0",
+    "cycle-monorepo-sandbox-xstream-adapter": "*",
     "jsonp": "0.2.0"
   },
   "peerDependencies": {
-    "xstream": ">=2"
+    "xstream": "*"
   },
   "devDependencies": {
     "eslint": "1.0.0",
     "eslint-config-cycle": "3.2.0",
     "eslint-plugin-cycle": "1.0.2",
     "eslint-plugin-no-class": "0.1.0",
-    "xstream": "^4.0.4"
+    "xstream": "5.x.x"
   },
   "browserify-shim": {
     "xstream": "global:xstream"
@@ -33,7 +33,7 @@
     "browserify": "../node_modules/.bin/browserify src/index.js -t babelify -t browserify-shim --standalone CycleJSONPDriver --exclude xstream --outfile dist/cycle-jsonp-driver.js",
     "uglify": "../node_modules/.bin/uglifyjs dist/cycle-jsonp-driver.js -o dist/cycle-jsonp-driver.min.js",
     "prelib": "rm -rf lib/ && mkdir -p lib",
-    "lib": "babel -d lib/ src/",
+    "lib": "../node_modules/.bin/babel -d lib/ src/",
     "predist": "rm -rf dist/ && mkdir -p dist/",
     "dist": "npm run browserify && npm run uglify && npm run docs",
     "docs": "node ./scripts/make-api-docs.js",

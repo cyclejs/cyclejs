@@ -28,6 +28,7 @@
   ],
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
+  "dependencies": {},
   "devDependencies": {
     "rx": "4.0.6"
   },

@@ -2,9 +2,9 @@ import {
   CycleExecution,
   CycleSetup,
   DisposeFunction
-} from '@cycle/base';
-import CycleBase from '@cycle/base';
-import XStreamAdapter from '@cycle/xstream-adapter';
+} from 'cycle-monorepo-sandbox-base';
+import CycleBase from 'cycle-monorepo-sandbox-base';
+import XStreamAdapter from 'cycle-monorepo-sandbox-xstream-adapter';
 
 /**
  * Takes a `main` function and circularly connects it to the given collection

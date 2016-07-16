@@ -7,13 +7,14 @@
     "babel-preset-es2015": "^6.9.0",
     "babel-register": "^6.9.0",
     "babelify": "^7.3.0",
-    "browserify-shim": "^3.8.12",
     "browserify": "^13.0.1",
+    "browserify-shim": "^3.8.12",
     "commitizen": "^2.8.2",
-    "conventional-changelog-cli": "^1.2.0",
     "conventional-changelog": "^1.1.0",
+    "conventional-changelog-cli": "^1.2.0",
     "cz-conventional-changelog": "^1.1.6",
     "ghooks": "^1.3.2",
+    "jase": "^1.2.0",
     "markdox": "0.1.10",
     "mocha": "2.5.3",
     "power-assert": "^1.4.1",
@@ -27,8 +28,10 @@
     "validate-commit-msg": "^2.6.1"
   },
   "scripts": {
-    "setup": "npm install && _scripts/npm-x-for-all-packages.sh install",
-    "test": "_scripts/npm-x-for-all-packages.sh test",
+    "internal-install-all": "npm install && _scripts/npm-x-for-all-packages.sh install",
+    "internal-link-all": "_scripts/npm-x-for-all-packages.sh link && _scripts/npm-link-to-each-other.sh",
+    "setup": "npm run internal-link-all && npm run internal-install-all",
+    "test": "_scripts/npm-x-for-all-packages.sh run lib && _scripts/npm-x-for-all-packages.sh test",
     "test-ci": "npm run setup && _scripts/npm-x-for-all-packages.sh run test-ci"
   }
 }

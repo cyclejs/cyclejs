@@ -10,12 +10,12 @@
   "homepage": "https://cycle.js.org",
   "dependencies": {},
   "devDependencies": {
-    "@cycle/base": "^4.0.1",
+    "cycle-monorepo-sandbox-base": "*",
     "es6-promise": "^3.1.2",
     "xstream": "5.x.x"
   },
   "peerDependencies": {
-    "xstream": "4.x - 5.x"
+    "xstream": "*"
   },
   "config": {
     "commitizen": {

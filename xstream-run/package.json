@@ -17,14 +17,14 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "@cycle/base": "^4.0.1",
-    "@cycle/xstream-adapter": "^3.0.2"
+    "cycle-monorepo-sandbox-base": "*",
+    "cycle-monorepo-sandbox-xstream-adapter": "*"
   },
   "peerDependencies": {
     "xstream": "*"
   },
   "devDependencies": {
-    "xstream": "4.0.x"
+    "xstream": "5.x.x"
   },
   "engines": {
     "node": ">=0.12.0"

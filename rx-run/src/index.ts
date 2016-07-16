@@ -2,9 +2,9 @@ import {
   CycleExecution,
   CycleSetup,
   DisposeFunction
-} from '@cycle/base';
-import CycleBase from '@cycle/base';
-import RxAdapter from '@cycle/rx-adapter';
+} from 'cycle-monorepo-sandbox-base';
+import CycleBase from 'cycle-monorepo-sandbox-base';
+import RxAdapter from 'cycle-monorepo-sandbox-rx-adapter';
 
 /**
  * Takes a `main` function and circularly connects it to the given collection

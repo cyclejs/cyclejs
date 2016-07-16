@@ -1,4 +1,3 @@
 {
-  "presets": ["es2015"],
-  "plugins": ["espower"]
+  "presets": ["es2015"]
 }

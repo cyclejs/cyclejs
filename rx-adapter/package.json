@@ -28,11 +28,12 @@
   "browserify-shim": {
     "rx": "global:Rx"
   },
+  "dependencies": {},
   "peerDependencies": {
     "rx": "*"
   },
   "devDependencies": {
-    "@cycle/base": "^4.0.1",
+    "cycle-monorepo-sandbox-base": "*",
     "rx": "^4.0.7"
   },
   "scripts": {

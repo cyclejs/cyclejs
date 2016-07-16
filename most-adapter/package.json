@@ -43,8 +43,7 @@
     "most-subject": "^4.1.1"
   },
   "devDependencies": {
-    "@cycle/base": "^4.0.1",
-    "babel-plugin-espower": "^2.1.2"
+    "cycle-monorepo-sandbox-base": "*"
   },
   "scripts": {
     "lint": "../node_modules/.bin/tslint -c tslint.json src/*.ts src/**/*.ts",

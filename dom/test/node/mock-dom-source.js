@@ -3,9 +3,9 @@
 let assert = require('assert');
 let CycleDOM = require('../../lib/index');
 let {Observable} = require('rxjs');
-let Cycle = require('@cycle/rxjs-run').default;
+let Cycle = require('cycle-monorepo-sandbox-rxjs-run').default;
 let Rx = require('rxjs');
-let RxJSAdapter = require('@cycle/rxjs-adapter').default;
+let RxJSAdapter = require('cycle-monorepo-sandbox-rxjs-adapter').default;
 let mockDOMSource = CycleDOM.mockDOMSource;
 let {h4, h3, h2, div, h} = CycleDOM;
 

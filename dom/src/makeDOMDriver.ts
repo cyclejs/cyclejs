@@ -1,4 +1,4 @@
-import {StreamAdapter} from '@cycle/base';
+import {StreamAdapter} from 'cycle-monorepo-sandbox-base';
 import {init} from 'snabbdom';
 import xs, {Stream} from 'xstream';
 import {DOMSource} from './DOMSource';
@@ -10,7 +10,7 @@ import defaultModules from './modules';
 import {IsolateModule} from './isolateModule';
 import {makeTransposeVNode} from './transposition';
 import {EventDelegator} from './EventDelegator';
-import xsSA from '@cycle/xstream-adapter';
+import xsSA from 'cycle-monorepo-sandbox-xstream-adapter';
 let MapPolyfill: typeof Map = require('es6-map');
 
 function makeDOMDriverInputGuard(modules: any) {

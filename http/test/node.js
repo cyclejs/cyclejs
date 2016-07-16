@@ -8,7 +8,7 @@ require('./common')(uri);
 // Node.js specific ============================================================
 var assert = require('assert');
 var Rx = require('rxjs');
-var Cycle = require('@cycle/rxjs-run').default;
+var Cycle = require('cycle-monorepo-sandbox-rxjs-run').default;
 var src = require('../lib/index');
 var makeHTTPDriver = src.makeHTTPDriver;
 var globalSandbox = require('./support/global');

@@ -1,7 +1,7 @@
 'use strict';
 /* global describe, it, beforeEach */
 let assert = require('assert');
-let Cycle = require('@cycle/rxjs-run').default;
+let Cycle = require('cycle-monorepo-sandbox-rxjs-run').default;
 let CycleDOM = require('../../lib/index');
 let Rx = require('rxjs');
 let {div, h3, h, makeHTMLDriver} = CycleDOM;

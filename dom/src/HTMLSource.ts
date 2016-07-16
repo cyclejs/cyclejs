@@ -1,7 +1,7 @@
 import xs, {Stream} from 'xstream';
-import {StreamAdapter} from '@cycle/base';
+import {StreamAdapter} from 'cycle-monorepo-sandbox-base';
 import {DOMSource, EventsFnOptions} from './DOMSource';
-import xsSA from '@cycle/xstream-adapter';
+import xsSA from 'cycle-monorepo-sandbox-xstream-adapter';
 
 export class HTMLSource implements DOMSource {
   private _html$: any;

@@ -4,7 +4,7 @@ import {
   StreamSubscribe,
   DisposeFunction,
   Subject,
-} from '@cycle/base';
+} from 'cycle-monorepo-sandbox-base';
 import * as Rx from 'rxjs';
 
 const RxJSAdapter: StreamAdapter = {

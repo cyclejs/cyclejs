@@ -1,6 +1,3 @@
 {
-  "name": "most-subject",
-  "dependencies": {
-    "@cycle/base": "npm:@cycle/base"
-  }
+  "name": "@cycle/most-adapter"
 }

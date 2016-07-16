@@ -33,13 +33,12 @@
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
   "homepage": "https://cycle.js.org",
   "dependencies": {
-    "@cycle/base": "^4.0.1",
-    "@cycle/most-adapter": "^3.0.0",
+    "cycle-monorepo-sandbox-base": "*",
+    "cycle-monorepo-sandbox-most-adapter": "*",
     "most": "^0.19.7",
     "most-subject": "^4.1.1"
   },
   "devDependencies": {
-    "babel-plugin-espower": "^2.1.2",
     "creed": "^1.0.1"
   },
   "scripts": {
