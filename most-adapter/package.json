@@ -60,5 +60,8 @@
     "release-patch": "npm version patch -m \"chore(release): release new version\" && npm run changelog",
     "release-minor": "npm version minor -m \"chore(release): release new version\" && npm run changelog",
     "release-major": "npm version major -m \"chore(release): release new version\" && npm run changelog"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

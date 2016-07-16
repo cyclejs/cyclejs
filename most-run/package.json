@@ -57,5 +57,8 @@
     "release-patch": "npm run prerelease && npm version patch -m \"chore(release): release new version\" && npm run changelog",
     "release-minor": "npm run prerelease && npm version minor -m \"chore(release): release new version\" && npm run changelog",
     "release-major": "npm run prerelease && npm version major -m \"chore(release): release new version\" && npm run changelog"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

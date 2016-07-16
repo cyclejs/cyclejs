@@ -46,5 +46,8 @@
     "uglify": "../node_modules/.bin/uglifyjs dist/cycle-rx-adapter.js -o dist/cycle-rx-adapter.min.js",
     "predist": "rm -rf dist/ && mkdir -p dist/ && npm run lib",
     "dist": "npm run lib && npm run browserify && npm run uglify"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

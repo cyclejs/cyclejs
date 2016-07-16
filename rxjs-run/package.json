@@ -63,5 +63,8 @@
       "name": "Tylor Steinberger",
       "email": "tlsteinberger167@gmail.com"
     }
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

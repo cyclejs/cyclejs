@@ -48,5 +48,8 @@
     "browserify": "../node_modules/.bin/browserify -t browserify-shim -t babelify --exclude rxjs lib/index.js -o dist/cycle-rxjs-adapter.js",
     "dist": "npm run lib && npm run browserify && npm run uglify",
     "uglify": "../node_modules/.bin/uglifyjs dist/cycle-rxjs-adapter.js -o dist/cycle-rxjs-adapter.min.js"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -73,5 +73,8 @@
     "version-minor": "npm version minor --message 'chore(version): %s'",
     "version-major": "npm version major --message 'chore(version): %s'",
     "postversion": "npm publish --access=public"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
