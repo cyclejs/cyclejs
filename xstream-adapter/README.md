@@ -1,3 +1,7 @@
-# XStreamAdapter
+# Cycle.js xstream Stream Adapter
 
-Cycle.js Diversity adapter for XStream
+Stream adapter interface for xstream.
+
+```
+npm install @cycle/xstream-adapter
+```

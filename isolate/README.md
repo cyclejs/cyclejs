@@ -1,21 +1,12 @@
-# `isolate()`
+# Isolate
 
-> A utility function to make scoped dataflow components in Cycle.js.
+A utility function to make scoped dataflow components in Cycle.js.
+
+```
+npm install @cycle/isolate
+```
 
 See the Cycle.js [documentation on components](http://cycle.js.org/components.html#multiple-instances-of-the-same-component) for further details.
-
-[![Cycle.js](https://img.shields.io/badge/Cycle.js-compatible-brightgreen.svg)](https://github.com/cyclejs)
-[![Motorcycle.js](https://img.shields.io/badge/Motorcycle.js-compatible-brightgreen.svg)](https://github.com/motorcyclejs)
-
-## Installing
-
-[![npm version](https://badge.fury.io/js/%40cycle%2Fisolate.svg)](http://badge.fury.io/js/%40cycle%2Fisolate)
-
-`npm install @cycle/isolate`
-
-## Why are Issues unavailable?
-
-We use only one repository for issues. [**Open the issue at Cycle Core repo.**](https://github.com/cyclejs/cycle-core/issues)
 
 ## Example
 
@@ -63,7 +54,10 @@ function bmiCalculator({DOM}) {
 }
 ```
 
-## Documentation
+# API
+
+
+- [`isolate`](#isolate)
 
 ### <a id="isolate"></a> `isolate(dataflowComponent, scope)`
 
@@ -90,8 +84,8 @@ implement `isolateSource()` and `isolateSink()`.
 
 #### Arguments:
 
-- `dataflowComponent :: Function` a function that takes `sources` as input and outputs a collection of `sinks`.
-- `scope :: String` an optional string that is used to isolate each `sources` and `sinks` when the returned scoped dataflow component is invoked.
+- `dataflowComponent: Function` a function that takes `sources` as input and outputs a collection of `sinks`.
+- `scope: String` an optional string that is used to isolate each `sources` and `sinks` when the returned scoped dataflow component is invoked.
 
 #### Return:
 
@@ -99,12 +93,3 @@ implement `isolateSource()` and `isolateSink()`.
 
 - - -
 
-## LICENSE
-
-[The MIT License (MIT)](https://github.com/cyclejs/isolate/blob/master/LICENSE)
-
-- - -
-
-[![Build Status](https://travis-ci.org/cyclejs/isolate.svg?branch=master)](https://travis-ci.org/cyclejs/isolate)
-[![Dependency Status](https://david-dm.org/cyclejs/isolate.svg)](https://david-dm.org/cyclejs/isolate)
-[![devDependency Status](https://david-dm.org/cyclejs/isolate/dev-status.svg)](https://david-dm.org/cyclejs/isolate#info=devDependencies)

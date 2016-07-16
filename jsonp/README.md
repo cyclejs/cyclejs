@@ -1,6 +1,6 @@
-# Cycle JSONP Driver
+# Cycle JSONP
 
-A [Cycle.js](http://cycle.js.org) [Driver](http://cycle.js.org/drivers.html) for making HTTP requests through the JSONP hack, based on the [jsonp](https://github.com/webmodules/jsonp) package. This package is small, hacky (as JSONP is too), and untested. Whenever possible, use proper server and client CORS solution with the [HTTP Driver](https://github.com/cyclejs/cycle-http-driver).
+A Driver for making HTTP requests through the JSONP hack, based on the [jsonp](https://github.com/webmodules/jsonp) package. This package is small, hacky (as JSONP is too), and untested. Whenever possible, use proper server and client CORS solution with the HTTP Driver.
 
 ```
 npm install @cycle/jsonp
@@ -35,8 +35,31 @@ Cycle.run(main, {
 })
 ```
 
+# API
+
+- [`makeJSONPDriver`](#makeJSONPDriver)
+
+### <a id="makeJSONPDriver"></a> `makeJSONPDriver()`
+
+JSONP Driver factory.
+
+This is a function which, when called, returns a JSONP Driver for Cycle.js
+apps. The driver is also a function, and it takes a stream of requests
+(URL strings) as input, and generates a metastream of responses.
+
+**Requests**. The stream of requests should emit strings as the URL of the
+remote resource over HTTP.
+
+**Responses**. A metastream is a stream of streams. The response metastream
+emits streams of responses. These streams of responses have a `request`
+field attached to them (to the stream object itself) indicating which
+request (from the driver input) generated this response stream. The
+response streams themselves emit the response object received through the
+npm `jsonp` package.
+
+#### Return:
+
+*(Function)* the JSONP Driver function
+
 - - -
 
-[![Build Status](https://travis-ci.org/cyclejs/cycle-jsonp-driver.svg?branch=master)](https://travis-ci.org/cyclejs/cycle-jsonp-driver)
-[![Dependency Status](https://david-dm.org/cyclejs/cycle-jsonp-driver.svg)](https://david-dm.org/cyclejs/cycle-jsonp-driver)
-[![devDependency Status](https://david-dm.org/cyclejs/cycle-jsonp-driver/dev-status.svg)](https://david-dm.org/cyclejs/cycle-jsonp-driver#info=devDependencies)

@@ -44,7 +44,7 @@
     "uglify": "../node_modules/.bin/uglifyjs dist/cycle-isolate.js -o dist/cycle-isolate.min.js",
     "predist": "rm -rf dist/ && mkdir -p dist/",
     "dist": "npm run lib && npm run browserify && npm run uglify",
-    "docs": "node ./scripts/make-api-docs.js",
+    "readme": "node ./scripts/make-api-docs.js && cat ./scripts/template-readme.md ./scripts/generated-api.md > README.md",
     "prelib": "rm -rf lib/ && mkdir -p lib",
     "lib": "../node_modules/.bin/tsc",
     "release": "npm run release-patch",

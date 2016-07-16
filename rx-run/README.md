@@ -1,36 +1,84 @@
-<h1>
-<img src="https://raw.github.com/cyclejs/core/master/logo.png" /> Cycle.js
-</h1>
+# Run() for Rx
 
-> Cycle.js is a functional and reactive JavaScript framework for cleaner code
+`Cycle.run()` function for applications written with RxJS version **4**.
 
-## Installing
+```
+npm install @cycle/rx-run rx
+```
 
-[![npm version](https://badge.fury.io/js/%40cycle%2Fcore.svg)](http://badge.fury.io/js/%40cycle%2Fcore)
+**Note: `rx` package is required too.**
 
-`npm install rx @cycle/core`
+## Basic usage
 
-Note: `rx` is a **required** dependency. Without it, nothing will change.
+```js
+import Cycle from '@cycle/rx-run'
 
-## I came here because I want to...
+Cycle.run(main, drivers)
+```
 
-- Understand how Cycle.js works in general: go to http://cycle.js.org
-- Understand how Cycle *Core* itself works: read the [docs](https://github.com/cyclejs/core/blob/master/docs/api.md) and the [tests](https://github.com/cyclejs/core/tree/master/test)
-- File a bug report for anything Cycle-related: [open an issue](https://github.com/cyclejs/core/issues/new)
-- Ask a question such as "How do I ...?" on one of these channels:  
-  - Ask it in the [Gitter chat room](https://gitter.im/cyclejs/core)
-  - [Open a StackOverflow question with `cyclejs` tag](http://stackoverflow.com/questions/tagged/cyclejs)
-  - [Open an issue here](https://github.com/cyclejs/core/issues/new). Please note all discussion-like issues are labeled `discussion` and immediately closed. This doesn't mean we unconsidered your discussion. We only leave actual issues open.
-- [Read discussion issues](https://github.com/cyclejs/core/issues?q=is%3Aissue+is%3Aclosed+label%3A"discussion+%28is+always+a+closed+issue%29")
-- Contribute a new driver: [open an issue](https://github.com/cyclejs/core/issues/new)
+# API
 
-## LICENSE
+- [`run`](#run)
+- [`Cycle`](#Cycle)
 
-[The MIT License (MIT)](https://github.com/cyclejs/core/blob/master/LICENSE)
+### <a id="run"></a> `run(main, drivers)`
+
+Takes a `main` function and circularly connects it to the given collection
+of driver functions.
+
+**Example:**
+```js
+import {run} from '@cycle/rx-run';
+const dispose = Cycle.run(main, drivers);
+// ...
+dispose();
+```
+
+The `main` function expects a collection of "source" Observables (returned
+from drivers) as input, and should return a collection of "sink" Observables
+(to be given to drivers). A "collection of Observables" is a JavaScript
+object where keys match the driver names registered by the `drivers` object,
+and values are the Observables. Refer to the documentation of each driver to
+see more details on what types of sources it outputs and sinks it receives.
+
+#### Arguments:
+
+- `main: Function` a function that takes `sources` as input and outputs a collection of `sinks` Observables.
+- `drivers: Object` an object where keys are driver names and values are driver functions.
+
+#### Return:
+
+*(Function)* a dispose function, used to terminate the execution of the Cycle.js program, cleaning up resources used.
 
 - - -
 
-[![Build Status](https://travis-ci.org/cyclejs/core.svg?branch=master)](https://travis-ci.org/cyclejs/core)
-[![Dependency Status](https://david-dm.org/cyclejs/core.svg)](https://david-dm.org/cyclejs/core)
-[![devDependency Status](https://david-dm.org/cyclejs/core/dev-status.svg)](https://david-dm.org/cyclejs/core#info=devDependencies)
-[![JS.ORG](https://img.shields.io/badge/js.org-cycle-ffb400.svg?style=flat-square)](http://js.org)
+### <a id="Cycle"></a> `Cycle(main, drivers)`
+
+A function that prepares the Cycle application to be executed. Takes a `main`
+function and prepares to circularly connects it to the given collection of
+driver functions. As an output, `Cycle()` returns an object with three
+properties: `sources`, `sinks` and `run`. Only when `run()` is called will
+the application actually execute. Refer to the documentation of `run()` for
+more details.
+
+**Example:**
+```js
+import Cycle from '@cycle/rx-run';
+const {sources, sinks, run} = Cycle(main, drivers);
+// ...
+const dispose = run(); // Executes the application
+// ...
+dispose();
+```
+
+#### Arguments:
+
+- `main: Function` a function that takes `sources` as input and outputs a collection of `sinks` Observables.
+- `drivers: Object` an object where keys are driver names and values are driver functions.
+
+#### Return:
+
+*(Object)* an object with three properties: `sources`, `sinks` and `run`. `sources` is the collection of driver sources, `sinks` is the
+collection of driver sinks, these can be used for debugging or testing. `run`
+is the function that once called will execute the application.
+

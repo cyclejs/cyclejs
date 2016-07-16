@@ -45,7 +45,7 @@
     "browserify": "../node_modules/.bin/browserify lib/index.js -t babelify --global-transform=browserify-shim --standalone Cycle --exclude rxjs -o dist/cycle.js",
     "predist": "rm -rf dist/ && mkdir -p dist/",
     "dist": "npm run lib && npm run docs && npm run browserify && npm run uglify",
-    "docs": "node ./scripts/make-api-docs.js",
+    "readme": "node ./scripts/make-api-docs.js && cat ./scripts/template-readme.md ./scripts/generated-api.md > README.md",
     "prelib": "rm -rf lib/ && mkdir -p lib",
     "lib": "../node_modules/.bin/tsc",
     "preversion": "npm run dist && git add dist/ && git diff --quiet --exit-code --cached || git commit -a -m 'chore(dist): build dist/'",

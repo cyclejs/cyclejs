@@ -1,3 +1,7 @@
-# rxjs-adapter
+# Cycle.js RxJS Stream Adapter
 
-RxJS version **5.x.x** StreamAdapter for run().
+Stream adapter interface for RxJS version **5.x.x**.
+
+```
+npm install @cycle/rxjs-adapter
+```

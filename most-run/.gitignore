@@ -8,3 +8,4 @@ lib/
 coverage/
 typings/
 dist/
+scripts/generated-api.md

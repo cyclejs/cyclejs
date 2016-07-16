@@ -68,6 +68,7 @@
     "uglify": "../node_modules/.bin/uglifyjs dist/cycle-base.js -o dist/cycle-base.min.js",
     "predist": "rm -rf dist/ && mkdir -p dist/",
     "dist": "npm run browserify && npm run uglify",
+    "readme": ":",
     "preversion": "npm run dist && git add dist/ && git diff --quiet --exit-code --cached || git commit -a -m 'chore(dist): build dist/'",
     "version-patch": "npm version patch --message 'chore(version): %s'",
     "version-minor": "npm version minor --message 'chore(version): %s'",

@@ -44,6 +44,7 @@
     "test-ci": "npm run test",
     "prelib": "rm -rf lib/ && mkdir -p lib/ && ../node_modules/.bin/typings install",
     "lib": "../node_modules/.bin/tsc",
+    "readme": ":",
     "predist": "rm -rf dist/ && mkdir -p dist/",
     "browserify": "../node_modules/.bin/browserify -t browserify-shim -t babelify --exclude rxjs lib/index.js -o dist/cycle-rxjs-adapter.js",
     "dist": "npm run lib && npm run browserify && npm run uglify",

@@ -32,6 +32,7 @@
     "test-ci": "npm run test",
     "prelib": "../node_modules/.bin/typings install && rm -rf lib/ && mkdir -p lib/",
     "lib": "../node_modules/.bin/tsc",
+    "readme": ":",
     "browserify": "../node_modules/.bin/browserify lib/index.js --standalone xstream --outfile dist/xstream.js",
     "uglify": "../node_modules/.bin/uglifyjs dist/xstream.js -o dist/xstream.min.js",
     "predist": "rm -rf dist/ && mkdir -p dist/",

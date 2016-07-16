@@ -51,7 +51,7 @@
     "predist": "rm -rf dist/ && mkdir -p dist",
     "dist": "npm run lib && npm run browserify && npm run uglify",
     "lib": "rm -rf lib/ && mkdir -p lib/ && ../node_modules/.bin/typings install && tsc",
-    "docs": "node ./scripts/make-api-docs.js",
+    "readme": "node ./scripts/make-api-docs.js && cat ./scripts/template-readme.md ./scripts/generated-api.md > README.md",
     "prerelease": " npm run dist && npm run docs",
     "release-patch": "npm run prerelease && npm version patch -m \"chore(release): release new version\" && npm run changelog",
     "release-minor": "npm run prerelease && npm version minor -m \"chore(release): release new version\" && npm run changelog",

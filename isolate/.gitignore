@@ -10,6 +10,7 @@ node_modules
 # Generated
 lib/
 dist/
+scripts/generated-api.md
 
 # Misc
 ignore

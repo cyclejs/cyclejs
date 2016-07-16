@@ -1,6 +1,4 @@
 <? docfiles.forEach(function(doc) { ?>
-  # Cycle DOM
-
   <? doc.javadoc.forEach(function(comment) { ?><? if (!comment.ignore) { ?>
       <? if (comment.name) { ?>- [`<?= comment.name ?>`](#<?= comment.name ?>)<? } ?><? } ?><? }) ?>
 

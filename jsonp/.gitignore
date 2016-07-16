@@ -11,6 +11,7 @@ node_modules
 test/browser/page/tests-bundle.js
 lib/
 dist/
+scripts/generated-api.md
 
 # Misc
 ignore
