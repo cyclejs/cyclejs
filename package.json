@@ -13,6 +13,7 @@
     "conventional-changelog": "^1.1.0",
     "conventional-changelog-cli": "^1.2.0",
     "cz-conventional-changelog": "^1.1.6",
+    "cz-customizable": "^4.0.0",
     "ghooks": "^1.3.2",
     "jase": "^1.2.0",
     "markdox": "0.1.10",
@@ -30,8 +31,17 @@
   "scripts": {
     "internal-install-all": "npm install && _scripts/npm-x-for-all-packages.sh install",
     "internal-link-all": "_scripts/npm-x-for-all-packages.sh link && _scripts/npm-link-to-each-other.sh",
+    "commit": "git-cz",
     "setup": "npm run internal-link-all && npm run internal-install-all",
     "test": "_scripts/npm-x-for-all-packages.sh run lib && _scripts/npm-x-for-all-packages.sh test",
     "test-ci": "npm run setup && _scripts/npm-x-for-all-packages.sh run test-ci"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-customizable"
+    },
+    "cz-customizable": {
+      "config": "./.cz-config.js"
+    }
   }
 }
