@@ -75,6 +75,7 @@
     "test-ci": "npm run lint && npm run lib && npm run test-node && npm run pretest-browser && ../node_modules/.bin/testem ci",
     "browserify": "../node_modules/.bin/browserify lib/index.js -t babelify --global-transform=browserify-shim --standalone CycleDOM --exclude xstream --outfile dist/cycle-dom.js",
     "uglify": "../node_modules/.bin/uglifyjs dist/cycle-dom.js --compress --mangle -o dist/cycle-dom.min.js",
+    "predist": "rm -rf dist/ && mkdir -p dist/",
     "dist": "npm run lib && npm run browserify && npm run uglify",
     "docs": "node ./scripts/make-api-docs.js",
     "prelib": "rm -rf lib/ && mkdir -p lib && ../node_modules/.bin/typings install",

@@ -43,7 +43,7 @@
     "prelib": "rm -rf lib/ && mkdir -p lib/ && ../node_modules/.bin/typings install",
     "lib": "../node_modules/.bin/tsc",
     "browserify": "../node_modules/.bin/browserify -t browserify-shim -t babelify --exclude rx lib/index.js -o dist/cycle-rx-adapter.js",
-    "uglify": "uglifyjs dist/cycle-rx-adapter.js -o dist/cycle-rx-adapter.min.js",
+    "uglify": "../node_modules/.bin/uglifyjs dist/cycle-rx-adapter.js -o dist/cycle-rx-adapter.min.js",
     "predist": "rm -rf dist/ && mkdir -p dist/ && npm run lib",
     "dist": "npm run lib && npm run browserify && npm run uglify"
   }

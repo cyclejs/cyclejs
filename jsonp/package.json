@@ -34,6 +34,7 @@
     "uglify": "../node_modules/.bin/uglifyjs dist/cycle-jsonp-driver.js -o dist/cycle-jsonp-driver.min.js",
     "prelib": "rm -rf lib/ && mkdir -p lib",
     "lib": "babel -d lib/ src/",
+    "predist": "rm -rf dist/ && mkdir -p dist/",
     "dist": "npm run browserify && npm run uglify && npm run docs",
     "docs": "node ./scripts/make-api-docs.js",
     "release": "npm run release-patch",

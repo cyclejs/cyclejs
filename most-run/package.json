@@ -51,7 +51,6 @@
     "uglify": "../node_modules/.bin/uglifyjs dist/cycle-most-run.js -o dist/cycle-most-run.min.js",
     "predist": "rm -rf dist/ && mkdir -p dist",
     "dist": "npm run lib && npm run browserify && npm run uglify",
-    "postdist": "git add dist/ && git commit -m 'chore(dist): build dist/'",
     "lib": "rm -rf lib/ && mkdir -p lib/ && ../node_modules/.bin/typings install && tsc",
     "docs": "node ./scripts/make-api-docs.js",
     "prerelease": " npm run dist && npm run docs",

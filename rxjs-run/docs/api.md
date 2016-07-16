@@ -26,8 +26,8 @@ see more details on what types of sources it outputs and sinks it receives.
 
 #### Arguments:
 
-- `main :: Function` a function that takes `sources` as input and outputs a collection of `sinks` Observables.
-- `drivers :: Object` an object where keys are driver names and values are driver functions.
+- `main: Function` a function that takes `sources` as input and outputs a collection of `sinks` Observables.
+- `drivers: Object` an object where keys are driver names and values are driver functions.
 
 #### Return:
 
@@ -56,8 +56,8 @@ dispose();
 
 #### Arguments:
 
-- `main :: Function` a function that takes `sources` as input and outputs a collection of `sinks` Observables.
-- `drivers :: Object` an object where keys are driver names and values are driver functions.
+- `main: Function` a function that takes `sources` as input and outputs a collection of `sinks` Observables.
+- `drivers: Object` an object where keys are driver names and values are driver functions.
 
 #### Return:
 
