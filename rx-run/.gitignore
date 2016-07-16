@@ -9,7 +9,7 @@ node_modules
 
 # Generated
 lib/
-rx-run/
+dist/
 
 # Misc
 ignore
