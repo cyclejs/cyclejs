@@ -38,6 +38,7 @@
     "lint": "../node_modules/.bin/tslint -c tslint.json src/*.ts",
     "mocha": "../node_modules/.bin/mocha --compilers js:babel-register test",
     "test": "npm run lint && npm run lib && npm run mocha",
+    "test-ci": "npm run test",
     "browserify": "../node_modules/.bin/browserify lib/index.js --standalone CycleIsolate --outfile dist/cycle-isolate.js",
     "uglify": "../node_modules/.bin/uglifyjs dist/cycle-isolate.js -o dist/cycle-isolate.min.js",
     "dist": "npm run lib && npm run browserify && npm run uglify",

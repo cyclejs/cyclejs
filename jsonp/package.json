@@ -29,7 +29,7 @@
   "scripts": {
     "eslint": "eslint src/",
     "test": "npm run eslint",
-    "test-ci": "npm run eslint",
+    "test-ci": "npm run test",
     "browserify": "../node_modules/.bin/browserify src/index.js -t babelify -t browserify-shim --standalone CycleJSONPDriver --exclude xstream --outfile dist/cycle-jsonp-driver.js",
     "uglify": "../node_modules/.bin/uglifyjs dist/cycle-jsonp-driver.js -o dist/cycle-jsonp-driver.min.js",
     "prelib": "rm -rf lib/ && mkdir -p lib",

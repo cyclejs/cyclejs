@@ -36,6 +36,7 @@
     "lint": "../node_modules/.bin/tslint -c tslint.json src/*.ts",
     "mocha": "../node_modules/.bin/mocha --compilers js:babel-register test",
     "test": "npm run lint && npm run lib && npm run mocha",
+    "test-ci": "npm run test",
     "test-browser": "../node_modules/.bin/testem",
     "pretest-browser": "../node_modules/.bin/browserify test/cycle.js -t babelify -o test/browser/tests-bundle.js",
     "posttest-browser": "rm test/browser/tests-bundle.js",

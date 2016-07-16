@@ -50,6 +50,7 @@
     "lint": "../node_modules/.bin/tslint -c tslint.json src/*.ts src/**/*.ts",
     "mocha": "../node_modules/.bin/mocha -r babel-register test/index.js",
     "test": "npm run lib && npm run lint && npm run mocha",
+    "test-ci": "npm run test",
     "browserify": "../node_modules/.bin/browserify lib/index.js -t babelify -t browserify-shim --standalone CycleMostAdapter --exclude most,most-subject --outfile dist/cycle-most-adapter.js",
     "uglify": "../node_modules/.bin/uglifyjs dist/cycle-most-adapter.js -o dist/cycle-most-adapter.min.js",
     "predist": "rm -rf dist/ && mkdir -p dist",

@@ -17,7 +17,6 @@
     "markdox": "0.1.10",
     "mocha": "2.5.3",
     "power-assert": "^1.4.1",
-    "saucie": "^1.4.1",
     "sinon": "1.17.4",
     "testem": "1.9.1",
     "ts-node": "^0.9.3",
@@ -29,6 +28,7 @@
   },
   "scripts": {
     "setup": "npm install && _scripts/npm-x-for-all-packages.sh install",
-    "test": "_scripts/npm-x-for-all-packages.sh test"
+    "test": "_scripts/npm-x-for-all-packages.sh test",
+    "test-ci": "npm run setup && _scripts/npm-x-for-all-packages.sh run test-ci"
   }
 }

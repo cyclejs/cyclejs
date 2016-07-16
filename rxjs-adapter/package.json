@@ -41,6 +41,7 @@
     "lint": "../node_modules/.bin/tslint -c tslint.json src/*.ts",
     "mocha": "../node_modules/.bin/mocha --compilers js:babel-register test",
     "test": "npm run lint && npm run lib && npm run mocha",
+    "test-ci": "npm run test",
     "prelib": "rm -rf lib/ && mkdir -p lib/ && ../node_modules/.bin/typings install",
     "lib": "../node_modules/.bin/tsc",
     "predist": "rm -rf dist/ && mkdir -p dist/",
