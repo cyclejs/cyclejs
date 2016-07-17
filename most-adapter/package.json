@@ -56,10 +56,12 @@
     "dist": "npm run lib && npm run browserify && npm run uglify",
     "readme": ":",
     "lib": "rm -rf lib/ && mkdir -p lib/ && ../node_modules/.bin/typings install && tsc",
-    "prerelease": "npm run doc && npm run dist",
-    "release-patch": "npm version patch -m \"chore(release): release new version\" && npm run changelog",
-    "release-minor": "npm version minor -m \"chore(release): release new version\" && npm run changelog",
-    "release-major": "npm version major -m \"chore(release): release new version\" && npm run changelog"
+    "preversion": "npm test",
+    "version": "npm run dist && npm run readme",
+    "postversion": "git add -A && git commit -m \"release(${PWD##*/}): v$(cat package.json | ../node_modules/.bin/jase version)\" && git push origin master && npm publish",
+    "release-patch": "npm --no-git-tag-version version patch",
+    "release-minor": "npm --no-git-tag-version version minor",
+    "release-major": "npm --no-git-tag-version version major"
   },
   "publishConfig": {
     "access": "public"

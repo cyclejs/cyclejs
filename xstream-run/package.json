@@ -47,11 +47,12 @@
     "readme": "node ./scripts/make-api-docs.js && cat ./scripts/template-readme.md ./scripts/generated-api.md > README.md",
     "prelib": "rm -rf lib/ && mkdir -p lib",
     "lib": "../node_modules/.bin/tsc",
-    "preversion": "npm run dist && git add dist/ && git diff --quiet --exit-code --cached || git commit -a -m 'chore(dist): build dist/'",
-    "version-patch": "npm version patch --message 'chore(version): %s'",
-    "version-minor": "npm version minor --message 'chore(version): %s'",
-    "version-major": "npm version major --message 'chore(version): %s'",
-    "postversion": "npm publish --access=public"
+    "preversion": "npm test",
+    "version": "npm run dist && npm run readme",
+    "postversion": "git add -A && git commit -m \"release(${PWD##*/}): v$(cat package.json | ../node_modules/.bin/jase version)\" && git push origin master && npm publish",
+    "release-patch": "npm --no-git-tag-version version patch",
+    "release-minor": "npm --no-git-tag-version version minor",
+    "release-major": "npm --no-git-tag-version version major"
   },
   "config": {
     "commitizen": {

@@ -48,7 +48,13 @@
     "predist": "rm -rf dist/ && mkdir -p dist/",
     "browserify": "../node_modules/.bin/browserify -t browserify-shim -t babelify --exclude rxjs lib/index.js -o dist/cycle-rxjs-adapter.js",
     "dist": "npm run lib && npm run browserify && npm run uglify",
-    "uglify": "../node_modules/.bin/uglifyjs dist/cycle-rxjs-adapter.js -o dist/cycle-rxjs-adapter.min.js"
+    "uglify": "../node_modules/.bin/uglifyjs dist/cycle-rxjs-adapter.js -o dist/cycle-rxjs-adapter.min.js",
+    "preversion": "npm test",
+    "version": "npm run dist && npm run readme",
+    "postversion": "git add -A && git commit -m \"release(${PWD##*/}): v$(cat package.json | ../node_modules/.bin/jase version)\" && git push origin master && npm publish",
+    "release-patch": "npm --no-git-tag-version version patch",
+    "release-minor": "npm --no-git-tag-version version minor",
+    "release-major": "npm --no-git-tag-version version major"
   },
   "publishConfig": {
     "access": "public"
