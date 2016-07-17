@@ -5,22 +5,10 @@ var fs = require('fs');
 
 var theCommitThatStartedTheMonorepo = '998243f'; // or a32d44d98628e608f7010196cccbb3658a2adbdc
 
-var packagesWithChangelog = [
-  'base',
-  'devtool',
-  'dom',
-  'http',
-  'isolate',
-  'jsonp',
-  'most-adapter',
-  'most-run',
-  'rx-adapter',
-  'rx-run',
-  'rxjs-adapter',
-  'rxjs-run',
-  'xstream-adapter',
-  'xstream-run',
-];
+var packagesWithChangelog = fs
+  .readFileSync(__dirname + '/packages-with-changelog', 'utf8')
+  .trim()
+  .split('\n');
 
 packagesWithChangelog.forEach(function (package) {
   var writeStream = fs.createWriteStream('./' + package + '/CHANGELOG.md')
