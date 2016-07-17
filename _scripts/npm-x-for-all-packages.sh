@@ -14,11 +14,11 @@ while read d; do
   echo "";
   cd $d;
   npm $@ || exitstatus=$?;
+  cd ..;
   if [ $exitstatus -ne 0 ]; then
     break;
     exit $exitstatus;
   fi
-  cd ..;
 done <$(dirname $0)/npm-packages
 
 exit $exitstatus
