@@ -35,7 +35,7 @@
     "prelib": "rm -rf lib/ && mkdir -p lib",
     "lib": "../node_modules/.bin/babel -d lib/ src/",
     "predist": "rm -rf dist/ && mkdir -p dist/",
-    "dist": "npm run browserify && npm run uglify && npm run docs",
+    "dist": "npm run browserify && npm run uglify",
     "readme": "node ./scripts/make-api-docs.js && cat ./scripts/template-readme.md ./scripts/generated-api.md > README.md",
     "preversion": "npm test",
     "version": "npm run dist && npm run readme",
