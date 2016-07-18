@@ -1,7 +1,7 @@
 <h1 align="center">Cycle.js</h1>
 
 <div align="center">
-  <img alt="babel" src="https://raw.githubusercontent.com/cyclejs/monorepo/master/logo.png" width="128">
+  <img alt="logo" src="https://raw.githubusercontent.com/cyclejs/cyclejs/master/logo.png" width="128">
 </div>
 <div align="center">
   <strong>A functional and reactive JavaScript framework for cleaner code</strong>
@@ -12,6 +12,7 @@
     <img src="https://img.shields.io/travis/cyclejs/cyclejs/master.svg?style=flat-square"
       alt="Build Status" />
   </a>
+  <br />
   <!-- JS.ORG -->
   <a href="http://js.org">
     <img src="https://img.shields.io/badge/js.org-cycle-ffb400.svg?style=flat-square"
