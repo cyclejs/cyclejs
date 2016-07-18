@@ -1,5 +1,5 @@
 {
-  "name": "cycle-monorepo-sandbox-xstream-run",
+  "name": "@cycle/xstream-run",
   "version": "3.0.3",
   "description": "The Cycle run() function to use with xstream",
   "license": "MIT",
@@ -17,8 +17,8 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "cycle-monorepo-sandbox-base": "*",
-    "cycle-monorepo-sandbox-xstream-adapter": "*"
+    "@cycle/base": "*",
+    "@cycle/xstream-adapter": "*"
   },
   "peerDependencies": {
     "xstream": "*"

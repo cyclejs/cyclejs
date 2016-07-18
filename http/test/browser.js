@@ -2,7 +2,7 @@
 var assert = require('assert');
 var src = require('../lib/index');
 var Rx = require('rxjs');
-var Cycle = require('cycle-monorepo-sandbox-rxjs-run').default;
+var Cycle = require('@cycle/rxjs-run').default;
 var makeHTTPDriver = src.makeHTTPDriver;
 var uri = '//' + window.location.host;
 require('./common')(uri);

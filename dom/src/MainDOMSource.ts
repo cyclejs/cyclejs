@@ -1,5 +1,5 @@
 import {StreamAdapter} from '@cycle/base';
-import xsSA from 'cycle-monorepo-sandbox-xstream-adapter';
+import xsSA from '@cycle/xstream-adapter';
 import {Stream} from 'xstream';
 import {DOMSource} from './DOMSource';
 import {VNode} from './interfaces';

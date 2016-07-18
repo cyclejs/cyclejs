@@ -1,5 +1,5 @@
 {
-  "name": "cycle-monorepo-sandbox-rx-adapter",
+  "name": "@cycle/rx-adapter",
   "version": "3.0.0",
   "description": "Cycle.js RxJS 4 Stream Adapter",
   "main": "lib/index.js",
@@ -33,7 +33,7 @@
     "rx": "*"
   },
   "devDependencies": {
-    "cycle-monorepo-sandbox-base": "*",
+    "@cycle/base": "*",
     "rx": "^4.0.7"
   },
   "scripts": {

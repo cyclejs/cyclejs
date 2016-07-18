@@ -3,8 +3,8 @@ import CycleBase, {
   CycleExecution,
   CycleSetup,
   DisposeFunction
-} from 'cycle-monorepo-sandbox-base';
-import MostAdapter from 'cycle-monorepo-sandbox-most-adapter';
+} from '@cycle/base';
+import MostAdapter from '@cycle/most-adapter';
 
 /**
  * Takes a `main` function and circularly connects it to the given collection

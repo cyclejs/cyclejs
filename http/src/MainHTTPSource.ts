@@ -1,8 +1,8 @@
 import {Stream, MemoryStream} from 'xstream';
 import {HTTPSource} from './interfaces';
 import {isolateSource, isolateSink} from './isolate';
-import {StreamAdapter} from 'cycle-monorepo-sandbox-base';
-import XStreamAdapter from 'cycle-monorepo-sandbox-xstream-adapter';
+import {StreamAdapter} from '@cycle/base';
+import XStreamAdapter from '@cycle/xstream-adapter';
 import {Response, ResponseStream} from './interfaces';
 
 export class MainHTTPSource implements HTTPSource {

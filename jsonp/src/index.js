@@ -1,6 +1,6 @@
 let xs = require(`xstream`).default
 let jsonp = require(`jsonp`)
-let xsSA = require(`cycle-monorepo-sandbox-xstream-adapter`).default
+let xsSA = require(`@cycle/xstream-adapter`).default
 
 function createResponse$(url) {
   return xs.create({

@@ -1,5 +1,5 @@
 {
-  "name": "cycle-monorepo-sandbox-isolate",
+  "name": "@cycle/isolate",
   "version": "1.4.0",
   "description": "A utility function to make scoped dataflow components in Cycle.js",
   "license": "MIT",

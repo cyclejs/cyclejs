@@ -1,5 +1,5 @@
 'use strict';
-let Cycle = require('cycle-monorepo-sandbox-rxjs-run');
+let Cycle = require('@cycle/rxjs-run');
 let CycleDOM = require('../../../lib/index');
 let Rx = require('rxjs');
 let {h} = CycleDOM;

@@ -1,5 +1,5 @@
 {
-  "name": "cycle-monorepo-sandbox-most-adapter",
+  "name": "@cycle/most-adapter",
   "version": "3.0.0",
   "description": "Cycle.js Most Adapter",
   "main": "lib/index.js",
@@ -43,7 +43,7 @@
     "most-subject": "^4.1.1"
   },
   "devDependencies": {
-    "cycle-monorepo-sandbox-base": "*"
+    "@cycle/base": "*"
   },
   "scripts": {
     "lint": "../node_modules/.bin/tslint -c tslint.json src/*.ts src/**/*.ts",

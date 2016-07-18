@@ -4,7 +4,7 @@ import {
   StreamSubscribe,
   DisposeFunction,
   Subject,
-} from 'cycle-monorepo-sandbox-base';
+} from '@cycle/base';
 
 import {Stream} from 'most';
 import {subject} from 'most-subject';

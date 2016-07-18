@@ -1,5 +1,5 @@
 {
-  "name": "cycle-monorepo-sandbox-http",
+  "name": "@cycle/http",
   "version": "9.0.2",
   "description": "A Cycle.js Driver for making HTTP requests",
   "main": "lib/index.js",
@@ -7,15 +7,15 @@
   "license": "MIT",
   "repository": "https://github.com/cyclejs/cyclejs/tree/master/packages/http",
   "dependencies": {
-    "cycle-monorepo-sandbox-xstream-adapter": "*",
+    "@cycle/xstream-adapter": "*",
     "superagent": "1.7.2"
   },
   "peerDependencies": {
     "xstream": "*"
   },
   "devDependencies": {
-    "cycle-monorepo-sandbox-base": "*",
-    "cycle-monorepo-sandbox-rxjs-run": "*",
+    "@cycle/base": "*",
+    "@cycle/rxjs-run": "*",
     "body-parser": "1.14.2",
     "cookie-parser": "1.4.1",
     "express": "4.13.4",

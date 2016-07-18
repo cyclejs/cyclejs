@@ -1,5 +1,5 @@
 {
-  "name": "cycle-monorepo-sandbox-rx-run",
+  "name": "@cycle/rx-run",
   "version": "7.0.0",
   "description": "The Cycle run() function meant to be used with RxJS v4",
   "license": "MIT",
@@ -18,8 +18,8 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "cycle-monorepo-sandbox-base": "*",
-    "cycle-monorepo-sandbox-rx-adapter": "*"
+    "@cycle/base": "*",
+    "@cycle/rx-adapter": "*"
   },
   "peerDependencies": {
     "rx": "*"

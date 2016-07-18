@@ -4,7 +4,7 @@ import {
   StreamSubscribe,
   DisposeFunction,
   Subject,
-} from 'cycle-monorepo-sandbox-base';
+} from '@cycle/base';
 import xs, {Stream, MemoryStream, Listener, Producer} from 'xstream';
 
 const XStreamAdapter: StreamAdapter = {

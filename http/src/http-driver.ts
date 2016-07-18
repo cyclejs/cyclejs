@@ -1,7 +1,7 @@
 import xs, {Stream, MemoryStream} from 'xstream';
 import {MainHTTPSource} from './MainHTTPSource';
-import {StreamAdapter} from 'cycle-monorepo-sandbox-base';
-import XStreamAdapter from 'cycle-monorepo-sandbox-xstream-adapter';
+import {StreamAdapter} from '@cycle/base';
+import XStreamAdapter from '@cycle/xstream-adapter';
 import * as superagent from 'superagent';
 import {
   HTTPSource,

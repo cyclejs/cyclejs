@@ -1,5 +1,5 @@
 {
-  "name": "cycle-monorepo-sandbox-base",
+  "name": "@cycle/base",
   "version": "4.0.1",
   "description": "Base infrastructure for a generic run() function for Cycle.js",
   "license": "MIT",

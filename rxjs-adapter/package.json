@@ -1,5 +1,5 @@
 {
-  "name": "cycle-monorepo-sandbox-rxjs-adapter",
+  "name": "@cycle/rxjs-adapter",
   "version": "3.0.1",
   "description": "Cycle.js RxJS 5 Stream Adapter",
   "typings": "lib/index.d.ts",
@@ -31,7 +31,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "cycle-monorepo-sandbox-base": "*",
+    "@cycle/base": "*",
     "rxjs": "^5.0.0-beta.10"
   },
   "peerDependencies": {

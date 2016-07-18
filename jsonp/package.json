@@ -1,5 +1,5 @@
 {
-  "name": "cycle-monorepo-sandbox-jsonp",
+  "name": "@cycle/jsonp",
   "version": "6.0.0",
   "description": "A Cycle.js Driver for making HTTP requests through JSONP",
   "main": "lib/index.js",
@@ -10,7 +10,7 @@
     "url": "https://github.com/cyclejs/jsonp"
   },
   "dependencies": {
-    "cycle-monorepo-sandbox-xstream-adapter": "*",
+    "@cycle/xstream-adapter": "*",
     "jsonp": "0.2.0"
   },
   "peerDependencies": {

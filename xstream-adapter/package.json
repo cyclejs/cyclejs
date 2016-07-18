@@ -1,5 +1,5 @@
 {
-  "name": "cycle-monorepo-sandbox-xstream-adapter",
+  "name": "@cycle/xstream-adapter",
   "version": "3.0.2",
   "description": "Cycle.js xstream Stream Adapter",
   "main": "lib/index.js",
@@ -10,7 +10,7 @@
   "homepage": "https://cycle.js.org",
   "dependencies": {},
   "devDependencies": {
-    "cycle-monorepo-sandbox-base": "*",
+    "@cycle/base": "*",
     "es6-promise": "^3.1.2",
     "xstream": "5.x.x"
   },
