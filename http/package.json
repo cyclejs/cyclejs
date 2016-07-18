@@ -45,7 +45,7 @@
     "lib": "../node_modules/.bin/tsc",
     "predist": "rm -rf dist/ && mkdir -p dist/",
     "dist": "npm run lib && npm run browserify && npm run uglify && npm run docs",
-    "readme": "node ./scripts/make-api-docs.js && cat ./scripts/template-readme.md ./scripts/generated-api.md > README.md",
+    "readme": "node ../_scripts/make-api-docs.js ${PWD##*/} && cat ./_scripts/template-readme.md ./generated-api.md > README.md && rm ./generated-api.md",
     "preversion": "npm test",
     "version": "npm run dist && npm run readme && npm run changelog",
     "postversion": "git add -A && git commit -m \"release(${PWD##*/}): v$(cat package.json | ../node_modules/.bin/jase version)\" && git push origin master && npm publish",

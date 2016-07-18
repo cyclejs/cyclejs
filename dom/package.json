@@ -77,7 +77,7 @@
     "uglify": "../node_modules/.bin/uglifyjs dist/cycle-dom.js --compress --mangle -o dist/cycle-dom.min.js",
     "predist": "rm -rf dist/ && mkdir -p dist/",
     "dist": "npm run lib && npm run browserify && npm run uglify",
-    "readme": "node ./scripts/make-api-docs.js && cat ./scripts/template-readme.md ./scripts/generated-api.md > README.md",
+    "readme": "node ../_scripts/make-api-docs.js ${PWD##*/} && cat ./_scripts/template-readme.md ./generated-api.md > README.md && rm ./generated-api.md",
     "prelib": "rm -rf lib/ && mkdir -p lib && ../node_modules/.bin/typings install",
     "lib": "../node_modules/.bin/tsc",
     "preversion": "npm test",

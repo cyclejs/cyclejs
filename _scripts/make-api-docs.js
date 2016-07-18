@@ -15,8 +15,10 @@ function generateDocs(options) {
   );
 }
 
+var argPackage = process.argv[2];
+
 generateDocs({
-  src: './src/cycle.js',
-  output: './docs/api.md',
-  template: './scripts/cycle-docs-template.md.ejs'
+  src: __dirname + '/../' + argPackage + '/lib/index.js',
+  output: __dirname + '/../' + argPackage + '/generated-api.md',
+  template: __dirname + '/cycle-docs-template.md.ejs',
 });

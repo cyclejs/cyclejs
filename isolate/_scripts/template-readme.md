@@ -3,7 +3,7 @@
 A utility function to make scoped dataflow components in Cycle.js.
 
 ```
-npm install @cycle/http
+npm install @cycle/isolate
 ```
 
 See the Cycle.js [documentation on components](http://cycle.js.org/components.html#multiple-instances-of-the-same-component) for further details.
