@@ -12,7 +12,3 @@ A DevTool panel that renders a visualization of the dataflow graph between sourc
 Install the plugin from the Chrome Web Store (link pending) or run `npm run dist` in this repository to compile the DevTool in the `dist` directory, then open `chrome://extensions/` in Chrome and `Load unpacked extension...` and point to the `dist` directory.
 
 Enjoy :)
-
-## Why are Issues unavailable?
-
-We use only one repository for issues. [**Open the issue at Cycle Core repo.**](https://github.com/cyclejs/core/issues)
