@@ -9,11 +9,11 @@ for d in "${packages[@]}"; do
   devdeps=$(cat ./package.json | echo $(../node_modules/.bin/jase devDependencies));
   for d2 in "${packages[@]}"; do
     if `echo ${deps} | grep "@cycle/${d2}" 1>/dev/null 2>&1`; then
-      echo "> npm link $d2";
+      echo "> npm link @cycle/$d2";
       npm link @cycle/$d2;
     fi
     if `echo ${devdeps} | grep "@cycle/${d2}" 1>/dev/null 2>&1`; then
-      echo "> npm link $d2";
+      echo "> npm link @cycle/$d2";
       npm link @cycle/$d2;
     fi
   done
