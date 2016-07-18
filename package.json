@@ -29,8 +29,8 @@
   },
   "scripts": {
     "internal-install-all": "_scripts/npm-x-for-all-packages.sh install",
-    "internal-link-all": "_scripts/symlink-to-each-other.sh",
-    "setup": "npm install && npm run internal-link-all && npm run internal-install-all",
+    "unused-internal-link-all": "_scripts/symlink-to-each-other.sh",
+    "setup": "npm install && npm run internal-install-all",
     "test": "_scripts/npm-x-for-all-packages.sh run lib && _scripts/npm-x-for-all-packages.sh test",
     "test-ci": "npm run setup && _scripts/npm-x-for-all-packages.sh run test-ci",
     "commit": "git-cz",
