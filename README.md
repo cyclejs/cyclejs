@@ -49,7 +49,7 @@
 
 ## Packages
 
-Cycle.js is comprised of many specialized packages. This repository contains all these packages, e.g., the npm package `@cycle/foo` lives in the directory `foo`. Below you will find a summary of each package.
+Cycle.js is comprised of many specialized packages. This repository contains all these packages, e.g., the npm package `@cycle/base` lives in the directory `base`. Below you will find a summary of each package.
 
 | Package | Version | Dependencies | DevDependencies |
 |--------|-------|------------|----------|
