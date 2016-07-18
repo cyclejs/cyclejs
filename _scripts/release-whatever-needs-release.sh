@@ -25,6 +25,6 @@ while read d; do
     break;
     exit $exitstatus;
   fi
-done <$(dirname $0)/npm-packages
+done <$(dirname $0)/NPM_PACKAGES
 
 exit $exitstatus

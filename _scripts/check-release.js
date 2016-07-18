@@ -20,10 +20,12 @@
 var conventionalChangelog = require('conventional-changelog');
 var fs = require('fs');
 
-var theCommitThatStartedTheMonorepo = '998243f'; // or a32d44d98628e608f7010196cccbb3658a2adbdc
+var theCommitThatStartedTheMonorepo = fs
+  .readFileSync(__dirname + '/SEED_COMMIT', 'utf8')
+  .trim();
 
 var packagesWithChangelog = fs
-  .readFileSync(__dirname + '/packages-with-changelog', 'utf8')
+  .readFileSync(__dirname + '/PACKAGES_WITH_CHANGELOG', 'utf8')
   .trim()
   .split('\n');
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This script runs an npm command for every registered package
-# in the file `npm-packages`.
+# in the file `NPM_PACKAGES`.
 #
 # E.g.: calling this script will the command line args "run test"
 # will execute `npm run test` for each package.
@@ -19,6 +19,6 @@ while read d; do
     break;
     exit $exitstatus;
   fi
-done <$(dirname $0)/npm-packages
+done <$(dirname $0)/NPM_PACKAGES
 
 exit $exitstatus
