@@ -47,11 +47,12 @@
     "dist": "npm run lib && npm run browserify && npm run uglify && npm run docs",
     "readme": "node ./scripts/make-api-docs.js && cat ./scripts/template-readme.md ./scripts/generated-api.md > README.md",
     "preversion": "npm test",
-    "version": "npm run dist && npm run readme",
+    "version": "npm run dist && npm run readme && npm run changelog",
     "postversion": "git add -A && git commit -m \"release(${PWD##*/}): v$(cat package.json | ../node_modules/.bin/jase version)\" && git push origin master && npm publish",
     "release-patch": "npm --no-git-tag-version version patch",
     "release-minor": "npm --no-git-tag-version version minor",
-    "release-major": "npm --no-git-tag-version version major"
+    "release-major": "npm --no-git-tag-version version major",
+    "changelog": "node ../_scripts/update-changelogs.js ${PWD##*/}"
   },
   "homepage": "https://cycle.js.org",
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
