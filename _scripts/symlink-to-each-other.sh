@@ -12,14 +12,15 @@ for d in "${packages[@]}"; do
     if `echo ${deps} | grep "@cycle/${d2}" 1>/dev/null 2>&1`; then
       echo "> symlink @cycle/$d2 in node_modules";
       mkdir -p node_modules/@cycle;
-      ln -s $(realpath "../"$d2) "node_modules/@cycle/"$d2;
+      ln -s "../../../"$d2 "node_modules/@cycle/"$d2;
     fi
     if `echo ${devdeps} | grep "@cycle/${d2}" 1>/dev/null 2>&1`; then
       echo "> symlink @cycle/$d2 in node_modules";
       mkdir -p node_modules/@cycle;
-      ln -s $(realpath "../"$d2) "node_modules/@cycle/"$d2;
+      ln -s "../../../"$d2 "node_modules/@cycle/"$d2;
     fi
   done
+  ls -la node_modules/@cycle || :;
   echo "";
   cd ..;
 done
