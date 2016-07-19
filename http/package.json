@@ -25,9 +25,6 @@
     "saucie": "^1.4.1",
     "xstream": "5.x.x"
   },
-  "jspm": {
-    "main": "dist/cycle-http-driver"
-  },
   "browserify-shim": {
     "xstream": "global:xstream"
   },
