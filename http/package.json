@@ -41,7 +41,7 @@
     "prelib": "rm -rf lib/ && mkdir -p lib && ../node_modules/.bin/typings install",
     "lib": "../node_modules/.bin/tsc",
     "predist": "rm -rf dist/ && mkdir -p dist/",
-    "dist": "npm run lib && npm run browserify && npm run uglify && npm run docs",
+    "dist": "npm run lib && npm run browserify && npm run uglify",
     "readme": "node ../_scripts/make-api-docs.js ${PWD##*/} && cat ./_scripts/template-readme.md ./generated-api.md > README.md && rm ./generated-api.md",
     "preversion": "npm test",
     "version": "npm run dist && npm run readme && npm run changelog",
