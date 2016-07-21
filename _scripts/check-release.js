@@ -103,16 +103,20 @@ conventionalChangelog({
     }
 
     var package = commit.scope;
+    var toPush = null;
     if (commit.type === 'fix') {
       status[package].increment = Math.max(status[package].increment, 1);
-      status[package].commits.push(commit);
+      toPush = commit;
     }
     if (commit.type === 'feat') {
       status[package].increment = Math.max(status[package].increment, 2);
-      status[package].commits.push(commit);
+      toPush = commit;
     }
     if (isCommitBreakingChange(commit)) {
       status[package].increment = Math.max(status[package].increment, 3);
+      toPush = commit;
+    }
+    if (toPush) {
       status[package].commits.push(commit);
     }
     if (commit.type === 'release') {
