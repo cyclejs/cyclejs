@@ -31,8 +31,8 @@
     "@cycle/xstream-adapter": "*",
     "es6-map": "^0.1.4",
     "matches-selector": "1.0.0",
-    "snabbdom": "^0.4.1",
-    "snabbdom-selector": "^0.3.2",
+    "snabbdom": "^0.5.0",
+    "snabbdom-selector": "^0.4.0",
     "snabbdom-to-html": "^2.0.1"
   },
   "peerDependencies": {
@@ -46,7 +46,6 @@
     "babel-plugin-jsx-factory": "^1.0.1",
     "babel-plugin-syntax-jsx": "^6.3.13",
     "babel-plugin-transform-react-jsx": "^6.4.0",
-    "most": "^0.19.7",
     "rx": "^4.1.0",
     "rxjs": "^5.0.0-beta.8",
     "saucie": "^1.4.1",

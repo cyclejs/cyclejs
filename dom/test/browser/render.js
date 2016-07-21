@@ -160,7 +160,7 @@ describe('DOM Rendering', function () {
       return {
         DOM: Rx.Observable.interval(10).take(5).map(i =>
           div([
-            thunk('thunk', renderThunk, 'hello' + 0)
+            thunk('h4', 'key1', renderThunk, ['hello' + 0])
           ])
         )
       };
