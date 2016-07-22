@@ -73,10 +73,10 @@ The following packages are not under Cycle.js, but are important dependencies, s
 
 | Package | Version |
 |--------|-------|
-| `most` | [![npm version](https://badge.fury.io/js/most.svg)](http://badge.fury.io/js/most) |
-| `rx` | [![npm version](https://badge.fury.io/js/rx.svg)](http://badge.fury.io/js/rx) |
-| `rxjs` | [![npm version](https://badge.fury.io/js/rxjs.svg)](http://badge.fury.io/js/rxjs) |
-| `xstream` | [![npm version](https://badge.fury.io/js/xstream.svg)](http://badge.fury.io/js/xstream) |
+| `most` | [![npm version](https://img.shields.io/npm/v/most.svg?maxAge=2592000)](https://www.npmjs.com/package/most) |
+| `rx` | [![npm version](https://img.shields.io/npm/v/rx.svg?maxAge=2592000)](https://www.npmjs.com/package/rx) |
+| `rxjs` | [![npm version](https://img.shields.io/npm/v/rxjs.svg?maxAge=2592000)](https://www.npmjs.com/package/rxjs) |
+| `xstream` | [![npm version](https://img.shields.io/npm/v/xstream.svg?maxAge=2592000)](https://www.npmjs.com/package/xstream) |
 
 ## LICENSE
 
