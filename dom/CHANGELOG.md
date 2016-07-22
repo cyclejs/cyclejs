@@ -1,3 +1,13 @@
+<a name="11.0.1"></a>
+## 11.0.1 (2016-07-22)
+
+
+### Bug Fixes
+
+* **dom:** use snabbdom exactly 0.5.0 as a fixed version ([642bd6c](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/642bd6c))
+
+
+
 <a name="11.0.0"></a>
 # 11.0.0 (2016-07-21)
 
