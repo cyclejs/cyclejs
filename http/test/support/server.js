@@ -15,7 +15,14 @@ app.use(cookieParser());
 
 app.get('/hello', function(req, res){
   setTimeout(function () {
-    res.send('Hello World');
+    var contentTypeHeader = req.get('Content-Type');
+    if (!contentTypeHeader) {
+      res.send('Hello World');
+    } else {
+      res.status(500).send(
+        'Expected Content-Type request header to be undefined, but got ' + contentTypeHeader
+      );
+    }
   }, 150);
 });
 

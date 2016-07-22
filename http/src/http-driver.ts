@@ -14,7 +14,6 @@ import {
 function preprocessReqOptions(reqOptions: RequestOptions): RequestOptions {
   reqOptions.withCredentials = reqOptions.withCredentials || false;
   reqOptions.redirects = typeof reqOptions.redirects === 'number' ? reqOptions.redirects : 5;
-  reqOptions.type = reqOptions.type || `json`;
   reqOptions.method = reqOptions.method || `get`;
   return reqOptions;
 }
@@ -31,7 +30,9 @@ export function optionsToSuperagent(rawReqOptions: RequestOptions) {
   if (typeof request.redirects === `function`) {
     request = request.redirects(reqOptions.redirects);
   }
-  request = request.type(reqOptions.type);
+  if (reqOptions.type) {
+    request = request.type(reqOptions.type);
+  }
   if (reqOptions.send) {
     request = request.send(reqOptions.send);
   }
