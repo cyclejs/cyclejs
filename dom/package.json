@@ -31,7 +31,7 @@
     "@cycle/xstream-adapter": "*",
     "es6-map": "^0.1.4",
     "matches-selector": "1.0.0",
-    "snabbdom": "^0.5.0",
+    "snabbdom": "0.5.0",
     "snabbdom-selector": "^0.4.0",
     "snabbdom-to-html": "^2.0.1"
   },
