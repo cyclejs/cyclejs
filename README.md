@@ -14,7 +14,7 @@
   </a>
   <br />
   <!-- JS.ORG -->
-  <a href="http://js.org">
+  <a href="http://cycle.js.org/">
     <img src="https://img.shields.io/badge/js.org-cycle-ffb400.svg?style=flat-square"
       alt="JS.ORG" />
   </a>
