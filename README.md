@@ -43,9 +43,9 @@
 | Question | Answer |
 |--------|-------|
 | "I want to learn Cycle.js" | [Read the official documentation](http://cycle.js.org) |
-| "I have a question" | [Join the chat](https://gitter.im/cyclejs/cyclejs)<br />Or<br />[Create a StackOverflow question](http://stackoverflow.com/questions/tagged/cyclejs)<br />Or<br />[Open an issue](https://github.com/cyclejs/cyclejs/issues/new) <br /><sub>Please note all discussion-like issues are labeled discussion and immediately closed. This doesn't mean we unconsidered your discussion. We only leave actual issues open.</sub> |
+| "I have a question" | [Join the chat](https://gitter.im/cyclejs/cyclejs) Or<br />[Create a StackOverflow question](http://stackoverflow.com/questions/tagged/cyclejs) Or<br />[Open an issue](https://github.com/cyclejs/cyclejs/issues/new) <br /><sub>Please note all discussion-like issues are labeled discussion and immediately closed. This doesn't mean we unconsidered your discussion. We only leave actual issues open.</sub> |
 | "I found a bug" | [Open an issue](https://github.com/cyclejs/cyclejs/issues/new) |
-| "I want to help build Cycle.js" | [Read the Contributing guides](https://github.com/cyclejs/cyclejs/blob/master/CONTRIBUTING.md)<br />Then<br />[Choose an issue marked "help wanted"](https://github.com/cyclejs/cyclejs/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) |
+| "I want to help build Cycle.js" | [Read the Contributing guides](https://github.com/cyclejs/cyclejs/blob/master/CONTRIBUTING.md) Then<br />[Choose an issue marked "help wanted"](https://github.com/cyclejs/cyclejs/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) |
 
 ## Packages
 
