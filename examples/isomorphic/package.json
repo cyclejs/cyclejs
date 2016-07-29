@@ -5,9 +5,9 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/dom": "10.0.0-rc29",
-    "@cycle/xstream-run": "2.0.0",
-    "xstream": "4.0.x",
+    "@cycle/dom": "11.0.1",
+    "@cycle/xstream-run": "3.0.3",
+    "xstream": "5.3.x",
     "babel-cli": "^6.7.5",
     "babel-preset-es2015": "^6.3.13",
     "babel-register": "^6.4.3",

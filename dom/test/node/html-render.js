@@ -25,6 +25,54 @@ describe('HTML Driver', function () {
     run()
   });
 
+  it('should allow effect to see one or many HTML outputs', function (done) {
+    function app() {
+      return {
+        html: Rx.Observable.interval(150).take(3).map(i =>
+          div('.test-element', ['Foobar' + i])
+        )
+      };
+    }
+
+    var expected = [
+      '<div class="test-element">Foobar0</div>',
+      '<div class="test-element">Foobar1</div>',
+      '<div class="test-element">Foobar2</div>',
+    ]
+
+    function effect(html) {
+      assert.strictEqual(html, expected.shift());
+      if (expected.length === 0) {
+        done();
+      }
+    }
+
+    let {sinks, sources, run} = Cycle(app, {
+      html: makeHTMLDriver(effect),
+    });
+    run()
+  });
+
+  it('should allow effect to see one (the last) HTML outputs', function (done) {
+    function app() {
+      return {
+        html: Rx.Observable.interval(150).take(3).map(i =>
+          div('.test-element', ['Foobar' + i])
+        ).last()
+      };
+    }
+
+    function effect(html) {
+      assert.strictEqual(html, '<div class="test-element">Foobar2</div>');
+      done();
+    }
+
+    let {sinks, sources, run} = Cycle(app, {
+      html: makeHTMLDriver(effect),
+    });
+    run()
+  });
+
   it('should output HTMLSource as an adapted stream', function (done) {
     function app() {
       return {

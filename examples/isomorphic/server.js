@@ -6,7 +6,7 @@ import serialize from 'serialize-javascript';
 import {html, head, title, body, div, script, makeHTMLDriver} from '@cycle/dom';
 import app from './app';
 
-function wrapVTreeWithHTMLBoilerplate(vtree, context, clientBundle) {
+function wrapVTreeWithHTMLBoilerplate([vtree, context, clientBundle]) {
   return (
     html([
       head([
@@ -28,9 +28,9 @@ function prependHTML5Doctype(html) {
 function wrapAppResultWithBoilerplate(appFn, context$, bundle$) {
   return function wrappedAppFn(sources) {
     let vtree$ = appFn(sources).DOM;
-    let wrappedVTree$ = xs.combine(wrapVTreeWithHTMLBoilerplate,
-      vtree$, context$, bundle$
-    ).take(1);
+    let wrappedVTree$ = xs.combine(vtree$, context$, bundle$.take(1))
+      .map(wrapVTreeWithHTMLBoilerplate)
+      .last();
     return {
       DOM: wrappedVTree$
     };

@@ -24,7 +24,7 @@ export function makeHTMLDriver(effect: EffectCallback, options?: HTMLDriverOptio
     const preprocessedVNode$ = (
       transposition ? vnode$.map(transposeVNode).flatten() : vnode$
     );
-    const html$ = preprocessedVNode$.last().map(toHTML);
+    const html$ = preprocessedVNode$.map(toHTML);
     html$.addListener({
       next: effect || noop,
       error: noop,
