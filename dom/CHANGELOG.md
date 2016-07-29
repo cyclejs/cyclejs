@@ -1,3 +1,26 @@
+<a name="12.0.0"></a>
+# 12.0.0 (2016-07-29)
+
+
+### Features
+
+* **dom:** html driver supports multiple emissions ([c02dfe8](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/c02dfe8))
+
+
+### BREAKING CHANGES
+
+* dom: This is a breaking change because previously the HTML driver was guaranteed to render just one HTML
+string and consume it in the effect function. Now, the HTML driver may render multiple HTML strings
+over time and give those to the effect function. If you don't use the HTML Driver, you can safely
+upgrade your app to this version of Cycle DOM. If you do use the HTML driver, make sure the sink
+(stream of virtual DOM) given to the HTML driver emits just once. Just add last() for server-side
+rendered virtual DOM streams. Otherwise, the effect function of the HTML driver may be called
+multiple times.
+
+ISSUES CLOSED: #348
+
+
+
 <a name="11.0.1"></a>
 ## 11.0.1 (2016-07-22)
 
