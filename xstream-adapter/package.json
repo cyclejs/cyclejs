@@ -43,7 +43,7 @@
     "release-patch": "npm --no-git-tag-version version patch",
     "release-minor": "npm --no-git-tag-version version minor",
     "release-major": "npm --no-git-tag-version version major",
-    "changelog": "node ../_scripts/update-changelogs.js ${PWD##*/}"
+    "changelog": "node ../.scripts/update-changelogs.js ${PWD##*/}"
   },
   "contributors": [
     {

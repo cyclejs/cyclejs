@@ -30,15 +30,15 @@
     "validate-commit-msg": "^2.6.1"
   },
   "scripts": {
-    "internal-install-all": "_scripts/npm-x-for-all-packages.sh install",
-    "unused-internal-link-all": "_scripts/symlink-to-each-other.sh",
+    "internal-install-all": ".scripts/npm-x-for-all-packages.sh install",
+    "unused-internal-link-all": ".scripts/symlink-to-each-other.sh",
     "setup": "npm install && npm run internal-install-all",
-    "test": "_scripts/npm-x-for-all-packages.sh run lib && _scripts/npm-x-for-all-packages.sh test",
-    "test-ci": "npm run setup && _scripts/npm-x-for-all-packages.sh run test-ci",
+    "test": ".scripts/npm-x-for-all-packages.sh run lib && .scripts/npm-x-for-all-packages.sh test",
+    "test-ci": "npm run setup && .scripts/npm-x-for-all-packages.sh run test-ci",
     "commit": "git-cz",
-    "changelog": "_scripts/update-changelogs.js",
-    "check-release": "_scripts/check-release.js",
-    "release": "_scripts/release-whatever-needs-release.sh"
+    "changelog": ".scripts/update-changelogs.js",
+    "check-release": ".scripts/check-release.js",
+    "release": ".scripts/release-whatever-needs-release.sh"
   },
   "config": {
     "commitizen": {

@@ -12,7 +12,7 @@ while read d; do
   echo "";
   cd $d;
   needsRelease=0
-  node ../_scripts/check-release.js $d || needsRelease=$?;
+  node ../.scripts/check-release.js $d || needsRelease=$?;
   if [ $needsRelease -eq 1 ]; then
     npm run release-patch || exitstatus=$?;
   elif [ $needsRelease -eq 2 ]; then
