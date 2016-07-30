@@ -16,6 +16,7 @@ interface MatchesSelector {
 }
 let matchesSelector: MatchesSelector;
 declare var require: any;
+declare var requestIdleCallback: any;
 try {
   matchesSelector = require(`matches-selector`);
 } catch (e) {
@@ -162,11 +163,25 @@ export class MainDOMSource implements DOMSource {
           );
           delegators.set(key, delegator);
         }
-        const subject = xs.create<Event>();
         if (scope) {
           domSource._isolateModule.addEventDelegator(scope, delegator);
         }
-        delegator.addDestination(subject, namespace);
+
+        const destinationId = delegator.createDestinationId();
+        const subject = xs.create<Event>({
+          start: () => {},
+          stop: () => {
+            if ('requestIdleCallback' in window) {
+              requestIdleCallback(() => {
+                delegator.removeDestinationId(destinationId);
+              });
+            } else {
+              delegator.removeDestinationId(destinationId);
+            }
+          }
+        });
+
+        delegator.addDestination(subject, namespace, destinationId);
         return subject;
       })
       .flatten();

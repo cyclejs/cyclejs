@@ -12,7 +12,7 @@
     "no-duplicate-variable": true,
     "no-unreachable": true,
     "no-var-keyword": true,
-    "no-empty": true,
+    "no-empty": false, 
     "no-unused-expression": true,
     "no-unused-variable": true,
     "no-use-before-declare": true,
