@@ -14,15 +14,41 @@ try {
   matchesSelector = <MatchesSelector> Function.prototype;
 }
 
+let gDestinationId: number = 0;
+
 interface Destination {
   subject: Stream<Event>;
   scopeChecker: ScopeChecker;
   selector: string;
+  destinationId: number;
 }
 
 export interface CycleDOMEvent extends Event {
   propagationHasBeenStopped?: boolean;
   ownerTarget?: Element;
+}
+
+function findDestinationId(arr: Array<Destination>, searchId: number): number {
+
+    let minIndex = 0;
+    let maxIndex = arr.length - 1;
+    let currentIndex: number;
+    let currentElement: Destination;
+
+    while (minIndex <= maxIndex) {
+        currentIndex = (minIndex + maxIndex) / 2 | 0;
+        currentElement = arr[currentIndex];
+        let currentId: number = currentElement.destinationId;
+        if (currentId < searchId) {
+            minIndex = currentIndex + 1;
+        } else if (currentId > searchId) {
+            maxIndex = currentIndex - 1;
+        } else {
+            return currentIndex;
+        }
+    }
+
+    return -1;
 }
 
 /**
@@ -85,11 +111,22 @@ export class EventDelegator {
     }
   }
 
-  addDestination(subject: Stream<Event>, namespace: Array<string>) {
+  addDestination(subject: Stream<Event>, namespace: Array<string>, destinationId: number) {
     const scope = getScope(namespace);
     const selector = getSelectors(namespace);
     const scopeChecker = new ScopeChecker(scope, this.isolateModule);
-    this.destinations.push({subject, scopeChecker, selector});
+    this.destinations.push({subject, scopeChecker, selector, destinationId});
+  }
+
+  createDestinationId(): number {
+    return gDestinationId++;
+  }
+
+  removeDestinationId(destinationId: number) {
+    const i = findDestinationId(this.destinations, destinationId);
+    if (i >= 0) {
+      this.destinations.splice(i, 1);
+    }
   }
 
   patchEvent(event: Event): CycleDOMEvent {
