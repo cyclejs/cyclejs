@@ -6,19 +6,6 @@
 <div align="center">
   <strong>A functional and reactive JavaScript framework for cleaner code</strong>
 </div>
-<div align="center">
-  <!-- Build Status -->
-  <a href="https://travis-ci.org/cyclejs/cyclejs">
-    <img src="https://img.shields.io/travis/cyclejs/cyclejs/master.svg?style=flat-square"
-      alt="Build Status" />
-  </a>
-  <br />
-  <!-- JS.ORG -->
-  <a href="http://js.org">
-    <img src="https://img.shields.io/badge/js.org-cycle-ffb400.svg?style=flat-square"
-      alt="JS.ORG" />
-  </a>
-</div>
 
 <div align="center">
   <h3>
@@ -36,6 +23,14 @@
       Chat
     </a>
   </h3>
+</div>
+
+<div align="center">
+  <!-- Build Status -->
+  <a href="https://travis-ci.org/cyclejs/cyclejs">
+    <img src="https://img.shields.io/travis/cyclejs/cyclejs/master.svg?style=flat-square"
+      alt="Build Status" />
+  </a>
 </div>
 
 ## Welcome
@@ -81,3 +76,11 @@ The following packages are not under Cycle.js, but are important dependencies, s
 ## LICENSE
 
 [The MIT License](https://github.com/cyclejs/cyclejs/blob/master/LICENSE)
+
+- - -
+
+<!-- JS.ORG -->
+<a href="http://js.org">
+  <img src="https://img.shields.io/badge/js.org-cycle-ffb400.svg?style=flat-square"
+    alt="JS.ORG" />
+</a>
