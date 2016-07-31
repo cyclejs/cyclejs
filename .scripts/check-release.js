@@ -104,7 +104,7 @@ conventionalChangelog({
 
     var package = commit.scope;
     var toPush = null;
-    if (commit.type === 'fix') {
+    if (commit.type === 'fix' || commit.type === 'perf') {
       status[package].increment = Math.max(status[package].increment, 1);
       toPush = commit;
     }
