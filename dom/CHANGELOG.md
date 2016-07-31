@@ -1,3 +1,13 @@
+<a name="12.0.2"></a>
+## 12.0.2 (2016-07-31)
+
+
+### Performance Improvements
+
+* **dom:** clear out delegator destinations for stopped streams ([a9268e0](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/a9268e0))
+
+
+
 <a name="12.0.1"></a>
 ## 12.0.1 (2016-07-31)
 
