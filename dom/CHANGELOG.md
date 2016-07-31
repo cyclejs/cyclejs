@@ -1,3 +1,13 @@
+<a name="12.0.1"></a>
+## 12.0.1 (2016-07-31)
+
+
+### Bug Fixes
+
+* **dom:** use isolation scope as snabbdom key ([b763d25](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/b763d25))
+
+
+
 <a name="12.0.0"></a>
 # 12.0.0 (2016-07-29)
 
