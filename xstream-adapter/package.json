@@ -10,7 +10,7 @@
   "homepage": "https://cycle.js.org",
   "dependencies": {},
   "devDependencies": {
-    "@cycle/base": "*",
+    "@cycle/base": "4.x.x",
     "es6-promise": "^3.1.2",
     "xstream": "5.x.x"
   },
