@@ -97,7 +97,7 @@ conventionalChangelog({
   preset: 'angular',
   append: true,
   transform: function (commit, cb) {
-    if (commit.scope === 'META') {
+    if (packagesWithChangelog.indexOf(commit.scope) === -1) {
       cb();
       return;
     }
