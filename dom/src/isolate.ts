@@ -23,6 +23,9 @@ export function isolateSink(sink: any, scope: string): any {
       }
     }
     vTree.data.isolate = SCOPE_PREFIX + scope;
+    if (typeof vTree.key === 'undefined') {
+      vTree.key = SCOPE_PREFIX + scope;
+    }
     return vTree;
   });
 }

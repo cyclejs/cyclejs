@@ -6,8 +6,8 @@
   "license": "MIT",
   "dependencies": {
     "@cycle/xstream-run": "3.0.x",
-    "@cycle/isolate": "1.2.x",
-    "xstream": "5.0.x"
+    "@cycle/isolate": "1.4.x",
+    "xstream": "5.x.x"
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.3.13",

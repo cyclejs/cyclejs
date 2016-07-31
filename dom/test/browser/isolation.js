@@ -885,4 +885,67 @@ describe('isolation', function () {
 
     dispose = run()
   })
+
+  it('should maintain virtual DOM list sanity using keys, in a list of ' +
+    'isolated components', (done) => {
+      const componentRemove$ = new Rx.Subject();
+
+      function Component(sources) {
+        sources.DOM.select('.btn').events('click').subscribe(ev => {
+          componentRemove$.next(null);
+        });
+
+        return {
+          DOM: Rx.Observable.of(
+            div('.component', {}, [
+              button('.btn', {}, 'Hello')
+            ])
+          )
+        }
+      }
+
+      function main(sources) {
+        const remove$ = componentRemove$.delay(50).startWith(0).scan((acc) => acc + 1);
+        const first = isolate(Component, 'first')(sources);
+        const second = isolate(Component, 'second')(sources);
+        const vdom$ = Rx.Observable.combineLatest(first.DOM, second.DOM, remove$,
+          (vdom1, vdom2, r) => {
+            if (r === 0) {
+              return div([vdom1, vdom2]);
+            } else if (r === 1) {
+              return div([vdom2]);
+            } else if (r === 2) {
+              return div([]);
+            } else {
+              done('This case must not happen.');
+            }
+          }
+        );
+        return { DOM: vdom$ };
+      }
+
+      const {sinks, sources, run} = Cycle(main, {
+        DOM: makeDOMDriver(createRenderTarget())
+      })
+
+      let dispose;
+      sources.DOM.elements().skip(1).take(1).subscribe(root => {
+        const components = root.querySelectorAll('.btn')
+        assert.strictEqual(components.length, 2);
+        const firstElement = components[0];
+        const secondElement = components[1];
+        setTimeout(() => {
+          firstElement.click();
+        }, 100);
+        setTimeout(() => {
+          secondElement.click();
+        }, 200);
+        setTimeout(() => {
+          assert.strictEqual(root.querySelectorAll('.component').length, 0);
+          dispose();
+          done();
+        }, 300);
+      });
+      dispose = run();
+    });
 });
