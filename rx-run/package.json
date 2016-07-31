@@ -44,7 +44,7 @@
     "predist": "rm -rf dist/ && mkdir -p dist/",
     "uglify": "../node_modules/.bin/uglifyjs dist/cycle.js -o dist/cycle.min.js",
     "browserify": "../node_modules/.bin/browserify lib/index.js -t babelify -t browserify-shim --standalone Cycle --exclude rx -o dist/cycle.js",
-    "dist": "npm run lib && npm run docs && npm run browserify && npm run uglify",
+    "dist": "npm run lib && npm run browserify && npm run uglify",
     "readme": "node ../.scripts/make-api-docs.js ${PWD##*/} && cat ./.scripts/template-readme.md ./generated-api.md > README.md && rm ./generated-api.md",
     "prelib": "rm -rf lib/ && mkdir -p lib",
     "lib": "../node_modules/.bin/tsc",
