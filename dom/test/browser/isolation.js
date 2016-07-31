@@ -939,12 +939,12 @@ describe('isolation', function () {
         }, 100);
         setTimeout(() => {
           secondElement.click();
-        }, 200);
+        }, 300);
         setTimeout(() => {
           assert.strictEqual(root.querySelectorAll('.component').length, 0);
           dispose();
           done();
-        }, 300);
+        }, 500);
       });
       dispose = run();
     });
