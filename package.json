@@ -15,6 +15,7 @@
     "conventional-changelog-cli": "^1.2.0",
     "cz-conventional-changelog": "^1.1.6",
     "cz-customizable": "^4.0.0",
+    "git-travis": "^2.0.0",
     "jase": "^1.2.0",
     "markdox": "0.1.10",
     "mocha": "2.5.3",
@@ -37,7 +38,7 @@
     "test-ci": "npm run setup && .scripts/npm-x-for-all-packages.sh run test-ci",
     "commit": "git-cz",
     "changelog": ".scripts/update-changelogs.js",
-    "check-release": ".scripts/check-release.js",
+    "check-release": ".scripts/pre-check-release.sh",
     "release": ".scripts/release-whatever-needs-release.sh"
   },
   "config": {
