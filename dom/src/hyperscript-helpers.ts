@@ -41,7 +41,7 @@ const SVG_TAG_NAMES = [
   'fontFaceFormat', 'fontFaceName', 'fontFaceSrc', 'fontFaceUri',
   'foreignObject', 'g', 'glyph', 'glyphRef', 'hkern', 'image', 'line',
   'linearGradient', 'marker', 'mask', 'metadata', 'missingGlyph', 'mpath',
-  'path', 'pattern', 'polygon', 'polyling', 'radialGradient', 'rect', 'script',
+  'path', 'pattern', 'polygon', 'polyline', 'radialGradient', 'rect', 'script',
   'set', 'stop', 'style', 'switch', 'symbol', 'text', 'textPath', 'title',
   'tref', 'tspan', 'use', 'view', 'vkern'
 ];
@@ -139,7 +139,7 @@ export interface SVGHelperFn extends HyperScriptHelperFn {
   path: HyperScriptHelperFn;
   pattern: HyperScriptHelperFn;
   polygon: HyperScriptHelperFn;
-  polyling: HyperScriptHelperFn;
+  polyline: HyperScriptHelperFn;
   radialGradient: HyperScriptHelperFn;
   rect: HyperScriptHelperFn;
   script: HyperScriptHelperFn;
