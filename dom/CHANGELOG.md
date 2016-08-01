@@ -1,3 +1,13 @@
+<a name="12.0.3"></a>
+## 12.0.3 (2016-08-01)
+
+
+### Bug Fixes
+
+* **dom:** fix support for SVG polyline ([d0eb12c](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/d0eb12c))
+
+
+
 <a name="12.0.2"></a>
 ## 12.0.2 (2016-07-31)
 
