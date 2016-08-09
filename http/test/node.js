@@ -39,6 +39,61 @@ describe('HTTP Driver in Node.js', function () {
     }
   );
 
+  it('should not auto-execute lazy request without listening to response stream',
+    function(done) {
+      function main() {
+        return {
+          HTTP: Rx.Observable.of({
+            url: uri + '/pet',
+            method: 'POST',
+            send: {name: 'Woof', species: 'Dog'},
+            lazy: true
+          })
+        }
+      }
+
+      var output = Cycle(main, { HTTP: makeHTTPDriver() });
+      globalSandbox.petPOSTResponse = null;
+      output.run();
+
+      setTimeout(function () {
+        assert.strictEqual(globalSandbox.petPOSTResponse, null);
+        done();
+      }, 250);
+    }
+  );
+
+  it('should execute lazy HTTP request when listening to response stream',
+    function(done) {
+      function main() {
+        return {
+          HTTP: Rx.Observable.of({
+            url: uri + '/pet',
+            method: 'POST',
+            send: {name: 'Woof', species: 'Dog'},
+            lazy: true
+          })
+        }
+      }
+
+      var output = Cycle(main, { HTTP: makeHTTPDriver() });
+      globalSandbox.petPOSTResponse = null;
+
+      output.sources.HTTP.response$$
+        .mergeAll()
+        .subscribe();
+
+      output.run();
+
+      setTimeout(function () {
+        assert.notStrictEqual(globalSandbox.petPOSTResponse, null);
+        assert.strictEqual(globalSandbox.petPOSTResponse, 'added Woof the Dog');
+        globalSandbox.petPOSTResponse = null;
+        done();
+      }, 250);
+    }
+  );
+
   it('should add request options object to each response',
     function(done) {
       function main() {
