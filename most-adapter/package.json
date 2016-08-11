@@ -12,6 +12,10 @@
     {
       "name": "Tylor Steinberger",
       "email": "tlsteinberger167@gmail.com"
+    },
+    {
+      "name": "Nikhil Tilwalli",
+      "email": "ntilwalli@gmail.com"
     }
   ],
   "browserify-shim": {
@@ -38,9 +42,10 @@
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
   "homepage": "https://cycle.js.org",
   "dependencies": {
-    "@most/hold": "^1.3.0",
+    "@most/create": "^1.1.3",
+    "@most/hold": "^1.3.1",
     "most": "^1.0.0",
-    "most-subject": "^4.1.1"
+    "most-subject": "^4.1.3"
   },
   "devDependencies": {
     "@cycle/base": "*"

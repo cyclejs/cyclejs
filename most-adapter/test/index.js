@@ -44,7 +44,6 @@ describe('MostAdapter', () => {
 
   it('should create a subject which can be fed and subscribed to', (done) => {
     const subject = MostAdapter.makeSubject()
-    assert.strictEqual(subject.stream instanceof most.Stream, true)
     assert.strictEqual(MostAdapter.isValidStream(subject.stream), true)
 
     const observer1Expected = [1, 2, 3, 4]
