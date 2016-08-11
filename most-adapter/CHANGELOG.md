@@ -1,3 +1,13 @@
+<a name="4.0.1"></a>
+## 4.0.1 (2016-08-11)
+
+
+### Bug Fixes
+
+* **most-adapter:** make stream subscription lazy, implement proper disposal ([242bfa5](https://github.com/cyclejs/cyclejs/tree/master/packages/most-adapter/commit/242bfa5))
+
+
+
 <a name="4.0.0"></a>
 # 4.0.0 (2016-08-09)
 
