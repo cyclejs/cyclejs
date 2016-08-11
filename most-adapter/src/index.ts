@@ -2,40 +2,37 @@ import {
   StreamAdapter,
   Observer,
   StreamSubscribe,
-  DisposeFunction,
-  Subject,
+  Subject as CycleSubject,
 } from '@cycle/base';
-
 import {Stream} from 'most';
-import {subject} from 'most-subject';
+import {
+  subject as getMostSubject
+} from 'most-subject';
 import hold from '@most/hold';
+import create = require('@most/create');
 
 const MostAdapter: StreamAdapter = {
   adapt<T>(originStream: any, originStreamSubscribe: StreamSubscribe): Stream<T> {
     if (MostAdapter.isValidStream(originStream)) { return originStream; };
-    let dispose: any;
-    const stream = subject<any>();
+    const stream = create((add, end, error) => {
+       const disposer = originStreamSubscribe(originStream, {
+         next: add,
+         error: error,
+         complete: end
+      });
 
-    dispose = originStreamSubscribe(originStream, {
-      next: (x: T) => stream.next(x),
-      error: (err: Error) => stream.error(err),
-      complete: (x?: T) => {
-        stream.complete(x);
-        if (typeof dispose === 'function') {
-          <DisposeFunction> dispose();
-        }
-      }
+      return disposer;
     });
 
-    return stream;
+    return <Stream<T>> stream;
   },
 
   remember<T>(stream: Stream<T>): Stream<T> {
     return stream.thru(hold);
   },
 
-  makeSubject<T>(): Subject<T> {
-    const stream = subject<any>();
+  makeSubject<T>(): CycleSubject<T> {
+    const stream = getMostSubject<any>();
 
     const observer = {
       next: (x: T) => { stream.next(x); },
