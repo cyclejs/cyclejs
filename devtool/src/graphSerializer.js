@@ -64,8 +64,8 @@ function traverse(graph, outStream, zapQueue) {
   if (outStream._prod && outStream._prod.ins) {
     const inStream = outStream._prod.ins;
     visitEdge(graph, inStream, outStream, zapQueue);
-  } else if (outStream._prod && outStream._prod.streams) {
-    outStream._prod.streams.forEach(inStream => {
+  } else if (outStream._prod && outStream._prod.insArr) {
+    outStream._prod.insArr.forEach(inStream => {
       visitEdge(graph, inStream, outStream, zapQueue);
     });
   }
@@ -101,40 +101,36 @@ function GraphSerializer(sources) {
 
   let rawVisualZap$ = zap$
     .map(zap => xs.of(zap).compose(delay(80)))
-    .compose(flattenSequentially())
+    .compose(flattenSequentially)
     .startWith(null);
 
   let resetVisualZap$ = rawVisualZap$.compose(debounce(120)).mapTo(null);
 
   let visualZap$ = xs.merge(rawVisualZap$, resetVisualZap$);
 
-  let finalDSL$ = xs.combine(
-    (dsl, zap) => {
-      const NEXT_STYLE = 'fill: #6DFFB3, stroke: #00C194, stroke-width:3px;';
-      const ERROR_STYLE = 'fill: #FFA382, stroke: #F53800, stroke-width:3px;';
-      const COMPLETE_STYLE = 'fill: #B5B5B5, stroke: #7D7D7D, stroke-width:3px;';
-      let zapStyle = '';
-      if (zap) {
-        if (zap.type === 'next') {
-          zapStyle = `\n    style ${zap.id} ${NEXT_STYLE}`;
-        } else if (zap.type === 'error') {
-          zapStyle = `\n    style ${zap.id} ${ERROR_STYLE}`;
-        } else if (zap.type === 'complete') {
-          zapStyle = `\n    style ${zap.id} ${COMPLETE_STYLE}`;
-        }
+  let finalDSL$ = xs.combine(dsl$, visualZap$).map(([dsl, zap]) => {
+    const NEXT_STYLE = 'fill: #6DFFB3, stroke: #00C194, stroke-width:3px;';
+    const ERROR_STYLE = 'fill: #FFA382, stroke: #F53800, stroke-width:3px;';
+    const COMPLETE_STYLE = 'fill: #B5B5B5, stroke: #7D7D7D, stroke-width:3px;';
+    let zapStyle = '';
+    if (zap) {
+      if (zap.type === 'next') {
+        zapStyle = `\n    style ${zap.id} ${NEXT_STYLE}`;
+      } else if (zap.type === 'error') {
+        zapStyle = `\n    style ${zap.id} ${ERROR_STYLE}`;
+      } else if (zap.type === 'complete') {
+        zapStyle = `\n    style ${zap.id} ${COMPLETE_STYLE}`;
       }
-      const dslWithZapStyle = dsl + zapStyle;
-      if (zap && zap.value) {
-        return dsl.replace(
-          new RegExp(`${zap.id}\\(_\\)`, 'g'),
-          `${zap.id}("${typeof zap.value === 'object' ? '_' : zap.value}")`
-        ) + zapStyle;
-      } else {
-        return dsl + zapStyle;
-      }
-    },
-    dsl$, visualZap$
-  );
+    }
+    let sanitizedDsl = dsl;
+    if (zap && typeof zap.value !== 'undefined') {
+      sanitizedDsl = dsl.replace(
+        new RegExp(`${zap.id}\\(_\\)`, 'g'),
+        `${zap.id}("${typeof zap.value === 'object' ? '_' : String(zap.value)}")`
+      );
+    }
+    return sanitizedDsl + zapStyle;
+  });
 
   let sinks = {
     Mermaid: finalDSL$

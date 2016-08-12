@@ -5,12 +5,12 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/dom": "10.0.0-rc17",
-    "@cycle/isolate": "1.1.x",
-    "@cycle/xstream-run": "1.1.0",
+    "@cycle/dom": "12.0.3",
+    "@cycle/isolate": "1.4.x",
+    "@cycle/xstream-run": "3.0.4",
     "cuid": "^1.3.8",
     "cycle-mermaid-driver": "^1.0.1",
-    "xstream": "2.3.x"
+    "xstream": "5.3.x"
   },
   "devDependencies": {
     "browserify": "11.0.1",
