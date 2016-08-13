@@ -148,6 +148,14 @@ export class MainDOMSource implements DOMSource {
         if (!namespace || namespace.length === 0) {
           return fromEvent(rootElement, eventType, useCapture);
         }
+
+        if (namespace[0] === 'document') {
+          return fromEvent(document, eventType, useCapture);
+        }
+
+        if (namespace[0] === 'body') {
+          return fromEvent(document.body, eventType, useCapture);
+        }
         // Event listener on the top element as an EventDelegator
         const delegators = domSource._delegators;
         const top = scope

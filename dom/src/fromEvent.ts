@@ -1,6 +1,6 @@
 import {Stream, Producer, Listener} from 'xstream';
 
-export function fromEvent(element: Element,
+export function fromEvent(element: Element | Document,
                           eventName: string,
                           useCapture = false): Stream<Event> {
   return Stream.create<Event>(<Producer<Event>> {
