@@ -175,4 +175,58 @@ describe('DOMSource.select()', function () {
       });
     run();
   });
+
+  it('selects the document element', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.of(
+          div('hello world')
+        )
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    function isDocument (element) {
+      return 'body' in element && 'head' in element;
+    }
+
+    let dispose;
+    sources.DOM.select('document').events('click').take(1).subscribe(event => {
+      assert(isDocument(event.target));
+      setTimeout(() => {
+        dispose();
+        done();
+      })
+    });
+    dispose = run();
+    document.dispatchEvent(new Event('click'));
+  });
+
+  it('selects the body element', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.of(
+          div('hello world')
+        )
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    let dispose;
+    sources.DOM.select('body').events('click').take(1).subscribe(event => {
+      assert.equal(event.target.tagName, 'BODY');
+      setTimeout(() => {
+        dispose();
+        done();
+      })
+    });
+    dispose = run();
+    document.body.dispatchEvent(new Event('click'));
+  });
 });
