@@ -4,6 +4,7 @@ let assert = require('assert');
 let Cycle = require('@cycle/rxjs-run').default;
 let CycleDOM = require('../../lib/index');
 let Fixture89 = require('./fixtures/issue-89');
+let simulant = require('simulant');
 let Rx = require('rxjs');
 let {h, svg, div, input, p, span, h2, h3, h4, select, option, makeDOMDriver} = CycleDOM;
 
@@ -202,7 +203,7 @@ describe('DOMSource.select()', function () {
       })
     });
     dispose = run();
-    document.dispatchEvent(new Event('click'));
+    simulant.fire(document, 'click');
   });
 
   it('selects the body element', function (done) {
@@ -227,6 +228,6 @@ describe('DOMSource.select()', function () {
       })
     });
     dispose = run();
-    document.body.dispatchEvent(new Event('click'));
+    simulant.fire(document.body, 'click');
   });
 });
