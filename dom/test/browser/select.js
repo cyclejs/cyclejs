@@ -177,7 +177,7 @@ describe('DOMSource.select()', function () {
     run();
   });
 
-  it('selects the document element', function (done) {
+  it('should support selecting the document element', function (done) {
     function app() {
       return {
         DOM: Rx.Observable.of(
@@ -206,7 +206,7 @@ describe('DOMSource.select()', function () {
     simulant.fire(document, 'click');
   });
 
-  it('selects the body element', function (done) {
+  it('should support selecting the body element', function (done) {
     function app() {
       return {
         DOM: Rx.Observable.of(
