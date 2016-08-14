@@ -1,7 +1,9 @@
 import {StreamAdapter} from '@cycle/base';
 import xsSA from '@cycle/xstream-adapter';
 import {Stream} from 'xstream';
-import {DOMSource} from './DOMSource';
+import {DOMSource, EventsFnOptions} from './DOMSource';
+import {DocumentDOMSource} from './DocumentDOMSource';
+import {BodyDOMSource} from './BodyDOMSource';
 import {VNode} from './interfaces';
 import xs from 'xstream';
 import {ElementFinder} from './ElementFinder';
@@ -54,10 +56,6 @@ const eventTypesThatDontBubble = [
   `waiting`,
 ];
 
-export interface EventsFnOptions {
-  useCapture?: boolean;
-}
-
 function determineUseCapture(eventType: string, options: EventsFnOptions): boolean {
   let result = false;
   if (typeof options.useCapture === `boolean`) {
@@ -99,6 +97,12 @@ export class MainDOMSource implements DOMSource {
     if (typeof selector !== 'string') {
       throw new Error(`DOM driver's select() expects the argument to be a ` +
         `string as a CSS selector`);
+    }
+    if (selector === 'document') {
+      return new DocumentDOMSource(this._runStreamAdapter);
+    }
+    if (selector === 'body') {
+      return new BodyDOMSource(this._runStreamAdapter);
     }
     const trimmedSelector = selector.trim();
     const childNamespace = trimmedSelector === `:root` ?
@@ -149,13 +153,6 @@ export class MainDOMSource implements DOMSource {
           return fromEvent(rootElement, eventType, useCapture);
         }
 
-        if (namespace[0] === 'document') {
-          return fromEvent(document, eventType, useCapture);
-        }
-
-        if (namespace[0] === 'body') {
-          return fromEvent(document.body, eventType, useCapture);
-        }
         // Event listener on the top element as an EventDelegator
         const delegators = domSource._delegators;
         const top = scope
