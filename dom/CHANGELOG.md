@@ -1,3 +1,13 @@
+<a name="12.1.0"></a>
+# 12.1.0 (2016-08-14)
+
+
+### Features
+
+* **dom:** add support for selecting `document` and `body` ([93bd3c4](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/93bd3c4))
+
+
+
 <a name="12.0.3"></a>
 ## 12.0.3 (2016-08-01)
 
