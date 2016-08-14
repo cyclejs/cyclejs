@@ -4,6 +4,7 @@ let assert = require('assert');
 let Cycle = require('@cycle/rxjs-run').default;
 let CycleDOM = require('../../lib/index');
 let Fixture89 = require('./fixtures/issue-89');
+let simulant = require('simulant');
 let Rx = require('rxjs');
 let {h, svg, div, input, p, span, h2, h3, h4, select, option, makeDOMDriver} = CycleDOM;
 
@@ -174,5 +175,59 @@ describe('DOMSource.select()', function () {
         done();
       });
     run();
+  });
+
+  it('selects the document element', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.of(
+          div('hello world')
+        )
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    function isDocument (element) {
+      return 'body' in element && 'head' in element;
+    }
+
+    let dispose;
+    sources.DOM.select('document').events('click').take(1).subscribe(event => {
+      assert(isDocument(event.target));
+      setTimeout(() => {
+        dispose();
+        done();
+      })
+    });
+    dispose = run();
+    simulant.fire(document, 'click');
+  });
+
+  it('selects the body element', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.of(
+          div('hello world')
+        )
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    let dispose;
+    sources.DOM.select('body').events('click').take(1).subscribe(event => {
+      assert.equal(event.target.tagName, 'BODY');
+      setTimeout(() => {
+        dispose();
+        done();
+      })
+    });
+    dispose = run();
+    simulant.fire(document.body, 'click');
   });
 });
