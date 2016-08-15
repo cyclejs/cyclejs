@@ -128,14 +128,17 @@ function normalizeRequestInput(reqOptions: RequestInput): RequestOptions {
 function makeRequestInputToResponse$(runStreamAdapter: StreamAdapter) {
   return function requestInputToResponse$(reqInput: RequestInput): MemoryStream<Response> & ResponseStream {
     let response$ = createResponse$(reqInput).remember();
-    /* tslint:disable:no-empty */
-    response$.addListener({next: () => {}, error: () => {}, complete: () => {}});
-    /* tslint:enable:no-empty */
+    let reqOptions = softNormalizeRequestInput(reqInput);
+    if (!reqOptions.lazy) {
+      /* tslint:disable:no-empty */
+      response$.addListener({next: () => {}, error: () => {}, complete: () => {}});
+      /* tslint:enable:no-empty */
+    }
     response$ = (runStreamAdapter) ?
       runStreamAdapter.adapt(response$, XStreamAdapter.streamSubscribe) :
       response$;
     Object.defineProperty(response$, 'request', <PropertyDescriptor> {
-      value: softNormalizeRequestInput(reqInput),
+      value: reqOptions,
       writable: false,
     });
     return <MemoryStream<Response> & ResponseStream> response$;
