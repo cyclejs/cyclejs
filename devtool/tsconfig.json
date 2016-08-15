@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "removeComments": false,
+    "preserveConstEnums": true,
+    "sourceMap": false,
+    "declaration": true,
+    "noImplicitAny": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "module": "commonjs",
+    "target": "ES5",
+    "outDir": "lib/"
+  },
+  "formatCodeOptions": {
+    "indentSize": 2,
+    "tabSize": 2
+  },
+   "files": [
+     "typings/index.d.ts",
+     "src/background.ts",
+     "src/contentScript.ts",
+     "src/graphSerializer.ts",
+     "src/launcher.ts",
+     "src/panel.ts"
+   ]
+}

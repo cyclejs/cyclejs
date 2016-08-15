@@ -1,35 +1,7 @@
-import xs from 'xstream';
+import xs, {Stream} from 'xstream';
 import delay from 'xstream/extra/delay';
 import debounce from 'xstream/extra/debounce';
 import flattenSequentially from 'xstream/extra/flattenSequentially';
-
-function StreamGraph() {
-  this.edges = [];
-  this.nodes = new Map();
-}
-
-StreamGraph.prototype.registerNode = function registerNode(stream) {
-  if (!this.nodes.has(stream)) {
-    const node = {stream: stream, id: newId()};
-    this.nodes.set(stream, node);
-    return node;
-  } else {
-    return this.nodes.get(stream);
-  }
-}
-
-StreamGraph.prototype.registerEdge = function registerEdge(ins, out, producer) {
-  const fromNode = this.registerNode(ins);
-  const toNode = this.registerNode(out);
-  if (this.edges.find(e => e.from.id === fromNode.id && e.to.id === toNode.id)) {
-    return;
-  }
-  const edge = {from: fromNode, to: toNode};
-  if (producer && typeof producer.type === 'string') {
-    edge.label = producer.type;
-  }
-  this.edges.push(edge);
-};
 
 let globalIncrementingId = 0;
 
@@ -37,44 +9,105 @@ function newId() {
   return globalIncrementingId++;
 }
 
-function queueForZapping(node, zapQueue) {
+interface InternalProducer {
+  type?: string;
+}
+
+interface StreamGraphNode {
+  id: number;
+  stream: Stream<any>;
+}
+
+interface StreamGraphEdge {
+  from: StreamGraphNode;
+  to: StreamGraphNode;
+  label?: string;
+}
+
+type ZapQueue = Array<StreamGraphNode>;
+
+interface Zap {
+  id: number;
+  type: string;
+  value?: any;
+}
+
+class StreamGraph {
+  public edges: Array<StreamGraphEdge>;
+  public nodes: Map<Stream<any>, StreamGraphNode>;
+
+  constructor() {
+    this.edges = [];
+    this.nodes = new Map<Stream<any>, StreamGraphNode>();
+  }
+
+  registerNode(stream: Stream<any>): StreamGraphNode {
+    if (!this.nodes.has(stream)) {
+      const node: StreamGraphNode = {stream: stream, id: newId()};
+      this.nodes.set(stream, node);
+      return node;
+    } else {
+      return this.nodes.get(stream);
+    }
+  }
+
+  registerEdge(ins: Stream<any>, out: Stream<any>, producer: InternalProducer): void {
+    const fromNode = this.registerNode(ins);
+    const toNode = this.registerNode(out);
+    if (this.edges.find(e => e.from.id === fromNode.id && e.to.id === toNode.id)) {
+      return;
+    }
+    const edge: StreamGraphEdge = {from: fromNode, to: toNode};
+    if (producer && typeof producer.type === 'string') {
+      edge.label = producer.type;
+    }
+    this.edges.push(edge);
+  };
+}
+
+function queueForZapping(node: StreamGraphNode, zapQueue: ZapQueue) {
   zapQueue.push(node);
 }
 
-function setupZapping(zapQueue, zap$) {
+function setupZapping(zapQueue: ZapQueue, zap$: Stream<Zap>) {
   setTimeout(() => {
     zapQueue.reverse().forEach((node, i) => {
       node.stream.compose(delay(i*10)).addListener({
-        next: ev => zap$.shamefullySendNext({id: node.id, type: 'next', value: ev}),
-        error: err => zap$.shamefullySendNext({id: node.id, type: 'error', value: err}),
+        next: (ev: any) => zap$.shamefullySendNext({id: node.id, type: 'next', value: ev}),
+        error: (err: any) => zap$.shamefullySendNext({id: node.id, type: 'error', value: err}),
         complete: () => zap$.shamefullySendNext({id: node.id, type: 'complete'}),
       });
     });
   }, 100);
 }
 
-function visitEdge(graph, inStream, outStream, zapQueue) {
+function visitEdge(graph: StreamGraph, inStream: Stream<any>, outStream: Stream<any>, zapQueue: ZapQueue) {
   const inStreamNode = graph.registerNode(inStream);
   queueForZapping(inStreamNode, zapQueue);
   graph.registerEdge(inStream, outStream, outStream._prod);
   traverse(graph, inStream, zapQueue);
 }
 
-function traverse(graph, outStream, zapQueue) {
-  if (outStream._prod && outStream._prod.ins) {
-    const inStream = outStream._prod.ins;
+function traverse(graph: StreamGraph, outStream: Stream<any>, zapQueue: ZapQueue) {
+  if (outStream._prod && outStream._prod['ins']) {
+    const inStream: Stream<any> = outStream._prod['ins'];
     visitEdge(graph, inStream, outStream, zapQueue);
-  } else if (outStream._prod && outStream._prod.insArr) {
-    outStream._prod.insArr.forEach(inStream => {
+  } else if (outStream._prod && outStream._prod['insArr']) {
+    const insArr: Array<Stream<any>> = outStream._prod['insArr'];
+    insArr.forEach(inStream => {
       visitEdge(graph, inStream, outStream, zapQueue);
     });
   }
   return graph;
 }
 
-function GraphSerializer(sources) {
-  let zapQueue = [];
-  let zap$ = xs.create();
+interface GraphSerializerSources {
+  DebugSinks: Stream<Object>;
+}
+
+function GraphSerializer(sources: GraphSerializerSources) {
+  let zapQueue: Array<StreamGraphNode> = [];
+  let zap$ = xs.create<Zap>();
   let dsl$ = sources.DebugSinks
     .map(sinks => {
       const streamGraph = new StreamGraph();
@@ -138,8 +171,8 @@ function GraphSerializer(sources) {
   return sinks;
 }
 
-function startGraphSerializer() {
-  const serializerSources = {DebugSinks: xs.of(window.Cyclejs.sinks)};
+function startGraphSerializer(appSinks: Object) {
+  const serializerSources = {DebugSinks: xs.of(appSinks)};
   const serializerSinks = GraphSerializer(serializerSources);
 
   serializerSinks.Mermaid.addListener({
@@ -155,8 +188,8 @@ function startGraphSerializer() {
 }
 
 var intervalID = setInterval(function () {
-  if (window.Cyclejs && window.Cyclejs.sinks) {
+  if (window['Cyclejs'] && window['Cyclejs'].sinks) {
     clearInterval(intervalID);
-    startGraphSerializer();
+    startGraphSerializer(window['Cyclejs'].sinks);
   }
 }, 50);

@@ -5,26 +5,25 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/dom": "12.0.3",
+    "@cycle/dom": "12.1.0",
     "@cycle/isolate": "1.4.x",
     "@cycle/xstream-run": "3.0.4",
     "cuid": "^1.3.8",
-    "cycle-mermaid-driver": "^1.0.1",
+    "cycle-mermaid-driver": "^1.0.3",
     "xstream": "5.3.x"
   },
   "devDependencies": {
-    "browserify": "11.0.1",
-    "babel-preset-es2015": "^6.3.13",
-    "babel-register": "^6.4.3",
-    "babelify": "^7.2.0"
+    "browserify": "13.1.0"
   },
   "scripts": {
     "test": ":",
-    "compile-panel": "browserify src/panel.js -t babelify --outfile dist/panel.js",
-    "compile-graph-serializer": "browserify src/graphSerializer.js -t babelify --outfile dist/graphSerializer.js",
-    "copy-ready-src": "cp src/background.js src/contentScript.js src/launcher.html src/launcher.js src/manifest.json src/mermaid.css src/panel.html src/128.png dist/",
-    "dist": "mkdir -p dist && npm install && npm run compile-panel && npm run compile-graph-serializer && npm run copy-ready-src",
+    "prelib": "rm -rf lib/ && mkdir -p lib && ../node_modules/.bin/typings install",
+    "lib": "../node_modules/.bin/tsc",
+    "dist-graphSerializer": "../node_modules/.bin/browserify lib/graphSerializer.js -s gs --outfile dist/graphSerializer.js",
+    "dist-panel": "../node_modules/.bin/browserify lib/panel.js -s ppp --outfile dist/panel.js",
+    "copy-ready-src": "cp lib/background.js lib/contentScript.js lib/launcher.js src/launcher.html src/manifest.json src/mermaid.css src/panel.html src/128.png dist/",
     "zip": "zip cyclejs-devtool.zip dist/*",
+    "dist": "mkdir -p dist && npm install && npm run lib && npm run dist-graphSerializer && npm run dist-panel && npm run copy-ready-src && npm run zip",
     "readme": ":",
     "preversion": "npm test",
     "version": "npm run dist && npm run readme",

@@ -2,31 +2,31 @@
 chrome.devtools.panels.create('Cycle.js', '128.png', 'panel.html', function(extensionPanel) {
   var portToBackground = chrome.runtime.connect({name: 'cyclejs'});
   extensionPanel.onShown.addListener(function (panelWindow) {
-    if (!panelWindow.postMessageToBackground) {
+    if (!panelWindow['postMessageToBackground']) {
       // Setup PANEL=>BACKGROUND communication
-      panelWindow.postMessageToBackground = function postMessageToBackground(msg) {
+      panelWindow['postMessageToBackground'] = function postMessageToBackground(msg: Object) {
         portToBackground.postMessage(msg);
       };
       // Setup BACKGROUND=>PANEL communication
-      portToBackground.onMessage.addListener(function (message) {
+      portToBackground.onMessage.addListener(function (message: BackgroundMessage) {
         // alert('LAUNCHER relaying message from BACKGROUND to PANEL, message: ' + JSON.stringify(message))
-        if (message.type === 'panelData') {
-          panelWindow.postMessage({__fromCyclejsDevTool: true, data: message.data}, '*');
+        if (message.type === 'panelData' && typeof panelWindow['postMessage'] === 'function') {
+          panelWindow['postMessage']({__fromCyclejsDevTool: true, data: message.data}, '*');
         } else if (message.type === 'tabUpdated'
         && message.tabId === chrome.devtools.inspectedWindow.tabId) {
           chrome.devtools.inspectedWindow.eval(loadGraphSerializerCode());
         }
       });
     }
-    // alert('LAUNCHER will eval the graphSerializer')
+    // alert('LAUNCHER will eval the graphSerializer source code')
     chrome.devtools.inspectedWindow.eval(loadGraphSerializerCode());
   });
 });
 
-var code = null;
+let code: string = '';
 
 function loadGraphSerializerCode() {
-  let xhr;
+  let xhr: XMLHttpRequest;
   if (!code) {
     xhr = new XMLHttpRequest();
     xhr.open("GET", chrome.extension.getURL('/graphSerializer.js'), false);
