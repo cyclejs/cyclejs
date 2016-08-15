@@ -1,3 +1,13 @@
+<a name="10.1.0"></a>
+# 10.1.0 (2016-08-15)
+
+
+### Features
+
+* **http:** allow lazy (cancellable) requests  ([2417bd6](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/2417bd6))
+
+
+
 <a name="10.0.0"></a>
 # 10.0.0 (2016-07-25)
 
