@@ -1,101 +1,90 @@
 import xs, {Stream} from 'xstream';
+import concat from 'xstream/extra/concat';
 import delay from 'xstream/extra/delay';
-import debounce from 'xstream/extra/debounce';
-import flattenSequentially from 'xstream/extra/flattenSequentially';
-
-let globalIncrementingId = 0;
-
-function newId() {
-  return globalIncrementingId++;
-}
+import * as dagre from 'dagre';
 
 interface InternalProducer {
   type?: string;
 }
 
-interface StreamGraphNode {
-  id: number;
-  stream: Stream<any>;
-}
-
-interface StreamGraphEdge {
-  from: StreamGraphNode;
-  to: StreamGraphNode;
+export interface StreamGraphNode {
+  id: string;
+  type: 'stream' | 'sink';
   label?: string;
+  stream?: Stream<any>;
+  width: number;
+  height: number;
+  x?: number;
+  y?: number;
 }
 
-type ZapQueue = Array<StreamGraphNode>;
+export interface StreamGraphEdge {
+  label?: string;
+  points?: Array<{ x: number, y: number }>;
+}
 
-interface Zap {
-  id: number;
+export interface Zap {
+  id: string;
   type: string;
   value?: any;
 }
 
-class StreamGraph {
-  public edges: Array<StreamGraphEdge>;
-  public nodes: Map<Stream<any>, StreamGraphNode>;
+const ZAP_INTERVAL = 100; // milliseconds, time between zapping of neighbor nodes
+
+class StreamIdTable {
+  private mutableIncrementingId: number;
+  public map: Map<Stream<any>, number>;
 
   constructor() {
-    this.edges = [];
-    this.nodes = new Map<Stream<any>, StreamGraphNode>();
+    this.mutableIncrementingId = 0;
+    this.map = new Map<Stream<any>, number>();
   }
 
-  registerNode(stream: Stream<any>): StreamGraphNode {
-    if (!this.nodes.has(stream)) {
-      const node: StreamGraphNode = {stream: stream, id: newId()};
-      this.nodes.set(stream, node);
-      return node;
+  getId(stream: Stream<any>): string {
+    if (!this.map.has(stream)) {
+      const id = this.mutableIncrementingId;
+      this.map.set(stream, id);
+      this.mutableIncrementingId += 1;
+      return String(id);
     } else {
-      return this.nodes.get(stream);
+      return String(this.map.get(stream));
     }
   }
-
-  registerEdge(ins: Stream<any>, out: Stream<any>, producer: InternalProducer): void {
-    const fromNode = this.registerNode(ins);
-    const toNode = this.registerNode(out);
-    if (this.edges.find(e => e.from.id === fromNode.id && e.to.id === toNode.id)) {
-      return;
-    }
-    const edge: StreamGraphEdge = {from: fromNode, to: toNode};
-    if (producer && typeof producer.type === 'string') {
-      edge.label = producer.type;
-    }
-    this.edges.push(edge);
-  };
 }
 
-function queueForZapping(node: StreamGraphNode, zapQueue: ZapQueue) {
-  zapQueue.push(node);
+
+function makeSureNodeIsRegistered(graph: Dagre.Graph, idTable: StreamIdTable, stream: Stream<any>) {
+  if (!graph.node(idTable.getId(stream))) {
+    const node: StreamGraphNode = {
+      id: idTable.getId(stream),
+      type: 'stream',
+      stream: stream,
+      width: 23,
+      height: 23
+    };
+    graph.setNode(idTable.getId(stream), node);
+  }
 }
 
-function setupZapping(zapQueue: ZapQueue, zap$: Stream<Zap>) {
-  setTimeout(() => {
-    zapQueue.reverse().forEach((node, i) => {
-      node.stream.compose(delay(i*10)).addListener({
-        next: (ev: any) => zap$.shamefullySendNext({id: node.id, type: 'next', value: ev}),
-        error: (err: any) => zap$.shamefullySendNext({id: node.id, type: 'error', value: err}),
-        complete: () => zap$.shamefullySendNext({id: node.id, type: 'complete'}),
-      });
-    });
-  }, 100);
+function visitEdge(graph: Dagre.Graph, idTable: StreamIdTable, inStream: Stream<any>, outStream: Stream<any>) {
+  makeSureNodeIsRegistered(graph, idTable, inStream);
+  makeSureNodeIsRegistered(graph, idTable, outStream);
+  let label: string = '';
+  if (outStream._prod && typeof (<InternalProducer> outStream._prod).type === 'string') {
+    label = (<InternalProducer> outStream._prod).type;
+  }
+  graph.setEdge(idTable.getId(inStream), idTable.getId(outStream), {label});
+  traverse(graph, idTable, inStream);
 }
 
-function visitEdge(graph: StreamGraph, inStream: Stream<any>, outStream: Stream<any>, zapQueue: ZapQueue) {
-  const inStreamNode = graph.registerNode(inStream);
-  queueForZapping(inStreamNode, zapQueue);
-  graph.registerEdge(inStream, outStream, outStream._prod);
-  traverse(graph, inStream, zapQueue);
-}
-
-function traverse(graph: StreamGraph, outStream: Stream<any>, zapQueue: ZapQueue) {
+function traverse(graph: Dagre.Graph, idTable: StreamIdTable, outStream: Stream<any>) {
   if (outStream._prod && outStream._prod['ins']) {
     const inStream: Stream<any> = outStream._prod['ins'];
-    visitEdge(graph, inStream, outStream, zapQueue);
+    visitEdge(graph, idTable, inStream, outStream);
   } else if (outStream._prod && outStream._prod['insArr']) {
     const insArr: Array<Stream<any>> = outStream._prod['insArr'];
     insArr.forEach(inStream => {
-      visitEdge(graph, inStream, outStream, zapQueue);
+      visitEdge(graph, idTable, inStream, outStream);
     });
   }
   return graph;
@@ -105,84 +94,145 @@ interface GraphSerializerSources {
   DebugSinks: Stream<Object>;
 }
 
-function GraphSerializer(sources: GraphSerializerSources) {
-  let zapQueue: Array<StreamGraphNode> = [];
-  let zap$ = xs.create<Zap>();
-  let dsl$ = sources.DebugSinks
-    .map(sinks => {
-      const streamGraph = new StreamGraph();
-      for (let key in sinks) {
-        if (sinks.hasOwnProperty(key)) {
-          const node = streamGraph.registerNode(sinks[key]);
-          queueForZapping(node, zapQueue);
-          traverse(streamGraph, sinks[key], zapQueue);
-        }
-      }
-      return streamGraph;
-    })
-    .debug(() => {
-      setupZapping(zapQueue, zap$);
-    })
-    .map(graph =>
-      graph.edges.map(e => {
-        const from = e.from.id;
-        const to = e.to.id;
-        const label = e.label ? `|${e.label}|` : '';
-        return `    ${from}(_)-->${label}${to}(_);`
-      }).join('\n')
-    );
+interface GraphSerializerSinks {
+  graph: Stream<string>;
+}
 
-  let rawVisualZap$ = zap$
-    .map(zap => xs.of(zap).compose(delay(80)))
-    .compose(flattenSequentially)
-    .startWith(null);
-
-  let resetVisualZap$ = rawVisualZap$.compose(debounce(120)).mapTo(null);
-
-  let visualZap$ = xs.merge(rawVisualZap$, resetVisualZap$);
-
-  let finalDSL$ = xs.combine(dsl$, visualZap$).map(([dsl, zap]) => {
-    const NEXT_STYLE = 'fill: #6DFFB3, stroke: #00C194, stroke-width:3px;';
-    const ERROR_STYLE = 'fill: #FFA382, stroke: #F53800, stroke-width:3px;';
-    const COMPLETE_STYLE = 'fill: #B5B5B5, stroke: #7D7D7D, stroke-width:3px;';
-    let zapStyle = '';
-    if (zap) {
-      if (zap.type === 'next') {
-        zapStyle = `\n    style ${zap.id} ${NEXT_STYLE}`;
-      } else if (zap.type === 'error') {
-        zapStyle = `\n    style ${zap.id} ${ERROR_STYLE}`;
-      } else if (zap.type === 'complete') {
-        zapStyle = `\n    style ${zap.id} ${COMPLETE_STYLE}`;
-      }
+function buildGraph(sinks: Object): Dagre.Graph {
+  const idTable = new StreamIdTable();
+  const graph = new dagre.graphlib.Graph();
+  graph.setGraph({});
+  for (let key in sinks) {
+    if (sinks.hasOwnProperty(key)) {
+      const node: StreamGraphNode = {
+        id: idTable.getId(sinks[key]),
+        label: key,
+        type: 'sink',
+        stream: sinks[key],
+        width: 40,
+        height: 30
+      };
+      graph.setNode(idTable.getId(sinks[key]), node);
+      traverse(graph, idTable, sinks[key]);
     }
-    let sanitizedDsl = dsl;
-    if (zap && typeof zap.value !== 'undefined') {
-      sanitizedDsl = dsl.replace(
-        new RegExp(`${zap.id}\\(_\\)`, 'g'),
-        `${zap.id}("${typeof zap.value === 'object' ? '_' : String(zap.value)}")`
-      );
-    }
-    return sanitizedDsl + zapStyle;
+  }
+  dagre.layout(graph);
+  return graph;
+}
+
+interface Diagram {
+  graph: Dagre.Graph;
+  zap$: Stream<Zap>;
+}
+
+interface ZapRecord {
+  id: string;
+  stream: Stream<any>;
+  depth: number;
+}
+
+class ZapRegistry {
+  private _presenceMap: Map<string, boolean>;
+  private _records: Array<ZapRecord>;
+
+  constructor() {
+    this._presenceMap = new Map<string, boolean>();
+    this._records = [];
+  }
+
+  has(id: string): boolean {
+    return this._presenceMap.has(id);
+  }
+
+  register(id: string, stream: Stream<any>, depth: number): void {
+    this._records.push({ id, stream, depth });
+  }
+
+  get records() {
+    return this._records;
+  }
+}
+
+function setupZapping(graph: Dagre.Graph): Diagram {
+  const registry: ZapRegistry = new ZapRegistry();
+  const sourceNodes: Array<string> = graph['sources']();
+  sourceNodes.forEach(id => {
+    zapVisit(id, 0, graph, registry);
   });
 
-  let sinks = {
-    Mermaid: finalDSL$
+  const streams: Array<Stream<any>> = registry.records.map(record =>
+    record.stream.compose(delay(record.depth * ZAP_INTERVAL))
+      // next
+      .map(val => ({ id: record.id, type: 'next', value: val }))
+      // error
+      .replaceError(err => xs.of(({ id: record.id, type: 'error', value: err })))
+      // complete
+      .compose(s => concat(s, xs.of({ id: record.id, type: 'complete' })))
+  );
+
+  const zap$ = xs.merge(...streams).startWith(null);
+
+  return { graph, zap$ };
+}
+
+function zapVisit(nodeId: string, depth: number, graph: Dagre.Graph, registry: ZapRegistry) {
+  if (registry.has(nodeId)) {
+    return;
+  } else {
+    const node: StreamGraphNode = graph.node(nodeId);
+    registry.register(nodeId, node.stream, depth);
+    const successors: Array<string> = graph['successors'](nodeId);
+    successors.forEach(id => {
+      zapVisit(id, depth + 1, graph, registry);
+    });
   }
-  return sinks;
+}
+
+function removeStreamsFromNodes({graph, zap$}: Diagram): Diagram {
+  const nodeIds = graph.nodes();
+  for (let i = 0, N = nodeIds.length; i < N; i++) {
+    delete (<StreamGraphNode>graph.node(nodeIds[i])).stream;
+  }
+  return {graph, zap$};
+}
+
+function objectifyGraph(diagram$: Stream<Diagram>): Stream<Object> {
+  return diagram$.map(({graph, zap$}) => {
+    const object = dagre.graphlib['json'].write(graph);
+    return zap$.map(zap => {
+      object.zap = zap;
+      return object;
+    });
+  }).flatten();
+}
+
+function GraphSerializer(sources: GraphSerializerSources): GraphSerializerSinks {
+  let serializedGraph$ = sources.DebugSinks
+    .map(buildGraph)
+    .map(setupZapping)
+    .map(removeStreamsFromNodes)
+    .compose(objectifyGraph)
+    .map(object => JSON.stringify(object, null, '  '));
+
+  return {
+    graph: serializedGraph$,
+  };
 }
 
 function startGraphSerializer(appSinks: Object) {
   const serializerSources = {DebugSinks: xs.of(appSinks)};
   const serializerSinks = GraphSerializer(serializerSources);
 
-  serializerSinks.Mermaid.addListener({
-    next: mermaidDSL => {
-      // console.log('GRAPH SERIALIZER send message to CONTENT SCRIPT: ' + mermaidDSL)
+  serializerSinks.graph.addListener({
+    next: graph => {
+      // console.log('GRAPH SERIALIZER send message to CONTENT SCRIPT: ' + graph);
       // Send message to the CONTENT SCRIPT
-      const event = new CustomEvent('CyclejsDevToolEvent', {detail: mermaidDSL});
+      const event = new CustomEvent('CyclejsDevToolEvent', {detail: graph});
       document.dispatchEvent(event);
     },
-    error: () => {},
+    error: (err: any) => {
+      console.error('Cycle.js DevTool (graph serializer): ' + err);
+    },
     complete: () => {},
   });
 }
