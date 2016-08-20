@@ -6,9 +6,9 @@
   "license": "MIT",
   "dependencies": {
     "@cycle/xstream-run": "3.0.x",
-    "@cycle/dom": "10.0.0-rc32",
-    "@cycle/isolate": "1.2.x",
-    "xstream": "5.0.x"
+    "@cycle/dom": "12.1.0",
+    "@cycle/isolate": "1.4.x",
+    "xstream": "5.3.x"
   },
   "devDependencies": {
     "browserify": "11.0.1",
