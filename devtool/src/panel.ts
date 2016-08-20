@@ -37,11 +37,27 @@ const sourceNodeStyle = styles.registerStyle({
   'transition': 'fill 0.8s, stroke 0.8s, stroke-width 0.8s',
 });
 
+const sourceNodeLabelStyle = styles.registerStyle({
+  'font-family': 'sans-serif',
+  'font-size': '14',
+  'fill': '#444444',
+  'opacity': '0',
+  'transition': 'opacity 3s, fill 0.8s',
+});
+
 const sinkNodeStyle = styles.registerStyle({
   'fill': '#DDDDDD',
   'stroke': '#444444',
   'stroke-width': '1px',
   'transition': 'fill 0.8s, stroke 0.8s, stroke-width 0.8s',
+});
+
+const sinkNodeLabelStyle = styles.registerStyle({
+  'font-family': 'sans-serif',
+  'font-size': '14',
+  'fill': '#444444',
+  'opacity': '0',
+  'transition': 'opacity 3s, fill 0.8s',
 });
 
 const commonNodeStyle = styles.registerStyle({
@@ -69,7 +85,7 @@ const nodeZapCompleteStyle = styles.registerStyle({
   'stroke-width': '3px',
 });
 
-const nodeLabelStyle = styles.registerStyle({
+const commonNodeLabelStyle = styles.registerStyle({
   'font-family': 'sans-serif',
   'font-size': '14',
   'fill': '#518FFF',
@@ -133,11 +149,11 @@ function renderSinkNode(node: StreamGraphNode, zap: Zap) {
     svg.text({ attrs: textAttrs }, [
       svg.tspan(String(node.label))
     ]),
-    renderNodeLabel(node, zap, true)
+    renderNodeLabel(node, zap, sinkNodeLabelStyle, true)
   ]);
 }
 
-function renderNodeLabel(node: StreamGraphNode, zap: Zap, isSink: boolean): VNode {
+function renderNodeLabel(node: StreamGraphNode, zap: Zap, style: string, isSink: boolean): VNode {
   const isZap: boolean = zap.id === node.id;
   let label = '';
   if (isZap) {
@@ -155,7 +171,7 @@ function renderNodeLabel(node: StreamGraphNode, zap: Zap, isSink: boolean): VNod
 
   return svg.text({
     class: {
-      [nodeLabelStyle]: !isZap,
+      [style]: !isZap,
       [nodeLabelZapStyle]: isZap,
     },
     attrs: {
@@ -170,7 +186,7 @@ function renderNodeLabel(node: StreamGraphNode, zap: Zap, isSink: boolean): VNod
           tspanElem.innerHTML = label;
         }
         if (isZap && isSink) {
-          setTimeout(() => textElem.setAttribute('class', nodeLabelStyle), 50);
+          setTimeout(() => textElem.setAttribute('class', style), 50);
         }
       }
     }
@@ -197,7 +213,7 @@ function renderSourceNode(node: StreamGraphNode, zap: Zap): VNode {
         height: node.height,
       }
     }),
-    renderNodeLabel(node, zap, false)
+    renderNodeLabel(node, zap, sourceNodeLabelStyle, false)
   ]);
 }
 
@@ -219,7 +235,7 @@ function renderCommonNode(node: StreamGraphNode, zap: Zap): VNode {
         height: node.height,
       }
     }),
-    renderNodeLabel(node, zap, false)
+    renderNodeLabel(node, zap, commonNodeLabelStyle, false)
   ]);
 }
 
