@@ -1,4 +1,4 @@
-import {StreamAdapter} from '@cycle/base';
+import {StreamAdapter, DevToolEnabledSource} from '@cycle/base';
 import xsSA from '@cycle/xstream-adapter';
 import {Stream} from 'xstream';
 import {DOMSource, EventsFnOptions} from './DOMSource';
@@ -72,7 +72,8 @@ export class MainDOMSource implements DOMSource {
               private _runStreamAdapter: StreamAdapter,
               private _namespace: Array<string> = [],
               public _isolateModule: IsolateModule,
-              public _delegators: Map<string, EventDelegator>) {
+              public _delegators: Map<string, EventDelegator>,
+              private _name: string) {
   }
 
   elements(): any {
@@ -86,7 +87,11 @@ export class MainDOMSource implements DOMSource {
       output$ = this._rootElement$.map(el => elementFinder.call(el));
     }
     const runSA = this._runStreamAdapter;
-    return runSA.remember(runSA.adapt(output$, xsSA.streamSubscribe));
+    const out: DevToolEnabledSource = runSA.remember(
+      runSA.adapt(output$, xsSA.streamSubscribe)
+    );
+    out._isCycleSource = this._name;
+    return out;
   }
 
   get namespace(): Array<string> {
@@ -99,10 +104,10 @@ export class MainDOMSource implements DOMSource {
         `string as a CSS selector`);
     }
     if (selector === 'document') {
-      return new DocumentDOMSource(this._runStreamAdapter);
+      return new DocumentDOMSource(this._runStreamAdapter, this._name);
     }
     if (selector === 'body') {
-      return new BodyDOMSource(this._runStreamAdapter);
+      return new BodyDOMSource(this._runStreamAdapter, this._name);
     }
     const trimmedSelector = selector.trim();
     const childNamespace = trimmedSelector === `:root` ?
@@ -113,7 +118,8 @@ export class MainDOMSource implements DOMSource {
       this._runStreamAdapter,
       childNamespace,
       this._isolateModule,
-      this._delegators
+      this._delegators,
+      this._name
     );
   }
 
@@ -191,7 +197,9 @@ export class MainDOMSource implements DOMSource {
       })
       .flatten();
 
-    return this._runStreamAdapter.adapt(event$, xsSA.streamSubscribe);
+    const out: DevToolEnabledSource = this._runStreamAdapter.adapt(event$, xsSA.streamSubscribe);
+    out._isCycleSource = domSource._name;
+    return out;
   }
 
   dispose(): void {

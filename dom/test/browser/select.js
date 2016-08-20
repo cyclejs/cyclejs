@@ -230,4 +230,76 @@ describe('DOMSource.select()', function () {
     dispose = run();
     simulant.fire(document.body, 'click');
   });
+
+  it('should have DevTools flag in BodyDOMSource elements() stream', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.of(
+          div('hello world')
+        )
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    const element$ = sources.DOM.select('body').elements();
+    assert.strictEqual(element$._isCycleSource, 'DOM');
+    done();
+  });
+
+  it('should have DevTools flag in BodyDOMSource events() stream', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.of(
+          div('hello world')
+        )
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    const event$ = sources.DOM.select('body').events('click');
+    assert.strictEqual(event$._isCycleSource, 'DOM');
+    done();
+  });
+
+  it('should have DevTools flag in DocumentDOMSource elements() stream', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.of(
+          div('hello world')
+        )
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    const element$ = sources.DOM.select('document').elements();
+    assert.strictEqual(element$._isCycleSource, 'DOM');
+    done();
+  });
+
+  it('should have DevTools flag in DocumentDOMSource events() stream', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.of(
+          div('hello world')
+        )
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    const event$ = sources.DOM.select('document').events('click');
+    assert.strictEqual(event$._isCycleSource, 'DOM');
+    done();
+  });
 });

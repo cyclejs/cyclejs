@@ -111,6 +111,26 @@ describe('mockDOMSource', function () {
       });
   });
 
+  it('should have DevTools flag in elements() source stream', function (done) {
+    const mockedDOMSource = mockDOMSource(RxJSAdapter, {
+      '.foo': {
+        elements: Observable.of(135)
+      }
+    });
+    assert.strictEqual(mockedDOMSource.select('.foo').elements()._isCycleSource, 'MockedDOM');
+    done();
+  });
+
+  it('should have DevTools flag in events() source stream', function (done) {
+    const userEvents = mockDOMSource(RxJSAdapter, {
+      '.foo': {
+        'click': Observable.of(135)
+      }
+    });
+    assert.strictEqual(userEvents.select('.foo').events('click')._isCycleSource, 'MockedDOM');
+    done();
+  });
+
   it('should return defined Observable when chaining .select()', function (done) {
     const mockedDOMSource = mockDOMSource(RxJSAdapter, {
       '.bar': {

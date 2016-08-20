@@ -88,6 +88,32 @@ describe('HTML Driver', function () {
     done();
   });
 
+  it('should have DevTools flag in HTMLSource elements() stream', function (done) {
+    function app() {
+      return {
+        html: Rx.Observable.of(div('.test-element', ['Foobar']))
+      };
+    }
+    let {sinks, sources, run} = Cycle(app, {
+      html: makeHTMLDriver()
+    });
+    assert.strictEqual(sources.html.elements()._isCycleSource, 'html');
+    done();
+  });
+
+  it('should have DevTools flag in HTMLSource elements() stream', function (done) {
+    function app() {
+      return {
+        html: Rx.Observable.of(div('.test-element', ['Foobar']))
+      };
+    }
+    let {sinks, sources, run} = Cycle(app, {
+      html: makeHTMLDriver()
+    });
+    assert.strictEqual(sources.html.events('click')._isCycleSource, 'html');
+    done();
+  });
+
   it('should make bogus select().events() as sources', function (done) {
     function app({html}) {
       assert.strictEqual(typeof html.select, 'function');
