@@ -17,6 +17,10 @@ export type DisposeFunction = () => void
 
 export type StreamSubscribe = <T>(stream: any, observer: Observer<T>) => DisposeFunction | void
 
+export interface DevToolEnabledSource {
+  _isCycleSource: string;
+}
+
 export interface StreamAdapter {
   adapt: <T>(originStream: any, originStreamSubscribe: StreamSubscribe) => any;
   remember: <T>(stream: any) => any;
@@ -102,6 +106,7 @@ function callDrivers(drivers: DriversDefinition,
       } else {
         sources[name] = driverOutput;
       }
+      (<DevToolEnabledSource> sources[name])._isCycleSource = name;
     }
   }
   return sources;

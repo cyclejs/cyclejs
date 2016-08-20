@@ -97,6 +97,19 @@ describe('Cycle', function () {
       }, 10)
     });
 
+    it('should have DevTool-enabled flag for each simple source', function(done) {
+      function app(sources) {
+        return {}
+      }
+
+      const {sinks, sources, run} = Cycle(app, {
+        other: () => Rx.Observable.of(1, 2, 'Correct', 4),
+      }, {streamAdapter: testStreamAdapter});
+
+      assert.strictEqual(sources.other._isCycleSource, 'other');
+      done();
+    });
+
     it('should convert sources between stream libraries', function(done) {
       function app(sources) {
         assert(testStreamAdapterTwo.isValidStream(sources.other))
