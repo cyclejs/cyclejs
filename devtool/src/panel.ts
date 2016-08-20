@@ -30,6 +30,13 @@ const styles = FreeStyle.create();
 const DIAGRAM_PADDING_H = 30;
 const DIAGRAM_PADDING_V = 5;
 
+const sourceNodeStyle = styles.registerStyle({
+  'fill': '#DDDDDD',
+  'stroke': '#444444',
+  'stroke-width': '1px',
+  'transition': 'fill 0.8s, stroke 0.8s, stroke-width 0.8s',
+});
+
 const sinkNodeStyle = styles.registerStyle({
   'fill': '#DDDDDD',
   'stroke': '#444444',
@@ -172,6 +179,28 @@ function renderNodeLabel(node: StreamGraphNode, zap: Zap, isSink: boolean): VNod
   ]);
 }
 
+function renderSourceNode(node: StreamGraphNode, zap: Zap): VNode {
+  const isZap: boolean = zap.id === node.id;
+
+  return svg.g([
+    svg.rect({
+      class: {
+        [sourceNodeStyle]: !isZap,
+        [nodeZapNextStyle]: isZap,
+      },
+      attrs: {
+        x: node.x - node.width * 0.5 + DIAGRAM_PADDING_H,
+        y: node.y - node.height * 0.5 + DIAGRAM_PADDING_V,
+        rx: 9,
+        ry: 9,
+        width: node.width,
+        height: node.height,
+      }
+    }),
+    renderNodeLabel(node, zap, false)
+  ]);
+}
+
 function renderCommonNode(node: StreamGraphNode, zap: Zap): VNode {
   const isZap: boolean = zap.id === node.id;
 
@@ -196,7 +225,9 @@ function renderCommonNode(node: StreamGraphNode, zap: Zap): VNode {
 
 function renderNode(id: string, graph: Dagre.Graph, zap: Zap): VNode {
   const node: StreamGraphNode = graph.node(id);
-  if (node.type === 'sink') {
+  if (node.type === 'source') {
+    return renderSourceNode(node, zap);
+  } else if (node.type === 'sink') {
     return renderSinkNode(node, zap);
   } else {
     return renderCommonNode(node, zap);

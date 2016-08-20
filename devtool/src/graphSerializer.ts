@@ -9,7 +9,7 @@ interface InternalProducer {
 
 export interface StreamGraphNode {
   id: string;
-  type: 'stream' | 'sink';
+  type: 'source' | 'stream' | 'sink';
   label?: string;
   stream?: Stream<any>;
   width: number;
@@ -29,7 +29,13 @@ export interface Zap {
   value?: any;
 }
 
-const ZAP_INTERVAL = 100; // milliseconds, time between zapping of neighbor nodes
+type Size = [number, number];
+
+const SOURCE_NODE_SIZE: Size = [23, 23];
+const COMMON_NODE_SIZE: Size = [23, 23];
+const SINK_NODE_SIZE: Size = [40, 30];
+
+const ZAP_INTERVAL = 70; // milliseconds, time between zapping of neighbor nodes
 
 class StreamIdTable {
   private mutableIncrementingId: number;
@@ -52,16 +58,26 @@ class StreamIdTable {
   }
 }
 
-
 function makeSureNodeIsRegistered(graph: Dagre.Graph, idTable: StreamIdTable, stream: Stream<any>) {
   if (!graph.node(idTable.getId(stream))) {
-    const node: StreamGraphNode = {
-      id: idTable.getId(stream),
-      type: 'stream',
-      stream: stream,
-      width: 23,
-      height: 23
-    };
+    let node: StreamGraphNode;
+    if (stream['_isCycleSource']) {
+      node = {
+        id: idTable.getId(stream),
+        type: 'source',
+        stream: stream,
+        width: SOURCE_NODE_SIZE[0],
+        height: SOURCE_NODE_SIZE[1],
+      }
+    } else {
+      node = {
+        id: idTable.getId(stream),
+        type: 'stream',
+        stream: stream,
+        width: COMMON_NODE_SIZE[0],
+        height: COMMON_NODE_SIZE[1],
+      };
+    }
     graph.setNode(idTable.getId(stream), node);
   }
 }
@@ -74,7 +90,9 @@ function visitEdge(graph: Dagre.Graph, idTable: StreamIdTable, inStream: Stream<
     label = (<InternalProducer> outStream._prod).type;
   }
   graph.setEdge(idTable.getId(inStream), idTable.getId(outStream), {label});
-  traverse(graph, idTable, inStream);
+  if (!inStream['_isCycleSource']) {
+    traverse(graph, idTable, inStream);
+  }
 }
 
 function traverse(graph: Dagre.Graph, idTable: StreamIdTable, outStream: Stream<any>) {
@@ -87,7 +105,6 @@ function traverse(graph: Dagre.Graph, idTable: StreamIdTable, outStream: Stream<
       visitEdge(graph, idTable, inStream, outStream);
     });
   }
-  return graph;
 }
 
 interface GraphSerializerSources {
@@ -109,8 +126,8 @@ function buildGraph(sinks: Object): Dagre.Graph {
         label: key,
         type: 'sink',
         stream: sinks[key],
-        width: 40,
-        height: 30
+        width: SINK_NODE_SIZE[0],
+        height: SINK_NODE_SIZE[1],
       };
       graph.setNode(idTable.getId(sinks[key]), node);
       traverse(graph, idTable, sinks[key]);
@@ -132,19 +149,20 @@ interface ZapRecord {
 }
 
 class ZapRegistry {
-  private _presenceMap: Map<string, boolean>;
+  private _presenceSet: Set<string>;
   private _records: Array<ZapRecord>;
 
   constructor() {
-    this._presenceMap = new Map<string, boolean>();
+    this._presenceSet = new Set<string>();
     this._records = [];
   }
 
   has(id: string): boolean {
-    return this._presenceMap.has(id);
+    return this._presenceSet.has(id);
   }
 
   register(id: string, stream: Stream<any>, depth: number): void {
+    this._presenceSet.add(id);
     this._records.push({ id, stream, depth });
   }
 
