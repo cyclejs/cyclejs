@@ -12,7 +12,7 @@
   "devDependencies": {
     "@cycle/base": "4.x.x",
     "es6-promise": "^3.1.2",
-    "xstream": "5.x.x"
+    "xstream": "6.x.x"
   },
   "peerDependencies": {
     "xstream": "*"
