@@ -12,7 +12,7 @@ function main(sources) {
     .map(ev => ev.target.value)
     .filter(query => query.length > 0)
     .map(q => ({
-      url: 'https://api.github.com/search/repositories?q=' + encodeURI(q),
+      url: `https://api.github.com/search/repositories?q=${encodeURI(q)}`,
       category: 'github',
     }));
 
@@ -39,7 +39,7 @@ function main(sources) {
       ])
     );
 
-  const request$ = searchRequest$.merge(otherRequest$);
+  const request$ = xs.merge(searchRequest$, otherRequest$);
 
   return {
     DOM: vtree$,
