@@ -21,7 +21,6 @@ interface PanelSources {
 }
 
 interface PanelSinks {
-  Mermaid: Stream<string>;
   DOM: Stream<VNode>;
 }
 
@@ -30,29 +29,14 @@ const styles = FreeStyle.create();
 const DIAGRAM_PADDING_H = 30;
 const DIAGRAM_PADDING_V = 5;
 
-const sourceNodeStyle = styles.registerStyle({
+const sourceOrSinkNodeStyle = styles.registerStyle({
   'fill': '#DDDDDD',
   'stroke': '#444444',
   'stroke-width': '1px',
   'transition': 'fill 0.8s, stroke 0.8s, stroke-width 0.8s',
 });
 
-const sourceNodeLabelStyle = styles.registerStyle({
-  'font-family': 'sans-serif',
-  'font-size': '14',
-  'fill': '#444444',
-  'opacity': '0',
-  'transition': 'opacity 3s, fill 0.8s',
-});
-
-const sinkNodeStyle = styles.registerStyle({
-  'fill': '#DDDDDD',
-  'stroke': '#444444',
-  'stroke-width': '1px',
-  'transition': 'fill 0.8s, stroke 0.8s, stroke-width 0.8s',
-});
-
-const sinkNodeLabelStyle = styles.registerStyle({
+const sourceOrSinkNodeLabelStyle = styles.registerStyle({
   'font-family': 'sans-serif',
   'font-size': '14',
   'fill': '#444444',
@@ -100,7 +84,7 @@ const nodeLabelZapStyle = styles.registerStyle({
   'opacity': '1',
 });
 
-function renderSinkNode(node: StreamGraphNode, zap: Zap) {
+function renderSourceOrSinkNode(node: StreamGraphNode, zap: Zap) {
   const isZap: boolean = zap.id === node.id;
   const textAttrs = {
     'font-family': 'sans-serif',
@@ -129,12 +113,12 @@ function renderSinkNode(node: StreamGraphNode, zap: Zap) {
         update(oldVNode: VNode, newVNode: VNode) {
           const rectElem: Element = <Element>newVNode.elm;
           if (isZap) {
-            setTimeout(() => rectElem.setAttribute('class', sinkNodeStyle), 50);
+            setTimeout(() => rectElem.setAttribute('class', sourceOrSinkNodeStyle), 50);
           }
         }
       },
       class: {
-        [sinkNodeStyle]: !isZap,
+        [sourceOrSinkNodeStyle]: !isZap,
         [nodeZapNextStyle]: isZap,
       },
       attrs: {
@@ -149,7 +133,7 @@ function renderSinkNode(node: StreamGraphNode, zap: Zap) {
     svg.text({ attrs: textAttrs }, [
       svg.tspan(String(node.label))
     ]),
-    renderNodeLabel(node, zap, sinkNodeLabelStyle, true)
+    renderNodeLabel(node, zap, sourceOrSinkNodeLabelStyle, true)
   ]);
 }
 
@@ -195,28 +179,6 @@ function renderNodeLabel(node: StreamGraphNode, zap: Zap, style: string, isSink:
   ]);
 }
 
-function renderSourceNode(node: StreamGraphNode, zap: Zap): VNode {
-  const isZap: boolean = zap.id === node.id;
-
-  return svg.g([
-    svg.rect({
-      class: {
-        [sourceNodeStyle]: !isZap,
-        [nodeZapNextStyle]: isZap,
-      },
-      attrs: {
-        x: node.x - node.width * 0.5 + DIAGRAM_PADDING_H,
-        y: node.y - node.height * 0.5 + DIAGRAM_PADDING_V,
-        rx: 9,
-        ry: 9,
-        width: node.width,
-        height: node.height,
-      }
-    }),
-    renderNodeLabel(node, zap, sourceNodeLabelStyle, false)
-  ]);
-}
-
 function renderCommonNode(node: StreamGraphNode, zap: Zap): VNode {
   const isZap: boolean = zap.id === node.id;
 
@@ -241,10 +203,8 @@ function renderCommonNode(node: StreamGraphNode, zap: Zap): VNode {
 
 function renderNode(id: string, graph: Dagre.Graph, zap: Zap): VNode {
   const node: StreamGraphNode = graph.node(id);
-  if (node.type === 'source') {
-    return renderSourceNode(node, zap);
-  } else if (node.type === 'sink') {
-    return renderSinkNode(node, zap);
+  if (node.type === 'source' || node.type === 'sink') {
+    return renderSourceOrSinkNode(node, zap);
   } else {
     return renderCommonNode(node, zap);
   }
@@ -366,7 +326,6 @@ function Panel(sources: PanelSources): PanelSinks {
   })
 
   return {
-    Mermaid: xs.empty(),
     DOM: vnode$,
   }
 }

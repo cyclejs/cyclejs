@@ -1,4 +1,5 @@
 import xs, {Stream} from 'xstream';
+import {DevToolEnabledSource} from '@cycle/base';
 import concat from 'xstream/extra/concat';
 import delay from 'xstream/extra/delay';
 import * as dagre from 'dagre';
@@ -65,6 +66,7 @@ function makeSureNodeIsRegistered(graph: Dagre.Graph, idTable: StreamIdTable, st
       node = {
         id: idTable.getId(stream),
         type: 'source',
+        label: (<DevToolEnabledSource & Stream<any>> stream)._isCycleSource,
         stream: stream,
         width: SOURCE_NODE_SIZE[0],
         height: SOURCE_NODE_SIZE[1],

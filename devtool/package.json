@@ -5,15 +5,15 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/dom": "12.1.0",
+    "@cycle/dom": "12.2.x",
     "@cycle/isolate": "1.4.x",
-    "@cycle/xstream-run": "3.0.4",
-    "cuid": "^1.3.8",
+    "@cycle/xstream-run": "3.0.x",
     "dagre": "^0.7.4",
     "free-style": "^1.2.2",
     "xstream": "5.3.x"
   },
   "devDependencies": {
+    "@cycle/base": "^4.1.1",
     "browserify": "13.1.0"
   },
   "scripts": {
