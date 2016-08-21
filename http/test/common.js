@@ -134,6 +134,44 @@ function run(uri) {
       }
     );
 
+    it('should have DevTools flag in select() source stream', function(done) {
+      function main() {
+        return {
+          HTTP: Rx.Observable.of({
+            url: uri + '/pet',
+            method: 'POST',
+            send: {name: 'Woof', species: 'Dog'}
+          })
+        };
+      }
+
+      var output = Cycle(main, { HTTP: makeHTTPDriver() });
+
+      var response$$ = output.sources.HTTP.select();
+      assert.strictEqual(response$$._isCycleSource, 'HTTP');
+      done();
+      output.run();
+    });
+
+    it('should have DevTools flag in response$$ source stream', function(done) {
+      function main() {
+        return {
+          HTTP: Rx.Observable.of({
+            url: uri + '/pet',
+            method: 'POST',
+            send: {name: 'Woof', species: 'Dog'}
+          })
+        };
+      }
+
+      var output = Cycle(main, { HTTP: makeHTTPDriver() });
+
+      var response$$ = output.sources.HTTP.response$$;
+      assert.strictEqual(response$$._isCycleSource, 'HTTP');
+      done();
+      output.run();
+    });
+
     it('should return response metastream when given another options obj',
       function(done) {
         function main() {

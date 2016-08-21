@@ -146,11 +146,11 @@ function makeRequestInputToResponse$(runStreamAdapter: StreamAdapter) {
 }
 
 export function makeHTTPDriver(): Function {
-  function httpDriver(request$: Stream<RequestInput>, runSA: StreamAdapter): HTTPSource {
+  function httpDriver(request$: Stream<RequestInput>, runSA: StreamAdapter, name: string): HTTPSource {
     let response$$ = request$
       .map(makeRequestInputToResponse$(runSA))
       .remember();
-    let httpSource = new MainHTTPSource(response$$, runSA, []);
+    let httpSource = new MainHTTPSource(response$$, runSA, name, []);
     /* tslint:disable:no-empty */
     response$$.addListener({next: () => {}, error: () => {}, complete: () => {}});
     /* tslint:enable:no-empty */
