@@ -40,12 +40,16 @@ const RED_DARK = '#F53800';
 const RED_LIGHT = '#FFA382';
 const YELLOW_DARK = '#DDAA02';
 const YELLOW_LIGHT = '#FFEE6D';
+const ZAP_COOL_OFF_DURATION = '0.4s';
+const EVENT_COOL_OFF_DURATION = '3s';
+const ZCOD = ZAP_COOL_OFF_DURATION;
+const ECOD = EVENT_COOL_OFF_DURATION;
 
 const sourceOrSinkNodeStyle = styles.registerStyle({
   'fill': GRAY,
   'stroke': GRAY_DARK,
   'stroke-width': '1px',
-  'transition': 'fill 0.8s, stroke 0.8s, stroke-width 0.8s',
+  'transition': `fill ${ZCOD}, stroke ${ZCOD}, stroke-width ${ZCOD}`,
 });
 
 const sourceOrSinkNodeLabelStyle = styles.registerStyle({
@@ -53,14 +57,14 @@ const sourceOrSinkNodeLabelStyle = styles.registerStyle({
   'font-size': '14',
   'fill': GRAY_DARK,
   'opacity': '0',
-  'transition': 'opacity 3s, fill 0.8s',
+  'transition': `opacity ${ECOD}, fill ${ZCOD}`,
 });
 
 const activeNodeStyle = styles.registerStyle({
   'fill': BLUE_LIGHT,
   'stroke': BLUE_DARK,
   'stroke-width': '1px',
-  'transition': 'fill 0.8s, stroke 0.8s, stroke-width 0.8s',
+  'transition': `fill ${ZCOD}, stroke ${ZCOD}, stroke-width ${ZCOD}`,
 });
 
 const nodeZapNextStyle = styles.registerStyle({
@@ -86,7 +90,7 @@ const nodeInactiveErrorStyle = styles.registerStyle({
   'stroke': RED_DARK,
   'stroke-width': '1px',
   'opacity': '0.4',
-  'transition': 'stroke-width 0.8s, opacity 0.8s',
+  'transition': `stroke-width ${ZCOD}, opacity ${ZCOD}`,
 });
 
 const nodeInactiveCompleteStyle = styles.registerStyle({
@@ -94,7 +98,7 @@ const nodeInactiveCompleteStyle = styles.registerStyle({
   'stroke': YELLOW_DARK,
   'stroke-width': '1px',
   'opacity': '0.4',
-  'transition': 'stroke-width 0.8s, opacity 0.8s',
+  'transition': `stroke-width ${ZCOD}, opacity ${ZCOD}`,
 });
 
 const commonNodeLabelStyle = styles.registerStyle({
@@ -102,7 +106,7 @@ const commonNodeLabelStyle = styles.registerStyle({
   'font-size': '14',
   'fill': BLUE_DARK,
   'opacity': '0',
-  'transition': 'opacity 3s, fill 0.8s',
+  'transition': `opacity ${ECOD}, fill ${ZCOD}`,
 });
 
 const nodeLabelZapNextStyle = styles.registerStyle({
