@@ -3,6 +3,7 @@ import {DevToolEnabledSource} from '@cycle/base';
 import concat from 'xstream/extra/concat';
 import delay from 'xstream/extra/delay';
 import * as dagre from 'dagre';
+import * as CircularJSON from 'circular-json';
 
 interface InternalProducer {
   type?: string;
@@ -232,7 +233,7 @@ function GraphSerializer(sources: GraphSerializerSources): GraphSerializerSinks 
     .map(setupZapping)
     .map(removeStreamsFromNodes)
     .compose(objectifyGraph)
-    .map(object => JSON.stringify(object, null, '  '));
+    .map(object => CircularJSON.stringify(object, null, '  '));
 
   return {
     graph: serializedGraph$,
@@ -251,7 +252,8 @@ function startGraphSerializer(appSinks: Object) {
       document.dispatchEvent(event);
     },
     error: (err: any) => {
-      console.error('Cycle.js DevTool (graph serializer): ' + err);
+      console.error('Cycle.js DevTool (graph serializer):\n' + err);
+      console.error(err.stack);
     },
     complete: () => {},
   });

@@ -4,6 +4,7 @@ import {DOMSource} from '@cycle/dom/xstream-typings';
 import {StreamGraphNode, StreamGraphEdge, Zap} from './graphSerializer';
 import * as dagre from 'dagre';
 import * as FreeStyle from 'free-style';
+import * as CircularJSON from 'circular-json';
 
 // alert('PANEL is starting');
 // How to send a message from PANEL to BACKGROUND
@@ -311,7 +312,7 @@ interface DiagramState {
 
 function Panel(sources: PanelSources): PanelSinks {
   const graph$ = sources.graph
-    .map(serializedObject => JSON.parse(serializedObject))
+    .map(serializedObject => CircularJSON.parse(serializedObject))
     .map(object => {
       const zap: Zap = object.zap || { id: 'INVALID', value: null, type: 'next' };
       object.zap = null;
