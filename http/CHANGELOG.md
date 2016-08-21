@@ -1,3 +1,13 @@
+<a name="10.2.0"></a>
+# 10.2.0 (2016-08-21)
+
+
+### Features
+
+* **http:** support the Chrome DevTool to distinguish source streams ([cb81c23](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/cb81c23))
+
+
+
 <a name="10.1.0"></a>
 # 10.1.0 (2016-08-15)
 
