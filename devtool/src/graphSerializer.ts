@@ -194,7 +194,7 @@ function setupZapping(graph: Dagre.Graph): Diagram {
 
   const actualZap$ = xs.merge(...streams)
   const stopZap$ = actualZap$
-    .mapTo(null).compose(debounce(ZAP_INTERVAL))
+    .mapTo(null).compose(debounce(ZAP_INTERVAL * 2))
     .startWith(null);
   const zap$ = xs.merge(actualZap$, stopZap$)
 
