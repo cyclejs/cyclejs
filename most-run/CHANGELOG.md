@@ -1,3 +1,13 @@
+<a name="4.1.0"></a>
+# 4.1.0 (2016-08-21)
+
+
+### Features
+
+* **most-run:** update cycle base run() to v4.1 ([e7801fa](https://github.com/cyclejs/cyclejs/tree/master/packages/most-run/commit/e7801fa))
+
+
+
 <a name="4.0.0"></a>
 # 4.0.0 (2016-08-09)
 
