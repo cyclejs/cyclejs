@@ -1,3 +1,13 @@
+<a name="12.2.1"></a>
+## 12.2.1 (2016-08-21)
+
+
+### Bug Fixes
+
+* **dom:** use a fixed major version of xstream-adapter ([549180b](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/549180b))
+
+
+
 <a name="12.2.0"></a>
 # 12.2.0 (2016-08-21)
 
