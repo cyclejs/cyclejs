@@ -28,7 +28,7 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "@cycle/xstream-adapter": "*",
+    "@cycle/xstream-adapter": "3.x.x",
     "es6-map": "^0.1.4",
     "matches-selector": "1.0.0",
     "snabbdom": "0.5.0",
