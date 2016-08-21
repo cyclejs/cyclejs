@@ -124,10 +124,7 @@ const nodeLabelZapErrorStyle = styles.registerStyle({
 });
 
 const nodeLabelZapCompleteStyle = styles.registerStyle({
-  'font-family': 'sans-serif',
-  'font-size': '14',
-  'fill': '#7D7D7D',
-  'opacity': '1',
+  'opacity': '0',
 });
 
 function renderNodeLabel(node: StreamGraphNode, zap: Zap, style: string): VNode {
@@ -135,9 +132,7 @@ function renderNodeLabel(node: StreamGraphNode, zap: Zap, style: string): VNode 
   let label = '';
   if (isZap) {
     // MUTATION!
-    if (zap.type === 'complete') {
-      label = '';
-    } else if (Array.isArray(zap.value)) {
+    if (Array.isArray(zap.value)) {
       const cappedArr = (zap.value as Array<any>).slice(0, 4).map(() => '\u25A1');
       if (typeof cappedArr[3] !== 'undefined') {
         cappedArr[3] = '\u22EF';
