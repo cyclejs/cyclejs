@@ -1,3 +1,13 @@
+<a name="10.2.1"></a>
+## 10.2.1 (2016-08-21)
+
+
+### Bug Fixes
+
+* **http:** use a fixed major version of xstream-adapter ([bc14598](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/bc14598))
+
+
+
 <a name="10.2.0"></a>
 # 10.2.0 (2016-08-21)
 
