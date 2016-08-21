@@ -33,8 +33,8 @@
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
   "homepage": "https://cycle.js.org",
   "dependencies": {
-    "@cycle/base": "*",
-    "@cycle/most-adapter": "*",
+    "@cycle/base": "4.1.x",
+    "@cycle/most-adapter": "4.0.x",
     "most": "^1.0.0",
     "most-subject": "^4.1.1"
   },
