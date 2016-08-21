@@ -112,6 +112,7 @@ function traverse(graph: Dagre.Graph, idTable: StreamIdTable, outStream: Stream<
 }
 
 interface GraphSerializerSources {
+  id: Stream<string>;
   DebugSinks: Stream<Object>;
 }
 
@@ -222,14 +223,19 @@ function removeStreamsFromNodes({graph, zap$}: Diagram): Diagram {
   return {graph, zap$};
 }
 
-function objectifyGraph(diagram$: Stream<Diagram>): Stream<Object> {
-  return diagram$.map(({graph, zap$}) => {
-    const object = dagre.graphlib['json'].write(graph);
-    return zap$.map(zap => {
-      object.zap = zap;
-      return object;
-    });
-  }).flatten();
+
+function makeObjectifyGraph(id$: Stream<string>) {
+  return function objectifyGraph(diagram$: Stream<Diagram>): Stream<Object> {
+    return xs.combine(diagram$, id$)
+      .map(([{graph, zap$}, id]) => {
+        const object = dagre.graphlib['json'].write(graph);
+        return zap$.map(zap => {
+          object.zap = zap;
+          object.id = id;
+          return object;
+        });
+      }).flatten();
+  }
 }
 
 function GraphSerializer(sources: GraphSerializerSources): GraphSerializerSinks {
@@ -237,7 +243,7 @@ function GraphSerializer(sources: GraphSerializerSources): GraphSerializerSinks 
     .map(buildGraph)
     .map(setupZapping)
     .map(removeStreamsFromNodes)
-    .compose(objectifyGraph)
+    .compose(makeObjectifyGraph(sources.id))
     .map(object => CircularJSON.stringify(object, null, '  '));
 
   return {
@@ -246,7 +252,10 @@ function GraphSerializer(sources: GraphSerializerSources): GraphSerializerSinks 
 }
 
 function startGraphSerializer(appSinks: Object) {
-  const serializerSources = {DebugSinks: xs.of(appSinks)};
+  const serializerSources: GraphSerializerSources = {
+    id: xs.of(`graph-${Math.round(Math.random()*1000000000)}`),
+    DebugSinks: xs.of(appSinks),
+  };
   const serializerSinks = GraphSerializer(serializerSources);
 
   serializerSinks.graph.addListener({

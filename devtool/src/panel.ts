@@ -355,19 +355,20 @@ function renderEdge(vw: Dagre.Edge, graph: Dagre.Graph): VNode {
   ]);
 }
 
-function renderGraph({graph, zap}: DiagramState): VNode {
+function renderGraph({graph, zap, id}: DiagramState): VNode {
   const g = typeof graph['graph'] === 'function' ? graph['graph']() : {};
   const attrs = {
     width: g.width + 2 * DIAGRAM_PADDING_H + 100,
     height: g.height + 2 * DIAGRAM_PADDING_V,
   };
-  return svg({ attrs }, [
+  return svg({ attrs, key: id }, [
     ...graph.nodes().map(id => renderNode(id, graph, zap)),
     ...graph.edges().map(edge => renderEdge(edge, graph)),
   ]);
 }
 
 interface DiagramState {
+  id: string;
   graph: Dagre.Graph;
   zap: Zap;
 }
@@ -376,13 +377,13 @@ const emptyZap: Zap = { id: 'INVALID', value: null, type: 'next' };
 
 function Panel(sources: PanelSources): PanelSinks {
   const vnode$ = sources.graph
-    .debug('Panel input')
     .map(serializedObject => CircularJSON.parse(serializedObject))
     .map(object => {
+      const id: string = object.id || 'graph-0';
       const zap: Zap = object.zap || emptyZap;
       object.zap = null;
       const graph: Dagre.Graph = dagre.graphlib['json'].read(object);
-      return { graph, zap };
+      return { graph, zap, id };
     })
     .map(renderGraph);
 

@@ -34,7 +34,7 @@ chrome.runtime.onMessage.addListener(function (message, sender) {
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
   // alert('BACKGROUND a tab was updated');
-  if (portToLauncher) {
+  if (portToLauncher && changeInfo.status === 'complete') {
     // To the LAUNCHER
     portToLauncher.postMessage(<BackgroundMessage> {type: 'tabUpdated', tabId: tabId});
   }
