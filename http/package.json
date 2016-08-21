@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": "https://github.com/cyclejs/cyclejs/tree/master/packages/http",
   "dependencies": {
-    "@cycle/xstream-adapter": "*",
+    "@cycle/xstream-adapter": "3.x.x",
     "superagent": "2.1.0"
   },
   "peerDependencies": {
