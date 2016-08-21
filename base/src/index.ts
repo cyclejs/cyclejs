@@ -106,7 +106,9 @@ function callDrivers(drivers: DriversDefinition,
       } else {
         sources[name] = driverOutput;
       }
-      (<DevToolEnabledSource> sources[name])._isCycleSource = name;
+      if (sources[name] && typeof sources[name] === 'object') {
+        (<DevToolEnabledSource> sources[name])._isCycleSource = name;
+      }
     }
   }
   return sources;

@@ -110,6 +110,20 @@ describe('Cycle', function () {
       done();
     });
 
+    it('should not break when given a noop driver', function(done) {
+      function app(sources) {
+        return {}
+      }
+
+      assert.doesNotThrow(() => {
+        const {sinks, sources, run} = Cycle(app, {
+          noop: () => { },
+        }, {streamAdapter: testStreamAdapter});
+      })
+
+      done();
+    });
+
     it('should convert sources between stream libraries', function(done) {
       function app(sources) {
         assert(testStreamAdapterTwo.isValidStream(sources.other))
