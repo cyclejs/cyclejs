@@ -5,8 +5,8 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/xstream-run": "3.0.4",
-    "@cycle/dom": "12.1.0",
+    "@cycle/xstream-run": "3.0.x",
+    "@cycle/dom": "12.2.x",
     "xstream": "5.3.x"
   },
   "devDependencies": {

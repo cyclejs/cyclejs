@@ -42,9 +42,8 @@ function main(sources: {DOM: DOMSource, HTTP: HTTPSource}) {
 
   const user$ = sources.HTTP.select('users')
     .flatten()
-    .map(res => res.body)
-    .startWith(null)
-    .compose(s => <Stream<UserData>> s);
+    .map(res => res.body as UserData)
+    .startWith(null);
 
   const vtree$ = user$.map(user =>
     div('.users', [
