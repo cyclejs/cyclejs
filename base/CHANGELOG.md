@@ -1,3 +1,13 @@
+<a name="4.1.1"></a>
+## 4.1.1 (2016-08-21)
+
+
+### Bug Fixes
+
+* **base:** support noop driver with undefined source ([02fb507](https://github.com/cyclejs/cyclejs/tree/master/packages/base/commit/02fb507))
+
+
+
 <a name="4.1.0"></a>
 # 4.1.0 (2016-08-20)
 
