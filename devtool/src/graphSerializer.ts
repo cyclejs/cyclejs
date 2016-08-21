@@ -2,6 +2,7 @@ import xs, {Stream} from 'xstream';
 import {DevToolEnabledSource} from '@cycle/base';
 import concat from 'xstream/extra/concat';
 import delay from 'xstream/extra/delay';
+import debounce from 'xstream/extra/debounce';
 import * as dagre from 'dagre';
 import * as CircularJSON from 'circular-json';
 
@@ -27,7 +28,7 @@ export interface StreamGraphEdge {
 
 export interface Zap {
   id: string;
-  type: string;
+  type: 'next' | 'error' | 'complete';
   value?: any;
 }
 
@@ -191,7 +192,11 @@ function setupZapping(graph: Dagre.Graph): Diagram {
       .compose(s => concat(s, xs.of({ id: record.id, type: 'complete' })))
   );
 
-  const zap$ = xs.merge(...streams).startWith(null);
+  const actualZap$ = xs.merge(...streams)
+  const stopZap$ = actualZap$
+    .mapTo(null).compose(debounce(ZAP_INTERVAL))
+    .startWith(null);
+  const zap$ = xs.merge(actualZap$, stopZap$)
 
   return { graph, zap$ };
 }

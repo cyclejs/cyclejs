@@ -29,10 +29,21 @@ const styles = FreeStyle.create();
 
 const DIAGRAM_PADDING_H = 30;
 const DIAGRAM_PADDING_V = 5;
+const GRAY_DARK = '#444444';
+const GRAY = '#DDDDDD';
+const GRAY_LIGHT = '#EFEFEF';
+const BLUE_DARK = '#518FFF';
+const BLUE_LIGHT = '#CDE6FF';
+const GREEN_DARK = '#00C194';
+const GREEN_LIGHT = '#6DFFB3';
+const RED_DARK = '#F53800';
+const RED_LIGHT = '#FFA382';
+const YELLOW_DARK = '#DDAA02';
+const YELLOW_LIGHT = '#FFEE6D';
 
 const sourceOrSinkNodeStyle = styles.registerStyle({
-  'fill': '#DDDDDD',
-  'stroke': '#444444',
+  'fill': GRAY,
+  'stroke': GRAY_DARK,
   'stroke-width': '1px',
   'transition': 'fill 0.8s, stroke 0.8s, stroke-width 0.8s',
 });
@@ -40,52 +51,131 @@ const sourceOrSinkNodeStyle = styles.registerStyle({
 const sourceOrSinkNodeLabelStyle = styles.registerStyle({
   'font-family': 'sans-serif',
   'font-size': '14',
-  'fill': '#444444',
+  'fill': GRAY_DARK,
   'opacity': '0',
   'transition': 'opacity 3s, fill 0.8s',
 });
 
-const commonNodeStyle = styles.registerStyle({
-  'stroke': '#518FFF',
+const activeNodeStyle = styles.registerStyle({
+  'fill': BLUE_LIGHT,
+  'stroke': BLUE_DARK,
   'stroke-width': '1px',
-  'fill': '#CDE6FF',
   'transition': 'fill 0.8s, stroke 0.8s, stroke-width 0.8s',
 });
 
 const nodeZapNextStyle = styles.registerStyle({
-  'fill': '#6DFFB3',
-  'stroke': '#00C194',
+  'fill': GREEN_LIGHT,
+  'stroke': GREEN_DARK,
   'stroke-width': '3px',
 });
 
 const nodeZapErrorStyle = styles.registerStyle({
-  'fill': '#FFA382',
-  'stroke': '#F53800',
+  'fill': RED_LIGHT,
+  'stroke': RED_DARK,
   'stroke-width': '3px',
 });
 
 const nodeZapCompleteStyle = styles.registerStyle({
-  'fill': '#B5B5B5',
-  'stroke': '#7D7D7D',
+  'fill': YELLOW_LIGHT,
+  'stroke': YELLOW_DARK,
   'stroke-width': '3px',
+});
+
+const nodeInactiveErrorStyle = styles.registerStyle({
+  'fill': RED_LIGHT,
+  'stroke': RED_DARK,
+  'stroke-width': '1px',
+  'opacity': '0.4',
+  'transition': 'stroke-width 0.8s, opacity 0.8s',
+});
+
+const nodeInactiveCompleteStyle = styles.registerStyle({
+  'fill': YELLOW_LIGHT,
+  'stroke': YELLOW_DARK,
+  'stroke-width': '1px',
+  'opacity': '0.4',
+  'transition': 'stroke-width 0.8s, opacity 0.8s',
 });
 
 const commonNodeLabelStyle = styles.registerStyle({
   'font-family': 'sans-serif',
   'font-size': '14',
-  'fill': '#518FFF',
+  'fill': BLUE_DARK,
   'opacity': '0',
   'transition': 'opacity 3s, fill 0.8s',
 });
 
-const nodeLabelZapStyle = styles.registerStyle({
+const nodeLabelZapNextStyle = styles.registerStyle({
   'font-family': 'sans-serif',
   'font-size': '14',
-  'fill': '#00C194',
+  'fill': GREEN_DARK,
   'opacity': '1',
 });
 
-function renderSourceOrSinkNode(node: StreamGraphNode, zap: Zap) {
+const nodeLabelZapErrorStyle = styles.registerStyle({
+  'font-family': 'sans-serif',
+  'font-size': '14',
+  'fill': RED_DARK,
+  'opacity': '1',
+});
+
+const nodeLabelZapCompleteStyle = styles.registerStyle({
+  'font-family': 'sans-serif',
+  'font-size': '14',
+  'fill': '#7D7D7D',
+  'opacity': '1',
+});
+
+function renderNodeLabel(node: StreamGraphNode, zap: Zap, style: string): VNode {
+  const isZap: boolean = zap.id === node.id;
+  let label = '';
+  if (isZap) {
+    // MUTATION!
+    if (zap.type === 'complete') {
+      label = '';
+    } else if (Array.isArray(zap.value)) {
+      const cappedArr = (zap.value as Array<any>).slice(0, 4).map(() => '\u25A1');
+      if (typeof cappedArr[3] !== 'undefined') {
+        cappedArr[3] = '\u22EF';
+      }
+      label = `[${cappedArr.join(',')}]`;
+    } else if (typeof zap.value === 'object' && zap.value !== null) {
+      label = '{...}'
+    } else if (zap.value === null) {
+      label = 'null';
+    } else if (typeof zap.value === 'string') {
+      label = `"${zap.value}"`;
+    } else {
+      label = String(zap.value);
+    }
+  }
+
+  return svg.text({
+    class: {
+      [style]: !isZap,
+      [nodeLabelZapNextStyle]: isZap && zap.type === 'next',
+      [nodeLabelZapErrorStyle]: isZap && zap.type === 'error',
+      [nodeLabelZapCompleteStyle]: isZap && zap.type === 'complete',
+    },
+    attrs: {
+      x: DIAGRAM_PADDING_H + node.x + node.width * 0.5 + 10,
+      y: DIAGRAM_PADDING_V + node.y + 5,
+    },
+    hook: {
+      update(oldVNode: VNode, newVNode: VNode) {
+        const textElem: Element = <Element> newVNode.elm;
+        const tspanElem: Element = <Element> textElem.childNodes[0];
+        if (label) {
+          tspanElem.innerHTML = label;
+        }
+      }
+    }
+  }, [
+    svg.tspan('')
+  ]);
+}
+
+function renderSourceOrSinkNode(node: StreamGraphNode, zap: Zap, isSink: boolean) {
   const isZap: boolean = zap.id === node.id;
   const textAttrs = {
     'font-family': 'sans-serif',
@@ -110,17 +200,11 @@ function renderSourceOrSinkNode(node: StreamGraphNode, zap: Zap) {
 
   return svg.g({ hook }, [
     svg.rect({
-      hook: {
-        update(oldVNode: VNode, newVNode: VNode) {
-          const rectElem: Element = <Element>newVNode.elm;
-          if (isZap) {
-            setTimeout(() => rectElem.setAttribute('class', sourceOrSinkNodeStyle), 50);
-          }
-        }
-      },
       class: {
         [sourceOrSinkNodeStyle]: !isZap,
-        [nodeZapNextStyle]: isZap,
+        [nodeZapNextStyle]: isZap && zap.type === 'next',
+        [nodeZapErrorStyle]: isZap && zap.type === 'error',
+        [nodeZapCompleteStyle]: isZap && zap.type === 'complete',
       },
       attrs: {
         x: node.x - node.width * 0.5 + DIAGRAM_PADDING_H,
@@ -134,49 +218,7 @@ function renderSourceOrSinkNode(node: StreamGraphNode, zap: Zap) {
     svg.text({ attrs: textAttrs }, [
       svg.tspan(String(node.label))
     ]),
-    renderNodeLabel(node, zap, sourceOrSinkNodeLabelStyle, true)
-  ]);
-}
-
-function renderNodeLabel(node: StreamGraphNode, zap: Zap, style: string, isSink: boolean): VNode {
-  const isZap: boolean = zap.id === node.id;
-  let label = '';
-  if (isZap) {
-    // MUTATION!
-    if (typeof zap.value === 'object' && zap.value !== null) {
-      label = zap.value.toString();
-    } else if (zap.value === null) {
-      label = 'null';
-    } else if (typeof zap.value === 'string') {
-      label = `"${zap.value}"`;
-    } else {
-      label = String(zap.value);
-    }
-  }
-
-  return svg.text({
-    class: {
-      [style]: !isZap,
-      [nodeLabelZapStyle]: isZap,
-    },
-    attrs: {
-      x: DIAGRAM_PADDING_H + node.x + node.width * 0.5 + 10,
-      y: DIAGRAM_PADDING_V + node.y + 5,
-    },
-    hook: {
-      update(oldVNode: VNode, newVNode: VNode) {
-        const textElem: Element = <Element> newVNode.elm;
-        const tspanElem: Element = <Element> textElem.childNodes[0];
-        if (label) {
-          tspanElem.innerHTML = label;
-        }
-        if (isZap && isSink) {
-          setTimeout(() => textElem.setAttribute('class', style), 50);
-        }
-      }
-    }
-  }, [
-    svg.tspan('')
+    renderNodeLabel(node, zap, sourceOrSinkNodeLabelStyle)
   ]);
 }
 
@@ -186,8 +228,10 @@ function renderCommonNode(node: StreamGraphNode, zap: Zap): VNode {
   return svg.g([
     svg.rect({
       class: {
-        [commonNodeStyle]: !isZap,
-        [nodeZapNextStyle]: isZap,
+        [activeNodeStyle]: !isZap,
+        [nodeZapNextStyle]: isZap && zap.type === 'next',
+        [nodeZapErrorStyle]: isZap && zap.type === 'error',
+        [nodeZapCompleteStyle]: isZap && zap.type === 'complete',
       },
       attrs: {
         x: node.x - node.width * 0.5 + DIAGRAM_PADDING_H,
@@ -196,16 +240,33 @@ function renderCommonNode(node: StreamGraphNode, zap: Zap): VNode {
         ry: 9,
         width: node.width,
         height: node.height,
-      }
+      },
+      hook: {
+        update(oldVNode: VNode, newVNode: VNode) {
+          const rectElem: Element = <Element>newVNode.elm;
+          const inactiveAttr = 'data-inactive-state';
+          if (isZap && zap.type === 'complete') {
+            rectElem.setAttribute(inactiveAttr, 'complete');
+          } else if (isZap && zap.type === 'error') {
+            rectElem.setAttribute(inactiveAttr, 'error');
+          } else if (rectElem.getAttribute(inactiveAttr) === 'complete') {
+            rectElem.setAttribute('class', nodeInactiveCompleteStyle);
+          } else if (rectElem.getAttribute(inactiveAttr) === 'error') {
+            rectElem.setAttribute('class', nodeInactiveErrorStyle);
+          }
+        }
+      },
     }),
-    renderNodeLabel(node, zap, commonNodeLabelStyle, false)
+    renderNodeLabel(node, zap, commonNodeLabelStyle)
   ]);
 }
 
 function renderNode(id: string, graph: Dagre.Graph, zap: Zap): VNode {
   const node: StreamGraphNode = graph.node(id);
-  if (node.type === 'source' || node.type === 'sink') {
-    return renderSourceOrSinkNode(node, zap);
+  if (node.type === 'source') {
+    return renderSourceOrSinkNode(node, zap, false);
+  } else if (node.type === 'sink') {
+    return renderSourceOrSinkNode(node, zap, true);
   } else {
     return renderCommonNode(node, zap);
   }
@@ -310,21 +371,19 @@ interface DiagramState {
   zap: Zap;
 }
 
+const emptyZap: Zap = { id: 'INVALID', value: null, type: 'next' };
+
 function Panel(sources: PanelSources): PanelSinks {
-  const graph$ = sources.graph
+  const vnode$ = sources.graph
+    .debug('Panel input')
     .map(serializedObject => CircularJSON.parse(serializedObject))
     .map(object => {
-      const zap: Zap = object.zap || { id: 'INVALID', value: null, type: 'next' };
+      const zap: Zap = object.zap || emptyZap;
       object.zap = null;
       const graph: Dagre.Graph = dagre.graphlib['json'].read(object);
       return { graph, zap };
     })
-  const vnode$ = graph$
-    .map(renderGraph)
-    .replaceError(err => {
-      alert(err);
-      return null;
-  })
+    .map(renderGraph);
 
   return {
     DOM: vnode$,
