@@ -335,6 +335,7 @@ function renderEdge(vw: Dagre.Edge, graph: Dagre.Graph): VNode {
   const points = edgeData.points
     .map(({x, y}) => ({ x: x + DIAGRAM_PADDING_H, y: y + DIAGRAM_PADDING_V }));
   // Make arrow tail not touch origin stream
+  points[0].x = (points[0].x + points[1].x) * 0.5;
   points[0].y = (points[0].y + points[1].y) * 0.5;
   const isUpwards: boolean = points[0].y > points[1].y;
 
