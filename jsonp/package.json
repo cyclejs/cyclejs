@@ -10,7 +10,7 @@
     "url": "https://github.com/cyclejs/jsonp"
   },
   "dependencies": {
-    "@cycle/xstream-adapter": "*",
+    "@cycle/xstream-adapter": "3.x.x",
     "jsonp": "0.2.0"
   },
   "peerDependencies": {
