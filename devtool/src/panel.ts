@@ -144,6 +144,13 @@ function renderNodeLabel(node: StreamGraphNode, zap: Zap, style: string): VNode 
       label = String(zap.value);
     }
   }
+  function setTSpanContent(vnode: VNode) {
+    const textElem: Element = <Element> vnode.elm;
+    const tspanElem: Element = <Element> textElem.childNodes[0];
+    if (label && !(isZap && zap.type === 'complete')) {
+      tspanElem.innerHTML = label;
+    }
+  }
 
   return svg.text({
     class: {
@@ -156,13 +163,8 @@ function renderNodeLabel(node: StreamGraphNode, zap: Zap, style: string): VNode 
       y: DIAGRAM_PADDING_V + node.y + 5,
     },
     hook: {
-      update(oldVNode: VNode, newVNode: VNode) {
-        const textElem: Element = <Element> newVNode.elm;
-        const tspanElem: Element = <Element> textElem.childNodes[0];
-        if (label && !(isZap && zap.type === 'complete')) {
-          tspanElem.innerHTML = label;
-        }
-      }
+      insert(vnode: VNode) { setTSpanContent(vnode); },
+      update(oldVNode: VNode, newVNode: VNode) { setTSpanContent(newVNode); }
     }
   }, [
     svg.tspan('')
