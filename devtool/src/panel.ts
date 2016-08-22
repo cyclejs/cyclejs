@@ -239,13 +239,17 @@ function renderCommonNode(node: StreamGraphNode, zap: Zap): VNode {
         update(oldVNode: VNode, newVNode: VNode) {
           const rectElem: Element = <Element>newVNode.elm;
           const inactiveAttr = 'data-inactive-state';
+          const inactiveAttrValue = rectElem.getAttribute(inactiveAttr);
           if (isZap && zap.type === 'complete') {
             rectElem.setAttribute(inactiveAttr, 'complete');
           } else if (isZap && zap.type === 'error') {
             rectElem.setAttribute(inactiveAttr, 'error');
-          } else if (rectElem.getAttribute(inactiveAttr) === 'complete') {
+          } else if (isZap && zap.type === 'next' && inactiveAttrValue) {
+            rectElem.removeAttribute(inactiveAttr);
+            rectElem.setAttribute('class', nodeZapNextStyle);
+          } else if (inactiveAttrValue === 'complete') {
             rectElem.setAttribute('class', nodeInactiveCompleteStyle);
-          } else if (rectElem.getAttribute(inactiveAttr) === 'error') {
+          } else if (inactiveAttrValue === 'error') {
             rectElem.setAttribute('class', nodeInactiveErrorStyle);
           }
         }
