@@ -123,10 +123,6 @@ const nodeLabelZapErrorStyle = styles.registerStyle({
   'opacity': '1',
 });
 
-const nodeLabelZapCompleteStyle = styles.registerStyle({
-  'opacity': '0',
-});
-
 function renderNodeLabel(node: StreamGraphNode, zap: Zap, style: string): VNode {
   const isZap: boolean = zap.id === node.id;
   let label = '';
@@ -151,10 +147,9 @@ function renderNodeLabel(node: StreamGraphNode, zap: Zap, style: string): VNode 
 
   return svg.text({
     class: {
-      [style]: !isZap,
+      [style]: !isZap || (isZap && zap.type === 'complete'),
       [nodeLabelZapNextStyle]: isZap && zap.type === 'next',
       [nodeLabelZapErrorStyle]: isZap && zap.type === 'error',
-      [nodeLabelZapCompleteStyle]: isZap && zap.type === 'complete',
     },
     attrs: {
       x: DIAGRAM_PADDING_H + node.x + node.width * 0.5 + 10,
@@ -164,7 +159,7 @@ function renderNodeLabel(node: StreamGraphNode, zap: Zap, style: string): VNode 
       update(oldVNode: VNode, newVNode: VNode) {
         const textElem: Element = <Element> newVNode.elm;
         const tspanElem: Element = <Element> textElem.childNodes[0];
-        if (label) {
+        if (label && !(isZap && zap.type === 'complete')) {
           tspanElem.innerHTML = label;
         }
       }
