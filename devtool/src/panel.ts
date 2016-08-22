@@ -35,8 +35,9 @@ const styles = FreeStyle.create();
 const DIAGRAM_PADDING_H = 30;
 const DIAGRAM_PADDING_V = 5;
 const GRAY_DARK = '#444444';
-const GRAY = '#DDDDDD';
-const GRAY_LIGHT = '#EFEFEF';
+const GRAY = '#777777';
+const GRAY_LIGHT = '#CDCDCD';
+const GRAY_LIGHTER = '#DDDDDD';
 const BLUE_DARK = '#518FFF';
 const BLUE_LIGHT = '#CDE6FF';
 const GREEN_DARK = '#00C194';
@@ -51,7 +52,7 @@ const ZCOD = ZAP_COOL_OFF_DURATION;
 const ECOD = EVENT_COOL_OFF_DURATION;
 
 const sourceOrSinkNodeStyle = styles.registerStyle({
-  'fill': GRAY,
+  'fill': GRAY_LIGHTER,
   'stroke': GRAY_DARK,
   'stroke-width': '1px',
   'transition': `fill ${ZCOD}, stroke ${ZCOD}, stroke-width ${ZCOD}`,
@@ -128,13 +129,91 @@ const nodeLabelZapErrorStyle = styles.registerStyle({
   'opacity': '1',
 });
 
+const SPEED_PICKER_HEIGHT = '22px';
+const SPEED_PICKER_BUTTON_WIDTH = '35px';
+const SPEED_PICKER_BUTTON_SHADOW = '0px 1px 0px 0px rgba(0,0,0,0.2)';
+
 const speedPickerStyle = styles.registerStyle({
   'display': 'flex',
+  'height': SPEED_PICKER_HEIGHT,
+  'position': 'fixed',
+  'background': `linear-gradient(
+    to bottom,
+    rgba(255,255,255,1.0) 0%,
+    rgba(255,255,255,0.8) 50%,
+    rgba(255,255,255,0) 100%)`,
+  'padding': '5px',
+  'top': '0',
+  'left': '0',
+  'right': '0',
 });
 
 const speedPickerLabelStyle = styles.registerStyle({
   'font-family': 'sans-serif',
-  'font-size': '10',
+  'font-size': '12px',
+  'line-height': SPEED_PICKER_HEIGHT,
+  'color': GRAY,
+  'margin-right': '5px',
+});
+
+const speedPickerSlowStyle = styles.registerStyle({
+  'background-color': GRAY_LIGHTER,
+  'height': SPEED_PICKER_HEIGHT,
+  'border': 'none',
+  'cursor': 'pointer',
+  'width': SPEED_PICKER_BUTTON_WIDTH,
+  'text-align': 'center',
+  'color': GRAY,
+  'font-size': '16px',
+  'line-height': '19px',
+  'border-top-left-radius': '8px',
+  'border-bottom-left-radius': '8px',
+  'outline': 'none',
+  'box-shadow': SPEED_PICKER_BUTTON_SHADOW,
+  '&:hover': {
+    'background-color': GRAY_LIGHT,
+  }
+});
+
+const speedPickerNormalStyle = styles.registerStyle({
+  'background-color': GRAY_LIGHTER,
+  'height': SPEED_PICKER_HEIGHT,
+  'border': 'none',
+  'cursor': 'pointer',
+  'width': SPEED_PICKER_BUTTON_WIDTH,
+  'text-align': 'center',
+  'color': GRAY,
+  'font-size': '22px',
+  'line-height': '19px',
+  'margin': '0 1px',
+  'outline': 'none',
+  'box-shadow': SPEED_PICKER_BUTTON_SHADOW,
+  '&:hover': {
+    'background-color': GRAY_LIGHT,
+  }
+});
+
+const speedPickerFastStyle = styles.registerStyle({
+  'background-color': GRAY_LIGHTER,
+  'height': SPEED_PICKER_HEIGHT,
+  'border': 'none',
+  'cursor': 'pointer',
+  'width': SPEED_PICKER_BUTTON_WIDTH,
+  'text-align': 'center',
+  'color': GRAY,
+  'font-size': '22px',
+  'line-height': '1px',
+  'border-top-right-radius': '8px',
+  'border-bottom-right-radius': '8px',
+  'outline': 'none',
+  'box-shadow': SPEED_PICKER_BUTTON_SHADOW,
+  '&:hover': {
+    'background-color': GRAY_LIGHT,
+  }
+});
+
+const devToolStyle = styles.registerStyle({
+  'padding-top': '40px',
 });
 
 function renderNodeLabel(node: StreamGraphNode, zap: Zap, style: string): VNode {
@@ -381,18 +460,25 @@ function renderGraph({graph, zap, id}: DiagramState): VNode {
   ]);
 }
 
-function renderSpeedPicker(): VNode {
+function renderSpeedPicker(speed: ZapSpeed): VNode {
+  const selectedStyle = {
+    color: GREEN_DARK,
+  };
+  const slowStyle = speed === 'slow' ? selectedStyle : {};
+  const normalStyle = speed === 'normal' ? selectedStyle : {};
+  const fastStyle = speed === 'fast' ? selectedStyle : {};
+
   return div(`.speedPicker.${speedPickerStyle}`, [
-    span(`.${speedPickerLabelStyle}`, 'SPEED'),
-    button('.slowSpeedButton', '\u003E'),
-    button('.normalSpeedButton', '\u226B'),
-    button('.fastSpeedButton', '\u22D9'),
+    span(`.${speedPickerLabelStyle}`, 'Speed'),
+    button(`.slowSpeedButton.${speedPickerSlowStyle}`, { style: slowStyle }, '\u003E'),
+    button(`.normalSpeedButton.${speedPickerNormalStyle}`, { style: normalStyle }, '\u226B'),
+    button(`.fastSpeedButton.${speedPickerFastStyle}`, { style: fastStyle }, '\u22D9'),
   ]);
 }
 
-function render(diagram: DiagramState): VNode {
-  return div('.devTool', [
-    renderSpeedPicker(),
+function render([diagram, speed]: [DiagramState, ZapSpeed]): VNode {
+  return div(`.devTool.${devToolStyle}`, [
+    renderSpeedPicker(speed),
     renderGraph(diagram)
   ]);
 }
@@ -406,7 +492,13 @@ interface DiagramState {
 const emptyZap: Zap = { id: 'INVALID', value: null, type: 'next' };
 
 function Panel(sources: PanelSources): PanelSinks {
-  const vnode$ = sources.graph
+  const speed$ = xs.merge(
+    sources.DOM.select('.slowSpeedButton').events('click').mapTo('slow' as ZapSpeed),
+    sources.DOM.select('.normalSpeedButton').events('click').mapTo('normal' as ZapSpeed),
+    sources.DOM.select('.fastSpeedButton').events('click').mapTo('fast' as ZapSpeed)
+  );
+
+  const diagramState$ = sources.graph
     .map(serializedObject => CircularJSON.parse(serializedObject))
     .map(object => {
       const id: string = object.id || 'graph-0';
@@ -414,17 +506,13 @@ function Panel(sources: PanelSources): PanelSinks {
       object.zap = null;
       const graph: Dagre.Graph = dagre.graphlib['json'].read(object);
       return { graph, zap, id };
-    })
+    });
+
+  const vdom$ = xs.combine(diagramState$, speed$.startWith('normal' as ZapSpeed))
     .map(render);
 
-  const speed$ = xs.merge(
-    sources.DOM.select('.slowSpeedButton').events('click').mapTo('slow' as ZapSpeed),
-    sources.DOM.select('.normalSpeedButton').events('click').mapTo('normal' as ZapSpeed),
-    sources.DOM.select('.fastSpeedButton').events('click').mapTo('fast' as ZapSpeed)
-  );
-
   return {
-    DOM: vnode$,
+    DOM: vdom$,
     zapSpeed: speed$,
   }
 }
