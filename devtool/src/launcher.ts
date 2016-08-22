@@ -8,6 +8,11 @@ chrome.devtools.panels.create('Cycle.js', '128.png', 'panel.html', function(exte
       panelWindow['postMessageToBackground'] = function postMessageToBackground(msg: Object) {
         portToBackground.postMessage(msg);
       };
+      // Setup PANEL=>GRAPH SERIALIZER communication
+      panelWindow['postMessageToGraphSerializer'] = function postMessageToGraphSerializer(msg: string) {
+        // alert('LAUNCHER is relaying message from panel to graphSerializer: ' + msg);
+        chrome.devtools.inspectedWindow.eval(`window.receivePanelMessage('${msg}');`);
+      }
       // Setup BACKGROUND=>PANEL communication
       portToBackground.onMessage.addListener(function (message: BackgroundMessage) {
         // alert('LAUNCHER relaying message from BACKGROUND to PANEL, message: ' + JSON.stringify(message))

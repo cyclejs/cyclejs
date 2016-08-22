@@ -1,5 +1,7 @@
 import xs, {Stream} from 'xstream';
-import {div, h1, VNode, svg, makeDOMDriver} from '@cycle/dom';
+import xsSA from '@cycle/xstream-adapter';
+import delay from 'xstream/extra/delay';
+import {div, h1, button, span, VNode, svg, makeDOMDriver} from '@cycle/dom';
 import {DOMSource} from '@cycle/dom/xstream-typings';
 import {StreamGraphNode, StreamGraphEdge, Zap} from './graphSerializer';
 import * as dagre from 'dagre';
@@ -21,8 +23,11 @@ interface PanelSources {
   graph: Stream<string>;
 }
 
+export type ZapSpeed = 'slow' | 'normal' | 'fast';
+
 interface PanelSinks {
   DOM: Stream<VNode>;
+  zapSpeed: Stream<ZapSpeed>;
 }
 
 const styles = FreeStyle.create();
@@ -121,6 +126,15 @@ const nodeLabelZapErrorStyle = styles.registerStyle({
   'font-size': '14',
   'fill': RED_DARK,
   'opacity': '1',
+});
+
+const speedPickerStyle = styles.registerStyle({
+  'display': 'flex',
+});
+
+const speedPickerLabelStyle = styles.registerStyle({
+  'font-family': 'sans-serif',
+  'font-size': '10',
 });
 
 function renderNodeLabel(node: StreamGraphNode, zap: Zap, style: string): VNode {
@@ -367,6 +381,22 @@ function renderGraph({graph, zap, id}: DiagramState): VNode {
   ]);
 }
 
+function renderSpeedPicker(): VNode {
+  return div(`.speedPicker.${speedPickerStyle}`, [
+    span(`.${speedPickerLabelStyle}`, 'SPEED'),
+    button('.slowSpeedButton', '\u003E'),
+    button('.normalSpeedButton', '\u226B'),
+    button('.fastSpeedButton', '\u22D9'),
+  ]);
+}
+
+function render(diagram: DiagramState): VNode {
+  return div('.devTool', [
+    renderSpeedPicker(),
+    renderGraph(diagram)
+  ]);
+}
+
 interface DiagramState {
   id: string;
   graph: Dagre.Graph;
@@ -385,26 +415,32 @@ function Panel(sources: PanelSources): PanelSinks {
       const graph: Dagre.Graph = dagre.graphlib['json'].read(object);
       return { graph, zap, id };
     })
-    .map(renderGraph);
+    .map(render);
+
+  const speed$ = xs.merge(
+    sources.DOM.select('.slowSpeedButton').events('click').mapTo('slow' as ZapSpeed),
+    sources.DOM.select('.normalSpeedButton').events('click').mapTo('normal' as ZapSpeed),
+    sources.DOM.select('.fastSpeedButton').events('click').mapTo('fast' as ZapSpeed)
+  );
 
   return {
     DOM: vnode$,
+    zapSpeed: speed$,
   }
 }
 
 function backgroundSourceDriver(): Stream<string> {
   return xs.create<string>({
     start: listener => {
-      // alert('PANEL is setting up its dsl$ window listener')
+      // alert('PANEL is setting up its window listener');
       window.addEventListener('message', function windowMessageListener(evt) {
-        // alert('PANEL got a message')
+        // alert('PANEL got a message');
         var eventData = evt.data;
         if (typeof eventData === 'object'
         && eventData !== null
         && eventData.hasOwnProperty('__fromCyclejsDevTool')
         && eventData.__fromCyclejsDevTool) {
-          // alert('PANEL got ' + JSON.stringify(eventData))
-          // document.querySelector('#loading').style.visibility = 'hidden';
+          // alert('PANEL got ' + JSON.stringify(eventData));
           listener.next(eventData.data);
         }
       });
@@ -416,7 +452,7 @@ function backgroundSourceDriver(): Stream<string> {
 const domDriver = makeDOMDriver('#tools-container');
 
 const domSinkProxy = xs.create<VNode>();
-const domSource = domDriver(domSinkProxy);
+const domSource = domDriver(domSinkProxy, xsSA);
 const graphSource = backgroundSourceDriver();
 
 const panelSources = {graph: graphSource, DOM: domSource};
@@ -424,4 +460,12 @@ const panelSinks = Panel(panelSources);
 
 styles.inject();
 domSinkProxy.imitate(panelSinks.DOM);
+panelSinks.zapSpeed.addListener({
+  next(s: ZapSpeed) {
+    // alert('PANEL posting message to graph serializer: ' + s);
+    window['postMessageToGraphSerializer'](s);
+  },
+  error(err: any) { },
+  complete() { },
+});
 // alert('PANEL should be all good to go');

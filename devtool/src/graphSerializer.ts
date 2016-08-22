@@ -6,6 +6,7 @@ import debounce from 'xstream/extra/debounce';
 import flattenSequentially from 'xstream/extra/flattenSequentially';
 import * as dagre from 'dagre';
 import * as CircularJSON from 'circular-json';
+import {ZapSpeed} from './panel';
 
 interface InternalProducer {
   type?: string;
@@ -39,7 +40,13 @@ const SOURCE_NODE_SIZE: Size = [23, 23];
 const COMMON_NODE_SIZE: Size = [23, 23];
 const SINK_NODE_SIZE: Size = [40, 30];
 
-const ZAP_INTERVAL = 70; // milliseconds, time between zapping of neighbor nodes
+function zapSpeedToMilliseconds(zapSpeed: ZapSpeed): number {
+  switch (zapSpeed) {
+    case 'slow': return 1100;
+    case 'normal': return 70;
+    case 'fast': return 16;
+  }
+}
 
 class StreamIdTable {
   private mutableIncrementingId: number;
@@ -115,6 +122,7 @@ function traverse(graph: Dagre.Graph, idTable: StreamIdTable, outStream: Stream<
 interface GraphSerializerSources {
   id: Stream<string>;
   DebugSinks: Stream<Object>;
+  Panel: Stream<string>;
 }
 
 interface GraphSerializerSinks {
@@ -177,7 +185,7 @@ class ZapRegistry {
   }
 }
 
-function setupZapping(graph: Dagre.Graph): Diagram {
+function setupZapping([graph, zapSpeed]: [Dagre.Graph, ZapSpeed]): Diagram {
   const registry: ZapRegistry = new ZapRegistry();
   const sourceNodes: Array<string> = graph['sources']();
   sourceNodes.forEach(id => {
@@ -200,11 +208,11 @@ function setupZapping(graph: Dagre.Graph): Diagram {
   });
 
   const actualZap$ = rawZap$
-    .map(zap => xs.of(zap).compose(delay<Zap>(ZAP_INTERVAL)))
+    .map(zap => xs.of(zap).compose(delay<Zap>(zapSpeedToMilliseconds(zapSpeed))))
     .compose(flattenSequentially);
 
   const stopZap$ = actualZap$
-    .mapTo(null).compose(debounce<Zap>(ZAP_INTERVAL * 2))
+    .mapTo(null).compose(debounce<Zap>(zapSpeedToMilliseconds(zapSpeed) * 2))
     .startWith(null);
 
   const zap$ = xs.merge(actualZap$, stopZap$)
@@ -225,20 +233,14 @@ function zapVisit(nodeId: string, depth: number, graph: Dagre.Graph, registry: Z
   }
 }
 
-function removeStreamsFromNodes({graph, zap$}: Diagram): Diagram {
-  const nodeIds = graph.nodes();
-  for (let i = 0, N = nodeIds.length; i < N; i++) {
-    delete (<StreamGraphNode>graph.node(nodeIds[i])).stream;
-  }
-  return {graph, zap$};
-}
-
-
 function makeObjectifyGraph(id$: Stream<string>) {
   return function objectifyGraph(diagram$: Stream<Diagram>): Stream<Object> {
     return xs.combine(diagram$, id$)
       .map(([{graph, zap$}, id]) => {
         const object = dagre.graphlib['json'].write(graph);
+        for (let i = 0, N = object.nodes.length; i < N; i++) {
+          delete object.nodes[i].stream;
+        }
         return zap$.map(zap => {
           object.zap = zap;
           object.id = id;
@@ -249,16 +251,24 @@ function makeObjectifyGraph(id$: Stream<string>) {
 }
 
 function GraphSerializer(sources: GraphSerializerSources): GraphSerializerSinks {
-  let serializedGraph$ = sources.DebugSinks
-    .map(buildGraph)
+  let zapSpeed$ = (sources.Panel as Stream<ZapSpeed>).startWith('normal');
+
+  let graph$ = sources.DebugSinks
+    .map(buildGraph);
+
+  let serializedGraph$ = xs.combine(graph$, zapSpeed$)
     .map(setupZapping)
-    .map(removeStreamsFromNodes)
     .compose(makeObjectifyGraph(sources.id))
     .map(object => CircularJSON.stringify(object, null, '  '));
 
   return {
     graph: serializedGraph$,
   };
+}
+
+const panelMessage$ = xs.create<string>();
+window['receivePanelMessage'] = function receivePanelMessage(msg: string) {
+  panelMessage$.shamefullySendNext(msg);
 }
 
 let started: boolean = false;
@@ -270,6 +280,7 @@ function startGraphSerializer(appSinks: Object) {
   const serializerSources: GraphSerializerSources = {
     id: xs.of(`graph-${Math.round(Math.random()*1000000000)}`),
     DebugSinks: xs.of(appSinks),
+    Panel: panelMessage$,
   };
   const serializerSinks = GraphSerializer(serializerSources);
 
