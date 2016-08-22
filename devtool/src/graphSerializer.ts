@@ -1,8 +1,9 @@
-import xs, {Stream} from 'xstream';
+import xs, {Stream, Listener} from 'xstream';
 import {DevToolEnabledSource} from '@cycle/base';
 import concat from 'xstream/extra/concat';
 import delay from 'xstream/extra/delay';
 import debounce from 'xstream/extra/debounce';
+import flattenSequentially from 'xstream/extra/flattenSequentially';
 import * as dagre from 'dagre';
 import * as CircularJSON from 'circular-json';
 
@@ -183,20 +184,29 @@ function setupZapping(graph: Dagre.Graph): Diagram {
     zapVisit(id, 0, graph, registry);
   });
 
-  const streams: Array<Stream<any>> = registry.records.map(record =>
-    record.stream.compose(delay(record.depth * ZAP_INTERVAL))
-      // next
-      .map(val => ({ id: record.id, type: 'next', value: val }))
-      // error
-      .replaceError(err => xs.of(({ id: record.id, type: 'error', value: err })))
-      // complete
-      .compose(s => concat(s, xs.of({ id: record.id, type: 'complete' })))
-  );
+  const rawZap$ = xs.create<Zap>({
+    start(listener: Listener<Zap>) {
+      for (let i = 0, N = registry.records.length; i < N; i++) {
+        const record = registry.records[i];
+        const id = record.id;
+        record.stream.setDebugListener({
+          next: (value) => listener.next({ id, type: 'next', value } as Zap),
+          error: (err) => listener.next({ id, type: 'error', value: err } as Zap),
+          complete: () => listener.next({ id, type: 'complete' } as Zap),
+        });
+      }
+    },
+    stop() {}
+  });
 
-  const actualZap$ = xs.merge(...streams)
+  const actualZap$ = rawZap$
+    .map(zap => xs.of(zap).compose(delay<Zap>(ZAP_INTERVAL)))
+    .compose(flattenSequentially);
+
   const stopZap$ = actualZap$
-    .mapTo(null).compose(debounce(ZAP_INTERVAL * 2))
+    .mapTo(null).compose(debounce<Zap>(ZAP_INTERVAL * 2))
     .startWith(null);
+
   const zap$ = xs.merge(actualZap$, stopZap$)
 
   return { graph, zap$ };
@@ -251,7 +261,12 @@ function GraphSerializer(sources: GraphSerializerSources): GraphSerializerSinks 
   };
 }
 
+let started: boolean = false;
+
 function startGraphSerializer(appSinks: Object) {
+  if (started) {
+    return;
+  }
   const serializerSources: GraphSerializerSources = {
     id: xs.of(`graph-${Math.round(Math.random()*1000000000)}`),
     DebugSinks: xs.of(appSinks),
@@ -271,7 +286,10 @@ function startGraphSerializer(appSinks: Object) {
     },
     complete: () => {},
   });
+  started = true;
 }
+
+window['CyclejsDevTool_startGraphSerializer'] = startGraphSerializer;
 
 var intervalID = setInterval(function () {
   if (window['Cyclejs'] && window['Cyclejs'].sinks) {
