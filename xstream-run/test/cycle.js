@@ -8,6 +8,11 @@ let concat = require('xstream/extra/concat').default;
 let delay = require('xstream/extra/delay').default;
 let sinon = require('sinon');
 
+if (global && typeof global === 'object') {
+  global.window = window || {};
+}
+let window = global.window;
+
 describe('Cycle', function () {
   it('should have `run`', function () {
     assert.strictEqual(typeof Cycle.run, 'function');
@@ -47,6 +52,24 @@ describe('Cycle', function () {
     assert.notStrictEqual(typeof sources.other, 'undefined');
     assert.notStrictEqual(sources.other, null);
     assert.strictEqual(typeof sources.other.addListener, 'function');
+  });
+
+  it('should call DevTool internal function to pass sinks', function () {
+    let sandbox = sinon.sandbox.create();
+    let spy = sandbox.spy();
+    window['CyclejsDevTool_startGraphSerializer'] = spy;
+
+    function app(ext) {
+      return {
+        other: ext.other.take(1).startWith('a')
+      };
+    }
+    function driver() {
+      return xs.of('b');
+    }
+    let {sinks, sources} = Cycle(app, {other: driver});
+
+    sinon.assert.calledOnce(spy);
   });
 
   it('should return a run() which in turn returns a dispose()', function (done) {
