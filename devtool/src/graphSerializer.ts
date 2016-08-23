@@ -285,10 +285,14 @@ function GraphSerializer(sources: GraphSerializerSources): GraphSerializerSinks 
   };
 }
 
-const panelMessage$ = xs.create<string>();
-window['receivePanelMessage'] = function receivePanelMessage(msg: string) {
-  panelMessage$.shamefullySendNext(msg);
-}
+const panelMessage$ = xs.create<string>({
+  start(listener: Listener<string>) {
+    window['receivePanelMessage'] = function receivePanelMessage(msg: string) {
+      listener.next(msg);
+    }
+  },
+  stop() { }
+});
 
 let started: boolean = false;
 
