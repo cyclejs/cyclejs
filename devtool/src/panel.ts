@@ -129,6 +129,15 @@ const nodeLabelZapErrorStyle = styles.registerStyle({
   'opacity': '1',
 });
 
+const operatorNodeStyle = styles.registerStyle({
+  'font-family': 'sans-serif',
+  'font-size': '14',
+  'fill': BLUE_DARK,
+  'tspan': {
+    'text-shadow': 'white 2px 2px 0, white -2px 2px 0, white -2px -2px 0, white 2px -2px 0',
+  }
+});
+
 const SPEED_PICKER_HEIGHT = '22px';
 const SPEED_PICKER_BUTTON_WIDTH = '35px';
 const SPEED_PICKER_BUTTON_SHADOW = '0px 1px 0px 0px rgba(0,0,0,0.2)';
@@ -264,7 +273,7 @@ function renderNodeLabel(node: StreamGraphNode, zap: Zap, style: string): VNode 
   ]);
 }
 
-function renderSourceOrSinkNode(node: StreamGraphNode, zap: Zap, isSink: boolean) {
+function renderSourceOrSinkNode(node: StreamGraphNode, zap: Zap) {
   const isZap: boolean = zap.id === node.id;
   const textAttrs = {
     'font-family': 'sans-serif',
@@ -308,6 +317,21 @@ function renderSourceOrSinkNode(node: StreamGraphNode, zap: Zap, isSink: boolean
       svg.tspan(String(node.label))
     ]),
     renderNodeLabel(node, zap, sourceOrSinkNodeLabelStyle)
+  ]);
+}
+
+function renderOperatorNode(node: StreamGraphNode, zap: Zap) {
+  const hook = {
+    insert(vnode: VNode) {
+      const textElem: Element = vnode.elm as Element;
+      const tspanElem: Element = <Element> textElem.childNodes[0];
+      tspanElem.setAttribute('x', String(DIAGRAM_PADDING_H + node.x - textElem.clientWidth * 0.5));
+      tspanElem.setAttribute('y', String(DIAGRAM_PADDING_V + node.y + textElem.clientHeight * 0.5 - 4));
+    }
+  }
+
+  return svg.text({ hook, class: {[operatorNodeStyle]: true} }, [
+    svg.tspan(String(node.label))
   ]);
 }
 
@@ -356,10 +380,10 @@ function renderCommonNode(node: StreamGraphNode, zap: Zap): VNode {
 
 function renderNode(id: string, graph: Dagre.Graph, zap: Zap): VNode {
   const node: StreamGraphNode = graph.node(id);
-  if (node.type === 'source') {
-    return renderSourceOrSinkNode(node, zap, false);
-  } else if (node.type === 'sink') {
-    return renderSourceOrSinkNode(node, zap, true);
+  if (node.type === 'source' || node.type === 'sink') {
+    return renderSourceOrSinkNode(node, zap);
+  } else if (node.type === 'operator') {
+    return renderOperatorNode(node, zap);
   } else {
     return renderCommonNode(node, zap);
   }
@@ -392,45 +416,34 @@ function renderArrowHead(vw: Dagre.Edge): VNode {
   ]);
 }
 
-function renderEdgeLabel(edgeData: StreamGraphEdge, point: { x: number, y: number }): Array<VNode> {
-  const textAttrs = {
-    'font-family': 'sans-serif',
-    'font-size': '14',
-    'fill': '#518FFF',
-  };
-  const tspanStyle = {
-    'text-shadow': 'white 2px 2px 0, white -2px 2px 0, white -2px -2px 0, white 2px -2px 0',
-  };
-  const hook = {
-    insert: (vnode: VNode) => {
-      const textElem: Element = <Element> vnode.elm;
-      const tspanElem: Element = <Element> textElem.childNodes[0];
-      tspanElem.setAttribute('x', String(point.x - textElem.clientWidth * 0.5));
-      tspanElem.setAttribute('y', String(point.y + textElem.clientHeight * 0.5));
-    }
+function renderEdgeType1(vw: Dagre.Edge, graph: Dagre.Graph): VNode {
+  const edgeData: StreamGraphEdge = (<any>graph).edge(vw.v, vw.w);
+  const points = edgeData.points.map(({x, y}) =>
+    ({ x: x + DIAGRAM_PADDING_H, y: y + DIAGRAM_PADDING_V })
+  );
+  // Make arrow tail not touch origin stream
+  points[0].x = points[0].x * 0.4 + points[1].x * 0.6;
+  points[0].y = points[0].y * 0.4 + points[1].y * 0.6;
+  const x0 = points[0].x, x1 = points[1].x, y0 = points[0].y, y1 = points[1].y;
+  if (Math.sqrt((x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1)) < 6) {
+    points.shift();
   }
 
-  if (edgeData.label && typeof edgeData.label === 'string') {
-    return [
-      svg.text({ hook, attrs: textAttrs }, [
-        svg.tspan({ style: tspanStyle },
-          String(edgeData.label)
-        )
-      ])
-    ];
-  } else {
-    return [];
-  }
+  return svg.path({
+    attrs: {
+      d: `M ${points.map(({ x, y }) => `${x} ${y}`).join(' ')}`,
+      fill: 'none',
+      stroke: BLUE_DARK,
+      'stroke-width': 1,
+      'stroke-dasharray': '1,0',
+    }
+  });
 }
 
-function renderEdge(vw: Dagre.Edge, graph: Dagre.Graph): VNode {
+function renderEdgeType2(vw: Dagre.Edge, graph: Dagre.Graph): VNode {
   const edgeData: StreamGraphEdge = (<any>graph).edge(vw.v, vw.w);
   const points = edgeData.points
     .map(({x, y}) => ({ x: x + DIAGRAM_PADDING_H, y: y + DIAGRAM_PADDING_V }));
-  // Make arrow tail not touch origin stream
-  points[0].x = (points[0].x + points[1].x) * 0.5;
-  points[0].y = (points[0].y + points[1].y) * 0.5;
-  const isUpwards: boolean = points[0].y > points[1].y;
 
   return svg.g([
     svg.path({
@@ -438,14 +451,23 @@ function renderEdge(vw: Dagre.Edge, graph: Dagre.Graph): VNode {
         d: `M ${points.map(({ x, y }) => `${x} ${y}`).join(' ')}`,
         'marker-end': `url("#arrowhead${vw.v}-${vw.w}")`,
         fill: 'none',
-        stroke: '#518FFF',
+        stroke: BLUE_DARK,
         'stroke-width': 1,
         'stroke-dasharray': '1,0',
       }
     }),
-    ...renderEdgeLabel(edgeData, points[1]),
     renderArrowHead(vw),
   ]);
+}
+
+function renderEdge(vw: Dagre.Edge, graph: Dagre.Graph): VNode {
+  const orig = graph.node(vw.v) as StreamGraphNode;
+  const dest = graph.node(vw.w) as StreamGraphNode;
+  if (dest.type === 'operator') {
+    return renderEdgeType1(vw, graph);
+  } else if (orig.type === 'operator') {
+    return renderEdgeType2(vw, graph);
+  }
 }
 
 function renderGraph({graph, zap, id}: DiagramState): VNode {
@@ -455,8 +477,8 @@ function renderGraph({graph, zap, id}: DiagramState): VNode {
     height: g.height + 2 * DIAGRAM_PADDING_V,
   };
   return svg({ attrs, key: id }, [
-    ...graph.nodes().map(id => renderNode(id, graph, zap)),
     ...graph.edges().map(edge => renderEdge(edge, graph)),
+    ...graph.nodes().map(id => renderNode(id, graph, zap)),
   ]);
 }
 

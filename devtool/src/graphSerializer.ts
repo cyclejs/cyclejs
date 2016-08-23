@@ -14,7 +14,7 @@ interface InternalProducer {
 
 export interface StreamGraphNode {
   id: string;
-  type: 'source' | 'stream' | 'sink';
+  type: 'source' | 'stream' | 'sink' | 'operator';
   label?: string;
   stream?: Stream<any>;
   width: number;
@@ -36,6 +36,7 @@ export interface Zap {
 
 type Size = [number, number];
 
+const OPERATOR_NODE_SIZE: Size = [23, 10];
 const SOURCE_NODE_SIZE: Size = [23, 23];
 const COMMON_NODE_SIZE: Size = [23, 23];
 const SINK_NODE_SIZE: Size = [40, 30];
@@ -48,28 +49,28 @@ function zapSpeedToMilliseconds(zapSpeed: ZapSpeed): number {
   }
 }
 
-class StreamIdTable {
+class IdTable {
   private mutableIncrementingId: number;
-  public map: Map<Stream<any>, number>;
+  public map: Map<Object, number>;
 
   constructor() {
     this.mutableIncrementingId = 0;
     this.map = new Map<Stream<any>, number>();
   }
 
-  getId(stream: Stream<any>): string {
-    if (!this.map.has(stream)) {
+  getId(thing: Object): string {
+    if (!this.map.has(thing)) {
       const id = this.mutableIncrementingId;
-      this.map.set(stream, id);
+      this.map.set(thing, id);
       this.mutableIncrementingId += 1;
       return String(id);
     } else {
-      return String(this.map.get(stream));
+      return String(this.map.get(thing));
     }
   }
 }
 
-function makeSureNodeIsRegistered(graph: Dagre.Graph, idTable: StreamIdTable, stream: Stream<any>) {
+function makeSureNodeIsRegistered(graph: Dagre.Graph, idTable: IdTable, stream: Stream<any>) {
   if (!graph.node(idTable.getId(stream))) {
     let node: StreamGraphNode;
     if (stream['_isCycleSource']) {
@@ -94,27 +95,43 @@ function makeSureNodeIsRegistered(graph: Dagre.Graph, idTable: StreamIdTable, st
   }
 }
 
-function visitEdge(graph: Dagre.Graph, idTable: StreamIdTable, inStream: Stream<any>, outStream: Stream<any>) {
+function visitOperator(graph: Dagre.Graph, idTable: IdTable, operator: InternalProducer) {
+  const id = idTable.getId(operator);
+  if (!graph.node(id)) {
+    graph.setNode(id, {
+      id,
+      type: 'operator',
+      label: operator.type,
+      width: OPERATOR_NODE_SIZE[0],
+      height: OPERATOR_NODE_SIZE[1],
+    });
+  }
+}
+
+function visitEdge(graph: Dagre.Graph,
+                   idTable: IdTable,
+                   inStream: Stream<any>,
+                   operator: InternalProducer,
+                   outStream: Stream<any>) {
   makeSureNodeIsRegistered(graph, idTable, inStream);
   makeSureNodeIsRegistered(graph, idTable, outStream);
-  let label: string = '';
-  if (outStream._prod && typeof (<InternalProducer> outStream._prod).type === 'string') {
-    label = (<InternalProducer> outStream._prod).type;
-  }
-  graph.setEdge(idTable.getId(inStream), idTable.getId(outStream), {label});
+  graph.setEdge(idTable.getId(inStream), idTable.getId(operator), {});
+  graph.setEdge(idTable.getId(operator), idTable.getId(outStream), {});
   if (!inStream['_isCycleSource']) {
     traverse(graph, idTable, inStream);
   }
 }
 
-function traverse(graph: Dagre.Graph, idTable: StreamIdTable, outStream: Stream<any>) {
+function traverse(graph: Dagre.Graph, idTable: IdTable, outStream: Stream<any>) {
   if (outStream._prod && outStream._prod['ins']) {
     const inStream: Stream<any> = outStream._prod['ins'];
-    visitEdge(graph, idTable, inStream, outStream);
+    visitOperator(graph, idTable, outStream._prod);
+    visitEdge(graph, idTable, inStream, outStream._prod, outStream);
   } else if (outStream._prod && outStream._prod['insArr']) {
     const insArr: Array<Stream<any>> = outStream._prod['insArr'];
+    visitOperator(graph, idTable, outStream._prod);
     insArr.forEach(inStream => {
-      visitEdge(graph, idTable, inStream, outStream);
+      visitEdge(graph, idTable, inStream, outStream._prod, outStream);
     });
   }
 }
@@ -130,9 +147,9 @@ interface GraphSerializerSinks {
 }
 
 function buildGraph(sinks: Object): Dagre.Graph {
-  const idTable = new StreamIdTable();
+  const idTable = new IdTable();
   const graph = new dagre.graphlib.Graph();
-  graph.setGraph({});
+  graph.setGraph({nodesep: 60, ranksep: 20});
   for (let key in sinks) {
     if (sinks.hasOwnProperty(key)) {
       const node: StreamGraphNode = {
@@ -225,7 +242,9 @@ function zapVisit(nodeId: string, depth: number, graph: Dagre.Graph, registry: Z
     return;
   } else {
     const node: StreamGraphNode = graph.node(nodeId);
-    registry.register(nodeId, node.stream, depth);
+    if (node.type !== 'operator') {
+      registry.register(nodeId, node.stream, depth);
+    }
     const successors: Array<string> = graph['successors'](nodeId);
     successors.forEach(id => {
       zapVisit(id, depth + 1, graph, registry);
