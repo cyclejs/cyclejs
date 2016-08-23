@@ -44,7 +44,7 @@ const SINK_NODE_SIZE: Size = [40, 30];
 function zapSpeedToMilliseconds(zapSpeed: ZapSpeed): number {
   switch (zapSpeed) {
     case 'slow': return 1100;
-    case 'normal': return 70;
+    case 'normal': return 80;
     case 'fast': return 16;
   }
 }
@@ -229,7 +229,7 @@ function setupZapping([graph, zapSpeed]: [Dagre.Graph, ZapSpeed]): Diagram {
     .compose(flattenSequentially);
 
   const stopZap$ = actualZap$
-    .mapTo(null).compose(debounce<Zap>(zapSpeedToMilliseconds(zapSpeed) * 2))
+    .mapTo(null).compose(debounce<Zap>(200))
     .startWith(null);
 
   const zap$ = xs.merge(actualZap$, stopZap$)
