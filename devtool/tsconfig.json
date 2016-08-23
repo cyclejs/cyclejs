@@ -20,6 +20,6 @@
      "src/contentScript.ts",
      "src/graphSerializer.ts",
      "src/launcher.ts",
-     "src/panel.ts"
+     "src/panel/index.ts"
    ]
 }

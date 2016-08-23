@@ -6,7 +6,7 @@ import debounce from 'xstream/extra/debounce';
 import flattenSequentially from 'xstream/extra/flattenSequentially';
 import * as dagre from 'dagre';
 import * as CircularJSON from 'circular-json';
-import {ZapSpeed} from './panel';
+import {ZapSpeed} from './panel/model';
 
 interface InternalProducer {
   type?: string;
@@ -136,16 +136,6 @@ function traverse(graph: Dagre.Graph, idTable: IdTable, outStream: Stream<any>) 
   }
 }
 
-interface GraphSerializerSources {
-  id: Stream<string>;
-  DebugSinks: Stream<Object>;
-  Panel: Stream<string>;
-}
-
-interface GraphSerializerSinks {
-  graph: Stream<string>;
-}
-
 function buildGraph(sinks: Object): Dagre.Graph {
   const idTable = new IdTable();
   const graph = new dagre.graphlib.Graph();
@@ -267,6 +257,16 @@ function makeObjectifyGraph(id$: Stream<string>) {
         });
       }).flatten();
   }
+}
+
+interface GraphSerializerSources {
+  id: Stream<string>;
+  DebugSinks: Stream<Object>;
+  Panel: Stream<string>;
+}
+
+interface GraphSerializerSinks {
+  graph: Stream<string>;
 }
 
 function GraphSerializer(sources: GraphSerializerSources): GraphSerializerSinks {
