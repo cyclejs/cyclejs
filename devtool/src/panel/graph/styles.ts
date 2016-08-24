@@ -9,6 +9,7 @@ import styleSheet, {
   RED_LIGHT,
   YELLOW_DARK,
   YELLOW_LIGHT,
+  FONT_FAMILY,
   FONT_SIZE_NORMAL,
 } from '../styles';
 
@@ -30,13 +31,13 @@ export default {
   }),
 
   sourceOrSinkNodeNameStyle: styleSheet.registerStyle({
-    'font-family': 'sans-serif',
+    'font-family': FONT_FAMILY,
     'font-size': FONT_SIZE_NORMAL,
     'fill': GRAY_DARK,
   }),
 
   sourceOrSinkNodeLabelStyle: styleSheet.registerStyle({
-    'font-family': 'sans-serif',
+    'font-family': FONT_FAMILY,
     'font-size': FONT_SIZE_NORMAL,
     'fill': GRAY_DARK,
     'opacity': '0',
@@ -106,7 +107,7 @@ export default {
   }),
 
   commonNodeLabelStyle: styleSheet.registerStyle({
-    'font-family': 'sans-serif',
+    'font-family': FONT_FAMILY,
     'font-size': FONT_SIZE_NORMAL,
     'fill': BLUE_DARK,
     'opacity': '0',
@@ -114,21 +115,21 @@ export default {
   }),
 
   nodeLabelZapNextStyle: styleSheet.registerStyle({
-    'font-family': 'sans-serif',
+    'font-family': FONT_FAMILY,
     'font-size': FONT_SIZE_NORMAL,
     'fill': GREEN_DARK,
     'opacity': '1',
   }),
 
   nodeLabelZapErrorStyle: styleSheet.registerStyle({
-    'font-family': 'sans-serif',
+    'font-family': FONT_FAMILY,
     'font-size': FONT_SIZE_NORMAL,
     'fill': RED_DARK,
     'opacity': '1',
   }),
 
   operatorNodeStyle: styleSheet.registerStyle({
-    'font-family': 'sans-serif',
+    'font-family': FONT_FAMILY,
     'font-size': FONT_SIZE_NORMAL,
     'fill': BLUE_DARK,
     'tspan': {

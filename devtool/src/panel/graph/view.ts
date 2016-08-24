@@ -63,8 +63,8 @@ function renderSourceOrSinkNode(node: StreamGraphNode, zaps: Array<Zap>) {
       const rectElem: Element = <Element> gElem.childNodes[0];
       const textElem: Element = <Element> gElem.childNodes[1];
       const tspanElem: Element = <Element> textElem.childNodes[0];
-      tspanElem.setAttribute('x', String(DIAGRAM_PADDING_H + node.x - textElem.clientWidth * 0.5));
-      tspanElem.setAttribute('y', String(DIAGRAM_PADDING_V + node.y + textElem.clientHeight * 0.5));
+      tspanElem.setAttribute('x', String(DIAGRAM_PADDING_H + node.x - textElem.clientWidth * 0.5 - P * 0.4));
+      tspanElem.setAttribute('y', String(DIAGRAM_PADDING_V + node.y + textElem.clientHeight * 0.5 - P * 0.5));
       rectElem.setAttribute('width', String(textElem.clientWidth + 2 * P));
       rectElem.setAttribute('height', String(textElem.clientHeight + 2 * P));
       rectElem.setAttribute('x', String(DIAGRAM_PADDING_H + node.x - textElem.clientWidth * 0.5 - P));

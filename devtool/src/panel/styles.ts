@@ -22,6 +22,7 @@ export const YELLOW_LIGHT = '#FFEE6D';
 
 // Dimensions
 export const FONT_SIZE_NORMAL = '14px';
+export const FONT_FAMILY = 'Source Sans Pro, sans-serif';
 
 export const devToolStyle = styleSheet.registerStyle({
   'padding-top': '40px',

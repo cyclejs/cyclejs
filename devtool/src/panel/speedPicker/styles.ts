@@ -1,4 +1,4 @@
-import styleSheet, {GRAY, GRAY_LIGHTER, GRAY_LIGHT, GREEN_DARK} from '../styles';
+import styleSheet, {GRAY, GRAY_LIGHTER, GRAY_LIGHT, GREEN_DARK, FONT_FAMILY} from '../styles';
 
 const SPEED_PICKER_HEIGHT = '22px';
 const SPEED_PICKER_BUTTON_WIDTH = '35px';
@@ -22,7 +22,7 @@ export default {
   }),
 
   speedPickerLabelStyle: styleSheet.registerStyle({
-    'font-family': 'sans-serif',
+    'font-family': FONT_FAMILY,
     'font-size': '12px',
     'line-height': SPEED_PICKER_HEIGHT,
     'color': GRAY,
