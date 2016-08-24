@@ -134,6 +134,10 @@ function traverse(graph: Dagre.Graph, idTable: IdTable, outStream: Stream<any>) 
     insArr.forEach(inStream => {
       visitEdge(graph, idTable, inStream, outStream._prod, outStream);
     });
+  } else if (outStream._prod) {
+    visitOperator(graph, idTable, outStream._prod);
+    makeSureNodeIsRegistered(graph, idTable, outStream);
+    graph.setEdge(idTable.getId(outStream._prod), idTable.getId(outStream), {});
   }
 }
 
