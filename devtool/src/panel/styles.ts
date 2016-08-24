@@ -28,4 +28,23 @@ export const devToolStyle = styleSheet.registerStyle({
   'padding-top': '40px',
 });
 
+export const invalidStateStyle = styleSheet.registerStyle({
+  'font-family': FONT_FAMILY,
+  'p': {
+    'font-size': FONT_SIZE_NORMAL,
+  },
+  'li': {
+    'font-size': FONT_SIZE_NORMAL,
+  },
+  'pre': {
+    'display': 'inline-block',
+    'font-size': FONT_SIZE_NORMAL,
+  },
+  'a': {
+    'color': '#409B9E',
+    'text-decoration': 'inherit',
+    'border-bottom': '1px dotted #409B9E',
+  }
+});
+
 export default styleSheet;

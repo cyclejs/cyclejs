@@ -270,19 +270,38 @@ interface GraphSerializerSinks {
   graph: Stream<string>;
 }
 
+function sinksAreXStream(sinks: Object): boolean {
+  if (sinks === null) {
+    return false;
+  }
+  for (let key in sinks) {
+    if (sinks.hasOwnProperty(key)) {
+      if (sinks[key] && typeof sinks[key].setDebugListener !== 'function') {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 function GraphSerializer(sources: GraphSerializerSources): GraphSerializerSinks {
   let zapSpeed$ = (sources.Panel as Stream<ZapSpeed>).startWith('normal');
 
   let graph$ = sources.DebugSinks
+    .filter(sinksAreXStream)
     .map(buildGraph);
 
   let serializedGraph$ = xs.combine(graph$, zapSpeed$)
     .map(setupZapping)
     .compose(makeObjectifyGraph(sources.id))
-    .map(object => CircularJSON.stringify(object, null, '  '));
+    .map(object => CircularJSON.stringify(object));
+
+  let invalid$ = sources.DebugSinks
+    .filter(x => !sinksAreXStream(x))
+    .mapTo('');
 
   return {
-    graph: serializedGraph$,
+    graph: xs.merge(serializedGraph$, invalid$),
   };
 }
 
@@ -330,5 +349,8 @@ var intervalID = setInterval(function () {
   if (window['Cyclejs'] && window['Cyclejs'].sinks) {
     clearInterval(intervalID);
     startGraphSerializer(window['Cyclejs'].sinks);
+  } else {
+    clearInterval(intervalID);
+    startGraphSerializer(null);
   }
 }, 50);

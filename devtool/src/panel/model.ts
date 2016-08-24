@@ -15,6 +15,7 @@ export type ZapSpeed = 'slow' | 'normal' | 'fast';
 
 export default function model(serializedGraph$: Stream<string>, speed$: Stream<ZapSpeed>): Stream<DiagramState> {
   const object$ = serializedGraph$
+    .filter(str => str.length > 0)
     .map(serializedObject => CircularJSON.parse(serializedObject))
 
   const id$ = object$
@@ -38,5 +39,9 @@ export default function model(serializedGraph$: Stream<string>, speed$: Stream<Z
   const diagramState$ = xs.combine(graphAndZap$, sanitizedSpeed$)
     .map(([{id, graph, zaps}, speed]) => ({ id, graph, zaps, speed } as DiagramState));
 
-  return diagramState$;
+  const invalidState$ = serializedGraph$
+    .filter(str => str.length === 0)
+    .mapTo(null as DiagramState);
+
+  return xs.merge(diagramState$, invalidState$);
 }
