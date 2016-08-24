@@ -7,9 +7,8 @@ export const DIAGRAM_PADDING_H = 30;
 export const DIAGRAM_PADDING_V = 5;
 
 function renderNodeLabel(node: StreamGraphNode, zap: Zap, style: string): VNode {
-  const isZap: boolean = zap.id === node.id;
   let label = '';
-  if (isZap) {
+  if (zap) {
     // MUTATION!
     if (Array.isArray(zap.value)) {
       const cappedArr = (zap.value as Array<any>).slice(0, 4).map(() => '\u25A1');
@@ -30,16 +29,16 @@ function renderNodeLabel(node: StreamGraphNode, zap: Zap, style: string): VNode 
   function setTSpanContent(vnode: VNode) {
     const textElem: Element = <Element> vnode.elm;
     const tspanElem: Element = <Element> textElem.childNodes[0];
-    if (label && !(isZap && zap.type === 'complete')) {
+    if (label && !(zap && zap.type === 'complete')) {
       tspanElem.innerHTML = label;
     }
   }
 
   return svg.text({
     class: {
-      [style]: !isZap || (isZap && zap.type === 'complete'),
-      [styles.nodeLabelZapNextStyle]: isZap && zap.type === 'next',
-      [styles.nodeLabelZapErrorStyle]: isZap && zap.type === 'error',
+      [style]: !zap || (zap && zap.type === 'complete'),
+      [styles.nodeLabelZapNextStyle]: zap && zap.type === 'next',
+      [styles.nodeLabelZapErrorStyle]: zap && zap.type === 'error',
     },
     attrs: {
       x: DIAGRAM_PADDING_H + node.x + node.width * 0.5 + 10,
@@ -54,8 +53,9 @@ function renderNodeLabel(node: StreamGraphNode, zap: Zap, style: string): VNode 
   ]);
 }
 
-function renderSourceOrSinkNode(node: StreamGraphNode, zap: Zap) {
-  const isZap: boolean = zap.id === node.id;
+function renderSourceOrSinkNode(node: StreamGraphNode, zaps: Array<Zap>) {
+  const index = zaps.map(zap => zap.id).indexOf(node.id);
+  const zap = index === -1 ? null : zaps[index];
   const P = 5; // text padding
   const hook = {
     insert(vnode: VNode) {
@@ -75,10 +75,10 @@ function renderSourceOrSinkNode(node: StreamGraphNode, zap: Zap) {
   return svg.g({ hook }, [
     svg.rect({
       class: {
-        [styles.sourceOrSinkNodeStyle]: !isZap,
-        [styles.nodeZapNextStyle]: isZap && zap.type === 'next',
-        [styles.nodeZapErrorStyle]: isZap && zap.type === 'error',
-        [styles.nodeZapCompleteStyle]: isZap && zap.type === 'complete',
+        [styles.sourceOrSinkNodeStyle]: !zap,
+        [styles.nodeZapNextStyle]: zap && zap.type === 'next',
+        [styles.nodeZapErrorStyle]: zap && zap.type === 'error',
+        [styles.nodeZapCompleteStyle]: zap && zap.type === 'complete',
       },
       attrs: {
         x: node.x - node.width * 0.5 + DIAGRAM_PADDING_H,
@@ -96,7 +96,7 @@ function renderSourceOrSinkNode(node: StreamGraphNode, zap: Zap) {
   ]);
 }
 
-function renderOperatorNode(node: StreamGraphNode, zap: Zap) {
+function renderOperatorNode(node: StreamGraphNode) {
   const hook = {
     insert(vnode: VNode) {
       const textElem: Element = vnode.elm as Element;
@@ -111,16 +111,17 @@ function renderOperatorNode(node: StreamGraphNode, zap: Zap) {
   ]);
 }
 
-function renderCommonNode(node: StreamGraphNode, zap: Zap): VNode {
-  const isZap: boolean = zap.id === node.id;
+function renderCommonNode(node: StreamGraphNode, zaps: Array<Zap>): VNode {
+  const index = zaps.map(zap => zap.id).indexOf(node.id);
+  const zap = index === -1 ? null : zaps[index];
 
   return svg.g([
     svg.rect({
       class: {
-        [styles.activeNodeStyle]: !isZap,
-        [styles.nodeZapNextStyle]: isZap && zap.type === 'next',
-        [styles.nodeZapErrorStyle]: isZap && zap.type === 'error',
-        [styles.nodeZapCompleteStyle]: isZap && zap.type === 'complete',
+        [styles.activeNodeStyle]: !zap,
+        [styles.nodeZapNextStyle]: zap && zap.type === 'next',
+        [styles.nodeZapErrorStyle]: zap && zap.type === 'error',
+        [styles.nodeZapCompleteStyle]: zap && zap.type === 'complete',
       },
       attrs: {
         x: node.x - node.width * 0.5 + DIAGRAM_PADDING_H,
@@ -135,11 +136,11 @@ function renderCommonNode(node: StreamGraphNode, zap: Zap): VNode {
           const rectElem: Element = <Element>newVNode.elm;
           const inactiveAttr = 'data-inactive-state';
           const inactiveAttrValue = rectElem.getAttribute(inactiveAttr);
-          if (isZap && zap.type === 'complete') {
+          if (zap && zap.type === 'complete') {
             rectElem.setAttribute(inactiveAttr, 'complete');
-          } else if (isZap && zap.type === 'error') {
+          } else if (zap && zap.type === 'error') {
             rectElem.setAttribute(inactiveAttr, 'error');
-          } else if (isZap && zap.type === 'next' && inactiveAttrValue) {
+          } else if (zap && zap.type === 'next' && inactiveAttrValue) {
             rectElem.removeAttribute(inactiveAttr);
             rectElem.setAttribute('class', styles.nodeZapNextStyle);
           } else if (inactiveAttrValue === 'complete') {
@@ -154,14 +155,14 @@ function renderCommonNode(node: StreamGraphNode, zap: Zap): VNode {
   ]);
 }
 
-function renderNode(id: string, graph: Dagre.Graph, zap: Zap): VNode {
+function renderNode(id: string, graph: Dagre.Graph, zaps: Array<Zap>): VNode {
   const node: StreamGraphNode = graph.node(id);
   if (node.type === 'source' || node.type === 'sink') {
-    return renderSourceOrSinkNode(node, zap);
+    return renderSourceOrSinkNode(node, zaps);
   } else if (node.type === 'operator') {
-    return renderOperatorNode(node, zap);
+    return renderOperatorNode(node);
   } else {
-    return renderCommonNode(node, zap);
+    return renderCommonNode(node, zaps);
   }
 }
 
@@ -243,7 +244,7 @@ function renderEdge(vw: Dagre.Edge, graph: Dagre.Graph): VNode {
   }
 }
 
-export function renderGraph(graph: Dagre.Graph, zap: Zap, id: string): VNode {
+export function renderGraph(graph: Dagre.Graph, zaps: Array<Zap>, id: string): VNode {
   const g = typeof graph['graph'] === 'function' ? graph['graph']() : {};
   const attrs = {
     width: g.width + 2 * DIAGRAM_PADDING_H + 100,
@@ -251,6 +252,6 @@ export function renderGraph(graph: Dagre.Graph, zap: Zap, id: string): VNode {
   };
   return svg({ attrs, key: id }, [
     ...graph.edges().map(edge => renderEdge(edge, graph)),
-    ...graph.nodes().map(id => renderNode(id, graph, zap)),
+    ...graph.nodes().map(id => renderNode(id, graph, zaps)),
   ]);
 }

@@ -7,10 +7,10 @@ import {renderGraph} from './graph/view';
 
 export default function view(diagramState$: Stream<DiagramState>): Stream<VNode> {
   return diagramState$
-    .map(({speed, graph, id, zap}) =>
+    .map(({speed, graph, id, zaps}) =>
       div(`.devTool.${devToolStyle}`, [
         renderSpeedPicker(speed),
-        renderGraph(graph, zap, id)
+        renderGraph(graph, zaps, id)
       ])
     );
 }

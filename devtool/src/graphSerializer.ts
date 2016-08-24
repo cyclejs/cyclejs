@@ -7,6 +7,7 @@ import flattenSequentially from 'xstream/extra/flattenSequentially';
 import * as dagre from 'dagre';
 import * as CircularJSON from 'circular-json';
 import {ZapSpeed} from './panel/model';
+import timeSpread from './utils/timeSpread';
 
 interface InternalProducer {
   type?: string;
@@ -160,7 +161,7 @@ function buildGraph(sinks: Object): Dagre.Graph {
 
 interface Diagram {
   graph: Dagre.Graph;
-  zap$: Stream<Zap>;
+  zaps$: Stream<Array<Zap>>;
 }
 
 interface ZapRecord {
@@ -214,17 +215,17 @@ function setupZapping([graph, zapSpeed]: [Dagre.Graph, ZapSpeed]): Diagram {
     stop() {}
   });
 
-  const actualZap$ = rawZap$
-    .map(zap => xs.of(zap).compose(delay<Zap>(zapSpeedToMilliseconds(zapSpeed))))
-    .compose(flattenSequentially);
+  const actualZaps$ = rawZap$.compose(
+    timeSpread<Zap>(zapSpeedToMilliseconds(zapSpeed))
+  );
 
-  const stopZap$ = actualZap$
-    .mapTo(null).compose(debounce<Zap>(200))
-    .startWith(null);
+  const stopZaps$ = actualZaps$
+    .mapTo([]).compose(debounce<Array<Zap>>(200))
+    .startWith([]);
 
-  const zap$ = xs.merge(actualZap$, stopZap$)
+  const zaps$ = xs.merge(actualZaps$, stopZaps$)
 
-  return { graph, zap$ };
+  return { graph, zaps$ };
 }
 
 function zapVisit(nodeId: string, depth: number, graph: Dagre.Graph, registry: ZapRegistry) {
@@ -245,13 +246,13 @@ function zapVisit(nodeId: string, depth: number, graph: Dagre.Graph, registry: Z
 function makeObjectifyGraph(id$: Stream<string>) {
   return function objectifyGraph(diagram$: Stream<Diagram>): Stream<Object> {
     return xs.combine(diagram$, id$)
-      .map(([{graph, zap$}, id]) => {
+      .map(([{graph, zaps$}, id]) => {
         const object = dagre.graphlib['json'].write(graph);
         for (let i = 0, N = object.nodes.length; i < N; i++) {
           delete object.nodes[i].stream;
         }
-        return zap$.map(zap => {
-          object.zap = zap;
+        return zaps$.map(zaps => {
+          object.zaps = zaps;
           object.id = id;
           return object;
         });

@@ -20,7 +20,10 @@ interface PanelSinks {
 function Panel(sources: PanelSources): PanelSinks {
   const speed$ = intent(sources.DOM);
   const diagramState$ = model(sources.graph, speed$);
-  const vdom$ = view(diagramState$);
+  const vdom$ = view(diagramState$).replaceError(err => {
+    alert(err);
+    return xs.empty();
+  })
 
   return {
     DOM: vdom$,
