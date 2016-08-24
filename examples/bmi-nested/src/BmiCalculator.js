@@ -1,38 +1,40 @@
 import xs from 'xstream';
 import {h2, div} from '@cycle/dom';
-import isolate from '@cycle/isolate';
 import LabeledSlider from './LabeledSlider';
 
-function BmiCalculator({DOM}) {
-  let WeightSlider = isolate(LabeledSlider);
-  let HeightSlider = isolate(LabeledSlider);
+function model(weightSliderValue$, heightSliderValue$) {
+  return xs.combine(weightSliderValue$, heightSliderValue$)
+    .map(([weight, height]) => {
+      let heightMeters = height * 0.01;
+      let bmi = Math.round(weight / (heightMeters * heightMeters));
+      return bmi;
+    });
+}
 
+function view(bmi$, weightSliderDOM, heightSliderDOM) {
+  return xs.combine(bmi$, weightSliderDOM, heightSliderDOM)
+    .map(([bmi, weightVTree, heightVTree]) =>
+      div([
+        weightVTree,
+        heightVTree,
+        h2(`BMI is ${bmi}`)
+      ])
+    );
+}
+
+function BmiCalculator({DOM}) {
   let weightProps$ = xs.of({
     label: 'Weight', unit: 'kg', min: 40, initial: 70, max: 140
   });
   let heightProps$ = xs.of({
     label: 'Height', unit: 'cm', min: 140, initial: 170, max: 210
   });
-
-  let weightSlider = WeightSlider({DOM, props$: weightProps$});
-  let heightSlider = HeightSlider({DOM, props$: heightProps$});
-
-  let bmi$ = xs.combine(weightSlider.value$, heightSlider.value$)
-    .map(([weight, height]) => {
-      let heightMeters = height * 0.01;
-      let bmi = Math.round(weight / (heightMeters * heightMeters));
-      return bmi;
-    });
-
+  let weightSlider = LabeledSlider({DOM, props$: weightProps$});
+  let heightSlider = LabeledSlider({DOM, props$: heightProps$});
+  let bmi$ = model(weightSlider.value, heightSlider.value);
+  let vtree$ = view(bmi$, weightSlider.DOM, heightSlider.DOM);
   return {
-    DOM: xs.combine(bmi$, weightSlider.DOM, heightSlider.DOM)
-      .map(([bmi, weightVTree, heightVTree]) =>
-        div([
-          weightVTree,
-          heightVTree,
-          h2('BMI is ' + bmi)
-        ])
-      )
+      DOM: vtree$
   };
 }
 
