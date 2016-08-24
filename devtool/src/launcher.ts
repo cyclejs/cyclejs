@@ -1,3 +1,5 @@
+import {ZapSpeed} from './panel/model';
+
 // Create a panel
 chrome.devtools.panels.create('Cycle.js', '128.png', 'panel.html', function(extensionPanel) {
   var portToBackground = chrome.runtime.connect({name: 'cyclejs'});
@@ -12,6 +14,9 @@ chrome.devtools.panels.create('Cycle.js', '128.png', 'panel.html', function(exte
       // Setup PANEL=>GRAPH SERIALIZER communication
       panelWindow['postMessageToGraphSerializer'] = function postMessageToGraphSerializer(msg: string) {
         // alert('LAUNCHER is relaying message from panel to graphSerializer: ' + msg);
+        if (msg === 'slow' || msg === 'normal' || msg === 'fast') {
+          sessionSettings.zapSpeed = msg as ZapSpeed;
+        }
         chrome.devtools.inspectedWindow.eval(`window.receivePanelMessage('${msg}');`);
       }
 
@@ -22,17 +27,32 @@ chrome.devtools.panels.create('Cycle.js', '128.png', 'panel.html', function(exte
           panelWindow['postMessage']({__fromCyclejsDevTool: true, data: message.data}, '*');
         } else if (message.type === 'tabLoading'
         && message.tabId === chrome.devtools.inspectedWindow.tabId) {
-          chrome.devtools.inspectedWindow.reload(
-            { injectedScript: code as any as boolean } as chrome.devtools.inspectedWindow.ReloadOptions
-          );
+          const settings = `
+            window.CyclejsDevToolSettings = ${JSON.stringify(sessionSettings)};
+          `;
+          chrome.devtools.inspectedWindow.reload({
+            injectedScript: `${settings} ${code}` as any as boolean
+          } as chrome.devtools.inspectedWindow.ReloadOptions);
         }
       });
     }
 
     // alert('LAUNCHER will eval the graphSerializer source code')
-    chrome.devtools.inspectedWindow.eval(loadGraphSerializerCode());
+    const settings = `
+      window.CyclejsDevToolSettings = ${JSON.stringify(sessionSettings)};
+    `;
+    chrome.devtools.inspectedWindow.eval(settings + loadGraphSerializerCode());
   });
 });
+
+export interface SessionSettings {
+  zapSpeed: ZapSpeed;
+}
+
+// Settings that last only while the DevTool is open.
+let sessionSettings: SessionSettings = {
+  zapSpeed: 'normal',
+};
 
 let code: string = '';
 

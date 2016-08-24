@@ -31,12 +31,7 @@ export default function model(serializedGraph$: Stream<string>, speed$: Stream<Z
       return { graph, zaps, id };
     });
 
-  const sanitizedSpeed$ = xs.merge(
-    speed$.startWith('normal' as ZapSpeed),
-    id$.mapTo('normal' as ZapSpeed)
-  );
-
-  const diagramState$ = xs.combine(graphAndZap$, sanitizedSpeed$)
+  const diagramState$ = xs.combine(graphAndZap$, speed$.startWith('normal'))
     .map(([{id, graph, zaps}, speed]) => ({ id, graph, zaps, speed } as DiagramState));
 
   const invalidState$ = serializedGraph$

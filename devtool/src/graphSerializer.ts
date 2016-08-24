@@ -8,6 +8,7 @@ import * as dagre from 'dagre';
 import * as CircularJSON from 'circular-json';
 import {ZapSpeed} from './panel/model';
 import timeSpread from './utils/timeSpread';
+import {SessionSettings} from './launcher';
 
 interface InternalProducer {
   type?: string;
@@ -264,16 +265,6 @@ function makeObjectifyGraph(id$: Stream<string>) {
   }
 }
 
-interface GraphSerializerSources {
-  id: Stream<string>;
-  DebugSinks: Stream<Object>;
-  Panel: Stream<string>;
-}
-
-interface GraphSerializerSinks {
-  graph: Stream<string>;
-}
-
 function sinksAreXStream(sinks: Object): boolean {
   if (sinks === null) {
     return false;
@@ -288,8 +279,21 @@ function sinksAreXStream(sinks: Object): boolean {
   return true;
 }
 
+interface GraphSerializerSources {
+  id: Stream<string>;
+  DebugSinks: Stream<Object>;
+  FromPanel: Stream<string>;
+  Settings: Stream<SessionSettings>;
+}
+
+interface GraphSerializerSinks {
+  graph: Stream<string>;
+}
+
 function GraphSerializer(sources: GraphSerializerSources): GraphSerializerSinks {
-  let zapSpeed$ = (sources.Panel as Stream<ZapSpeed>).startWith('normal');
+  let zapSpeed$ = sources.Settings.map(settings =>
+    (sources.FromPanel as Stream<ZapSpeed>).startWith(settings.zapSpeed)
+  ).flatten();
 
   let graph$ = sources.DebugSinks
     .filter(sinksAreXStream)
@@ -327,7 +331,8 @@ function startGraphSerializer(appSinks: Object) {
   const serializerSources: GraphSerializerSources = {
     id: xs.of(`graph-${Math.round(Math.random()*1000000000)}`),
     DebugSinks: xs.of(appSinks),
-    Panel: panelMessage$,
+    FromPanel: panelMessage$,
+    Settings: xs.of<SessionSettings>(window['CyclejsDevToolSettings']),
   };
   const serializerSinks = GraphSerializer(serializerSources);
 
