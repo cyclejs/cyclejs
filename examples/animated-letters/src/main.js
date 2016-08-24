@@ -25,7 +25,7 @@ function model(action$) {
 }
 
 function determineDeltaPoints(state$) {
-  return state$.compose(pairwise()).map(([before, after]) => {
+  return state$.compose(pairwise).map(([before, after]) => {
     const addedPoints = difference(after, before).map(key =>
       ({key, value: 0, target: 1})
     )
