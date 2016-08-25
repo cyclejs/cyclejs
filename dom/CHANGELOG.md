@@ -1,3 +1,13 @@
+<a name="12.2.2"></a>
+## 12.2.2 (2016-08-25)
+
+
+### Bug Fixes
+
+* **dom:** slightly faster IsolateModule ([0126d2e](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/0126d2e))
+
+
+
 <a name="12.2.1"></a>
 ## 12.2.1 (2016-08-21)
 
