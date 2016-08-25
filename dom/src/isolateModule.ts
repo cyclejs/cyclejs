@@ -21,16 +21,10 @@ export class IsolateModule {
 
   isIsolatedElement(elm: Element): string | boolean {
     let iterator = this.isolatedElements.entries();
-    let hasNext = true;
-    while (hasNext) {
-      try {
-        const result = iterator.next();
-        const [scope, element] = result.value;
-        if (elm === element) {
-          return scope;
-        }
-      } catch (err) {
-        hasNext = false;
+    for (let result = iterator.next(); !!result.value; result = iterator.next()) {
+      const [scope, element] = result.value;
+      if (elm === element) {
+        return scope;
       }
     }
     return false;
