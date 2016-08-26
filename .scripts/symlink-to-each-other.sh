@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IFS=$'\n' read -d '' -r -a packages <$(dirname $0)/NPM_PACKAGES
+IFS=$'\n' read -d '' -r -a packages <$(dirname $0)/RELEASABLE_PACKAGES
 
 for d in "${packages[@]}"; do
   echo "> ($d)";

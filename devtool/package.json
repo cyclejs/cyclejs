@@ -28,10 +28,11 @@
     "dist": "mkdir -p dist && npm install && npm run lib && npm run dist-graphSerializer && npm run dist-panel && npm run copy-ready-src && npm run zip",
     "readme": ":",
     "preversion": "npm test",
-    "version": "npm run dist && npm run readme",
+    "version": "./.scripts/update-manifest.sh && npm run dist && npm run readme",
     "postversion": "git add -A && git commit -m \"release(${PWD##*/}): v$(cat package.json | ../node_modules/.bin/jase version)\" && git push origin master",
     "release-patch": "npm --no-git-tag-version version patch",
     "release-minor": "npm --no-git-tag-version version minor",
-    "release-major": "npm --no-git-tag-version version major"
+    "release-major": "npm --no-git-tag-version version major",
+    "changelog": "node ../.scripts/update-changelogs.js ${PWD##*/}"
   }
 }
