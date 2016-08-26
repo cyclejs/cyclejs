@@ -10,7 +10,7 @@ window.addEventListener('message', function (evt) {
   }
 });
 
-document.addEventListener('CyclejsDevToolEvent', function (evt) {
+document.addEventListener('CyclejsDevToolEvent', function (evt: CustomEvent) {
   // alert('CONTENT SCRIPT got CyclejsDevToolEvent, detail: ' + evt.detail);
   // Send to BACKGROUND
   chrome.runtime.sendMessage(evt.detail);

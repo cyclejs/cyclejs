@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "@cycle/base": "npm:@cycle/base"
+  },
+  "devDependencies": {},
+  "globalDependencies": {
+    "chrome": "registry:dt/chrome#0.0.0+20160724063844",
+    "circular-json": "registry:dt/circular-json#0.1.6+20160316155526",
+    "dagre": "registry:dt/dagre#0.7.0+20160505164908",
+    "es6-shim": "github:DefinitelyTyped/DefinitelyTyped/es6-shim/es6-shim.d.ts#6697d6f7dadbf5773cb40ecda35a76027e0783b2",
+    "filesystem": "registry:dt/filesystem#0.0.0+20160316155526",
+    "filewriter": "registry:dt/filewriter#0.0.0+20160316155526",
+    "webrtc/mediastream": "registry:dt/webrtc/mediastream#0.0.0+20160317120654"
+  }
+}

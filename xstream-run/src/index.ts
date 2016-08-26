@@ -35,7 +35,10 @@ import XStreamAdapter from '@cycle/xstream-adapter';
  */
 export function run<Sources, Sinks>(main: (sources: Sources) => Sinks,
                                     drivers: {[name: string]: Function}): DisposeFunction {
-  const {run} = CycleBase(main, drivers, {streamAdapter: XStreamAdapter});
+  const {run, sinks} = CycleBase(main, drivers, {streamAdapter: XStreamAdapter});
+  if (typeof window !== 'undefined' && window['CyclejsDevTool_startGraphSerializer']) {
+    window['CyclejsDevTool_startGraphSerializer'](sinks);
+  }
   return run();
 }
 
@@ -70,7 +73,11 @@ export function run<Sources, Sinks>(main: (sources: Sources) => Sinks,
 const Cycle: CycleSetup = <CycleSetup>
   function <Sources, Sinks>(main: (sources: Sources) => Sinks,
                             drivers: {[name: string]: Function}): CycleExecution<Sources, Sinks> {
-    return CycleBase(main, drivers, {streamAdapter: XStreamAdapter});
+    const out = CycleBase(main, drivers, {streamAdapter: XStreamAdapter});
+    if (typeof window !== 'undefined' && window['CyclejsDevTool_startGraphSerializer']) {
+      window['CyclejsDevTool_startGraphSerializer'](out.sinks);
+    }
+    return out;
   };
 
 Cycle.run = run;

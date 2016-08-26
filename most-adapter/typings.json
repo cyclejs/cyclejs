@@ -1,3 +1,6 @@
 {
-  "name": "@cycle/most-adapter"
+  "name": "@cycle/most-adapter",
+  "globalDependencies": {
+    "es6-shim": "github:DefinitelyTyped/DefinitelyTyped/es6-shim/es6-shim.d.ts#6697d6f7dadbf5773cb40ecda35a76027e0783b2"
+  }
 }

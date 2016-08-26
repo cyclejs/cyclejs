@@ -1,3 +1,43 @@
+<a name="12.2.2"></a>
+## 12.2.2 (2016-08-25)
+
+
+### Bug Fixes
+
+* **dom:** slightly faster IsolateModule ([0126d2e](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/0126d2e))
+
+
+
+<a name="12.2.1"></a>
+## 12.2.1 (2016-08-21)
+
+
+### Bug Fixes
+
+* **dom:** use a fixed major version of xstream-adapter ([549180b](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/549180b))
+
+
+
+<a name="12.2.0"></a>
+# 12.2.0 (2016-08-21)
+
+
+### Features
+
+* **dom:** support the Chrome DevTool to distinguish source streams ([053718c](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/053718c))
+
+
+
+<a name="12.1.0"></a>
+# 12.1.0 (2016-08-14)
+
+
+### Features
+
+* **dom:** add support for selecting `document` and `body` ([93bd3c4](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/93bd3c4))
+
+
+
 <a name="12.0.3"></a>
 ## 12.0.3 (2016-08-01)
 

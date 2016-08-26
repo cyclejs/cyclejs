@@ -150,6 +150,23 @@ describe('DOM Rendering', function () {
     dispose = run();
   });
 
+  it('should have DevTools flag in elements source stream', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.of(h2('.value-over-time', 'Hello test'))
+          .merge(Rx.Observable.never())
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    const element$ = sources.DOM.select(':root').elements();
+    assert.strictEqual(element$._isCycleSource, 'DOM');
+    done();
+  });
+
   it('should allow snabbdom Thunks in the VTree', function (done) {
     function renderThunk(greeting) {
       return h4('Constantly ' + greeting)

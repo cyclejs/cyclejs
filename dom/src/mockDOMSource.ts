@@ -1,4 +1,4 @@
-import {StreamAdapter} from '@cycle/base';
+import {StreamAdapter, DevToolEnabledSource} from '@cycle/base';
 import {VNode} from './interfaces';
 import xsSA from '@cycle/xstream-adapter';
 import {DOMSource, EventsFnOptions} from './DOMSource';
@@ -28,7 +28,9 @@ export class MockedDOMSource implements DOMSource {
   }
 
   public elements(): any {
-    return this._elements;
+    const out: DevToolEnabledSource = this._elements;
+    out._isCycleSource = 'MockedDOM';
+    return out;
   }
 
   public events(eventType: string, options: EventsFnOptions): any {
@@ -38,10 +40,17 @@ export class MockedDOMSource implements DOMSource {
     for (let i = 0; i < keysLen; i++) {
       const key = keys[i];
       if (key === eventType) {
-        return mockConfig[key];
+        const out: DevToolEnabledSource = mockConfig[key];
+        out._isCycleSource = 'MockedDOM';
+        return out;
       }
     }
-    return this._streamAdapter.adapt(xs.empty(), xsSA.streamSubscribe);
+    const out: DevToolEnabledSource = this._streamAdapter.adapt(
+      xs.empty(),
+      xsSA.streamSubscribe
+    );
+    out._isCycleSource = 'MockedDOM';
+    return out;
   }
 
   public select(selector: string): DOMSource {

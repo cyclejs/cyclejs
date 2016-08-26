@@ -45,7 +45,7 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions):
   const delegators = new MapPolyfill<string, EventDelegator>();
   makeDOMDriverInputGuard(modules);
 
-  function DOMDriver(vnode$: Stream<VNode>, runStreamAdapter: StreamAdapter): DOMSource {
+  function DOMDriver(vnode$: Stream<VNode>, runStreamAdapter: StreamAdapter, name: string): DOMSource {
     domDriverInputGuard(vnode$);
     const transposeVNode = makeTransposeVNode(runStreamAdapter);
     const preprocessedVNode$ = (
@@ -63,7 +63,7 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions):
     rootElement$.addListener({next: () => {}, error: () => {}, complete: () => {}});
     /* tslint:enable:no-empty */
 
-    return new MainDOMSource(rootElement$, runStreamAdapter, [], isolateModule, delegators);
+    return new MainDOMSource(rootElement$, runStreamAdapter, [], isolateModule, delegators, name);
   };
 
   (<any> DOMDriver).streamAdapter = xsSA;

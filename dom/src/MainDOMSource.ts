@@ -1,7 +1,9 @@
-import {StreamAdapter} from '@cycle/base';
+import {StreamAdapter, DevToolEnabledSource} from '@cycle/base';
 import xsSA from '@cycle/xstream-adapter';
 import {Stream} from 'xstream';
-import {DOMSource} from './DOMSource';
+import {DOMSource, EventsFnOptions} from './DOMSource';
+import {DocumentDOMSource} from './DocumentDOMSource';
+import {BodyDOMSource} from './BodyDOMSource';
 import {VNode} from './interfaces';
 import xs from 'xstream';
 import {ElementFinder} from './ElementFinder';
@@ -54,10 +56,6 @@ const eventTypesThatDontBubble = [
   `waiting`,
 ];
 
-export interface EventsFnOptions {
-  useCapture?: boolean;
-}
-
 function determineUseCapture(eventType: string, options: EventsFnOptions): boolean {
   let result = false;
   if (typeof options.useCapture === `boolean`) {
@@ -74,7 +72,8 @@ export class MainDOMSource implements DOMSource {
               private _runStreamAdapter: StreamAdapter,
               private _namespace: Array<string> = [],
               public _isolateModule: IsolateModule,
-              public _delegators: Map<string, EventDelegator>) {
+              public _delegators: Map<string, EventDelegator>,
+              private _name: string) {
   }
 
   elements(): any {
@@ -88,7 +87,11 @@ export class MainDOMSource implements DOMSource {
       output$ = this._rootElement$.map(el => elementFinder.call(el));
     }
     const runSA = this._runStreamAdapter;
-    return runSA.remember(runSA.adapt(output$, xsSA.streamSubscribe));
+    const out: DevToolEnabledSource = runSA.remember(
+      runSA.adapt(output$, xsSA.streamSubscribe)
+    );
+    out._isCycleSource = this._name;
+    return out;
   }
 
   get namespace(): Array<string> {
@@ -100,6 +103,12 @@ export class MainDOMSource implements DOMSource {
       throw new Error(`DOM driver's select() expects the argument to be a ` +
         `string as a CSS selector`);
     }
+    if (selector === 'document') {
+      return new DocumentDOMSource(this._runStreamAdapter, this._name);
+    }
+    if (selector === 'body') {
+      return new BodyDOMSource(this._runStreamAdapter, this._name);
+    }
     const trimmedSelector = selector.trim();
     const childNamespace = trimmedSelector === `:root` ?
       this._namespace :
@@ -109,7 +118,8 @@ export class MainDOMSource implements DOMSource {
       this._runStreamAdapter,
       childNamespace,
       this._isolateModule,
-      this._delegators
+      this._delegators,
+      this._name
     );
   }
 
@@ -148,6 +158,7 @@ export class MainDOMSource implements DOMSource {
         if (!namespace || namespace.length === 0) {
           return fromEvent(rootElement, eventType, useCapture);
         }
+
         // Event listener on the top element as an EventDelegator
         const delegators = domSource._delegators;
         const top = scope
@@ -186,7 +197,9 @@ export class MainDOMSource implements DOMSource {
       })
       .flatten();
 
-    return this._runStreamAdapter.adapt(event$, xsSA.streamSubscribe);
+    const out: DevToolEnabledSource = this._runStreamAdapter.adapt(event$, xsSA.streamSubscribe);
+    out._isCycleSource = domSource._name;
+    return out;
   }
 
   dispose(): void {

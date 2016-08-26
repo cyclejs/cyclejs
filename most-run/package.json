@@ -1,6 +1,6 @@
 {
   "name": "@cycle/most-run",
-  "version": "3.0.1",
+  "version": "4.1.0",
   "description": "Cycle.js Diversity run() for most.js",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -33,9 +33,9 @@
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
   "homepage": "https://cycle.js.org",
   "dependencies": {
-    "@cycle/base": "*",
-    "@cycle/most-adapter": "*",
-    "most": "^0.19.7",
+    "@cycle/base": "4.1.x",
+    "@cycle/most-adapter": "4.0.x",
+    "most": "^1.0.0",
     "most-subject": "^4.1.1"
   },
   "devDependencies": {

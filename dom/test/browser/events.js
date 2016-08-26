@@ -564,4 +564,18 @@ describe('DOMSource.events()', function () {
     });
     run()
   });
+
+  it('should have the DevTools flag in the source stream', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.of(h3('.myelementclass', 'Foobar'))
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+    assert.strictEqual(sources.DOM.select('.myelementclass').events('click')._isCycleSource, 'DOM');
+    done();
+  });
 });

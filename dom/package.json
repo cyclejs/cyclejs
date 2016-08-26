@@ -1,6 +1,6 @@
 {
   "name": "@cycle/dom",
-  "version": "12.0.3",
+  "version": "12.2.2",
   "description": "The standard DOM Driver for Cycle.js, based on Snabbdom",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
@@ -28,7 +28,7 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "@cycle/xstream-adapter": "*",
+    "@cycle/xstream-adapter": "3.x.x",
     "es6-map": "^0.1.4",
     "matches-selector": "1.0.0",
     "snabbdom": "0.5.0",
@@ -49,8 +49,9 @@
     "rx": "^4.1.0",
     "rxjs": "^5.0.0-beta.8",
     "saucie": "^1.4.1",
+    "simulant": "^0.2.2",
     "snabbdom-jsx": "^0.3.0",
-    "xstream": "5.x.x"
+    "xstream": "6.x.x"
   },
   "engines": {
     "node": ">=0.10.0"

@@ -97,6 +97,33 @@ describe('Cycle', function () {
       }, 10)
     });
 
+    it('should have DevTool-enabled flag for each simple source', function(done) {
+      function app(sources) {
+        return {}
+      }
+
+      const {sinks, sources, run} = Cycle(app, {
+        other: () => Rx.Observable.of(1, 2, 'Correct', 4),
+      }, {streamAdapter: testStreamAdapter});
+
+      assert.strictEqual(sources.other._isCycleSource, 'other');
+      done();
+    });
+
+    it('should not break when given a noop driver', function(done) {
+      function app(sources) {
+        return {}
+      }
+
+      assert.doesNotThrow(() => {
+        const {sinks, sources, run} = Cycle(app, {
+          noop: () => { },
+        }, {streamAdapter: testStreamAdapter});
+      })
+
+      done();
+    });
+
     it('should convert sources between stream libraries', function(done) {
       function app(sources) {
         assert(testStreamAdapterTwo.isValidStream(sources.other))

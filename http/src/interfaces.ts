@@ -20,6 +20,7 @@ export interface RequestOptions {
   withCredentials?: boolean;
   redirects?: number;
   category?: string;
+  lazy?: boolean;
   _error?: any;
   _namespace?: Array<string>;
 }

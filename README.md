@@ -13,7 +13,9 @@
       Website
     </a>
     <span> | </span>
+    <a href="#packages">
       Packages
+    </a>
     <span> | </span>
     <a href="https://github.com/cyclejs/cyclejs/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22">
       Contribute
@@ -27,10 +29,6 @@
 
 <div align="center">
   <!-- Build Status -->
-  <a href="https://travis-ci.org/cyclejs/cyclejs">
-    <img src="https://img.shields.io/travis/cyclejs/cyclejs/master.svg?style=flat-square"
-      alt="Build Status" />
-  </a>
 </div>
 
 ## Welcome
@@ -61,6 +59,8 @@ Cycle.js is comprised of many specialized packages. This repository contains all
 | `@cycle/rxjs-run` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/rxjs-run.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/rxjs-run/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=rxjs-run)](https://david-dm.org/cyclejs/cyclejs?path=rxjs-run) | [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=rxjs-run)](https://david-dm.org/cyclejs/cyclejs?path=rxjs-run#info=devDependencies) |
 | `@cycle/xstream-adapter` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/xstream-adapter.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/xstream-adapter/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=xstream-adapter)](https://david-dm.org/cyclejs/cyclejs?path=xstream-adapter) | [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=xstream-adapter)](https://david-dm.org/cyclejs/cyclejs?path=xstream-adapter#info=devDependencies) |
 | `@cycle/xstream-run` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/xstream-run.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/xstream-run/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=xstream-run)](https://david-dm.org/cyclejs/cyclejs?path=xstream-run) | [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=xstream-run)](https://david-dm.org/cyclejs/cyclejs?path=xstream-run#info=devDependencies) |
+
+Globally: [![Build Status](https://img.shields.io/travis/cyclejs/cyclejs/master.svg?style=flat)](https://travis-ci.org/cyclejs/cyclejs) [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg)](https://david-dm.org/cyclejs/cyclejs#info=devDependencies)
 
 ### Stream libraries
 

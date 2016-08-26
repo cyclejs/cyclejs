@@ -176,6 +176,10 @@ on the response Observable.
 - `withCredentials` *(Boolean)*: enables the ability to send cookies from the
 origin.
 - `redirects` *(Number)*: number of redirects to follow.
+- `lazy` *(Boolean)*: whether or not this request runs lazily, which means
+the request happens if and only if its corresponding response stream from the
+HTTP Source is subscribed to. By default this value is false: requests run
+eagerly, even if their response is ignored by the application.
 
 **Responses**. A metastream is a stream that emits streams. The HTTP Source
 manages response metastreams. These streams of responses have a `request`

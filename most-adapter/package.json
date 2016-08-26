@@ -1,6 +1,6 @@
 {
   "name": "@cycle/most-adapter",
-  "version": "3.0.0",
+  "version": "4.0.1",
   "description": "Cycle.js Most Adapter",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -12,6 +12,10 @@
     {
       "name": "Tylor Steinberger",
       "email": "tlsteinberger167@gmail.com"
+    },
+    {
+      "name": "Nikhil Tilwalli",
+      "email": "ntilwalli@gmail.com"
     }
   ],
   "browserify-shim": {
@@ -38,9 +42,10 @@
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
   "homepage": "https://cycle.js.org",
   "dependencies": {
-    "@most/hold": "^1.3.0",
-    "most": "^0.19.7",
-    "most-subject": "^4.1.1"
+    "@most/create": "^1.1.3",
+    "@most/hold": "^1.3.1",
+    "most": "^1.0.0",
+    "most-subject": "^4.1.3"
   },
   "devDependencies": {
     "@cycle/base": "*"

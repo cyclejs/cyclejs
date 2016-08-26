@@ -1,3 +1,33 @@
+<a name="10.2.1"></a>
+## 10.2.1 (2016-08-21)
+
+
+### Bug Fixes
+
+* **http:** use a fixed major version of xstream-adapter ([bc14598](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/bc14598))
+
+
+
+<a name="10.2.0"></a>
+# 10.2.0 (2016-08-21)
+
+
+### Features
+
+* **http:** support the Chrome DevTool to distinguish source streams ([cb81c23](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/cb81c23))
+
+
+
+<a name="10.1.0"></a>
+# 10.1.0 (2016-08-15)
+
+
+### Features
+
+* **http:** allow lazy (cancellable) requests  ([2417bd6](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/2417bd6))
+
+
+
 <a name="10.0.0"></a>
 # 10.0.0 (2016-07-25)
 
