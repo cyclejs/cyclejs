@@ -47,7 +47,6 @@ export interface Response {
 export type GenericStream = any;
 
 export interface HTTPSource {
-  response$$: GenericStream;
-  filter(predicate: (response$: ResponseStream) => boolean): HTTPSource;
+  filter(predicate: (request: RequestOptions) => boolean): HTTPSource;
   select(category: string): GenericStream;
 }

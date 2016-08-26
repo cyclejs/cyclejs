@@ -27,7 +27,7 @@ function run(uri) {
         }
 
         var output = Cycle(main, { HTTP: makeHTTPDriver() });
-        output.sources.HTTP.response$$.mergeAll().subscribe(
+        output.sources.HTTP.select().mergeAll().subscribe(
           function next() { assert.fail(); },
           function error(err) {
             assert.strictEqual(err.message, 'Observable of requests given to ' +
@@ -50,7 +50,7 @@ function run(uri) {
           }
         }
         var output = Cycle(main, { HTTP: makeHTTPDriver() });
-        output.sources.HTTP.response$$.mergeAll().subscribe(
+        output.sources.HTTP.select().mergeAll().subscribe(
           function next() { assert.fail(); },
           function error(err) {
             assert.strictEqual(
@@ -75,7 +75,7 @@ function run(uri) {
 
         var output = Cycle(main, { HTTP: makeHTTPDriver() });
 
-        output.sources.HTTP.response$$.subscribe(function(response$) {
+        output.sources.HTTP.select().subscribe(function(response$) {
           assert.strictEqual(typeof response$.request, 'object');
           assert.strictEqual(response$.request.url, uri + '/hello');
           response$.subscribe(function(response) {
@@ -166,7 +166,7 @@ function run(uri) {
 
       var output = Cycle(main, { HTTP: makeHTTPDriver() });
 
-      var response$$ = output.sources.HTTP.response$$;
+      var response$$ = output.sources.HTTP.select();
       assert.strictEqual(response$$._isCycleSource, 'HTTP');
       done();
       output.run();
@@ -186,7 +186,7 @@ function run(uri) {
 
         var output = Cycle(main, { HTTP: makeHTTPDriver() });
 
-        var response$$ = output.sources.HTTP.response$$;
+        var response$$ = output.sources.HTTP.select();
         response$$.subscribe(function(response$) {
           assert.strictEqual(response$.request.url, uri + '/querystring');
           assert.strictEqual(response$.request.method, 'GET');
@@ -216,7 +216,7 @@ function run(uri) {
         }
 
         var output = Cycle(main, { HTTP: makeHTTPDriver() });
-        var response$$ = output.sources.HTTP.response$$;
+        var response$$ = output.sources.HTTP.select();
 
         response$$.subscribe(function(response$) {
           assert.strictEqual(response$.request.url, uri + '/delete');
@@ -243,7 +243,7 @@ function run(uri) {
         }
 
         var output = Cycle(main, { HTTP: makeHTTPDriver() });
-        var response$$ = output.sources.HTTP.response$$;
+        var response$$ = output.sources.HTTP.select();
 
         response$$
           .map(function (response$) {
@@ -268,7 +268,7 @@ function run(uri) {
         }
 
         var output = Cycle(main, { HTTP: makeHTTPDriver() });
-        var response$$ = output.sources.HTTP.response$$;
+        var response$$ = output.sources.HTTP.select();
 
         response$$.subscribe(function(response$) {
           assert.strictEqual(typeof response$.request, 'object');
@@ -337,7 +337,7 @@ function run(uri) {
         var scopedRequest$ = httpSource.isolateSink(request$, 'foo');
         var scopedHTTPSource = httpSource.isolateSource(httpSource, 'foo');
 
-        scopedHTTPSource.response$$.subscribe(function(response$) {
+        scopedHTTPSource.select().subscribe(function(response$) {
           assert.strictEqual(typeof response$.request, 'object');
           assert.strictEqual(response$.request.url, uri + '/hello');
           response$.subscribe(function(response) {
