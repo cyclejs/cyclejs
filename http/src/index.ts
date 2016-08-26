@@ -41,13 +41,13 @@
  * manages response metastreams. These streams of responses have a `request`
  * field attached to them (to the stream object itself) indicating which request
  * (from the driver input) generated this response streams. The HTTP Source has
- * functions `filter()`, `select()`, and `response$$`, but is not itself a
+ * functions `filter()` and `select()`, but is not itself a
  * stream. So you can call
- * `sources.HTTP.filter(response$ => response$.request.url === X)` to get a new
+ * `sources.HTTP.filter(request => request.url === X)` to get a new
  * HTTP Source object which is filtered for response streams that match the
  * condition given, and may call `sources.HTTP.select(category)` to get a
  * metastream of response that match the category key. With an HTTP Source, you
- * can also use `httpSource.response$$` to get the metastream. You should
+ * can also call `httpSource.select()` with no param to get the metastream. You should
  * flatten the metastream before consuming it, then the resulting response
  * stream will emit the response object received through superagent.
  *
