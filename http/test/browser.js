@@ -22,7 +22,7 @@ describe('HTTP Driver in the browser', function () {
       }
     }
     var output = Cycle(main, { HTTP: makeHTTPDriver() });
-    var response$$ = output.sources.HTTP.response$$;
+    var response$$ = output.sources.HTTP.select();
 
     response$$.subscribe(function(response$) {
       assert.strictEqual(response$.request.url, uri + '/querystring');

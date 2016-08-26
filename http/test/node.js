@@ -79,7 +79,7 @@ describe('HTTP Driver in Node.js', function () {
       var output = Cycle(main, { HTTP: makeHTTPDriver() });
       globalSandbox.petPOSTResponse = null;
 
-      output.sources.HTTP.response$$
+      output.sources.HTTP.select()
         .mergeAll()
         .subscribe();
 
@@ -109,7 +109,7 @@ describe('HTTP Driver in Node.js', function () {
 
       var output = Cycle(main, { HTTP: makeHTTPDriver() });
 
-      output.sources.HTTP.response$$
+      output.sources.HTTP.select()
         .mergeAll()
         .subscribe(function (r) {
           assert.ok(r.request);
