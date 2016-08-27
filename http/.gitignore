@@ -12,6 +12,7 @@ typings/
 test/browser/page/tests-bundle.js
 lib/
 dist/
+test-support-server.pid
 
 # Misc
 ignore

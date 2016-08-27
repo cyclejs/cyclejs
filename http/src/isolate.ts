@@ -1,13 +1,13 @@
-import {HTTPSource, RequestOptions, RequestInput, ResponseStream} from './interfaces';
+import {HTTPSource, RequestOptions, RequestInput} from './interfaces';
 
 export interface Mappable<T, R> {
   map(project: (x: T) => R): Mappable<R, any>;
 }
 
 export function isolateSource(httpSource: HTTPSource, scope: string): HTTPSource {
-  return httpSource.filter((res$: ResponseStream) =>
-    Array.isArray(res$.request._namespace) &&
-    res$.request._namespace.indexOf(scope) !== -1
+  return httpSource.filter((request: RequestOptions) =>
+    Array.isArray(request._namespace) &&
+    request._namespace.indexOf(scope) !== -1
   );
 }
 
