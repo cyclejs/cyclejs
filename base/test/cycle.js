@@ -232,5 +232,32 @@ describe('Cycle', function () {
         done();
       }, 10);
     });
+
+    it('should support "tuple"-based main and drivers', function (done) {
+      function app(sources) {
+        return [
+          sources[0].take(6).map(x => String(x)).startWith('a'),
+          sources[1].take(6).map(x => String(x)).startWith('a')
+        ];
+      }
+      function driver(sink) {
+        return sink.map(x => x.charCodeAt(0)).delay(1);
+      }
+      function driver2(sink) {
+        return sink.map(x => x.charCodeAt(0)).delay(1);
+      }
+      const {sinks, sources, run} = Cycle(app, [driver, driver2], {streamAdapter: testStreamAdapter});
+
+      sources[0].subscribe(x => {
+        assert.strictEqual(x, 97);
+      });
+      sources[1].subscribe(x => {
+        assert.strictEqual(x, 97);
+      });
+
+      const dispose = run();
+      dispose();
+      done();
+    });
   });
 });
