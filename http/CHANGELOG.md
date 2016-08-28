@@ -9,7 +9,7 @@
 
 ### BREAKING CHANGES
 
-* http: httpSource.response$$ replaced with httpSource.select()
+* http: httpSource.response$$ replaced with httpSource.select() and
 httpSource.filter(res$ => ...) replaced with httpSource.filter(req =>
 ...) but still with same semantics and returns the same type of output:
 an HTTPSource.
