@@ -1,3 +1,23 @@
+<a name="11.0.0"></a>
+# 11.0.0 (2016-08-28)
+
+
+### Bug Fixes
+
+* **http:** simplify the HTTPSource API ([f740fc1](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/f740fc1))
+
+
+### BREAKING CHANGES
+
+* http: httpSource.response$$ replaced with httpSource.select()
+httpSource.filter(res$ => ...) replaced with httpSource.filter(req =>
+...) but still with same semantics and returns the same type of output:
+an HTTPSource.
+
+ISSUES CLOSED: #376
+
+
+
 <a name="10.2.1"></a>
 ## 10.2.1 (2016-08-21)
 
