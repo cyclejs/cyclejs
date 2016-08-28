@@ -25,6 +25,6 @@ while read d; do
     break;
     exit $exitstatus;
   fi
-done <$(dirname $0)/NPM_PACKAGES
+done <$(dirname $0)/RELEASABLE_PACKAGES
 
 exit $exitstatus

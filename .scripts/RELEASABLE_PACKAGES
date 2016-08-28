@@ -1,4 +1,5 @@
 base
+devtool
 dom
 http
 isolate

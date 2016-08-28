@@ -60,12 +60,11 @@ A thorough guide to the API inside `main`:
 ```js
 function main(source) {
   // The HTTP Source has properties:
-  // - select(category)
+  // - select(category) or select()
   // - filter(predicate)
-  // - response$$
   // Notice $$: it means this is a metastream, in other words,
   // a stream of streams.
-  let httpResponse$$ = source.HTTP.response$$;
+  let httpResponse$$ = source.HTTP.select();
 
   httpResponse$$.addListener({
     next: httpResponse$ => {

@@ -3,7 +3,7 @@ import {HTTPSource} from './interfaces';
 import {isolateSource, isolateSink} from './isolate';
 import {StreamAdapter, DevToolEnabledSource} from '@cycle/base';
 import XStreamAdapter from '@cycle/xstream-adapter';
-import {Response, ResponseStream} from './interfaces';
+import {Response, ResponseStream, RequestOptions} from './interfaces';
 
 export class MainHTTPSource implements HTTPSource {
   constructor(private _res$$: Stream<MemoryStream<Response> & ResponseStream>,
@@ -12,17 +12,8 @@ export class MainHTTPSource implements HTTPSource {
               private _namespace: Array<string> = []) {
   }
 
-  get response$$(): any {
-    const out: DevToolEnabledSource = this.runStreamAdapter.adapt(
-      this._res$$,
-      XStreamAdapter.streamSubscribe
-    );
-    out._isCycleSource = this._name;
-    return out;
-  }
-
-  filter(predicate: (response$: ResponseStream & MemoryStream<Response>) => boolean): HTTPSource {
-    const filteredResponse$$ = this._res$$.filter(predicate);
+  filter(predicate: (request: RequestOptions) => boolean): HTTPSource {
+    const filteredResponse$$ = this._res$$.filter((r$) => predicate(r$.request));
     return new MainHTTPSource(filteredResponse$$, this.runStreamAdapter, this._name, this._namespace);
   }
 

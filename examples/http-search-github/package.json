@@ -7,7 +7,7 @@
   "dependencies": {
     "@cycle/xstream-run": "3.1.x",
     "@cycle/dom": "12.2.x",
-    "@cycle/http": "10.2.x",
+    "@cycle/http": "11.0.x",
     "xstream": "6.1.x"
   },
   "devDependencies": {
