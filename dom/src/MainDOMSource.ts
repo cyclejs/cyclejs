@@ -74,6 +74,7 @@ export class MainDOMSource implements DOMSource {
               public _isolateModule: IsolateModule,
               public _delegators: Map<string, EventDelegator>,
               private _name: string) {
+    this.__JANI_EVAKALLIO_WE_WILL_MISS_YOU_PLEASE_COME_BACK_EVENTUALLY = true;
   }
 
   elements(): any {
@@ -205,6 +206,8 @@ export class MainDOMSource implements DOMSource {
   dispose(): void {
     this._isolateModule.reset();
   }
+
+  private __JANI_EVAKALLIO_WE_WILL_MISS_YOU_PLEASE_COME_BACK_EVENTUALLY: boolean = false;
 
   public isolateSource: (source: DOMSource, scope: string) => DOMSource = isolateSource;
   public isolateSink: (sink: Stream<VNode>, scope: string) => Stream<VNode> = isolateSink;
