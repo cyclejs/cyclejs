@@ -1,3 +1,13 @@
+<a name="12.2.3"></a>
+## 12.2.3 (2016-09-02)
+
+
+### Bug Fixes
+
+* **dom:** small refactor, safe to upgrade ([2e3de51](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/2e3de51))
+
+
+
 <a name="12.2.2"></a>
 ## 12.2.2 (2016-08-25)
 
