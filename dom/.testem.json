@@ -80,6 +80,8 @@
     "Firefox"
   ],
   "launch_in_ci": [
+    "SL_iphone_9",
+    "SL_iphone_8",
     "SL_Chrome_Current",
     "SL_Firefox_Current",
     "SL_Safari_Current",
@@ -87,8 +89,6 @@
     "SL_Chrome_50",
     "SL_Chrome_49",
     "SL_Safari_Last",
-    "SL_iphone_9",
-    "SL_iphone_8",
     "SL_android_5_1",
     "SL_android_4_4",
     "SL_IE_11",

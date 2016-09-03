@@ -306,8 +306,8 @@ describe('DOMSource.events()', function () {
       return {
         DOM: Rx.Observable.concat(
           Rx.Observable.of(h2('.blesh', 'Blesh')),
-          Rx.Observable.of(h3('.blish', 'Blish')).delay(100),
-          Rx.Observable.of(h4('.blosh', 'Blosh')).delay(100)
+          Rx.Observable.of(h3('.blish', 'Blish')).delay(150),
+          Rx.Observable.of(h4('.blosh', 'Blosh')).delay(150)
         )
       };
     }
