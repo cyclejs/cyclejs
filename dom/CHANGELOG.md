@@ -1,3 +1,13 @@
+<a name="12.2.4"></a>
+## 12.2.4 (2016-09-04)
+
+
+### Bug Fixes
+
+* **dom:** fix small obstacle to using web components ([a74551c](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/a74551c))
+
+
+
 <a name="12.2.3"></a>
 ## 12.2.3 (2016-09-02)
 
