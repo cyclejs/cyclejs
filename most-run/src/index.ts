@@ -33,8 +33,8 @@ import MostAdapter from '@cycle/most-adapter';
  * Cycle.js program, cleaning up resources used.
  * @function run
  */
-function run<Sources, Sinks>(main: (sources: Sources) => Sinks,
-                             drivers: DriversDefinition): DisposeFunction {
+export function run<Sources, Sinks>(main: (sources: Sources) => Sinks,
+                                    drivers: DriversDefinition): DisposeFunction {
   return CycleBase(main, drivers, {streamAdapter: MostAdapter}).run();
 }
 

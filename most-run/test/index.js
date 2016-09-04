@@ -4,12 +4,17 @@
 require('creed').shim()
 let assert = require('power-assert');
 let Cycle = require('../lib/index').default;
+let {run} = require('../lib/index');
 let most = require('most');
 let sinon = require('sinon');
 
 describe('Cycle', function () {
   it('should have `run`', function () {
     assert.strictEqual(typeof Cycle.run, 'function');
+  });
+
+  it('should export `run`', function () {
+    assert.strictEqual(run, Cycle.run);
   });
 
   it('should throw if first argument is not a function', function () {

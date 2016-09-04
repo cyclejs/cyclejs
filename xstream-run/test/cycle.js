@@ -3,6 +3,7 @@
 /* global describe, it */
 let assert = require('assert');
 let Cycle = require('../lib/index').default;
+let {run} = require('../lib/index');
 let xs = require('xstream').default;
 let concat = require('xstream/extra/concat').default;
 let delay = require('xstream/extra/delay').default;
@@ -16,6 +17,10 @@ let window = global.window;
 describe('Cycle', function () {
   it('should have `run`', function () {
     assert.strictEqual(typeof Cycle.run, 'function');
+  });
+
+  it('should export `run`', function () {
+    assert.strictEqual(run, Cycle.run);
   });
 
   it('should throw if first argument is not a function', function () {
