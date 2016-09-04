@@ -26,6 +26,8 @@ export class VNodeWrapper {
     const elementId = id ? `#${id}` : ``;
     const elementClassName = className ?
       `.${className.split(` `).join(`.`)}` : ``;
-    return h(`${tagName}${elementId}${elementClassName}`, {}, [vnode]);
+    return h(`${tagName.toLowerCase()}${elementId}${elementClassName}`, {}, [
+      vnode
+    ]);
   }
 }
