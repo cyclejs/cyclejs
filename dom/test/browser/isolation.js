@@ -715,6 +715,46 @@ describe('isolation', function () {
     dispose = run();
   });
 
+  it('should handle events when parent is removed and re-added', done => {
+    let clicksCount = 0;
+
+    function Child(sources) {
+      sources.DOM.select('.foo').events('click').subscribe(() => clicksCount++);
+      return {
+        DOM: Rx.Observable.of(div('.foo', ['This is foo']))
+      };
+    }
+
+    function main(sources) {
+      const child = isolate(Child)(sources);
+      // change parent key, causing it to be recreated
+      const innerDOM$ = Rx.Observable.timer(0, 120).take(3)
+        .map(x => div({key: x}, [child.DOM]));
+      return {
+        DOM: innerDOM$
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(main, {
+      DOM: makeDOMDriver(createRenderTarget(), {transposition: true}),
+    });
+
+    let dispose;
+    sources.DOM.select(':root').elements().skip(1).subscribe(function (root) {
+      setTimeout(() => {
+        const foo = root.querySelector('.foo');
+        if (!foo) return;
+        foo.click();
+      }, 0);
+    });
+    setTimeout(function(){
+      assert.strictEqual(clicksCount, 3);
+      dispose();
+      done();
+    }, 500);
+    dispose = run();
+  });
+
   it('should allow an isolated child to receive events when it is used as ' +
     'the vTree of an isolated parent component', (done) => {
     let dispose

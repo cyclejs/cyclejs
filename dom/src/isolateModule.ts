@@ -15,10 +15,11 @@ export class IsolateModule {
     this.isolatedElements.delete(scope);
   }
 
-  private cleanupVNode({data}: VNode) {
+  private cleanupVNode({data, elm}: VNode) {
     data = data || {};
     const scope = (<any> data).isolate;
-    if (scope) {
+    const isCurrentElm = this.isolatedElements.get(scope) === elm;
+    if (scope && isCurrentElm) {
       this.removeScope(scope);
       if (this.eventDelegators.get(scope)) {
         this.eventDelegators.set(scope, []);
