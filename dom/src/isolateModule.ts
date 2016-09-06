@@ -15,6 +15,17 @@ export class IsolateModule {
     this.isolatedElements.delete(scope);
   }
 
+  private cleanupVNode({data}: VNode) {
+    data = data || {};
+    const scope = (<any> data).isolate;
+    if (scope) {
+      this.removeScope(scope);
+      if (this.eventDelegators.get(scope)) {
+        this.eventDelegators.set(scope, []);
+      }
+    }
+  }
+
   getIsolatedElement(scope: string) {
     return this.isolatedElements.get(scope);
   }
@@ -82,27 +93,13 @@ export class IsolateModule {
         }
       },
 
-      remove({data}: VNode, cb: Function) {
-        data = data || {};
-        const scope = (<any> data).isolate;
-        if (scope) {
-          self.removeScope(scope);
-          if (self.eventDelegators.get(scope)) {
-            self.eventDelegators.set(scope, []);
-          }
-        }
+      remove(vNode: VNode, cb: Function) {
+        self.cleanupVNode(vNode);
         cb();
       },
 
-      destroy({data}: VNode) {
-        data = data || {};
-        const scope = (<any> data).isolate;
-        if (scope) {
-          self.removeScope(scope);
-          if (self.eventDelegators.get(scope)) {
-            self.eventDelegators.set(scope, []);
-          }
-        }
+      destroy(vNode: VNode) {
+        self.cleanupVNode(vNode);
       }
     };
   }
