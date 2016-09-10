@@ -19,6 +19,7 @@ module.exports = {
     {name: 'devtool'},
     {name: 'dom'},
     {name: 'examples'},
+    {name: 'history'},
     {name: 'http'},
     {name: 'isolate'},
     {name: 'jsonp'},

@@ -7,63 +7,41 @@
   "directories": {
     "test": "test"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/cyclejs/history.git"
-  },
+  "repository": "https://github.com/cyclejs/cyclejs/tree/master/packages/history",
   "author": "Tylor Steinberger",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/cyclejs/history/issues"
-  },
-  "homepage": "https://github.com/cyclejs/history#readme",
+  "bugs": "https://github.com/cyclejs/cyclejs/issues",
+  "homepage": "https://cycle.js.org",
   "dependencies": {
     "history": "^3.0.0"
   },
   "devDependencies": {
-    "@cycle/base": "^4.0.0",
-    "@cycle/dom": "10.0.0-rc32",
-    "@cycle/most-adapter": "^3.0.0",
-    "@cycle/most-run": "^3.0.0",
-    "@cycle/rxjs-adapter": "^3.0.0",
-    "@cycle/rxjs-run": "^3.0.0",
-    "@cycle/xstream-adapter": "^3.0.1",
-    "@cycle/xstream-run": "^3.0.0",
+    "@cycle/base": "^4.1.1",
+    "@cycle/dom": "^12.2.4",
+    "@cycle/most-adapter": "^4.0.1",
+    "@cycle/most-run": "^4.1.0",
+    "@cycle/rxjs-adapter": "^3.0.2",
+    "@cycle/rxjs-run": "^3.0.3",
+    "@cycle/xstream-adapter": "^3.0.3",
+    "@cycle/xstream-run": "^3.1.0",
     "assert": "^1.4.1",
-    "babel-preset-es2015": "^6.9.0",
-    "babel-register": "^6.9.0",
-    "babelify": "^7.3.0",
-    "browserify": "^13.0.1",
-    "cli-release": "^1.0.4",
-    "ghooks": "^1.2.3",
-    "mkdirp": "^0.5.1",
-    "mocha": "^2.5.3",
-    "most": "^0.19.7",
+    "most": "^1.0.1",
     "rx": "^4.1.0",
-    "rxjs": "^5.0.0-beta.9",
-    "testem": "^1.6.0",
-    "tslint": "^3.11.0",
-    "typescript": "^1.8.10",
-    "typings": "^0.8.1",
-    "uglify-js": "^2.6.2",
-    "validate-commit-message": "^3.0.1",
-    "xstream": "^5.0.5"
-  },
-  "config": {
-    "ghooks": {
-      "commit-msg": "node ./node_modules/.bin/validate-commit-msg"
-    }
+    "rxjs": "^5.0.0-beta.11",
+    "saucie": "^1.4.1",
+    "xstream": "^6.2.0"
   },
   "scripts": {
-    "lint": "tslint -c tslint.json src/*.ts src/**/*.ts",
-    "test-node": "mocha -r babel-register test/node/*.js",
-    "build-browser-tests": "browserify -t babelify test/browser/index.js -o test/browser/bundle.js",
-    "test-browser": "testem",
+    "lint": "../node_modules/.bin/tslint -c tslint.json src/*.ts src/**/*.ts",
+    "test-node": "../node_modules/.bin/mocha -r babel-register test/node/*.js",
+    "build-browser-tests": "../node_modules/.bin/browserify -t babelify test/browser/index.js -o test/browser/bundle.js",
+    "test-browser": "../node_modules/.bin/testem ci -l Chrome,Firefox",
+    "test-browser-ci": "../node_modules/.bin/testem ci",
     "test": "npm run lint && npm run lib && npm run test-node && npm run test-browser",
-    "test-ci": "npm run lint && npm run lib && npm run test-node",
-    "predist": "rm -rf dist/ && mkdirp dist/",
-    "prelib": "typings install",
-    "lib": "tsc",
+    "test-ci": "npm run lint && npm run lib && npm run test-node && npm run test-browser-ci",
+    "predist": "rm -rf dist/ && mkdir -p dist/",
+    "prelib": "../node_modules/.bin/typings install",
+    "lib": "../node_modules/.bin/tsc",
     "start": "npm install && npm prune",
     "prerelease": "npm run lib",
     "release": "npm run release-patch",

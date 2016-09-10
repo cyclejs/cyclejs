@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 
-import most from 'most';
+import * as most from 'most';
 import Cycle from '@cycle/most-run';
 import MostAdapter from '@cycle/most-adapter';
 import {
