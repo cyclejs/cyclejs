@@ -25,6 +25,7 @@
     "@cycle/xstream-adapter": "^3.0.3",
     "@cycle/xstream-run": "^3.1.0",
     "assert": "^1.4.1",
+    "es6-promise": "^3.2.1",
     "most": "^1.0.1",
     "rx": "^4.1.0",
     "rxjs": "^5.0.0-beta.11",

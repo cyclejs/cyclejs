@@ -9,6 +9,7 @@ import {
   createLocation,
   supportsHistory
 } from '../../lib/index';
+require('es6-promise').polyfill();
 
 const locationDefaults = {
   pathname: '/',
