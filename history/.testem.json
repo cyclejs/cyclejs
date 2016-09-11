@@ -70,11 +70,6 @@
       "exe": "./node_modules/.bin/saucie",
       "args": ["-b", "internet explorer", "-v", "11", "--no-ct", "--at", "-u"],
       "protocol": "browser"
-    },
-    "SL_IE_10": {
-      "exe": "./node_modules/.bin/saucie",
-      "args": ["-b", "internet explorer", "-v", "10", "--no-ct", "--at", "-u"],
-      "protocol": "browser"
     }
   },
   "ignore_missing_launchers": true,
@@ -94,7 +89,6 @@
     "SL_Safari_Last",
     "SL_android_5_1",
     "SL_android_4_4",
-    "SL_IE_11",
-    "SL_IE_10"
+    "SL_IE_11"
   ]
 }
