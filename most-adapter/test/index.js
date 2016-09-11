@@ -1,7 +1,7 @@
 import {describe, it} from 'mocha'
 import assert from 'power-assert'
 import MostAdapter from '../lib/index'
-import most from 'most'
+import * as most from 'most'
 
 describe('MostAdapter', () => {
   it('should conform to StreamLibrary interface', () => {
