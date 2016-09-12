@@ -1,6 +1,7 @@
 base
 devtool
 dom
+history
 http
 isolate
 jsonp
