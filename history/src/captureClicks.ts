@@ -45,7 +45,7 @@ function makeClickListener(push: Function) {
 
     const link = element.getAttribute('href');
 
-    if (link && link.indexOf('mailto:') > -1 || link === '#') {
+    if (link && link.indexOf('mailto:') > -1 || link.charAt(0) === '#') {
       return;
     }
 
