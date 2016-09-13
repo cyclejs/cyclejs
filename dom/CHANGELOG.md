@@ -1,3 +1,13 @@
+<a name="12.2.5"></a>
+## 12.2.5 (2016-09-13)
+
+
+### Bug Fixes
+
+* **dom:** retain event streams when isolated parent is recreated ([5b37dd0](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/5b37dd0))
+
+
+
 <a name="12.2.4"></a>
 ## 12.2.4 (2016-09-04)
 
