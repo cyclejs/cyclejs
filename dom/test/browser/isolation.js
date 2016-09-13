@@ -700,7 +700,7 @@ describe('isolation', function () {
     });
 
     let dispose;
-    sources.DOM.select(':root').elements().skip(1).subscribe(function (root) {
+    sources.DOM.select(':root').elements().skip(1).take(3).subscribe(function (root) {
       setTimeout(() => {
         const foo = root.querySelector('.foo');
         if (!foo) return;
@@ -740,7 +740,7 @@ describe('isolation', function () {
     });
 
     let dispose;
-    sources.DOM.select(':root').elements().skip(1).subscribe(function (root) {
+    sources.DOM.select(':root').elements().skip(1).take(3).subscribe(function (root) {
       setTimeout(() => {
         const foo = root.querySelector('.foo');
         if (!foo) return;
