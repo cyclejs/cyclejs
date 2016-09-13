@@ -1,3 +1,14 @@
+<a name="11.0.1"></a>
+## 11.0.1 (2016-09-13)
+
+
+### Bug Fixes
+
+* **http:** remove remember() from response$$ ([6973409](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/6973409))
+* **http:** update typings of HTTPSource ([2dcd64e](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/2dcd64e))
+
+
+
 <a name="11.0.0"></a>
 # 11.0.0 (2016-08-28)
 
