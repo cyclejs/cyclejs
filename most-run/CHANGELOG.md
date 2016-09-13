@@ -1,3 +1,13 @@
+<a name="4.1.1"></a>
+## 4.1.1 (2016-09-13)
+
+
+### Bug Fixes
+
+* **most-run:** export run function  ([e409bf9](https://github.com/cyclejs/cyclejs/tree/master/packages/most-run/commit/e409bf9))
+
+
+
 <a name="4.1.0"></a>
 # 4.1.0 (2016-08-21)
 
