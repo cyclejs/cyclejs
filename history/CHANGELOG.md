@@ -1,3 +1,13 @@
+<a name="4.0.1"></a>
+## 4.0.1 (2016-09-13)
+
+
+### Bug Fixes
+
+* **history:** fix scope of captureClicks to properly exclude hash links  ([86433e2](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/86433e2))
+
+
+
 # v4.0.0 (2016-06-14)
 
 
