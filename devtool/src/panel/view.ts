@@ -21,7 +21,10 @@ function renderInvalidState() {
     ]),
     p([
       'Need help? The ',
-      a({ attrs: { href: 'https://gitter.im/cyclejs/cyclej' } }, 'chat'),
+      a({ attrs: {
+        href: 'https://gitter.im/cyclejs/cyclejs',
+        target: '_blank'
+      }}, 'chat'),
       ' is usually friendly and helpful.'
     ])
   ])
