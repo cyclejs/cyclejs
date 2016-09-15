@@ -24,6 +24,10 @@
     <a href="https://gitter.im/cyclejs/cyclejs">
       Chat
     </a>
+     <span> | </span>
+    <a href="#support">
+      Support
+    </a>
   </h3>
 </div>
 
@@ -73,6 +77,78 @@ The following packages are not under Cycle.js, but are important dependencies, s
 | `rx` | [![npm version](https://img.shields.io/npm/v/rx.svg?maxAge=86400)](https://www.npmjs.com/package/rx) |
 | `rxjs` | [![npm version](https://img.shields.io/npm/v/rxjs.svg?maxAge=86400)](https://www.npmjs.com/package/rxjs) |
 | `xstream` | [![npm version](https://img.shields.io/npm/v/xstream.svg?maxAge=86400)](https://www.npmjs.com/package/xstream) |
+
+##Support [![OpenCollective](https://opencollective.com/cyclejs/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/cyclejs/sponsors/badge.svg)](#sponsors)
+
+###Backers
+
+Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/cyclejs#backer)]
+
+<a href="https://opencollective.com/cyclejs/backer/0/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/0/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/1/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/1/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/2/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/2/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/3/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/3/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/4/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/4/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/5/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/5/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/6/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/6/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/7/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/7/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/8/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/8/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/9/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/9/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/10/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/10/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/11/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/11/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/12/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/12/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/13/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/13/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/14/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/14/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/15/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/15/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/16/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/16/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/17/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/17/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/18/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/18/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/19/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/19/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/20/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/20/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/21/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/21/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/22/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/22/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/23/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/23/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/24/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/24/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/25/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/25/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/26/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/26/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/27/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/27/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/28/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/28/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/backer/29/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/29/avatar.svg"></a>
+
+###Sponsors
+
+Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/cyclejs#sponsor)]
+
+<a href="https://opencollective.com/cyclejs/sponsor/0/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/1/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/2/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/3/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/4/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/5/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/6/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/7/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/8/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/9/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/9/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/10/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/10/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/11/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/11/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/12/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/12/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/13/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/13/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/14/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/14/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/15/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/15/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/16/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/16/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/17/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/17/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/18/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/18/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/19/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/19/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/20/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/20/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/21/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/21/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/22/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/22/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/23/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/23/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/24/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/24/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/25/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/25/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/26/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/26/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/27/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/27/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/28/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/28/avatar.svg"></a>
+<a href="https://opencollective.com/cyclejs/sponsor/29/website" target="_blank"><img src="https://opencollective.com/cyclejs/sponsor/29/avatar.svg"></a>
 
 ## LICENSE
 
