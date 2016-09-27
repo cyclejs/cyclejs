@@ -122,4 +122,47 @@ describe('DOM Driver', function () {
     });
     dispose = run();
   });
+
+  it('should clean up DOM on disposal', function (done) {
+    let hookTick = 0;
+    let hookInterval;
+    let hook = {
+      insert: () => {
+        hookInterval = setInterval(() => hookTick++, 10);
+      },
+      destroy: () => {
+        clearInterval(hookInterval);
+      }
+    }
+
+    function app() {
+      return {
+        DOM: Rx.Observable.of(
+            h3('.target', {hook}, 'dummy text')
+        )
+      };
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget('disposal'))
+    });
+
+    const dispose = run();
+    setTimeout(() => {
+      dispose();
+
+      const hookTickOnDisposal = hookTick;
+
+      setTimeout(() => {
+        let renderTarget = document.getElementById('disposal');
+
+        assert.equal(renderTarget.innerHTML, '');
+        assert.ok(hookTick > 0);
+        assert.equal(hookTickOnDisposal, hookTick);
+
+        done();
+      }, 50);
+
+    }, 100);
+  });
 });
