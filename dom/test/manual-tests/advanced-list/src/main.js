@@ -1,6 +1,6 @@
 import {run} from '@cycle/xstream-run';
 import {makeDOMDriver} from '../../../../lib/index';
-import App from './App.js';
+import App from './app.js';
 
 const main = App;
 

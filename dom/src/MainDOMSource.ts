@@ -69,6 +69,7 @@ function determineUseCapture(eventType: string, options: EventsFnOptions): boole
 
 export class MainDOMSource implements DOMSource {
   constructor(private _rootElement$: Stream<Element>,
+              private _sanitation$: Stream<{}>,
               private _runStreamAdapter: StreamAdapter,
               private _namespace: Array<string> = [],
               public _isolateModule: IsolateModule,
@@ -116,6 +117,7 @@ export class MainDOMSource implements DOMSource {
       this._namespace.concat(trimmedSelector);
     return new MainDOMSource(
       this._rootElement$,
+      this._sanitation$,
       this._runStreamAdapter,
       childNamespace,
       this._isolateModule,
@@ -204,6 +206,7 @@ export class MainDOMSource implements DOMSource {
   }
 
   dispose(): void {
+    this._sanitation$.shamefullySendNext('');
     this._isolateModule.reset();
   }
 

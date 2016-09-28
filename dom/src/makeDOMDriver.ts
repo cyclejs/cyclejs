@@ -51,7 +51,8 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions):
     const preprocessedVNode$ = (
       transposition ? vnode$.map(transposeVNode).flatten() : vnode$
     );
-    const rootElement$ = preprocessedVNode$
+    const sanitation$ = xs.create();
+    const rootElement$ = xs.merge(preprocessedVNode$.endWhen(sanitation$), sanitation$)
       .map(vnode => vnodeWrapper.call(vnode))
       .fold<VNode>(<(acc: VNode, v: VNode) => VNode>patch, <VNode> rootElement)
       .drop(1)
@@ -63,7 +64,7 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions):
     rootElement$.addListener({next: () => {}, error: () => {}, complete: () => {}});
     /* tslint:enable:no-empty */
 
-    return new MainDOMSource(rootElement$, runStreamAdapter, [], isolateModule, delegators, name);
+    return new MainDOMSource(rootElement$, sanitation$, runStreamAdapter, [], isolateModule, delegators, name);
   };
 
   (<any> DOMDriver).streamAdapter = xsSA;
