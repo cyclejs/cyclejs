@@ -1,8 +1,8 @@
-import {IsolateModule} from './isolateModule';
+import {ModuleIsolator} from './ModuleIsolator';
 
 export class ScopeChecker {
   constructor(private scope: string,
-              private isolateModule: IsolateModule) {
+              private isolateModule: ModuleIsolator) {
   }
 
   public isStrictlyInRootScope(leaf: Element): boolean {

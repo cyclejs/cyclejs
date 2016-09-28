@@ -2,7 +2,7 @@ import {VNode} from './interfaces';
 import {EventDelegator} from './EventDelegator';
 let MapPolyfill: typeof Map = require('es6-map');
 
-export class IsolateModule {
+export class ModuleIsolator {
   private eventDelegators = new MapPolyfill<string, Array<EventDelegator>>();
   constructor (private isolatedElements: Map<string, Element>) {
   }

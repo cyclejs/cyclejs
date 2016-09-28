@@ -9,7 +9,7 @@ import xs from 'xstream';
 import {ElementFinder} from './ElementFinder';
 import {fromEvent} from './fromEvent';
 import {isolateSink, isolateSource} from './isolate';
-import {IsolateModule} from './isolateModule';
+import {ModuleIsolator} from './ModuleIsolator';
 import {EventDelegator} from './EventDelegator';
 import {getScope} from './utils';
 
@@ -72,7 +72,7 @@ export class MainDOMSource implements DOMSource {
               private _sanitation$: Stream<{}>,
               private _runStreamAdapter: StreamAdapter,
               private _namespace: Array<string> = [],
-              public _isolateModule: IsolateModule,
+              public _isolateModule: ModuleIsolator,
               public _delegators: Map<string, EventDelegator>,
               private _name: string) {
     this.__JANI_EVAKALLIO_WE_WILL_MISS_YOU_PLEASE_COME_BACK_EVENTUALLY = true;

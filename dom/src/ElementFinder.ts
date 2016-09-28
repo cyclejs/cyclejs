@@ -1,6 +1,6 @@
 import {ScopeChecker} from './ScopeChecker';
 import {getScope, getSelectors} from './utils';
-import {IsolateModule} from './isolateModule';
+import {ModuleIsolator} from './ModuleIsolator';
 
 interface MatchesSelector {
   (element: Element, selector: string): boolean;
@@ -19,7 +19,7 @@ function toElArray(input: any): Array<Element> {
 
 export class ElementFinder {
   constructor(public namespace: Array<string>,
-              public isolateModule: IsolateModule) {
+              public isolateModule: ModuleIsolator) {
   }
 
   call(rootElement: Element): Element | Array<Element> {

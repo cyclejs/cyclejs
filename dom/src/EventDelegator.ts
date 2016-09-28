@@ -1,6 +1,6 @@
 import {Stream} from 'xstream';
 import {ScopeChecker} from './ScopeChecker';
-import {IsolateModule} from './isolateModule';
+import {ModuleIsolator} from './ModuleIsolator';
 import {getScope, getSelectors} from './utils';
 
 interface MatchesSelector {
@@ -63,7 +63,7 @@ export class EventDelegator {
   constructor(private topElement: Element,
               public eventType: string,
               public useCapture: boolean,
-              public isolateModule: IsolateModule) {
+              public isolateModule: ModuleIsolator) {
     this.roof = topElement.parentElement;
     if (useCapture) {
       this.domListener = (ev: Event) => this.capture(ev);
