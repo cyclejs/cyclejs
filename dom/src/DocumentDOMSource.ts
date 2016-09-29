@@ -1,28 +1,32 @@
 import xs, {Stream} from 'xstream';
-import xsSA from '@cycle/xstream-adapter';
-import {StreamAdapter, DevToolEnabledSource} from '@cycle/base';
-import {DOMSource, EventsFnOptions} from './DOMSource';
+import xsAdapter from '@cycle/xstream-adapter';
+import {DevToolEnabledSource} from '@cycle/base';
+import {DOMSource} from './DOMSource';
+import {DOMSourceOptions} from './DOMSourceOptions';
+import {EventsFnOptions} from './EventsFnOptions';
 import {fromEvent} from './fromEvent';
 
-export class DocumentDOMSource implements DOMSource {
-  constructor(private _runStreamAdapter: StreamAdapter, private _name: string) {
-  }
-
-  select(selector: string): DOMSource {
-    // This functionality is still undefined/undecided.
-    return this;
+export class DocumentDOMSource extends DOMSource {
+  constructor(options: DOMSourceOptions) {
+    super(options);
   }
 
   elements(): any {
-    const runSA = this._runStreamAdapter;
-    const out: DevToolEnabledSource = runSA.remember(
-      runSA.adapt(xs.of(document), xsSA.streamSubscribe)
+    const runStreamAdapter = this._runStreamAdapter;
+    const out: DevToolEnabledSource = runStreamAdapter.remember(
+      runStreamAdapter.adapt(xs.of(document), xsAdapter.streamSubscribe)
     );
-    out._isCycleSource = this._name;
+    out._isCycleSource = this._driverKey;
+
     return out;
   }
 
-  events(eventType: string, options: EventsFnOptions = {}): any {
+  select(selector: string): DOMSource {
+    // @TODO Decide what should happen.
+    return this;
+  }
+
+  events(eventType: string, options: EventsFnOptions = {}): DevToolEnabledSource {
     let stream: Stream<Event>;
     if (options && typeof options.useCapture === 'boolean') {
       stream = fromEvent(document, eventType, options.useCapture);
@@ -31,9 +35,10 @@ export class DocumentDOMSource implements DOMSource {
     }
     const out: DevToolEnabledSource = this._runStreamAdapter.adapt(
       stream,
-      xsSA.streamSubscribe
+      xsAdapter.streamSubscribe
     );
-    out._isCycleSource = this._name;
+    out._isCycleSource = this._driverKey;
+
     return out;
   }
 }

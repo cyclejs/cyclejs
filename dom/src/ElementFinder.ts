@@ -1,28 +1,25 @@
 import {ScopeChecker} from './ScopeChecker';
 import {getScope, getSelectors} from './utils';
-import {ModuleIsolator} from './ModuleIsolator';
+import {IsolateModule} from './IsolateModule';
 
 interface MatchesSelector {
   (element: Element, selector: string): boolean;
 }
+
 let matchesSelector: MatchesSelector;
 declare var require: any;
 try {
   matchesSelector = require(`matches-selector`);
 } catch (e) {
-  matchesSelector = <MatchesSelector> Function.prototype;
-}
-
-function toElArray(input: any): Array<Element> {
-  return <Array<Element>> Array.prototype.slice.call(input);
+  matchesSelector = <MatchesSelector>Function.prototype;
 }
 
 export class ElementFinder {
   constructor(public namespace: Array<string>,
-              public isolateModule: ModuleIsolator) {
+              public isolateModule: IsolateModule) {
   }
 
-  call(rootElement: Element): Element | Array<Element> {
+  find(rootElement: Element): Element | Array<Element> {
     const namespace = this.namespace;
     if (namespace.join(``) === ``) {
       return rootElement;
@@ -35,7 +32,7 @@ export class ElementFinder {
     let topNodeMatches: Array<Element> = [];
 
     if (scope.length > 0) {
-      topNode = this.isolateModule.getIsolatedElement(scope) || rootElement;
+      topNode = this.isolateModule.isolatedElementInScope(scope) || rootElement;
       if (selector && matchesSelector(topNode, selector)) {
         topNodeMatches.push(topNode);
       }
@@ -45,4 +42,8 @@ export class ElementFinder {
       .filter(scopeChecker.isStrictlyInRootScope, scopeChecker)
       .concat(topNodeMatches);
   }
+}
+
+function toElArray(input: any): Array<Element> {
+  return <Array<Element>> Array.prototype.slice.call(input);
 }

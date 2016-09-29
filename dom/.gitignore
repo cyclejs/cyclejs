@@ -3,6 +3,7 @@
 *.sublime-project
 *.sublime-workspace
 .settings
+.alm
 
 # Installed libs
 node_modules/

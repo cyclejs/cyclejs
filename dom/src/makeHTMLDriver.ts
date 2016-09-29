@@ -19,7 +19,7 @@ const noop = () => {};
 export function makeHTMLDriver(effect: EffectCallback, options?: HTMLDriverOptions) {
   if (!options) { options = {}; }
   const transposition = options.transposition || false;
-  function htmlDriver(vnode$: Stream<VNode>, runStreamAdapter: StreamAdapter, name: string): DOMSource {
+  function htmlDriver(vnode$: Stream<VNode>, runStreamAdapter: StreamAdapter, driverKey: string): DOMSource {
     const transposeVNode = makeTransposeVNode(runStreamAdapter);
     const preprocessedVNode$ = (
       transposition ? vnode$.map(transposeVNode).flatten() : vnode$
@@ -30,7 +30,8 @@ export function makeHTMLDriver(effect: EffectCallback, options?: HTMLDriverOptio
       error: noop,
       complete: noop,
     });
-    return new HTMLSource(html$, runStreamAdapter, name);
+
+    return new HTMLSource({html$, runStreamAdapter, driverKey});
   };
   (<any> htmlDriver).streamAdapter = xsSA;
   return htmlDriver;
