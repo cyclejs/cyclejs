@@ -15,7 +15,7 @@
     "tabSize": 2
   },
    "files": [
-     "typings/index.d.ts",
+     "node_modules/rx/ts/rx.all.d.ts",
      "src/index.ts"
    ],
    "exclude": [

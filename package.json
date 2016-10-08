@@ -24,8 +24,8 @@
     "tempfile": "^1.1.1",
     "testem": "1.10.3",
     "ts-node": "^1.2.2",
-    "tslint": "3.14.0",
-    "typescript": "1.8.10",
+    "tslint": "4.0.0-dev.0",
+    "typescript": "^2.0.3",
     "typings": "^1.3.1",
     "uglify-js": "2.7.0",
     "validate-commit-msg": "^2.6.1"
@@ -48,5 +48,6 @@
     "cz-customizable": {
       "config": "./.cz-config.js"
     }
-  }
+  },
+  "dependencies": {}
 }

@@ -15,6 +15,7 @@
     "tabSize": 2
   },
    "files": [
+     "node_modules/rx/ts/rx.all.d.ts",
      "typings/index.d.ts",
      "src/index.ts"
    ]

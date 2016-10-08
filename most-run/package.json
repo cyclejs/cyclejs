@@ -4,6 +4,7 @@
   "description": "Cycle.js Diversity run() for most.js",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
+  "types": "lib/index.d.ts",
   "contributors": [
     {
       "name": "Andre Staltz",
@@ -50,7 +51,7 @@
     "uglify": "../node_modules/.bin/uglifyjs dist/cycle-most-run.js -o dist/cycle-most-run.min.js",
     "predist": "rm -rf dist/ && mkdir -p dist",
     "dist": "npm run lib && npm run browserify && npm run uglify",
-    "lib": "rm -rf lib/ && mkdir -p lib/ && ../node_modules/.bin/typings install && ../node_modules/.bin/tsc",
+    "lib": "rm -rf lib/ && mkdir -p lib/ && ../node_modules/.bin/tsc",
     "readme": "node ../.scripts/make-api-docs.js ${PWD##*/} && cat ./.scripts/template-readme.md ./generated-api.md > README.md && rm ./generated-api.md",
     "preversion": "npm test",
     "version": "npm run dist && npm run readme && npm run changelog",

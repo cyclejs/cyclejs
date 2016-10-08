@@ -34,14 +34,14 @@
   },
   "devDependencies": {
     "@cycle/base": "*",
-    "rx": "^4.0.7"
+    "rx": "^4.1.0"
   },
   "scripts": {
     "lint": "../node_modules/.bin/tslint -c tslint.json src/*.ts",
     "mocha": "../node_modules/.bin/mocha --compilers js:babel-register test",
     "test": "npm run lint && npm run lib && npm run mocha",
     "test-ci": "npm run test",
-    "prelib": "rm -rf lib/ && mkdir -p lib/ && ../node_modules/.bin/typings install",
+    "prelib": "rm -rf lib/ && mkdir -p lib/",
     "lib": "../node_modules/.bin/tsc",
     "readme": ":",
     "browserify": "../node_modules/.bin/browserify -t browserify-shim -t babelify --exclude rx lib/index.js -o dist/cycle-rx-adapter.js",

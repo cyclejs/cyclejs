@@ -4,6 +4,7 @@
   "description": "Cycle.js Most Adapter",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
+  "types": "lib/index.d.ts",
   "contributors": [
     {
       "name": "Andre Staltz",
@@ -44,11 +45,12 @@
   "dependencies": {
     "@most/create": "^1.1.3",
     "@most/hold": "^1.3.1",
-    "most": "^1.0.0",
+    "most": "^1.0.1",
     "most-subject": "^4.1.3"
   },
   "devDependencies": {
-    "@cycle/base": "*"
+    "@cycle/base": "*",
+    "@types/es6-shim": "^0.31.32"
   },
   "scripts": {
     "lint": "../node_modules/.bin/tslint -c tslint.json src/*.ts src/**/*.ts",
@@ -60,7 +62,7 @@
     "predist": "rm -rf dist/ && mkdir -p dist",
     "dist": "npm run lib && npm run browserify && npm run uglify",
     "readme": ":",
-    "lib": "rm -rf lib/ && mkdir -p lib/ && ../node_modules/.bin/typings install && ../node_modules/.bin/tsc",
+    "lib": "rm -rf lib/ && mkdir -p lib/ && ../node_modules/.bin/tsc",
     "preversion": "npm test",
     "version": "npm run dist && npm run readme && npm run changelog",
     "postversion": "git add -A && git commit -m \"release(${PWD##*/}): v$(cat package.json | ../node_modules/.bin/jase version)\" && git push origin master && npm publish",

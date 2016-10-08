@@ -8,7 +8,6 @@
     "max-line-length": [true, 100],
     "no-consecutive-blank-lines": true,
     "no-trailing-whitespace": true,
-    "no-duplicate-key": true,
     "no-duplicate-variable": true,
     "no-unreachable": true,
     "no-var-keyword": true,

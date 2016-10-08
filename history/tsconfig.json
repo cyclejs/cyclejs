@@ -15,7 +15,6 @@
     "tabSize": 2
   },
    "files": [
-     "typings/index.d.ts",
      "src/index.ts"
    ],
    "exclude": [
