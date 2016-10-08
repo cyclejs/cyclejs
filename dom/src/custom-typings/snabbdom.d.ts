@@ -8,7 +8,7 @@ export interface VNode {
 }
 
 export interface PatchFunction {
-  (oldVNode: VNode, vnode: VNode): VNode;
+  (oldVNode: VNode | Element, vnode: VNode): VNode;
 }
 
 export function init(modules: Object, api?: Object): PatchFunction;

@@ -11,7 +11,7 @@ export type EventStream = any;
 export type MockConfig = {
   [name: string]: GenericStream | MockConfig;
   elements?: GenericStream;
-}
+};
 
 const SCOPE_PREFIX = '___';
 

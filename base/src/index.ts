@@ -13,9 +13,9 @@ export interface SinkProxies {
   [driverName: string]: Subject<any>;
 }
 
-export type DisposeFunction = () => void
+export type DisposeFunction = () => void;
 
-export type StreamSubscribe = <T>(stream: any, observer: Observer<T>) => DisposeFunction | void
+export type StreamSubscribe = <T>(stream: any, observer: Observer<T>) => DisposeFunction | void;
 
 export interface DevToolEnabledSource {
   _isCycleSource: string;

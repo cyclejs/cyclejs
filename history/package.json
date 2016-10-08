@@ -4,6 +4,7 @@
   "description": "The standard history driver for Cycle.js",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
+  "types": "lib/index.d.ts",
   "directories": {
     "test": "test"
   },
@@ -28,7 +29,7 @@
     "es6-promise": "^3.2.1",
     "most": "^1.0.1",
     "rx": "^4.1.0",
-    "rxjs": "^5.0.0-beta.11",
+    "rxjs": "^5.0.0-beta.12",
     "saucie": "^1.4.1",
     "xstream": "^6.2.0"
   },
@@ -42,7 +43,7 @@
     "test-ci": "npm run lint && npm run lib && npm run test-node && npm run test-browser-ci",
     "browserify": "../node_modules/.bin/browserify lib/index.js --standalone CycleHistory --outfile dist/cycle-history.js",
     "uglify": "../node_modules/.bin/uglifyjs dist/cycle-history.js -o dist/cycle-history.min.js",
-    "prelib": "rm -rf lib/ && mkdir -p lib && ../node_modules/.bin/typings install",
+    "prelib": "rm -rf lib/ && mkdir -p lib",
     "lib": "../node_modules/.bin/tsc",
     "predist": "rm -rf dist/ && mkdir -p dist/",
     "dist": "npm run lib && npm run browserify && npm run uglify",

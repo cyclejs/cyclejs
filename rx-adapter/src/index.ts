@@ -5,7 +5,7 @@ import {
   DisposeFunction,
   Subject,
 } from '@cycle/base';
-const Rx = require('rx');
+import Rx = require('rx');
 
 const RxJSAdapter: StreamAdapter = {
   adapt<T>(originStream: any, originStreamSubscribe: StreamSubscribe): Rx.Observable<T> {

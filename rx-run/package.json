@@ -17,6 +17,7 @@
   ],
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
+  "types": "lib/index.d.ts",
   "dependencies": {
     "@cycle/base": "4.x.x",
     "@cycle/rx-adapter": "3.x.x"
@@ -25,7 +26,7 @@
     "rx": "*"
   },
   "devDependencies": {
-    "rx": "4.0.7"
+    "rx": "4.1.0"
   },
   "engines": {
     "node": ">=0.10.0"

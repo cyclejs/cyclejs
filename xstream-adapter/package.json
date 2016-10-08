@@ -4,6 +4,7 @@
   "description": "Cycle.js xstream Stream Adapter",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
+  "types": "lib/index.d.ts",
   "repository": "https://github.com/cyclejs/cyclejs/tree/master/packages/xstream-adapter",
   "license": "MIT",
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
@@ -11,6 +12,7 @@
   "dependencies": {},
   "devDependencies": {
     "@cycle/base": "4.x.x",
+    "@types/core-js": "^0.9.34",
     "es6-promise": "^3.1.2",
     "xstream": "6.x.x"
   },
@@ -30,7 +32,7 @@
     "mocha": "../node_modules/.bin/mocha --compilers js:babel-register",
     "test": "npm run lint && npm run lib && npm run mocha",
     "test-ci": "npm run test",
-    "prelib": "../node_modules/.bin/typings install && rm -rf lib/ && mkdir -p lib/",
+    "prelib": "rm -rf lib/ && mkdir -p lib/",
     "lib": "../node_modules/.bin/tsc",
     "readme": ":",
     "browserify": "../node_modules/.bin/browserify lib/index.js --standalone xstream --outfile dist/xstream.js",

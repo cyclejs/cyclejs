@@ -16,6 +16,8 @@
   "devDependencies": {
     "@cycle/base": "*",
     "@cycle/rxjs-run": "*",
+    "@types/core-js": "^0.9.34",
+    "@types/node": "^6.0.45",
     "body-parser": "1.15.2",
     "cookie-parser": "1.4.3",
     "express": "4.14.0",
@@ -37,7 +39,7 @@
     "test": "npm run lib && npm run lint && npm run test-node && npm run test-browser",
     "browserify": "npm run lib && ../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleHTTPDriver --exclude xstream --outfile dist/cycle-http-driver.js",
     "uglify": "../node_modules/.bin/uglifyjs dist/cycle-http-driver.js -o dist/cycle-http-driver.min.js",
-    "prelib": "rm -rf lib/ && mkdir -p lib && ../node_modules/.bin/typings install",
+    "prelib": "rm -rf lib/ && mkdir -p lib",
     "lib": "../node_modules/.bin/tsc",
     "predist": "rm -rf dist/ && mkdir -p dist/",
     "dist": "npm run lib && npm run browserify && npm run uglify",

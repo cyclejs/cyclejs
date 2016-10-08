@@ -16,11 +16,9 @@
     "tabSize": 2
   },
   "files": [
-    "typings/index.d.ts",
     "src/index.ts"
   ],
   "filesGlob": [
-    "typings/index.d.ts",
     "src/**/*.ts"
   ],
   "exclude": [

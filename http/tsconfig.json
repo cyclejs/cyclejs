@@ -15,8 +15,7 @@
     "tabSize": 2
   },
    "files": [
-     "typings/index.d.ts",
-     "src/custom-typings/index.d.ts",
+     "superagent.d.ts",
      "src/index.ts"
    ],
    "exclude": [

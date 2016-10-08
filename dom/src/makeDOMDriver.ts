@@ -54,10 +54,10 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions):
     const sanitation$ = xs.create();
     const rootElement$ = xs.merge(preprocessedVNode$.endWhen(sanitation$), sanitation$)
       .map(vnode => vnodeWrapper.call(vnode))
-      .fold<VNode>(<(acc: VNode, v: VNode) => VNode>patch, <VNode> rootElement)
+      .fold<VNode | Element>(<(acc: VNode | Element, v: VNode) => VNode>patch, rootElement)
       .drop(1)
       .map(function unwrapElementFromVNode(vnode: VNode) { return vnode.elm; })
-      .compose(stream => xs.merge(stream, xs.never())) // don't complete this stream
+      .compose((stream: any) => xs.merge(stream, xs.never())) // don't complete this stream
       .startWith(rootElement);
 
     /* tslint:disable:no-empty */
