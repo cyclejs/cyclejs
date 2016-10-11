@@ -1,73 +1,87 @@
-import {StreamAdapter, DevToolEnabledSource} from '@cycle/base';
-import {VNode} from './interfaces';
-import xsSA from '@cycle/xstream-adapter';
-import {DOMSource, EventsFnOptions} from './DOMSource';
+import {DevToolEnabledSource} from '@cycle/base';
+import xsAdapter from '@cycle/xstream-adapter';
 import xs from 'xstream';
-
-export type GenericStream = any;
-export type ElementStream = any;
-export type EventStream = any;
+import {DOMSource} from './DOMSource';
+import {DOMSourceOptions} from './DOMSourceOptions';
+import {EventsFnOptions} from './EventsFnOptions';
+import {GenericStream} from './GenericStream';
+import {VNode} from './interfaces';
 
 export type MockConfig = {
   [name: string]: GenericStream | MockConfig;
   elements?: GenericStream;
 }
 
-const SCOPE_PREFIX = '___';
+export interface MockedDOMSourceOptions extends DOMSourceOptions {
+  mockConfig: MockConfig;
+}
 
-export class MockedDOMSource implements DOMSource {
+const SOURCE_NAME = `MockedDOM`;
+const SCOPE_PREFIX = `___`;
+
+export class MockedDOMSource extends DOMSource {
+  private _mockConfig: MockConfig;
   private _elements: any;
 
-  constructor(private _streamAdapter: StreamAdapter,
-              private _mockConfig: MockConfig) {
-    if (_mockConfig.elements) {
-      this._elements = _mockConfig.elements;
-    } else {
-      this._elements = _streamAdapter.adapt(xs.empty(), xsSA.streamSubscribe);
-    }
+  constructor(options: MockedDOMSourceOptions) {
+    super(options);
+    this._mockConfig = options.mockConfig;
+    this._elements = this._mockConfig.elements ||
+      this._runStreamAdapter.adapt(xs.empty(), xsAdapter.streamSubscribe);
   }
 
   public elements(): any {
     const out: DevToolEnabledSource = this._elements;
-    out._isCycleSource = 'MockedDOM';
+    out._isCycleSource = SOURCE_NAME;
+
     return out;
   }
 
   public events(eventType: string, options: EventsFnOptions): any {
     const mockConfig = this._mockConfig;
     const keys = Object.keys(mockConfig);
-    const keysLen = keys.length;
-    for (let i = 0; i < keysLen; i++) {
-      const key = keys[i];
+    const keysCount = keys.length;
+    for (let idx = 0; idx < keysCount; idx++) {
+      const key = keys[idx];
       if (key === eventType) {
         const out: DevToolEnabledSource = mockConfig[key];
-        out._isCycleSource = 'MockedDOM';
+        out._isCycleSource = SOURCE_NAME;
+
         return out;
       }
     }
-    const out: DevToolEnabledSource = this._streamAdapter.adapt(
+    const out: DevToolEnabledSource = this._runStreamAdapter.adapt(
       xs.empty(),
-      xsSA.streamSubscribe
+      xsAdapter.streamSubscribe
     );
-    out._isCycleSource = 'MockedDOM';
+    out._isCycleSource = SOURCE_NAME;
+
     return out;
   }
 
   public select(selector: string): DOMSource {
+    const options: MockedDOMSourceOptions = {
+      runStreamAdapter: this._runStreamAdapter,
+      driverKey: this._driverKey,
+      mockConfig: {}
+    };
     const mockConfig = this._mockConfig;
     const keys = Object.keys(mockConfig);
-    const keysLen = keys.length;
-    for (let i = 0; i < keysLen; i++) {
-      const key = keys[i];
+    const keysCount = keys.length;
+    for (let idx = 0; idx < keysCount; idx++) {
+      const key = keys[idx];
       if (key === selector) {
-        return new MockedDOMSource(this._streamAdapter, mockConfig[key]);
+        options.mockConfig = mockConfig[key];
+
+        return new MockedDOMSource(options);
       }
     }
-    return new MockedDOMSource(this._streamAdapter, {});
+
+    return new MockedDOMSource(options);
   }
 
   public isolateSource(source: MockedDOMSource, scope: string): DOMSource {
-    return source.select('.' + SCOPE_PREFIX + scope);
+    return source.select(`.${SCOPE_PREFIX}${scope}`);
   }
 
   public isolateSink(sink: any, scope: string): any {
@@ -76,14 +90,13 @@ export class MockedDOMSource implements DOMSource {
         return vnode;
       } else {
         vnode.sel += `.${SCOPE_PREFIX}${scope}`;
+
         return vnode;
       }
     });
   }
 }
 
-export function mockDOMSource(
-    streamAdapter: StreamAdapter,
-    mockConfig: Object): DOMSource {
-  return new MockedDOMSource(streamAdapter, mockConfig);
+export function mockDOMSource(options: MockedDOMSourceOptions): DOMSource {
+  return new MockedDOMSource(options);
 }

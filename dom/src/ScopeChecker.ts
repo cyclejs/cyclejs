@@ -1,4 +1,4 @@
-import {IsolateModule} from './isolateModule';
+import {IsolateModule} from './IsolateModule';
 
 export class ScopeChecker {
   constructor(private scope: string,
@@ -6,15 +6,17 @@ export class ScopeChecker {
   }
 
   public isStrictlyInRootScope(leaf: Element): boolean {
-    for (let el = leaf; el; el = el.parentElement) {
-      const scope = this.isolateModule.isIsolatedElement(el);
-      if (scope && scope !== this.scope) {
+    for (let element = leaf; element; element = element.parentElement) {
+      const scope: string | boolean = this.isolateModule.scopeOfIsolatedElement(element);
+      const isNotThisScope: boolean = scope && scope !== this.scope;
+      if (isNotThisScope) {
         return false;
       }
       if (scope) {
         return true;
       }
     }
+
     return true;
   }
 }

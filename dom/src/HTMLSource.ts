@@ -1,35 +1,48 @@
 import xs, {Stream} from 'xstream';
-import {StreamAdapter, DevToolEnabledSource} from '@cycle/base';
-import {DOMSource, EventsFnOptions} from './DOMSource';
-import xsSA from '@cycle/xstream-adapter';
+import {DevToolEnabledSource} from '@cycle/base';
+import {DOMSource} from './DOMSource';
+import {DOMSourceOptions} from './DOMSourceOptions';
+import {EventsFnOptions} from './EventsFnOptions';
+import xsAdapter from '@cycle/xstream-adapter';
 
-export class HTMLSource implements DOMSource {
-  private _html$: any;
-  private _empty$: any;
+export interface HTMLSourceOptions extends DOMSourceOptions {
+  html$: Stream<string>;
+}
 
-  constructor(html$: Stream<string>,
-              private runSA: StreamAdapter,
-              private _name: string) {
-    this._html$ = html$;
-    this._empty$ = runSA.adapt(xs.empty(), xsSA.streamSubscribe);
+export class HTMLSource extends DOMSource {
+  private _html$: Stream<string>;
+  private _empty$: Stream<any>;
+
+  constructor(options: HTMLSourceOptions) {
+    super(options);
+    this._html$ = options.html$;
+    this._empty$ = this._runStreamAdapter.adapt(xs.empty(), xsAdapter.streamSubscribe);
   }
 
-  public elements(): any {
-    const out: DevToolEnabledSource = this.runSA.adapt(
+  public elements(): DevToolEnabledSource {
+    const out: DevToolEnabledSource = this._runStreamAdapter.adapt(
       this._html$,
-      xsSA.streamSubscribe
+      xsAdapter.streamSubscribe
     );
-    out._isCycleSource = this._name;
+    out._isCycleSource = this._driverKey;
+
     return out;
   }
 
   public select(selector: string): DOMSource {
-    return new HTMLSource(xs.empty(), this.runSA, this._name);
+    const options: HTMLSourceOptions = {
+      runStreamAdapter: this._runStreamAdapter,
+      driverKey: this._driverKey,
+      html$: xs.empty()
+    };
+
+    return new HTMLSource(options);
   }
 
-  public events(eventType: string, options?: EventsFnOptions): any {
-    const out: DevToolEnabledSource = this._empty$;
-    out._isCycleSource = this._name;
+  public events(eventType: string, options?: EventsFnOptions): DevToolEnabledSource {
+    const out: DevToolEnabledSource = <any>this._empty$;
+    out._isCycleSource = this._driverKey;
+
     return out;
   }
 }

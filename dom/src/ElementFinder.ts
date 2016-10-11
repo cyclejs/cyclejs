@@ -1,48 +1,53 @@
 import {ScopeChecker} from './ScopeChecker';
 import {getScope, getSelectors} from './utils';
-import {IsolateModule} from './isolateModule';
-
-interface MatchesSelector {
-  (element: Element, selector: string): boolean;
-}
-let matchesSelector: MatchesSelector;
-declare var require: any;
-try {
-  matchesSelector = require(`matches-selector`);
-} catch (e) {
-  matchesSelector = <MatchesSelector> Function.prototype;
-}
-
-function toElArray(input: any): Array<Element> {
-  return <Array<Element>> Array.prototype.slice.call(input);
-}
+import {IsolateModule} from './IsolateModule';
 
 export class ElementFinder {
   constructor(public namespace: Array<string>,
               public isolateModule: IsolateModule) {
   }
 
-  call(rootElement: Element): Element | Array<Element> {
+  find(rootElement: Element): Element | Array<Element> {
     const namespace = this.namespace;
-    if (namespace.join(``) === ``) {
-      return rootElement;
-    }
+    const isNamespaceEmpty = namespace.join(``) === ``;
 
-    const scope = getScope(namespace);
-    const scopeChecker = new ScopeChecker(scope, this.isolateModule);
-    const selector = getSelectors(namespace);
-    let topNode = rootElement;
-    let topNodeMatches: Array<Element> = [];
-
-    if (scope.length > 0) {
-      topNode = this.isolateModule.getIsolatedElement(scope) || rootElement;
-      if (selector && matchesSelector(topNode, selector)) {
-        topNodeMatches.push(topNode);
-      }
-    }
-
-    return toElArray(topNode.querySelectorAll(selector))
-      .filter(scopeChecker.isStrictlyInRootScope, scopeChecker)
-      .concat(topNodeMatches);
+    return isNamespaceEmpty ?
+      rootElement :
+      findElements(namespace, rootElement, this.isolateModule);
   }
+}
+
+interface MatchesSelector {
+  (element: Element, selector: string): boolean;
+}
+
+let matchesSelector: MatchesSelector;
+declare var require: any;
+try {
+  matchesSelector = require(`matches-selector`);
+} catch (e) {
+  matchesSelector = <MatchesSelector>Function.prototype;
+}
+
+function findElements(
+    namespace: Array<string>,
+    rootElement: Element,
+    isolateModule: IsolateModule): Array<Element> {
+  const scope = getScope(namespace);
+  const hasScope = scope.length > 0;
+  const topElement = hasScope ?
+    isolateModule.isolatedElementInScope(scope) || rootElement :
+    rootElement;
+
+  const selector = getSelectors(namespace);
+  const elementMatchesSelector =
+    hasScope && selector && matchesSelector(topElement, selector);
+  const elementMatches = elementMatchesSelector ? [topElement] : [];
+  const topElementNodeList = topElement.querySelectorAll(selector);
+
+  const scopeChecker = new ScopeChecker(scope, isolateModule);
+
+  return <Array<Element>>Array.prototype.slice.call(topElementNodeList)
+    .filter(scopeChecker.isStrictlyInRootScope, scopeChecker)
+    .concat(elementMatches);
 }
