@@ -65,8 +65,6 @@ const eventTypesThatDontBubble = [
   `waiting`,
 ];
 
-const STRING_TYPE = `string`;
-
 export class MainDOMSource extends DOMSource {
   private _namespace: Array<string>;
   private _rootElement$: Stream<Element>;
@@ -104,7 +102,7 @@ export class MainDOMSource extends DOMSource {
   }
 
   select(selector: string): DOMSource {
-    if (typeof selector !== STRING_TYPE) {
+    if (typeof selector !== `string`) {
       throw new Error(`DOM driver’s select() expects the argument to be a ` +
         `string as a CSS selector`);
     }
@@ -128,7 +126,7 @@ export class MainDOMSource extends DOMSource {
   }
 
   events(eventType: string, options: EventsFnOptions = {}): DevToolEnabledSource {
-    if (typeof eventType !== STRING_TYPE) {
+    if (typeof eventType !== `string`) {
       throw new Error(`DOM driver's events() expects argument to be a ` +
         `string representing the event type to listen for.`);
     }
