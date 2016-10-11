@@ -12,7 +12,7 @@ export class ScopeChecker {
       if (isNotThisScope) {
         return false;
       }
-      if (!!scope) {
+      if (scope) {
         return true;
       }
     }
