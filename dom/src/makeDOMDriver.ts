@@ -13,8 +13,6 @@ import {EventDelegator} from './EventDelegator';
 import xsAdapter from '@cycle/xstream-adapter';
 let MapPolyfill: typeof Map = require('es6-map');
 
-export {makeDOMDriver}
-
 export interface DOMDriverOptions {
   modules?: Array<any>;
   transposition?: boolean;
@@ -94,3 +92,5 @@ function domDriverVNodeStreamGuard(vnode$: Stream<VNode>): void {
       `virtual DOM elements`);
   }
 }
+
+export {makeDOMDriver}
