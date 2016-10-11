@@ -2,6 +2,21 @@ import {ScopeChecker} from './ScopeChecker';
 import {getScope, getSelectors} from './utils';
 import {IsolateModule} from './IsolateModule';
 
+export class ElementFinder {
+  constructor(public namespace: Array<string>,
+              public isolateModule: IsolateModule) {
+  }
+
+  find(rootElement: Element): Element | Array<Element> {
+    const namespace = this.namespace;
+    const isNamespaceEmpty = namespace.join(``) === ``;
+
+    return isNamespaceEmpty ?
+      rootElement :
+      findElements(namespace, rootElement, this.isolateModule);
+  }
+}
+
 interface MatchesSelector {
   (element: Element, selector: string): boolean;
 }
@@ -14,36 +29,25 @@ try {
   matchesSelector = <MatchesSelector>Function.prototype;
 }
 
-export class ElementFinder {
-  constructor(public namespace: Array<string>,
-              public isolateModule: IsolateModule) {
-  }
+function findElements(
+    namespace: Array<string>,
+    rootElement: Element,
+    isolateModule: IsolateModule): Array<Element> {
+  const scope = getScope(namespace);
+  const hasScope = scope.length > 0;
+  const topElement = hasScope ?
+    isolateModule.isolatedElementInScope(scope) || rootElement :
+    rootElement;
 
-  find(rootElement: Element): Element | Array<Element> {
-    const namespace = this.namespace;
-    if (namespace.join(``) === ``) {
-      return rootElement;
-    }
+  const selector = getSelectors(namespace);
+  const elementMatchesSelector =
+    hasScope && selector && matchesSelector(topElement, selector);
+  const elementMatches = elementMatchesSelector ? [topElement] : [];
+  const topElementNodeList = topElement.querySelectorAll(selector);
 
-    const scope = getScope(namespace);
-    const scopeChecker = new ScopeChecker(scope, this.isolateModule);
-    const selector = getSelectors(namespace);
-    let topNode = rootElement;
-    let topNodeMatches: Array<Element> = [];
+  const scopeChecker = new ScopeChecker(scope, isolateModule);
 
-    if (scope.length > 0) {
-      topNode = this.isolateModule.isolatedElementInScope(scope) || rootElement;
-      if (selector && matchesSelector(topNode, selector)) {
-        topNodeMatches.push(topNode);
-      }
-    }
-
-    return toElArray(topNode.querySelectorAll(selector))
-      .filter(scopeChecker.isStrictlyInRootScope, scopeChecker)
-      .concat(topNodeMatches);
-  }
-}
-
-function toElArray(input: any): Array<Element> {
-  return <Array<Element>> Array.prototype.slice.call(input);
+  return <Array<Element>>Array.prototype.slice.call(topElementNodeList)
+    .filter(scopeChecker.isStrictlyInRootScope, scopeChecker)
+    .concat(elementMatches);
 }
