@@ -125,8 +125,10 @@ function normalizeRequestInput(reqOptions: RequestInput): RequestOptions {
   }
 }
 
+export type ResponseMemoryStream = MemoryStream<Response> & ResponseStream;
+
 function makeRequestInputToResponse$(runStreamAdapter: StreamAdapter) {
-  return function requestInputToResponse$(reqInput: RequestInput): MemoryStream<Response> & ResponseStream {
+  return function requestInputToResponse$(reqInput: RequestInput): ResponseMemoryStream {
     let response$ = createResponse$(reqInput).remember();
     let reqOptions = softNormalizeRequestInput(reqInput);
     if (!reqOptions.lazy) {
@@ -139,12 +141,14 @@ function makeRequestInputToResponse$(runStreamAdapter: StreamAdapter) {
       value: reqOptions,
       writable: false,
     });
-    return response$ as (MemoryStream<Response> & ResponseStream);
+    return response$ as ResponseMemoryStream;
   };
 }
 
 export function makeHTTPDriver(): Function {
-  function httpDriver(request$: Stream<RequestInput>, runSA: StreamAdapter, name: string): HTTPSource {
+  function httpDriver(request$: Stream<RequestInput>,
+                      runSA: StreamAdapter,
+                      name: string): HTTPSource {
     let response$$ = request$
       .map(makeRequestInputToResponse$(runSA));
     let httpSource = new MainHTTPSource(response$$, runSA, name, []);

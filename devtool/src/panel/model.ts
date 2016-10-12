@@ -12,7 +12,8 @@ export interface DiagramState {
 
 export type ZapSpeed = 'slow' | 'normal' | 'fast';
 
-export default function model(serializedGraph$: Stream<string>, speed$: Stream<ZapSpeed>): Stream<DiagramState> {
+export default function model(serializedGraph$: Stream<string>,
+                              speed$: Stream<ZapSpeed>): Stream<DiagramState> {
   const object$ = serializedGraph$
     .filter(str => str.length > 0)
     .map(serializedObject => CircularJSON.parse(serializedObject));

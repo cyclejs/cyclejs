@@ -15,7 +15,9 @@ export interface SinkProxies {
 
 export type DisposeFunction = () => void;
 
-export type StreamSubscribe = <T>(stream: any, observer: Observer<T>) => (DisposeFunction | undefined);
+export interface StreamSubscribe {
+  <T>(stream: any, observer: Observer<T>): DisposeFunction | undefined;
+}
 
 export interface DevToolEnabledSource {
   _isCycleSource: string;

@@ -14,7 +14,12 @@ export class MainHTTPSource implements HTTPSource {
 
   filter(predicate: (request: RequestOptions) => boolean): HTTPSource {
     const filteredResponse$$ = this._res$$.filter((r$) => predicate(r$.request));
-    return new MainHTTPSource(filteredResponse$$, this.runStreamAdapter, this._name, this._namespace);
+    return new MainHTTPSource(
+      filteredResponse$$,
+      this.runStreamAdapter,
+      this._name,
+      this._namespace,
+    );
   }
 
   select(category?: string): any {
