@@ -53,7 +53,7 @@ function backgroundSourceDriver(): Stream<string> {
 
 const graphSource = backgroundSourceDriver();
 
-export function startPanel(graphSource: Stream<string>): void {
+export function startPanel(graph$: Stream<string>): void {
   const adHocContainer: Element = document.createElement('DIV');
   adHocContainer.id = '#ad-hoc-container';
   document.body.appendChild(adHocContainer);
@@ -64,7 +64,7 @@ export function startPanel(graphSource: Stream<string>): void {
   const domSinkProxy = xs.create<VNode>();
   const domSource = domDriver(domSinkProxy, xsSA);
 
-  const panelSources = {graph: graphSource, DOM: domSource};
+  const panelSources = {graph: graph$, DOM: domSource};
   const panelSinks = Panel(panelSources);
 
   styles.inject();

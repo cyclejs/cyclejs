@@ -24,6 +24,7 @@
       "allow-pascal-case"
     ],
     "no-empty": false,
+    "no-shadowed-variable": true,
     "no-unused-expression": true,
     "no-unused-variable": true,
     "triple-equals": true,
