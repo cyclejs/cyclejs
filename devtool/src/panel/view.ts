@@ -1,4 +1,4 @@
-import xs, {Stream} from 'xstream';
+import {Stream} from 'xstream';
 import {div, h1, p, ul, a, li, pre, VNode} from '@cycle/dom';
 import {devToolStyle, invalidStateStyle} from './styles';
 import {DiagramState} from './model';
@@ -27,7 +27,7 @@ function renderInvalidState() {
       }}, 'chat'),
       ' is usually friendly and helpful.'
     ])
-  ])
+  ]);
 }
 
 export default function view(diagramState$: Stream<DiagramState>): Stream<VNode> {

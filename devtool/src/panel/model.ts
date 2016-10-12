@@ -1,5 +1,4 @@
 import xs, {Stream} from 'xstream';
-import dropRepeats from 'xstream/extra/dropRepeats';
 import * as dagre from 'dagre';
 import {Zap} from '../graphSerializer';
 import * as CircularJSON from 'circular-json';
@@ -16,11 +15,7 @@ export type ZapSpeed = 'slow' | 'normal' | 'fast';
 export default function model(serializedGraph$: Stream<string>, speed$: Stream<ZapSpeed>): Stream<DiagramState> {
   const object$ = serializedGraph$
     .filter(str => str.length > 0)
-    .map(serializedObject => CircularJSON.parse(serializedObject))
-
-  const id$ = object$
-    .map(object => (object.id || 'graph-0') as string)
-    .compose(dropRepeats());
+    .map(serializedObject => CircularJSON.parse(serializedObject));
 
   const graphAndZap$ = object$
     .map(object => {

@@ -23,12 +23,12 @@ function Panel(sources: PanelSources): PanelSinks {
   const vdom$ = view(diagramState$).replaceError(err => {
     alert(err);
     return xs.empty();
-  })
+  });
 
   return {
     DOM: vdom$,
     zapSpeed: speed$,
-  }
+  };
 }
 
 function backgroundSourceDriver(): Stream<string> {
@@ -37,7 +37,7 @@ function backgroundSourceDriver(): Stream<string> {
       // alert('PANEL is setting up its window listener');
       window.addEventListener('message', function windowMessageListener(evt) {
         // alert('PANEL got a message');
-        var eventData = evt.data;
+        const eventData = evt.data;
         if (typeof eventData === 'object'
         && eventData !== null
         && eventData.hasOwnProperty('__fromCyclejsDevTool')
@@ -91,4 +91,3 @@ startPanel(graphSource);
 //     scriptToInject: 'graphSerializer.js'
 //   }));
 // }, 1000);
-

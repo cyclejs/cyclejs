@@ -70,7 +70,7 @@
     "xstream": "global:xstream"
   },
   "scripts": {
-    "lint": "../node_modules/.bin/tslint -c tslint.json src/*.ts",
+    "lint": "../node_modules/.bin/tslint -c ../tslint.json src/**/*.ts",
     "test-node": "../node_modules/.bin/mocha --compilers js:babel-register test/node",
     "pretest-browser": "../node_modules/.bin/browserify test/browser/index.js -t babelify -o test/browser/page/tests-bundle.js",
     "test-browser": "../node_modules/.bin/testem ci -l Chrome,Firefox",

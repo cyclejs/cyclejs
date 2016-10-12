@@ -34,7 +34,7 @@
     "xstream": "^6.2.0"
   },
   "scripts": {
-    "lint": "../node_modules/.bin/tslint -c tslint.json src/*.ts src/**/*.ts",
+    "lint": "../node_modules/.bin/tslint -c ../tslint.json src/**/*.ts",
     "test-node": "../node_modules/.bin/mocha -r babel-register test/node/*.js",
     "build-browser-tests": "../node_modules/.bin/browserify -t babelify test/browser/index.js -o test/browser/bundle.js",
     "test-browser": "../node_modules/.bin/testem ci -l Chrome,Firefox",

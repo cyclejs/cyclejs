@@ -1,4 +1,4 @@
-import xs, {Operator, Stream} from 'xstream';
+import {Operator, Stream} from 'xstream';
 
 class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
   public type = 'timeSpread';
@@ -53,7 +53,9 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
 
   _n(t: T) {
     const u = this.out;
-    if (!u) return;
+    if (!u) {
+      return;
+    }
     this.queue.push(t);
     this.clearTimeout();
     this.timeoutId = setTimeout(() => this.schedule(), 16);
@@ -61,7 +63,9 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
 
   schedule() {
     const u = this.out;
-    if (!u) return;
+    if (!u) {
+      return;
+    }
     const q = this.queue;
     const duration = q.length * this.period;
     if (q.length === 0) {
@@ -149,14 +153,18 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
 
   _e(err: any) {
     const u = this.out;
-    if (!u) return;
+    if (!u) {
+      return;
+    }
     this.clearInterval();
     u._e(err);
   }
 
   _c() {
     const u = this.out;
-    if (!u) return;
+    if (!u) {
+      return;
+    }
     this.clearInterval();
     u._c();
   }

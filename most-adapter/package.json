@@ -53,7 +53,7 @@
     "@types/es6-shim": "^0.31.32"
   },
   "scripts": {
-    "lint": "../node_modules/.bin/tslint -c tslint.json src/*.ts src/**/*.ts",
+    "lint": "../node_modules/.bin/tslint -c ../tslint.json src/**/*.ts",
     "mocha": "../node_modules/.bin/mocha -r babel-register test/index.js",
     "test": "npm run lib && npm run lint && npm run mocha",
     "test-ci": "npm run test",

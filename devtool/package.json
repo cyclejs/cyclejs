@@ -20,8 +20,9 @@
     "browserify": "13.1.0"
   },
   "scripts": {
-    "test": ":",
+    "test": "npm run lint",
     "test-ci": ":",
+    "lint": "../node_modules/.bin/tslint -c ../tslint.json src/**/*.ts",
     "prelib": "rm -rf lib/ && mkdir -p lib && ../node_modules/.bin/typings install",
     "lib": "../node_modules/.bin/tsc",
     "dist-graphSerializer": "../node_modules/.bin/browserify lib/graphSerializer.js -s gs --outfile dist/graphSerializer.js",
