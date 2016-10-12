@@ -1,3 +1,13 @@
+<a name="12.2.6"></a>
+## 12.2.6 (2016-10-12)
+
+
+### Bug Fixes
+
+* **dom:** add virtual DOM sanitation on `dispose()` (#442) ([c91e7c6](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/c91e7c6)), closes [#263](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/issues/263)
+
+
+
 <a name="12.2.5"></a>
 ## 12.2.5 (2016-09-13)
 
