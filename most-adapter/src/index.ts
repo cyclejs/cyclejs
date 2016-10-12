@@ -24,7 +24,7 @@ const MostAdapter: StreamAdapter = {
       return disposer;
     });
 
-    return <Stream<T>> stream;
+    return stream as Stream<T>;
   },
 
   remember<T>(stream: Stream<T>): Stream<T> {

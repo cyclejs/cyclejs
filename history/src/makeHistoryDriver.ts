@@ -9,7 +9,7 @@ function makeUpdateHistory(history: History) {
       history.push(history.createLocation(location));
     } else if ('object' === typeof location) {
       // suport things like history.replace()
-      const {type = 'push'} = (<Location> location);
+      const {type = 'push'} = (location as Location);
       if (type === 'go') {
         history[type](location);
       } else {

@@ -12,7 +12,7 @@ const RxJSAdapter: StreamAdapter = {
     if (this.isValidStream(originStream)) {
       return originStream;
     }
-    return <Rx.Observable<T>> Rx.Observable.create((destinationObserver: any) => {
+    return Rx.Observable.create((destinationObserver: any) => {
       const originObserver: Observer<T> = {
         next: (x: T) => destinationObserver.onNext(x),
         error: (e: any) => destinationObserver.onError(e),
@@ -21,10 +21,10 @@ const RxJSAdapter: StreamAdapter = {
       const dispose = originStreamSubscribe(originStream, originObserver);
       return () => {
         if (typeof dispose === 'function') {
-          (<DisposeFunction> dispose).call(null);
+          (dispose as DisposeFunction).call(null);
         }
       };
-    });
+    }) as Rx.Observable<T>;
   },
 
   remember<T>(observable: Rx.Observable<T>): Rx.Observable<T> {

@@ -6,6 +6,7 @@
     "align": [true, "parameters"],
     "class-name": true,
     "indent": [true, "spaces"],
+    "no-angle-bracket-type-assertion": true,
     "max-line-length": [true, 150],
     "max-file-line-count": [true, 300],
     "no-consecutive-blank-lines": true,

@@ -34,7 +34,7 @@ const locationDefaults: Location = {
 
 export function createLocation(location?: Location | Pathname): Location {
   if (typeof location === 'string') {
-    return (<any> Object).assign({}, locationDefaults, {pathname: location});
+    return (Object as any).assign({}, locationDefaults, {pathname: location});
   }
-  return (<any> Object).assign({}, locationDefaults, location);
+  return (Object as any).assign({}, locationDefaults, location);
 }

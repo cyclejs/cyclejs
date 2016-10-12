@@ -11,14 +11,14 @@ export function isolateSource(httpSource: HTTPSource, scope: string): HTTPSource
   );
 }
 
-export function isolateSink(request$: Mappable<RequestInput, RequestOptions>, scope: string): any {
-  return request$.map((req: RequestInput) => {
-    if (typeof req === `string`) {
-      return {url: <string> req, _namespace: [scope]};
+export function isolateSink(request$: Mappable<RequestInput | string, RequestOptions>,
+                            scope: string): any {
+  return request$.map((req: RequestInput | string) => {
+    if (typeof req === 'string') {
+      return {url: req, _namespace: [scope]} as RequestOptions;
     }
-    const reqOptions = <RequestOptions> req;
-    reqOptions._namespace = reqOptions._namespace || [];
-    reqOptions._namespace.push(scope);
-    return reqOptions;
+    req._namespace = req._namespace || [];
+    req._namespace.push(scope);
+    return req;
   });
 }

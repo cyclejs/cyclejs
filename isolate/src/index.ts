@@ -15,7 +15,7 @@ function checkIsolateArgs(dataflowComponent: Function, scope: any) {
 }
 
 function isolateAllSources<So>(sources: So, scope: string): So {
-  const scopedSources = <So> {};
+  const scopedSources = {} as So;
   for (let key in sources) {
     if (sources.hasOwnProperty(key) && sources[key]
     && typeof sources[key].isolateSource === `function`) {
@@ -28,7 +28,7 @@ function isolateAllSources<So>(sources: So, scope: string): So {
 }
 
 function isolateAllSinks<So, Si>(sources: So, sinks: Si, scope: string): Si {
-  const scopedSinks = <Si> {};
+  const scopedSinks = {} as Si;
   for (let key in sinks) {
     if (sinks.hasOwnProperty(key)
     && sources[key]
@@ -84,6 +84,6 @@ function isolate<So, Si>(component: Component<So, Si>, scope: any = newScope()):
   };
 }
 
-(<any> isolate).reset = () => counter = 0;
+(isolate as any).reset = () => counter = 0;
 
 export default isolate;

@@ -5,24 +5,24 @@ import {
   DisposeFunction,
   Subject,
 } from '@cycle/base';
-import xs, {Stream, MemoryStream, Listener, Producer} from 'xstream';
+import xs, {Stream, MemoryStream, Listener} from 'xstream';
 
 const XStreamAdapter: StreamAdapter = {
   adapt<T>(originStream: any, originStreamSubscribe: StreamSubscribe): Stream<T> {
     if (XStreamAdapter.isValidStream(originStream)) { return originStream; };
     let dispose: any = null;
 
-    return xs.create<T>((<Producer<T>>{
+    return xs.create<T>({
       start(out: Listener<T>) {
         const observer: Observer<T> = out;
         dispose = originStreamSubscribe(originStream, observer);
       },
       stop() {
         if (typeof dispose === 'function') {
-          (<DisposeFunction> dispose());
+          (dispose as DisposeFunction)();
         }
       }
-    }));
+    });
   },
 
   makeSubject<T>(): Subject<T> {

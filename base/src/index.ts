@@ -15,7 +15,7 @@ export interface SinkProxies {
 
 export type DisposeFunction = () => void;
 
-export type StreamSubscribe = <T>(stream: any, observer: Observer<T>) => DisposeFunction | void;
+export type StreamSubscribe = <T>(stream: any, observer: Observer<T>) => (DisposeFunction | undefined);
 
 export interface DevToolEnabledSource {
   _isCycleSource: string;
@@ -107,17 +107,21 @@ function callDrivers(drivers: DriversDefinition,
         sources[name] = driverOutput;
       }
       if (sources[name] && typeof sources[name] === 'object') {
-        (<DevToolEnabledSource> sources[name])._isCycleSource = name;
+        (sources[name] as DevToolEnabledSource)._isCycleSource = name;
       }
     }
   }
   return sources;
 }
 
+function isValidDisposeFunction(fn: DisposeFunction | undefined): fn is DisposeFunction {
+  return typeof fn === 'function';
+}
+
 function replicateMany(sinks: any,
                        sinkProxies: SinkProxies,
                        streamAdapter: StreamAdapter): DisposeFunction {
-  const results: Array<DisposeFunction | void> = Object.keys(sinks)
+  const results = Object.keys(sinks)
     .filter(name => !!sinkProxies[name])
     .map(name =>
       streamAdapter.streamSubscribe(sinks[name], {
@@ -131,8 +135,7 @@ function replicateMany(sinks: any,
         }
       })
     );
-  const disposeFunctions: Array<DisposeFunction> = <Array<DisposeFunction>> results
-    .filter(dispose => typeof dispose === 'function');
+  const disposeFunctions = results.filter(isValidDisposeFunction);
   return () => {
     disposeFunctions.forEach(dispose => dispose());
   };
@@ -170,11 +173,11 @@ function Cycle<Sources, Sinks>(main: (sources: Sources) => Sinks,
       `with the streamAdapter key supplied with a valid stream adapter.`);
   }
 
-  const sinkProxies: SinkProxies = makeSinkProxies(<DriversDefinition> drivers, streamAdapter);
-  const sources: Sources = callDrivers(<DriversDefinition> drivers, sinkProxies, streamAdapter);
+  const sinkProxies: SinkProxies = makeSinkProxies(drivers as DriversDefinition, streamAdapter);
+  const sources: Sources = callDrivers(drivers as DriversDefinition, sinkProxies, streamAdapter);
   const sinks: Sinks = main(sources);
   if (typeof window !== 'undefined') {
-    (<any> window).Cyclejs = {sinks};
+    (window as any).Cyclejs = {sinks};
   }
   const run: () => DisposeFunction = () => {
     const disposeReplication = replicateMany(sinks, sinkProxies, streamAdapter);

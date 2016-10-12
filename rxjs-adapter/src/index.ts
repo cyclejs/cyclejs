@@ -16,7 +16,7 @@ const RxJSAdapter: StreamAdapter = {
       const dispose = originStreamSubscribe(originStream, observer);
       return () => {
         if (typeof dispose === 'function') {
-          (<DisposeFunction> dispose).call(null);
+          (dispose as DisposeFunction).call(null);
         }
       };
     });

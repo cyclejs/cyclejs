@@ -70,15 +70,14 @@ export function run<Sources, Sinks>(main: (sources: Sources) => Sinks,
  * is the function that once called will execute the application.
  * @function Cycle
  */
-const Cycle: CycleSetup = <CycleSetup>
-  function <Sources, Sinks>(main: (sources: Sources) => Sinks,
-                            drivers: {[name: string]: Function}): CycleExecution<Sources, Sinks> {
-    const out = CycleBase(main, drivers, {streamAdapter: XStreamAdapter});
-    if (typeof window !== 'undefined' && window['CyclejsDevTool_startGraphSerializer']) {
-      window['CyclejsDevTool_startGraphSerializer'](out.sinks);
-    }
-    return out;
-  };
+const Cycle = function <So, Si>(main: (sources: So) => Si,
+                                drivers: {[name: string]: Function}): CycleExecution<So, Si> {
+  const out = CycleBase(main, drivers, {streamAdapter: XStreamAdapter});
+  if (typeof window !== 'undefined' && window['CyclejsDevTool_startGraphSerializer']) {
+    window['CyclejsDevTool_startGraphSerializer'](out.sinks);
+  }
+  return out;
+} as CycleSetup;
 
 Cycle.run = run;
 

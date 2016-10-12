@@ -1,6 +1,6 @@
 import xs, {Stream, MemoryStream} from 'xstream';
 import {MainHTTPSource} from './MainHTTPSource';
-import {StreamAdapter} from '@cycle/base';
+import {StreamAdapter, DriverFunction} from '@cycle/base';
 import XStreamAdapter from '@cycle/xstream-adapter';
 import * as superagent from 'superagent';
 import {
@@ -116,9 +116,9 @@ function softNormalizeRequestInput(reqInput: RequestInput): RequestOptions {
 
 function normalizeRequestInput(reqOptions: RequestInput): RequestOptions {
   if (typeof reqOptions === 'string') {
-    return {url: <string> reqOptions};
+    return {url: reqOptions};
   } else if (typeof reqOptions === 'object') {
-    return <RequestOptions> reqOptions;
+    return reqOptions;
   } else {
     throw new Error(`Observable of requests given to HTTP Driver must emit ` +
       `either URL strings or objects with parameters.`);
@@ -130,18 +130,16 @@ function makeRequestInputToResponse$(runStreamAdapter: StreamAdapter) {
     let response$ = createResponse$(reqInput).remember();
     let reqOptions = softNormalizeRequestInput(reqInput);
     if (!reqOptions.lazy) {
-      /* tslint:disable:no-empty */
       response$.addListener({next: () => {}, error: () => {}, complete: () => {}});
-      /* tslint:enable:no-empty */
     }
     response$ = (runStreamAdapter) ?
       runStreamAdapter.adapt(response$, XStreamAdapter.streamSubscribe) :
       response$;
-    Object.defineProperty(response$, 'request', <PropertyDescriptor> {
+    Object.defineProperty(response$, 'request', {
       value: reqOptions,
       writable: false,
     });
-    return <MemoryStream<Response> & ResponseStream> response$;
+    return response$ as (MemoryStream<Response> & ResponseStream);
   };
 }
 
@@ -150,11 +148,9 @@ export function makeHTTPDriver(): Function {
     let response$$ = request$
       .map(makeRequestInputToResponse$(runSA));
     let httpSource = new MainHTTPSource(response$$, runSA, name, []);
-    /* tslint:disable:no-empty */
     response$$.addListener({next: () => {}, error: () => {}, complete: () => {}});
-    /* tslint:enable:no-empty */
     return httpSource;
   }
-  (<any> httpDriver).streamAdapter = XStreamAdapter;
+  (httpDriver as DriverFunction).streamAdapter = XStreamAdapter;
   return httpDriver;
 }

@@ -66,11 +66,10 @@ export function run<Sources, Sinks>(main: (sources: Sources) => Sinks,
  * is the function that once called will execute the application.
  * @function Cycle
  */
-const Cycle: CycleSetup = <CycleSetup>
-  function <Sources, Sinks>(main: (sources: Sources) => Sinks,
-                            drivers: DriversDefinition): CycleExecution<Sources, Sinks> {
-    return CycleBase(main, drivers, {streamAdapter: MostAdapter});
-  };
+const Cycle = function <So, Si>(main: (sources: So) => Si,
+                                drivers: DriversDefinition): CycleExecution<So, Si> {
+  return CycleBase(main, drivers, {streamAdapter: MostAdapter});
+} as CycleSetup;
 
 Cycle.run = run;
 
