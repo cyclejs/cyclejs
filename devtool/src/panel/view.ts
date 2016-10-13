@@ -23,10 +23,10 @@ function renderInvalidState() {
       'Need help? The ',
       a({ attrs: {
         href: 'https://gitter.im/cyclejs/cyclejs',
-        target: '_blank'
+        target: '_blank',
       }}, 'chat'),
-      ' is usually friendly and helpful.'
-    ])
+      ' is usually friendly and helpful.',
+    ]),
   ]);
 }
 
@@ -39,7 +39,7 @@ export default function view(diagramState$: Stream<DiagramState>): Stream<VNode>
         const {graph, zaps, id, speed} = diagramState;
         return div(`.devTool.${devToolStyle}`, [
           renderSpeedPicker(speed),
-          renderGraph(graph, zaps, id)
+          renderGraph(graph, zaps, id),
         ]);
       }
     });

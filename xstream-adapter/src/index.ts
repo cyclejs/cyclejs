@@ -21,7 +21,7 @@ const XStreamAdapter: StreamAdapter = {
         if (typeof dispose === 'function') {
           (dispose as DisposeFunction)();
         }
-      }
+      },
     });
   },
 
@@ -31,7 +31,7 @@ const XStreamAdapter: StreamAdapter = {
     const observer = {
       next: (x: any) => { stream.shamefullySendNext(x); },
       error: (err: any) => { stream.shamefullySendError(err); },
-      complete: () => { stream.shamefullySendComplete(); }
+      complete: () => { stream.shamefullySendComplete(); },
     };
 
     return {observer, stream};
@@ -50,7 +50,7 @@ const XStreamAdapter: StreamAdapter = {
   streamSubscribe(stream: Stream<any>, observer: Observer<any>) {
     stream.addListener(observer);
     return () => stream.removeListener(observer);
-  }
+  },
 };
 
 export default XStreamAdapter;

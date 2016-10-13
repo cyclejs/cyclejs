@@ -25,13 +25,12 @@ export class MainHTTPSource implements HTTPSource {
   public select(category?: string): any {
     let res$$ = this._res$$;
     if (category) {
-      res$$ = this._res$$.filter(
-        res$ => res$.request && res$.request.category === category
-      );
+      res$$ = this._res$$
+        .filter(res$ => res$.request && res$.request.category === category);
     }
     const out: DevToolEnabledSource = this.runStreamAdapter.adapt(
       res$$,
-      XStreamAdapter.streamSubscribe
+      XStreamAdapter.streamSubscribe,
     );
     out._isCycleSource = this._name;
     return out;

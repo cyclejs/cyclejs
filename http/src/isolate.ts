@@ -7,7 +7,7 @@ export interface Mappable<T, R> {
 export function isolateSource(httpSource: HTTPSource, scope: string): HTTPSource {
   return httpSource.filter((request: RequestOptions) =>
     Array.isArray(request._namespace) &&
-    request._namespace.indexOf(scope) !== -1
+    request._namespace.indexOf(scope) !== -1,
   );
 }
 

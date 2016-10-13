@@ -2,7 +2,7 @@ import CycleBase, {
   DriversDefinition,
   CycleExecution,
   CycleSetup,
-  DisposeFunction
+  DisposeFunction,
 } from '@cycle/base';
 import MostAdapter from '@cycle/most-adapter';
 

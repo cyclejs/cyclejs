@@ -6,7 +6,7 @@ import {
 } from '@cycle/base';
 import {Stream} from 'most';
 import {
-  subject as getMostSubject
+  subject as getMostSubject,
 } from 'most-subject';
 import hold from '@most/hold';
 import create = require('@most/create');
@@ -18,7 +18,7 @@ const MostAdapter: StreamAdapter = {
        const disposer = originStreamSubscribe(originStream, {
          next: add,
          error: error,
-         complete: end
+         complete: end,
       });
 
       return disposer;
@@ -37,7 +37,7 @@ const MostAdapter: StreamAdapter = {
     const observer = {
       next: (x: T) => { stream.next(x); },
       error: (err: Error) => { stream.error(err); },
-      complete: (x?: T) => { stream.complete(x); }
+      complete: (x?: T) => { stream.complete(x); },
     };
 
     return {observer, stream};
@@ -52,7 +52,7 @@ const MostAdapter: StreamAdapter = {
   streamSubscribe<T>(stream: Stream<any>, observer: Observer<T>) {
     const subscription = stream.subscribe(observer);
     return () => subscription.unsubscribe();
-  }
+  },
 };
 
 export default MostAdapter;

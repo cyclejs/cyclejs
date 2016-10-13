@@ -1,7 +1,7 @@
 import {
   CycleExecution,
   CycleSetup,
-  DisposeFunction
+  DisposeFunction,
 } from '@cycle/base';
 import CycleBase from '@cycle/base';
 import XStreamAdapter from '@cycle/xstream-adapter';

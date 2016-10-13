@@ -1,7 +1,7 @@
 import {
   CycleExecution,
   CycleSetup,
-  DisposeFunction
+  DisposeFunction,
 } from '@cycle/base';
 import CycleBase from '@cycle/base';
 import RxJSAdapter from '@cycle/rxjs-adapter';

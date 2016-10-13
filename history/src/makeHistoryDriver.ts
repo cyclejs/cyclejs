@@ -63,7 +63,7 @@ export function makeHistoryDriver(history: History, options?: HistoryDriverOptio
       complete: () => {
         unlisten();
         observer.complete();
-      }
+      },
     });
 
     if (capture) {

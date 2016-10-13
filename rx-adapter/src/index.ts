@@ -36,7 +36,7 @@ const RxJSAdapter: StreamAdapter = {
     const observer: Observer<T> = {
       next: (x: T) => { stream.onNext(x); },
       error: (err: any) => { stream.onError(err); },
-      complete: (x?: T) => { stream.onCompleted(); }
+      complete: (x?: T) => { stream.onCompleted(); },
     };
     return {stream, observer};
   },
@@ -51,12 +51,12 @@ const RxJSAdapter: StreamAdapter = {
     const subscription = stream.subscribe(
       (x: T) => observer.next(x),
       (e: any) => observer.error(e),
-      (x?: T) => observer.complete(x)
+      (x?: T) => observer.complete(x),
     );
     return () => {
       subscription.dispose();
     };
-  }
+  },
 };
 
 export default RxJSAdapter;

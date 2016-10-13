@@ -8,7 +8,7 @@ import {
   ResponseStream,
   RequestOptions,
   RequestInput,
-  Response
+  Response,
 } from './interfaces';
 
 function preprocessReqOptions(reqOptions: RequestOptions): RequestOptions {

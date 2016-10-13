@@ -44,7 +44,7 @@ export const invalidStateStyle = styleSheet.registerStyle({
     'color': '#409B9E',
     'text-decoration': 'inherit',
     'border-bottom': '1px dotted #409B9E',
-  }
+  },
 });
 
 export default styleSheet;

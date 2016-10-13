@@ -58,7 +58,7 @@ export function startPanel(graph$: Stream<string>): void {
   adHocContainer.id = '#ad-hoc-container';
   document.body.appendChild(adHocContainer);
   const domDriver = makeDOMDriver(
-    document.querySelector('#tools-container') || adHocContainer
+    document.querySelector('#tools-container') || adHocContainer,
   );
 
   const domSinkProxy = xs.create<VNode>();

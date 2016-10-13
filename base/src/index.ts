@@ -74,7 +74,7 @@ function makeSinkProxies(drivers: DriversDefinition,
 
       const stream = driverStreamAdapter.adapt(
         holdSubject.stream,
-        streamAdapter.streamSubscribe
+        streamAdapter.streamSubscribe,
       );
 
       sinkProxies[name] = {
@@ -95,7 +95,7 @@ function callDrivers(drivers: DriversDefinition,
       const driverOutput = drivers[name](
         sinkProxies[name].stream,
         streamAdapter,
-        name
+        name,
       );
 
       const driverStreamAdapter = drivers[name].streamAdapter;
@@ -103,7 +103,7 @@ function callDrivers(drivers: DriversDefinition,
       if (driverStreamAdapter && driverStreamAdapter.isValidStream(driverOutput)) {
         sources[name] = streamAdapter.adapt(
           driverOutput,
-          driverStreamAdapter.streamSubscribe
+          driverStreamAdapter.streamSubscribe,
         );
       } else {
         sources[name] = driverOutput;
@@ -125,18 +125,16 @@ function replicateMany(sinks: any,
                        streamAdapter: StreamAdapter): DisposeFunction {
   const results = Object.keys(sinks)
     .filter(name => !!sinkProxies[name])
-    .map(name =>
-      streamAdapter.streamSubscribe(sinks[name], {
-        next(x: any) { sinkProxies[name].observer.next(x); },
-        error(err: any) {
-          logToConsoleError(err);
-          sinkProxies[name].observer.error(err);
-        },
-        complete(x?: any) {
-          sinkProxies[name].observer.complete(x);
-        }
-      })
-    );
+    .map(name => streamAdapter.streamSubscribe(sinks[name], {
+      next(x: any) { sinkProxies[name].observer.next(x); },
+      error(err: any) {
+        logToConsoleError(err);
+        sinkProxies[name].observer.error(err);
+      },
+      complete(x?: any) {
+        sinkProxies[name].observer.complete(x);
+      },
+    }));
   const disposeFunctions = results.filter(isValidDisposeFunction);
   return () => {
     disposeFunctions.forEach(dispose => dispose());

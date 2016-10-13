@@ -50,7 +50,7 @@ const RxJSAdapter: StreamAdapter = {
     return () => {
       subscription.unsubscribe();
     };
-  }
+  },
 };
 
 export default RxJSAdapter;
