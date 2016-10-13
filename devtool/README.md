@@ -4,6 +4,8 @@ A DevTool panel that renders a visualization of the dataflow graph between sourc
 
 ![Demonstration](./example.png)
 
+For a thorough introduction to "Why" and "How" of this tool, watch this talk: [See the data flowing through your app](https://www.youtube.com/watch?v=R-GzJgEccEQ).
+
 # Usage
 
 This DevTool requires that your app is built using the following packages:
