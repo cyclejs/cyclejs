@@ -1,4 +1,4 @@
-let counter: number = 0;
+let counter = 0;
 
 function newScope(): string {
   return `cycle${++counter}`;
