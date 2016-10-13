@@ -51,6 +51,6 @@ class ServerHistory implements History {
   }
 }
 
-export function createServerHistory(loc?: Location | Pathname): History {
-  return new ServerHistory(loc ? createLocation(loc) : null);
+export function createServerHistory(loc: Location | Pathname | undefined): History {
+  return new ServerHistory(createLocation(loc));
 }
