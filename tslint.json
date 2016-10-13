@@ -10,6 +10,7 @@
     "max-line-length": [true, 100],
     "max-file-line-count": [true, 300],
     "no-consecutive-blank-lines": true,
+    "member-access": true,
     "no-trailing-whitespace": true,
     "no-bitwise": true,
     "no-debugger": true,

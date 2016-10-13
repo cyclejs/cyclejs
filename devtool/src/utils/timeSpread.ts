@@ -22,12 +22,12 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
     this.DURATION_AS_FAST = 28 * period;
   }
 
-  _start(out: Stream<Array<T>>): void {
+  public _start(out: Stream<Array<T>>): void {
     this.out = out;
     this.ins._add(this);
   }
 
-  _stop(): void {
+  public _stop(): void {
     this.ins._remove(this);
     this.out = null;
     this.queue = [];
@@ -35,7 +35,7 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
     this.intervalId = null;
   }
 
-  clearInterval() {
+  private clearInterval() {
     const id = this.intervalId;
     if (id !== null) {
       clearInterval(id);
@@ -43,7 +43,7 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
     }
   }
 
-  clearTimeout() {
+  private clearTimeout() {
     const id = this.timeoutId;
     if (id !== null) {
       clearTimeout(id);
@@ -51,7 +51,7 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
     }
   }
 
-  _n(t: T) {
+  public _n(t: T) {
     const u = this.out;
     if (!u) {
       return;
@@ -61,7 +61,7 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
     this.timeoutId = setTimeout(() => this.schedule(), 16);
   }
 
-  schedule() {
+  private schedule() {
     const u = this.out;
     if (!u) {
       return;
@@ -81,7 +81,7 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
     }
   }
 
-  scheduleAsNormal() {
+  private scheduleAsNormal() {
     this.clearInterval();
     const u = this.out;
     const q = this.queue;
@@ -106,7 +106,7 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
     }, period);
   }
 
-  scheduleAsFast(fastPeriod: number) {
+  private scheduleAsFast(fastPeriod: number) {
     this.clearInterval();
     const u = this.out;
     const q = this.queue;
@@ -128,7 +128,7 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
     }, fastPeriod);
   }
 
-  scheduleAsInstant(instantPeriod: number) {
+  private scheduleAsInstant(instantPeriod: number) {
     this.clearInterval();
     const u = this.out;
     const q = this.queue;
@@ -151,7 +151,7 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
     }, 16);
   }
 
-  _e(err: any) {
+  public _e(err: any) {
     const u = this.out;
     if (!u) {
       return;
@@ -160,7 +160,7 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
     u._e(err);
   }
 
-  _c() {
+  public _c() {
     const u = this.out;
     if (!u) {
       return;

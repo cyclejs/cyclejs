@@ -10,12 +10,12 @@ class ServerHistory implements History {
     this.listeners = [];
   }
 
-  listen(listener: Listener) {
+  public listen(listener: Listener) {
     this.listeners.push(listener);
     return function noop(): void { return void 0; };
   }
 
-  push(location: Location | Pathname) {
+  public push(location: Location | Pathname) {
     const length = this.listeners.length;
     if (length === 0) {
       throw new Error('Must be given at least one listener before pushing');
@@ -26,27 +26,27 @@ class ServerHistory implements History {
     }
   }
 
-  replace(location: Location) {
+  public replace(location: Location) {
     this.push(location);
   }
 
-  createHref(path: Pathname) {
+  public createHref(path: Pathname) {
     return path;
   }
 
-  createLocation(location: Location | Pathname) {
+  public createLocation(location: Location | Pathname) {
     return createLocation(location);
   }
 
-  getCurrentLocation(): Location {
+  public getCurrentLocation(): Location {
     return this.currentLocation;
   }
 
-  addCompleteCallback(complete: () => void) {
+  public addCompleteCallback(complete: () => void) {
     this._completeCallback = complete;
   }
 
-  complete() {
+  public complete() {
     this._completeCallback();
   }
 }

@@ -12,7 +12,7 @@ export class MainHTTPSource implements HTTPSource {
               private _namespace: Array<string> = []) {
   }
 
-  filter(predicate: (request: RequestOptions) => boolean): HTTPSource {
+  public filter(predicate: (request: RequestOptions) => boolean): HTTPSource {
     const filteredResponse$$ = this._res$$.filter((r$) => predicate(r$.request));
     return new MainHTTPSource(
       filteredResponse$$,
@@ -22,7 +22,7 @@ export class MainHTTPSource implements HTTPSource {
     );
   }
 
-  select(category?: string): any {
+  public select(category?: string): any {
     let res$$ = this._res$$;
     if (category) {
       res$$ = this._res$$.filter(
