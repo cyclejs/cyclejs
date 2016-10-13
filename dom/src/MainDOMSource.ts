@@ -142,15 +142,17 @@ export class MainDOMSource implements DOMSource {
     const key = keyParts.join('~');
     const domSource = this;
     let rootElement$: Stream<Element>;
+
     if (scope) {
-      let hadIsolatedMutable = false;
       rootElement$ = this._rootElement$
-        .filter(rootElement => {
-          const hasIsolated = !!domSource._isolateModule.getIsolatedElement(scope);
-          const shouldPass = hasIsolated && !hadIsolatedMutable;
-          hadIsolatedMutable = hasIsolated;
-          return shouldPass;
-        });
+        .fold(function shouldPass(state, val) {
+            const hasIsolated = !!domSource._isolateModule.getIsolatedElement(scope);
+            const shouldPass = hasIsolated && !state.hadIsolated_mutable;
+            return {hadIsolated_mutable: hasIsolated, shouldPass: shouldPass, dom: val};
+        }, {hadIsolated_mutable: false, shouldPass: undefined, dom: undefined})
+        .drop(1)
+        .filter(x => x.shouldPass)
+        .map(x => x.dom);
     } else {
       rootElement$ = this._rootElement$.take(2);
     }

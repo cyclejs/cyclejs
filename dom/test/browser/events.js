@@ -4,7 +4,8 @@ let assert = require('assert');
 let Cycle = require('@cycle/rxjs-run').default;
 let CycleDOM = require('../../lib/index');
 let Rx = require('rxjs');
-let {svg, div, input, p, span, h2, h3, h4, form, select, option, makeDOMDriver} = CycleDOM;
+let isolate = require('@cycle/isolate').default;
+let {svg, div, input, p, span, h2, h3, h4, form, select, option, button, makeDOMDriver} = CycleDOM;
 
 function createRenderTarget(id = null) {
   let element = document.createElement('div');
@@ -577,5 +578,80 @@ describe('DOMSource.events()', function () {
     });
     assert.strictEqual(sources.DOM.select('.myelementclass').events('click')._isCycleSource, 'DOM');
     done();
+  });
+
+  it('should allow restarting of event streams from isolated components', function (done) {
+    const outSubject = new Rx.Subject()
+    const switchSubject = new Rx.Subject()
+    
+    function component(sources) {
+      const itemMouseDown$ = sources.DOM.select('.item').events('mousedown')
+
+      const itemMouseUp$ = sources.DOM.select('.item').events('mouseup')
+
+      const itemMouseClick$ = itemMouseDown$
+        .switchMap(down => {
+          return itemMouseUp$.filter(up => down.target === up.target)
+        })
+
+      switchSubject.switchMap(function () {
+        return itemMouseClick$
+      }).subscribe(ev => {
+        outSubject.next(ev)
+      })
+
+      return {
+        DOM: Rx.Observable.of(button('.item', ['stuff']))
+      }  
+    }
+
+    function app(sources) {
+      //return component(sources)
+      return isolate(component)(sources)
+    }
+
+    function mouseevent(el, type) {
+
+      // This works on IE10
+      const ev = document.createEvent(`MouseEvent`)
+      ev.initMouseEvent(
+        type,
+        false /* bubble */, true /* cancelable */,
+        window, null,
+        0, 0, 0, 0, /* coordinates */
+        false, false, false, false, /* modifier keys */
+        0 /*left*/, null
+      )
+
+      // Would rather user this line below but does not work on IE10
+      //const ev = new MouseEvent(type)
+
+      el.dispatchEvent(ev)
+    }
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(createRenderTarget())
+    });
+
+    let count = 0
+    outSubject.subscribe(ev => {
+      assert.strictEqual(ev.type, 'mouseup')
+      count++
+      if (count === 2) {
+        done()
+      }
+    })
+
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(root => {
+      const clickable = root.querySelector('.item');
+      setTimeout(() => switchSubject.next(undefined));
+      setTimeout(() => mouseevent(clickable, 'mousedown'), 100);
+      setTimeout(() => mouseevent(clickable, 'mouseup'), 200);
+      setTimeout(() => switchSubject.next(undefined), 300);
+      setTimeout(() => mouseevent(clickable, 'mousedown'), 400);
+      setTimeout(() => mouseevent(clickable, 'mouseup'), 500);
+    });
+
+    run();
   });
 });
