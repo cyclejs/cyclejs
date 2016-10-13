@@ -48,7 +48,6 @@
     "@cycle/isolate": "*",
     "@cycle/rxjs-adapter": "*",
     "@cycle/rxjs-run": "*",
-    "@types/core-js": "^0.9.34",
     "@types/node": "^6.0.45",
     "babel-plugin-jsx-factory": "^1.0.1",
     "babel-plugin-syntax-jsx": "^6.3.13",

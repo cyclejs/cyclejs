@@ -12,8 +12,6 @@
   "dependencies": {},
   "devDependencies": {
     "@cycle/base": "4.x.x",
-    "@types/core-js": "^0.9.34",
-    "es6-promise": "^3.1.2",
     "xstream": "6.x.x"
   },
   "peerDependencies": {
