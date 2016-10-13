@@ -23,7 +23,7 @@ export function optionsToSuperagent(rawReqOptions: RequestOptions) {
   if (typeof reqOptions.url !== `string`) {
     throw new Error(`Please provide a \`url\` property in the request options.`);
   }
-  const lowerCaseMethod = reqOptions.method.toLowerCase();
+  const lowerCaseMethod = (reqOptions.method || 'GET').toLowerCase();
   const sanitizedMethod = lowerCaseMethod === `delete` ? `del` : lowerCaseMethod;
 
   let request = superagent[sanitizedMethod](reqOptions.url);
