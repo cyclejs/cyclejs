@@ -1,3 +1,4 @@
+/// <reference path="../circular-json.d.ts" />
 import xs, {Stream} from 'xstream';
 import * as dagre from 'dagre';
 import {Zap} from '../graphSerializer';
@@ -13,7 +14,7 @@ export interface DiagramState {
 export type ZapSpeed = 'slow' | 'normal' | 'fast';
 
 export default function model(serializedGraph$: Stream<string>,
-                              speed$: Stream<ZapSpeed>): Stream<DiagramState> {
+                              speed$: Stream<ZapSpeed>): Stream<DiagramState | null> {
   const object$ = serializedGraph$
     .filter(str => str.length > 0)
     .map(serializedObject => CircularJSON.parse(serializedObject));
@@ -32,7 +33,7 @@ export default function model(serializedGraph$: Stream<string>,
 
   const invalidState$ = serializedGraph$
     .filter(str => str.length === 0)
-    .mapTo(null as DiagramState);
+    .mapTo(null);
 
   return xs.merge(diagramState$, invalidState$);
 }

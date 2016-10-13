@@ -13,7 +13,7 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
 
   constructor(period: number, ins: Stream<T>) {
     this.ins = ins;
-    this.out = null;
+    this.out = null as any as Stream<Array<T>>;
     this.period = period;
     this.queue = [];
     this.timeoutId = null;
@@ -29,7 +29,7 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
 
   public _stop(): void {
     this.ins._remove(this);
-    this.out = null;
+    this.out = null as any as Stream<Array<T>>;
     this.queue = [];
     this.timeoutId = null;
     this.intervalId = null;
@@ -71,7 +71,7 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
     if (q.length === 0) {
       return;
     } else if (q.length === 1) {
-      u._n([q.shift()]);
+      u._n([q.shift() as T]);
     } else if (duration <= this.DURATION_AS_NORMAL) {
       this.scheduleAsNormal();
     } else if (duration <= this.DURATION_AS_FAST) {
@@ -87,7 +87,7 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
     const q = this.queue;
     const period = this.period;
 
-    u._n([q.shift()]);
+    u._n([q.shift() as T]);
     let consumedLength = 1;
 
     this.intervalId = setInterval(() => {
@@ -96,7 +96,7 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
       if (q.length === 0) {
         this.clearInterval();
       } else if (wouldBeDuration <= this.DURATION_AS_NORMAL) {
-        u._n([q.shift()]);
+        u._n([q.shift() as T]);
         consumedLength += 1;
       } else if (wouldBeDuration <= this.DURATION_AS_FAST) {
         this.scheduleAsFast(this.DURATION_AS_NORMAL / wouldBeLength);
@@ -111,7 +111,7 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
     const u = this.out;
     const q = this.queue;
 
-    u._n([q.shift()]);
+    u._n([q.shift() as T]);
     let consumedLength = 1;
 
     this.intervalId = setInterval(() => {
@@ -120,7 +120,7 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
       if (q.length === 0) {
         this.clearInterval();
       } else if (wouldBeDuration <= this.DURATION_AS_FAST) {
-        u._n([q.shift()]);
+        u._n([q.shift() as T]);
         consumedLength += 1;
       } else {
         this.scheduleAsInstant(this.DURATION_AS_FAST / wouldBeLength);

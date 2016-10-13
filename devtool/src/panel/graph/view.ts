@@ -5,7 +5,7 @@ import styles from './styles';
 export const DIAGRAM_PADDING_H = 30;
 export const DIAGRAM_PADDING_V = 5;
 
-function renderNodeLabel(node: StreamGraphNode, zap: Zap, style: string): VNode {
+function renderNodeLabel(node: StreamGraphNode, zap: Zap | null, style: string): VNode {
   let label = '';
   if (zap) {
     // MUTATION!
@@ -203,8 +203,11 @@ function renderArrowHead(vw: Dagre.Edge): VNode {
   ]);
 }
 
-function renderEdgeType1(vw: Dagre.Edge, graph: Dagre.Graph): VNode {
+function renderEdgeType1(vw: Dagre.Edge, graph: Dagre.Graph): VNode | null {
   const edgeData: StreamGraphEdge = (graph as any).edge(vw.v, vw.w);
+  if (!edgeData.points) {
+    return null;
+  }
   const points = edgeData.points.map(({x, y}) =>
     ({ x: x + DIAGRAM_PADDING_H, y: y + DIAGRAM_PADDING_V }),
   );
@@ -226,8 +229,11 @@ function renderEdgeType1(vw: Dagre.Edge, graph: Dagre.Graph): VNode {
   });
 }
 
-function renderEdgeType2(vw: Dagre.Edge, graph: Dagre.Graph): VNode {
+function renderEdgeType2(vw: Dagre.Edge, graph: Dagre.Graph): VNode | null {
   const edgeData: StreamGraphEdge = (graph as any).edge(vw.v, vw.w);
+  if (!edgeData.points) {
+    return null;
+  }
   const points = edgeData.points
     .map(({x, y}) => ({ x: x + DIAGRAM_PADDING_H, y: y + DIAGRAM_PADDING_V }));
 
@@ -245,13 +251,15 @@ function renderEdgeType2(vw: Dagre.Edge, graph: Dagre.Graph): VNode {
   ]);
 }
 
-function renderEdge(vw: Dagre.Edge, graph: Dagre.Graph): VNode {
+function renderEdge(vw: Dagre.Edge, graph: Dagre.Graph): VNode | null {
   const orig = graph.node(vw.v) as StreamGraphNode;
   const dest = graph.node(vw.w) as StreamGraphNode;
   if (dest.type === 'operator') {
     return renderEdgeType1(vw, graph);
   } else if (orig.type === 'operator') {
     return renderEdgeType2(vw, graph);
+  } else {
+    return null;
   }
 }
 

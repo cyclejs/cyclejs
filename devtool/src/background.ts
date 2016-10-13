@@ -1,4 +1,4 @@
-let portToLauncher: chrome.runtime.Port = null;
+let portToLauncher: chrome.runtime.Port | null = null;
 
 // Setup BACKGROUND<=>LAUNCHER (wrapping a panel) communication
 chrome.runtime.onConnect.addListener(function(port) {

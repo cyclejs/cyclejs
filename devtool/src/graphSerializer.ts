@@ -1,3 +1,4 @@
+/// <reference path="./circular-json.d.ts" />
 /* tslint:disable:max-file-line-count */
 import xs, {Stream, Listener} from 'xstream';
 import {DevToolEnabledSource} from '@cycle/base';
@@ -16,7 +17,7 @@ export interface StreamGraphNode {
   id: string;
   type: 'source' | 'stream' | 'sink' | 'operator';
   label?: string;
-  stream?: Stream<any>;
+  stream: Stream<any>;
   width: number;
   height: number;
   x?: number;
@@ -262,7 +263,7 @@ function makeObjectifyGraph(id$: Stream<string>) {
   };
 }
 
-function sinksAreXStream(sinks: Object): boolean {
+function sinksAreXStream(sinks: Object | null): boolean {
   if (sinks === null) {
     return false;
   }
@@ -278,7 +279,7 @@ function sinksAreXStream(sinks: Object): boolean {
 
 interface GraphSerializerSources {
   id: Stream<string>;
-  DebugSinks: Stream<Object>;
+  DebugSinks: Stream<Object | null>;
   FromPanel: Stream<string>;
   Settings: Stream<SessionSettings>;
 }
@@ -321,7 +322,7 @@ const panelMessage$ = xs.create<string>({
 
 let started = false;
 
-function startGraphSerializer(appSinks: Object) {
+function startGraphSerializer(appSinks: Object | null) {
   if (started) {
     return;
   }
