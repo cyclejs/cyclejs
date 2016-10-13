@@ -116,10 +116,6 @@ function callDrivers(drivers: DriversDefinition,
   return sources;
 }
 
-function isValidDisposeFunction(fn: DisposeFunction | undefined): fn is DisposeFunction {
-  return typeof fn === 'function';
-}
-
 function replicateMany(sinks: any,
                        sinkProxies: SinkProxies,
                        streamAdapter: StreamAdapter): DisposeFunction {
@@ -135,7 +131,8 @@ function replicateMany(sinks: any,
         sinkProxies[name].observer.complete(x);
       },
     }));
-  const disposeFunctions = results.filter(isValidDisposeFunction);
+  const disposeFunctions = results
+    .filter(fn => typeof fn === 'function') as Array<DisposeFunction>;
   return () => {
     disposeFunctions.forEach(dispose => dispose());
   };
