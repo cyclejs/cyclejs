@@ -11,7 +11,7 @@ export function renderSpeedPicker(speed: ZapSpeed): VNode {
         'slowSpeedButton': true,
         [styles.speedPickerSlowStyle]: true,
         [styles.speedPickerSelectedStyle]: speed === 'slow',
-      }
+      },
     }, '\u003E'),
 
     button({
@@ -19,7 +19,7 @@ export function renderSpeedPicker(speed: ZapSpeed): VNode {
         'normalSpeedButton': true,
         [styles.speedPickerNormalStyle]: true,
         [styles.speedPickerSelectedStyle]: speed === 'normal',
-      }
+      },
     }, '\u226B'),
 
     button({
@@ -27,7 +27,7 @@ export function renderSpeedPicker(speed: ZapSpeed): VNode {
         'fastSpeedButton': true,
         [styles.speedPickerFastStyle]: true,
         [styles.speedPickerSelectedStyle]: speed === 'fast',
-      }
+      },
     }, '\u22D9'),
   ]);
 }

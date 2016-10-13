@@ -170,8 +170,8 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
   }
 }
 
-export default function timeSpread<T>(period: number): (ins: Stream<T>) => Stream<Array<T>> {
-  return function timeSpreadOperator(ins: Stream<T>) {
+export default function timeSpread(period: number): <T>(ins: Stream<T>) => Stream<Array<T>> {
+  return function timeSpreadOperator<T>(ins: Stream<T>) {
     return new Stream<Array<T>>(new TimeSpreadOperator(period, ins));
   };
 }

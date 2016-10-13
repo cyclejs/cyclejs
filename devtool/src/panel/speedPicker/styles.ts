@@ -45,7 +45,7 @@ export default {
     'box-shadow': SPEED_PICKER_BUTTON_SHADOW,
     '&:hover': {
       'background-color': GRAY_LIGHT,
-    }
+    },
   }),
 
   speedPickerNormalStyle: styleSheet.registerStyle({
@@ -63,7 +63,7 @@ export default {
     'box-shadow': SPEED_PICKER_BUTTON_SHADOW,
     '&:hover': {
       'background-color': GRAY_LIGHT,
-    }
+    },
   }),
 
   speedPickerFastStyle: styleSheet.registerStyle({
@@ -82,7 +82,7 @@ export default {
     'box-shadow': SPEED_PICKER_BUTTON_SHADOW,
     '&:hover': {
       'background-color': GRAY_LIGHT,
-    }
+    },
   }),
 
   speedPickerSelectedStyle: styleSheet.registerStyle({

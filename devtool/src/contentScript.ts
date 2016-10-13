@@ -1,6 +1,6 @@
 window.addEventListener('message', function (evt) {
   // alert('CONTENT SCRIPT got a message')
-  var eventData = evt.data;
+  const eventData = evt.data;
   if (typeof eventData === 'object'
   && eventData !== null
   && eventData.hasOwnProperty('__fromCyclejsDevTool')

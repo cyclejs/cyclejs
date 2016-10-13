@@ -1,8 +1,15 @@
 import {ZapSpeed} from './panel/model';
 
+let code = '';
+
+// Settings that last only while the DevTool is open.
+let sessionSettings: SessionSettings = {
+  zapSpeed: 'normal',
+};
+
 // Create a panel
 chrome.devtools.panels.create('Cycle.js', '128.png', 'panel.html', function(extensionPanel) {
-  var portToBackground = chrome.runtime.connect({name: 'cyclejs'});
+  const portToBackground = chrome.runtime.connect({name: 'cyclejs'});
   extensionPanel.onShown.addListener(function (panelWindow) {
     loadGraphSerializerCode();
     if (!panelWindow['postMessageToBackground']) {
@@ -12,17 +19,18 @@ chrome.devtools.panels.create('Cycle.js', '128.png', 'panel.html', function(exte
       };
 
       // Setup PANEL=>GRAPH SERIALIZER communication
-      panelWindow['postMessageToGraphSerializer'] = function postMessageToGraphSerializer(msg: string) {
-        // alert('LAUNCHER is relaying message from panel to graphSerializer: ' + msg);
-        if (msg === 'slow' || msg === 'normal' || msg === 'fast') {
-          sessionSettings.zapSpeed = msg as ZapSpeed;
-        }
-        chrome.devtools.inspectedWindow.eval(`window.receivePanelMessage('${msg}');`);
-      }
+      panelWindow['postMessageToGraphSerializer'] =
+        function postMessageToGraphSerializer(msg: string) {
+          // alert('LAUNCHER is relaying message from panel to graphSerializer: ' + msg);
+          if (msg === 'slow' || msg === 'normal' || msg === 'fast') {
+            sessionSettings.zapSpeed = msg as ZapSpeed;
+          }
+          chrome.devtools.inspectedWindow.eval(`window.receivePanelMessage('${msg}');`);
+        };
 
       // Setup BACKGROUND=>PANEL communication
       portToBackground.onMessage.addListener(function (message: BackgroundMessage) {
-        // alert('LAUNCHER relaying message from BACKGROUND to PANEL, message: ' + JSON.stringify(message))
+        // alert('LAUNCHER relaying message from BACKGROUND to PANEL: ' + JSON.stringify(message))
         if (message.type === 'panelData' && typeof panelWindow['postMessage'] === 'function') {
           panelWindow['postMessage']({__fromCyclejsDevTool: true, data: message.data}, '*');
         } else if (message.type === 'tabLoading'
@@ -31,7 +39,7 @@ chrome.devtools.panels.create('Cycle.js', '128.png', 'panel.html', function(exte
             window.CyclejsDevToolSettings = ${JSON.stringify(sessionSettings)};
           `;
           chrome.devtools.inspectedWindow.reload({
-            injectedScript: `${settings} ${code}` as any as boolean
+            injectedScript: `${settings} ${code}` as any as boolean,
           } as chrome.devtools.inspectedWindow.ReloadOptions);
         }
       });
@@ -49,18 +57,11 @@ export interface SessionSettings {
   zapSpeed: ZapSpeed;
 }
 
-// Settings that last only while the DevTool is open.
-let sessionSettings: SessionSettings = {
-  zapSpeed: 'normal',
-};
-
-let code: string = '';
-
 function loadGraphSerializerCode() {
   let xhr: XMLHttpRequest;
   if (!code) {
     xhr = new XMLHttpRequest();
-    xhr.open("GET", chrome.extension.getURL('/graphSerializer.js'), false);
+    xhr.open('GET', chrome.extension.getURL('/graphSerializer.js'), false);
     xhr.send();
     code = xhr.responseText;
   }

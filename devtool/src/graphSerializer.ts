@@ -1,9 +1,7 @@
+/* tslint:disable:max-file-line-count */
 import xs, {Stream, Listener} from 'xstream';
 import {DevToolEnabledSource} from '@cycle/base';
-import concat from 'xstream/extra/concat';
-import delay from 'xstream/extra/delay';
 import debounce from 'xstream/extra/debounce';
-import flattenSequentially from 'xstream/extra/flattenSequentially';
 import * as dagre from 'dagre';
 import * as CircularJSON from 'circular-json';
 import {ZapSpeed} from './panel/model';
@@ -60,7 +58,7 @@ class IdTable {
     this.map = new Map<Stream<any>, number>();
   }
 
-  getId(thing: Object): string {
+  public getId(thing: Object): string {
     if (!this.map.has(thing)) {
       const id = this.mutableIncrementingId;
       this.map.set(thing, id);
@@ -79,11 +77,11 @@ function makeSureNodeIsRegistered(graph: Dagre.Graph, idTable: IdTable, stream: 
       node = {
         id: idTable.getId(stream),
         type: 'source',
-        label: (<DevToolEnabledSource & Stream<any>> stream)._isCycleSource,
+        label: (stream as Stream<any> & DevToolEnabledSource)._isCycleSource,
         stream: stream,
         width: SOURCE_NODE_SIZE[0],
         height: SOURCE_NODE_SIZE[1],
-      }
+      };
     } else {
       node = {
         id: idTable.getId(stream),
@@ -184,11 +182,11 @@ class ZapRegistry {
     this._records = [];
   }
 
-  has(id: string): boolean {
+  public has(id: string): boolean {
     return this._presenceSet.has(id);
   }
 
-  register(id: string, stream: Stream<any>, depth: number): void {
+  public register(id: string, stream: Stream<any>, depth: number): void {
     this._presenceSet.add(id);
     this._records.push({ id, stream, depth });
   }
@@ -217,18 +215,17 @@ function setupZapping([graph, zapSpeed]: [Dagre.Graph, ZapSpeed]): Diagram {
         });
       }
     },
-    stop() {}
+    stop() {},
   });
 
-  const actualZaps$ = rawZap$.compose(
-    timeSpread<Zap>(zapSpeedToMilliseconds(zapSpeed))
-  );
+  const actualZaps$ = rawZap$
+    .compose(timeSpread(zapSpeedToMilliseconds(zapSpeed)));
 
   const stopZaps$ = actualZaps$
     .mapTo([]).compose(debounce<Array<Zap>>(200))
     .startWith([]);
 
-  const zaps$ = xs.merge(actualZaps$, stopZaps$)
+  const zaps$ = xs.merge(actualZaps$, stopZaps$);
 
   return { graph, zaps$ };
 }
@@ -262,7 +259,7 @@ function makeObjectifyGraph(id$: Stream<string>) {
           return object;
         });
       }).flatten();
-  }
+  };
 }
 
 function sinksAreXStream(sinks: Object): boolean {
@@ -292,7 +289,7 @@ interface GraphSerializerSinks {
 
 function GraphSerializer(sources: GraphSerializerSources): GraphSerializerSinks {
   let zapSpeed$ = sources.Settings.map(settings =>
-    (sources.FromPanel as Stream<ZapSpeed>).startWith(settings.zapSpeed)
+    (sources.FromPanel as Stream<ZapSpeed>).startWith(settings.zapSpeed),
   ).flatten();
 
   let graph$ = sources.DebugSinks
@@ -317,19 +314,19 @@ const panelMessage$ = xs.create<string>({
   start(listener: Listener<string>) {
     window['receivePanelMessage'] = function receivePanelMessage(msg: string) {
       listener.next(msg);
-    }
+    };
   },
-  stop() { }
+  stop() { },
 });
 
-let started: boolean = false;
+let started = false;
 
 function startGraphSerializer(appSinks: Object) {
   if (started) {
     return;
   }
   const serializerSources: GraphSerializerSources = {
-    id: xs.of(`graph-${Math.round(Math.random()*1000000000)}`),
+    id: xs.of(`graph-${Math.round(Math.random() * 1000000000)}`),
     DebugSinks: xs.of(appSinks),
     FromPanel: panelMessage$,
     Settings: xs.of<SessionSettings>(window['CyclejsDevToolSettings']),
@@ -354,7 +351,7 @@ function startGraphSerializer(appSinks: Object) {
 
 window['CyclejsDevTool_startGraphSerializer'] = startGraphSerializer;
 
-var intervalID = setInterval(function () {
+let intervalID = setInterval(function () {
   if (window['Cyclejs'] && window['Cyclejs'].sinks) {
     clearInterval(intervalID);
     startGraphSerializer(window['Cyclejs'].sinks);
@@ -363,3 +360,4 @@ var intervalID = setInterval(function () {
     startGraphSerializer(null);
   }
 }, 50);
+/* tslint:enable:max-file-line-count */

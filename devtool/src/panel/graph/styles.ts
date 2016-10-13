@@ -134,6 +134,6 @@ export default {
     'fill': BLUE_DARK,
     'tspan': {
       'text-shadow': 'white 2px 2px 0, white -2px 2px 0, white -2px -2px 0, white 2px -2px 0',
-    }
+    },
   }),
 };
