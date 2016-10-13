@@ -1,4 +1,5 @@
 import {Location, Pathname} from './interfaces';
+import objectAssign = require('object-assign');
 
 export function supportsHistory(): boolean {
   if (typeof navigator === 'undefined') {
@@ -27,14 +28,14 @@ const locationDefaults: Location = {
   action: 'POP',
   hash: '',
   search: '',
-  state: undefined,
-  key: null,
-  query: null,
 };
 
-export function createLocation(location?: Location | Pathname): Location {
+export function createLocation(location: Location | Pathname | undefined): Location {
   if (typeof location === 'string') {
-    return (Object as any).assign({}, locationDefaults, {pathname: location});
+    return objectAssign({}, locationDefaults, {pathname: location});
+  } else if (typeof location === 'object') {
+    return objectAssign({}, locationDefaults, location);
+  } else {
+    return locationDefaults;
   }
-  return (Object as any).assign({}, locationDefaults, location);
 }
