@@ -21,7 +21,7 @@
     },
     "SL_Safari_Current": {
       "exe": "./node_modules/.bin/saucie",
-      "args": ["-b", "safari", "-v", "latest", "--no-ct", "--at", "-u"],
+      "args": ["-b", "safari", "-v", "10", "--no-ct", "--at", "-u"],
       "protocol": "browser"
     },
     "SL_Chrome_49": {
@@ -54,7 +54,7 @@
       "args": ["-b", "android", "-p", "Linux", "-v", "5.1", "--no-ct", "--at", "-u"],
       "protocol": "browser"
     },
-    "SL_Safari_Last": {
+    "SL_Safari_8": {
       "exe": "./node_modules/.bin/saucie",
       "args": ["-b", "safari", "-v", "8", "--no-ct", "--at", "-u"],
       "protocol": "browser"
@@ -88,7 +88,7 @@
     "SL_MS_Edge",
     "SL_Chrome_50",
     "SL_Chrome_49",
-    "SL_Safari_Last",
+    "SL_Safari_8",
     "SL_android_5_1",
     "SL_android_4_4",
     "SL_IE_11",
