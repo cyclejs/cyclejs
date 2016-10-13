@@ -5,7 +5,7 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/dom": "12.2.x",
+    "@cycle/dom": "12.2.5",
     "@cycle/isolate": "1.4.x",
     "@cycle/xstream-adapter": "3.0.x",
     "circular-json": "^0.3.1",
@@ -15,7 +15,6 @@
   },
   "devDependencies": {
     "@cycle/base": "^4.1.1",
-    "@types/es6-shim": "^0.31.32",
     "@types/webrtc": "0.0.20",
     "browserify": "13.1.0"
   },
