@@ -47,7 +47,7 @@ export class MockedDOMSource implements DOMSource {
     }
     const out: DevToolEnabledSource = this._streamAdapter.adapt(
       xs.empty(),
-      xsSA.streamSubscribe
+      xsSA.streamSubscribe,
     );
     out._isCycleSource = 'MockedDOM';
     return out;

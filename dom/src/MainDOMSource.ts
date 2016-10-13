@@ -22,7 +22,7 @@ declare var requestIdleCallback: any;
 try {
   matchesSelector = require(`matches-selector`);
 } catch (e) {
-  matchesSelector = <MatchesSelector> Function.prototype;
+  matchesSelector = Function.prototype as MatchesSelector;
 }
 
 const eventTypesThatDontBubble = [
@@ -78,19 +78,19 @@ export class MainDOMSource implements DOMSource {
     this.__JANI_EVAKALLIO_WE_WILL_MISS_YOU_PLEASE_COME_BACK_EVENTUALLY = true;
   }
 
-  elements(): any {
+  public elements(): any {
     let output$: Stream<Element | Array<Element>>;
     if (this._namespace.length === 0) {
       output$ = this._rootElement$;
     } else {
       const elementFinder = new ElementFinder(
-        this._namespace, this._isolateModule
+        this._namespace, this._isolateModule,
       );
       output$ = this._rootElement$.map(el => elementFinder.call(el));
     }
     const runSA = this._runStreamAdapter;
     const out: DevToolEnabledSource = runSA.remember(
-      runSA.adapt(output$, xsSA.streamSubscribe)
+      runSA.adapt(output$, xsSA.streamSubscribe),
     );
     out._isCycleSource = this._name;
     return out;
@@ -100,7 +100,7 @@ export class MainDOMSource implements DOMSource {
     return this._namespace;
   }
 
-  select(selector: string): DOMSource {
+  public select(selector: string): DOMSource {
     if (typeof selector !== 'string') {
       throw new Error(`DOM driver's select() expects the argument to be a ` +
         `string as a CSS selector`);
@@ -122,11 +122,11 @@ export class MainDOMSource implements DOMSource {
       childNamespace,
       this._isolateModule,
       this._delegators,
-      this._name
+      this._name,
     );
   }
 
-  events(eventType: string, options: EventsFnOptions = {}): any {
+  public events(eventType: string, options: EventsFnOptions = {}): any {
     if (typeof eventType !== `string`) {
       throw new Error(`DOM driver's events() expects argument to be a ` +
         `string representing the event type to listen for.`);
@@ -143,12 +143,12 @@ export class MainDOMSource implements DOMSource {
     const domSource = this;
     let rootElement$: Stream<Element>;
     if (scope) {
-      let hadIsolated_mutable = false;
+      let hadIsolatedMutable = false;
       rootElement$ = this._rootElement$
         .filter(rootElement => {
           const hasIsolated = !!domSource._isolateModule.getIsolatedElement(scope);
-          const shouldPass = hasIsolated && !hadIsolated_mutable;
-          hadIsolated_mutable = hasIsolated;
+          const shouldPass = hasIsolated && !hadIsolatedMutable;
+          hadIsolatedMutable = hasIsolated;
           return shouldPass;
         });
     } else {
@@ -173,7 +173,7 @@ export class MainDOMSource implements DOMSource {
           delegator.updateTopElement(top);
         } else {
           delegator = new EventDelegator(
-            top, eventType, useCapture, domSource._isolateModule
+            top, eventType, useCapture, domSource._isolateModule,
           );
           delegators.set(key, delegator);
         }
@@ -192,7 +192,7 @@ export class MainDOMSource implements DOMSource {
             } else {
               delegator.removeDestinationId(destinationId);
             }
-          }
+          },
         });
 
         delegator.addDestination(subject, namespace, destinationId);
@@ -205,7 +205,7 @@ export class MainDOMSource implements DOMSource {
     return out;
   }
 
-  dispose(): void {
+  public dispose(): void {
     this._sanitation$.shamefullySendNext('');
     this._isolateModule.reset();
   }

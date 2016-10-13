@@ -17,7 +17,7 @@ export class IsolateModule {
 
   private cleanupVNode({data, elm}: VNode) {
     data = data || {};
-    const scope = (<any> data).isolate;
+    const scope = data.isolate;
     const isCurrentElm = this.isolatedElements.get(scope) === elm;
     if (scope && isCurrentElm) {
       this.removeScope(scope);
@@ -27,11 +27,11 @@ export class IsolateModule {
     }
   }
 
-  getIsolatedElement(scope: string) {
+  public getIsolatedElement(scope: string) {
     return this.isolatedElements.get(scope);
   }
 
-  isIsolatedElement(elm: Element): string | boolean {
+  public isIsolatedElement(elm: Element): string | boolean {
     let iterator = this.isolatedElements.entries();
     for (let result = iterator.next(); !!result.value; result = iterator.next()) {
       const [scope, element] = result.value;
@@ -42,7 +42,7 @@ export class IsolateModule {
     return false;
   }
 
-  addEventDelegator(scope: string, eventDelegator: EventDelegator) {
+  public addEventDelegator(scope: string, eventDelegator: EventDelegator) {
     let delegators = this.eventDelegators.get(scope);
     if (!delegators) {
       delegators = [];
@@ -51,11 +51,11 @@ export class IsolateModule {
     delegators[delegators.length] = eventDelegator;
   }
 
-  reset() {
+  public reset() {
     this.isolatedElements.clear();
   }
 
-  createModule() {
+  public createModule() {
     const self = this;
     return {
       create(oldVNode: VNode, vNode: VNode) {
@@ -65,11 +65,11 @@ export class IsolateModule {
         const scope = data.isolate || ``;
         if (scope) {
           if (oldScope) { self.removeScope(oldScope); }
-          self.setScope(<Element> elm, scope);
+          self.setScope(elm as Element, scope);
           const delegators = self.eventDelegators.get(scope);
           if (delegators) {
             for (let i = 0, len = delegators.length; i < len; ++i) {
-              delegators[i].updateTopElement(<Element> elm);
+              delegators[i].updateTopElement(elm as Element);
             }
           } else if (delegators === void 0) {
             self.eventDelegators.set(scope, []);
@@ -87,7 +87,7 @@ export class IsolateModule {
         const scope = data.isolate || ``;
         if (scope && scope !== oldScope) {
           if (oldScope) { self.removeScope(oldScope); }
-          self.setScope(<Element> elm, scope);
+          self.setScope(elm as Element, scope);
         }
         if (oldScope && !scope) {
           self.removeScope(scope);
@@ -101,7 +101,7 @@ export class IsolateModule {
 
       destroy(vNode: VNode) {
         self.cleanupVNode(vNode);
-      }
+      },
     };
   }
 

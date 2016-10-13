@@ -12,14 +12,20 @@ function mutateStreamWithNS(vNode: VNode): VNode {
   return vNode;
 }
 
-function addNS(data: Object, children: Array<VNode | string | Stream<VNode>>, selector: string): void {
-  (<any> data).ns = `http://www.w3.org/2000/svg`;
+function addNS(data: any,
+               children: Array<VNode | string | Stream<VNode>>,
+               selector: string): void {
+  data.ns = `http://www.w3.org/2000/svg`;
   if (selector !== `foreignObject` && typeof children !== `undefined` && is.array(children)) {
     for (let i = 0; i < children.length; ++i) {
       if (isGenericStream(children[i])) {
-        children[i] = (<Stream<VNode>> children[i]).map(mutateStreamWithNS);
+        children[i] = (children[i] as Stream<VNode>).map(mutateStreamWithNS);
       } else {
-        addNS((<VNode> children[i]).data, (<VNode> children[i]).children, (<VNode> children[i]).sel);
+        addNS(
+          (children[i] as VNode).data,
+          (children[i] as VNode).children,
+          (children[i] as VNode).sel,
+        );
       }
     }
   }
@@ -47,7 +53,7 @@ export function h(sel: string, b?: any, c?: any): VNode {
     }
   }
   if (is.array(children)) {
-    children = children.filter(x => <boolean>x);
+    children = children.filter(x => x as boolean);
     for (i = 0; i < children.length; ++i) {
       if (is.primitive(children[i])) {
         children[i] = vnode(undefined, undefined, undefined, children[i]);

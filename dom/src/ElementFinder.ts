@@ -10,11 +10,11 @@ declare var require: any;
 try {
   matchesSelector = require(`matches-selector`);
 } catch (e) {
-  matchesSelector = <MatchesSelector> Function.prototype;
+  matchesSelector = Function.prototype as MatchesSelector;
 }
 
 function toElArray(input: any): Array<Element> {
-  return <Array<Element>> Array.prototype.slice.call(input);
+  return Array.prototype.slice.call(input) as Array<Element>;
 }
 
 export class ElementFinder {
@@ -22,7 +22,7 @@ export class ElementFinder {
               public isolateModule: IsolateModule) {
   }
 
-  call(rootElement: Element): Element | Array<Element> {
+  public call(rootElement: Element): Element | Array<Element> {
     const namespace = this.namespace;
     if (namespace.join(``) === ``) {
       return rootElement;

@@ -6,7 +6,7 @@ export class VNodeWrapper {
   constructor(public rootElement: Element) {
   }
 
-  call(vnode: any): any {
+  public call(vnode: any): any {
     const {tagName: selectorTagName, id: selectorId} = selectorParser(vnode.sel);
     const vNodeClassName = classNameFromVNode(vnode);
     const vNodeData = vnode.data || {};
@@ -27,7 +27,7 @@ export class VNodeWrapper {
     const elementClassName = className ?
       `.${className.split(` `).join(`.`)}` : ``;
     return h(`${tagName.toLowerCase()}${elementId}${elementClassName}`, {}, [
-      vnode
+      vnode,
     ]);
   }
 }

@@ -11,7 +11,7 @@ interface Mappable<T, R> {
 }
 
 export function isolateSink(sink: any, scope: string): any {
-  return <Mappable<VNode, VNode>>sink.map((vTree: VNode) => {
+  return sink.map((vTree: VNode) => {
     if (vTree.data.isolate) {
       const existingScope =
         parseInt(vTree.data.isolate.split(SCOPE_PREFIX + 'cycle')[1]);

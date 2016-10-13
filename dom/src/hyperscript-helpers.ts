@@ -43,7 +43,7 @@ const SVG_TAG_NAMES = [
   'linearGradient', 'marker', 'mask', 'metadata', 'missingGlyph', 'mpath',
   'path', 'pattern', 'polygon', 'polyline', 'radialGradient', 'rect', 'script',
   'set', 'stop', 'style', 'switch', 'symbol', 'text', 'textPath', 'title',
-  'tref', 'tspan', 'use', 'view', 'vkern'
+  'tref', 'tspan', 'use', 'view', 'vkern',
 ];
 
 const svg = createTagFunction('svg');
@@ -63,14 +63,14 @@ const TAG_NAMES = [
   'object', 'ol', 'optgroup', 'option', 'p', 'param', 'pre', 'progress', 'q',
   'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small',
   'source', 'span', 'strong', 'style', 'sub', 'sup', 'table', 'tbody', 'td',
-  'textarea', 'tfoot', 'th', 'thead', 'title', 'tr', 'u', 'ul', 'video'
+  'textarea', 'tfoot', 'th', 'thead', 'title', 'tr', 'u', 'ul', 'video',
 ];
 
 const exported = {SVG_TAG_NAMES, TAG_NAMES, svg, isSelector, createTagFunction};
 TAG_NAMES.forEach(n => {
   exported[n] = createTagFunction(n);
 });
-export default (<HyperScriptHelpers> <any> exported);
+export default (exported as any as HyperScriptHelpers);
 
 export interface HyperScriptHelperFn {
   (selector?: any, properties?: any, children?: any): VNode;

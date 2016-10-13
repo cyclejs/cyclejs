@@ -11,10 +11,10 @@ declare var require: any;
 try {
   matchesSelector = require(`matches-selector`);
 } catch (e) {
-  matchesSelector = <MatchesSelector> Function.prototype;
+  matchesSelector = Function.prototype as MatchesSelector;
 }
 
-let gDestinationId: number = 0;
+let gDestinationId = 0;
 
 interface Destination {
   subject: Stream<Event>;
@@ -36,7 +36,7 @@ function findDestinationId(arr: Array<Destination>, searchId: number): number {
     let currentElement: Destination;
 
     while (minIndex <= maxIndex) {
-        currentIndex = (minIndex + maxIndex) / 2 | 0;
+        currentIndex = (minIndex + maxIndex) / 2 | 0; // tslint:disable-line:no-bitwise
         currentElement = arr[currentIndex];
         let currentId: number = currentElement.destinationId;
         if (currentId < searchId) {
@@ -73,12 +73,12 @@ export class EventDelegator {
     topElement.addEventListener(eventType, this.domListener, useCapture);
   }
 
-  bubble(rawEvent: Event): void {
-    if (!document.body.contains(<Node> rawEvent.currentTarget)) {
+  private bubble(rawEvent: Event): void {
+    if (!document.body.contains(rawEvent.currentTarget as Node)) {
       return;
     }
     const ev = this.patchEvent(rawEvent);
-    for (let el = <Element> ev.target; el && el !== this.roof; el = el.parentElement) {
+    for (let el = ev.target as Element; el && el !== this.roof; el = el.parentElement) {
       if (!document.body.contains(el)) {
         ev.stopPropagation();
       }
@@ -89,7 +89,7 @@ export class EventDelegator {
     }
   }
 
-  matchEventAgainstDestinations(el: Element, ev: CycleDOMEvent) {
+  private matchEventAgainstDestinations(el: Element, ev: CycleDOMEvent) {
     for (let i = 0, n = this.destinations.length; i < n; i++) {
       const dest = this.destinations[i];
       if (!dest.scopeChecker.isStrictlyInRootScope(el)) {
@@ -102,35 +102,35 @@ export class EventDelegator {
     }
   }
 
-  capture(ev: Event) {
+  private capture(ev: Event) {
     for (let i = 0, n = this.destinations.length; i < n; i++) {
       const dest = this.destinations[i];
-      if (matchesSelector((<Element> ev.target), dest.selector)) {
+      if (matchesSelector((ev.target as Element), dest.selector)) {
         dest.subject._n(ev);
       }
     }
   }
 
-  addDestination(subject: Stream<Event>, namespace: Array<string>, destinationId: number) {
+  public addDestination(subject: Stream<Event>, namespace: Array<string>, destinationId: number) {
     const scope = getScope(namespace);
     const selector = getSelectors(namespace);
     const scopeChecker = new ScopeChecker(scope, this.isolateModule);
     this.destinations.push({subject, scopeChecker, selector, destinationId});
   }
 
-  createDestinationId(): number {
+  public createDestinationId(): number {
     return gDestinationId++;
   }
 
-  removeDestinationId(destinationId: number) {
+  public removeDestinationId(destinationId: number) {
     const i = findDestinationId(this.destinations, destinationId);
     if (i >= 0) {
       this.destinations.splice(i, 1);
     }
   }
 
-  patchEvent(event: Event): CycleDOMEvent {
-    const pEvent: CycleDOMEvent = <CycleDOMEvent> event;
+  private patchEvent(event: Event): CycleDOMEvent {
+    const pEvent = event as CycleDOMEvent;
     pEvent.propagationHasBeenStopped = false;
     const oldStopPropagation = pEvent.stopPropagation;
     pEvent.stopPropagation = function stopPropagation() {
@@ -140,7 +140,7 @@ export class EventDelegator {
     return pEvent;
   }
 
-  mutateEventCurrentTarget(event: CycleDOMEvent, currentTargetElement: Element) {
+  private mutateEventCurrentTarget(event: CycleDOMEvent, currentTargetElement: Element) {
     try {
       Object.defineProperty(event, `currentTarget`, {
         value: currentTargetElement,
@@ -152,12 +152,12 @@ export class EventDelegator {
     event.ownerTarget = currentTargetElement;
   }
 
-  updateTopElement(newTopElement: Element) {
+  public updateTopElement(newTopElement: Element) {
     this.topElement.removeEventListener(
-      this.eventType, this.domListener, this.useCapture
+      this.eventType, this.domListener, this.useCapture,
     );
     newTopElement.addEventListener(
-      this.eventType, this.domListener, this.useCapture
+      this.eventType, this.domListener, this.useCapture,
     );
     this.topElement = newTopElement;
   }

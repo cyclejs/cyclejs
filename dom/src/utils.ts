@@ -9,11 +9,11 @@ function isElement(obj: any) {
 export const SCOPE_PREFIX = `$$CYCLEDOM$$-`;
 
 export function getElement(selectors: Element | string): Element {
-  const domElement: Element = <Element> (typeof selectors === `string` ?
-    document.querySelector(<string> selectors) :
-    selectors);
+  const domElement = typeof selectors === 'string' ?
+    document.querySelector(selectors) :
+    selectors;
 
-  if (typeof selectors === `string` && domElement === null) {
+  if (typeof selectors === 'string' && domElement === null) {
     throw new Error(`Cannot render into unknown element \`${selectors}\``);
   } else if (!isElement(domElement)) {
     throw new Error(`Given container is not a DOM element neither a ` +

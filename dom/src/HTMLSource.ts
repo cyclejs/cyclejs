@@ -17,7 +17,7 @@ export class HTMLSource implements DOMSource {
   public elements(): any {
     const out: DevToolEnabledSource = this.runSA.adapt(
       this._html$,
-      xsSA.streamSubscribe
+      xsSA.streamSubscribe,
     );
     out._isCycleSource = this._name;
     return out;

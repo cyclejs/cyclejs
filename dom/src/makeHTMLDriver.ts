@@ -1,5 +1,5 @@
 import xsSA from '@cycle/xstream-adapter';
-import {StreamAdapter} from '@cycle/base';
+import {StreamAdapter, DriverFunction} from '@cycle/base';
 import {Stream} from 'xstream';
 import {VNode} from './interfaces';
 import {makeTransposeVNode} from './transposition';
@@ -19,7 +19,9 @@ const noop = () => {};
 export function makeHTMLDriver(effect: EffectCallback, options?: HTMLDriverOptions) {
   if (!options) { options = {}; }
   const transposition = options.transposition || false;
-  function htmlDriver(vnode$: Stream<VNode>, runStreamAdapter: StreamAdapter, name: string): DOMSource {
+  function htmlDriver(vnode$: Stream<VNode>,
+                      runStreamAdapter: StreamAdapter,
+                      name: string): DOMSource {
     const transposeVNode = makeTransposeVNode(runStreamAdapter);
     const preprocessedVNode$ = (
       transposition ? vnode$.map(transposeVNode).flatten() : vnode$
@@ -32,6 +34,6 @@ export function makeHTMLDriver(effect: EffectCallback, options?: HTMLDriverOptio
     });
     return new HTMLSource(html$, runStreamAdapter, name);
   };
-  (<any> htmlDriver).streamAdapter = xsSA;
+  (htmlDriver as DriverFunction).streamAdapter = xsSA;
   return htmlDriver;
 }

@@ -14,7 +14,7 @@ function createVTree(vnode: VNode, children: Array<any>): any {
   };
 }
 
-export function makeTransposeVNode(runStreamAdapter: StreamAdapter): (vnode: VNode) => Stream<VNode> {
+export function makeTransposeVNode(runStreamAdapter: StreamAdapter) {
   return function transposeVNode(vnode: VNode): Stream<VNode> {
     if (!vnode) {
       return null;
@@ -22,7 +22,7 @@ export function makeTransposeVNode(runStreamAdapter: StreamAdapter): (vnode: VNo
       return xs.of(vnode);
     } else if (runStreamAdapter.isValidStream(vnode)) {
       const xsStream: Stream<VNode> = xsSA.adapt(vnode, runStreamAdapter.streamSubscribe);
-      return <any> xsStream.map(transposeVNode).flatten();
+      return xsStream.map(transposeVNode).flatten();
     } else if (typeof vnode === `object`) {
       if (!vnode.children || vnode.children.length === 0) {
         return xs.of(vnode);

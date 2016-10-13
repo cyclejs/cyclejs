@@ -1,4 +1,4 @@
-import {StreamAdapter} from '@cycle/base';
+import {StreamAdapter, DriverFunction} from '@cycle/base';
 import {init} from 'snabbdom';
 import xs, {Stream} from 'xstream';
 import {DOMSource} from './DOMSource';
@@ -45,7 +45,9 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions):
   const delegators = new MapPolyfill<string, EventDelegator>();
   makeDOMDriverInputGuard(modules);
 
-  function DOMDriver(vnode$: Stream<VNode>, runStreamAdapter: StreamAdapter, name: string): DOMSource {
+  function DOMDriver(vnode$: Stream<VNode>,
+                     runStreamAdapter: StreamAdapter,
+                     name: string): DOMSource {
     domDriverInputGuard(vnode$);
     const transposeVNode = makeTransposeVNode(runStreamAdapter);
     const preprocessedVNode$ = (
@@ -54,7 +56,7 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions):
     const sanitation$ = xs.create();
     const rootElement$ = xs.merge(preprocessedVNode$.endWhen(sanitation$), sanitation$)
       .map(vnode => vnodeWrapper.call(vnode))
-      .fold<VNode | Element>(<(acc: VNode | Element, v: VNode) => VNode>patch, rootElement)
+      .fold<VNode | Element>(patch, rootElement)
       .drop(1)
       .map(function unwrapElementFromVNode(vnode: VNode) { return vnode.elm; })
       .compose((stream: any) => xs.merge(stream, xs.never())) // don't complete this stream
@@ -64,10 +66,18 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions):
     rootElement$.addListener({next: () => {}, error: () => {}, complete: () => {}});
     /* tslint:enable:no-empty */
 
-    return new MainDOMSource(rootElement$, sanitation$, runStreamAdapter, [], isolateModule, delegators, name);
+    return new MainDOMSource(
+      rootElement$,
+      sanitation$,
+      runStreamAdapter,
+      [],
+      isolateModule,
+      delegators,
+      name,
+    );
   };
 
-  (<any> DOMDriver).streamAdapter = xsSA;
+  (DOMDriver as DriverFunction).streamAdapter = xsSA;
 
   return DOMDriver;
 }
