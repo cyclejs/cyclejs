@@ -5,9 +5,9 @@ import {captureClicks} from './captureClicks';
 
 function makeUpdateHistory(history: History) {
   return function updateHistory(location: Location | Pathname) {
-    if ('string' === typeof location) {
+    if (typeof location === 'string') {
       history.push(history.createLocation(location));
-    } else if ('object' === typeof location) {
+    } else if (typeof location === 'object') {
       // suport things like history.replace()
       const {type = 'push'} = (location as Location);
       if (type === 'go') {

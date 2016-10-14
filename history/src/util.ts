@@ -28,14 +28,14 @@ const locationDefaults: Location = {
   action: 'POP',
   hash: '',
   search: '',
+  state: undefined,
+  key: null as any as string,
+  query: null as any as Object,
 };
 
-export function createLocation(location: Location | Pathname | undefined): Location {
+export function createLocation(location?: Location | Pathname): Location {
   if (typeof location === 'string') {
     return objectAssign({}, locationDefaults, {pathname: location});
-  } else if (typeof location === 'object') {
-    return objectAssign({}, locationDefaults, location);
-  } else {
-    return locationDefaults;
   }
+  return objectAssign({}, locationDefaults, location);
 }

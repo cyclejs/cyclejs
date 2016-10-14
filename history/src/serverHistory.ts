@@ -6,7 +6,7 @@ class ServerHistory implements History {
   private listeners: Array<Listener>;
   private _completeCallback: () => void;
 
-  constructor(private currentLocation: Location) {
+  constructor(private currentLocation: Location | null) {
     this.listeners = [];
   }
 
@@ -34,11 +34,11 @@ class ServerHistory implements History {
     return path;
   }
 
-  public createLocation(location: Location | Pathname) {
+  public createLocation(location: Location | Pathname): Location {
     return createLocation(location);
   }
 
-  public getCurrentLocation(): Location {
+  public getCurrentLocation(): Location | null {
     return this.currentLocation;
   }
 
@@ -51,6 +51,6 @@ class ServerHistory implements History {
   }
 }
 
-export function createServerHistory(loc: Location | Pathname | undefined): History {
-  return new ServerHistory(createLocation(loc));
+export function createServerHistory(loc?: Location | Pathname): History {
+  return new ServerHistory(loc ? createLocation(loc) : null);
 }
