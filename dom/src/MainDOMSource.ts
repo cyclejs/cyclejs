@@ -67,6 +67,29 @@ function determineUseCapture(eventType: string, options: EventsFnOptions): boole
   return result;
 }
 
+function filterBasedOnIsolation(domSource: MainDOMSource, scope: string) {
+  return function filterBasedOnIsolationOperator(rootElement$: Stream<Element>): Stream<Element> {
+    interface State {
+      hadIsolatedMutable: boolean;
+      shouldPass: boolean;
+      element: Element;
+    }
+
+    return rootElement$
+      .fold(
+        function shouldPass(state: State, element: Element) {
+          const hasIsolated = !!domSource._isolateModule.getIsolatedElement(scope);
+          const shouldPass = hasIsolated && !state.hadIsolatedMutable;
+          return {hadIsolatedMutable: hasIsolated, shouldPass, element};
+        },
+        {hadIsolatedMutable: false, shouldPass: false, element: null as any as Element},
+      )
+      .drop(1)
+      .filter(s => s.shouldPass)
+      .map(s => s.element);
+  };
+}
+
 export class MainDOMSource implements DOMSource {
   constructor(private _rootElement$: Stream<Element>,
               private _sanitation$: Stream<{}>,
@@ -145,14 +168,7 @@ export class MainDOMSource implements DOMSource {
 
     if (scope) {
       rootElement$ = this._rootElement$
-        .fold(function shouldPass(state, val) {
-            const hasIsolated = !!domSource._isolateModule.getIsolatedElement(scope);
-            const shouldPass = hasIsolated && !state.hadIsolated_mutable;
-            return {hadIsolated_mutable: hasIsolated, shouldPass: shouldPass, dom: val};
-        }, {hadIsolated_mutable: false, shouldPass: undefined, dom: undefined})
-        .drop(1)
-        .filter(x => x.shouldPass)
-        .map(x => x.dom);
+        .compose(filterBasedOnIsolation(domSource, scope));
     } else {
       rootElement$ = this._rootElement$.take(2);
     }
