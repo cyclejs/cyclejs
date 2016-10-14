@@ -1,3 +1,13 @@
+<a name="11.1.0"></a>
+# 11.1.0 (2016-10-14)
+
+
+### Features
+
+* **http:** update to superagent v2.3.0 ([68ea0f4](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/68ea0f4))
+
+
+
 <a name="11.0.1"></a>
 ## 11.0.1 (2016-09-13)
 
