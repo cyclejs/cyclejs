@@ -16,7 +16,6 @@
   "devDependencies": {
     "@cycle/base": "*",
     "@cycle/rxjs-run": "*",
-    "@types/core-js": "^0.9.34",
     "@types/node": "^6.0.45",
     "body-parser": "1.15.2",
     "cookie-parser": "1.4.3",
