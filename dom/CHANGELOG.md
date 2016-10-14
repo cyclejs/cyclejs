@@ -1,3 +1,13 @@
+<a name="12.2.8"></a>
+## 12.2.8 (2016-10-14)
+
+
+### Bug Fixes
+
+* **dom:** enable restarting of event streams on isolated components ([08265db](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/08265db))
+
+
+
 <a name="12.2.7"></a>
 ## 12.2.7 (2016-10-13)
 
