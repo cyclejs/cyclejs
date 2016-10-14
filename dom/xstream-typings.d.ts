@@ -2,6 +2,6 @@ import {EventsFnOptions} from './lib/DOMSource';
 import {Stream, MemoryStream} from 'xstream';
 export interface DOMSource {
   select(selector: string): DOMSource;
-  elements(): MemoryStream<Element>;
+  elements(): MemoryStream<Element | Array<Element>>;
   events(eventType: string, options?: EventsFnOptions): Stream<Event>;
 }
