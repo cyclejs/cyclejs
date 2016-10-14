@@ -1,3 +1,13 @@
+<a name="4.0.2"></a>
+## 4.0.2 (2016-10-14)
+
+
+### Bug Fixes
+
+* **history:** use ponyfill for ES6 Object.assign ([dec9c61](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/dec9c61))
+
+
+
 <a name="4.0.1"></a>
 ## 4.0.1 (2016-09-13)
 
