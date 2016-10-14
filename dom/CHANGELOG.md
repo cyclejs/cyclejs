@@ -1,3 +1,24 @@
+<a name="13.0.0"></a>
+# 13.0.0 (2016-10-14)
+
+
+### Bug Fixes
+
+* **dom:** fix stream libraries DOMSource.elements typings ([a30f5cb](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/a30f5cb))
+
+
+### BREAKING CHANGES
+
+* dom: The TypeScript signature for DOMSource.elements() has changed its return type
+from Stream<Element> (incorrect) to Stream<Element \| Array<Element>> (correct).
+This is a tiny breaking that only affects TypeScript users who are using
+domSource.elements(). Safe to update if you are not using TypeScript nor
+elements() method.
+
+ISSUES CLOSED: #451
+
+
+
 <a name="12.2.8"></a>
 ## 12.2.8 (2016-10-14)
 
