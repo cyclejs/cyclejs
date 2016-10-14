@@ -9,7 +9,15 @@
     "suppressImplicitAnyIndexErrors": true,
     "module": "commonjs",
     "target": "ES5",
-    "outDir": "lib/"
+    "outDir": "lib/",
+    "lib": [
+      "dom",
+      "es5",
+      "scripthost",
+      "es2015.collection",
+      "es2015.promise",
+      "es2015.iterable"
+    ]
   },
   "formatCodeOptions": {
     "indentSize": 2,
