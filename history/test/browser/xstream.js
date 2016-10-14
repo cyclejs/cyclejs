@@ -108,6 +108,7 @@ describe('History - XStream', () => {
     });
 
     it(`should capture link clicks when capture === true`, done => {
+      this.timeout(4000);
       const pathname = window.location.pathname
       const app = () => ({DOM: xs.of(
         h(`div`, [
@@ -149,7 +150,6 @@ describe('History - XStream', () => {
       });
 
       dispose = run();
-
     })
 
     it(`should return a stream with createHref() and createLocation() methods`,
