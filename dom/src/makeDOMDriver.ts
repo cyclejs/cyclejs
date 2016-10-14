@@ -50,7 +50,7 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions):
                      name: string): DOMSource {
     domDriverInputGuard(vnode$);
     const transposeVNode = makeTransposeVNode(runStreamAdapter);
-    const preprocessedVNode$ = (
+    const preprocessedVNode$: Stream<VNode> = (
       transposition ? vnode$.map(transposeVNode).flatten() : vnode$
     );
     const sanitation$ = xs.create();
@@ -62,9 +62,7 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions):
       .compose((stream: any) => xs.merge(stream, xs.never())) // don't complete this stream
       .startWith(rootElement);
 
-    /* tslint:disable:no-empty */
     rootElement$.addListener({next: () => {}, error: () => {}, complete: () => {}});
-    /* tslint:enable:no-empty */
 
     return new MainDOMSource(
       rootElement$,

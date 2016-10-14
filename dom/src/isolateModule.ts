@@ -17,7 +17,7 @@ export class IsolateModule {
 
   private cleanupVNode({data, elm}: VNode) {
     data = data || {};
-    const scope = data.isolate;
+    const scope = data.isolate || '';
     const isCurrentElm = this.isolatedElements.get(scope) === elm;
     if (scope && isCurrentElm) {
       this.removeScope(scope);

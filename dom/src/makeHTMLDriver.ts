@@ -12,9 +12,7 @@ export interface HTMLDriverOptions {
 }
 
 export type EffectCallback = (html: string) => void;
-/* tslint:disable:no-empty */
 const noop = () => {};
-/* tslint:enable:no-empty */
 
 export function makeHTMLDriver(effect: EffectCallback, options?: HTMLDriverOptions) {
   if (!options) { options = {}; }

@@ -13,10 +13,10 @@ function mutateStreamWithNS(vNode: VNode): VNode {
 }
 
 function addNS(data: any,
-               children: Array<VNode | string | Stream<VNode>>,
-               selector: string): void {
+               children: Array<VNode | string | Stream<VNode>> | undefined,
+               selector: string | undefined): void {
   data.ns = `http://www.w3.org/2000/svg`;
-  if (selector !== `foreignObject` && typeof children !== `undefined` && is.array(children)) {
+  if (selector !== `foreignObject` && typeof children !== 'undefined' && is.array(children)) {
     for (let i = 0; i < children.length; ++i) {
       if (isGenericStream(children[i])) {
         children[i] = (children[i] as Stream<VNode>).map(mutateStreamWithNS);
@@ -33,9 +33,8 @@ function addNS(data: any,
 
 export function h(sel: string, b?: any, c?: any): VNode {
   let data = {};
-  let children: Array<VNode | string | Stream<VNode>>;
-  let text: string;
-  let i: number;
+  let children: Array<VNode | string | Stream<VNode>> | undefined;
+  let text: string | undefined;
   if (arguments.length === 3) {
     data = b;
     if (is.array(c)) {
@@ -54,7 +53,7 @@ export function h(sel: string, b?: any, c?: any): VNode {
   }
   if (is.array(children)) {
     children = children.filter(x => x as boolean);
-    for (i = 0; i < children.length; ++i) {
+    for (let i = 0; i < children.length; ++i) {
       if (is.primitive(children[i])) {
         children[i] = vnode(undefined, undefined, undefined, children[i]);
       }

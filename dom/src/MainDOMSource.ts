@@ -58,7 +58,7 @@ const eventTypesThatDontBubble = [
 
 function determineUseCapture(eventType: string, options: EventsFnOptions): boolean {
   let result = false;
-  if (typeof options.useCapture === `boolean`) {
+  if (typeof options.useCapture === 'boolean') {
     result = options.useCapture;
   }
   if (eventTypesThatDontBubble.indexOf(eventType) !== -1) {
@@ -164,12 +164,10 @@ export class MainDOMSource implements DOMSource {
 
         // Event listener on the top element as an EventDelegator
         const delegators = domSource._delegators;
-        const top = scope
-          ? domSource._isolateModule.getIsolatedElement(scope)
-          : rootElement;
+        const top = domSource._isolateModule.getIsolatedElement(scope) || rootElement;
         let delegator: EventDelegator;
         if (delegators.has(key)) {
-          delegator = delegators.get(key);
+          delegator = delegators.get(key) as EventDelegator;
           delegator.updateTopElement(top);
         } else {
           delegator = new EventDelegator(

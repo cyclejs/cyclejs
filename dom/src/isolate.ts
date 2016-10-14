@@ -12,7 +12,7 @@ interface Mappable<T, R> {
 
 export function isolateSink(sink: any, scope: string): any {
   return sink.map((vTree: VNode) => {
-    if (vTree.data.isolate) {
+    if (vTree.data && vTree.data.isolate) {
       const existingScope =
         parseInt(vTree.data.isolate.split(SCOPE_PREFIX + 'cycle')[1]);
 
@@ -22,6 +22,7 @@ export function isolateSink(sink: any, scope: string): any {
         return vTree;
       }
     }
+    vTree.data = vTree.data || {};
     vTree.data.isolate = SCOPE_PREFIX + scope;
     if (typeof vTree.key === 'undefined') {
       vTree.key = SCOPE_PREFIX + scope;
