@@ -10,10 +10,10 @@
 ### BREAKING CHANGES
 
 * dom: The TypeScript signature for DOMSource.elements() has changed its return type
-from Stream<Element> (incorrect) to Stream<Element \| Array<Element>> (correct).
+from `Stream<Element>` (incorrect) to `Stream<Element | Array<Element>>` (correct).
 This is a tiny breaking that only affects TypeScript users who are using
-domSource.elements(). Safe to update if you are not using TypeScript nor
-elements() method.
+`domSource.elements()`. Safe to update if you are not using TypeScript nor
+`elements()` method.
 
 ISSUES CLOSED: #451
 
