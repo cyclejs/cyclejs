@@ -67,7 +67,7 @@ export function run<Sources, Sinks>(main: (sources: Sources) => Sinks,
  * @function Cycle
  */
 const Cycle = function <So, Si>(main: (sources: So) => Si,
-                                drivers: DriversDefinition): CycleExecution<So, Si> {
+                                drivers: {[name: string]: Function}): CycleExecution<So, Si> {
   return CycleBase(main, drivers, {streamAdapter: MostAdapter});
 } as CycleSetup;
 
