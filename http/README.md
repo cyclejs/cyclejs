@@ -39,7 +39,7 @@ function main(sources) {
     .select('hello')
     .flatten();
 
-  let vdom$ = response$
+  let vtree$ = response$
     .map(res => res.text) // We expect this to be "Hello World"
     .startWith('Loading...')
     .map(text =>
