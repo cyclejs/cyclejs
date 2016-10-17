@@ -34,7 +34,7 @@ import MostAdapter from '@cycle/most-adapter';
  * @function run
  */
 export function run<Sources, Sinks>(main: (sources: Sources) => Sinks,
-                                    drivers: DriversDefinition): DisposeFunction {
+                                    drivers: {[name: string]: Function}): DisposeFunction {
   return CycleBase(main, drivers, {streamAdapter: MostAdapter}).run();
 }
 
