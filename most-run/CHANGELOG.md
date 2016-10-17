@@ -1,3 +1,13 @@
+<a name="4.1.3"></a>
+## 4.1.3 (2016-10-17)
+
+
+### Bug Fixes
+
+* **most-run:** fix Cycle() TypeScript signature of drivers object ([45468ad](https://github.com/cyclejs/cyclejs/tree/master/packages/most-run/commit/45468ad))
+
+
+
 <a name="4.1.2"></a>
 ## 4.1.2 (2016-10-14)
 
