@@ -1,5 +1,4 @@
 import CycleBase, {
-  DriversDefinition,
   CycleExecution,
   CycleSetup,
   DisposeFunction,
