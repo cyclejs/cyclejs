@@ -45,6 +45,10 @@ export function optionsToSuperagent(rawReqOptions: RequestOptions) {
   if (reqOptions.withCredentials) {
     request = request.withCredentials();
   }
+  if (reqOptions.agent) {
+    request = request.key(reqOptions.agent.key);
+    request = request.cert(reqOptions.agent.cert);
+  }
   if (typeof reqOptions.user === 'string' && typeof reqOptions.password === 'string') {
     request = request.auth(reqOptions.user, reqOptions.password);
   }
