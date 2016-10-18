@@ -4,6 +4,11 @@ export interface Attachment {
   filename?: string;
 }
 
+export interface AgentOptions {
+  key: string;
+  cert: string;
+}
+
 export interface RequestOptions {
   url: string;
   method?: string;
@@ -17,6 +22,7 @@ export interface RequestOptions {
   field?: Object;
   progress?: boolean;
   attach?: Array<Attachment>;
+  agent?: AgentOptions;
   withCredentials?: boolean;
   redirects?: number;
   category?: string;
