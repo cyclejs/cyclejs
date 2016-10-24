@@ -25,7 +25,7 @@
     "xstream": "*"
   },
   "devDependencies": {
-    "xstream": "6.x.x"
+    "xstream": "7.x.x"
   },
   "engines": {
     "node": ">=0.12.0"
