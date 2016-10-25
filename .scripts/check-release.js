@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 /** This script checks whether each package should be released with
- * a new version according to semver. It has two modes: REPORT and ORACLE.
+ * a new version according to ComVer https://github.com/staltz/comver.
+ * It has two modes: REPORT and ORACLE.
  *
  * It runs in REPORT mode if no additional command line argument was given.
  * For instance, `node check-release.js`. It will display a human readable
@@ -12,9 +13,8 @@
  * it will exit with a status code answering whether the `xstream-run`
  * package should be released with a new version.
  * 0 means no new release is necessary
- * 1 means it should have a new patch version _._.x release
- * 2 means it should have a new minor version _.x._ release
- * 3 means it should have a new major version x._._ release
+ * 2 means it should have a new minor version _.x release
+ * 3 means it should have a new major version x._ release
  */
 
 var conventionalChangelog = require('conventional-changelog');
@@ -55,16 +55,18 @@ function isCommitBreakingChange(commit) {
 }
 
 function showReportHeaderPositive() {
-  console.log('RELEASES TO DO\n\n' +
-              'We checked all packages and recent commits, and discovered that\n' +
-              'according to semver.org you should release new versions for the\n' +
-              'following packages.\n');
+  console.log(
+    'RELEASES TO DO\n\n' +
+    'We checked all packages and recent commits, and discovered that\n' +
+    'according to ComVer https://github.com/staltz/comver you should\n' +
+    'release new versions for the following packages.\n');
 }
 
 function showReportHeaderNegative() {
-  console.log('Nothing to release.\n\n' +
-              'We checked all packages and recent commits, and discovered that\n' +
-              'you do not need to release any new version, according to semver.org.')
+  console.log(
+    'Nothing to release.\n\n' +
+    'We checked all packages and recent commits, and discovered that\n' +
+    'you do not need to release any new version, according to ComVer.')
 }
 
 function showReport(status) {
@@ -104,11 +106,7 @@ conventionalChangelog({
 
     var package = commit.scope;
     var toPush = null;
-    if (commit.type === 'fix' || commit.type === 'perf') {
-      status[package].increment = Math.max(status[package].increment, 1);
-      toPush = commit;
-    }
-    if (commit.type === 'feat') {
+    if (commit.type === 'fix' || commit.type === 'perf' || commit.type === 'feat') {
       status[package].increment = Math.max(status[package].increment, 2);
       toPush = commit;
     }

@@ -161,3 +161,6 @@ Become a sponsor and get your logo on our README on Github with a link to your s
   <img src="https://img.shields.io/badge/js.org-cycle-ffb400.svg?style=flat-square"
     alt="JS.ORG" />
 </a>
+<a href="https://github.com/staltz/comver">
+  <img src="https://img.shields.io/badge/ComVer-compliant-brightgreen.svg" alt="ComVer" />
+</a>
