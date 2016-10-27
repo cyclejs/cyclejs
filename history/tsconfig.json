@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "removeComments": false,
-    "preserveConstEnums": true,
     "sourceMap": true,
     "declaration": true,
     "noImplicitAny": true,
@@ -9,7 +8,15 @@
     "suppressImplicitAnyIndexErrors": true,
     "module": "commonjs",
     "target": "ES5",
-    "outDir": "lib/"
+    "outDir": "lib/",
+    "lib": [
+      "dom",
+      "es2015"
+    ],
+    "types": [
+      "mocha",
+      "node"
+    ]
   },
   "formatCodeOptions": {
     "indentSize": 2,
