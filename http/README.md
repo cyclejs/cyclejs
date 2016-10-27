@@ -39,7 +39,7 @@ function main(sources) {
     .select('hello')
     .flatten();
 
-  let vtree$ = response$
+  let vdom$ = response$
     .map(res => res.text) // We expect this to be "Hello World"
     .startWith('Loading...')
     .map(text =>
@@ -49,7 +49,7 @@ function main(sources) {
     );
 
   return {
-    DOM: vtree$,
+    DOM: vdom$,
     HTTP: request$
   };
 }
@@ -174,8 +174,8 @@ on the response Observable.
 `path`, and `filename` of a resource to upload.
 - `withCredentials` *(Boolean)*: enables the ability to send cookies from the
 origin.
-- `agent` *(Object)*: an object specifying `cert` and `key` for SSL certificate
-authentication.
+- `agent` *(Object)*: an object specifying `cert` and `key` for SSL
+certificate authentication.
 - `redirects` *(Number)*: number of redirects to follow.
 - `lazy` *(Boolean)*: whether or not this request runs lazily, which means
 the request happens if and only if its corresponding response stream from the

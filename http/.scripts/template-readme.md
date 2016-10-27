@@ -49,7 +49,7 @@ function main(sources) {
     );
 
   return {
-    DOM: vtree$,
+    DOM: vdom$,
     HTTP: request$
   };
 }
