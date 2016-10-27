@@ -1,23 +1,31 @@
 {
   "name": "Cycle.js",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Cycle.js DevTool to visualize the dataflow graph",
   "devtools_page": "launcher.html",
-  "icons": { "128": "128.png" },
+  "icons": {
+    "128": "128.png"
+  },
   "background": {
-    "scripts": ["background.js"],
+    "scripts": [
+      "background.js"
+    ],
     "persistent": false
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["contentScript.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "contentScript.js"
+      ],
       "run_at": "document_end",
       "all_frames": true
     }
   ],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
-  "minimum_chrome_version" : "22.0",
+  "minimum_chrome_version": "22.0",
   "permissions": [
     "tabs",
     "contextMenus",
