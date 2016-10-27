@@ -1,3 +1,5 @@
+import { StreamAdapter } from '@cycle/base';
+
 const clickEvent = 'undefined' !== typeof document && document.ontouchstart ?
   'touchstart' : 'click';
 
@@ -59,9 +61,23 @@ function makeClickListener(push: Function) {
   };
 }
 
-export function captureClicks(push: Function) {
+function captureAnchorClicks(push: Function) {
   const listener = makeClickListener(push);
   if (typeof window !== 'undefined') {
     document.addEventListener(clickEvent, listener, false);
   }
+}
+
+export function captureClicks(historyDriver: (sink$: any, runStreamAdapter: StreamAdapter) => any) {
+  return function historyDriverWithClickCaptuer(sink$: any, runStreamAdapter: StreamAdapter): any {
+    const { observer, stream } = runStreamAdapter.makeSubject();
+
+    captureAnchorClicks((pathname: string) => {
+      observer.next({ type: 'push', pathname });
+    });
+
+    runStreamAdapter.streamSubscribe(sink$, observer);
+
+    return historyDriver(stream, runStreamAdapter);
+  };
 }
