@@ -1,3 +1,18 @@
+<a name="11.2.0"></a>
+# 11.2.0 (2016-10-27)
+
+
+### Bug Fixes
+
+* **http:** remove [@types](https://github.com/types)/core-js in favore of tsconfig --options ([547efca](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/547efca))
+
+
+### Features
+
+* **http:** support SSL certificate authentication ([b3f841c](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/b3f841c))
+
+
+
 <a name="11.1.0"></a>
 # 11.1.0 (2016-10-14)
 
