@@ -18,7 +18,7 @@ class TimeSpreadOperator<T> implements Operator<T, Array<T>> {
     this.queue = [];
     this.timeoutId = null;
     this.intervalId = null;
-    this.DURATION_AS_NORMAL = 8 * period;
+    this.DURATION_AS_NORMAL = 12 * period;
     this.DURATION_AS_FAST = 28 * period;
   }
 
