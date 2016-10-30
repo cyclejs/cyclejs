@@ -8,7 +8,7 @@ import {VNode} from './interfaces';
 import xs from 'xstream';
 import {ElementFinder} from './ElementFinder';
 import {fromEvent} from './fromEvent';
-import {isolateSink, isolateSource} from './isolate';
+import {isolateSink as internalIsolateSink, isolateSource} from './isolate';
 import {IsolateModule} from './isolateModule';
 import {EventDelegator} from './EventDelegator';
 import {getScope} from './utils';
@@ -99,6 +99,13 @@ export class MainDOMSource implements DOMSource {
               public _delegators: Map<string, EventDelegator>,
               private _name: string) {
     this.__JANI_EVAKALLIO_WE_WILL_MISS_YOU_PLEASE_COME_BACK_EVENTUALLY = true;
+
+    this.isolateSource = isolateSource;
+    this.isolateSink = (sink, scope) => {
+      const existingScope = getScope(this._namespace);
+      const deeperScope = [existingScope, scope].filter(x => !!x).join('-');
+      return internalIsolateSink(sink, deeperScope);
+    };
   }
 
   public elements(): any {
@@ -228,6 +235,11 @@ export class MainDOMSource implements DOMSource {
 
   private __JANI_EVAKALLIO_WE_WILL_MISS_YOU_PLEASE_COME_BACK_EVENTUALLY: boolean = false;
 
-  public isolateSource: (source: DOMSource, scope: string) => DOMSource = isolateSource;
-  public isolateSink: (sink: Stream<VNode>, scope: string) => Stream<VNode> = isolateSink;
+  // The implementation of these are in the constructor so that their `this`
+  // references are automatically bound to the instance, so that library users
+  // can do destructuring `const {isolateSource, isolateSink} = sources.DOM` and
+  // not get bitten by a missing `this` reference.
+
+  public isolateSource: (source: DOMSource, scope: string) => DOMSource;
+  public isolateSink: (sink: Stream<VNode>, scope: string) => Stream<VNode>;
 }

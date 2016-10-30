@@ -24,7 +24,7 @@ describe('isolateSource', function () {
         DOM: Rx.Observable.of(
           h3('.top-most', [
             h2('.bar', 'Wrong'),
-            div({isolate: '$$CYCLEDOM$$-foo'}, [
+            div({isolate: 'foo'}, [
               h4('.bar', 'Correct')
             ])
           ])
@@ -92,7 +92,7 @@ describe('isolateSink', function () {
     // Make assertions
     sinks.DOM.take(1).subscribe(function (vtree) {
       assert.strictEqual(vtree.sel, 'h3.top-most');
-      assert.strictEqual(vtree.data.isolate, '$$CYCLEDOM$$-foo');
+      assert.strictEqual(vtree.data.isolate, 'foo');
       setTimeout(() => {
         dispose();
         done();
@@ -100,7 +100,6 @@ describe('isolateSink', function () {
     });
     dispose = run()
   });
-
 
   it('should not redundantly repeat the scope className', function (done) {
     function app(sources) {
@@ -129,7 +128,7 @@ describe('isolateSink', function () {
     // Make assertions
     sinks.DOM.skip(2).take(1).subscribe(function (vtree) {
       assert.strictEqual(vtree.sel, 'span.tab1');
-      assert.strictEqual(vtree.data.isolate, '$$CYCLEDOM$$-1');
+      assert.strictEqual(vtree.data.isolate, '1');
       dispose();
       done();
     });
@@ -474,7 +473,7 @@ describe('isolation', function () {
         DOM: Rx.Observable.of(
           h3('.top-most', [
             h2('.bar', 'Wrong'),
-            div({isolate: '$$CYCLEDOM$$-foo'}, [
+            div({isolate: 'foo'}, [
               h4('.bar', 'Correct')
             ])
           ])
@@ -506,7 +505,7 @@ describe('isolation', function () {
         DOM: Rx.Observable.of(
           h3('.top-most', [
             h2('.bar', 'Wrong'),
-            div({isolate: '$$CYCLEDOM$$-foo'}, [
+            div({isolate: 'foo'}, [
               h4('.bar', 'Correct')
             ])
           ])
@@ -558,9 +557,9 @@ describe('isolation', function () {
       return {
         DOM: childExistence$.map(exists =>
           div([
-            div('.top-most', {isolate: '$$CYCLEDOM$$-top'}, [
+            div('.top-most', {isolate: 'top'}, [
               h2('.bar', 'Wrong'),
-              exists ? div({isolate: '$$CYCLEDOM$$-foo'}, [
+              exists ? div({isolate: 'foo'}, [
                 h4('.bar', 'Correct')
               ]) : null
             ])
@@ -985,6 +984,57 @@ describe('isolation', function () {
           dispose();
           done();
         }, 500);
+      });
+      dispose = run();
+    });
+
+  it('should allow recursive isolation using the same scope', (done) => {
+    function Item(sources, count) {
+      const childVdom$ = count > 0 ?
+        isolate(Item, '0')(sources, count-1).DOM :
+        Rx.Observable.of(undefined);
+
+      const highlight$ = sources.DOM.select('button').events('click')
+        .startWith(false)
+        .scan((x, _) => !x);
+
+      const vdom$ = Rx.Observable.combineLatest(childVdom$, highlight$, (childVdom, highlight) =>
+        div([
+          button('.btn', highlight ? 'HIGHLIGHTED' : 'click me'),
+          childVdom
+        ])
+      );
+      return { DOM: vdom$ };
+    }
+
+    function main(sources) {
+      const vdom$ = Item(sources, 3).DOM;
+      return { DOM: vdom$ };
+    }
+
+    const {sinks, sources, run} = Cycle(main, {
+      DOM: makeDOMDriver(createRenderTarget())
+    })
+
+    let dispose;
+    sources.DOM.elements().skip(1).take(1).subscribe(root => {
+      const buttons = root.querySelectorAll('.btn')
+      assert.strictEqual(buttons.length, 4);
+      const firstButton = buttons[0];
+      const secondButton = buttons[1];
+      const thirdButton = buttons[2];
+      const forthButton = buttons[3];
+      setTimeout(() => {
+        thirdButton.click();
+      }, 100);
+      setTimeout(() => {
+        assert.notStrictEqual(firstButton.textContent, 'HIGHLIGHTED');
+        assert.notStrictEqual(secondButton.textContent, 'HIGHLIGHTED');
+        assert.strictEqual(thirdButton.textContent, 'HIGHLIGHTED');
+        assert.notStrictEqual(forthButton.textContent, 'HIGHLIGHTED');
+        dispose();
+        done();
+      }, 300);
       });
       dispose = run();
     });

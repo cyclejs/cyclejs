@@ -13,17 +13,17 @@ interface Mappable<T, R> {
 export function isolateSink(sink: any, scope: string): any {
   return sink.map((vTree: VNode) => {
     if (vTree.data && vTree.data.isolate) {
-      const existingScope =
-        parseInt(vTree.data.isolate.split(SCOPE_PREFIX + 'cycle')[1]);
+      const existingScope = vTree.data.isolate.replace(/(cycle|\-)/g, '');
+      const _scope = scope.replace(/(cycle|\-)/g, '');
 
-      const _scope = parseInt(scope.split('cycle')[1]);
-
-      if (isNaN(existingScope) || isNaN(_scope) || existingScope > _scope) {
+      if (isNaN(parseInt(existingScope))
+      || isNaN(parseInt(_scope))
+      || existingScope > _scope) {
         return vTree;
       }
     }
     vTree.data = vTree.data || {};
-    vTree.data.isolate = SCOPE_PREFIX + scope;
+    vTree.data.isolate = scope;
     if (typeof vTree.key === 'undefined') {
       vTree.key = SCOPE_PREFIX + scope;
     }

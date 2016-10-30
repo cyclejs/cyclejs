@@ -25,8 +25,8 @@ export function getElement(selectors: Element | string): Element {
 export function getScope(namespace: String[]): string {
   return namespace
     .filter(c => c.indexOf(SCOPE_PREFIX) > -1)
-    .slice(-1) // only need the latest, most specific, isolated boundary
-    .join(``);
+    .map(c => c.replace(SCOPE_PREFIX, ''))
+    .join(`-`);
 }
 
 export function getSelectors(namespace: String[]): string {
