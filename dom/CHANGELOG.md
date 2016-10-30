@@ -1,3 +1,23 @@
+<a name="14.0.0"></a>
+# 14.0.0 (2016-10-30)
+
+
+### Bug Fixes
+
+* **dom:** allow same isolate scope for parent and child ([54dbdfe](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/54dbdfe))
+
+
+### BREAKING CHANGES
+
+* dom: ![probably
+won't](https://img.shields.io/badge/will%20it%20affect%20me%3F-probably%20won't-green.svg)
+Snabbdom vnode.data.isolate content is no longer prefixed with 89355CYCLEDOM89355-. This is an API almost
+no one uses or depends on, so should be very safe to upgrade to this version.
+
+ISSUES CLOSED: #453
+
+
+
 <a name="13.0.0"></a>
 # 13.0.0 (2016-10-14)
 
