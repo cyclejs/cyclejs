@@ -9,9 +9,8 @@
 
 ### BREAKING CHANGES
 
-* dom: ![probably
-won't](https://img.shields.io/badge/will%20it%20affect%20me%3F-probably%20won't-green.svg)
-Snabbdom vnode.data.isolate content is no longer prefixed with 89355CYCLEDOM89355-. This is an API almost
+* dom: ![probably won't](https://img.shields.io/badge/will%20it%20affect%20me%3F-probably%20won't-green.svg)
+Snabbdom vnode.data.isolate content is no longer prefixed with `$$CYCLEDOM$$-`. This is an API almost
 no one uses or depends on, so should be very safe to upgrade to this version.
 
 ISSUES CLOSED: #453
