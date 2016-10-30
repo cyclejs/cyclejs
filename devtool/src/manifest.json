@@ -1,6 +1,6 @@
 {
   "name": "Cycle.js",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Cycle.js DevTool to visualize the dataflow graph",
   "devtools_page": "launcher.html",
   "icons": {
