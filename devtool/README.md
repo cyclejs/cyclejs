@@ -15,6 +15,6 @@ This DevTool requires that your app is built using the following packages:
 - `@cycle/dom` v12.2.x or higher, if you are using it
 - `@cycle/http` v10.2.x or higher, if you are using it
 
-Install the plugin from the Chrome Web Store or run `npm run dist` in this repository to compile the DevTool in the `dist` directory, then open `chrome://extensions/` in Chrome and `Load unpacked extension...` and point to the `dist` directory.
+[Install the plugin from the Chrome Web Store](https://chrome.google.com/webstore/detail/cyclejs/dfgplfmhhmdekalbpejekgfegkonjpfp) or run `npm run dist` in this repository to compile the DevTool in the `dist` directory, then open `chrome://extensions/` in Chrome and `Load unpacked extension...` and point to the `dist` directory.
 
 If the page is blank and your page is open under the `file://` protocol, you need to open Chrome Extensions settings `chrome://extensions/` and enable "*Allow access to file URLs*".
