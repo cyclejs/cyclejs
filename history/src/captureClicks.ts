@@ -69,7 +69,7 @@ function captureAnchorClicks(push: Function) {
 }
 
 export function captureClicks(historyDriver: (sink$: any, runStreamAdapter: StreamAdapter) => any) {
-  return function historyDriverWithClickCaptuer(sink$: any, runStreamAdapter: StreamAdapter): any {
+  return function historyDriverWithClickCapture(sink$: any, runStreamAdapter: StreamAdapter): any {
     const { observer, stream } = runStreamAdapter.makeSubject();
 
     captureAnchorClicks((pathname: string) => {
