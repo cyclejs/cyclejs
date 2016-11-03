@@ -40,7 +40,7 @@
     "test-browser": "../node_modules/.bin/testem ci -l Chrome,Firefox",
     "test-browser-ci": "../node_modules/.bin/testem ci",
     "test": "npm run lint && npm run lib && npm run test-node && npm run test-browser",
-    "test-ci": "npm run lint && npm run lib && npm run test-node",
+    "test-ci": "npm run lint && npm run lib && npm run test-node && npm run test-browser-ci",
     "browserify": "../node_modules/.bin/browserify lib/index.js --standalone CycleHistory --outfile dist/cycle-history.js",
     "uglify": "../node_modules/.bin/uglifyjs dist/cycle-history.js -o dist/cycle-history.min.js",
     "prelib": "rm -rf lib/ && mkdir -p lib",
