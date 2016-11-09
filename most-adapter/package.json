@@ -43,14 +43,15 @@
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
   "homepage": "https://cycle.js.org",
   "dependencies": {
-    "@most/create": "^1.1.3",
+    "@most/create": "^2.0.1",
     "@most/hold": "^1.3.1",
-    "most": "^1.0.1",
-    "most-subject": "^4.1.3"
+    "most": "^1.0.5",
+    "most-subject": "^5.0.0"
   },
   "devDependencies": {
     "@cycle/base": "*",
-    "@types/es6-shim": "^0.31.32"
+    "@types/es6-shim": "^0.31.32",
+    "@types/node": "^6.0.46"
   },
   "scripts": {
     "lint": "../node_modules/.bin/tslint -c ../tslint.json src/**/*.ts",
