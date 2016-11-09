@@ -35,9 +35,9 @@
   "homepage": "https://cycle.js.org",
   "dependencies": {
     "@cycle/base": "4.1.x",
-    "@cycle/most-adapter": "4.0.x",
-    "most": "^1.0.0",
-    "most-subject": "^4.1.1"
+    "@cycle/most-adapter": "4.x.x",
+    "most": "^1.0.5",
+    "most-subject": "^5.0.0"
   },
   "devDependencies": {
     "creed": "^1.0.1"
