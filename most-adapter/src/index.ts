@@ -4,12 +4,10 @@ import {
   StreamSubscribe,
   Subject as CycleSubject,
 } from '@cycle/base';
-import {Stream} from 'most';
-import {
-  subject as getMostSubject,
-} from 'most-subject';
+import { Stream } from 'most';
+import { sync } from 'most-subject';
 import hold from '@most/hold';
-import create = require('@most/create');
+import { create } from '@most/create';
 
 const MostAdapter: StreamAdapter = {
   adapt<T>(originStream: any, originStreamSubscribe: StreamSubscribe): Stream<T> {
@@ -28,11 +26,11 @@ const MostAdapter: StreamAdapter = {
   },
 
   remember<T>(stream: Stream<T>): Stream<T> {
-    return stream.thru(hold);
+    return hold(stream);
   },
 
   makeSubject<T>(): CycleSubject<T> {
-    const stream = getMostSubject<any>();
+    const stream = sync<T>();
 
     const observer = {
       next: (x: T) => { stream.next(x); },
