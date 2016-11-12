@@ -52,7 +52,7 @@ the app on the DOM.
 
 - `container: String|HTMLElement` the DOM selector for the element (or the element itself) to contain the rendering of the VTrees.
 - `options: DOMDriverOptions` an object with two optional fields: `transposition: boolean` enables/disables transposition of inner streams in
-the virtual DOM tree, `modules: array` contains additional Snabbdom modules.
+the virtual DOM tree, `modules: array` overrides the default Snabbdom modules.
 
 #### Return:
 
