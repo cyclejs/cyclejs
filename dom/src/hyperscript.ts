@@ -16,7 +16,8 @@ function addNS(data: any,
                children: Array<VNode | string | Stream<VNode>> | undefined,
                selector: string | undefined): void {
   data.ns = `http://www.w3.org/2000/svg`;
-  if (selector !== `foreignObject` && typeof children !== 'undefined' && is.array(children)) {
+  if (selector !== `text` && selector !== `foreignObject` &&
+        typeof children !== 'undefined' && is.array(children)) {
     for (let i = 0; i < children.length; ++i) {
       if (isGenericStream(children[i])) {
         children[i] = (children[i] as Stream<VNode>).map(mutateStreamWithNS);
