@@ -1,3 +1,13 @@
+<a name="4.2.0"></a>
+# 4.2.0 (2016-11-16)
+
+
+### Features
+
+* **most-run:** update to latest dependencies ([d586ab3](https://github.com/cyclejs/cyclejs/tree/master/packages/most-run/commit/d586ab3))
+
+
+
 <a name="4.1.3"></a>
 ## 4.1.3 (2016-10-17)
 
