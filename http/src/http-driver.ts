@@ -1,4 +1,5 @@
 import xs, {Stream, MemoryStream} from 'xstream';
+import delay from 'xstream/extra/delay';
 import {MainHTTPSource} from './MainHTTPSource';
 import {StreamAdapter, DriverFunction} from '@cycle/base';
 import XStreamAdapter from '@cycle/xstream-adapter';
@@ -154,6 +155,7 @@ export function makeHTTPDriver(): Function {
                       runSA: StreamAdapter,
                       name: string): HTTPSource {
     let response$$ = request$
+      .compose(delay(1))
       .map(makeRequestInputToResponse$(runSA));
     let httpSource = new MainHTTPSource(response$$, runSA, name, []);
     response$$.addListener({next: () => {}, error: () => {}, complete: () => {}});
