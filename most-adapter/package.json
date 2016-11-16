@@ -1,6 +1,6 @@
 {
   "name": "@cycle/most-adapter",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "description": "Cycle.js Most Adapter",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",

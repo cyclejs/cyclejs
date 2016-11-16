@@ -1,3 +1,13 @@
+<a name="4.1.0"></a>
+# 4.1.0 (2016-11-16)
+
+
+### Features
+
+* **most-adapter:** update all dependencies ([3043a85](https://github.com/cyclejs/cyclejs/tree/master/packages/most-adapter/commit/3043a85))
+
+
+
 <a name="4.0.1"></a>
 ## 4.0.1 (2016-08-11)
 
