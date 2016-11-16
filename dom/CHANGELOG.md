@@ -1,3 +1,13 @@
+<a name="14.1.0"></a>
+# 14.1.0 (2016-11-16)
+
+
+### Bug Fixes
+
+* **dom:** skip calling addNS on svg "text" children ([faf52d4](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/faf52d4))
+
+
+
 <a name="14.0.0"></a>
 # 14.0.0 (2016-10-30)
 
