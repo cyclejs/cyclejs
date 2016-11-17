@@ -57,7 +57,7 @@
     "saucie": "^1.4.1",
     "simulant": "^0.2.2",
     "snabbdom-jsx": "^0.3.0",
-    "xstream": "7.x.x"
+    "xstream": "8.x.x"
   },
   "engines": {
     "node": ">=0.10.0"
