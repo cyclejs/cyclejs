@@ -18,9 +18,9 @@ export {DOMSource, EventsFnOptions} from './DOMSource';
  * `eventType` happening on the elements that match the current DOMSource. The
  * returned stream is an *xstream* Stream if you use `@cycle/xstream-run` to run
  * your app with this driver, or it is an RxJS Observable if you use
- * `@cycle/rxjs-run`, and so forth. The `options` parameter can have the field
- * `useCapture`, which is by default `false`, except it is `true` for event
- * types that do not bubble. Read more here
+ * `@cycle/rxjs-run`, and so forth. The `options` parameter can have the
+ * property `useCapture`, which is by default `false`, except it is `true` for
+ * event types that do not bubble. Read more here
  * https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
  * about the `useCapture` and its purpose.
  *
@@ -31,9 +31,12 @@ export {DOMSource, EventsFnOptions} from './DOMSource';
  *
  * @param {(String|HTMLElement)} container the DOM selector for the element
  * (or the element itself) to contain the rendering of the VTrees.
- * @param {DOMDriverOptions} options an object with two optional fields:
- * `transposition: boolean` enables/disables transposition of inner streams in
- * the virtual DOM tree, `modules: array` contains additional Snabbdom modules.
+ * @param {DOMDriverOptions} options an object with two optional properties:
+ *
+ *   - `modules: array` overrides `@cycle/dom`'s default Snabbdom modules as
+ *     as defined in [`src/modules.ts`](./src/modules.ts).
+ *   - `transposition: boolean` enables/disables transposition of inner streams
+ *     in the virtual DOM tree.
  * @return {Function} the DOM driver function. The function expects a stream of
  * of VNode as input, and outputs the DOMSource object.
  * @function makeDOMDriver
@@ -78,7 +81,7 @@ export {makeDOMDriver, DOMDriverOptions} from './makeDOMDriver';
  *
  * @param {Function} effect a callback function that takes a string of rendered
  * HTML as input and should run a side effect, returning nothing.
- * @param {HTMLDriverOptions} options an object with one optional field:
+ * @param {HTMLDriverOptions} options an object with one optional property:
  * `transposition: boolean` enables/disables transposition of inner streams in
  * the virtual DOM tree.
  * @return {Function} the HTML driver function. The function expects a stream of

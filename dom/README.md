@@ -37,9 +37,9 @@ the element(s) that matches the CSS `selector` given.
 `eventType` happening on the elements that match the current DOMSource. The
 returned stream is an *xstream* Stream if you use `@cycle/xstream-run` to run
 your app with this driver, or it is an RxJS Observable if you use
-`@cycle/rxjs-run`, and so forth. The `options` parameter can have the field
-`useCapture`, which is by default `false`, except it is `true` for event
-types that do not bubble. Read more here
+`@cycle/rxjs-run`, and so forth. The `options` parameter can have the
+property `useCapture`, which is by default `false`, except it is `true` for
+event types that do not bubble. Read more here
 https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
 about the `useCapture` and its purpose.
 
@@ -51,8 +51,11 @@ the app on the DOM.
 #### Arguments:
 
 - `container: String|HTMLElement` the DOM selector for the element (or the element itself) to contain the rendering of the VTrees.
-- `options: DOMDriverOptions` an object with two optional fields: `transposition: boolean` enables/disables transposition of inner streams in
-the virtual DOM tree, `modules: array` contains additional Snabbdom modules.
+- `options: DOMDriverOptions` an object with two optional properties: 
+  - `modules: array` overrides `@cycle/dom`'s default Snabbdom modules as
+    as defined in [`src/modules.ts`](./src/modules.ts).
+  - `transposition: boolean` enables/disables transposition of inner streams
+    in the virtual DOM tree.
 
 #### Return:
 
@@ -101,7 +104,7 @@ sink virtual DOM stream.
 #### Arguments:
 
 - `effect: Function` a callback function that takes a string of rendered HTML as input and should run a side effect, returning nothing.
-- `options: HTMLDriverOptions` an object with one optional field: `transposition: boolean` enables/disables transposition of inner streams in
+- `options: HTMLDriverOptions` an object with one optional property: `transposition: boolean` enables/disables transposition of inner streams in
 the virtual DOM tree.
 
 #### Return:
