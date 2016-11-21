@@ -16,7 +16,7 @@ export {DOMSource, EventsFnOptions} from './DOMSource';
  *
  * `DOMSource.events(eventType, options)` returns a stream of events of
  * `eventType` happening on the elements that match the current DOMSource. The
- * `eventType` contains the `ownerTarget` property that behaves exactly like
+ * event object contains the `ownerTarget` property that behaves exactly like
  * `currentTarget`. The reason for this is that some browsers doesn't allow
  * `currentTarget` property to be mutated, hence a new property is created. The
  * returned stream is an *xstream* Stream if you use `@cycle/xstream-run` to run
