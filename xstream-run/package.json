@@ -22,10 +22,10 @@
     "@cycle/xstream-adapter": "3.x.x"
   },
   "peerDependencies": {
-    "xstream": "*"
+    "xstream": ">=9"
   },
   "devDependencies": {
-    "xstream": "8.x.x"
+    "xstream": "9.x"
   },
   "engines": {
     "node": ">=0.12.0"

@@ -204,14 +204,21 @@ describe('Cycle', function () {
         return xs.of('b');
       }
 
-      Cycle.run(main, {other: driver});
+      let caught = false;
+      try {
+        Cycle.run(main, {other: driver});
+      } catch (e) {
+        assert.strictEqual(e.message, 'malfunction');
+        caught = true;
+      }
       setTimeout(() => {
         sinon.assert.calledOnce(console.error);
         sinon.assert.calledWithExactly(console.error, sinon.match("malfunction"));
+        assert.strictEqual(caught, true);
 
         sandbox.restore();
         done();
-      }, 20);
+      }, 80);
     });
   });
 });
