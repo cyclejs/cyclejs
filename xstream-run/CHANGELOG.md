@@ -1,3 +1,25 @@
+<a name="4.0.0"></a>
+# 4.0.0 (2016-11-28)
+
+
+### Bug Fixes
+
+* **xstream-run:** update xstream version to v9.0 ([92f48a6](https://github.com/cyclejs/cyclejs/tree/master/packages/xstream-run/commit/92f48a6))
+
+
+### BREAKING CHANGES
+
+* xstream-run: ![probably will](https://img.shields.io/badge/will%20it%20affect%20me%3F-probably%20will-orange.svg)
+Updating to xstream v9.0 is backwards incompatible since earlier
+versions of xstream would swallow errors when no more listeners
+were attached and errors occurred. This version of Cycle
+xstream-run only works with xstream v9.0 or above. Read the
+[CHANGELOG for xstream
+v9.0](https://github.com/staltz/xstream/blob/master/CHANGELOG.md#900-2016-11-28)
+too.
+
+
+
 <a name="3.1.0"></a>
 # 3.1.0 (2016-08-22)
 
