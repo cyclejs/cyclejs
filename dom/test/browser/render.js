@@ -124,7 +124,7 @@ describe('DOM Rendering', function () {
 
     const element$ = sources.DOM.select(':root').elements();
 
-    element$.skip(1).subscribe(function (root) {
+    element$.skip(1).take(1).subscribe(function (root) {
       assert.strictEqual(firstSubscriberRan, false);
       firstSubscriberRan = true;
       const header = root.querySelector('.value-over-time');
@@ -134,7 +134,10 @@ describe('DOM Rendering', function () {
     });
 
     setTimeout(() => {
-      element$.subscribe(function (root) {
+      // This samples the element$ after 100ms, and should synchronously get
+      // some element into the subscriber.
+      assert.strictEqual(secondSubscriberRan, false);
+      element$.take(1).subscribe(function (root) {
         assert.strictEqual(secondSubscriberRan, false);
         secondSubscriberRan = true;
         const header = root.querySelector('.value-over-time');
@@ -146,6 +149,7 @@ describe('DOM Rendering', function () {
           done();
         });
       });
+      assert.strictEqual(secondSubscriberRan, true);
     }, 100);
     dispose = run();
   });
