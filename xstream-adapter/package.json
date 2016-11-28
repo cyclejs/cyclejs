@@ -12,7 +12,7 @@
   "dependencies": {},
   "devDependencies": {
     "@cycle/base": "4.x.x",
-    "xstream": "8.x.x"
+    "xstream": "9.x.x"
   },
   "peerDependencies": {
     "xstream": "*"
