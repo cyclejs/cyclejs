@@ -1,0 +1,33 @@
+{
+  "name": "@cycle/time",
+  "version": "1.0.0",
+  "description": "Deduce the code required to power a game from a user's animations",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha 'test/**/*.ts' --compilers ts:ts-node/register",
+    "test/auto": "mocha 'test/**/*.ts' --compilers ts:ts-node/register --watch -R min"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cyclejs/time.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cyclejs/time/issues"
+  },
+  "homepage": "https://github.com/cyclejs/time#readme",
+  "dependencies": {
+    "@cycle/xstream-run": "^3.1.0",
+    "xstream": "^8.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^2.2.0-dev.20161114",
+    "browserify": "^13.1.1",
+    "budo": "^9.2.2",
+    "garnish": "^5.2.0",
+    "mocha": "^3.1.2",
+    "ts-node": "^1.7.0",
+    "tsify": "^2.0.3"
+  }
+}
