@@ -66,13 +66,18 @@ function makeTimeDriver ({interval = 20} = {}) {
           const timeToSchedule = (index + 1) * interval;
 
           if (character === '|') {
-            scheduleEntry(
-              {time: timeToSchedule, stream, type: 'complete'}
-            )
+            scheduleEntry({
+              time: timeToSchedule,
+              stream,
+              type: 'complete'
+            })
           } else {
-            scheduleEntry(
-              {time: timeToSchedule, stream, type: 'next', value: character}
-            )
+            scheduleEntry({
+              time: timeToSchedule,
+              stream,
+              type: 'next',
+              value: character
+            })
           }
         });
 
