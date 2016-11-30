@@ -1,6 +1,7 @@
 import xs, {Stream} from 'xstream';
 import * as assert from 'assert';
 const makeAccumulator = require('sorted-immutable-list').default;
+const requestAnimationFrame = require('raf');
 
 const addScheduleEntry = makeAccumulator({
   key: entry => entry.time,
@@ -169,15 +170,13 @@ function makeTimeDriver ({interval = 20} = {}) {
 
         const producer = {
           start (listener) {
-            scheduleEntry(
-              {
-                time: time + timeInterval,
-                value: 0,
-                stream: listener,
-                type: 'next',
-                f: scheduleNextEvent
-              }
-            )
+            scheduleEntry({
+              time: time + timeInterval,
+              value: 0,
+              stream: listener,
+              type: 'next',
+              f: scheduleNextEvent
+            })
           },
 
           stop () {
@@ -310,6 +309,44 @@ ${completeStore['a']}
         }
 
         setTimeout(processEvent, 1);
+      },
+
+      runRealtime () {
+        function processEvent (eventTime) {
+          time = eventTime;
+
+          if (schedule.length === 0) {
+            requestAnimationFrame(processEvent);
+
+            return;
+          }
+
+          let nextEventTime = schedule[0].time;
+
+          while (nextEventTime < time) {
+            const eventToProcess = schedule.shift();
+
+            if (!eventToProcess.cancelled) {
+              if (eventToProcess.f) {
+                eventToProcess.f(eventToProcess, time);
+              }
+
+              if (eventToProcess.type === 'next') {
+                eventToProcess.stream.shamefullySendNext(eventToProcess.value);
+              }
+
+              if (eventToProcess.type === 'complete') {
+                eventToProcess.stream.shamefullySendComplete();
+              }
+
+              nextEventTime = (schedule[0] && schedule[0].time) || Infinity;
+            }
+          }
+
+          requestAnimationFrame(processEvent);
+        }
+
+        requestAnimationFrame(processEvent);
       }
     }
   }

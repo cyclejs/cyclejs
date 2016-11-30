@@ -4,6 +4,7 @@
   "description": "Deduce the code required to power a game from a user's animations",
   "main": "index.js",
   "scripts": {
+    "start": "budo example/index.ts:index.js --live -- -p tsify",
     "test": "mocha 'test/**/*.ts' --compilers ts:ts-node/register",
     "test/auto": "mocha 'test/**/*.ts' --compilers ts:ts-node/register --watch -R min"
   },
@@ -19,16 +20,18 @@
   "homepage": "https://github.com/cyclejs/time#readme",
   "dependencies": {
     "@cycle/xstream-run": "^3.1.0",
+    "raf": "^3.3.0",
     "sorted-immutable-list": "^1.1.0",
     "xstream": "^8.0.0"
   },
   "devDependencies": {
-    "typescript": "^2.2.0-dev.20161114",
+    "@cycle/dom": "^14.1.0",
     "browserify": "^13.1.1",
     "budo": "^9.2.2",
     "garnish": "^5.2.0",
     "mocha": "^3.1.2",
     "ts-node": "^1.7.0",
-    "tsify": "^2.0.3"
+    "tsify": "^2.0.3",
+    "typescript": "^2.2.0-dev.20161114"
   }
 }

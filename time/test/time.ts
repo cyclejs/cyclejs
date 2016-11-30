@@ -56,11 +56,11 @@ describe("time", () => {
     const time = makeTimeDriver()();
 
     const input = time.diagram(
-      `---1---2-------|`
+      `---1---2---3---|`
     );
 
     const expected = time.diagram(
-      `------1---2-------|`
+      `------1---2---3---|`
     );
 
     const value = input.compose(time.delay(60));
