@@ -69,13 +69,11 @@ function makeTimeDriver ({interval = 20} = {}) {
             scheduleEntry(
               {time: timeToSchedule, stream, type: 'complete'}
             )
-
-            return;
+          } else {
+            scheduleEntry(
+              {time: timeToSchedule, stream, type: 'next', value: character}
+            )
           }
-
-          scheduleEntry(
-            {time: timeToSchedule, stream, type: 'next', value: character}
-          )
         });
 
         return stream;
@@ -87,24 +85,20 @@ function makeTimeDriver ({interval = 20} = {}) {
 
           stream.addListener({
             next (event) {
-              scheduleEntry(
-                {
-                  time: time + delayTime,
-                  value: event,
-                  stream: outStream,
-                  type: 'next'
-                }
-              )
+              scheduleEntry({
+                time: time + delayTime,
+                value: event,
+                stream: outStream,
+                type: 'next'
+              })
             },
 
             complete () {
-              scheduleEntry(
-                {
-                  time: time + delayTime,
-                  stream: outStream,
-                  type: 'complete'
-                }
-              )
+              scheduleEntry({
+                time: time + delayTime,
+                stream: outStream,
+                type: 'complete'
+              })
             }
           })
 
@@ -113,7 +107,7 @@ function makeTimeDriver ({interval = 20} = {}) {
       },
 
       debounce (debounceInterval: number) {
-        return function _debounce (stream: Stream<any>): Stream<any> {
+        return function debounceOperator (stream: Stream<any>): Stream<any> {
           const outStream = xs.create();
           let scheduledEntry = null;
 
@@ -184,15 +178,13 @@ function makeTimeDriver ({interval = 20} = {}) {
           }
         }
 
-        const stream = xs.create(producer);
-
-        return stream;
+        return xs.create(producer);
       },
 
       throttle (period: number) {
-        return function _throttle (stream: Stream<any>): Stream<any> {
+        return function throttleOperator (stream: Stream<any>): Stream<any> {
           const outStream = xs.create();
-          let lastEventTime = -Infinity;
+          let lastEventTime = -Infinity; // so that the first event is always scheduled
 
           stream.addListener({
             next (event) {
