@@ -14,19 +14,20 @@ describe("time", () => {
     );
 
     const value = input.map(i => i * 2);
-    try {
-      time.assertEqual(
-        value,
-        expected,
-        () => done(new Error(`test unexpectedly did not fail`))
-      );
 
-      time.run();
+    time.assertEqual(
+      value,
+      expected,
+      (err) => {
+        if (err) {
+          done();
+        } else {
+          throw new Error('expected test to fail');
+        }
+      }
+    );
 
-    } catch (e) {
-      // generates an error message
-      done();
-    }
+    time.run();
   });
 
   it("allows testing via marble diagrams", (done) => {
@@ -66,6 +67,24 @@ describe("time", () => {
 
     time.assertEqual(
       value,
+      expected,
+      done
+    );
+
+    time.run();
+  });
+
+  it("has an interval operator", (done) => {
+    const time = makeTimeDriver()();
+
+    const stream = time.interval(80);
+
+    const expected = time.diagram(
+      `---0---1---2---3---4---|`
+    );
+
+    time.assertEqual(
+      stream.take(6),
       expected,
       done
     );

@@ -27,7 +27,7 @@ function diagramString (entries, interval): string {
   const diagram = fill(new Array(characterCount), '-');
 
   entries.forEach(entry => {
-    const characterIndex = Math.floor(entry.time / interval);
+    const characterIndex = Math.floor(entry.time / interval) - 1;
 
     if (entry.type === 'next') {
       diagram[characterIndex] = entry.value;
@@ -47,6 +47,10 @@ function makeTimeDriver () {
     let time = 0;
     let schedule = [];
 
+    function scheduleEntry (newEntry) {
+      schedule = addScheduleEntry(schedule, newEntry)
+    }
+
     return {
       diagram (diagram: string): Stream<any> {
         const characters = diagram.split('');
@@ -57,18 +61,18 @@ function makeTimeDriver () {
             return;
           }
 
+          const timeToSchedule = (index + 1) * interval;
+
           if (character === '|') {
-            schedule = addScheduleEntry(
-              schedule,
-              {time: index * interval, stream, type: 'complete'}
+            scheduleEntry(
+              {time: timeToSchedule, stream, type: 'complete'}
             )
 
             return;
           }
 
-          schedule = addScheduleEntry(
-            schedule,
-            {time: index * interval, stream, type: 'next', value: character}
+          scheduleEntry(
+            {time: timeToSchedule, stream, type: 'next', value: character}
           )
         });
 
@@ -81,8 +85,7 @@ function makeTimeDriver () {
 
           stream.addListener({
             next (event) {
-              schedule = addScheduleEntry(
-                schedule,
+              scheduleEntry(
                 {
                   time: time + delayTime,
                   value: event,
@@ -92,8 +95,7 @@ function makeTimeDriver () {
               )
             },
             complete () {
-              schedule = addScheduleEntry(
-                schedule,
+              scheduleEntry(
                 {
                   time: time,
                   stream: newStream,
@@ -105,6 +107,47 @@ function makeTimeDriver () {
 
           return newStream;
         }
+      },
+
+      interval (timeInterval: number): Stream<any> {
+        let stopped = false;
+
+        function scheduleNextEvent (entry, time) {
+          if (stopped) {
+            return;
+          }
+
+          scheduleEntry({
+            time: time + timeInterval,
+            value: entry.value + 1,
+            stream: entry.stream,
+            f: scheduleNextEvent,
+            type: 'next'
+          })
+        }
+
+
+        const producer = {
+          start (listener) {
+            scheduleEntry(
+              {
+                time: time + timeInterval,
+                value: 0,
+                stream: listener,
+                type: 'next',
+                f: scheduleNextEvent
+              }
+            )
+          },
+
+          stop () {
+            stopped = true;
+          }
+        }
+
+        const stream = xs.create(producer);
+
+        return stream;
       },
 
       assertEqual (a: Stream<any>, b: Stream<any>, done) {
@@ -119,9 +162,21 @@ function makeTimeDriver () {
           completeStore[label] = diagram;
 
           if (calledComplete === 2) {
-            assert.equal(completeStore['a'], completeStore['b']);
+            const equal = completeStore['a'] === completeStore['b'];
 
-            done();
+            if (equal) {
+              done();
+            } else {
+              done(new Error(`
+Expected
+
+${completeStore['b']}
+
+Got
+
+${completeStore['a']}
+              `));
+            }
           }
         }
 
@@ -151,9 +206,18 @@ function makeTimeDriver () {
       },
 
       run () {
-        while (schedule.length > 0) {
+        function processEvent () {
           const eventToProcess = schedule.shift();
+
+          if (!eventToProcess) {
+            return;
+          }
+
           time = eventToProcess.time;
+
+          if (eventToProcess.f) {
+            eventToProcess.f(eventToProcess, time);
+          }
 
           if (eventToProcess.type === 'next') {
             eventToProcess.stream.shamefullySendNext(eventToProcess.value);
@@ -162,7 +226,11 @@ function makeTimeDriver () {
           if (eventToProcess.type === 'complete') {
             eventToProcess.stream.shamefullySendComplete();
           }
+
+          setTimeout(processEvent, 1);
         }
+
+        setTimeout(processEvent, 1);
       }
     }
   }
