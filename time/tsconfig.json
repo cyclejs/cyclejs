@@ -2,10 +2,12 @@
   "compilerOptions": {
     "target": "es5",
     "outDir": "dist/",
-    "module": "commonjs"
+    "module": "commonjs",
+    "allowJs": true
   },
   "files": [
     "typings/index.d.ts",
+    "src/time-driver.ts",
     "test/time.ts"
   ]
 }

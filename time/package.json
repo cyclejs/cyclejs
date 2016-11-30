@@ -19,6 +19,7 @@
   "homepage": "https://github.com/cyclejs/time#readme",
   "dependencies": {
     "@cycle/xstream-run": "^3.1.0",
+    "sorted-immutable-list": "^1.1.0",
     "xstream": "^8.0.0"
   },
   "devDependencies": {
