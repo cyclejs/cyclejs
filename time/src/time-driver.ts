@@ -94,10 +94,11 @@ function makeTimeDriver () {
                 }
               )
             },
+
             complete () {
               scheduleEntry(
                 {
-                  time: time,
+                  time: time + delayTime,
                   stream: newStream,
                   type: 'complete'
                 }

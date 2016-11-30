@@ -60,7 +60,7 @@ describe("time", () => {
     );
 
     const expected = time.diagram(
-      `------1---2----|`
+      `------1---2-------|`
     );
 
     const value = input.compose(time.delay(60));
