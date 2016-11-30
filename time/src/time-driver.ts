@@ -41,9 +41,8 @@ function diagramString (entries, interval): string {
   return diagram.join('');
 }
 
-function makeTimeDriver () {
+function makeTimeDriver ({interval = 20} = {}) {
   return function timeDriver () {
-    const interval = 20;
     let time = 0;
     let schedule = [];
 
