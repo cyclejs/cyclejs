@@ -118,9 +118,9 @@ function makeTimeDriver ({interval = 20} = {}) {
 
           stream.addListener({
             next (ev) {
-              if (scheduledEntry) {
-                const timeToSchedule = time + debounceInterval;
+              const timeToSchedule = time + debounceInterval;
 
+              if (scheduledEntry) {
                 const timeAfterPrevious = timeToSchedule - scheduledEntry.time;
 
                 if (timeAfterPrevious <= debounceInterval) {
@@ -131,7 +131,7 @@ function makeTimeDriver ({interval = 20} = {}) {
               scheduledEntry = scheduleEntry({
                 type: 'next',
                 value: ev,
-                time: time + debounceInterval,
+                time: timeToSchedule,
                 stream: outStream
               });
             },
