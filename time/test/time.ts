@@ -91,4 +91,22 @@ describe("time", () => {
 
     time.run();
   });
+
+  it("has a debounce operator", (done) => {
+    const time = makeTimeDriver()();
+
+    const input =    `--1----2-3----|`
+    const expected = `-----1------3-|`
+
+    const stream = time.diagram(input).compose(time.debounce(60));
+    const expectedStream = time.diagram(expected);
+
+    time.assertEqual(
+      stream,
+      expectedStream,
+      done
+    );
+
+    time.run();
+  });
 });

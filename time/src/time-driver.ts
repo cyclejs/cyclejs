@@ -49,6 +49,8 @@ function makeTimeDriver () {
 
     function scheduleEntry (newEntry) {
       schedule = addScheduleEntry(schedule, newEntry)
+
+      return newEntry;
     }
 
     return {
@@ -107,6 +109,44 @@ function makeTimeDriver () {
           })
 
           return newStream;
+        }
+      },
+
+      debounce (debounceInterval: number) {
+        return function _debounce (stream: Stream<any>): Stream<any> {
+          const outStream = xs.create();
+          let scheduledEntry = null;
+
+          stream.addListener({
+            next (ev) {
+              if (scheduledEntry) {
+                const timeToSchedule = time + debounceInterval;
+
+                const timeAfterPrevious = timeToSchedule - scheduledEntry.time;
+
+                if (timeAfterPrevious <= debounceInterval) {
+                  scheduledEntry.cancelled = true;
+                }
+              }
+
+              scheduledEntry = scheduleEntry({
+                type: 'next',
+                value: ev,
+                time: time + debounceInterval,
+                stream: outStream
+              });
+            },
+
+            complete () {
+              scheduleEntry({
+                type: 'complete',
+                time,
+                stream: outStream
+              })
+            }
+          });
+
+          return outStream;
         }
       },
 
@@ -211,6 +251,11 @@ ${completeStore['a']}
           const eventToProcess = schedule.shift();
 
           if (!eventToProcess) {
+            return;
+          }
+
+          if (eventToProcess.cancelled) {
+            setTimeout(processEvent, 1);
             return;
           }
 
