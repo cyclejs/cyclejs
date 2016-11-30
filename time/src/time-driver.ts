@@ -83,7 +83,7 @@ function makeTimeDriver () {
 
       delay (delayTime: number) {
         return function (stream: Stream<any>): Stream<any> {
-          const newStream = xs.create();
+          const outStream = xs.create();
 
           stream.addListener({
             next (event) {
@@ -91,7 +91,7 @@ function makeTimeDriver () {
                 {
                   time: time + delayTime,
                   value: event,
-                  stream: newStream,
+                  stream: outStream,
                   type: 'next'
                 }
               )
@@ -101,14 +101,14 @@ function makeTimeDriver () {
               scheduleEntry(
                 {
                   time: time + delayTime,
-                  stream: newStream,
+                  stream: outStream,
                   type: 'complete'
                 }
               )
             }
           })
 
-          return newStream;
+          return outStream;
         }
       },
 
@@ -189,6 +189,40 @@ function makeTimeDriver () {
         const stream = xs.create(producer);
 
         return stream;
+      },
+
+      throttle (period: number) {
+        return function _throttle (stream: Stream<any>): Stream<any> {
+          const outStream = xs.create();
+          let lastEventTime = -Infinity;
+
+          stream.addListener({
+            next (event) {
+              const timeSinceLastEvent = time - lastEventTime;
+
+              if (timeSinceLastEvent > period) {
+                scheduleEntry({
+                  time: time,
+                  value: event,
+                  stream: outStream,
+                  type: 'next'
+                })
+              }
+
+              lastEventTime = time;
+            },
+
+            complete () {
+              scheduleEntry({
+                time: time,
+                stream: outStream,
+                type: 'complete'
+              })
+            }
+          })
+
+          return outStream;
+        }
       },
 
       assertEqual (a: Stream<any>, b: Stream<any>, done) {

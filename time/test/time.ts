@@ -95,10 +95,28 @@ describe("time", () => {
   it("has a debounce operator", (done) => {
     const time = makeTimeDriver()();
 
-    const input =    `--1----2-3----|`
-    const expected = `-----1------3-|`
+    const input    = `--1----2-3----|`;
+    const expected = `-----1------3-|`;
 
     const stream = time.diagram(input).compose(time.debounce(60));
+    const expectedStream = time.diagram(expected);
+
+    time.assertEqual(
+      stream,
+      expectedStream,
+      done
+    );
+
+    time.run();
+  });
+
+  it("has a throttle operator", (done) => {
+    const time = makeTimeDriver()();
+
+    const input    = `--1-2-----3--4----5-|`;
+    const expected = `--1-------3-------5-|`;
+
+    const stream = time.diagram(input).compose(time.throttle(60));
     const expectedStream = time.diagram(expected);
 
     time.assertEqual(
