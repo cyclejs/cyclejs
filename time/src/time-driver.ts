@@ -284,7 +284,7 @@ ${completeStore['a']}
           }
 
           if (eventToProcess.cancelled) {
-            setTimeout(processEvent, 1);
+            setTimeout(processEvent, 0);
             return;
           }
 
@@ -302,10 +302,10 @@ ${completeStore['a']}
             eventToProcess.stream.shamefullySendComplete();
           }
 
-          setTimeout(processEvent, 1);
+          setTimeout(processEvent, 0);
         }
 
-        setTimeout(processEvent, 1);
+        setTimeout(processEvent, 0);
       },
 
       runRealtime () {
