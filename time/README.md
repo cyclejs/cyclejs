@@ -28,7 +28,7 @@ function Counter ({Time}) {
   }
 }
 
-run(main, drivers);
+run(Counter, drivers);
 ```
 
 This will display a counter where the count goes up every second.
@@ -50,20 +50,6 @@ Takes an interval that determines how much time each character in a `diagram` re
 
 Returns a time driver. The time driver returns a `TimeSource` object with the following methods:
 
-#### diagram(diagramString)
-A constructor that takes a string representing a stream and returns a stream. Useful for testing.
-
-```js
-Time.diagram('---1---2---3---|').subscribe(i => console.log(i));
-
-Time.run();
-
-// Logs:
-// 1
-// 2
-// 3
-```
-
 #### delay(period)
 An operator that can be used with `.compose` to delay values in a stream. `period` is the number of milliseconds to delay each event by.
 
@@ -84,8 +70,8 @@ Time.assertEqual(
 An operator that can be used with `.compose` to filter out events if an event had previously occurred within the given `period`.
 
 ```js
-const input    = Time.diagram(`---1-2---3-4----5-|`);
-const expected = Time.diagram(`---1-----3------5-|`);
+const input    = Time.diagram(`---1-----3-4----5-|`);
+const expected = Time.diagram(`------1-------4---|`);
 
 const stream = input.compose(Time.debounce(60));
 
@@ -100,7 +86,7 @@ Time.assertEqual(
 Returns a stream that emits every `period` msec. Starts with 0, and increases by 1 every time.
 
 ```js
-const expected = Time.diagram(`---1---2---3---4---|`);
+const expected = Time.diagram(`---0---1---2---3---|`);
 
 const stream = Time.interval(80);
 
@@ -122,6 +108,19 @@ Has some additional methods:
 #### run()
 Executes the schedule. This should be called at the end of your test run.
 
+#### diagram(diagramString)
+A constructor that takes a string representing a stream and returns a stream. Useful for testing.
+
+```js
+Time.diagram('---1---2---3---|').subscribe(i => console.log(i));
+
+Time.run();
+
+// Logs:
+// 1
+// 2
+// 3
+```
 
 #### assertEqual(actualStream, expectedStream, done)
 Can be used to assert two streams are equivalent. This is useful when combine with `.diagram` for creating tests.

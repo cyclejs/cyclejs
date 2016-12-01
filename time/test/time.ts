@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import makeTimeDriver from '../src/time-driver';
+import {makeTimeDriver} from '../src/time-driver';
 
 describe("time", () => {
   it("allows testing via marble diagrams", (done) => {

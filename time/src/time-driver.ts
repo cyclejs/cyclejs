@@ -349,4 +349,6 @@ ${completeStore['a']}
   }
 }
 
-export default makeTimeDriver;
+export {
+  makeTimeDriver
+}

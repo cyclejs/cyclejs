@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "budo example/index.ts:index.js --live -- -p tsify",
-    "test": "mocha 'test/**/*.ts' --compilers ts:ts-node/register",
-    "test/auto": "mocha 'test/**/*.ts' --compilers ts:ts-node/register --watch -R min"
+    "test": "mocha 'test/**/*.ts' --compilers ts:ts-node/register && npm run test/docs",
+    "test/auto": "mocha 'test/**/*.ts' --compilers ts:ts-node/register --watch -R min",
+    "test/docs": "tsc && markdown-doctest"
   },
   "repository": {
     "type": "git",
@@ -29,6 +30,7 @@
     "browserify": "^13.1.1",
     "budo": "^9.2.2",
     "garnish": "^5.2.0",
+    "markdown-doctest": "^0.9.1",
     "mocha": "^3.1.2",
     "ts-node": "^1.7.0",
     "tsify": "^2.0.3",
