@@ -74,12 +74,12 @@ export class EventDelegator {
   }
 
   private bubble(rawEvent: Event): void {
-    if (!document.body.contains(rawEvent.currentTarget as Node)) {
+    if (!this.topElement.contains(rawEvent.currentTarget as Node)) {
       return;
     }
     const ev = this.patchEvent(rawEvent);
     for (let el = ev.target as Element; el && el !== this.roof; el = el.parentElement) {
-      if (!document.body.contains(el)) {
+      if (!this.topElement.contains(el)) {
         ev.stopPropagation();
       }
       if (ev.propagationHasBeenStopped) {

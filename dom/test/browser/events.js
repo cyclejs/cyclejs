@@ -17,6 +17,33 @@ function createRenderTarget(id = null) {
   return element;
 }
 
+function testFragmentEvents() {
+  function getResult() {
+    let captures = false;
+    let bubbles = false;
+    const captureEvent = document.createEvent('CustomEvent');
+    const bubbleEvent = document.createEvent('CustomEvent');
+    const fragment = document.createDocumentFragment();
+    const parent = document.createElement('div');
+    const child = document.createElement('div');
+    fragment.appendChild(parent);
+    parent.appendChild(child);
+    parent.addEventListener('fragmentCapture', function() {
+      captures = true;
+    }, true);
+    parent.addEventListener('fragmentBubble', function() {
+      bubbles = true;
+    }, false);
+    captureEvent.initCustomEvent('fragmentCapture', false, true, null);
+    bubbleEvent.initCustomEvent('fragmentBubble', true, true, null);
+    child.dispatchEvent(captureEvent);
+    child.dispatchEvent(bubbleEvent);
+    return { captures, bubbles }; 
+  }
+  let result = result || getResult();
+  return result;
+}
+
 describe('DOMSource.events()', function () {
   it('should catch a basic click interaction Observable', function (done) {
     function app() {
@@ -338,6 +365,88 @@ describe('DOMSource.events()', function () {
         });
       });
     dispose = run();
+  });
+
+  it('should catch bubbling events in a DocumentFragment', function (done) {
+    const { 
+      bubbles: thisBrowserBubblesFragmentEvents 
+    } = testFragmentEvents();
+
+    if (!thisBrowserBubblesFragmentEvents) {
+      done();
+    } else {
+      function app() {
+        return {
+          DOM: Rx.Observable.of(div([
+            div('.clickable', 'Hello')
+          ]))
+        }
+      }
+
+      const fragment = document.createDocumentFragment();
+      const renderTarget = fragment.appendChild(document.createElement('div'));
+
+      const {sinks, sources, run} = Cycle(app, {
+        DOM: makeDOMDriver(renderTarget)
+      });
+
+      sources.DOM.select('.clickable').events('click', {useCapture: false})
+        .subscribe(ev => {
+          assert.strictEqual(ev.type, 'click');
+          assert.strictEqual(ev.target.tagName, 'DIV');
+          assert.strictEqual(ev.target.className, 'clickable');
+          assert.strictEqual(ev.target.textContent, 'Hello');
+          assert.strictEqual(ev.target.parentElement.parentNode instanceof DocumentFragment, true)
+          done();
+        });
+
+      sources.DOM.select(':root').elements().skip(1).take(1).subscribe(root => {
+        const clickable = root.querySelector('.clickable');
+        setTimeout(() => clickable.click(), 80);
+      });
+      run();
+    }
+  });
+
+  it('should catch non-bubbling events in a DocumentFragment with useCapture', function (done) {
+    const { 
+      captures: thisBrowserCapturesFragmentEvents 
+    } = testFragmentEvents();
+
+    if (!thisBrowserCapturesFragmentEvents) {
+      done();
+    } else {
+      function app() {
+        return {
+          DOM: Rx.Observable.of(div([
+            div('.clickable', 'Hello')
+          ]))
+        }
+      }
+
+      const fragment = document.createDocumentFragment();
+      const renderTarget = fragment.appendChild(document.createElement('div'));
+
+      const {sinks, sources, run} = Cycle(app, {
+        DOM: makeDOMDriver(renderTarget)
+      });
+
+      sources.DOM.select('.clickable').events('click', {useCapture: true})
+        .subscribe(ev => {
+          assert.strictEqual(ev.type, 'click');
+          assert.strictEqual(ev.target.tagName, 'DIV');
+          assert.strictEqual(ev.target.className, 'clickable');
+          assert.strictEqual(ev.target.textContent, 'Hello');
+          assert.strictEqual(ev.target.parentElement.parentNode instanceof DocumentFragment, true)
+          done();
+        });
+
+      sources.DOM.select(':root').elements().skip(1).take(1).subscribe(root => {
+        const clickable = root.querySelector('.clickable');
+        setTimeout(() => clickable.click(), 80);
+      });
+      run();
+    }
   });
 
   it('should have currentTarget or ownerTarget pointed to the selected parent', function (done) {
