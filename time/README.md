@@ -44,7 +44,7 @@ const Time = timeDriver();
 ```
 
 ### makeTimeDriver({interval = 20})
-A factor for the time driver.
+A factory for the time driver.
 
 Takes an interval that determines how much time each character in a `diagram` represents.
 
