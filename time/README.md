@@ -68,12 +68,12 @@ Time.run();
 An operator that can be used with `.compose` to delay values in a stream. `period` is the number of milliseconds to delay each event by.
 
 ```js
-const input  = Time.diagram(`---1---2---3---|`);
-const output = Time.diagram(`------1---2---3---|`);
+const input    = Time.diagram(`---1---2---3---|`);
+const expected = Time.diagram(`------1---2---3---|`);
 
 const stream = input.compose(Time.delay(60));
 
-time.assertEqual(
+Time.assertEqual(
   stream,
   expected,
   done
@@ -84,12 +84,12 @@ time.assertEqual(
 An operator that can be used with `.compose` to filter out events if an event had previously occurred within the given `period`.
 
 ```js
-const input  = Time.diagram(`---1-2---3-4----5-|`);
-const output = Time.diagram(`---1-----3------5-|`);
+const input    = Time.diagram(`---1-2---3-4----5-|`);
+const expected = Time.diagram(`---1-----3------5-|`);
 
 const stream = input.compose(Time.debounce(60));
 
-time.assertEqual(
+Time.assertEqual(
   stream,
   expected,
   done
@@ -104,10 +104,57 @@ const expected = Time.diagram(`---1---2---3---4---|`);
 
 const stream = Time.interval(80);
 
-time.assertEqual(
-  stream,
+Time.assertEqual(
+  stream.take(5),
   expected,
   done
+)
+```
+
+### makeMockTimeDriver({interval = 20})
+
+Has the same interface as `makeTimeDriver` but returns a time driver designed for testing.
+
+Instead of all delays and debounces running in real time in your tests, causing unecessary delays, they will be run in "virtual time".
+
+Has some additional methods:
+
+#### run()
+Executes the schedule. This should be called at the end of your test run.
+
+
+#### assertEqual(actualStream, expectedStream, done)
+Can be used to assert two streams are equivalent. This is useful when combine with `.diagram` for creating tests.
+
+```js
+// passes
+
+Time.assertEqual(
+  Time.diagram('---1---2---3--|'),
+  Time.diagram('---1---2---3--|'),
+
+  (err) => {
+    if (err) {
+      console.error(err);
+    } else {
+      console.log('Success!');
+    }
+  }
+)
+
+// fails
+
+Time.assertEqual(
+  Time.diagram('---1---2---3--|'),
+  Time.diagram('---1---3---2--|'),
+
+  (err) => {
+    if (err) {
+      console.error(err);
+    } else {
+      console.log('Success!');
+    }
+  }
 )
 ```
 
