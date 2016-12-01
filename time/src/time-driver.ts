@@ -166,9 +166,12 @@ function makeTimeDriver ({interval = 20} = {}) {
           })
         }
 
+        let _listener;
 
         const producer = {
           start (listener) {
+            _listener = listener;
+
             scheduleEntry({
               time: time + timeInterval,
               value: 0,
@@ -180,6 +183,12 @@ function makeTimeDriver ({interval = 20} = {}) {
 
           stop () {
             stopped = true;
+
+            scheduleEntry({
+              time: time,
+              stream: _listener,
+              type: 'complete'
+            })
           }
         }
 
@@ -262,7 +271,7 @@ function makeTimeDriver ({interval = 20} = {}) {
             complete () {
               actualDiagram.push({type: 'complete', time});
 
-              complete('actual', diagramString(entries, interval))
+              complete(label, diagramString(entries, interval))
             }
           }
         }

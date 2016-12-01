@@ -84,7 +84,7 @@ describe("time", () => {
     );
 
     time.assertEqual(
-      stream.take(6),
+      stream.take(5),
       expected,
       done
     );
