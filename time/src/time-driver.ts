@@ -220,9 +220,9 @@ function makeTimeDriver ({interval = 20} = {}) {
         }
       },
 
-      assertEqual (a: Stream<any>, b: Stream<any>, done) {
-        const aDiagram = [];
-        const bDiagram = [];
+      assertEqual (actual: Stream<any>, expected: Stream<any>, done) {
+        const actualDiagram = [];
+        const expectedDiagram = [];
 
         let calledComplete = 0;
         let completeStore = {};
@@ -232,7 +232,7 @@ function makeTimeDriver ({interval = 20} = {}) {
           completeStore[label] = diagram;
 
           if (calledComplete === 2) {
-            const equal = completeStore['a'] === completeStore['b'];
+            const equal = completeStore['actual'] === completeStore['expected'];
 
             if (equal) {
               done();
@@ -240,37 +240,37 @@ function makeTimeDriver ({interval = 20} = {}) {
               done(new Error(`
 Expected
 
-${completeStore['b']}
+${completeStore['expected']}
 
 Got
 
-${completeStore['a']}
+${completeStore['actual']}
               `));
             }
           }
         }
 
-        a.addListener({
+        actual.addListener({
           next (ev) {
-            aDiagram.push({type: 'next', value: ev, time});
+            actualDiagram.push({type: 'next', value: ev, time});
           },
 
           complete () {
-            aDiagram.push({type: 'complete', time});
+            actualDiagram.push({type: 'complete', time});
 
-            complete('a', diagramString(aDiagram, interval))
+            complete('actual', diagramString(actualDiagram, interval))
           }
         })
 
-        b.addListener({
+        expected.addListener({
           next (ev) {
-            bDiagram.push({type: 'next', value: ev, time});
+            expectedDiagram.push({type: 'next', value: ev, time});
           },
 
           complete () {
-            bDiagram.push({type: 'complete', time});
+            expectedDiagram.push({type: 'complete', time});
 
-            complete('b', diagramString(bDiagram, interval))
+            complete('expected', diagramString(expectedDiagram, interval))
           }
         })
       },
