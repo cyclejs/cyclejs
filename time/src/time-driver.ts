@@ -226,7 +226,8 @@ function makeTimeDriver ({interval = 20} = {}) {
 
         let calledComplete = 0;
         let completeStore = {};
-        const complete = (label, diagram) => {
+
+        function complete (label, diagram) {
           calledComplete++;
 
           completeStore[label] = diagram;
@@ -238,41 +239,36 @@ function makeTimeDriver ({interval = 20} = {}) {
               done();
             } else {
               done(new Error(`
-Expected
+                Expected
 
-${completeStore['expected']}
+                ${completeStore['expected']}
 
-Got
+                Got
 
-${completeStore['actual']}
-              `));
+                ${completeStore['actual']}
+              `.replace(/^\s{6}/, '')));
             }
           }
         }
 
-        actual.addListener({
-          next (ev) {
-            actualDiagram.push({type: 'next', value: ev, time});
-          },
+        const completeListener = (label) => {
+          const entries = [];
 
-          complete () {
-            actualDiagram.push({type: 'complete', time});
+          return {
+            next (ev) {
+              entries.push({type: 'next', value: ev, time});
+            },
 
-            complete('actual', diagramString(actualDiagram, interval))
+            complete () {
+              actualDiagram.push({type: 'complete', time});
+
+              complete('actual', diagramString(entries, interval))
+            }
           }
-        })
+        }
 
-        expected.addListener({
-          next (ev) {
-            expectedDiagram.push({type: 'next', value: ev, time});
-          },
-
-          complete () {
-            expectedDiagram.push({type: 'complete', time});
-
-            complete('expected', diagramString(expectedDiagram, interval))
-          }
-        })
+        actual.addListener(completeListener('actual'))
+        expected.addListener(completeListener('expected'))
       },
 
       run () {
