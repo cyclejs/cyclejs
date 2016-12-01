@@ -2,17 +2,11 @@
 
 > Fast and beautiful tests and time management for Cycle.js
 
-Cycle.js is great because everything all of your application's inputs and
-outputs are streams. In theory this should make Cycle applications simple to
-test, because all of the input and output is explicitly passed around.
+Cycle.js is great because everything all of your application's inputs and outputs are streams. In theory this should make Cycle applications simple to test, because all of the input and output is explicitly passed around.
 
-Cycle is also great for building applications with complex asynchronous
-behaviour. This is possible because of great observable operators like
-`debounce` and `delay`.
+Cycle is also great for building applications with complex asynchronous behaviour. This is possible because of great observable operators like `debounce` and `delay`.
 
-So what does testing with Cycle look like? The basic principle is to subscribe
-to a stream, and to make assertions about what it emits. Here's a contrived
-example:
+So what does testing with Cycle look like? The basic principle is to subscribe to a stream, and to make assertions about what it emits. Here's a contrived example:
 
 ```js
 import assert from 'assert';
@@ -40,26 +34,15 @@ stream.take(expectedValues.length).addListener({
 })
 ```
 
-We make an input stream, perform an operation on it, and then make assertions
-about what comes out the other side. This approach can be used for testing Cycle
-apps as well. Input is passed via sources using say `mockDOMSource` or directly
-stubbing out the driver, and assertions are made about sink streams coming out.
+We make an input stream, perform an operation on it, and then make assertions about what comes out the other side. This approach can be used for testing Cycle apps as well. Input is passed via sources using say `mockDOMSource` or directly stubbing out the driver, and assertions are made about sink streams coming out.
 
-There are a few problems here. The first is that `fromDiagram` from `xstream` is
-both slow. By default, each character in a diagram
-string represents `20ms`. That diagram is 15 characters long, and will take
-`300ms` to complete. If you have 10 unit tests like that, suddenly your test
-suite takes 3 seconds.
+There are a few problems here. The first is that `xstream`'s `fromDiagram` is very slow. By default, each character in a diagram string represents `20ms`.  That diagram is 15 characters long, and will take 300ms to complete. If you have 10 unit tests like that, suddenly your test suite takes 3 seconds.
 
-Additionally, and perhaps more significantly, since `setTimeout` provides no
-guarantees of accurate scheduling, writing tests with multiple `fromDiagram`
-inputs will occasionally fail due to events occurring in the wrong order.
+Additionally, and perhaps more significantly, since `setTimeout` provides no guarantees of accurate scheduling, writing tests with multiple `fromDiagram` inputs will occasionally fail due to events occurring in the wrong order.
 
-Timing is very important for Cycle applications since streams are about "when
-this happens, this changes". Time and testing are intertwined with Cycle.js.
+Timing is very important for Cycle applications since streams are about "when this happens, this changes". Time and testing are intertwined with Cycle.js.
 
-So where does @cycle/time come in? @cycle/time is a library that will help you
-write the asynchronous tests you always dreamed of.
+So where does @cycle/time come in? @cycle/time is a library that will help you write the asynchronous tests you always dreamed of.
 
 Let's rewrite our contrived example:
 
@@ -79,19 +62,11 @@ time.assertEqual(stream, expected, done);
 time.run();
 ```
 
-A few things have changed here. First is that we're now creating our input
-streams from diagrams using `@cycle/time`. Instead of scheduling their events
-using `setTimeout`, which as discussed is slow and inconsistent, their events
-are scheduled on a central queue inside of `@cycle/time`.
+A few things have changed here. First is that we're now creating our input streams from diagrams using `@cycle/time`. Instead of scheduling their events using `setTimeout`, which as discussed is slow and inconsistent, their events are scheduled on a central queue inside of `@cycle/time`.
 
-This queue is processed when we call `time.run();`. Even though each character
-in the diagram still represents `20ms`, we don't have to wait all that time.
-Instead, the application's time is managed by `@cycle/time`, so we can run on
-"virtual time". This means this test is much faster than the equivalent using
-`xstream` `fromDiagram`, over 10x faster.
+This queue is processed when we call `time.run();`. Even though each character in the diagram still represents 20ms, we don't have to wait all that time.  Instead, the application's time is managed by `@cycle/time`, so we can run on "virtual time". This means this test is much faster than the equivalent using `xstream` `fromDiagram`, over 10x faster.
 
-This approach is comparable to RxJS's schedulers and HistoricalScheduler
-approach, but works with `xstream` and potentially other libraries.
+This approach is comparable to RxJS's schedulers and HistoricalScheduler approach, but works with `xstream` and potentially other libraries.
 
 There's one other problem with the `fromDiagram` way of testing.
 
@@ -124,10 +99,7 @@ stream.take(expectedValues.length).addListener({
 })
 ```
 
-This test will take at least `200ms` to run, because once again `delay` is
-implemented using `setTimeout`. This is also subject to timing problems, which
-stops us from expressing our expected output using a marble diagram. Here's the
-same test written with `@cycle/time`.
+This test will take at least 200ms to run, because once again `delay` is implemented using `setTimeout`. This is also subject to timing problems, which stops us from expressing our expected output using a marble diagram. Here's the same test written with `@cycle/time`.
 
 ```js
 import {makeTimeDriver} from '@cycle/time';
@@ -145,19 +117,11 @@ time.assertEqual(stream, expected, done);
 time.run();
 ```
 
-Notice that we are now using `Time.delay` instead of the `xstream` equivalent.
-Like `Time.diagram`, `Time.delay` is implemented by scheduling onto a central
-queue, and in tests is processed in "virtual time". This means that we no longer
-have to wait `200ms`, but the `.delay` will function exactly as it did before.
+Notice that we are now using `Time.delay` instead of the `xstream` equivalent.  Like `Time.diagram`, `Time.delay` is implemented by scheduling onto a central queue, and in tests is processed in "virtual time". This means that we no longer have to wait 200ms, but the `.delay` will function exactly as it did before.
 
-As well as `delay`, `@cycle/time` has implementations of `debounce`, `throttle`,
-and `interval`.
+As well as `delay`, `@cycle/time` has implementations of `debounce`, `throttle`, and `interval`.
 
-Outside of your tests, `@cycle/time` acts as a driver that provides time based
-streams and operators. All you need to do is add it your drivers object, and
-replace usages of time-based operators like `delay`, `debounce`, `throttle` and
-`periodic` with the `@cycle/time` implementation. Here is a simple counter using
-`Time.interval`.
+Outside of your tests, `@cycle/time` acts as a driver that provides time based streams and operators. All you need to do is add it your drivers object, and replace usages of time-based operators like `delay`, `debounce`, `throttle` and `periodic` with the `@cycle/time` implementation. Here is a simple counter using `Time.interval`.
 
 ```js
 import {makeTimeDriver} from '@cycle/time';
