@@ -4,7 +4,11 @@
 
 In Cycle.js, it's idiomatic to wrap up side effects in drivers, so that apps can easily be composed and tested.
 
-One type of side effect that is often overlooked is time. Operators like `delay`, `debounce` and `periodic`/`interval` are problematic, because they introduce unecessecary delays in automated tests, and can cause tests to intermittently fail thanks to timing errors.
+One type of side effect that is often overlooked is time. Operators like `delay`, `debounce` and `periodic`/`interval` are problematic, because they introduce unecessecary delays in automated tests, and can cause tests to intermittently fail due to timing errors.
+
+One approach used by libraries like RxJS is to manage time with a scheduler. This is a good idea, but schedulers are not available in every stream library, and the RxJS implementation is not ideal for Cycle.js either.
+
+@cycle/time is a central scheduler for your application, rolled up in a driver. It enables fast and beautiful tests with marble diagrams, and enables powerful tooling like hot reloading and time travel.
 
 ## Usage
 
