@@ -340,6 +340,52 @@ describe('DOMSource.events()', function () {
     dispose = run();
   });
 
+  it('should catch bubbling events in a DocumentFragment (and shadowRoot)', function (done) {
+    function app() {
+      return {
+        DOM: Rx.Observable.of(div([
+          div('.clickable', 'Hello')
+        ]))
+      }
+    }
+
+    function click(el) {
+      const ev = document.createEvent(`MouseEvent`)
+      ev.initMouseEvent(
+        `click`,
+        true /* bubble */, true /* cancelable */,
+        window, null,
+        0, 0, 0, 0, /* coordinates */
+        false, false, false, false, /* modifier keys */
+        0 /*left*/, null
+      )
+      el.dispatchEvent(ev)
+    }
+
+    const fragment = document.createDocumentFragment();
+    const renderTarget = fragment.appendChild(document.createElement('div'));
+
+    const {sinks, sources, run} = Cycle(app, {
+      DOM: makeDOMDriver(renderTarget)
+    });
+
+    sources.DOM.select('.clickable').events('click')
+      .subscribe(ev => {
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual(ev.target.tagName, 'DIV');
+        assert.strictEqual(ev.target.className, 'clickable');
+        assert.strictEqual(ev.target.textContent, 'Hello');
+        assert.strictEqual(ev.target.parentElement.parentNode instanceof DocumentFragment, true)
+        done();
+      });
+
+    sources.DOM.select(':root').elements().skip(1).take(1).subscribe(root => {
+      const clickable = root.querySelector('.clickable');
+      setTimeout(() => click(clickable));
+    });
+    run();
+  })
+
   it('should have currentTarget or ownerTarget pointed to the selected parent', function (done) {
     function app() {
       return {
