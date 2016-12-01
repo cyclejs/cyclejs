@@ -47,14 +47,14 @@ const timeDriver = makeTimeDriver({interval: 20});
 const Time = timeDriver();
 ```
 
-### makeTimeDriver({interval = 20})
+### `makeTimeDriver({interval = 20})`
 A factory for the time driver.
 
 Takes an interval that determines how much time each character in a `diagram` represents.
 
 Returns a time driver. The time driver returns a `TimeSource` object with the following methods:
 
-#### delay(period)
+#### `delay(period)`
 An operator that can be used with `.compose` to delay values in a stream. `period` is the number of milliseconds to delay each event by.
 
 ```js
@@ -70,7 +70,7 @@ Time.assertEqual(
 )
 ```
 
-#### debounce(period)
+#### `debounce(period)`
 An operator that can be used with `.compose` to filter out events if an event had previously occurred within the given `period`.
 
 ```js
@@ -86,11 +86,11 @@ Time.assertEqual(
 )
 ```
 
-#### interval(period)
+#### `interval(period)`
 Returns a stream that emits every `period` msec. Starts with 0, and increases by 1 every time.
 
 ```js
-const expected = Time.diagram(`---0---1---2---3---|`);
+const expected = Time.diagram(`---0---1---2---3---4|`);
 
 const stream = Time.interval(80);
 
@@ -101,7 +101,7 @@ Time.assertEqual(
 )
 ```
 
-### makeMockTimeDriver({interval = 20})
+### `makeMockTimeDriver({interval = 20})`
 
 Has the same interface as `makeTimeDriver` but returns a time driver designed for testing.
 
@@ -109,10 +109,10 @@ Instead of all delays and debounces running in real time in your tests, causing 
 
 Has some additional methods:
 
-#### run()
+#### `run()`
 Executes the schedule. This should be called at the end of your test run.
 
-#### diagram(diagramString)
+#### `diagram(diagramString)`
 A constructor that takes a string representing a stream and returns a stream. Useful for testing.
 
 ```js
@@ -126,7 +126,7 @@ Time.run();
 // 3
 ```
 
-#### assertEqual(actualStream, expectedStream, done)
+#### `assertEqual(actualStream, expectedStream, done)`
 Can be used to assert two streams are equivalent. This is useful when combine with `.diagram` for creating tests.
 
 ```js
