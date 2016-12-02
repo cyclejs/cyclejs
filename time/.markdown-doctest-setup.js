@@ -21,7 +21,16 @@ module.exports = {
   require: {
     '@cycle/time': timeDriver,
     '@cycle/dom': mockedCycleDom,
-    '@cycle/xstream-run': require('@cycle/xstream-run')
+    '@cycle/xstream-run': require('@cycle/xstream-run'),
+    'xstream': require('xstream'),
+
+    assert: require('assert')
+  },
+
+  regexRequire: {
+    'xstream\/(.*)': function (fullMatch, module) {
+      return require(`xstream/${module}`)
+    }
   },
 
   globals: {

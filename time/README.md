@@ -13,7 +13,7 @@ import assert from 'assert';
 import xs from 'xstream';
 import fromDiagram from 'xstream/extra/fromDiagram';
 
-const input = xs.fromDiagram('---1---2---3--|');
+const input = fromDiagram('---1---2---3--|');
 
 const stream = input.map(i => i * 2);
 
@@ -57,9 +57,9 @@ const expected = Time.diagram('---2---4---6--|');
 
 const stream = input.map(i => i * 2);
 
-time.assertEqual(stream, expected, done);
+Time.assertEqual(stream, expected, done);
 
-time.run();
+Time.run();
 ```
 
 A few things have changed here. First is that we're now creating our input streams from diagrams using `@cycle/time`. Instead of scheduling their events using `setTimeout`, which as discussed is slow and inconsistent, their events are scheduled on a central queue inside of `@cycle/time`.
@@ -78,11 +78,11 @@ import xs from 'xstream';
 import fromDiagram from 'xstream/extra/fromDiagram';
 import delay from 'xstream/extra/delay';
 
-const input = xs.fromDiagram('-1--------2---|');
+const input = fromDiagram('-1--------2---|');
 
 const stream = input.compose(delay(200));
 
-const expectedValues = [1];
+const expectedValues = [1, 2];
 
 stream.take(expectedValues.length).addListener({
   next (value) {
@@ -108,13 +108,13 @@ const timeDriver = makeTimeDriver();
 const Time = timeDriver();
 
 const input    = Time.diagram('-1--------2---|');
-const expected = Time.diagram('-----------1--|');
+const expected = Time.diagram('-----------1--------2---|');
 
 const stream = input.compose(Time.delay(200));
 
-time.assertEqual(stream, expected, done);
+Time.assertEqual(stream, expected, done);
 
-time.run();
+Time.run();
 ```
 
 Notice that we are now using `Time.delay` instead of the `xstream` equivalent.  Like `Time.diagram`, `Time.delay` is implemented by scheduling onto a central queue, and in tests is processed in "virtual time". This means that we no longer have to wait 200ms, but the `.delay` will function exactly as it did before.
