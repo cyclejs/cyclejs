@@ -113,9 +113,8 @@ describe("time", () => {
   it("has a throttle operator", (done) => {
     const time = makeTimeDriver()();
 
-    const input    = `--1-2-----3--4----5-|`;
-    const expected = `--1-------3-------5-|`;
-
+    const input    = `--1-2-----3--4-5---6-|`;
+    const expected = `--1-------3----5---6-|`;
     const stream = time.diagram(input).compose(time.throttle(60));
     const expectedStream = time.diagram(expected);
 

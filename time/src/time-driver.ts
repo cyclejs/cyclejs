@@ -203,15 +203,18 @@ function makeTimeDriver ({interval = 20} = {}) {
           stream.addListener({
             next (event) {
               const timeSinceLastEvent = time - lastEventTime;
+              const throttleEvent = timeSinceLastEvent <= period;
 
-              if (timeSinceLastEvent > period) {
-                scheduleEntry({
-                  time: time,
-                  value: event,
-                  stream: outStream,
-                  type: 'next'
-                })
+              if (throttleEvent) {
+                return;
               }
+
+              scheduleEntry({
+                time: time,
+                value: event,
+                stream: outStream,
+                type: 'next'
+              })
 
               lastEventTime = time;
             },
