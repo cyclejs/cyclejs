@@ -36,13 +36,13 @@ stream.take(expectedValues.length).addListener({
 
 We make an input stream, perform an operation on it, and then make assertions about what comes out the other side. This approach can be used for testing Cycle apps as well. Input is passed via sources using say `mockDOMSource` or directly stubbing out the driver, and assertions are made about sink streams coming out.
 
-There are a few problems here. The first is that `xstream`'s `fromDiagram` is very slow. By default, each character in a diagram string represents `20ms`.  That diagram is 15 characters long, and will take 300ms to complete. If you have 10 unit tests like that, suddenly your test suite takes 3 seconds.
+There are a few problems here. The first is that `xstream`'s `fromDiagram` is very slow. By default, each character in a diagram string represents 20ms.  That diagram is 15 characters long, and will take 300ms to complete. If you have 10 unit tests like that, suddenly your test suite takes 3 seconds.
 
 Additionally, and perhaps more significantly, since `setTimeout` provides no guarantees of accurate scheduling, writing tests with multiple `fromDiagram` inputs will occasionally fail due to events occurring in the wrong order.
 
 Timing is very important for Cycle applications since streams are about "when this happens, this changes". Time and testing are intertwined with Cycle.js.
 
-So where does @cycle/time come in? @cycle/time is a library that will help you write the asynchronous tests you always dreamed of.
+So where does `@cycle/time` come in? `@cycle/time` is a library that will help you write the asynchronous tests you always dreamed of.
 
 Let's rewrite our contrived example:
 
