@@ -80,7 +80,7 @@ describe("time", () => {
     const stream = time.interval(80);
 
     const expected = time.diagram(
-      `---0---1---2---3---4---|`
+      `---0---1---2---3---4|`
     );
 
     time.assertEqual(

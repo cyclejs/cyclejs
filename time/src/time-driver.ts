@@ -39,6 +39,15 @@ function diagramString (entries, interval): string {
     }
   });
 
+  const completeEntry = entries[entries.length - 1];
+  const lastEntry = entries[entries.length - 2];
+
+  if (lastEntry.time === completeEntry.time) {
+    diagram[diagram.length - 1] = lastEntry.value;
+    diagram.push('|');
+  }
+
+
   return diagram.join('');
 }
 
@@ -233,9 +242,6 @@ function makeTimeDriver ({interval = 20} = {}) {
       },
 
       assertEqual (actual: Stream<any>, expected: Stream<any>, done) {
-        const actualDiagram = [];
-        const expectedDiagram = [];
-
         let calledComplete = 0;
         let completeStore = {};
 
@@ -272,7 +278,7 @@ function makeTimeDriver ({interval = 20} = {}) {
             },
 
             complete () {
-              actualDiagram.push({type: 'complete', time});
+              entries.push({type: 'complete', time});
 
               complete(label, diagramString(entries, interval))
             }
