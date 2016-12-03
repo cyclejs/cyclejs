@@ -4,139 +4,209 @@ import {mockDOMSource} from '@cycle/dom';
 import xs, {Stream} from 'xstream';
 import adapter from '@cycle/xstream-adapter';
 
-describe("time", () => {
-  it("allows testing via marble diagrams", (done) => {
-    const time = makeTimeDriver()();
+describe("@cycle/time", () => {
+  describe(".assertEqual", () => {
+    it("allows testing via marble diagrams", (done) => {
+      const time = makeTimeDriver()();
 
-    const input = time.diagram(
-      `---1---2---3---|`
-    );
+      const input = time.diagram(
+        `---1---2---3---|`
+      );
 
-    const expected = time.diagram(
-      `---2---4---5---|`
-    );
+      const expected = time.diagram(
+        `---2---4---6---|`
+      );
 
-    const value = input.map(i => i * 2);
+      const value = input.map(i => i * 2);
 
-    time.assertEqual(
-      value,
-      expected,
-      (err) => {
-        if (err) {
-          const lines = err.message.split(/\s+/).filter(a => a.length > 0);
+      time.assertEqual(
+        value,
+        expected,
+        done
+      );
 
-          assert.deepEqual(lines, [
-            'Expected',
-            '---2---4---5---|',
-            'Got',
-            '---2---4---6---|',
-          ])
+      time.run();
+    });
 
-          done();
-        } else {
-          throw new Error('expected test to fail');
+    it("fails when actual differs from expected", (done) => {
+      const time = makeTimeDriver()();
+
+      const input = time.diagram(
+        `---1---2---3---|`
+      );
+
+      const expected = time.diagram(
+        `---2---4---5---|`
+      );
+
+      const value = input.map(i => i * 2);
+
+      time.assertEqual(
+        value,
+        expected,
+        (err) => {
+          if (err) {
+            const lines = err.message.split(/\s+/).filter(a => a.length > 0);
+
+            assert.deepEqual(lines, [
+              'Expected',
+              '---2---4---5---|',
+              'Got',
+              '---2---4---6---|',
+            ])
+
+            done();
+          } else {
+            throw new Error('expected test to fail');
+          }
         }
-      }
-    );
+      );
 
-    time.run();
+      time.run();
+    });
+
+    it("handles errors", (done) => {
+      const time = makeTimeDriver()();
+
+      const stream = xs.throw(new Error('Test!'));
+      const expected = '*';
+
+      time.assertEqual(
+        stream,
+        time.diagram(expected),
+        done
+      );
+
+      time.run();
+    });
   });
 
-  it("allows testing via marble diagrams", (done) => {
-    const time = makeTimeDriver()();
+  describe(".delay", () => {
+    it("delays events by the given period", (done) => {
+      const time = makeTimeDriver()();
 
-    const input = time.diagram(
-      `---1---2---3---|`
-    );
+      const input = time.diagram(
+        `---1---2---3---|`
+      );
 
-    const expected = time.diagram(
-      `---2---4---6---|`
-    );
+      const expected = time.diagram(
+        `------1---2---3---|`
+      );
 
-    const value = input.map(i => i * 2);
+      const value = input.compose(time.delay(60));
 
-    time.assertEqual(
-      value,
-      expected,
-      done
-    );
+      time.assertEqual(
+        value,
+        expected,
+        done
+      );
 
-    time.run();
+      time.run();
+    });
+
+    it("propagates errors", (done) => {
+      const time = makeTimeDriver()();
+
+      const stream = xs.throw(new Error('Test!')).compose(time.delay(80));
+      const expected = '---*';
+
+      time.assertEqual(
+        stream,
+        time.diagram(expected),
+        done
+      );
+
+      time.run();
+    });
+  })
+
+  describe(".interval", () => {
+    it("creates a stream that emits every period ms", (done) => {
+      const time = makeTimeDriver()();
+
+      const stream = time.interval(80);
+
+      const expected = time.diagram(
+        `---0---1---2---3---4|`
+      );
+
+      time.assertEqual(
+        stream.take(5),
+        expected,
+        done
+      );
+
+      time.run();
+    });
   });
 
-  it("has a delay operator", (done) => {
-    const time = makeTimeDriver()();
+  describe(".debounce", () => {
+    it("delays events until the period has passed", (done) => {
+      const time = makeTimeDriver()();
 
-    const input = time.diagram(
-      `---1---2---3---|`
-    );
+      const input    = `--1----2-3----|`;
+      const expected = `-----1------3-|`;
 
-    const expected = time.diagram(
-      `------1---2---3---|`
-    );
+      const stream = time.diagram(input).compose(time.debounce(60));
+      const expectedStream = time.diagram(expected);
 
-    const value = input.compose(time.delay(60));
+      time.assertEqual(
+        stream,
+        expectedStream,
+        done
+      );
 
-    time.assertEqual(
-      value,
-      expected,
-      done
-    );
+      time.run();
+    });
 
-    time.run();
+    it("propagates errors", (done) => {
+      const time = makeTimeDriver()();
+
+      const stream   = time.diagram('---1-2---3-*');
+      const expected = time.diagram('--------2--*');
+
+      time.assertEqual(
+        stream.compose(time.debounce(60)),
+        expected,
+        done
+      );
+
+      time.run();
+    });
   });
 
-  it("has an interval operator", (done) => {
-    const time = makeTimeDriver()();
+  describe(".throttle", () => {
+    it("only allows one event per period", (done) => {
+      const time = makeTimeDriver()();
 
-    const stream = time.interval(80);
+      const input    = `--1-2-----3--4-5---6-|`;
+      const expected = `--1-------3----5---6-|`;
+      const stream = time.diagram(input).compose(time.throttle(60));
+      const expectedStream = time.diagram(expected);
 
-    const expected = time.diagram(
-      `---0---1---2---3---4|`
-    );
+      time.assertEqual(
+        stream,
+        expectedStream,
+        done
+      );
 
-    time.assertEqual(
-      stream.take(5),
-      expected,
-      done
-    );
+      time.run();
+    });
 
-    time.run();
-  });
+    it("propagates errors", (done) => {
+      const time = makeTimeDriver()();
 
-  it("has a debounce operator", (done) => {
-    const time = makeTimeDriver()();
+      const stream   = time.diagram('---1-2---3-*');
+      const expected = time.diagram('---1-----3-*');
 
-    const input    = `--1----2-3----|`;
-    const expected = `-----1------3-|`;
+      time.assertEqual(
+        stream.compose(time.throttle(60)),
+        expected,
+        done
+      );
 
-    const stream = time.diagram(input).compose(time.debounce(60));
-    const expectedStream = time.diagram(expected);
-
-    time.assertEqual(
-      stream,
-      expectedStream,
-      done
-    );
-
-    time.run();
-  });
-
-  it("has a throttle operator", (done) => {
-    const time = makeTimeDriver()();
-
-    const input    = `--1-2-----3--4-5---6-|`;
-    const expected = `--1-------3----5---6-|`;
-    const stream = time.diagram(input).compose(time.throttle(60));
-    const expectedStream = time.diagram(expected);
-
-    time.assertEqual(
-      stream,
-      expectedStream,
-      done
-    );
-
-    time.run();
+      time.run();
+    });
   });
 
   it("can be used to test Cycle apps", (done) => {
@@ -183,66 +253,6 @@ describe("time", () => {
     time.assertEqual(
       counter.count$,
       time.diagram(expectedCount),
-      done
-    );
-
-    time.run();
-  });
-
-  it("handles errors", (done) => {
-    const time = makeTimeDriver()();
-
-    const stream = xs.throw(new Error('Test!'));
-    const expected = '*';
-
-    time.assertEqual(
-      stream,
-      time.diagram(expected),
-      done
-    );
-
-    time.run();
-  });
-
-  it("passes errors through delay", (done) => {
-    const time = makeTimeDriver()();
-
-    const stream = xs.throw(new Error('Test!')).compose(time.delay(80));
-    const expected = '---*';
-
-    time.assertEqual(
-      stream,
-      time.diagram(expected),
-      done
-    );
-
-    time.run();
-  });
-
-  it("passes errors through debounce", (done) => {
-    const time = makeTimeDriver()();
-
-    const stream   = time.diagram('---1-2---3-*');
-    const expected = time.diagram('--------2--*');
-
-    time.assertEqual(
-      stream.compose(time.debounce(60)),
-      expected,
-      done
-    );
-
-    time.run();
-  });
-
-  it("passes errors through throttle", (done) => {
-    const time = makeTimeDriver()();
-
-    const stream   = time.diagram('---1-2---3-*');
-    const expected = time.diagram('---1-----3-*');
-
-    time.assertEqual(
-      stream.compose(time.throttle(60)),
-      expected,
       done
     );
 
