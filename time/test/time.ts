@@ -81,6 +81,26 @@ describe("@cycle/time", () => {
     });
   });
 
+  describe(".interval", () => {
+    it("creates a stream that emits every period ms", (done) => {
+      const time = makeTimeDriver()();
+
+      const stream = time.interval(80);
+
+      const expected = time.diagram(
+        `---0---1---2---3---4|`
+      );
+
+      time.assertEqual(
+        stream.take(5),
+        expected,
+        done
+      );
+
+      time.run();
+    });
+  });
+
   describe(".delay", () => {
     it("delays events by the given period", (done) => {
       const time = makeTimeDriver()();
@@ -119,26 +139,6 @@ describe("@cycle/time", () => {
       time.run();
     });
   })
-
-  describe(".interval", () => {
-    it("creates a stream that emits every period ms", (done) => {
-      const time = makeTimeDriver()();
-
-      const stream = time.interval(80);
-
-      const expected = time.diagram(
-        `---0---1---2---3---4|`
-      );
-
-      time.assertEqual(
-        stream.take(5),
-        expected,
-        done
-      );
-
-      time.run();
-    });
-  });
 
   describe(".debounce", () => {
     it("delays events until the period has passed", (done) => {
