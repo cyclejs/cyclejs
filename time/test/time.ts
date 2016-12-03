@@ -23,6 +23,15 @@ describe("time", () => {
       expected,
       (err) => {
         if (err) {
+          const lines = err.message.split(/\s+/).filter(a => a.length > 0);
+
+          assert.deepEqual(lines, [
+            'Expected',
+            '---2---4---5---|',
+            'Got',
+            '---2---4---6---|',
+          ])
+
           done();
         } else {
           throw new Error('expected test to fail');
@@ -174,6 +183,66 @@ describe("time", () => {
     time.assertEqual(
       counter.count$,
       time.diagram(expectedCount),
+      done
+    );
+
+    time.run();
+  });
+
+  it("handles errors", (done) => {
+    const time = makeTimeDriver()();
+
+    const stream = xs.throw(new Error('Test!'));
+    const expected = '*';
+
+    time.assertEqual(
+      stream,
+      time.diagram(expected),
+      done
+    );
+
+    time.run();
+  });
+
+  it("passes errors through delay", (done) => {
+    const time = makeTimeDriver()();
+
+    const stream = xs.throw(new Error('Test!')).compose(time.delay(80));
+    const expected = '---*';
+
+    time.assertEqual(
+      stream,
+      time.diagram(expected),
+      done
+    );
+
+    time.run();
+  });
+
+  it("passes errors through debounce", (done) => {
+    const time = makeTimeDriver()();
+
+    const stream   = time.diagram('---1-2---3-*');
+    const expected = time.diagram('--------2--*');
+
+    time.assertEqual(
+      stream.compose(time.debounce(60)),
+      expected,
+      done
+    );
+
+    time.run();
+  });
+
+  it("passes errors through throttle", (done) => {
+    const time = makeTimeDriver()();
+
+    const stream   = time.diagram('---1-2---3-*');
+    const expected = time.diagram('---1-----3-*');
+
+    time.assertEqual(
+      stream.compose(time.throttle(60)),
+      expected,
       done
     );
 

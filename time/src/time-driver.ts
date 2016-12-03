@@ -37,16 +37,21 @@ function diagramString (entries, interval): string {
     if (entry.type == 'complete') {
       diagram[characterIndex] = '|';
     }
+
+    if (entry.type === 'error') {
+      diagram[characterIndex] = '*';
+    }
   });
 
-  const completeEntry = entries[entries.length - 1];
-  const lastEntry = entries[entries.length - 2];
+  if (entries.length > 1) {
+    const completeEntry = entries[entries.length - 1];
+    const lastEntry = entries[entries.length - 2];
 
-  if (lastEntry.time === completeEntry.time) {
-    diagram[diagram.length - 1] = lastEntry.value;
-    diagram.push('|');
+    if (completeEntry.type === 'complete' && lastEntry.time === completeEntry.time) {
+      diagram[diagram.length - 1] = lastEntry.value;
+      diagram.push('|');
+    }
   }
-
 
   return diagram.join('');
 }
@@ -80,6 +85,13 @@ function makeTimeDriver ({interval = 20} = {}) {
               stream,
               type: 'complete'
             })
+          } else if (character === '*') {
+            scheduleEntry({
+              time: timeToSchedule,
+              stream,
+              type: 'error',
+              error: new Error(`scheduled error`)
+            })
           } else {
             scheduleEntry({
               time: timeToSchedule,
@@ -104,6 +116,15 @@ function makeTimeDriver ({interval = 20} = {}) {
                 value: event,
                 stream: outStream,
                 type: 'next'
+              })
+            },
+
+            error (error) {
+              scheduleEntry({
+                time: time + delayTime,
+                error,
+                stream: outStream,
+                type: 'error'
               })
             },
 
@@ -143,6 +164,15 @@ function makeTimeDriver ({interval = 20} = {}) {
                 time: timeToSchedule,
                 stream: outStream
               });
+            },
+
+            error (error) {
+              scheduleEntry({
+                type: 'error',
+                time,
+                error,
+                stream: outStream
+              })
             },
 
             complete () {
@@ -228,6 +258,15 @@ function makeTimeDriver ({interval = 20} = {}) {
               lastEventTime = time;
             },
 
+            error (error) {
+              scheduleEntry({
+                time: time,
+                stream: outStream,
+                error,
+                type: 'error'
+              })
+            },
+
             complete () {
               scheduleEntry({
                 time: time,
@@ -281,6 +320,12 @@ function makeTimeDriver ({interval = 20} = {}) {
               entries.push({type: 'complete', time});
 
               complete(label, diagramString(entries, interval))
+            },
+
+            error (error) {
+              entries.push({type: 'error', time, error});
+
+              complete(label, diagramString(entries, interval));
             }
           }
         }
@@ -310,6 +355,10 @@ function makeTimeDriver ({interval = 20} = {}) {
 
           if (eventToProcess.type === 'next') {
             eventToProcess.stream.shamefullySendNext(eventToProcess.value);
+          }
+
+          if (eventToProcess.type === 'error') {
+            eventToProcess.stream.shamefullySendError(eventToProcess.error);
           }
 
           if (eventToProcess.type === 'complete') {
