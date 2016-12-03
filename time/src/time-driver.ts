@@ -28,7 +28,7 @@ function diagramString (entries, interval): string {
   const diagram = fill(new Array(characterCount), '-');
 
   entries.forEach(entry => {
-    const characterIndex = Math.floor(entry.time / interval) - 1;
+    const characterIndex = Math.max(0, Math.floor(entry.time / interval) - 1);
 
     if (entry.type === 'next') {
       diagram[characterIndex] = entry.value;
