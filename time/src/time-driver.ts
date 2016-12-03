@@ -188,7 +188,7 @@ function makeTimeDriver ({interval = 20} = {}) {
         }
       },
 
-      interval (timeInterval: number): Stream<any> {
+      periodic (period: number): Stream<any> {
         let stopped = false;
 
         function scheduleNextEvent (entry, time) {
@@ -197,7 +197,7 @@ function makeTimeDriver ({interval = 20} = {}) {
           }
 
           scheduleEntry({
-            time: time + timeInterval,
+            time: time + period,
             value: entry.value + 1,
             stream: entry.stream,
             f: scheduleNextEvent,
@@ -212,7 +212,7 @@ function makeTimeDriver ({interval = 20} = {}) {
             _listener = listener;
 
             scheduleEntry({
-              time: time + timeInterval,
+              time: time + period,
               value: 0,
               stream: listener,
               type: 'next',

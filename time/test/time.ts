@@ -81,11 +81,11 @@ describe("@cycle/time", () => {
     });
   });
 
-  describe(".interval", () => {
+  describe(".periodic", () => {
     it("creates a stream that emits every period ms", (done) => {
       const time = makeTimeDriver()();
 
-      const stream = time.interval(80);
+      const stream = time.periodic(80);
 
       const expected = time.diagram(
         `---0---1---2---3---4|`

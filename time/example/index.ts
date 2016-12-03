@@ -1,4 +1,4 @@
-import makeTimeDriver from '../src/time-driver';
+import {makeTimeDriver} from '../src/time-driver';
 import {makeDOMDriver, div} from '@cycle/dom';
 import {run} from '@cycle/xstream-run';
 import xs from 'xstream';
@@ -9,7 +9,7 @@ const drivers = {
 }
 
 function main ({DOM, Time}) {
-  const count$ = Time.interval(500);
+  const count$ = Time.periodic(500);
 
   Time.runRealtime();
 

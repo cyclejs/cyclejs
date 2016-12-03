@@ -119,9 +119,9 @@ Time.run();
 
 Notice that we are now using `Time.delay` instead of the `xstream` equivalent.  Like `Time.diagram`, `Time.delay` is implemented by scheduling onto a central queue, and in tests is processed in "virtual time". This means that we no longer have to wait 200ms, but the `.delay` will function exactly as it did before.
 
-As well as `delay`, `@cycle/time` has implementations of `debounce`, `throttle`, and `interval`.
+As well as `delay`, `@cycle/time` has implementations of `debounce`, `throttle`, and .periodic`.
 
-Outside of your tests, `@cycle/time` acts as a driver that provides time based streams and operators. All you need to do is add it your drivers object, and replace usages of time-based operators like `delay`, `debounce`, `throttle` and `periodic` with the `@cycle/time` implementation. Here is a simple counter using `Time.interval`.
+Outside of your tests, `@cycle/time` acts as a driver that provides time based streams and operators. All you need to do is add it your drivers object, and replace usages of time-based operators like `delay`, `debounce`, `throttle` and `periodic` with the `@cycle/time` implementation. Here is a simple counter using `Time.periodic`.
 
 ```js
 import {makeTimeDriver} from '@cycle/time';
@@ -134,7 +134,7 @@ const drivers = {
 }
 
 function Counter ({Time}) {
-  const count$ = Time.interval(1000);
+  const count$ = Time.periodic(1000);
 
   return {
     DOM: count$.map(count => div(`Count: ${count}`))
@@ -195,13 +195,13 @@ Time.assertEqual(
 )
 ```
 
-#### `interval(period)`
+#### `periodic(period)`
 Returns a stream that emits every `period` msec. Starts with 0, and increases by 1 every time.
 
 ```js
 const expected = Time.diagram(`---0---1---2---3---4|`);
 
-const stream = Time.interval(80);
+const stream = Time.periodic(80);
 
 Time.assertEqual(
   stream.take(5),
