@@ -32,6 +32,7 @@
     "garnish": "^5.2.0",
     "markdown-doctest": "^0.9.1",
     "mocha": "^3.1.2",
+    "snabbdom-selector": "^1.0.1",
     "ts-node": "^1.7.0",
     "tsify": "^2.0.3",
     "typescript": "^2.2.0-dev.20161114"

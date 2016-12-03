@@ -121,6 +121,76 @@ Notice that we are now using `Time.delay` instead of the `xstream` equivalent.  
 
 As well as `delay`, `@cycle/time` has implementations of `debounce`, `throttle`, and .periodic`.
 
+What about testing a Cycle component with multiple inputs?
+
+Say we have a counter, defined like this:
+
+```js
+function Counter ({DOM}) {
+  const add$ = DOM
+    .select('.add')
+    .events('click')
+    .mapTo(+1);
+
+  const subtract$ = DOM
+    .select('.subtract')
+    .events('click')
+    .mapTo(-1);
+
+  const change$ = xs.merge(add$, subtract$);
+
+  const count$ = change$.fold((total, change) => total + change, 0);
+
+  return {
+    DOM: count$.map(count =>
+      div('.counter', [
+        div('.count', count.toString()),
+        button('.add', 'Add')
+      ])
+    )
+  }
+}
+```
+
+We can test this counter using `mockDOMSource`, `snabddom-selector` and `@cycle/time`.
+
+```js
+import {makeTimeDriver} from '@cycle/time';
+import {mockDOMSource} from '@cycle/dom';
+import xsAdapter from '@cycle/xstream-adapter';
+import {select} from 'snabbdom-selector'
+
+import {Counter} from '../src/counter';
+
+const addClick      = `---x--x-------x--x--|`;
+const subtractClick = `---------x----------|`;
+const expectedCount = `0--1--2--1----2--3--|`;
+
+const Time = makeTimeDriver()();
+const DOM = mockDOMSource(xsAdapter, {
+  '.add': {
+    'click': Time.diagram(addClick)
+  },
+
+  '.subtract': {
+    'click': Time.diagram(subtractClick)
+  },
+});
+
+const counter = Counter({DOM});
+
+const count$ = counter.DOM.map(vtree => select('.count', vtree)[0].text);
+const expectedCount$ = Time.diagram(expectedCount);
+
+Time.assertEqual(
+  count$,
+  expectedCount$,
+  done
+)
+
+Time.run();
+```
+
 Outside of your tests, `@cycle/time` acts as a driver that provides time based streams and operators. All you need to do is add it your drivers object, and replace usages of time-based operators like `delay`, `debounce`, `throttle` and `periodic` with the `@cycle/time` implementation. Here is a simple counter using `Time.periodic`.
 
 ```js
