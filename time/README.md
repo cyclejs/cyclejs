@@ -145,7 +145,8 @@ function Counter ({DOM}) {
     DOM: count$.map(count =>
       div('.counter', [
         div('.count', count.toString()),
-        button('.add', 'Add')
+        button('.add', 'Add'),
+        button('.subtract', 'Subtract')
       ])
     )
   }
