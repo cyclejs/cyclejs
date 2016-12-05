@@ -287,6 +287,40 @@ function run(uri) {
         output.run();
       }
     );
+
+    it('should not be sensitive to ordering of sinks (issue #476)', function(done) {
+      function main(sources) {
+        var request$ = Rx.Observable.of({
+          url: uri + '/hello',
+          method: 'GET',
+        });
+        var response$ = sources.HTTP.select()
+          .mergeAll()
+          .map(function (res) { return res.text; });
+
+        // Notice HTTP comes before Test here. This is crucial for this test.
+        return {
+          HTTP: request$,
+          Test: response$,
+        }
+      }
+      var testDriverExpected = ['Hello World'];
+
+      function testDriver(sink) {
+        sink.subscribe(function (x) {
+          assert.strictEqual(testDriverExpected.length, 1);
+          assert.strictEqual(x, testDriverExpected.shift());
+          assert.strictEqual(testDriverExpected.length, 0);
+          done();
+        });
+      }
+
+      var output = Cycle(main, {
+        HTTP: makeHTTPDriver(),
+        Test: testDriver,
+      });
+      output.run();
+    });
   });
 
   describe('isolateSource and isolateSink', function () {
