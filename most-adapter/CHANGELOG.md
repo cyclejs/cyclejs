@@ -1,3 +1,13 @@
+<a name="4.2.0"></a>
+# 4.2.0 (2016-12-05)
+
+
+### Bug Fixes
+
+* **most-adapter:** specify strict versions of dependencies ([1c29bf5](https://github.com/cyclejs/cyclejs/tree/master/packages/most-adapter/commit/1c29bf5))
+
+
+
 <a name="4.1.0"></a>
 # 4.1.0 (2016-11-16)
 
