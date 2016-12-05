@@ -1,3 +1,13 @@
+<a name="4.2.0"></a>
+# 4.2.0 (2016-12-05)
+
+
+### Bug Fixes
+
+* **base:** hold sinks emission until all sinks are subscribed ([2845eff](https://github.com/cyclejs/cyclejs/tree/master/packages/base/commit/2845eff))
+
+
+
 <a name="4.1.1"></a>
 ## 4.1.1 (2016-08-21)
 
