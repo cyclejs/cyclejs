@@ -19,7 +19,7 @@
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "dependencies": {
-    "@cycle/base": "4.x.x",
+    "@cycle/base": "4.2",
     "@cycle/rxjs-adapter": "3.x.x"
   },
   "peerDependencies": {
