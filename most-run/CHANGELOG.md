@@ -1,3 +1,13 @@
+<a name="4.3.0"></a>
+# 4.3.0 (2016-12-05)
+
+
+### Bug Fixes
+
+* **most-run:** update dependency cycle/base to v4.2 ([dc754b7](https://github.com/cyclejs/cyclejs/tree/master/packages/most-run/commit/dc754b7))
+
+
+
 <a name="4.2.0"></a>
 # 4.2.0 (2016-11-16)
 
