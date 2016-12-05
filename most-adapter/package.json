@@ -43,10 +43,10 @@
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
   "homepage": "https://cycle.js.org",
   "dependencies": {
-    "@most/create": "^2.0.1",
-    "@most/hold": "^1.3.1",
-    "most": "^1.0.5",
-    "most-subject": "^5.0.0"
+    "@most/create": "2.0.x",
+    "@most/hold": "1.3.x",
+    "most": "1.0.x",
+    "most-subject": "5.0.0"
   },
   "devDependencies": {
     "@cycle/base": "*",
