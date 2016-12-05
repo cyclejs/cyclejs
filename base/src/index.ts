@@ -69,17 +69,17 @@ function makeSinkProxies(drivers: DriversDefinition,
   const sinkProxies: SinkProxies = {};
   for (let name in drivers) {
     if (drivers.hasOwnProperty(name)) {
-      const holdSubject = streamAdapter.makeSubject();
+      const subject = streamAdapter.makeSubject();
       const driverStreamAdapter = drivers[name].streamAdapter || streamAdapter;
 
       const stream = driverStreamAdapter.adapt(
-        holdSubject.stream,
+        subject.stream,
         streamAdapter.streamSubscribe,
       );
 
       sinkProxies[name] = {
         stream,
-        observer: holdSubject.observer,
+        observer: subject.observer,
       };
     }
   }
@@ -116,46 +116,69 @@ function callDrivers(drivers: DriversDefinition,
   return sources;
 }
 
+interface SinkReplicators {
+  [name: string]: {
+    next: (x: any) => void;
+    error: (err: any) => void;
+    complete: (x?: any) => void;
+  };
+}
+
+interface ReplicationBuffers {
+  [name: string]: {
+    next: Array<any>;
+    error: Array<any>;
+    complete: Array<any>;
+  };
+}
+
 function replicateMany(sinks: any,
                        sinkProxies: SinkProxies,
                        streamAdapter: StreamAdapter): DisposeFunction {
-  const sinkNames = Object.keys(sinks)
-    .filter(name => !!sinkProxies[name]);
-  const buffers = {};
-  const handlers = {};
+  const sinkNames = Object.keys(sinks).filter(name => !!sinkProxies[name]);
+
+  const buffers: ReplicationBuffers = {};
+  const replicators: SinkReplicators = {};
   sinkNames.forEach((name) => {
     buffers[name] = {next: [], error: [], complete: []};
-    handlers[name] = {
+    replicators[name] = {
       next: (x: any) => buffers[name].next.push(x),
       error: (x: any) => buffers[name].error.push(x),
       complete: (x: any) => buffers[name].complete.push(x),
     };
   });
-  const results = sinkNames
-    .map(name => streamAdapter.streamSubscribe(sinks[name], {
-      next(x: any) { handlers[name].next(x); },
+
+  const subscriptions = sinkNames.map(name =>
+    streamAdapter.streamSubscribe(sinks[name], {
+      next(x: any) {
+        replicators[name].next(x);
+      },
       error(err: any) {
         logToConsoleError(err);
-        handlers[name].error(err);
+        replicators[name].error(err);
       },
       complete(x?: any) {
-        handlers[name].complete(x);
+        replicators[name].complete(x);
       },
-    }));
-  const disposeFunctions = results
+    }),
+  );
+
+  const disposeFunctions = subscriptions
     .filter(fn => typeof fn === 'function') as Array<DisposeFunction>;
+
   sinkNames.forEach((name) => {
     const observer = sinkProxies[name].observer;
-    const next = (x: any) => observer.next(x);
-    const error = (x: any) => observer.error(x);
-    const complete = (x: any) => observer.complete(x);
+    const next = observer.next;
+    const error = observer.error;
+    const complete = observer.complete;
     buffers[name].next.forEach(next);
     buffers[name].error.forEach(error);
     buffers[name].complete.forEach(complete);
-    handlers[name].next = next;
-    handlers[name].error = error;
-    handlers[name].complete = complete;
+    replicators[name].next = next;
+    replicators[name].error = error;
+    replicators[name].complete = complete;
   });
+
   return () => {
     disposeFunctions.forEach(dispose => dispose());
   };

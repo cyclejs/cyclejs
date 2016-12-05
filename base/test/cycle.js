@@ -171,38 +171,41 @@ describe('Cycle', function () {
       sources.other.first().subscribe(x => {
         assert.strictEqual(x, 'a9');
         assert.strictEqual(mutable, 'correct');
-        invoked = true;        
+        invoked = true;
       });
       mutable = 'correct';
       const dispose = run();
       dispose();
-      assert.strictEqual(invoked, true);      
+      assert.strictEqual(invoked, true);
     });
 
     it('should hold sinks emission until all sinks are subscribed', function (done) {
       function main(sources) {
-        return {                                        
-          first: Rx.Observable.of('a'),                                        
+        return {
+          first: Rx.Observable.of('a'),
           second: sources.first,
         };
       }
+
       function firstDriver(sink$) {
         let source$ = sink$
           .map(x => x.toUpperCase())
           .publish()
         source$.connect()
-        return source$           
+        return source$
       }
+
       function secondDriver(sink$) {
         return sink$.subscribe((x) => {
-          assert(x == 'A', 'got message')
+          assert(x === 'A', 'got message')
           done()
         })
       }
+
       Cycle(main, {
-        first: firstDriver, 
+        first: firstDriver,
         second: secondDriver
-      }, {streamAdapter: testStreamAdapter}).run();      
+      }, {streamAdapter: testStreamAdapter}).run();
     });
 
     it('should not work after has been disposed', function (done) {
@@ -257,6 +260,6 @@ describe('Cycle', function () {
         sandbox.restore();
         done();
       }, 10);
-    });    
+    });
   });
 });
