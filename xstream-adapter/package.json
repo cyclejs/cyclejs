@@ -11,7 +11,7 @@
   "homepage": "https://cycle.js.org",
   "dependencies": {},
   "devDependencies": {
-    "@cycle/base": "4.x.x",
+    "@cycle/base": "*",
     "xstream": "9.x.x"
   },
   "peerDependencies": {
