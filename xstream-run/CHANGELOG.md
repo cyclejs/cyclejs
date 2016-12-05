@@ -1,3 +1,13 @@
+<a name="4.1.0"></a>
+# 4.1.0 (2016-12-05)
+
+
+### Bug Fixes
+
+* **xstream-run:** update dependency cycle/base to v4.2 ([1656f8c](https://github.com/cyclejs/cyclejs/tree/master/packages/xstream-run/commit/1656f8c))
+
+
+
 <a name="4.0.0"></a>
 # 4.0.0 (2016-11-28)
 
