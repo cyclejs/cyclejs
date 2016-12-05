@@ -1,3 +1,13 @@
+<a name="7.1.0"></a>
+# 7.1.0 (2016-12-05)
+
+
+### Bug Fixes
+
+* **rx-run:** update dependency cycle/base to v4.2 ([9837924](https://github.com/cyclejs/cyclejs/tree/master/packages/rx-run/commit/9837924))
+
+
+
 <a name="7.0.1"></a>
 ## 7.0.1 (2016-07-31)
 
