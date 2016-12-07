@@ -1,3 +1,13 @@
+<a name="14.2.0"></a>
+# 14.2.0 (2016-12-07)
+
+
+### Bug Fixes
+
+* **dom:** change EventDelegator bubble to search topElement ([ae5113e](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/ae5113e))
+
+
+
 <a name="14.1.0"></a>
 # 14.1.0 (2016-11-16)
 
