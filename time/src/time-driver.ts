@@ -52,9 +52,9 @@ function timeDriver (_, streamAdapter) {
         if (eventToProcess.type === 'complete') {
           eventToProcess.stream.shamefullySendComplete();
         }
-
-        nextEventTime = (schedule[0] && schedule[0].time) || Infinity;
       }
+
+      nextEventTime = (schedule[0] && schedule[0].time) || Infinity;
     }
 
     requestAnimationFrame(processEvent);
