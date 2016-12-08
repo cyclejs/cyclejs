@@ -1,0 +1,18 @@
+# Editor-specific
+.idea
+*.sublime-project
+*.sublime-workspace
+.settings
+
+# Installed libs
+node_modules
+
+# Generated
+lib/
+dist/
+
+# Misc
+ignore
+npm-debug.log
+ts/*
+!ts/cycle.d.ts
