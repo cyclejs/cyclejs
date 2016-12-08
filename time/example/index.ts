@@ -1,11 +1,11 @@
-import {makeTimeDriver} from '../src/time-driver';
+import {timeDriver} from '../src/time-driver';
 import {makeDOMDriver, div, button} from '@cycle/dom';
 import {run} from '@cycle/xstream-run';
 import xs from 'xstream';
 
 const drivers = {
   DOM: makeDOMDriver('.app'),
-  Time: makeTimeDriver()
+  Time: timeDriver
 }
 
 function main ({DOM, Time}) {
