@@ -1,6 +1,5 @@
 run
 xstream-adapter
-xstream-run
 most-adapter
 most-run
 rxjs-adapter

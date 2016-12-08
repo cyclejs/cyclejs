@@ -14,8 +14,7 @@ var packageScopes = [
   'rx-run',
   'rxjs-adapter',
   'rxjs-run',
-  'xstream-adapter',
-  'xstream-run'
+  'xstream-adapter'
 ];
 
 var otherScopes = [
