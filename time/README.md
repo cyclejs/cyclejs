@@ -47,10 +47,9 @@ So where does `@cycle/time` come in? `@cycle/time` is a library that will help y
 Let's rewrite our contrived example:
 
 ```js
-import {makeTimeDriver} from '@cycle/time';
+import {mockTimeSource} from '@cycle/time';
 
-const timeDriver = makeTimeDriver();
-const Time = timeDriver();
+const Time = mockTimeSource();
 
 const input    = Time.diagram('---1---2---3--|');
 const expected = Time.diagram('---2---4---6--|');
@@ -102,10 +101,9 @@ stream.take(expectedValues.length).addListener({
 This test will take at least 200ms to run, because once again `delay` is implemented using `setTimeout`. This is also subject to timing problems, which stops us from expressing our expected output using a marble diagram. Here's the same test written with `@cycle/time`.
 
 ```js
-import {makeTimeDriver} from '@cycle/time';
+import {mockTimeSource} from '@cycle/time';
 
-const timeDriver = makeTimeDriver();
-const Time = timeDriver();
+const Time = mockTimeSource();
 
 const input    = Time.diagram('-1--------2---|');
 const expected = Time.diagram('-----------1--------2---|');
@@ -156,7 +154,7 @@ function Counter ({DOM}) {
 We can test this counter using `mockDOMSource`, `snabddom-selector` and `@cycle/time`.
 
 ```js
-import {makeTimeDriver} from '@cycle/time';
+import {mockTimeSource} from '@cycle/time';
 import {mockDOMSource} from '@cycle/dom';
 import xsAdapter from '@cycle/xstream-adapter';
 import {select} from 'snabbdom-selector'
@@ -167,7 +165,7 @@ const addClick      = `---x--x-------x--x--|`;
 const subtractClick = `---------x----------|`;
 const expectedCount = `0--1--2--1----2--3--|`;
 
-const Time = makeTimeDriver()();
+const Time = mockTimeSource();
 const DOM = mockDOMSource(xsAdapter, {
   '.add': {
     'click': Time.diagram(addClick)
@@ -220,11 +218,7 @@ This will display a counter where the count goes up every second.
 ## API
 
 ```js
-import {makeTimeDriver, makeMockTimeDriver} from '@cycle/time';
-
-const timeDriver = makeTimeDriver({interval: 20});
-
-const Time = timeDriver();
+import {makeTimeDriver, mockTimeSource} from '@cycle/time';
 ```
 
 ### `makeTimeDriver({interval = 20})`

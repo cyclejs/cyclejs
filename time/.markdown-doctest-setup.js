@@ -19,7 +19,11 @@ const mockedCycleDom = {
     }
   },
 
-  mockDOMSource: dom.mockDOMSource
+  mockDOMSource: dom.mockDOMSource,
+
+  div,
+
+  button
 }
 
 function Counter ({DOM}) {
@@ -50,7 +54,11 @@ function Counter ({DOM}) {
 
 module.exports = {
   require: {
-    '@cycle/time': timeDriver,
+    '@cycle/time': {
+      makeTimeDriver: () => timeDriver.mockTimeSource,
+
+      mockTimeSource: timeDriver.mockTimeSource
+    },
     '@cycle/dom': mockedCycleDom,
     '@cycle/xstream-run': require('@cycle/xstream-run'),
     '@cycle/xstream-adapter': require('@cycle/xstream-adapter'),
@@ -75,7 +83,7 @@ module.exports = {
       }
     },
 
-    Time: timeDriver.makeTimeDriver()(),
+    Time: timeDriver.mockTimeSource(),
 
     done: (err) => {
       if (err) {
