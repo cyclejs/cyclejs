@@ -56,6 +56,7 @@ module.exports = {
     '@cycle/xstream-adapter': require('@cycle/xstream-adapter'),
     'snabbdom-selector': require('snabbdom-selector'),
     'xstream': require('xstream'),
+
     '../src/counter': {Counter},
 
     assert: require('assert')

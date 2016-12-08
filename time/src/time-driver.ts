@@ -412,6 +412,10 @@ function makeTimeDriver ({interval = 20} = {}) {
   }
 }
 
+const mockTimeSource = makeTimeDriver();
+
 export {
-  makeTimeDriver
+  makeTimeDriver,
+
+  mockTimeSource
 }
