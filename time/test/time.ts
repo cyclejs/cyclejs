@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import {mockTimeSource, timeDriver} from '../src/time-driver';
+import {mockTimeSource, timeDriver} from '../src/';
 import {mockDOMSource} from '@cycle/dom';
 import xs, {Stream} from 'xstream';
 import adapter from '@cycle/xstream-adapter';
