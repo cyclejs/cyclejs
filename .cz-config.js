@@ -1,7 +1,6 @@
 'use strict';
 
 var packageScopes = [
-  'base',
   'devtool',
   'dom',
   'history',
@@ -10,6 +9,7 @@ var packageScopes = [
   'jsonp',
   'most-adapter',
   'most-run',
+  'run',
   'rx-adapter',
   'rx-run',
   'rxjs-adapter',
