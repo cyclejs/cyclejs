@@ -1,7 +1,7 @@
 {
   "name": "@cycle/run",
-  "version": "1.0.0",
-  "description": "run() function for Cycle.js",
+  "version": "1.0.0-rc.1",
+  "description": "The Cycle.js run() function to use with xstream",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
@@ -38,7 +38,10 @@
     "@types/sinon": "^1.16.32"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=0.12.0"
+  },
+  "browserify-shim": {
+    "xstream": "global:xstream"
   },
   "scripts": {
     "lint": "../node_modules/.bin/tslint -c ../tslint.json src/**/*.ts",
@@ -48,19 +51,18 @@
     "mocha": "../node_modules/.bin/mocha test/*.ts --require ts-node/register",
     "test": "npm run lint && npm run mocha",
     "test-ci": "npm run test",
-    "prebrowserify": "npm run lib",
-    "browserify": "../node_modules/.bin/browserify lib/index.js --standalone Cycle -o dist/cycle-run.js",
+    "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone Cycle --exclude xstream -o dist/cycle-run.js",
     "uglify": "../node_modules/.bin/uglifyjs dist/cycle-run.js -o dist/cycle-run.min.js",
     "predist": "rm -rf dist/ && mkdir -p dist/",
-    "dist": "npm run browserify && npm run uglify",
-    "readme": ":",
-    "changelog": "node ../.scripts/update-changelogs.js ${PWD##*/}",
+    "dist": "npm run lib && npm run browserify && npm run uglify",
+    "readme": "node ../.scripts/make-api-docs.js ${PWD##*/} && cat ./.scripts/template-readme.md ./generated-api.md > README.md && rm ./generated-api.md",
     "preversion": "npm test",
     "version": "npm run dist && npm run readme && npm run changelog",
     "postversion": "git add -A && git commit -m \"release(${PWD##*/}): v$(cat package.json | ../node_modules/.bin/jase version)\" && git push origin master && npm publish",
     "release-patch": "false",
     "release-minor": "npm --no-git-tag-version version minor",
-    "release-major": "npm --no-git-tag-version version major"
+    "release-major": "npm --no-git-tag-version version major",
+    "changelog": "node ../.scripts/update-changelogs.js ${PWD##*/}"
   },
   "publishConfig": {
     "access": "public"
