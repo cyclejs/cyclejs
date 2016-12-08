@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import {mockTimeSource, makeTimeDriver} from '../src/time-driver';
+import {mockTimeSource, timeDriver} from '../src/time-driver';
 import {mockDOMSource} from '@cycle/dom';
 import xs, {Stream} from 'xstream';
 import adapter from '@cycle/xstream-adapter';
@@ -7,7 +7,7 @@ import adapter from '@cycle/xstream-adapter';
 describe("@cycle/time", () => {
   describe("makeTimeDriver", () => {
     it("returns a Time source", () => {
-      const Time = makeTimeDriver()();
+      const Time = timeDriver(null, adapter);
 
       const keys = Object.keys(Time).sort();
 

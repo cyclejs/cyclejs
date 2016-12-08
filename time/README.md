@@ -117,7 +117,7 @@ Time.run();
 
 Notice that we are now using `Time.delay` instead of the `xstream` equivalent.  Like `Time.diagram`, `Time.delay` is implemented by scheduling onto a central queue, and in tests is processed in "virtual time". This means that we no longer have to wait 200ms, but the `.delay` will function exactly as it did before.
 
-As well as `delay`, `@cycle/time` has implementations of `debounce`, `throttle`, and .periodic`.
+As well as `delay`, `@cycle/time` has implementations of `debounce`, `throttle`, and `periodic`.
 
 What about testing a Cycle component with multiple inputs?
 
@@ -193,12 +193,12 @@ Time.run();
 Outside of your tests, `@cycle/time` acts as a driver that provides time based streams and operators. All you need to do is add it your drivers object, and replace usages of time-based operators like `delay`, `debounce`, `throttle` and `periodic` with the `@cycle/time` implementation. Here is a simple counter using `Time.periodic`.
 
 ```js
-import {makeTimeDriver} from '@cycle/time';
+import {timeDriver} from '@cycle/time';
 import {makeDOMDriver, div} from '@cycle/dom';
 import {run} from '@cycle/xstream-run';
 
 const drivers = {
-  Time: makeTimeDriver(),
+  Time: timeDriver,
   DOM: makeDOMDriver('.app')
 }
 
@@ -218,15 +218,11 @@ This will display a counter where the count goes up every second.
 ## API
 
 ```js
-import {makeTimeDriver, mockTimeSource} from '@cycle/time';
+import {timeDriver, mockTimeSource} from '@cycle/time';
 ```
 
-### `makeTimeDriver({interval = 20})`
-A factory for the time driver.
-
-Takes an interval that determines how much time each character in a `diagram` represents.
-
-Returns a time driver. The time driver returns a `TimeSource` object with the following methods:
+### `timeDriver()`
+The time driver returns a `TimeSource` object with the following methods:
 
 #### `delay(period)`
 An operator that can be used with `.compose` to delay values in a stream. `period` is the number of milliseconds to delay each event by.
@@ -245,7 +241,7 @@ Time.assertEqual(
 ```
 
 #### `debounce(period)`
-An operator that can be used with `.compose` to filter out events if an event had previously occurred within the given `period`.
+An operator that can be used with `.compose`. `debounce` delays events by the given `period` and only emits them if no other event occurs in the meantime.
 
 ```js
 const input    = Time.diagram(`---1-----3-4----5-|`);
@@ -272,12 +268,28 @@ Time.assertEqual(
   stream.take(5),
   expected,
   done
-)
+);
 ```
 
-### `makeMockTimeDriver({interval = 20})`
+#### `throttle(period)`
+An operator that can be used with `.compose` that will prevent more than 1 event emitting in the given period.
 
-Has the same interface as `makeTimeDriver` but returns a time driver designed for testing.
+```js
+const input    = Time.diagram(`--1-2-----3--4----5|`);
+const expected = Time.diagram(`--1-------3-------5|`);
+
+const stream = input.compose(Time.throttle(60));
+
+Time.assertEqual(
+  stream,
+  expected,
+  done
+);
+```
+
+### `mockTimeSource({interval = 20})`
+
+Returns a `TimeSource`, with all of the methods from the `timeDriver` (`debounce`, `delay`, `periodic`, `throttle`), along with a collection of methods useful for writing unit tests.
 
 Instead of all delays and debounces running in real time in your tests, causing unecessary delays, they will be run in "virtual time".
 

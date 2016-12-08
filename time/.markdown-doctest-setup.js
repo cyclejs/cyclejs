@@ -55,7 +55,7 @@ function Counter ({DOM}) {
 module.exports = {
   require: {
     '@cycle/time': {
-      makeTimeDriver: () => timeDriver.mockTimeSource,
+      timeDriver: timeDriver.mockTimeSource,
 
       mockTimeSource: timeDriver.mockTimeSource
     },

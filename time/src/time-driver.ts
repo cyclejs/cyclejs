@@ -15,64 +15,62 @@ const addScheduleEntry = makeAccumulator({
   unique: false
 });
 
-function makeTimeDriver ({interval = 20} = {}) {
-  return function timeDriver () {
-    let time = 0;
-    let schedule = [];
+function timeDriver (_, streamAdapter) {
+  let time = 0;
+  let schedule = [];
 
-    function scheduleEntry (newEntry) {
-      schedule = addScheduleEntry(schedule, newEntry)
+  function scheduleEntry (newEntry) {
+    schedule = addScheduleEntry(schedule, newEntry)
 
-      return newEntry;
-    }
+    return newEntry;
+  }
 
-    function currentTime () {
-      return time;
-    }
+  function currentTime () {
+    return time;
+  }
 
-    function processEvent (eventTime) {
-      time = eventTime;
+  function processEvent (eventTime) {
+    time = eventTime;
 
-      if (schedule.length === 0) {
-        requestAnimationFrame(processEvent);
-
-        return;
-      }
-
-      let nextEventTime = schedule[0].time;
-
-      while (nextEventTime < time) {
-        const eventToProcess = schedule.shift();
-
-        if (!eventToProcess.cancelled) {
-          if (eventToProcess.f) {
-            eventToProcess.f(eventToProcess, time);
-          }
-
-          if (eventToProcess.type === 'next') {
-            eventToProcess.stream.shamefullySendNext(eventToProcess.value);
-          }
-
-          if (eventToProcess.type === 'complete') {
-            eventToProcess.stream.shamefullySendComplete();
-          }
-
-          nextEventTime = (schedule[0] && schedule[0].time) || Infinity;
-        }
-      }
-
+    if (schedule.length === 0) {
       requestAnimationFrame(processEvent);
+
+      return;
     }
 
-    // TODO - cancel requestAnimationFrame on dispose
+    let nextEventTime = schedule[0].time;
+
+    while (nextEventTime < time) {
+      const eventToProcess = schedule.shift();
+
+      if (!eventToProcess.cancelled) {
+        if (eventToProcess.f) {
+          eventToProcess.f(eventToProcess, time);
+        }
+
+        if (eventToProcess.type === 'next') {
+          eventToProcess.stream.shamefullySendNext(eventToProcess.value);
+        }
+
+        if (eventToProcess.type === 'complete') {
+          eventToProcess.stream.shamefullySendComplete();
+        }
+
+        nextEventTime = (schedule[0] && schedule[0].time) || Infinity;
+      }
+    }
+
     requestAnimationFrame(processEvent);
+  }
 
-    return {
-      delay: makeDelay(scheduleEntry, currentTime),
-      debounce: makeDebounce(scheduleEntry, currentTime),
-      periodic: makePeriodic(scheduleEntry, currentTime),
-      throttle: makeThrottle(scheduleEntry, currentTime),
-    }
+  // TODO - cancel requestAnimationFrame on dispose
+  requestAnimationFrame(processEvent);
+
+  return {
+    delay: makeDelay(scheduleEntry, currentTime),
+    debounce: makeDebounce(scheduleEntry, currentTime),
+    periodic: makePeriodic(scheduleEntry, currentTime),
+    throttle: makeThrottle(scheduleEntry, currentTime),
   }
 }
 
@@ -139,7 +137,7 @@ function mockTimeSource ({interval = 20} = {}) {
 }
 
 export {
-  makeTimeDriver,
+  timeDriver,
 
   mockTimeSource
 }
