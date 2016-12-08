@@ -2,6 +2,11 @@
 
 > Fast and beautiful tests and time management for Cycle.js
 
+`@cycle/time` is a library that deals with all things time related in Cycle.js. It's a driver for time, providing methods like `debounce`, `delay`, `throttle` and `periodic`. It also provides tools for elegantly testing streams.
+
+Testing
+---
+
 Cycle.js is great because everything all of your application's inputs and outputs are streams. In theory this should make Cycle applications simple to test, because all of the input and output is explicitly passed around.
 
 Cycle is also great for building applications with complex asynchronous behaviour. This is possible because of great observable operators like `debounce` and `delay`.
@@ -190,7 +195,12 @@ Time.assertEqual(
 Time.run();
 ```
 
-Outside of your tests, `@cycle/time` acts as a driver that provides time based streams and operators. All you need to do is add it your drivers object, and replace usages of time-based operators like `delay`, `debounce`, `throttle` and `periodic` with the `@cycle/time` implementation. Here is a simple counter using `Time.periodic`.
+Development / Production
+---
+
+You can use `@cycle/time` in your test suite without using it in dev or production. However, if you want to use any time based operators, you must use the ones provided by `@cycle/time`.
+
+`@cycle/time` exports a `timeDriver`, a driver that provides time based streams and operators. All you need to do is add it your drivers object, and replace usages of time-based operators like `delay`, `debounce`, `throttle` and `periodic` with the `@cycle/time` implementation. Here is a counter using `Time.periodic`.
 
 ```js
 import {timeDriver} from '@cycle/time';
@@ -289,7 +299,7 @@ Time.assertEqual(
 
 ### `mockTimeSource({interval = 20})`
 
-Returns a `TimeSource`, with all of the methods from the `timeDriver` (`debounce`, `delay`, `periodic`, `throttle`), along with a collection of methods useful for writing unit tests.
+Returns a `TimeSource` object, with all of the methods from the `timeDriver` (`debounce`, `delay`, `periodic`, `throttle`), along with a collection of methods useful for writing unit tests.
 
 Instead of all delays and debounces running in real time in your tests, causing unecessary delays, they will be run in "virtual time".
 
