@@ -33,7 +33,7 @@ more details.
 **Example:**
 ```js
 import {setup} from '@cycle/run';
-const {sources, sinks, run} = Cycle(main, drivers);
+const {sources, sinks, run} = setup(main, drivers);
 // ...
 const dispose = run(); // Executes the application
 // ...

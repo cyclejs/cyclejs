@@ -1,6 +1,24 @@
 import xs, {Stream} from 'xstream';
 
+export interface FantasyObserver {
+  next: (x: any) => void;
+  error: (err: any) => void;
+  complete: (c?: any) => void;
+}
+
+export interface FantasySubscription {
+  unsubscribe: () => void;
+}
+
+export interface FantasyObservable {
+  subscribe(observer: FantasyObserver): FantasySubscription;
+}
+
 export interface Sinks {
+  [driverName: string]: FantasyObservable;
+}
+
+export interface XStreamSinks extends Sinks {
   [driverName: string]: Stream<any>;
 }
 
@@ -11,7 +29,7 @@ export interface DevToolEnabledSource {
 }
 
 export interface DriverFunction {
-  (stream: Stream<any>, driverName: string): any;
+  (stream: FantasyObservable, driverName: string): any;
 }
 
 export interface DriversDefinition {
@@ -33,8 +51,8 @@ function logToConsoleError(err: any) {
   }
 }
 
-function makeSinkProxies(drivers: DriversDefinition): Sinks {
-  const sinkProxies: Sinks = {};
+function makeSinkProxies(drivers: DriversDefinition): XStreamSinks {
+  const sinkProxies: XStreamSinks = {};
   for (let name in drivers) {
     if (drivers.hasOwnProperty(name)) {
       sinkProxies[name] = xs.create<any>();
@@ -43,7 +61,7 @@ function makeSinkProxies(drivers: DriversDefinition): Sinks {
   return sinkProxies;
 }
 
-function callDrivers(drivers: DriversDefinition, sinkProxies: Sinks): any {
+function callDrivers(drivers: DriversDefinition, sinkProxies: XStreamSinks): any {
   const sources = {};
   for (let name in drivers) {
     if (drivers.hasOwnProperty(name)) {
@@ -75,7 +93,7 @@ interface ReplicationBuffers {
   };
 }
 
-function replicateMany(sinks: Sinks, sinkProxies: Sinks): DisposeFunction {
+function replicateMany(sinks: Sinks, sinkProxies: XStreamSinks): DisposeFunction {
   const sinkNames = Object.keys(sinks).filter(name => !!sinkProxies[name]);
 
   let buffers: ReplicationBuffers = {};
@@ -138,7 +156,7 @@ function isObjectEmpty(obj: any): boolean {
  * **Example:**
  * ```js
  * import {setup} from '@cycle/run';
- * const {sources, sinks, run} = Cycle(main, drivers);
+ * const {sources, sinks, run} = setup(main, drivers);
  * // ...
  * const dispose = run(); // Executes the application
  * // ...
@@ -170,8 +188,8 @@ export function setup<So, Si>(main: (sources: So) => Si,
       `with at least one driver function declared as a property.`);
   }
 
-  const sinkProxies: Sinks = makeSinkProxies(drivers as DriversDefinition);
-  const sources: So = callDrivers(drivers as DriversDefinition, sinkProxies);
+  const sinkProxies = makeSinkProxies(drivers);
+  const sources: So = callDrivers(drivers, sinkProxies);
   const sinks: Si = main(sources);
   if (typeof window !== 'undefined') {
     (window as any).Cyclejs = (window as any).Cyclejs || {};
