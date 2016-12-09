@@ -1,6 +1,6 @@
 # Run() for xstream
 
-`run(main, drivers)` function for applications written with xstream.
+Cycle.js `run(main, drivers)` function for applications written with xstream.
 
 ```
 npm install @cycle/run xstream
