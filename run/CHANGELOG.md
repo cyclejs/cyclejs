@@ -1,3 +1,13 @@
+<a name="1.0.0-rc.4"></a>
+# 1.0.0-rc.4 (2016-12-09)
+
+
+### Bug Fixes
+
+* **run:** clear buffers after all sink replicators are mutated ([432e4a6](https://github.com/cyclejs/cyclejs/tree/master/run/commit/432e4a6))
+
+
+
 <a name="1.0.0-rc.3"></a>
 # 1.0.0-rc.3 (2016-12-09)
 
