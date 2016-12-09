@@ -12,9 +12,9 @@ if (typeof global === 'object') {
   window = (global as any).window;
 }
 
-describe('Cycle', function () {
-  it('should have `run`', function () {
-    assert.strictEqual(typeof run, 'function');
+describe('setup', function () {
+  it('should be a function', function () {
+    assert.strictEqual(typeof setup, 'function');
   });
 
   it('should throw if first argument is not a function', function () {
@@ -139,108 +139,112 @@ describe('Cycle', function () {
     });
     dispose = run();
   });
+});
 
-  describe('run()', function () {
-    it('should throw if first argument is not a function', function () {
-      assert.throws(() => {
-        (run as any)('not a function');
-      }, /First argument given to Cycle must be the 'main' function/i);
-    });
+describe('run', function () {
+  it('should be a function', function () {
+    assert.strictEqual(typeof run, 'function');
+  });
 
-    it('should throw if second argument is not an object', function () {
-      assert.throws(() => {
-        (run as any)(() => {}, 'not an object');
-      }, /Second argument given to Cycle must be an object with driver functions/i);
-    });
+  it('should throw if first argument is not a function', function () {
+    assert.throws(() => {
+      (run as any)('not a function');
+    }, /First argument given to Cycle must be the 'main' function/i);
+  });
 
-    it('should throw if second argument is an empty object', function () {
-      assert.throws(() => {
-        (run as any)(() => {}, {});
-      }, /Second argument given to Cycle must be an object with at least one/i);
-    });
+  it('should throw if second argument is not an object', function () {
+    assert.throws(() => {
+      (run as any)(() => {}, 'not an object');
+    }, /Second argument given to Cycle must be an object with driver functions/i);
+  });
 
-    it('should return a dispose function', function () {
-      let sandbox = sinon.sandbox.create();
-      const spy = sandbox.spy();
+  it('should throw if second argument is an empty object', function () {
+    assert.throws(() => {
+      (run as any)(() => {}, {});
+    }, /Second argument given to Cycle must be an object with at least one/i);
+  });
 
-      interface NiceSources {
-        other: Stream<string>;
-      }
-      interface NiceSinks {
-        other: Stream<string>;
-      }
+  it('should return a dispose function', function () {
+    let sandbox = sinon.sandbox.create();
+    const spy = sandbox.spy();
 
-      function app(sources: NiceSources): NiceSinks {
-        return {
-          other: sources.other.take(1).startWith('a'),
-        };
-      }
+    interface NiceSources {
+      other: Stream<string>;
+    }
+    interface NiceSinks {
+      other: Stream<string>;
+    }
 
-      function driver() {
-        return xs.of('b').debug(spy);
-      }
+    function app(sources: NiceSources): NiceSinks {
+      return {
+        other: sources.other.take(1).startWith('a'),
+      };
+    }
 
-      let dispose = run<NiceSources, NiceSinks>(app, {other: driver});
-      assert.strictEqual(typeof dispose, 'function');
+    function driver() {
+      return xs.of('b').debug(spy);
+    }
+
+    let dispose = run<NiceSources, NiceSinks>(app, {other: driver});
+    assert.strictEqual(typeof dispose, 'function');
+    sinon.assert.calledOnce(spy);
+    dispose();
+  });
+
+  it('should happen synchronously', function (done) {
+    let sandbox = sinon.sandbox.create();
+    const spy = sandbox.spy();
+    function app(sources: any): any {
+      sources.other.addListener({next: () => {}, error: () => {}, complete: () => {}});
+      return {
+        other: xs.of(10),
+      };
+    }
+    let mutable = 'correct';
+    function driver(sink: Stream<number>): Stream<string> {
+      return sink.map(x => 'a' + 10).debug(x => {
+        assert.strictEqual(x, 'a10');
+        assert.strictEqual(mutable, 'correct');
+        spy();
+      });
+    }
+    run(app, {other: driver});
+    mutable = 'wrong';
+    setTimeout(() => {
       sinon.assert.calledOnce(spy);
-      dispose();
-    });
+      done();
+    }, 20);
+  });
 
-    it('should happen synchronously', function (done) {
-      let sandbox = sinon.sandbox.create();
-      const spy = sandbox.spy();
-      function app(sources: any): any {
-        sources.other.addListener({next: () => {}, error: () => {}, complete: () => {}});
-        return {
-          other: xs.of(10),
-        };
-      }
-      let mutable = 'correct';
-      function driver(sink: Stream<number>): Stream<string> {
-        return sink.map(x => 'a' + 10).debug(x => {
-          assert.strictEqual(x, 'a10');
-          assert.strictEqual(mutable, 'correct');
-          spy();
-        });
-      }
-      run(app, {other: driver});
-      mutable = 'wrong';
-      setTimeout(() => {
-        sinon.assert.calledOnce(spy);
-        done();
-      }, 20);
-    });
+  it('should report errors from main() in the console', function (done) {
+    let sandbox = sinon.sandbox.create();
+    sandbox.stub(console, 'error');
 
-    it('should report errors from main() in the console', function (done) {
-      let sandbox = sinon.sandbox.create();
-      sandbox.stub(console, 'error');
+    function main(sources: any): any {
+      return {
+        other: sources.other.take(1).startWith('a').map(() => {
+          throw new Error('malfunction');
+        }),
+      };
+    }
+    function driver() {
+      return xs.of('b');
+    }
 
-      function main(sources: any): any {
-        return {
-          other: sources.other.take(1).startWith('a').map(() => {
-            throw new Error('malfunction');
-          }),
-        };
-      }
-      function driver() {
-        return xs.of('b');
-      }
+    let caught = false;
+    try {
+      run(main, {other: driver});
+    } catch (e) {
+      assert.strictEqual(e.message, 'malfunction');
+      caught = true;
+    }
+    setTimeout(() => {
+      sinon.assert.calledOnce(console.error as any);
+      sinon.assert.calledWithExactly(console.error as any, sinon.match('malfunction'));
+      assert.strictEqual(caught, true);
 
-      let caught = false;
-      try {
-        run(main, {other: driver});
-      } catch (e) {
-        assert.strictEqual(e.message, 'malfunction');
-        caught = true;
-      }
-      setTimeout(() => {
-        sinon.assert.calledOnce(console.error as any);
-        sinon.assert.calledWithExactly(console.error as any, sinon.match('malfunction'));
-        assert.strictEqual(caught, true);
-
-        sandbox.restore();
-        done();
-      }, 80);
-    });
+      sandbox.restore();
+      done();
+    }, 80);
   });
 });

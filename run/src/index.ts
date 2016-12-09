@@ -1,4 +1,5 @@
 import xs, {Stream} from 'xstream';
+import {adapt} from './adapt';
 
 export interface FantasyObserver {
   next: (x: any) => void;
@@ -65,7 +66,7 @@ function callDrivers(drivers: DriversDefinition, sinkProxies: XStreamSinks): any
   const sources = {};
   for (let name in drivers) {
     if (drivers.hasOwnProperty(name)) {
-      sources[name] = drivers[name](sinkProxies[name], name);
+      sources[name] = drivers[name](adapt(sinkProxies[name]), name);
       if (sources[name] && typeof sources[name] === 'object') {
         (sources[name] as DevToolEnabledSource)._isCycleSource = name;
       }
