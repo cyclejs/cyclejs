@@ -119,13 +119,13 @@ function replicateMany(sinks: Sinks, sinkProxies: XStreamSinks): DisposeFunction
     buffers[name]._n.forEach(next);
     buffers[name]._e.forEach(error);
     buffers[name]._c.forEach(complete);
-    buffers = null as any; // free up for GC
     replicators[name].next = next;
     replicators[name].error = error;
     replicators[name].complete = complete;
     replicators[name]._n = next;
     replicators[name]._e = error;
     replicators[name]._c = complete;
+    buffers = null as any; // free up for GC
   });
 
   return function disposeReplication() {
