@@ -125,8 +125,8 @@ function replicateMany(sinks: Sinks, sinkProxies: XStreamSinks): DisposeFunction
     replicators[name]._n = next;
     replicators[name]._e = error;
     replicators[name]._c = complete;
-    buffers = null as any; // free up for GC
   });
+  buffers = null as any; // free up for GC
 
   return function disposeReplication() {
     subscriptions.forEach(s => s.unsubscribe());
