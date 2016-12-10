@@ -5,14 +5,17 @@ import {
   DisposeFunction,
   Subject,
 } from '@cycle/base';
-import * as Rx from 'rxjs';
+import {Observable as RxObservable} from 'rxjs/Observable';
+import {Observer as RxObserver} from 'rxjs/Observer';
+import {Subject as RxSubject} from 'rxjs/Subject';
+import 'rxjs/add/operator/publishReplay';
 
 const RxJSAdapter: StreamAdapter = {
-  adapt <T>(originStream: any, originStreamSubscribe: StreamSubscribe): Rx.Observable<T> {
+  adapt <T>(originStream: any, originStreamSubscribe: StreamSubscribe): RxObservable<T> {
     if (this.isValidStream(originStream)) {
       return originStream;
     }
-    return Rx.Observable.create((observer: Observer<T>) => {
+    return RxObservable.create((observer: Observer<T>) => {
       const dispose = originStreamSubscribe(originStream, observer);
       return () => {
         if (typeof dispose === 'function') {
@@ -22,13 +25,13 @@ const RxJSAdapter: StreamAdapter = {
     });
   },
 
-  remember <T>(observable: Rx.Observable<T>): Rx.Observable<T> {
+  remember <T>(observable: RxObservable<T>): RxObservable<T> {
     return observable.publishReplay(1).refCount();
   },
 
   makeSubject <T>(): Subject<T> {
-    const stream: Rx.Subject<T> = new Rx.Subject<T>();
-    const observer: Rx.Observer<T> = {
+    const stream: RxSubject<T> = new RxSubject<T>();
+    const observer: RxObserver<T> = {
       next: (x: T) => { stream.next(x); },
       error: (err: any) => { stream.error(err); },
       complete: () => { stream.complete(); },
@@ -45,7 +48,7 @@ const RxJSAdapter: StreamAdapter = {
       typeof stream.onValue !== 'function');
   },
 
-  streamSubscribe <T>(stream: Rx.Observable<T>, observer: Observer<T>) {
+  streamSubscribe <T>(stream: RxObservable<T>, observer: Observer<T>) {
     const subscription = stream.subscribe(observer);
     return () => {
       subscription.unsubscribe();
