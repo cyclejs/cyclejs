@@ -20,7 +20,8 @@
   "types": "lib/index.d.ts",
   "dependencies": {
     "@cycle/base": "4.2",
-    "@cycle/rxjs-adapter": "3.x.x"
+    "@cycle/rxjs-adapter": "3.x.x",
+    "@types/es6-promise": "0.0.32"
   },
   "peerDependencies": {
     "rxjs": "*"

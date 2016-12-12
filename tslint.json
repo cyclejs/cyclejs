@@ -16,7 +16,6 @@
     "no-debugger": true,
     "no-duplicate-variable": true,
     "no-inferrable-types": true,
-    "no-unreachable": true,
     "no-var-keyword": true,
     "variable-name": [
       true,
@@ -28,7 +27,6 @@
     "no-empty": false,
     "no-shadowed-variable": true,
     "no-unused-expression": true,
-    "no-unused-variable": true,
     "triple-equals": true,
     "no-use-before-declare": true,
     "jsdoc-format": true,
