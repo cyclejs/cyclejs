@@ -109,7 +109,7 @@ function replicateMany(sinks: Sinks, sinkProxies: XStreamSinks): DisposeFunction
   });
 
   const subscriptions = sinkNames
-    .map(name => sinks[name].subscribe(replicators[name]));
+    .map(name => xs.fromObservable<any>(sinks[name]).subscribe(replicators[name]));
 
   sinkNames.forEach((name) => {
     const listener = sinkProxies[name];
@@ -135,9 +135,8 @@ function replicateMany(sinks: Sinks, sinkProxies: XStreamSinks): DisposeFunction
 
 function disposeSources<So>(sources: So) {
   for (let k in sources) {
-    if (sources.hasOwnProperty(k) && sources[k]
-      && typeof sources[k].dispose === 'function') {
-      sources[k].dispose();
+    if (sources.hasOwnProperty(k) && sources[k] && (sources[k] as any).dispose) {
+      (sources[k] as any).dispose();
     }
   }
 }

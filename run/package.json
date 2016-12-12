@@ -29,7 +29,7 @@
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "dependencies": {
-    "xstream": "9.x"
+    "xstream": "10.x"
   },
   "devDependencies": {
     "@types/es6-promise": "0.0.32",
