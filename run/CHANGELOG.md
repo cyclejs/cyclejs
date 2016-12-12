@@ -1,3 +1,13 @@
+<a name="1.0.0-rc.5"></a>
+# 1.0.0-rc.5 (2016-12-12)
+
+
+### Bug Fixes
+
+* **run:** update to TypeScript 2.1 ([b7cabbc](https://github.com/cyclejs/cyclejs/tree/master/run/commit/b7cabbc))
+
+
+
 <a name="1.0.0-rc.4"></a>
 # 1.0.0-rc.4 (2016-12-09)
 
