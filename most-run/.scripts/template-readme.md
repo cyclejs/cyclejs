@@ -1,6 +1,6 @@
 # Run() for most.js
 
-`Cycle.run()` function for applications written with most.js (Monadic Streams)
+Cycle.js `run(main, drivers)` function for applications written with most.js (Monadic Streams)
 
 ```
 npm install @cycle/most-run most
@@ -11,17 +11,17 @@ npm install @cycle/most-run most
 ## Basic usage
 
 ```js
-import Cycle from '@cycle/most-run'
+import run from '@cycle/most-run'
 
-Cycle.run(main, drivers)
+run(main, drivers)
 ```
 
 ## Testing usage
 
 ```js
-import Cycle from '@cycle/most-run'
+import {setup} from '@cycle/most-run'
 
-const {sources, sinks, run} = Cycle(main, drivers)
+const {sources, sinks, run} = setup(main, drivers)
 
 let dispose
 

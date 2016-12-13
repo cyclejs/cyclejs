@@ -1,10 +1,11 @@
 {
   "name": "@cycle/most-run",
-  "version": "4.4.0",
-  "description": "Cycle.js Diversity run() for most.js",
+  "version": "5.0.0-rc.1",
+  "description": "The Cycle run() function to be used with most.js",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
+  "repository": "https://github.com/cyclejs/cyclejs/tree/master/most-run",
   "contributors": [
     {
       "name": "Andre Staltz",
@@ -15,15 +16,6 @@
       "email": "tlsteinberger167@gmail.com"
     }
   ],
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    },
-    "ghooks": {
-      "commit-msg": "node ./node_modules/.bin/validate-commit-msg"
-    }
-  },
-  "repository": "https://github.com/cyclejs/cyclejs/tree/master/packages/most-run",
   "keywords": [
     "Cycle",
     "Cycle.js",
@@ -34,24 +26,31 @@
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
   "homepage": "https://cycle.js.org",
   "dependencies": {
-    "@cycle/base": "4.2",
-    "@cycle/most-adapter": "4.x.x",
+    "@cycle/run": "1.0.0-rc.5"
+  },
+  "peerDependencies": {
     "most": "^1.0.5",
     "most-subject": "^5.0.0"
   },
   "devDependencies": {
+    "@types/es6-promise": "0.0.32",
+    "@types/mocha": "^2.2.33",
+    "@types/node": "0.0.2",
+    "@types/sinon": "^1.16.32",
     "creed": "^1.0.1"
   },
   "scripts": {
     "lint": "../node_modules/.bin/tslint -c ../tslint.json src/**/*.ts",
-    "mocha": "../node_modules/.bin/mocha -r babel-register test/index.js",
-    "test": "npm run lib && npm run lint && npm run mocha",
+    "prelib": "rm -rf lib/ && mkdir -p lib/",
+    "lib": "../node_modules/.bin/tsc",
+    "premocha": "npm run lib",
+    "mocha": "../node_modules/.bin/mocha test/*.ts --require ts-node/register",
+    "test": "npm run lint && npm run mocha",
     "test-ci": "npm run test",
-    "browserify": "../node_modules/.bin/browserify lib/index.js -t babelify --outfile dist/cycle-most-run.js",
+    "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone Cycle --exclude most -o dist/cycle-most-run.js",
     "uglify": "../node_modules/.bin/uglifyjs dist/cycle-most-run.js -o dist/cycle-most-run.min.js",
     "predist": "rm -rf dist/ && mkdir -p dist",
     "dist": "npm run lib && npm run browserify && npm run uglify",
-    "lib": "rm -rf lib/ && mkdir -p lib/ && ../node_modules/.bin/tsc",
     "readme": "node ../.scripts/make-api-docs.js ${PWD##*/} && cat ./.scripts/template-readme.md ./generated-api.md > README.md && rm ./generated-api.md",
     "preversion": "npm test",
     "version": "npm run dist && npm run readme && npm run changelog",
