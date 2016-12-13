@@ -39,6 +39,9 @@
     "@types/sinon": "^1.16.32",
     "creed": "^1.0.1"
   },
+  "browserify-shim": {
+    "rxjs": "global:Rx"
+  },
   "scripts": {
     "lint": "../node_modules/.bin/tslint -c ../tslint.json src/**/*.ts",
     "prelib": "rm -rf lib/ && mkdir -p lib/",
