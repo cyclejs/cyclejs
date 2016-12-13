@@ -227,7 +227,11 @@ describe('run', function () {
         }),
       };
     }
-    function driver() {
+    function driver(sink: Stream<any>) {
+      sink.addListener({
+        next: () => {},
+        error: (err: any) => {},
+      });
       return xs.of('b');
     }
 
@@ -241,7 +245,10 @@ describe('run', function () {
     setTimeout(() => {
       sinon.assert.calledOnce(console.error as any);
       sinon.assert.calledWithExactly(console.error as any, sinon.match('malfunction'));
-      assert.strictEqual(caught, true);
+
+      // Should be false because the error was already reported in the console.
+      // Otherwise we would have double reporting of the error.
+      assert.strictEqual(caught, false);
 
       sandbox.restore();
       done();
