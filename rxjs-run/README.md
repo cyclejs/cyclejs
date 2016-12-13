@@ -1,6 +1,6 @@
 # Run() for RxJS
 
-`Cycle.run()` function for applications written with RxJS version **5**.
+Cycle.js `run(main, drivers)` function for applications written with RxJS version **5**.
 
 ```
 npm install @cycle/rxjs-run rxjs
@@ -11,15 +11,15 @@ npm install @cycle/rxjs-run rxjs
 ## Basic usage
 
 ```js
-import Cycle from '@cycle/rxjs-run'
+import run from '@cycle/rxjs-run'
 
-Cycle.run(main, drivers)
+run(main, drivers)
 ```
 
 # API
 
 - [`run`](#run)
-- [`Cycle`](#Cycle)
+- [`setup`](#setup)
 
 ### <a id="run"></a> `run(main, drivers)`
 
@@ -28,7 +28,7 @@ of driver functions.
 
 **Example:**
 ```js
-import {run} from '@cycle/rxjs-run';
+import run from '@cycle/rxjs-run';
 const dispose = run(main, drivers);
 // ...
 dispose();
@@ -52,19 +52,19 @@ see more details on what types of sources it outputs and sinks it receives.
 
 - - -
 
-### <a id="Cycle"></a> `Cycle(main, drivers)`
+### <a id="setup"></a> `setup(main, drivers)`
 
 A function that prepares the Cycle application to be executed. Takes a `main`
 function and prepares to circularly connects it to the given collection of
-driver functions. As an output, `Cycle()` returns an object with three
+driver functions. As an output, `setup()` returns an object with three
 properties: `sources`, `sinks` and `run`. Only when `run()` is called will
 the application actually execute. Refer to the documentation of `run()` for
 more details.
 
 **Example:**
 ```js
-import Cycle from '@cycle/rxjs-run';
-const {sources, sinks, run} = Cycle(main, drivers);
+import {setup} from '@cycle/rxjs-run';
+const {sources, sinks, run} = setup(main, drivers);
 // ...
 const dispose = run(); // Executes the application
 // ...
