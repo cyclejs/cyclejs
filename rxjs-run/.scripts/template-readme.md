@@ -1,6 +1,6 @@
 # Run() for RxJS
 
-`Cycle.run()` function for applications written with RxJS version **5**.
+Cycle.js `run(main, drivers)` function for applications written with RxJS version **5**.
 
 ```
 npm install @cycle/rxjs-run rxjs
@@ -11,9 +11,9 @@ npm install @cycle/rxjs-run rxjs
 ## Basic usage
 
 ```js
-import Cycle from '@cycle/rxjs-run'
+import run from '@cycle/rxjs-run'
 
-Cycle.run(main, drivers)
+run(main, drivers)
 ```
 
 # API
