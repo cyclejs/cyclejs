@@ -68,8 +68,8 @@ describe('setup', function () {
         other: sources.other.take(6).map(x => String(x)).startWith('a'),
       };
     }
-    function driver(sink: Observable<string>): Observable<number> {
-      return sink.map(x => x.charCodeAt(0)).delay(1);
+    function driver(xsSink: any): Observable<number> {
+      return Observable.from(xsSink).map((x: string) => x.charCodeAt(0)).delay(1);
     }
     let {sources, run} = setup(app, {other: driver});
     let dispose: any;
@@ -90,7 +90,7 @@ describe('setup', function () {
     }
 
     let {sources, run} = setup(app, {
-      other: num$ => (num$ as any).map((num: any) => 'x' + num),
+      other: (num$: any) => Observable.from(num$).map((num: any) => 'x' + num),
     });
 
     let dispose: any;
@@ -157,8 +157,8 @@ describe('run', function () {
       };
     }
     let mutable = 'correct';
-    function driver(sink: Observable<number>): Observable<string> {
-      return sink.map(x => 'a' + 10).do(x => {
+    function driver(xsSink: any): Observable<string> {
+      return Observable.from(xsSink).map((x: number) => 'a' + 10).do(x => {
         assert.strictEqual(x, 'a10');
         assert.strictEqual(mutable, 'correct');
         spy();
@@ -186,8 +186,8 @@ describe('run', function () {
       };
     }
 
-    function driver(sink: Observable<any>) {
-      sink.subscribe({
+    function driver(xsSink: any) {
+      Observable.from(xsSink).subscribe({
         next: () => {},
         error: (err) => {},
       });
