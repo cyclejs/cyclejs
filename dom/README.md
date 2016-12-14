@@ -54,7 +54,7 @@ the app on the DOM.
 #### Arguments:
 
 - `container: String|HTMLElement` the DOM selector for the element (or the element itself) to contain the rendering of the VTrees.
-- `options: DOMDriverOptions` an object with two optional properties: 
+- `options: DOMDriverOptions` an object with two optional properties:
   - `modules: array` overrides `@cycle/dom`'s default Snabbdom modules as
     as defined in [`src/modules.ts`](./src/modules.ts).
   - `transposition: boolean` enables/disables transposition of inner streams
@@ -62,7 +62,7 @@ the app on the DOM.
 
 #### Return:
 
-*(Function)* the DOM driver function. The function expects a stream of of VNode as input, and outputs the DOMSource object.
+*(Function)* the DOM driver function. The function expects a stream of VNode as input, and outputs the DOMSource object.
 
 - - -
 
@@ -112,7 +112,7 @@ the virtual DOM tree.
 
 #### Return:
 
-*(Function)* the HTML driver function. The function expects a stream of of VNode as input, and outputs the DOMSource object.
+*(Function)* the HTML driver function. The function expects a stream of VNode as input, and outputs the DOMSource object.
 
 - - -
 

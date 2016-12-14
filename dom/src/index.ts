@@ -41,7 +41,7 @@ export {DOMSource, EventsFnOptions} from './DOMSource';
  *   - `transposition: boolean` enables/disables transposition of inner streams
  *     in the virtual DOM tree.
  * @return {Function} the DOM driver function. The function expects a stream of
- * of VNode as input, and outputs the DOMSource object.
+ * VNode as input, and outputs the DOMSource object.
  * @function makeDOMDriver
  */
 export {makeDOMDriver, DOMDriverOptions} from './makeDOMDriver';
@@ -88,7 +88,7 @@ export {makeDOMDriver, DOMDriverOptions} from './makeDOMDriver';
  * `transposition: boolean` enables/disables transposition of inner streams in
  * the virtual DOM tree.
  * @return {Function} the HTML driver function. The function expects a stream of
- * of VNode as input, and outputs the DOMSource object.
+ * VNode as input, and outputs the DOMSource object.
  * @function makeHTMLDriver
  */
 export {makeHTMLDriver, HTMLDriverOptions} from './makeHTMLDriver';
