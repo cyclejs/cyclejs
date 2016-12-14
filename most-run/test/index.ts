@@ -72,8 +72,8 @@ describe('setup', function () {
         ),
       };
     }
-    function driver(sink: Stream<string>) {
-      return sink.map(x => x.charCodeAt(0)).delay(1);
+    function driver(xsSink: any) {
+      return most.from(xsSink).map((x: string) => x.charCodeAt(0)).delay(1);
     }
     let {sinks, sources, run} = setup(app, {other: driver});
     let dispose: any;
@@ -91,7 +91,7 @@ describe('setup', function () {
       return {other: number$};
     }
     let {sinks, sources, run} = setup(app, {
-      other: (num$: Stream<number>) => num$.map(num => 'x' + num),
+      other: (num$: any) => most.from(num$).map((num: number) => 'x' + num),
     });
     let dispose: any;
     sources.other.observe((x: any) => {
@@ -161,8 +161,8 @@ describe('run()', function () {
         }),
       };
     }
-    function driver(sink: Stream<any>) {
-      sink.drain().catch(() => {});
+    function driver(xsSink: any) {
+      most.from(xsSink).drain().catch(() => {});
       return most.of('b');
     }
 
