@@ -66,10 +66,21 @@ function callDrivers(drivers: DriversDefinition, sinkProxies: XStreamSinks): any
   const sources = {};
   for (let name in drivers) {
     if (drivers.hasOwnProperty(name)) {
-      sources[name] = drivers[name](adapt(sinkProxies[name]), name);
+      sources[name] = drivers[name](sinkProxies[name], name);
       if (sources[name] && typeof sources[name] === 'object') {
         (sources[name] as DevToolEnabledSource)._isCycleSource = name;
       }
+    }
+  }
+  return sources;
+}
+
+// NOTE: this will mutate `sources`.
+function adaptSources<So extends Object>(sources: So): So {
+  for (let name in sources) {
+    if (sources.hasOwnProperty(name)
+    && typeof sources[name]['shamefullySendNext'] === 'function') {
+      sources[name] = adapt(sources[name] as any as Stream<any>);
     }
   }
   return sources;
@@ -190,7 +201,8 @@ export function setup<So, Si>(main: (sources: So) => Si,
 
   const sinkProxies = makeSinkProxies(drivers);
   const sources: So = callDrivers(drivers, sinkProxies);
-  const sinks: Si = main(sources);
+  const adaptedSources: So = adaptSources(sources);
+  const sinks: Si = main(adaptedSources);
   if (typeof window !== 'undefined') {
     (window as any).Cyclejs = (window as any).Cyclejs || {};
     (window as any).Cyclejs.sinks = sinks;

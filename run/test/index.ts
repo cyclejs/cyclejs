@@ -2,6 +2,7 @@ import 'mocha';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {run, setup} from '../lib';
+import {setAdapt} from '../lib/adapt';
 import xs, {Stream} from 'xstream';
 import concat from 'xstream/extra/concat';
 import delay from 'xstream/extra/delay';
@@ -102,6 +103,53 @@ describe('setup', function () {
       complete: () => done('complete should not be called'),
     });
     dispose = run();
+  });
+
+  it('should not adapt() sinks', function (done) {
+    function app(sources: any): any {
+      return {
+        other: xs.of(1, 2, 3),
+      };
+    }
+
+    let driverCalled = false;
+    function driver(sink: Stream<string>) {
+      assert.strictEqual(typeof sink, 'object');
+      assert.strictEqual(typeof sink.fold, 'function');
+      driverCalled = true;
+      return xs.of(10, 20, 30);
+    }
+
+    setAdapt(stream => 'this not a stream');
+    run(app, {other: driver});
+    setAdapt(x => x);
+
+    assert.strictEqual(driverCalled, true);
+    done();
+  });
+
+  it('should adapt() a simple source (stream)', function (done) {
+    let appCalled = false;
+    function app(sources: any): any {
+      assert.strictEqual(typeof sources.other, 'string');
+      assert.strictEqual(sources.other, 'this is adapted');
+      appCalled = true;
+
+      return {
+        other: xs.of(1, 2, 3),
+      };
+    }
+
+    function driver(sink: Stream<string>) {
+      return xs.of(10, 20, 30);
+    }
+
+    setAdapt(stream => 'this is adapted');
+    run(app, {other: driver});
+    setAdapt(x => x);
+
+    assert.strictEqual(appCalled, true);
+    done();
   });
 
   it('should not work after has been disposed', function (done) {
