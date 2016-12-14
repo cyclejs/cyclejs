@@ -7,14 +7,10 @@ var packageScopes = [
   'http',
   'isolate',
   'jsonp',
-  'most-adapter',
   'most-run',
   'run',
-  'rx-adapter',
   'rx-run',
-  'rxjs-adapter',
-  'rxjs-run',
-  'xstream-adapter'
+  'rxjs-run'
 ];
 
 var otherScopes = [

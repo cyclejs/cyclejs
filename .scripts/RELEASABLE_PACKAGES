@@ -1,10 +1,6 @@
 run
-xstream-adapter
-most-adapter
 most-run
-rxjs-adapter
 rxjs-run
-rx-adapter
 rx-run
 jsonp
 isolate
