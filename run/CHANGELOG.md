@@ -1,3 +1,13 @@
+<a name="1.0.0-rc.6"></a>
+# 1.0.0-rc.6 (2016-12-14)
+
+
+### Bug Fixes
+
+* **run:** adapt() sources, do not adapt() sinks ([0fd15ed](https://github.com/cyclejs/cyclejs/tree/master/run/commit/0fd15ed))
+
+
+
 <a name="1.0.0-rc.5"></a>
 # 1.0.0-rc.5 (2016-12-12)
 
