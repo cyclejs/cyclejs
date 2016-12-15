@@ -6,7 +6,7 @@ export class ScopeChecker {
   }
 
   public isStrictlyInRootScope(leaf: Element): boolean {
-    for (let el = leaf; el; el = el.parentElement) {
+    for (let el: Element | null = leaf; el; el = el.parentElement) {
       const scope = this.isolateModule.isIsolatedElement(el);
       if (scope && scope !== this.scope) {
         return false;

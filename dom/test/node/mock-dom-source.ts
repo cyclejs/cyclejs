@@ -1,48 +1,44 @@
-'use strict';
-/* global describe, it */
-let assert = require('assert');
-let CycleDOM = require('../../lib/index');
-let {Observable} = require('rxjs');
-let Cycle = require('@cycle/rxjs-run').default;
-let Rx = require('rxjs');
-let RxJSAdapter = require('@cycle/rxjs-adapter').default;
-let mockDOMSource = CycleDOM.mockDOMSource;
-let {h4, h3, h2, div, h} = CycleDOM;
+import 'mocha';
+import * as assert from 'assert';
+import * as Rx from 'rxjs';
+import {Observable} from 'rxjs';
+import {setup} from '@cycle/rxjs-run';
+import {h3, h4, h2, div, h, makeHTMLDriver, mockDOMSource, MockedDOMSource} from '../../lib';
 
 describe('mockDOMSource', function () {
   it('should be in accessible in the API', function () {
-    assert.strictEqual(typeof CycleDOM.mockDOMSource, 'function');
+    assert.strictEqual(typeof mockDOMSource, 'function');
   });
 
   it('should make an Observable for clicks on `.foo`', function (done) {
-    const userEvents = mockDOMSource(RxJSAdapter, {
+    const userEvents = mockDOMSource({
       '.foo': {
-        'click': Observable.of(135)
-      }
+        'click': Observable.of(135),
+      },
     });
     userEvents.select('.foo').events('click').subscribe({
-      next: ev => {
+      next: (ev: any) => {
         assert.strictEqual(ev, 135);
         done();
       },
-      error: err => done(err),
+      error: (err: any) => done(err),
       complete: () => {},
     });
   });
 
   it('should make multiple user event Observables', function (done) {
-    const userEvents = mockDOMSource(RxJSAdapter, {
+    const userEvents = mockDOMSource({
       '.foo': {
-        'click': Observable.of(135)
+        'click': Observable.of(135),
       },
       '.bar': {
-        'scroll': Observable.of(2)
-      }
+        'scroll': Observable.of(2),
+      },
     });
     Observable.combineLatest(
       userEvents.select('.foo').events('click'),
       userEvents.select('.bar').events('scroll'),
-      (a, b) => a * b
+      (a: number, b: number) => a * b,
     ).subscribe({
       next: ev => {
         assert.strictEqual(ev, 270);
@@ -50,20 +46,20 @@ describe('mockDOMSource', function () {
       },
       error: err => done(err),
       complete: () => {},
-    })
+    });
   });
 
   it('should make multiple user event Observables on the same selector', function (done) {
-    const userEvents = mockDOMSource(RxJSAdapter, {
+    const userEvents = mockDOMSource({
       '.foo': {
         'click': Observable.of(135),
-        'scroll': Observable.of(3)
-      }
+        'scroll': Observable.of(3),
+      },
     });
     Observable.combineLatest(
       userEvents.select('.foo').events('click'),
       userEvents.select('.foo').events('scroll'),
-      (a, b) => a * b
+      (a: number, b: number) => a * b,
     ).subscribe({
       next: ev => {
         assert.strictEqual(ev, 405);
@@ -75,148 +71,164 @@ describe('mockDOMSource', function () {
   });
 
   it('should return an empty Observable if query does not match', function (done) {
-    const userEvents = mockDOMSource(RxJSAdapter, {
+    const userEvents = mockDOMSource({
       '.foo': {
-        'click': Observable.of(135)
-      }
+        'click': Observable.of(135),
+      },
     });
     userEvents.select('.impossible').events('scroll')
-      .subscribe({next: assert.fail, error: assert.fail, complete: done});
+      .subscribe({
+        next: (x: any) => done(x),
+        error: (e: any) => done(e),
+        complete: () => done(),
+      });
   });
 
   it('should return empty Observable for select().elements and none is defined', function (done) {
-    const userEvents = mockDOMSource(RxJSAdapter, {
+    const userEvents = mockDOMSource({
       '.foo': {
-        'click': Observable.of(135)
-      }
+        'click': Observable.of(135),
+      },
     });
     userEvents.select('.foo').elements()
-      .subscribe({next: assert.fail, error: assert.fail, complete: done});
+      .subscribe({
+        next: (x: any) => done(x),
+        error: (e: any) => done(e),
+        complete: () => done(),
+      });
   });
 
   it('should return defined Observable for select().elements', function (done) {
-    const mockedDOMSource = mockDOMSource(RxJSAdapter, {
+    const mockedDOMSource = mockDOMSource({
       '.foo': {
-        elements: Observable.of(135)
-      }
+        elements: Observable.of(135),
+      },
     });
     mockedDOMSource.select('.foo').elements()
       .subscribe({
-        next: e => {
-          assert.strictEqual(e, 135)
-          done()
+        next: (e: any) => {
+          assert.strictEqual(e, 135);
+          done();
         },
-        error: err => done(err),
+        error: (err: any) => done(err),
         complete: () => {},
       });
   });
 
   it('should have DevTools flag in elements() source stream', function (done) {
-    const mockedDOMSource = mockDOMSource(RxJSAdapter, {
+    const mockedDOMSource = mockDOMSource({
       '.foo': {
-        elements: Observable.of(135)
-      }
+        elements: Observable.of(135),
+      },
     });
-    assert.strictEqual(mockedDOMSource.select('.foo').elements()._isCycleSource, 'MockedDOM');
+    assert.strictEqual(
+      (mockedDOMSource.select('.foo').elements() as any)._isCycleSource,
+      'MockedDOM',
+    );
     done();
   });
 
   it('should have DevTools flag in events() source stream', function (done) {
-    const userEvents = mockDOMSource(RxJSAdapter, {
+    const userEvents = mockDOMSource({
       '.foo': {
-        'click': Observable.of(135)
-      }
+        'click': Observable.of(135),
+      },
     });
-    assert.strictEqual(userEvents.select('.foo').events('click')._isCycleSource, 'MockedDOM');
+    assert.strictEqual(
+      (userEvents.select('.foo').events('click') as any)._isCycleSource,
+      'MockedDOM',
+    );
     done();
   });
 
   it('should return defined Observable when chaining .select()', function (done) {
-    const mockedDOMSource = mockDOMSource(RxJSAdapter, {
+    const mockedDOMSource = mockDOMSource({
       '.bar': {
         '.foo': {
           '.baz': {
-            elements: Observable.of(135)
-          }
-        }
-      }
+            elements: Observable.of(135),
+          },
+        },
+      },
     });
     mockedDOMSource.select('.bar').select('.foo').select('.baz').elements()
       .subscribe({
-        next: e => {
-          assert.strictEqual(e, 135)
-          done()
+        next: (e: any) => {
+          assert.strictEqual(e, 135);
+          done();
         },
-        error: err => done(err),
+        error: (err: any) => done(err),
         complete: () => {},
       });
   });
 
   it('multiple .select()s should not throw when given empty mockedSelectors', () => {
     assert.doesNotThrow(() => {
-      const DOM = mockDOMSource(RxJSAdapter, {})
-      DOM.select('.something').select('.other').events('click')
-    })
-  })
+      const DOM = mockDOMSource({});
+      DOM.select('.something').select('.other').events('click');
+    });
+  });
 
   it('multiple .select()s should return some observable if not defined', () => {
-    const DOM = mockDOMSource(RxJSAdapter, {})
-    const domSource = DOM.select('.something').select('.other')
-    assert.strictEqual(RxJSAdapter.isValidStream(domSource.events('click')), true,
+    const DOM = mockDOMSource({});
+    const domSource = DOM.select('.something').select('.other');
+    assert.strictEqual(typeof (domSource.events('click') as any).observeOn, 'function',
       'domSource.events(click) should be an Observable instance');
-    assert.strictEqual(RxJSAdapter.isValidStream(domSource.elements()), true,
+    assert.strictEqual(typeof (domSource.elements() as any).observeOn, 'function',
       'domSource.elements() should be an Observable instance');
-  })
+  });
 });
 
 describe('isolation on MockedDOMSource', function () {
   it('should have the same effect as DOM.select()', function (done) {
-    function app() {
+    function app(sources: {DOM: MockedDOMSource}) {
       return {
         DOM: Rx.Observable.of(
           h3('.top-most', [
             h2('.bar', 'Wrong'),
             div('.child.___foo', [
-              h4('.bar', 'Correct')
-            ])
-          ])
-        )
+              h4('.bar', 'Correct'),
+            ]),
+          ]),
+        ),
       };
     }
 
-    const {sinks, sources, run} = Cycle(app, {
-      DOM: () => mockDOMSource(RxJSAdapter, {
+    const {sinks, sources, run} = setup(app, {
+      DOM: () => mockDOMSource({
         '.___foo': {
           '.bar': {
-            elements: Observable.of('skipped', 135)
-          }
-        }
-      })
+            elements: Observable.of<any>('skipped', 135),
+          },
+        },
+      }),
     });
 
-    let dispose;
+    let dispose: any;
     const isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'foo');
 
     // Make assertions
-    isolatedDOMSource.select('.bar').elements().skip(1).take(1).subscribe(elements => {
-      assert.strictEqual(elements, 135);
-      setTimeout(() => {
-        dispose();
-        done();
-      })
-    });
+    (isolatedDOMSource.select('.bar').elements() as any)
+      .skip(1).take(1)
+      .subscribe((elements: number) => {
+        assert.strictEqual(elements, 135);
+        setTimeout(() => {
+          dispose();
+          done();
+        });
+      });
     dispose = run();
   });
 
   it('should have isolateSource and isolateSink', function (done) {
-    function app() {
+    function app(sources: {DOM: MockedDOMSource}) {
       return {
-        DOM: Rx.Observable.of(h('h3.top-most.___foo'))
+        DOM: Rx.Observable.of(h('h3.top-most.___foo')),
       };
     }
 
-    const {sinks, sources, run} = Cycle(app, {
-      DOM: () => mockDOMSource(RxJSAdapter, {})
+    const {sinks, sources, run} = setup(app, {
+      DOM: () => mockDOMSource({}),
     });
     let dispose = run();
     const isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'foo');
@@ -228,23 +240,23 @@ describe('isolation on MockedDOMSource', function () {
   });
 
   it('should prevent parent from DOM.selecting() inside the isolation', function (done) {
-    function app(sources) {
+    function app(sources: {DOM: MockedDOMSource}): any {
       return {
         DOM: Rx.Observable.of(
           h3('.top-most', [
             sources.DOM.isolateSink(Rx.Observable.of(
               div('.foo', [
-                h4('.bar', 'Wrong')
-              ])
+                h4('.bar', 'Wrong'),
+              ]),
             ), 'ISOLATION'),
             h2('.bar', 'Correct'),
-          ])
-        )
+          ]),
+        ),
       };
     }
 
-    const {sinks, sources, run} = Cycle(app, {
-      DOM: () => mockDOMSource(RxJSAdapter, {
+    const {sinks, sources, run} = setup(app, {
+      DOM: () => mockDOMSource({
         '.___ISOLATION': {
           '.bar': {
             elements: Rx.Observable.of('skipped', 'Wrong'),
@@ -253,13 +265,13 @@ describe('isolation on MockedDOMSource', function () {
         '.bar': {
           elements: Rx.Observable.of('skipped', 'Correct'),
         },
-      })
+      }),
     });
 
-    sources.DOM.select('.bar').elements().skip(1).take(1).subscribe(function (x) {
+    sources.DOM.select('.bar').elements().skip(1).take(1).subscribe(function (x: any) {
       assert.strictEqual(x, 'Correct');
       done();
     });
-    run()
+    run();
   });
 });

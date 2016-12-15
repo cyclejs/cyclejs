@@ -2,6 +2,8 @@ const thunk = require('snabbdom/thunk');
 export {thunk};
 export * from './interfaces';
 export {DOMSource, EventsFnOptions} from './DOMSource';
+export {MainDOMSource} from './MainDOMSource';
+export {HTMLSource} from './HTMLSource';
 /**
  * A factory for the DOM driver function.
  *
@@ -140,7 +142,7 @@ export {makeHTMLDriver, HTMLDriverOptions} from './makeHTMLDriver';
  *
  * @function mockDOMSource
  */
-export {mockDOMSource, MockConfig} from './mockDOMSource';
+export {mockDOMSource, MockConfig, MockedDOMSource} from './mockDOMSource';
 export {CycleDOMEvent} from './EventDelegator';
 /**
  * The hyperscript function `h()` is a function to create virtual DOM objects,

@@ -2,8 +2,8 @@ import {VNode} from './interfaces';
 import {SCOPE_PREFIX} from './utils';
 import {DOMSource} from './DOMSource';
 
-export function isolateSource(source: DOMSource, scope: string): DOMSource {
-  return source.select(SCOPE_PREFIX + scope);
+export function isolateSource<S extends DOMSource>(source: S, scope: string): S {
+  return source.select<S>(SCOPE_PREFIX + scope);
 }
 
 interface Mappable<T, R> {

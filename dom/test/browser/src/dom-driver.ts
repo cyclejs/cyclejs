@@ -1,13 +1,11 @@
-'use strict';
-/* global describe, it */
-let assert = require('assert');
-let Cycle = require('@cycle/rxjs-run').default;
-let CycleDOM = require('../../lib/index');
-let Fixture89 = require('./fixtures/issue-89');
-let Rx = require('rxjs');
-let {h, svg, div, input, p, span, h2, h3, h4, select, option, makeDOMDriver} = CycleDOM;
+import * as assert from 'assert';
+import xs, {Stream, MemoryStream} from 'xstream';
+import delay from 'xstream/extra/delay';
+import flattenSequentially from 'xstream/extra/flattenSequentially';
+import {setup} from '@cycle/run';
+import {div, h3, makeDOMDriver, DOMSource, MainDOMSource} from '../../../lib';
 
-function createRenderTarget(id = null) {
+function createRenderTarget(id: string | null = null) {
   let element = document.createElement('div');
   element.className = 'cycletest';
   if (id) {
@@ -28,7 +26,7 @@ describe('makeDOMDriver', function () {
   it('should accept a DocumentFragment as input', function () {
     const element = document.createDocumentFragment();
     assert.doesNotThrow(function () {
-      makeDOMDriver(element);
+      makeDOMDriver(element as Element);
     });
   });
 
@@ -49,19 +47,8 @@ describe('makeDOMDriver', function () {
 
   it('should not accept a number as input', function () {
     assert.throws(function () {
-      makeDOMDriver(123);
+      makeDOMDriver(123 as any);
     }, /Given container is not a DOM element neither a selector string/);
-  });
-
-  it('should have a streamAdapter property', function () {
-    const element = createRenderTarget();
-    const DOMDriver = makeDOMDriver(element);
-    assert.notStrictEqual(typeof DOMDriver.streamAdapter, 'undefined');
-    assert.strictEqual(typeof DOMDriver.streamAdapter.adapt, 'function');
-    assert.strictEqual(typeof DOMDriver.streamAdapter.makeSubject, 'function');
-    assert.strictEqual(typeof DOMDriver.streamAdapter.remember, 'function');
-    assert.strictEqual(typeof DOMDriver.streamAdapter.isValidStream, 'function');
-    assert.strictEqual(typeof DOMDriver.streamAdapter.streamSubscribe, 'function');
   });
 });
 
@@ -69,19 +56,19 @@ describe('DOM Driver', function () {
   it('should throw if input is not an Observable<VTree>', function () {
     const domDriver = makeDOMDriver(createRenderTarget());
     assert.throws(function () {
-      domDriver({});
+      domDriver({} as any);
     }, /The DOM driver function expects as input a Stream of virtual/);
   });
 
   it('should have isolateSource() and isolateSink() in source', function (done) {
-    function app() {
+    function app(sources: {DOM: MainDOMSource}) {
       return {
-        DOM: Rx.Observable.of(div())
+        DOM: xs.of(div()),
       };
     }
 
-    const {sinks, sources, run} = Cycle(app, {
-      DOM: makeDOMDriver(createRenderTarget())
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
     });
     let dispose = run();
     assert.strictEqual(typeof sources.DOM.isolateSource, 'function');
@@ -91,78 +78,79 @@ describe('DOM Driver', function () {
   });
 
   it('should not work after has been disposed', function (done) {
-    const number$ = Rx.Observable.range(1, 3)
-      .concatMap(x => Rx.Observable.of(x).delay(50));
+    const num$ = xs.of(1, 2, 3)
+      .map(x => xs.of(x).compose(delay(50)))
+      .compose(flattenSequentially);
 
-    function app() {
+    function app(sources: {DOM: DOMSource}) {
       return {
-        DOM: number$.map(number =>
-            h3('.target', String(number))
-        )
+        DOM: num$.map(num =>
+            h3('.target', String(num)),
+        ),
       };
     }
 
-    const {sinks, sources, run} = Cycle(app, {
-      DOM: makeDOMDriver(createRenderTarget())
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    let dispose;
-    sources.DOM.select(':root').elements().skip(1).subscribe(function (root) {
-      const selectEl = root.querySelector('.target');
-      assert.notStrictEqual(selectEl, null);
-      assert.notStrictEqual(typeof selectEl, 'undefined');
-      assert.strictEqual(selectEl.tagName, 'H3');
-      assert.notStrictEqual(selectEl.textContent, '3');
-      if (selectEl.textContent === '2') {
-        dispose();
-        setTimeout(() => {
-          done();
-        }, 100);
-      }
-    });
+    let dispose: any;
+    sources.DOM.select(':root').elements()
+      .drop(1)
+      .addListener({
+        next: (root: Element) => {
+          const selectEl = root.querySelector('.target') as Element;
+          assert.notStrictEqual(selectEl, null);
+          assert.notStrictEqual(typeof selectEl, 'undefined');
+          assert.strictEqual(selectEl.tagName, 'H3');
+          assert.notStrictEqual(selectEl.textContent, '3');
+          if (selectEl.textContent === '2') {
+            dispose();
+            setTimeout(() => {
+              done();
+            }, 100);
+          }
+        },
+      });
     dispose = run();
   });
 
   it('should clean up DOM on disposal', function (done) {
     let hookTick = 0;
-    let hookInterval;
+    let hookInterval: any;
     let hook = {
       insert: () => {
         hookInterval = setInterval(() => hookTick++, 10);
       },
       destroy: () => {
         clearInterval(hookInterval);
-      }
-    }
+      },
+    };
 
     function app() {
       return {
-        DOM: Rx.Observable.of(
-            h3('.target', {hook}, 'dummy text')
-        )
+        DOM: xs.of(
+            h3('.target', {hook}, 'dummy text'),
+        ),
       };
     }
 
-    const {sinks, sources, run} = Cycle(app, {
-      DOM: makeDOMDriver(createRenderTarget('disposal'))
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget('disposal')),
     });
 
     const dispose = run();
     setTimeout(() => {
       dispose();
-
       const hookTickOnDisposal = hookTick;
 
       setTimeout(() => {
-        let renderTarget = document.getElementById('disposal');
-
+        let renderTarget = document.getElementById('disposal') as Element;
         assert.equal(renderTarget.innerHTML, '');
         assert.ok(hookTick > 0);
         assert.equal(hookTickOnDisposal, hookTick);
-
         done();
       }, 50);
-
     }, 100);
   });
 });

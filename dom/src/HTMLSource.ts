@@ -1,34 +1,29 @@
-import xs, {Stream} from 'xstream';
-import {StreamAdapter, DevToolEnabledSource} from '@cycle/base';
+import xs, {Stream, MemoryStream} from 'xstream';
+import {adapt} from '@cycle/run/lib/adapt';
+import {DevToolEnabledSource} from '@cycle/run';
 import {DOMSource, EventsFnOptions} from './DOMSource';
-import xsSA from '@cycle/xstream-adapter';
 
 export class HTMLSource implements DOMSource {
-  private _html$: any;
-  private _empty$: any;
+  private _html$: Stream<string>;
+  private _empty$: Stream<any>;
 
-  constructor(html$: Stream<string>,
-              private runSA: StreamAdapter,
-              private _name: string) {
+  constructor(html$: Stream<string>, private _name: string) {
     this._html$ = html$;
-    this._empty$ = runSA.adapt(xs.empty(), xsSA.streamSubscribe);
+    this._empty$ = adapt(xs.empty());
   }
 
-  public elements(): any {
-    const out: DevToolEnabledSource = this.runSA.adapt(
-      this._html$,
-      xsSA.streamSubscribe,
-    );
+  public elements(): MemoryStream<string> {
+    const out: DevToolEnabledSource & MemoryStream<string> = adapt(this._html$);
     out._isCycleSource = this._name;
     return out;
   }
 
   public select(selector: string): DOMSource {
-    return new HTMLSource(xs.empty(), this.runSA, this._name);
+    return new HTMLSource(xs.empty(), this._name);
   }
 
-  public events(eventType: string, options?: EventsFnOptions): any {
-    const out: DevToolEnabledSource = this._empty$;
+  public events(eventType: string, options?: EventsFnOptions): Stream<any> {
+    const out: Partial<DevToolEnabledSource> & Stream<any> = this._empty$;
     out._isCycleSource = this._name;
     return out;
   }

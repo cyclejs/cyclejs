@@ -33,7 +33,6 @@
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "dependencies": {
-    "@cycle/xstream-adapter": "3.x.x",
     "es6-map": "^0.1.4",
     "matches-selector": "1.0.0",
     "snabbdom": "0.5.0",
@@ -44,20 +43,21 @@
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/base": "*",
-    "@cycle/isolate": "*",
-    "@cycle/rxjs-adapter": "*",
-    "@cycle/rxjs-run": "*",
+    "@cycle/isolate": "1.x",
+    "@cycle/run": "1.0.0-rc.6",
+    "@cycle/rxjs-run": "4.0.0-rc.2",
+    "@types/mocha": "^2.2.33",
     "@types/node": "^6.0.45",
+    "@types/sinon": "^1.16.32",
     "babel-plugin-jsx-factory": "^1.0.1",
     "babel-plugin-syntax-jsx": "^6.3.13",
     "babel-plugin-transform-react-jsx": "^6.4.0",
     "rx": "^4.1.0",
-    "rxjs": "^5.0.0-rc.1",
+    "rxjs": "5.0.1",
     "saucie": "^1.4.1",
     "simulant": "^0.2.2",
     "snabbdom-jsx": "^0.3.0",
-    "xstream": "9.x.x"
+    "xstream": "10.x.x"
   },
   "engines": {
     "node": ">=0.10.0"
@@ -70,8 +70,10 @@
   },
   "scripts": {
     "lint": "../node_modules/.bin/tslint -c ../tslint.json ./src/*.ts ./src/**/*.ts",
-    "test-node": "../node_modules/.bin/mocha --compilers js:babel-register test/node",
-    "pretest-browser-ci": "../node_modules/.bin/browserify test/browser/index.js -t babelify -o test/browser/page/tests-bundle.js",
+    "prelib": "rm -rf lib/ && mkdir -p lib && ../node_modules/.bin/typings install",
+    "lib": "../node_modules/.bin/tsc",
+    "test-node": "../node_modules/.bin/mocha test/node/*.ts --require ts-node/register",
+    "pretest-browser-ci": "../node_modules/.bin/tsc -p ./test/browser/ && ../node_modules/.bin/browserify test/browser/lib/index.js -o test/browser/page/tests-bundle.js",
     "test-browser-ci": "../node_modules/.bin/testem ci",
     "posttest-browser-ci": "rm test/browser/page/tests-bundle.js",
     "pretest-browser": "npm run pretest-browser-ci",
@@ -87,8 +89,6 @@
     "predist": "rm -rf dist/ && mkdir -p dist/",
     "dist": "npm run lib && npm run browserify && npm run uglify",
     "readme": "node ../.scripts/make-api-docs.js ${PWD##*/} && cat ./.scripts/template-readme.md ./generated-api.md > README.md && rm ./generated-api.md",
-    "prelib": "rm -rf lib/ && mkdir -p lib && ../node_modules/.bin/typings install",
-    "lib": "../node_modules/.bin/tsc",
     "preversion": "npm test",
     "version": "npm run dist && npm run readme && npm run changelog",
     "postversion": "git add -A && git commit -m \"release(${PWD##*/}): v$(cat package.json | ../node_modules/.bin/jase version)\" && git push origin master && npm publish",

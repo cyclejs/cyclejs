@@ -1,11 +1,11 @@
-import xs, {Stream} from 'xstream';
-import xsSA from '@cycle/xstream-adapter';
-import {StreamAdapter, DevToolEnabledSource} from '@cycle/base';
+import xs, {Stream, MemoryStream} from 'xstream';
+import {adapt} from '@cycle/run/lib/adapt';
+import {DevToolEnabledSource} from '@cycle/run';
 import {DOMSource, EventsFnOptions} from './DOMSource';
 import {fromEvent} from './fromEvent';
 
 export class BodyDOMSource implements DOMSource {
-  constructor(private _runStreamAdapter: StreamAdapter, private _name: string) {
+  constructor(private _name: string) {
   }
 
   public select(selector: string): DOMSource {
@@ -13,26 +13,21 @@ export class BodyDOMSource implements DOMSource {
     return this;
   }
 
-  public elements(): any {
-    const runSA = this._runStreamAdapter;
-    const out: DevToolEnabledSource = runSA.remember(
-      runSA.adapt(xs.of(document.body), xsSA.streamSubscribe),
-    );
+  public elements(): MemoryStream<HTMLBodyElement> {
+    const out: DevToolEnabledSource & MemoryStream<HTMLBodyElement> =
+      adapt(xs.of(document.body));
     out._isCycleSource = this._name;
     return out;
   }
 
-  public events(eventType: string, options: EventsFnOptions = {}): any {
+  public events(eventType: string, options: EventsFnOptions = {}): Stream<Event> {
     let stream: Stream<Event>;
     if (options && typeof options.useCapture === 'boolean') {
       stream = fromEvent(document.body, eventType, options.useCapture);
     } else {
       stream = fromEvent(document.body, eventType);
     }
-    const out: DevToolEnabledSource = this._runStreamAdapter.adapt(
-      stream,
-      xsSA.streamSubscribe,
-    );
+    const out: DevToolEnabledSource & Stream<Event> = adapt(stream);
     out._isCycleSource = this._name;
     return out;
   }

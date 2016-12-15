@@ -1,4 +1,4 @@
-import {StreamAdapter, DriverFunction} from '@cycle/base';
+import {DriverFunction} from '@cycle/run';
 import {init} from 'snabbdom';
 import xs, {Stream} from 'xstream';
 import {DOMSource} from './DOMSource';
@@ -8,9 +8,7 @@ import {VNodeWrapper} from './VNodeWrapper';
 import {getElement} from './utils';
 import defaultModules from './modules';
 import {IsolateModule} from './isolateModule';
-import {makeTransposeVNode} from './transposition';
 import {EventDelegator} from './EventDelegator';
-import xsSA from '@cycle/xstream-adapter';
 let MapPolyfill: typeof Map = require('es6-map');
 
 function makeDOMDriverInputGuard(modules: any) {
@@ -31,30 +29,22 @@ function domDriverInputGuard(view$: Stream<VNode>): void {
 
 export interface DOMDriverOptions {
   modules?: Array<Object>;
-  transposition?: boolean;
 }
 
-function makeDOMDriver(container: string | Element, options?: DOMDriverOptions): Function {
+function makeDOMDriver(container: string | Element, options?: DOMDriverOptions) {
   if (!options) { options = {}; }
-  const transposition = options.transposition || false;
   const modules = options.modules || defaultModules;
   const isolateModule = new IsolateModule((new MapPolyfill<string, Element>()));
   const patch = init([isolateModule.createModule()].concat(modules));
-  const rootElement = getElement(container);
+  const rootElement = getElement(container) || document.body;
   const vnodeWrapper = new VNodeWrapper(rootElement);
   const delegators = new MapPolyfill<string, EventDelegator>();
   makeDOMDriverInputGuard(modules);
 
-  function DOMDriver(vnode$: Stream<VNode>,
-                     runStreamAdapter: StreamAdapter,
-                     name: string): DOMSource {
+  function DOMDriver(vnode$: Stream<VNode>, name = 'DOM'): DOMSource {
     domDriverInputGuard(vnode$);
-    const transposeVNode = makeTransposeVNode(runStreamAdapter);
-    const preprocessedVNode$: Stream<VNode> = (
-      transposition ? vnode$.map(transposeVNode).flatten() : vnode$
-    );
     const sanitation$ = xs.create();
-    const rootElement$ = xs.merge(preprocessedVNode$.endWhen(sanitation$), sanitation$)
+    const rootElement$ = xs.merge(vnode$.endWhen(sanitation$), sanitation$)
       .map(vnode => vnodeWrapper.call(vnode))
       .fold<VNode | Element>(patch, rootElement)
       .drop(1)
@@ -67,15 +57,12 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions):
     return new MainDOMSource(
       rootElement$,
       sanitation$,
-      runStreamAdapter,
       [],
       isolateModule,
       delegators,
       name,
     );
   };
-
-  (DOMDriver as DriverFunction).streamAdapter = xsSA;
 
   return DOMDriver;
 }

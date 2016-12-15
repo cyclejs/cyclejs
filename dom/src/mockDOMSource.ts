@@ -1,72 +1,63 @@
-import {StreamAdapter, DevToolEnabledSource} from '@cycle/base';
+import xs, {Stream, MemoryStream} from 'xstream';
+import {DevToolEnabledSource, FantasyObservable} from '@cycle/run';
 import {VNode} from './interfaces';
-import xsSA from '@cycle/xstream-adapter';
 import {DOMSource, EventsFnOptions} from './DOMSource';
-import xs from 'xstream';
-
-export type GenericStream = any;
-export type ElementStream = any;
-export type EventStream = any;
+import {adapt} from '@cycle/run/lib/adapt';
 
 export type MockConfig = {
-  [name: string]: GenericStream | MockConfig;
-  elements?: GenericStream;
+  [name: string]: FantasyObservable | MockConfig;
 };
 
 const SCOPE_PREFIX = '___';
 
 export class MockedDOMSource implements DOMSource {
-  private _elements: any;
+  private _elements: FantasyObservable;
 
-  constructor(private _streamAdapter: StreamAdapter,
-              private _mockConfig: MockConfig) {
-    if (_mockConfig.elements) {
-      this._elements = _mockConfig.elements;
+  constructor(private _mockConfig: MockConfig) {
+    if (_mockConfig['elements']) {
+      this._elements = _mockConfig['elements'] as FantasyObservable;
     } else {
-      this._elements = _streamAdapter.adapt(xs.empty(), xsSA.streamSubscribe);
+      this._elements = adapt(xs.empty());
     }
   }
 
   public elements(): any {
-    const out: DevToolEnabledSource = this._elements;
+    const out: Partial<DevToolEnabledSource> & FantasyObservable = this._elements;
     out._isCycleSource = 'MockedDOM';
     return out;
   }
 
-  public events(eventType: string, options: EventsFnOptions): any {
+  public events(eventType: string, options?: EventsFnOptions): any {
     const mockConfig = this._mockConfig;
     const keys = Object.keys(mockConfig);
     const keysLen = keys.length;
     for (let i = 0; i < keysLen; i++) {
       const key = keys[i];
       if (key === eventType) {
-        const out: DevToolEnabledSource = mockConfig[key];
+        const out: DevToolEnabledSource & FantasyObservable = adapt(mockConfig[key] as any);
         out._isCycleSource = 'MockedDOM';
         return out;
       }
     }
-    const out: DevToolEnabledSource = this._streamAdapter.adapt(
-      xs.empty(),
-      xsSA.streamSubscribe,
-    );
+    const out: DevToolEnabledSource & FantasyObservable = adapt(xs.empty());
     out._isCycleSource = 'MockedDOM';
     return out;
   }
 
-  public select(selector: string): DOMSource {
+  public select(selector: string): MockedDOMSource {
     const mockConfig = this._mockConfig;
     const keys = Object.keys(mockConfig);
     const keysLen = keys.length;
     for (let i = 0; i < keysLen; i++) {
       const key = keys[i];
       if (key === selector) {
-        return new MockedDOMSource(this._streamAdapter, mockConfig[key]);
+        return new MockedDOMSource(mockConfig[key] as MockConfig);
       }
     }
-    return new MockedDOMSource(this._streamAdapter, {});
+    return new MockedDOMSource({} as MockConfig);
   }
 
-  public isolateSource(source: MockedDOMSource, scope: string): DOMSource {
+  public isolateSource(source: MockedDOMSource, scope: string): MockedDOMSource {
     return source.select('.' + SCOPE_PREFIX + scope);
   }
 
@@ -82,8 +73,6 @@ export class MockedDOMSource implements DOMSource {
   }
 }
 
-export function mockDOMSource(
-    streamAdapter: StreamAdapter,
-    mockConfig: Object): DOMSource {
-  return new MockedDOMSource(streamAdapter, mockConfig);
+export function mockDOMSource(mockConfig: MockConfig): MockedDOMSource {
+  return new MockedDOMSource(mockConfig as MockConfig);
 }

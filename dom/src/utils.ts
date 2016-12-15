@@ -8,7 +8,7 @@ function isElement(obj: any) {
 
 export const SCOPE_PREFIX = `$$CYCLEDOM$$-`;
 
-export function getElement(selectors: Element | string): Element {
+export function getElement(selectors: Element | string): Element | null {
   const domElement = typeof selectors === 'string' ?
     document.querySelector(selectors) :
     selectors;

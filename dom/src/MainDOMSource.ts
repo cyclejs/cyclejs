@@ -1,6 +1,6 @@
-import {StreamAdapter, DevToolEnabledSource} from '@cycle/base';
-import xsSA from '@cycle/xstream-adapter';
-import {Stream} from 'xstream';
+import {Stream, MemoryStream} from 'xstream';
+import {DevToolEnabledSource} from '@cycle/run';
+import {adapt} from '@cycle/run/lib/adapt';
 import {DOMSource, EventsFnOptions} from './DOMSource';
 import {DocumentDOMSource} from './DocumentDOMSource';
 import {BodyDOMSource} from './BodyDOMSource';
@@ -91,15 +91,13 @@ function filterBasedOnIsolation(domSource: MainDOMSource, scope: string) {
 }
 
 export class MainDOMSource implements DOMSource {
+
   constructor(private _rootElement$: Stream<Element>,
               private _sanitation$: Stream<{}>,
-              private _runStreamAdapter: StreamAdapter,
               private _namespace: Array<string> = [],
               public _isolateModule: IsolateModule,
               public _delegators: Map<string, EventDelegator>,
               private _name: string) {
-    this.__JANI_EVAKALLIO_WE_WILL_MISS_YOU_PLEASE_COME_BACK_EVENTUALLY = true;
-
     this.isolateSource = isolateSource;
     this.isolateSink = (sink, scope) => {
       const existingScope = getScope(this._namespace);
@@ -108,20 +106,15 @@ export class MainDOMSource implements DOMSource {
     };
   }
 
-  public elements(): any {
+  public elements(): MemoryStream<Element> {
     let output$: Stream<Element | Array<Element>>;
     if (this._namespace.length === 0) {
       output$ = this._rootElement$;
     } else {
-      const elementFinder = new ElementFinder(
-        this._namespace, this._isolateModule,
-      );
+      const elementFinder = new ElementFinder(this._namespace, this._isolateModule);
       output$ = this._rootElement$.map(el => elementFinder.call(el));
     }
-    const runSA = this._runStreamAdapter;
-    const out: DevToolEnabledSource = runSA.remember(
-      runSA.adapt(output$, xsSA.streamSubscribe),
-    );
+    const out: DevToolEnabledSource & MemoryStream<Element> = adapt(output$.remember());
     out._isCycleSource = this._name;
     return out;
   }
@@ -136,10 +129,10 @@ export class MainDOMSource implements DOMSource {
         `string as a CSS selector`);
     }
     if (selector === 'document') {
-      return new DocumentDOMSource(this._runStreamAdapter, this._name);
+      return new DocumentDOMSource(this._name);
     }
     if (selector === 'body') {
-      return new BodyDOMSource(this._runStreamAdapter, this._name);
+      return new BodyDOMSource(this._name);
     }
     const trimmedSelector = selector.trim();
     const childNamespace = trimmedSelector === `:root` ?
@@ -148,7 +141,6 @@ export class MainDOMSource implements DOMSource {
     return new MainDOMSource(
       this._rootElement$,
       this._sanitation$,
-      this._runStreamAdapter,
       childNamespace,
       this._isolateModule,
       this._delegators,
@@ -156,7 +148,7 @@ export class MainDOMSource implements DOMSource {
     );
   }
 
-  public events(eventType: string, options: EventsFnOptions = {}): any {
+  public events(eventType: string, options: EventsFnOptions = {}): Stream<Event> {
     if (typeof eventType !== `string`) {
       throw new Error(`DOM driver's events() expects argument to be a ` +
         `string representing the event type to listen for.`);
@@ -223,7 +215,7 @@ export class MainDOMSource implements DOMSource {
       })
       .flatten();
 
-    const out: DevToolEnabledSource = this._runStreamAdapter.adapt(event$, xsSA.streamSubscribe);
+    const out: DevToolEnabledSource & Stream<Event> = adapt(event$);
     out._isCycleSource = domSource._name;
     return out;
   }
@@ -233,13 +225,11 @@ export class MainDOMSource implements DOMSource {
     this._isolateModule.reset();
   }
 
-  private __JANI_EVAKALLIO_WE_WILL_MISS_YOU_PLEASE_COME_BACK_EVENTUALLY: boolean = false;
-
   // The implementation of these are in the constructor so that their `this`
   // references are automatically bound to the instance, so that library users
   // can do destructuring `const {isolateSource, isolateSink} = sources.DOM` and
   // not get bitten by a missing `this` reference.
 
-  public isolateSource: (source: DOMSource, scope: string) => DOMSource;
+  public isolateSource: (source: MainDOMSource, scope: string) => MainDOMSource;
   public isolateSink: (sink: Stream<VNode>, scope: string) => Stream<VNode>;
 }

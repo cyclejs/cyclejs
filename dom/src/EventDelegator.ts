@@ -57,7 +57,7 @@ function findDestinationId(arr: Array<Destination>, searchId: number): number {
  */
 export class EventDelegator {
   private destinations: Array<Destination> = [];
-  private roof: Element;
+  private roof: Element | null;
   private domListener: EventListener;
 
   constructor(private topElement: Element,
@@ -78,7 +78,7 @@ export class EventDelegator {
       return;
     }
     const ev = this.patchEvent(rawEvent);
-    for (let el = ev.target as Element; el && el !== this.roof; el = el.parentElement) {
+    for (let el = ev.target as Element | null; el && el !== this.roof; el = el.parentElement) {
       if (!this.topElement.contains(el)) {
         ev.stopPropagation();
       }
