@@ -1,7 +1,9 @@
+// Checkbox: Basic Example 
+
 import Cycle from '@cycle/xstream-run';
 import {div, input, p, label, makeDOMDriver} from '@cycle/dom';
 
-// logger utility
+// logger utility to inject into streams for inspection
 const show = x => {
   // console.log(JSON.stringify(x))
   console.log(x)
@@ -10,8 +12,7 @@ const show = x => {
 
 function main(sources) {
 
-  // element emitting toggle event
-  let toggleEl
+  // -> get stream of virtual doms views : Stream<vNode>
   let vNode$ = sources.DOM
 
     // 'input' selected from the current view 
@@ -30,10 +31,16 @@ function main(sources) {
 
     // Stream<Boolean> -> Stream<vNode>
     .map(toggled =>
+
+      // virtual dom node
       div([
-        toggleEl = label(
+        label(
           { 
-            style: {border: 'solid thin', padding: '5px'} 
+            // make button slightly prettier
+            style: {
+              background: '#eee',
+              padding: '5px'
+            } 
           }, 
           [
             input({attrs: {type: 'checkbox'}}), 
@@ -46,11 +53,12 @@ function main(sources) {
 
   return {
     DOM: vNode$,
-    // toggle$: sources.DOM.select(toggleEl).events('change')
   }
 }
 
 Cycle.run(main, {
   // DOM: makeDOMDriver('#main-container')
+  // Inject directly into 'body' 
+  // to work with 'budo's stabbed html file
   DOM: makeDOMDriver(document.body)
 });
