@@ -1,4 +1,5 @@
 // Http Random User: Basic Example
+
 import Cycle from '@cycle/xstream-run';
 import {Stream} from 'xstream';
 import {div, button, h1, h4, a, makeDOMDriver} from '@cycle/dom';
@@ -30,35 +31,60 @@ interface UserData {
   }
 }
 
+
 function main(sources: {DOM: DOMSource, HTTP: HTTPSource}) {
-  const getRandomUser$ = sources.DOM.select('.get-random').events('click')
+
+  // -> Stream of HTTP request objects : Stream<Object>
+  const getRandomUser$ = sources.DOM.select('.get-random')
+    .events('click')
     .map(() => {
       const randomNum = Math.round(Math.random() * 9) + 1;
+
+      // -> plain request object
       return {
-        url: 'http://jsonplaceholder.typicode.com/users/' + String(randomNum),
+
+        // add 'category' for referencing by the HTTP driver
         category: 'users',
-        method: 'GET'
+
+        // use template string to import parameter
+        url: `http://jsonplaceholder.typicode.com/users/${randomNum}`,
+        method: 'GET',
       };
     });
 
+  // Get users as Stream of HTTP responses 
+  // to the requests made with category 'users'
   const user$ = sources.HTTP.select('users')
     .flatten()
     .map(res => res.body as UserData)
     .startWith(null);
 
   const vtree$ = user$.map(user =>
+
+    // -> view : virtual node
     div('.users', [
       button('.get-random', 'Get random user'),
-      user === null ? null : div('.user-details', [
-        h1('.user-name', user.name),
-        h4('.user-email', user.email),
-        a('.user-website', {attrs: {href: user.website}}, user.website)
-      ])
+      user === null 
+        ? null 
+        : div('.user-details', [
+
+            h1('.user-name', user.name),
+            h4('.user-email', user.email),
+            a(
+              '.user-website', 
+              { attrs: { href: user.website } }, 
+              user.website
+            )
+
+        ])
     ])
+
   );
 
   return {
     DOM: vtree$,
+
+    // export stream of pure request objects
     HTTP: getRandomUser$
   };
 }
