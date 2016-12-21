@@ -8,9 +8,16 @@ interface Sources {
 }
 
 function main(sources : Sources) {
+
+	const style = {color: 'blue'}
+
   return {
-    DOM: xs.periodic(1000).map(i => i + 1).startWith(0)
-      .map(i => <div>Seconds elapsed {i}</div>)
+    DOM: xs.periodic(1000)
+    	.map(i => i + 1)
+    	.startWith(0)
+
+    	// inject JSX component
+      .map(i => <div style={style}>Seconds elapsed: {i}</div>)
   };
 }
 
