@@ -22,6 +22,9 @@ function preventDefaultDriver(ev$) {
 
 Cycle.run(clientSideApp, {
   DOM: makeDOMDriver('.app-container'),
-  context: () => xs.of(window.appContext),
   PreventDefault: preventDefaultDriver,
+
+  // evaluates to stream emitting route object : Strean<Object> 
+  // {route: "/"} or {route: "/about"}
+  context: () => xs.of(window.appContext),
 });
