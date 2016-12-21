@@ -1,3 +1,5 @@
+// Animation : Intermediate Example
+
 import Cycle from '@cycle/xstream-run';
 import xs from 'xstream';
 import tween from 'xstream/extra/tween';
@@ -19,6 +21,7 @@ let buttonStyle = {
   fontSize: '20px',
   marginBottom: '20px',
 };
+
 
 function main(sources) {
   let start$ = sources.DOM.select('.animate').events('click').mapTo();
@@ -52,5 +55,6 @@ function main(sources) {
 }
 
 Cycle.run(main, {
-  DOM: makeDOMDriver('#main-container')
+  // DOM: makeDOMDriver('#main-container')
+  DOM: makeDOMDriver(document.body)
 });
