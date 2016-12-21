@@ -1,3 +1,5 @@
+// Counter: Basic Example
+
 import xs from 'xstream';
 import Cycle from '@cycle/xstream-run';
 import {div, button, p, makeDOMDriver} from '@cycle/dom';
@@ -20,5 +22,6 @@ function main(sources) {
 }
 
 Cycle.run(main, {
-  DOM: makeDOMDriver('#main-container')
+  // DOM: makeDOMDriver('#main-container')
+  DOM: makeDOMDriver(document.body)
 });
