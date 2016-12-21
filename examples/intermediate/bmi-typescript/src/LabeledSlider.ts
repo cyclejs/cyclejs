@@ -20,12 +20,18 @@ export type Sinks = {
 }
 
 
-function LabeledSlider(sources: Sources): Sinks {
-  
-  let props$: Stream<LabeledSliderProps> = sources.props$;
-  let initialValue$ = props$.map(props => props.initial).take(1);
-  let newValue$ = sources.DOM.select('.slider').events('input')
-    .map(ev => parseInt((<HTMLInputElement> ev.target).value));
+function LabeledSlider({DOM, props$}: Sources): Sinks {
+
+  let initialValue$ = props$
+    .map(props => props.initial)
+    .take(1);
+
+  let newValue$ = DOM.select('.slider')
+    .events('input')
+    .map(ev => 
+      parseInt((<HTMLInputElement> ev.target).value)
+    );
+
   let value$ = xs.merge(initialValue$, newValue$).remember();
 
   let vtree$ = xs.combine(props$, value$)
