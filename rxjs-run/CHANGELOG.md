@@ -1,3 +1,13 @@
+<a name="3.2.0"></a>
+# 3.2.0 (2016-12-21)
+
+
+### Bug Fixes
+
+* **rxjs-run:** correctly depend on rxjs-adapter v3.1 ([b039cf4](https://github.com/cyclejs/cyclejs/tree/master/packages/rxjs-run/commit/b039cf4))
+
+
+
 <a name="3.1.0"></a>
 # 3.1.0 (2016-12-05)
 
