@@ -18,7 +18,7 @@ const sectionStyle = {
 
 const searchLabelStyle = {
   display: 'inline-block',
-  width: '100px',
+  width: '150px',
   textAlign: 'right',
 }
 
@@ -78,14 +78,14 @@ const LIGHT_GREEN = '#8FE8B4'
  *                         between
  * output: ----------c----d-------------h---i--------
  */
-function between(first, second) {
-  return (source) => 
-    first
+const between = (first, second) => source => 
+  first
 
-      // completes at any event from stream 'second'
-      .mapTo(source.endWhen(second))
-      .flatten()
-}
+    // map into constant stream,
+    // each value of which is a stream 
+    // that completes at any event from stream 'second'
+    .mapTo(source.endWhen(second))
+    .flatten()
 
 /**
  * source: --a--b----c----d---e-f--g----h---i--j-----
@@ -94,42 +94,63 @@ function between(first, second) {
  *                       notBetween
  * output: --a--b-------------e-f--g-----------j-----
  */
-function notBetween(first, second) {
-  return source => xs.merge(
+const notBetween = (first, second) => source => xs.merge(
     source.endWhen(first),
-    first.map(() => source.compose(dropUntil(second))).flatten()
+    first
+      .map(() => source.compose(dropUntil(second)))
+      .flatten()
   )
-}
+
 
 function intent(DOM) {
+
   const UP_KEYCODE = 38
   const DOWN_KEYCODE = 40
   const ENTER_KEYCODE = 13
   const TAB_KEYCODE = 9
 
-  const input$ = DOM.select('.autocompleteable').events('input')
-  const keydown$ = DOM.select('.autocompleteable').events('keydown')
-  const itemHover$ = DOM.select('.autocomplete-item').events('mouseenter')
-  const itemMouseDown$ = DOM.select('.autocomplete-item').events('mousedown')
-  const itemMouseUp$ = DOM.select('.autocomplete-item').events('mouseup')
-  const inputFocus$ = DOM.select('.autocompleteable').events('focus')
-  const inputBlur$ = DOM.select('.autocompleteable').events('blur')
+  const autocompleteable = DOM.select('.autocompleteable')
+  const autocompleteItem = DOM.select('.autocomplete-item')
 
-  const enterPressed$ = keydown$.filter(({keyCode}) => keyCode === ENTER_KEYCODE)
-  const tabPressed$ = keydown$.filter(({keyCode}) => keyCode === TAB_KEYCODE)
-  const clearField$ = input$.filter(ev => ev.target.value.length === 0)
-  const inputBlurToItem$ = inputBlur$.compose(between(itemMouseDown$, itemMouseUp$))
-  const inputBlurToElsewhere$ = inputBlur$.compose(notBetween(itemMouseDown$, itemMouseUp$))
+  const keydown$ = autocompleteable.events('keydown')
+  const inputFocus$ = autocompleteable.events('focus')
+  const inputBlur$ = autocompleteable.events('blur')
+
+  const input$ = autocompleteable
+    .events('input')
+
+  const itemHover$ = autocompleteItem.events('mouseenter')
+  const itemMouseDown$ = autocompleteItem.events('mousedown')
+  const itemMouseUp$ = autocompleteItem.events('mouseup')
+
+  const enterPressed$ = keydown$
+    .filter(({keyCode}) => keyCode === ENTER_KEYCODE)
+
+  const tabPressed$ = keydown$
+    .filter(({keyCode}) => keyCode === TAB_KEYCODE)
+
+  const clearField$ = input$
+    .filter(ev => ev.target.value.length === 0)
+
+  const inputBlurToItem$ = inputBlur$
+    .compose(between(itemMouseDown$, itemMouseUp$))
+
+  const inputBlurToElsewhere$ = inputBlur$
+    .compose(notBetween(itemMouseDown$, itemMouseUp$))
+
   const itemMouseClick$ = itemMouseDown$
     .map(down => itemMouseUp$.filter(up => down.target === up.target))
     .flatten()
 
+
   return {
+
     search$: input$
       .compose(debounce(500))
       .compose(between(inputFocus$, inputBlur$))
       .map(ev => ev.target.value)
       .filter(query => query.length > 0),
+
     moveHighlight$: keydown$
       .map(({keyCode}) => { switch (keyCode) {
         case UP_KEYCODE: return -1
@@ -137,21 +158,40 @@ function intent(DOM) {
         default: return 0
       }})
       .filter(delta => delta !== 0),
+
     setHighlight$: itemHover$
       .map(ev => parseInt(ev.target.dataset.index)),
-    keepFocusOnInput$:
-      xs.merge(inputBlurToItem$, enterPressed$, tabPressed$),
-    selectHighlighted$:
-      xs.merge(itemMouseClick$, enterPressed$, tabPressed$).compose(debounce(1)),
-    wantsSuggestions$:
-      xs.merge(inputFocus$.mapTo(true), inputBlur$.mapTo(false)),
-    quitAutocomplete$:
-      xs.merge(clearField$, inputBlurToElsewhere$),
+
+    keepFocusOnInput$: xs.merge(
+      inputBlurToItem$, 
+      enterPressed$, 
+      tabPressed$
+    ),
+
+    selectHighlighted$: xs.merge(
+      itemMouseClick$, 
+      enterPressed$, 
+      tabPressed$
+    )
+    .compose(debounce(1)),
+
+    wantsSuggestions$: xs.merge(
+      inputFocus$.mapTo(true), 
+      inputBlur$.mapTo(false)
+    ),
+
+    quitAutocomplete$: xs.merge(
+      clearField$, 
+      inputBlurToElsewhere$
+    ),
   }
 }
 
+
 function reducers(actions) {
-  const moveHighlightReducer$ = actions.moveHighlight$
+
+  const moveHighlightReducer$ = actions
+    .moveHighlight$
     .map(delta => function moveHighlightReducer(state) {
       const suggestions = state.get('suggestions')
       const wrapAround = x => (x + suggestions.length) % suggestions.length
@@ -164,12 +204,14 @@ function reducers(actions) {
       })
     })
 
-  const setHighlightReducer$ = actions.setHighlight$
+  const setHighlightReducer$ = actions
+    .setHighlight$
     .map(highlighted => function setHighlightReducer(state) {
       return state.set('highlighted', highlighted)
     })
 
-  const selectHighlightedReducer$ = actions.selectHighlighted$
+  const selectHighlightedReducer$ = actions
+    .selectHighlighted$
     .mapTo(xs.of(true, false))
     .flatten()
     .map(selected => function selectHighlightedReducer(state) {
@@ -186,7 +228,8 @@ function reducers(actions) {
       }
     })
 
-  const hideReducer$ = actions.quitAutocomplete$
+  const hideReducer$ = actions
+    .quitAutocomplete$
     .mapTo(function hideReducer(state) {
       return state.set('suggestions', [])
     })
@@ -199,42 +242,75 @@ function reducers(actions) {
   )
 }
 
+
 function model(suggestionsFromResponse$, actions) {
+
   const reducer$ = reducers(actions)
 
-  const state$ = actions.wantsSuggestions$
+  const state$ = actions
+
+    // -> true on focus, false on blur : Stream<Boolean>
+    .wantsSuggestions$
     .map(accepted =>
-      suggestionsFromResponse$.map(suggestions => accepted ? suggestions : [])
+      suggestionsFromResponse$.map(suggestions => 
+        accepted 
+          ? suggestions 
+          : []
+      )
     )
     .flatten()
     .startWith([])
-    .map(suggestions => Immutable.Map(
-      {suggestions, highlighted: null, selected: null}
-    ))
-    .map(state => reducer$.fold((acc, reducer) => reducer(acc), state))
+    .map(suggestions => Immutable.Map({
+        suggestions, 
+        highlighted: null, 
+        selected: null
+    }))
+    .map(state => 
+      reducer$
+        .fold((acc, reducer) => reducer(acc), state))
     .flatten()
 
   return state$
 }
 
-function renderAutocompleteMenu({suggestions, highlighted}) {
-  if (suggestions.length === 0) { return ul() }
-  const childStyle = index => (Object.assign({}, autocompleteItemStyle, {
-    backgroundColor: highlighted === index ? LIGHT_GREEN : null
-  }))
 
-  return ul('.autocomplete-menu', {style: autocompleteMenuStyle},
+const renderAutocompleteMenu = ({suggestions, highlighted}) => {
+
+  if (suggestions.length === 0) { return ul() }
+
+  const childStyle = index => 
+    Object.assign(
+      {}, 
+      autocompleteItemStyle, 
+      {
+        backgroundColor: highlighted === index 
+          ? LIGHT_GREEN 
+          : null
+      }
+    )
+
+  return ul(
+    '.autocomplete-menu', 
+    {style: autocompleteMenuStyle},
     suggestions.map((suggestion, index) =>
+
       li('.autocomplete-item',
-        {style: childStyle(index), attrs: {'data-index': index}},
+        {
+          style: childStyle(index), 
+          attrs: {'data-index': index}
+        },
         suggestion
       )
+
     )
   )
 }
 
-function renderComboBox({suggestions, highlighted, selected}) {
-  return span('.combo-box', {style: comboBoxStyle}, [
+
+const renderComboBox = ({suggestions, highlighted, selected}) =>
+
+  span('.combo-box', {style: comboBoxStyle}, [
+
     input('.autocompleteable', {
       style: autocompleteableStyle,
       attrs: {type: 'text'},
@@ -246,9 +322,10 @@ function renderComboBox({suggestions, highlighted, selected}) {
         }
       }
     }),
+
     renderAutocompleteMenu({suggestions, highlighted})
   ])
-}
+
 
 function view(state$) {
   return state$.map(state => {
@@ -256,16 +333,28 @@ function view(state$) {
     const highlighted = state.get('highlighted')
     const selected = state.get('selected')
     return (
+
       div('.container', {style: containerStyle}, [
+
         section({style: sectionStyle}, [
-          label('.search-label', {style: searchLabelStyle}, 'Query:'),
+          label(
+            '.search-label', 
+            {style: searchLabelStyle}, 
+            'Search Wikipedia: '
+          ),
           renderComboBox({suggestions, highlighted, selected})
         ]),
+
         section({style: sectionStyle}, [
-          label({style: searchLabelStyle}, 'Some field:'),
+          label(
+            {style: searchLabelStyle}, 
+            'Some field: '
+          ),
           input({style: inputTextStyle, attrs: {type: 'text'}})
         ])
+
       ])
+
     )
   })
 }
@@ -275,13 +364,15 @@ const BASE_URL =
 
 const networking = {
   processResponses(JSONP) {
-    return JSONP.filter(res$ => res$.request.indexOf(BASE_URL) === 0)
+    return JSONP
+      .filter(res$ => res$.request.indexOf(BASE_URL) === 0)
       .flatten()
       .map(res => res[1])
   },
 
   generateRequests(searchQuery$) {
-    return searchQuery$.map(q => BASE_URL + encodeURI(q))
+    return searchQuery$
+      .map(q => BASE_URL + encodeURI(q))
   },
 }
 
@@ -301,7 +392,9 @@ function preventedEvents(actions, state$) {
     .filter(ev => ev !== null)
 }
 
+
 export default function app(responses) {
+
   const suggestionsFromResponse$ = networking
     .processResponses(responses.JSONP)
 
@@ -309,6 +402,7 @@ export default function app(responses) {
   const state$ = model(suggestionsFromResponse$, actions)
   const vtree$ = view(state$)
   const prevented$ = preventedEvents(actions, state$)
+
   const searchRequest$ = networking
     .generateRequests(actions.search$)
 
