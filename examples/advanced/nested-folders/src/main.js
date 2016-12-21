@@ -8,4 +8,6 @@ function main(sources) {
   return Folder(sources)
 }
 
-run(main, {DOM: makeDOMDriver('#app', {transposition: true})})
+run(main, {
+	DOM: makeDOMDriver(document.body, {transposition: true})
+})

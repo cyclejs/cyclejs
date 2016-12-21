@@ -2,8 +2,8 @@ import xs from 'xstream'
 import isolate from '@cycle/isolate'
 import {div, button} from '@cycle/dom'
 
-function intent(DOMSource, childAction$, selfId) {
-  return xs.merge(
+const intent = (DOMSource, childAction$, selfId) =>
+  xs.merge(
     DOMSource.select('.add').events('click')
       .mapTo({selfId, type: 'addChild'}),
 
@@ -14,7 +14,6 @@ function intent(DOMSource, childAction$, selfId) {
       .filter(action => action.type === 'removeSelf')
       .map(action => ({...action, type: 'removeChild'}))
   )
-}
 
 function model(action$, createIsolatedFolder) {
   const addFolderUpdate$ = action$
