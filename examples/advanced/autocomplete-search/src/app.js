@@ -4,6 +4,9 @@ import dropUntil from 'xstream/extra/dropUntil'
 import {ul, li, span, input, div, section, label} from '@cycle/dom'
 import Immutable from 'immutable'
 
+
+// --- Styles --- //
+
 const containerStyle = {
   background: '#EFEFEF',
   padding: '5px',
@@ -66,6 +69,8 @@ const autocompleteItemStyle = {
 
 const LIGHT_GREEN = '#8FE8B4'
 
+
+
 /**
  * source: --a--b----c----d---e-f--g----h---i--j-----
  * first:  -------F------------------F---------------
@@ -74,7 +79,12 @@ const LIGHT_GREEN = '#8FE8B4'
  * output: ----------c----d-------------h---i--------
  */
 function between(first, second) {
-  return (source) => first.mapTo(source.endWhen(second)).flatten()
+  return (source) => 
+    first
+
+      // completes at any event from stream 'second'
+      .mapTo(source.endWhen(second))
+      .flatten()
 }
 
 /**
@@ -292,12 +302,16 @@ function preventedEvents(actions, state$) {
 }
 
 export default function app(responses) {
-  const suggestionsFromResponse$ = networking.processResponses(responses.JSONP)
+  const suggestionsFromResponse$ = networking
+    .processResponses(responses.JSONP)
+
   const actions = intent(responses.DOM)
   const state$ = model(suggestionsFromResponse$, actions)
   const vtree$ = view(state$)
   const prevented$ = preventedEvents(actions, state$)
-  const searchRequest$ = networking.generateRequests(actions.search$)
+  const searchRequest$ = networking
+    .generateRequests(actions.search$)
+
   return {
     DOM: vtree$,
     preventDefault: prevented$,

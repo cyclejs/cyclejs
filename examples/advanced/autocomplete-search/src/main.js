@@ -1,3 +1,5 @@
+// Autocomplete Search :  Advanced Example
+
 import xs from 'xstream'
 import Cycle from '@cycle/xstream-run'
 import {makeDOMDriver} from '@cycle/dom'
@@ -20,7 +22,8 @@ function preventDefaultSinkDriver(prevented$) {
 }
 
 const drivers = {
-  DOM: makeDOMDriver('#main-container'),
+  // DOM: makeDOMDriver('#main-container'),
+  DOM: makeDOMDriver(document.body),
   JSONP: makeJSONPDriver(),
   preventDefault: preventDefaultSinkDriver,
   // TODO: support cycle-restart in Cycle Diversity
