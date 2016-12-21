@@ -110,5 +110,6 @@ function main(sources) {
 
 Cycle.run(main, {
   Keydown: () => fromEvent(document, 'keydown'),
-  DOM: makeDOMDriver('#main-container')
+  // DOM: makeDOMDriver('#main-container'),
+  DOM: makeDOMDriver(document.body),
 })
