@@ -2,13 +2,13 @@
 # yarn lockfile v1
 
 
-"@cycle/base@4.x.x":
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/@cycle/base/-/base-4.3.0.tgz#464d320e5dbe80b3e3821195200607cdcf47198b"
+"@cycle/base@4.2":
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/@cycle/base/-/base-4.2.0.tgz#ed6043c3c92ed2442d0e4b9ae603aec05e960f0b"
 
-"@cycle/dom@12.2.x":
-  version "12.2.8"
-  resolved "https://registry.yarnpkg.com/@cycle/dom/-/dom-12.2.8.tgz#31d2fb216d759f104af1278cf40197f2bea6875e"
+"@cycle/dom@14.2.x":
+  version "14.2.0"
+  resolved "https://registry.yarnpkg.com/@cycle/dom/-/dom-14.2.0.tgz#c68b9ecd35b7820c69d61a52ddc722b694cad230"
   dependencies:
     "@cycle/xstream-adapter" "3.x.x"
     es6-map "^0.1.4"
@@ -28,11 +28,11 @@
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/@cycle/xstream-adapter/-/xstream-adapter-3.0.4.tgz#54c440b02ef3c8433cdb2d31082c8e5d0dd4d93a"
 
-"@cycle/xstream-run@3.1.x":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@cycle/xstream-run/-/xstream-run-3.1.0.tgz#39be2327bf51ae0c2847bbd406557cf041fefabd"
+"@cycle/xstream-run@4.1.x":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@cycle/xstream-run/-/xstream-run-4.1.0.tgz#3bded1ba85f682991c5abd83ba3dae965ff92d29"
   dependencies:
-    "@cycle/base" "4.x.x"
+    "@cycle/base" "4.2"
     "@cycle/xstream-adapter" "3.x.x"
 
 JSONStream@^1.0.3:
@@ -533,7 +533,7 @@ babel-types@^6.16.0, babel-types@^6.18.0, babel-types@^6.19.0, babel-types@^6.21
     lodash "^4.2.0"
     to-fast-properties "^1.0.1"
 
-babelify@7.2.0:
+babelify@7.2.x:
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/babelify/-/babelify-7.2.0.tgz#584249bc5066b61f984b3e745ed855203c9ec73e"
   dependencies:
@@ -2148,6 +2148,10 @@ supports-color@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-2.0.0.tgz#535d045ce6b6363fa40117084629995e9df324c7"
 
+symbol-observable@^1.0.2:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-1.0.4.tgz#29bf615d4aa7121bdd898b22d4b3f9bc4e2aa03d"
+
 syntax-error@^1.1.1:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/syntax-error/-/syntax-error-1.1.6.tgz#b4549706d386cc1c1dc7c2423f18579b6cade710"
@@ -2219,13 +2223,9 @@ typedarray@~0.0.5:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
 
-typescript@2.0.x:
+typescript@2.0.x, typescript@^2.0.3:
   version "2.0.10"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.0.10.tgz#ccdd4ed86fd5550a407101a0814012e1b3fac3dd"
-
-typescript@^2.0.3:
-  version "2.1.4"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.1.4.tgz#b53b69fb841126acb1dd4b397d21daba87572251"
 
 typings-core@^1.6.1:
   version "1.6.1"
@@ -2377,9 +2377,11 @@ xdg-basedir@^2.0.0:
   dependencies:
     os-homedir "^1.0.0"
 
-xstream@6.1.x:
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/xstream/-/xstream-6.1.0.tgz#5da636589200c37e99a55252f9d102045c130cdf"
+xstream@9.2.x:
+  version "9.2.0"
+  resolved "https://registry.yarnpkg.com/xstream/-/xstream-9.2.0.tgz#d9d20506fb68f684ce9d613fb90fce78ac6e5e7b"
+  dependencies:
+    symbol-observable "^1.0.2"
 
 xtend@^4.0.0, xtend@^4.0.1, xtend@~4.0.1:
   version "4.0.1"

@@ -5,16 +5,16 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/xstream-run": "3.1.x",
-    "@cycle/dom": "12.2.x",
+    "@cycle/xstream-run": "4.1.x",
+    "@cycle/dom": "14.2.x",
     "@cycle/http": "11.0.x",
-    "xstream": "6.1.x"
+    "xstream": "9.2.x"
   },
   "devDependencies": {
     "browserify": "13.0.0",
     "babel-preset-es2015": "^6.3.13",
     "babel-register": "^6.4.3",
-    "babelify": "7.2.0",
+    "babelify": "7.2.x",
     "mkdirp": "0.5.x",
     "typescript": "2.0.x",
     "typings": "^1.0.4"
