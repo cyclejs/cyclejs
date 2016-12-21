@@ -19,7 +19,9 @@ export type Sinks = {
   value$: MemoryStream<number>,
 }
 
+
 function LabeledSlider(sources: Sources): Sinks {
+  
   let props$: Stream<LabeledSliderProps> = sources.props$;
   let initialValue$ = props$.map(props => props.initial).take(1);
   let newValue$ = sources.DOM.select('.slider').events('input')
