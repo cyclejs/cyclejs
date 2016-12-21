@@ -59,6 +59,8 @@ function LabeledSlider({DOM, props$}: Sources): Sinks {
     );
 
   return {
+
+    // export view as Stream<vNode>
     DOM: vtree$,
 
     // export stream of 

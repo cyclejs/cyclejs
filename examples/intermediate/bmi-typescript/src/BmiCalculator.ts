@@ -12,14 +12,15 @@ export type Sinks = {
 }
 
 
-function BmiCalculator(sources: Sources): Sinks {
+function BmiCalculator({DOM}: Sources): Sinks {
 
   // https://github.com/cyclejs/cyclejs/tree/master/isolate
   // 
-  // Create two isolated instances of LabeledSlider 
+  // Create two isolated copies of LabeledSlider component
   let WeightSlider = isolate(LabeledSlider);
   let HeightSlider = isolate(LabeledSlider);
 
+  // immediately emitting stream with single object
   let weightProps$ = xs.of<LabeledSliderProps>({
     label: 'Weight', 
     unit: 'kg', 
@@ -38,13 +39,14 @@ function BmiCalculator(sources: Sources): Sinks {
   })
   .remember();
 
+  // instantiante components
   let weightSlider = WeightSlider({
-    DOM: sources.DOM, 
+    DOM, 
     props$: weightProps$
   });
 
   let heightSlider = HeightSlider({
-    DOM: sources.DOM, 
+    DOM, 
     props$: heightProps$
   });
 
@@ -57,10 +59,14 @@ function BmiCalculator(sources: Sources): Sinks {
     .remember();
 
   return {
+
+    // get Stream<vNode> from component instances
     DOM: xs.combine(bmi$, weightSlider.DOM, heightSlider.DOM)
       .map(([bmi, weightVTree, heightVTree]) =>
 
         div([
+
+          // drop virtual DOM trees as children of 'div'
           weightVTree,
           heightVTree,
           h2(`BMI is ${bmi}`)
