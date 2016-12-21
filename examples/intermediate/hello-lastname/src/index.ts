@@ -1,3 +1,5 @@
+// Hello Last name : Intermediate Example
+
 import xs, {Stream} from 'xstream';
 import Cycle from '@cycle/xstream-run';
 import {div, input, h2, button, p, makeDOMDriver, VNode} from '@cycle/dom';
@@ -11,15 +13,14 @@ interface Sinks {
   DOM: Stream<VNode>;
 }
 
+
 function main(sources: Sources): Sinks {
-  const firstName$ = sources.DOM
-    .select('.first')
+  const firstName$ = sources.DOM.select('.first')
     .events('input')
     .map(ev => (ev.target as HTMLInputElement).value)
     .startWith('');
 
-  const lastName$ = sources.DOM
-    .select('.last')
+  const lastName$ = sources.DOM.select('.last')
     .events('input')
     .map(ev => (ev.target as HTMLInputElement).value)
     .map(ln => ln.toUpperCase())
