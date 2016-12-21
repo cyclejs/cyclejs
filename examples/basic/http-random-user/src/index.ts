@@ -1,3 +1,4 @@
+// Http Random User: Basic Example
 import Cycle from '@cycle/xstream-run';
 import {Stream} from 'xstream';
 import {div, button, h1, h4, a, makeDOMDriver} from '@cycle/dom';
