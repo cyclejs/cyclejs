@@ -53,11 +53,12 @@ function model(action$, itemFn) {
       return listItems.filter(item => item.id !== action.payload);
     });
 
-  const initialState = [createNewItem({color: 'red', width: 300})]
+  const initialState = [createNewItem({color: '#eee', width: 300})]
 
   return xs.merge(addItemReducer$, removeItemReducer$)
     .fold((listItems, reducer) => reducer(listItems), initialState);
 }
+
 
 function view(items$) {
   const addButtons = div('.addButtons', [

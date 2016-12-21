@@ -7,5 +7,6 @@ function main(sources) {
 }
 
 run(main, {
-  DOM: makeDOMDriver('#main-container')
+  // DOM: makeDOMDriver('#main-container')
+  DOM: makeDOMDriver(document.body)
 });
