@@ -26,7 +26,12 @@ function intent(DOMSource) {
 
 function model(actions) {
   const clicksHistory$ = xs.merge(actions.click$, actions.timer$)
-    .fold((clicksCount, action) => action ? clicksCount + action : 0, 0)
+    .fold((clicksCount, action) => 
+      action 
+        ? clicksCount + action 
+        : 0, 
+      0
+    )
     .filter(action => action !== 0)
     .fold((history, clicksCount) => {
       if (clicksCount === 1) {
