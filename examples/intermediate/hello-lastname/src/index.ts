@@ -15,7 +15,7 @@ interface Sinks {
 
 
 function main(sources: Sources): Sinks {
-  
+
   const firstName$ = sources.DOM.select('.first')
     .events('input')
     .map(ev => (ev.target as HTMLInputElement).value)
@@ -27,19 +27,37 @@ function main(sources: Sources): Sinks {
     .map(ln => ln.toUpperCase())
     .startWith('');
 
+
+  // -> Stream of pairs [firstName, lastName] :
+  // Stream<Array<String>>
   const rawFullName$ = xs.combine(firstName$, lastName$)
     .remember();
 
+
   const validName$ = rawFullName$
+
+    // we want firstName longer than 0 and lastName longer than 2
     .filter(([fn, ln]) => fn.length > 0 && ln.length >= 3)
+
+    // -> Stream<String>
     .map(([fn, ln]) => `${ln.toUpperCase()}, ${fn}`);
 
+
   const invalidName$ = rawFullName$
-    .filter(([fn, ln]) => {
-      console.log(fn.length, ln.length);
-      return fn.length === 0 || ln.length < 3
+    .filter(([fn, ln]) => fn.length === 0 || ln.length < 3)
+
+    // log only invalid names
+    .map(pair => {
+      const [fn, ln] = pair
+      console.log(fn.length, ln.length) 
+
+      // === Don't forget to return back to the Stream! ===
+      return pair
     })
+
+    // replace with empty strings for invalid names
     .mapTo('');
+
 
   const name$ = xs.merge(validName$, invalidName$);
 
@@ -57,7 +75,7 @@ function main(sources: Sources): Sinks {
         input('.last', { attrs: { type: 'text' } })
       ]),
 
-      h2('Hello ' + name)
+      h2(`Hello ${name}`)
 
     ])
   );
