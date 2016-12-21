@@ -32,20 +32,36 @@ function LabeledSlider({DOM, props$}: Sources): Sinks {
       parseInt((<HTMLInputElement> ev.target).value)
     );
 
-  let value$ = xs.merge(initialValue$, newValue$).remember();
+  // merge into single stream : Stream<Number>
+  let value$ = xs.merge(initialValue$, newValue$)
+    .remember();
 
+  // combine into stream of pairs
+  // -> Stream<Array>
   let vtree$ = xs.combine(props$, value$)
     .map(([props, value]) =>
+
       div('.labeled-slider', [
-        span('.label', [ props.label + ' ' + value + props.unit ]),
+
+        span('.label', `${props.label} ${value} ${props.unit}`),
+
         input('.slider', {
-          attrs: {type: 'range', min: props.min, max: props.max, value: value}
+          attrs: {
+            type: 'range', 
+            min: props.min, 
+            max: props.max, 
+            value: value
+          }
         })
+
       ])
+
     );
 
   return {
     DOM: vtree$,
+
+    // export stream of 
     value$: value$,
   };
 }

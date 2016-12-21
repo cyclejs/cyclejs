@@ -11,8 +11,12 @@ export type Sinks = {
   DOM: Stream<VNode>,
 }
 
+
 function BmiCalculator(sources: Sources): Sinks {
 
+  // https://github.com/cyclejs/cyclejs/tree/master/isolate
+  // 
+  // Create two isolated instances of LabeledSlider 
   let WeightSlider = isolate(LabeledSlider);
   let HeightSlider = isolate(LabeledSlider);
 
