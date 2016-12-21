@@ -15,6 +15,7 @@ interface Sinks {
 
 
 function main(sources: Sources): Sinks {
+  
   const firstName$ = sources.DOM.select('.first')
     .events('input')
     .map(ev => (ev.target as HTMLInputElement).value)
@@ -43,16 +44,21 @@ function main(sources: Sources): Sinks {
   const name$ = xs.merge(validName$, invalidName$);
 
   const vdom$ = name$.map(name =>
+
     div([
+
       p([
         'First name',
         input('.first', { attrs: { type: 'text' } })
       ]),
+
       p([
         'Last name',
         input('.last', { attrs: { type: 'text' } })
       ]),
+
       h2('Hello ' + name)
+
     ])
   );
 
