@@ -1,3 +1,5 @@
+// Bmi Naive : Basic Example
+
 import Cycle from '@cycle/rxjs-run';
 import {Observable} from 'rxjs';
 import {div, input, h2, makeDOMDriver} from '@cycle/dom';
@@ -40,5 +42,6 @@ function main(sources) {
 }
 
 Cycle.run(main, {
-  DOM: makeDOMDriver('#main-container')
+  // DOM: makeDOMDriver('#main-container')
+  DOM: makeDOMDriver(document.body)
 });
