@@ -23,6 +23,7 @@ function view(bmi$, weightSliderDOM, heightSliderDOM) {
 }
 
 function BmiCalculator({DOM}) {
+  
   let weightProps$ = xs.of({
     label: 'Weight', unit: 'kg', min: 40, initial: 70, max: 140
   });
@@ -31,8 +32,11 @@ function BmiCalculator({DOM}) {
   });
   let weightSlider = LabeledSlider({DOM, props$: weightProps$});
   let heightSlider = LabeledSlider({DOM, props$: heightProps$});
+
   let bmi$ = model(weightSlider.value, heightSlider.value);
+
   let vtree$ = view(bmi$, weightSlider.DOM, heightSlider.DOM);
+
   return {
       DOM: vtree$
   };

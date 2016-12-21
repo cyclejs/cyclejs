@@ -5,5 +5,6 @@ import BmiCalculator from './BmiCalculator';
 const main = BmiCalculator;
 
 run(main, {
-  DOM: makeDOMDriver('#main-container')
+  // DOM: makeDOMDriver('#main-container'),
+  DOM: makeDOMDriver(document.body),
 });
