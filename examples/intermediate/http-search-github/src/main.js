@@ -48,6 +48,7 @@ function main(sources) {
 }
 
 Cycle.run(main, {
-  DOM: makeDOMDriver('#main-container'),
+  // DOM: makeDOMDriver('#main-container'),
+  DOM: makeDOMDriver(document.body),
   HTTP: makeHTTPDriver()
 });
