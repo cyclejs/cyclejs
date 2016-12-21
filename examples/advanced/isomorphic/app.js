@@ -1,14 +1,11 @@
 let xs = require('xstream').default;
 let {div, ul, li, a, section, h1, p} = require('@cycle/dom');
 
-function renderMenu() {
-  return (
+const renderMenu = () =>
     ul([
       li([ a('.link', {attrs: {href: '/'}}, 'Home') ]),
       li([ a('.link', {attrs: {href: '/about'}}, 'About') ]),
     ])
-  );
-}
 
 function renderHomePage() {
   return (
@@ -31,8 +28,11 @@ function renderAboutPage() {
   );
 }
 
+
 function app(sources) {
-  let click$ = sources.DOM.select('.link').events('click');
+
+  let click$ = sources.DOM.select('.link')
+    .events('click');
 
   let preventedEvent$ = click$;
 

@@ -9,8 +9,11 @@ function clientSideApp(sources) {
   return sinks;
 }
 
+// custom driver 
 function preventDefaultDriver(ev$) {
   ev$.addListener({
+
+    // just map 'next' to 'preventDefault'
     next: ev => ev.preventDefault(),
     error: () => {},
     complete: () => {},
