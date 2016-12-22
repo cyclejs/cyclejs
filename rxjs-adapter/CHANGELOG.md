@@ -1,3 +1,13 @@
+<a name="3.3.0"></a>
+# 3.3.0 (2016-12-22)
+
+
+### Bug Fixes
+
+* **rxjs-adapter:** remove devDependency on types/es6-promise ([0f54314](https://github.com/cyclejs/cyclejs/tree/master/packages/rxjs-adapter/commit/0f54314))
+
+
+
 <a name="3.2.0"></a>
 # 3.2.0 (2016-12-21)
 
