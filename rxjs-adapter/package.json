@@ -33,7 +33,6 @@
   "dependencies": {},
   "devDependencies": {
     "@cycle/base": "*",
-    "@types/es6-shim": "^0.31.32",
     "rxjs": "5.0.1"
   },
   "peerDependencies": {
