@@ -1,3 +1,13 @@
+<a name="3.3.0"></a>
+# 3.3.0 (2016-12-22)
+
+
+### Bug Fixes
+
+* **rxjs-run:** remove dependency on types/es6-promise ([e3d31ef](https://github.com/cyclejs/cyclejs/tree/master/packages/rxjs-run/commit/e3d31ef))
+
+
+
 <a name="3.2.0"></a>
 # 3.2.0 (2016-12-21)
 
