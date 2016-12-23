@@ -107,18 +107,33 @@ describe('DOM Driver', function () {
     });
 
     let dispose;
+    let hasDisposed = false;
+    let assertionOngoing = false;
     sources.DOM.select(':root').elements().skip(1).subscribe(function (root) {
       const selectEl = root.querySelector('.target');
+      if (!selectEl && assertionOngoing && hasDisposed) {
+        // This synchronous delivery of the empty root element is allowed
+        return;
+      }
+      if (!selectEl && !assertionOngoing && hasDisposed) {
+        done('DOM Driver should not emit anything asynchronously after dispose()');
+      }
+      if (selectEl && hasDisposed) {
+        done('DOM Driver should not emit a target after dispose()');
+      }
+      assertionOngoing = true;
       assert.notStrictEqual(selectEl, null);
       assert.notStrictEqual(typeof selectEl, 'undefined');
       assert.strictEqual(selectEl.tagName, 'H3');
       assert.notStrictEqual(selectEl.textContent, '3');
       if (selectEl.textContent === '2') {
+        hasDisposed = true;
         dispose();
         setTimeout(() => {
           done();
         }, 100);
       }
+      assertionOngoing = false;
     });
     dispose = run();
   });
