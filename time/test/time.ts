@@ -20,7 +20,7 @@ describe("@cycle/time", () => {
     });
   });
 
-  describe("mockDOMSource", () => {
+  describe("mockTimeSource", () => {
     it("returns a virtual Time source", () => {
       const Time = mockTimeSource();
 
