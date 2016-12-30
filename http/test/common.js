@@ -19,7 +19,7 @@ function run(uri) {
     this.timeout(8000);
 
     it('should throw when request stream emits neither string nor object',
-      function(done) {
+      function (done) {
         function main(sources) {
           return {
             HTTP: Rx.Observable.of(123)
@@ -43,10 +43,10 @@ function run(uri) {
     );
 
     it('should throw when given options object without url string',
-      function(done) {
+      function (done) {
         function main() {
           return {
-            HTTP: Rx.Observable.of({method: 'post'})
+            HTTP: Rx.Observable.of({ method: 'post' })
           }
         }
         var output = Cycle(main, { HTTP: makeHTTPDriver() });
@@ -66,7 +66,7 @@ function run(uri) {
     );
 
     it('should return response metastream when given a simple URL string',
-      function(done) {
+      function (done) {
         function main() {
           return {
             HTTP: Rx.Observable.of(uri + '/hello')
@@ -75,10 +75,10 @@ function run(uri) {
 
         var output = Cycle(main, { HTTP: makeHTTPDriver() });
 
-        output.sources.HTTP.select().subscribe(function(response$) {
+        output.sources.HTTP.select().subscribe(function (response$) {
           assert.strictEqual(typeof response$.request, 'object');
           assert.strictEqual(response$.request.url, uri + '/hello');
-          response$.subscribe(function(response) {
+          response$.subscribe(function (response) {
             assert.strictEqual(response.status, 200);
             assert.strictEqual(response.text, 'Hello World');
             done();
@@ -89,7 +89,7 @@ function run(uri) {
     );
 
     it('should return HTTPSource with isolateSource and isolateSink',
-      function(done) {
+      function (done) {
         function main() {
           return {
             HTTP: Rx.Observable.of(uri + '/hello')
@@ -105,13 +105,13 @@ function run(uri) {
     );
 
     it('should return response metastream when given simple options obj',
-      function(done) {
+      function (done) {
         function main() {
           return {
             HTTP: Rx.Observable.of({
               url: uri + '/pet',
               method: 'POST',
-              send: {name: 'Woof', species: 'Dog'}
+              send: { name: 'Woof', species: 'Dog' }
             })
           };
         }
@@ -119,12 +119,12 @@ function run(uri) {
         var output = Cycle(main, { HTTP: makeHTTPDriver() });
 
         var response$$ = output.sources.HTTP.select();
-        response$$.subscribe(function(response$) {
+        response$$.subscribe(function (response$) {
           assert.strictEqual(response$.request.url, uri + '/pet');
           assert.strictEqual(response$.request.method, 'POST');
           assert.strictEqual(response$.request.send.name, 'Woof');
           assert.strictEqual(response$.request.send.species, 'Dog');
-          response$.subscribe(function(response) {
+          response$.subscribe(function (response) {
             assert.strictEqual(response.status, 200);
             assert.strictEqual(response.text, 'added Woof the Dog');
             done();
@@ -134,13 +134,13 @@ function run(uri) {
       }
     );
 
-    it('should have DevTools flag in select() source stream', function(done) {
+    it('should have DevTools flag in select() source stream', function (done) {
       function main() {
         return {
           HTTP: Rx.Observable.of({
             url: uri + '/pet',
             method: 'POST',
-            send: {name: 'Woof', species: 'Dog'}
+            send: { name: 'Woof', species: 'Dog' }
           })
         };
       }
@@ -153,13 +153,13 @@ function run(uri) {
       output.run();
     });
 
-    it('should have DevTools flag in response$$ source stream', function(done) {
+    it('should have DevTools flag in response$$ source stream', function (done) {
       function main() {
         return {
           HTTP: Rx.Observable.of({
             url: uri + '/pet',
             method: 'POST',
-            send: {name: 'Woof', species: 'Dog'}
+            send: { name: 'Woof', species: 'Dog' }
           })
         };
       }
@@ -173,13 +173,13 @@ function run(uri) {
     });
 
     it('should return response metastream when given another options obj',
-      function(done) {
+      function (done) {
         function main() {
           return {
             HTTP: Rx.Observable.of({
               url: uri + '/querystring',
               method: 'GET',
-              query: {foo: 102030, bar: 'Pub'}
+              query: { foo: 102030, bar: 'Pub' }
             })
           }
         }
@@ -187,12 +187,12 @@ function run(uri) {
         var output = Cycle(main, { HTTP: makeHTTPDriver() });
 
         var response$$ = output.sources.HTTP.select();
-        response$$.subscribe(function(response$) {
+        response$$.subscribe(function (response$) {
           assert.strictEqual(response$.request.url, uri + '/querystring');
           assert.strictEqual(response$.request.method, 'GET');
           assert.strictEqual(response$.request.query.foo, 102030);
           assert.strictEqual(response$.request.query.bar, 'Pub');
-          response$.subscribe(function(response) {
+          response$.subscribe(function (response) {
             assert.strictEqual(response.status, 200);
             assert.strictEqual(response.body.foo, '102030');
             assert.strictEqual(response.body.bar, 'Pub');
@@ -204,13 +204,13 @@ function run(uri) {
     );
 
     it('should return response metastream when given yet another options obj',
-      function(done) {
+      function (done) {
         function main() {
           return {
             HTTP: Rx.Observable.of({
               url: uri + '/delete',
               method: 'DELETE',
-              query: {foo: 102030, bar: 'Pub'}
+              query: { foo: 102030, bar: 'Pub' }
             })
           }
         }
@@ -218,10 +218,10 @@ function run(uri) {
         var output = Cycle(main, { HTTP: makeHTTPDriver() });
         var response$$ = output.sources.HTTP.select();
 
-        response$$.subscribe(function(response$) {
+        response$$.subscribe(function (response$) {
           assert.strictEqual(response$.request.url, uri + '/delete');
           assert.strictEqual(response$.request.method, 'DELETE');
-          response$.subscribe(function(response) {
+          response$.subscribe(function (response) {
             assert.strictEqual(response.status, 200);
             assert.strictEqual(response.body.deleted, true);
             done();
@@ -260,7 +260,7 @@ function run(uri) {
     )
 
     it('should send 500 server errors to response$ onError',
-      function(done) {
+      function (done) {
         function main() {
           return {
             HTTP: Rx.Observable.of(uri + '/error')
@@ -270,7 +270,7 @@ function run(uri) {
         var output = Cycle(main, { HTTP: makeHTTPDriver() });
         var response$$ = output.sources.HTTP.select();
 
-        response$$.subscribe(function(response$) {
+        response$$.subscribe(function (response$) {
           assert.strictEqual(typeof response$.request, 'object');
           assert.strictEqual(response$.request.url, uri + '/error');
           response$.subscribe(
@@ -288,7 +288,7 @@ function run(uri) {
       }
     );
 
-    it('should not be sensitive to ordering of sinks (issue #476)', function(done) {
+    it('should not be sensitive to ordering of sinks (issue #476)', function (done) {
       function main(sources) {
         var request$ = Rx.Observable.of({
           url: uri + '/hello',
@@ -321,10 +321,37 @@ function run(uri) {
       });
       output.run();
     });
+
+    it('should have the request object on the response$ onError stream',
+      function (done) {
+        function main() {
+          return {
+            HTTP: Rx.Observable.of(uri + '/error')
+          }
+        }
+
+        var output = Cycle(main, { HTTP: makeHTTPDriver() });
+        var response$$ = output.sources.HTTP.select();
+        response$$.subscribe(function (response$) {
+          assert.strictEqual(typeof response$.request, 'object');
+          assert.strictEqual(response$.request.url, uri + '/error');
+          response$.subscribe(
+            function next() { assert.fail(); },
+            function error(err) {
+              assert.strictEqual(typeof err.response.request, 'object');
+              assert.strictEqual(err.response.request.url, uri + '/error');
+              done();
+            },
+            function complete() { assert.fail(); }
+          );
+        });
+        output.run();
+      }
+    );
   });
 
   describe('isolateSource and isolateSink', function () {
-    it('should exist on the HTTPSource', function(done) {
+    it('should exist on the HTTPSource', function (done) {
       function main() {
         return {
           HTTP: new Rx.Subject()
@@ -338,7 +365,7 @@ function run(uri) {
       done();
     });
 
-    it('should exist on a scoped HTTPSource', function(done) {
+    it('should exist on a scoped HTTPSource', function (done) {
       function main() {
         return {
           HTTP: new Rx.Subject()
@@ -355,7 +382,7 @@ function run(uri) {
     });
 
     it('should hide responses from outside the scope',
-      function(done) {
+      function (done) {
         var proxyRequest$ = new Rx.Subject();
         function main() {
           return {
@@ -371,10 +398,10 @@ function run(uri) {
         var scopedRequest$ = httpSource.isolateSink(request$, 'foo');
         var scopedHTTPSource = httpSource.isolateSource(httpSource, 'foo');
 
-        scopedHTTPSource.select().subscribe(function(response$) {
+        scopedHTTPSource.select().subscribe(function (response$) {
           assert.strictEqual(typeof response$.request, 'object');
           assert.strictEqual(response$.request.url, uri + '/hello');
-          response$.subscribe(function(response) {
+          response$.subscribe(function (response) {
             assert.strictEqual(response.status, 200);
             assert.strictEqual(response.text, 'Hello World');
             done();
