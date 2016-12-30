@@ -53,11 +53,10 @@ describe("@cycle/time", () => {
 
         Time.assertEqual(
           value,
-          expected,
-          done
+          expected
         );
 
-        Time.run();
+        Time.run(done);
       });
 
       it("fails when actual differs from expected", (done) => {
@@ -73,28 +72,29 @@ describe("@cycle/time", () => {
 
         const value = input.map(i => i * 2);
 
+        const complete = (err) => {
+          if (err) {
+            const lines = err.message.split(/\s+/).filter(a => a.length > 0);
+
+            assert.deepEqual(lines, [
+              'Expected',
+              '---2---4---5---|',
+              'Got',
+              '---2---4---6---|',
+            ])
+
+            done();
+          } else {
+            throw new Error('expected test to fail');
+          }
+        }
+
         Time.assertEqual(
           value,
-          expected,
-          (err) => {
-            if (err) {
-              const lines = err.message.split(/\s+/).filter(a => a.length > 0);
-
-              assert.deepEqual(lines, [
-                'Expected',
-                '---2---4---5---|',
-                'Got',
-                '---2---4---6---|',
-              ])
-
-              done();
-            } else {
-              throw new Error('expected test to fail');
-            }
-          }
+          expected
         );
 
-        Time.run();
+        Time.run(complete);
       });
 
       it("handles errors", (done) => {
@@ -105,11 +105,10 @@ describe("@cycle/time", () => {
 
         Time.assertEqual(
           stream,
-          Time.diagram(expected),
-          done
+          Time.diagram(expected)
         );
 
-        Time.run();
+        Time.run(done);
       });
     });
 
@@ -125,11 +124,10 @@ describe("@cycle/time", () => {
 
         Time.assertEqual(
           stream.take(5),
-          expected,
-          done
+          expected
         );
 
-        Time.run();
+        Time.run(done);
       });
     });
 
@@ -149,11 +147,10 @@ describe("@cycle/time", () => {
 
         Time.assertEqual(
           value,
-          expected,
-          done
+          expected
         );
 
-        Time.run();
+        Time.run(done);
       });
 
       it("propagates errors", (done) => {
@@ -164,11 +161,10 @@ describe("@cycle/time", () => {
 
         Time.assertEqual(
           stream,
-          Time.diagram(expected),
-          done
+          Time.diagram(expected)
         );
 
-        Time.run();
+        Time.run(done);
       });
     })
 
@@ -184,11 +180,10 @@ describe("@cycle/time", () => {
 
         Time.assertEqual(
           stream,
-          expectedStream,
-          done
+          expectedStream
         );
 
-        Time.run();
+        Time.run(done);
       });
 
       it("propagates errors", (done) => {
@@ -199,11 +194,10 @@ describe("@cycle/time", () => {
 
         Time.assertEqual(
           stream.compose(Time.debounce(60)),
-          expected,
-          done
+          expected
         );
 
-        Time.run();
+        Time.run(done);
       });
     });
 
@@ -218,11 +212,10 @@ describe("@cycle/time", () => {
 
         Time.assertEqual(
           stream,
-          expectedStream,
-          done
+          expectedStream
         );
 
-        Time.run();
+        Time.run(done);
       });
 
       it("propagates errors", (done) => {
@@ -233,11 +226,10 @@ describe("@cycle/time", () => {
 
         Time.assertEqual(
           stream.compose(Time.throttle(60)),
-          expected,
-          done
+          expected
         );
 
-        Time.run();
+        Time.run(done);
       });
     });
 
@@ -284,11 +276,10 @@ describe("@cycle/time", () => {
 
       Time.assertEqual(
         counter.count$,
-        Time.diagram(expectedCount),
-        done
+        Time.diagram(expectedCount)
       );
 
-      Time.run();
+      Time.run(done);
     });
   });
 });

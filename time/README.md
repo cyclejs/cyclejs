@@ -29,13 +29,8 @@ stream.take(expectedValues.length).addListener({
     assert.equal(value, expectedValues.shift());
   },
 
-  error (error) {
-    done(error);
-  },
-
-  complete () {
-    done()
-  }
+  error: done,
+  complete: done
 })
 ```
 
@@ -61,9 +56,9 @@ const expected = Time.diagram('---2---4---6--|');
 
 const stream = input.map(i => i * 2);
 
-Time.assertEqual(stream, expected, done);
+Time.assertEqual(stream, expected);
 
-Time.run();
+Time.run(done);
 ```
 
 A few things have changed here. First is that we're now creating our input streams from diagrams using `@cycle/time`. Instead of scheduling their events using `setTimeout`, which as discussed is slow and inconsistent, their events are scheduled on a central queue inside of `@cycle/time`.
@@ -93,13 +88,8 @@ stream.take(expectedValues.length).addListener({
     assert.equal(value, expectedValues.shift());
   },
 
-  error (error) {
-    done(error);
-  },
-
-  complete () {
-    done()
-  }
+  error: done,
+  complete: done
 })
 ```
 
@@ -115,9 +105,9 @@ const expected = Time.diagram('-----------1--------2---|');
 
 const stream = input.compose(Time.delay(200));
 
-Time.assertEqual(stream, expected, done);
+Time.assertEqual(stream, expected);
 
-Time.run();
+Time.run(done);
 ```
 
 Notice that we are now using `Time.delay` instead of the `xstream` equivalent.  Like `Time.diagram`, `Time.delay` is implemented by scheduling onto a central queue, and in tests is processed in "virtual time". This means that we no longer have to wait 200ms, but the `.delay` will function exactly as it did before.
@@ -188,11 +178,10 @@ const expectedCount$ = Time.diagram(expectedCount);
 
 Time.assertEqual(
   count$,
-  expectedCount$,
-  done
+  expectedCount$
 )
 
-Time.run();
+Time.run(done);
 ```
 
 Development / Production
@@ -245,9 +234,10 @@ const stream = input.compose(Time.delay(60));
 
 Time.assertEqual(
   stream,
-  expected,
-  done
-)
+  expected
+);
+
+Time.run();
 ```
 
 #### `debounce(period)`
@@ -261,9 +251,10 @@ const stream = input.compose(Time.debounce(60));
 
 Time.assertEqual(
   stream,
-  expected,
-  done
-)
+  expected
+);
+
+Time.run();
 ```
 
 #### `periodic(period)`
@@ -276,9 +267,10 @@ const stream = Time.periodic(80);
 
 Time.assertEqual(
   stream.take(5),
-  expected,
-  done
+  expected
 );
+
+Time.run();
 ```
 
 #### `throttle(period)`
@@ -292,9 +284,10 @@ const stream = input.compose(Time.throttle(60));
 
 Time.assertEqual(
   stream,
-  expected,
-  done
+  expected
 );
+
+Time.run();
 ```
 
 ### `mockTimeSource({interval = 20})`
@@ -305,8 +298,10 @@ Instead of all delays and debounces running in real time in your tests, causing 
 
 Has some additional methods:
 
-#### `run()`
-Executes the schedule. This should be called at the end of your test run.
+#### `run(doneCallback = raiseError)`
+Executes the schedule. This should be called at the end of your test run. Takes a callback that takes an error as the first argument if an error occurs, such as an assertion failing.
+
+If no callback is provided, errors will be raised.
 
 #### `diagram(diagramString)`
 A constructor that takes a string representing a stream and returns a stream. Useful for testing.
@@ -331,30 +326,18 @@ Can be used to assert two streams are equivalent. This is useful when combine wi
 Time.assertEqual(
   Time.diagram('---1---2---3--|'),
   Time.diagram('---1---2---3--|'),
+);
 
-  (err) => {
-    if (err) {
-      console.error(err);
-    } else {
-      console.log('Success!');
-    }
-  }
-)
+Time.run();
 
 // fails
 
 Time.assertEqual(
   Time.diagram('---1---3---2--|'),
-  Time.diagram('---1---2---3--|'),
+  Time.diagram('---1---2---3--|')
+);
 
-  (err) => {
-    if (err) {
-      console.error(err);
-    } else {
-      console.log('Success!');
-    }
-  }
-)
+Time.run(err => console.error(err));
 ```
 
 ## Install

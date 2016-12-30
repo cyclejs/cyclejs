@@ -14,14 +14,26 @@ const addScheduleEntry = makeAccumulator({
   unique: false
 });
 
+function raiseError (err) {
+  if (err) {
+    throw err;
+  }
+}
+
 function mockTimeSource ({interval = 20} = {}) {
   let time = 0;
   let schedule = [];
+  let asserts = [];
+  let done;
 
   function scheduleEntry (newEntry) {
     schedule = addScheduleEntry(schedule, newEntry)
 
     return newEntry;
+  }
+
+  function addAssert (assert) {
+    asserts.push(assert);
   }
 
   function currentTime () {
@@ -32,6 +44,19 @@ function mockTimeSource ({interval = 20} = {}) {
     const eventToProcess = schedule.shift();
 
     if (!eventToProcess) {
+      const failedAsserts = asserts.filter(assert => assert.state === 'failed');
+      const pendingAsserts = asserts.filter(assert => assert.state === 'pending');
+
+      if (pendingAsserts.length > 0) {
+        console.log('Pending asserts after run finished: ', pendingAsserts);
+      }
+
+      if (failedAsserts.length > 0) {
+        done(failedAsserts[0].error);
+      } else {
+        done();
+      }
+
       return;
     }
 
@@ -63,14 +88,15 @@ function mockTimeSource ({interval = 20} = {}) {
 
   return {
     diagram: makeDiagram(scheduleEntry, currentTime, interval),
-    assertEqual: makeAssertEqual(scheduleEntry, currentTime, interval),
+    assertEqual: makeAssertEqual(scheduleEntry, currentTime, interval, addAssert),
 
     delay: makeDelay(scheduleEntry, currentTime),
     debounce: makeDebounce(scheduleEntry, currentTime),
     periodic: makePeriodic(scheduleEntry, currentTime),
     throttle: makeThrottle(scheduleEntry, currentTime),
 
-    run () {
+    run (doneCallback = raiseError) {
+      done = doneCallback;
       setTimeout(processEvent);
     }
   }

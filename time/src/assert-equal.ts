@@ -1,9 +1,22 @@
 import xs, {Stream} from 'xstream';
 
-function makeAssertEqual (scheduleEntry, currentTime, interval) {
-  return function assertEqual (actual: Stream<any>, expected: Stream<any>, done) {
+// instead of calling done at the end of the assertEqual
+// call it at the end of the run
+//
+// check over the asserts
+// if there are any pending or failed that's bad
+
+function makeAssertEqual (scheduleEntry, currentTime, interval, addAssert) {
+  return function assertEqual (actual: Stream<any>, expected: Stream<any>) {
     let calledComplete = 0;
     let completeStore = {};
+
+    const assert = {
+      state: 'pending',
+      error: null
+    }
+
+    addAssert(assert);
 
     function complete (label, diagram) {
       calledComplete++;
@@ -14,9 +27,10 @@ function makeAssertEqual (scheduleEntry, currentTime, interval) {
         const equal = completeStore['actual'] === completeStore['expected'];
 
         if (equal) {
-          done();
+          assert.state = 'passed';
         } else {
-          done(new Error(`
+          assert.state = 'failed';
+          assert.error = new Error(`
             Expected
 
             ${completeStore['expected']}
@@ -24,7 +38,7 @@ function makeAssertEqual (scheduleEntry, currentTime, interval) {
             Got
 
             ${completeStore['actual']}
-          `.replace(/^\s{6}/, '')));
+          `.replace(/^\s{6}/, ''));
         }
       }
     }
