@@ -37,6 +37,83 @@ describe("@cycle/time", () => {
       ]);
     });
 
+    describe(".diagram", () => {
+      it("creates streams from ascii diagrams", (done) => {
+        const Time = mockTimeSource();
+
+        const stream = Time.diagram(
+          `---1---2---3---|`
+        );
+
+        const expectedValues = [1, 2, 3];
+
+        stream.take(expectedValues.length).addListener({
+          next (ev) {
+            assert.equal(ev, expectedValues.shift());
+          },
+
+          complete: done,
+          error: done
+        });
+
+        Time.run();
+      });
+
+      it("schedules errors", (done) => {
+        const Time = mockTimeSource();
+
+        const stream = Time.diagram(
+          `---1---2---#`
+        );
+
+        const expectedValues = [1, 2];
+
+        stream.addListener({
+          next (ev) {
+            assert.equal(ev, expectedValues.shift());
+          },
+
+          complete: () => {},
+          error: (error) => {
+            assert.equal(expectedValues.length, 0);
+            done();
+          }
+        });
+
+        Time.run();
+      });
+
+      it("optionally takes an object of values", (done) => {
+        const Time = mockTimeSource();
+
+        const stream = Time.diagram(
+          `---A---B---C---|`,
+          {
+            A: {foo: 1},
+            B: {foo: 2},
+            C: {foo: 3}
+          }
+        );
+
+        const expectedValues = [
+          {foo: 1},
+          {foo: 2},
+          {foo: 3}
+        ];
+
+        stream.take(expectedValues.length).addListener({
+          next (ev) {
+            assert.deepEqual(ev, expectedValues.shift());
+          },
+
+          complete: done,
+          error: done
+        });
+
+        Time.run();
+      });
+    });
+
     describe(".assertEqual", () => {
       it("allows testing via marble diagrams", (done) => {
         const Time = mockTimeSource();
@@ -110,6 +187,31 @@ describe("@cycle/time", () => {
 
         Time.run(done);
       });
+
+      it("compares objects using deep equality", (done) => {
+        const Time = mockTimeSource();
+
+        const actual = Time.diagram(
+          `---A---B---C---|`,
+          {
+            A: {foo: 1},
+            B: {foo: 2},
+            C: {foo: 3}
+          }
+        );
+
+        const expected = Time.diagram(
+          `---X---Y---Z---|`,
+          {
+            X: {foo: 1},
+            Y: {foo: 2},
+            Z: {foo: 3}
+          }
+        );
+
+        Time.assertEqual(actual, expected);
+        Time.run(done);
+      });
     });
 
     describe(".periodic", () => {
@@ -119,7 +221,7 @@ describe("@cycle/time", () => {
         const stream = Time.periodic(80);
 
         const expected = Time.diagram(
-          `---0---1---2---3---4|`
+          `----0---1---2---3---4|`
         );
 
         Time.assertEqual(
@@ -156,7 +258,7 @@ describe("@cycle/time", () => {
       it("propagates errors", (done) => {
         const Time = mockTimeSource();
 
-        const stream = xs.throw(new Error('Test!')).compose(Time.delay(80));
+        const stream = xs.throw(new Error('Test!')).compose(Time.delay(60));
         const expected = '---#';
 
         Time.assertEqual(

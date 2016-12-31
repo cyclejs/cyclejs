@@ -2,16 +2,17 @@
 import xs, {Stream} from 'xstream';
 
 function makeDiagram (scheduleEntry, currentTime, interval) {
-  return function diagram (diagram: string): Stream<any> {
+  return function diagram (diagram: string, values = {}): Stream<any> {
     const characters = diagram.split('');
     const stream = xs.create();
+    const valueFor = (character) => values[character] || character;
 
     characters.forEach((character, index) => {
       if (character === '-') {
         return;
       }
 
-      const timeToSchedule = (index + 1) * interval;
+      const timeToSchedule = index * interval;
 
       if (character === '|') {
         scheduleEntry({
@@ -31,7 +32,7 @@ function makeDiagram (scheduleEntry, currentTime, interval) {
           time: timeToSchedule,
           stream,
           type: 'next',
-          value: character
+          value: valueFor(character)
         })
       }
     });

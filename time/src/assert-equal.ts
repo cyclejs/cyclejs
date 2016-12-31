@@ -1,4 +1,5 @@
 import xs, {Stream} from 'xstream';
+import * as deepEqual from 'deep-equal';
 
 function makeAssertEqual (scheduleEntry, currentTime, interval, addAssert) {
   return function assertEqual (actual: Stream<any>, expected: Stream<any>) {
@@ -18,20 +19,47 @@ function makeAssertEqual (scheduleEntry, currentTime, interval, addAssert) {
       completeStore[label] = diagram;
 
       if (calledComplete === 2) {
-        const equal = completeStore['actual'] === completeStore['expected'];
+        const equal = deepEqual(completeStore['actual'], completeStore['expected']);
 
-        if (equal) {
+        let pass = true;
+
+        completeStore['actual'].forEach((actual, index) => {
+          const expected = completeStore['expected'][index];
+
+          if (actual.type !== expected.type) {
+            pass = false;
+          }
+
+          if (actual.type === 'next') {
+            const rightTime = diagramFrame(actual.time, interval) === diagramFrame(expected.time, interval);
+            const rightValue = deepEqual(actual.value, expected.value);
+
+            if (!rightTime || !rightValue) {
+              pass = false;
+            }
+          }
+
+          if (actual.type === 'error') {
+            const rightTime = diagramFrame(actual.time, interval) === diagramFrame(expected.time, interval);
+
+            if (!rightTime) {
+              pass = false;
+            }
+          }
+        });
+
+        if (pass) {
           assert.state = 'passed';
         } else {
           assert.state = 'failed';
           assert.error = new Error(`
             Expected
 
-            ${completeStore['expected']}
+            ${diagramString(completeStore['expected'], interval)}
 
             Got
 
-            ${completeStore['actual']}
+            ${diagramString(completeStore['actual'], interval)}
           `.replace(/^\s{6}/, ''));
         }
       }
@@ -48,13 +76,13 @@ function makeAssertEqual (scheduleEntry, currentTime, interval, addAssert) {
         complete () {
           entries.push({type: 'complete', time: currentTime()});
 
-          complete(label, diagramString(entries, interval))
+          complete(label, entries)
         },
 
         error (error) {
           entries.push({type: 'error', time: currentTime(), error});
 
-          complete(label, diagramString(entries, interval));
+          complete(label, entries);
         }
       }
     }
@@ -76,6 +104,10 @@ function fill (array, value) {
   return array;
 }
 
+function diagramFrame (time, interval) {
+  return Math.ceil(time / interval);
+}
+
 function diagramString (entries, interval): string {
   const maxTime = Math.max(...entries.map(entry => entry.time));
 
@@ -84,7 +116,7 @@ function diagramString (entries, interval): string {
   const diagram = fill(new Array(characterCount), '-');
 
   entries.forEach(entry => {
-    const characterIndex = Math.max(0, Math.floor(entry.time / interval) - 1);
+    const characterIndex = Math.max(0, Math.floor(entry.time / interval));
 
     if (entry.type === 'next') {
       diagram[characterIndex] = entry.value;
@@ -95,7 +127,7 @@ function diagramString (entries, interval): string {
     }
 
     if (entry.type === 'error') {
-      diagram[characterIndex] = '*';
+      diagram[characterIndex] = '#';
     }
   });
 
