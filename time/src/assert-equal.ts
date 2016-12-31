@@ -52,7 +52,7 @@ function makeAssertEqual (scheduleEntry, currentTime, interval, addAssert) {
           assert.state = 'passed';
         } else {
           assert.state = 'failed';
-          assert.error = new Error(`
+          assert.error = new Error(strip(`
             Expected
 
             ${diagramString(completeStore['expected'], interval)}
@@ -60,7 +60,7 @@ function makeAssertEqual (scheduleEntry, currentTime, interval, addAssert) {
             Got
 
             ${diagramString(completeStore['actual'], interval)}
-          `.replace(/^\s{6}/, ''));
+          `));
         }
       }
     }
@@ -142,6 +142,14 @@ function diagramString (entries, interval): string {
   }
 
   return diagram.join('');
+}
+
+function strip (str: string): string {
+  const lines = str.split("\n");
+
+  return lines
+    .map(line => line.replace(/^\s{12}/, ''))
+    .join("\n")
 }
 
 export {

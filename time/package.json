@@ -2,7 +2,7 @@
   "name": "@cycle/time",
   "version": "1.0.0",
   "description": "A single source of truth for time in Cycle.js apps",
-  "main": "index.js",
+  "main": "dist/src/index.js",
   "scripts": {
     "start": "budo example/index.ts:index.js --live -- -p tsify",
     "test": "mocha 'test/**/*.ts' --compilers ts:ts-node/register && npm run test/docs",

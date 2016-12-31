@@ -122,11 +122,11 @@ describe("@cycle/time", () => {
           `---1---2---3---|`
         );
 
+        const value = input.map(i => i * 2);
+
         const expected = Time.diagram(
           `---2---4---6---|`
         );
-
-        const value = input.map(i => i * 2);
 
         Time.assertEqual(
           value,
