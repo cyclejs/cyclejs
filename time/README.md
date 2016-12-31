@@ -18,13 +18,13 @@ import assert from 'assert';
 import xs from 'xstream';
 import fromDiagram from 'xstream/extra/fromDiagram';
 
-const input = fromDiagram('---1---2---3--|');
+const input$ = fromDiagram('---1---2---3--|');
 
-const stream = input.map(i => i * 2);
+const actual$ = input$.map(i => i * 2);
 
 const expectedValues = [2, 4, 6];
 
-stream.take(expectedValues.length).addListener({
+actual$.take(expectedValues.length).addListener({
   next (value) {
     assert.equal(value, expectedValues.shift());
   },
@@ -51,12 +51,11 @@ import {mockTimeSource} from '@cycle/time';
 
 const Time = mockTimeSource();
 
-const input    = Time.diagram('---1---2---3--|');
-const expected = Time.diagram('---2---4---6--|');
+const input$    = Time.diagram('---1---2---3--|');
+const actual$   = input$.map(i => i * 2);
+const expected$ = Time.diagram('---2---4---6--|');
 
-const stream = input.map(i => i * 2);
-
-Time.assertEqual(stream, expected);
+Time.assertEqual(actual$, expected$);
 
 Time.run(done);
 ```
@@ -77,13 +76,13 @@ import xs from 'xstream';
 import fromDiagram from 'xstream/extra/fromDiagram';
 import delay from 'xstream/extra/delay';
 
-const input = fromDiagram('-1--------2---|');
+const input$ = fromDiagram('-1--------2---|');
 
-const stream = input.compose(delay(200));
+const actual$ = input$.compose(delay(200));
 
 const expectedValues = [1, 2];
 
-stream.take(expectedValues.length).addListener({
+actual$.take(expectedValues.length).addListener({
   next (value) {
     assert.equal(value, expectedValues.shift());
   },
@@ -100,12 +99,11 @@ import {mockTimeSource} from '@cycle/time';
 
 const Time = mockTimeSource();
 
-const input    = Time.diagram('-1--------2---|');
-const expected = Time.diagram('-----------1--------2---|');
+const input$    = Time.diagram('-1--------2---|');
+const actual$   = input$.compose(Time.delay(200));
+const expected$ = Time.diagram('-----------1--------2---|');
 
-const stream = input.compose(Time.delay(200));
-
-Time.assertEqual(stream, expected);
+Time.assertEqual(actual$, expected$);
 
 Time.run(done);
 ```
@@ -227,14 +225,13 @@ The time driver returns a `TimeSource` object with the following methods:
 An operator that can be used with `.compose` to delay values in a stream. `period` is the number of milliseconds to delay each event by.
 
 ```js
-const input    = Time.diagram(`---1---2---3---|`);
-const expected = Time.diagram(`------1---2---3---|`);
-
-const stream = input.compose(Time.delay(60));
+const input$    = Time.diagram(`---1---2---3---|`);
+const actual$   = input$.compose(Time.delay(60));
+const expected$ = Time.diagram(`------1---2---3---|`);
 
 Time.assertEqual(
-  stream,
-  expected
+  actual$,
+  expected$
 );
 
 Time.run();
@@ -244,14 +241,13 @@ Time.run();
 An operator that can be used with `.compose`. `debounce` delays events by the given `period` and only emits them if no other event occurs in the meantime.
 
 ```js
-const input    = Time.diagram(`---1-----3-4----5-|`);
-const expected = Time.diagram(`------1-------4---|`);
-
-const stream = input.compose(Time.debounce(60));
+const input$    = Time.diagram(`---1-----3-4----5-|`);
+const actual$   = input$.compose(Time.debounce(60));
+const expected$ = Time.diagram(`------1-------4---|`);
 
 Time.assertEqual(
-  stream,
-  expected
+  actual$,
+  expected$
 );
 
 Time.run();
@@ -261,13 +257,12 @@ Time.run();
 Returns a stream that emits every `period` msec. Starts with 0, and increases by 1 every time.
 
 ```js
-const expected = Time.diagram(`---0---1---2---3---4|`);
-
-const stream = Time.periodic(80);
+const actual$ = Time.periodic(80);
+const expected$ = Time.diagram(`---0---1---2---3---4|`);
 
 Time.assertEqual(
-  stream.take(5),
-  expected
+  actual$.take(5),
+  expected$
 );
 
 Time.run();
@@ -277,14 +272,13 @@ Time.run();
 An operator that can be used with `.compose` that will prevent more than 1 event emitting in the given period.
 
 ```js
-const input    = Time.diagram(`--1-2-----3--4----5|`);
-const expected = Time.diagram(`--1-------3-------5|`);
-
-const stream = input.compose(Time.throttle(60));
+const input$    = Time.diagram(`--1-2-----3--4----5|`);
+const actual$   = input$.compose(Time.throttle(60));
+const expected$ = Time.diagram(`--1-------3-------5|`);
 
 Time.assertEqual(
-  stream,
-  expected
+  actual$,
+  expected$
 );
 
 Time.run();
