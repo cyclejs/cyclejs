@@ -19,7 +19,7 @@ function makeDiagram (scheduleEntry, currentTime, interval) {
           stream,
           type: 'complete'
         })
-      } else if (character === '*') {
+      } else if (character === '#') {
         scheduleEntry({
           time: timeToSchedule,
           stream,

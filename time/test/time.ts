@@ -101,7 +101,7 @@ describe("@cycle/time", () => {
         const Time = mockTimeSource();
 
         const stream = xs.throw(new Error('Test!'));
-        const expected = '*';
+        const expected = '#';
 
         Time.assertEqual(
           stream,
@@ -157,7 +157,7 @@ describe("@cycle/time", () => {
         const Time = mockTimeSource();
 
         const stream = xs.throw(new Error('Test!')).compose(Time.delay(80));
-        const expected = '---*';
+        const expected = '---#';
 
         Time.assertEqual(
           stream,
@@ -189,8 +189,8 @@ describe("@cycle/time", () => {
       it("propagates errors", (done) => {
         const Time = mockTimeSource();
 
-        const stream   = Time.diagram('---1-2---3-*');
-        const expected = Time.diagram('--------2--*');
+        const stream   = Time.diagram('---1-2---3-#');
+        const expected = Time.diagram('--------2--#');
 
         Time.assertEqual(
           stream.compose(Time.debounce(60)),
@@ -221,8 +221,8 @@ describe("@cycle/time", () => {
       it("propagates errors", (done) => {
         const Time = mockTimeSource();
 
-        const stream   = Time.diagram('---1-2---3-*');
-        const expected = Time.diagram('---1-----3-*');
+        const stream   = Time.diagram('---1-2---3-#');
+        const expected = Time.diagram('---1-----3-#');
 
         Time.assertEqual(
           stream.compose(Time.throttle(60)),

@@ -1,11 +1,5 @@
 import xs, {Stream} from 'xstream';
 
-// instead of calling done at the end of the assertEqual
-// call it at the end of the run
-//
-// check over the asserts
-// if there are any pending or failed that's bad
-
 function makeAssertEqual (scheduleEntry, currentTime, interval, addAssert) {
   return function assertEqual (actual: Stream<any>, expected: Stream<any>) {
     let calledComplete = 0;
