@@ -1,5 +1,6 @@
 import xs, {Stream} from 'xstream';
 import * as assert from 'assert';
+require('setimmediate');
 const makeAccumulator = require('sorted-immutable-list').default;
 
 import {makeDelay} from './delay';
@@ -61,7 +62,7 @@ function mockTimeSource ({interval = 20} = {}) {
     }
 
     if (eventToProcess.cancelled) {
-      setTimeout(processEvent);
+      setImmediate(processEvent);
       return;
     }
 
@@ -83,7 +84,7 @@ function mockTimeSource ({interval = 20} = {}) {
       eventToProcess.stream.shamefullySendComplete();
     }
 
-    setTimeout(processEvent);
+    setImmediate(processEvent);
   }
 
   return {
@@ -97,7 +98,7 @@ function mockTimeSource ({interval = 20} = {}) {
 
     run (doneCallback = raiseError) {
       done = doneCallback;
-      setTimeout(processEvent);
+      setImmediate(processEvent);
     }
   }
 }
