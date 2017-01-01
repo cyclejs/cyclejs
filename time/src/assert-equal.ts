@@ -26,6 +26,11 @@ function makeAssertEqual (scheduleEntry, currentTime, interval, addAssert) {
         completeStore['actual'].forEach((actual, index) => {
           const expected = completeStore['expected'][index];
 
+          if (!actual || !expected) {
+            pass = false;
+            return;
+          }
+
           if (actual.type !== expected.type) {
             pass = false;
           }
