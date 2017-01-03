@@ -174,7 +174,7 @@ describe("@cycle/time", () => {
         Time.run(complete);
       });
 
-      it("fails when actual differs from expected", (done) => {
+      it("stringifies objects", (done) => {
         const Time = mockTimeSource();
 
         const input = Time.diagram(
