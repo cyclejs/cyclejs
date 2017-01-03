@@ -124,7 +124,7 @@ function diagramString (entries, interval): string {
     const characterIndex = Math.max(0, Math.floor(entry.time / interval));
 
     if (entry.type === 'next') {
-      diagram[characterIndex] = entry.value;
+      diagram[characterIndex] = JSON.stringify(entry.value);
     }
 
     if (entry.type == 'complete') {

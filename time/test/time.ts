@@ -174,6 +174,43 @@ describe("@cycle/time", () => {
         Time.run(complete);
       });
 
+      it("fails when actual differs from expected", (done) => {
+        const Time = mockTimeSource();
+
+        const input = Time.diagram(
+          `---1---2---3---|`
+        );
+
+        const expected = Time.diagram(
+          `---a-------b---|`,
+          {a: {a: 1}, b: {a: 2}}
+        );
+
+        const complete = (err) => {
+          if (err) {
+            const lines = err.message.split(/\s+/).filter(a => a.length > 0);
+
+            assert.deepEqual(lines, [
+              'Expected',
+              '---{"a":1}-------{"a":2}---|',
+              'Got',
+              '---1---2---3---|',
+            ])
+
+            done();
+          } else {
+            throw new Error('expected test to fail');
+          }
+        }
+
+        Time.assertEqual(
+          input,
+          expected
+        );
+
+        Time.run(complete);
+      });
+
       it("handles errors", (done) => {
         const Time = mockTimeSource();
 
