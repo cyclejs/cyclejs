@@ -249,6 +249,51 @@ describe("@cycle/time", () => {
         Time.assertEqual(actual, expected);
         Time.run(done);
       });
+
+      it("logs unexpected errors", (done) => {
+        const Time = mockTimeSource();
+
+        const input$ = Time.diagram(
+          `---A---B---C---|`
+        );
+
+        const expectedError = 'Something went unexpectedly wrong!';
+
+        function transformation (character) {
+          if (character === 'A') {
+            return 'X';
+          }
+
+          if (character === 'B') {
+            throw new Error(expectedError);
+          }
+        }
+
+        const actual$ = input$.map(transformation);
+
+        const expected$ = Time.diagram(
+          `---X---Y---Z---|`
+        );
+
+        Time.assertEqual(actual$, expected$);
+        Time.run((err) => {
+          if (!err) {
+            done(new Error('expected test to fail'));
+          }
+
+          assert(
+            err.message.includes(expectedError),
+            [
+              'Expected failure message to include error, did not:',
+              err.message,
+              'to include:',
+              expectedError
+            ].join('\n\n')
+          );
+
+          done();
+        });
+      });
     });
 
     describe(".periodic", () => {

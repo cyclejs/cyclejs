@@ -8,7 +8,8 @@ function makeAssertEqual (scheduleEntry, currentTime, interval, addAssert) {
 
     const assert = {
       state: 'pending',
-      error: null
+      error: null,
+      unexpectedErrors: []
     }
 
     addAssert(assert);
@@ -47,8 +48,16 @@ function makeAssertEqual (scheduleEntry, currentTime, interval, addAssert) {
           if (actual.type === 'error') {
             const rightTime = diagramFrame(actual.time, interval) === diagramFrame(expected.time, interval);
 
+            if (expected.type !== 'error') {
+              pass = false;
+            }
+
             if (!rightTime) {
               pass = false;
+            }
+
+            if (!pass) {
+              assert.unexpectedErrors.push(actual.error);
             }
           }
         });
@@ -65,6 +74,8 @@ function makeAssertEqual (scheduleEntry, currentTime, interval, addAssert) {
             Got
 
             ${diagramString(completeStore['actual'], interval)}
+
+            ${displayUnexpectedErrors(assert.unexpectedErrors)}
           `));
         }
       }
@@ -124,7 +135,7 @@ function diagramString (entries, interval): string {
     const characterIndex = Math.max(0, Math.floor(entry.time / interval));
 
     if (entry.type === 'next') {
-      diagram[characterIndex] = JSON.stringify(entry.value);
+      diagram[characterIndex] = stringifyIfObject(entry.value);
     }
 
     if (entry.type == 'complete') {
@@ -155,6 +166,24 @@ function strip (str: string): string {
   return lines
     .map(line => line.replace(/^\s{12}/, ''))
     .join("\n")
+}
+
+function stringifyIfObject (value): string {
+  if (typeof value === 'object') {
+    return JSON.stringify(value);
+  }
+
+  return value;
+}
+
+function displayUnexpectedErrors (errors) {
+  if (errors.length === 0) {
+    return ``;
+  }
+
+  const messages = errors.map(error => error.stack).join('\n \n ');
+
+  return `Unexpected error:\n ${messages}`;
 }
 
 export {
