@@ -13,7 +13,8 @@
     "test/auto": "mocha 'test/**/*.ts' --compilers ts:ts-node/register --watch -R min",
     "test/docs": "npm run compile && markdown-doctest",
     "compile": "tsc",
-    "prepublish": "npm run compile"
+    "prepublish": "npm run compile",
+    "postpublish": "greenkeeper-postpublish"
   },
   "repository": {
     "type": "git",
@@ -41,6 +42,7 @@
     "browserify": "^13.1.1",
     "budo": "^9.2.2",
     "garnish": "^5.2.0",
+    "greenkeeper-postpublish": "^1.0.1",
     "markdown-doctest": "^0.9.1",
     "mocha": "^3.1.2",
     "snabbdom-selector": "^1.0.1",
