@@ -5,9 +5,6 @@
     "module": "commonjs",
     "allowJs": true
   },
-  "files": [
-    "typings/index.d.ts"
-  ],
   "include": [
     "src/**/*.ts",
     "test/**/*.ts"
