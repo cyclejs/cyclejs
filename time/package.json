@@ -1,6 +1,6 @@
 {
   "name": "@cycle/time",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A single source of truth for time in Cycle.js apps",
   "main": "dist/src/index.js",
   "scripts": {
@@ -13,7 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/cyclejs/time.git"
   },
-  "author": "",
+  "author": "Nick Johnstone",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/cyclejs/time/issues"
