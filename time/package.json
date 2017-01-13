@@ -4,6 +4,9 @@
   "description": "A single source of truth for time in Cycle.js apps",
   "main": "dist/Index.js",
   "types": "dist/Index.d.ts",
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "start": "budo example/index.ts:index.js --live -- -p tsify",
     "test": "mocha 'test/**/*.ts' --compilers ts:ts-node/register && npm run test/docs",
