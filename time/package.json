@@ -11,7 +11,9 @@
     "start": "budo example/index.ts:index.js --live -- -p tsify",
     "test": "mocha 'test/**/*.ts' --compilers ts:ts-node/register && npm run test/docs",
     "test/auto": "mocha 'test/**/*.ts' --compilers ts:ts-node/register --watch -R min",
-    "test/docs": "tsc && markdown-doctest"
+    "test/docs": "npm run compile && markdown-doctest",
+    "compile": "tsc",
+    "prepublish": "npm run compile"
   },
   "repository": {
     "type": "git",
