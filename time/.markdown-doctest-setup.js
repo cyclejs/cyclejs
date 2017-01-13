@@ -1,4 +1,4 @@
-const timeDriver = require('.');
+const timeDriver = require(__dirname);
 const xs = require('xstream').default;
 const dom = require('@cycle/dom');
 
