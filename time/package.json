@@ -26,14 +26,14 @@
   },
   "homepage": "https://github.com/cyclejs/time#readme",
   "dependencies": {
-    "@cycle/xstream-run": "^3.1.0",
+    "@cycle/xstream-run": "^4.2.0",
     "@types/core-js": "^0.9.35",
     "@types/node": "^7.0.0",
     "deep-equal": "^1.0.1",
     "raf": "^3.3.0",
     "setimmediate": "^1.0.5",
     "sorted-immutable-list": "^1.1.0",
-    "xstream": "^8.0.0"
+    "xstream": "^9.3.0"
   },
   "devDependencies": {
     "@cycle/dom": "^14.1.0",
@@ -44,8 +44,8 @@
     "markdown-doctest": "^0.9.1",
     "mocha": "^3.1.2",
     "snabbdom-selector": "^1.0.1",
-    "ts-node": "^1.7.0",
-    "tsify": "^2.0.3",
+    "ts-node": "^2.0.0",
+    "tsify": "^3.0.0",
     "typescript": "^2.1.5"
   }
 }
