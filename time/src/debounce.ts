@@ -2,49 +2,53 @@ import xs, {Stream} from 'xstream';
 
 function makeDebounce (scheduleEntry, currentTime) {
   return function debounce (debounceInterval: number) {
-    return function debounceOperator (stream: Stream<any>): Stream<any> {
-      const outStream = xs.create();
+    return function debounceOperator<T> (stream: Stream<T>): Stream<T> {
       let scheduledEntry = null;
 
-      stream.addListener({
-        next (ev) {
-          const timeToSchedule = currentTime() + debounceInterval;
+      return xs.create<T>({
+        start (listener) {
+          stream.addListener({
+            next (ev: T) {
+              const timeToSchedule = currentTime() + debounceInterval;
 
-          if (scheduledEntry) {
-            const timeAfterPrevious = timeToSchedule - scheduledEntry.time;
+              if (scheduledEntry) {
+                const timeAfterPrevious = timeToSchedule - scheduledEntry.time;
 
-            if (timeAfterPrevious <= debounceInterval) {
-              scheduledEntry.cancelled = true;
+                if (timeAfterPrevious <= debounceInterval) {
+                  scheduledEntry.cancelled = true;
+                }
+              }
+
+              scheduledEntry = scheduleEntry({
+                type: 'next',
+                value: ev,
+                time: timeToSchedule,
+                stream: listener
+              });
+            },
+
+            error (error) {
+              scheduleEntry({
+                type: 'error',
+                time: currentTime(),
+                error,
+                stream: listener
+              })
+            },
+
+            complete () {
+              scheduleEntry({
+                type: 'complete',
+                time: currentTime(),
+                stream: listener
+              })
             }
-          }
-
-          scheduledEntry = scheduleEntry({
-            type: 'next',
-            value: ev,
-            time: timeToSchedule,
-            stream: outStream
           });
         },
 
-        error (error) {
-          scheduleEntry({
-            type: 'error',
-            time: currentTime(),
-            error,
-            stream: outStream
-          })
-        },
-
-        complete () {
-          scheduleEntry({
-            type: 'complete',
-            time: currentTime(),
-            stream: outStream
-          })
-        }
+        // TODO - maybe cancel the scheduled event?
+        stop () {}
       });
-
-      return outStream;
     }
   }
 }
