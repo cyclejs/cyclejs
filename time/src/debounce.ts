@@ -1,49 +1,62 @@
 import xs, {Stream} from 'xstream';
 
+function makeDebounceListener<T> (scheduleEntry, currentTime, debounceInterval, listener, state) {
+  return {
+    next (ev: T) {
+      const scheduledEntry = state.scheduledEntry;
+      const timeToSchedule = currentTime() + debounceInterval;
+
+      if (scheduledEntry) {
+        const timeAfterPrevious = timeToSchedule - scheduledEntry.time;
+
+        if (timeAfterPrevious <= debounceInterval) {
+          scheduledEntry.cancelled = true;
+        }
+      }
+
+      state.scheduledEntry = scheduleEntry({
+        type: 'next',
+        value: ev,
+        time: timeToSchedule,
+        stream: listener
+      });
+    },
+
+    error (error) {
+      scheduleEntry({
+        type: 'error',
+        time: currentTime(),
+        error,
+        stream: listener
+      })
+    },
+
+    complete () {
+      scheduleEntry({
+        type: 'complete',
+        time: currentTime(),
+        stream: listener
+      })
+    }
+  }
+}
+
 function makeDebounce (scheduleEntry, currentTime) {
   return function debounce (debounceInterval: number) {
     return function debounceOperator<T> (stream: Stream<T>): Stream<T> {
-      let scheduledEntry = null;
+      const state = {scheduledEntry: null};
 
       return xs.create<T>({
         start (listener) {
-          stream.addListener({
-            next (ev: T) {
-              const timeToSchedule = currentTime() + debounceInterval;
+          const debounceListener = makeDebounceListener<T>(
+            scheduleEntry,
+            currentTime,
+            debounceInterval,
+            listener,
+            state
+          );
 
-              if (scheduledEntry) {
-                const timeAfterPrevious = timeToSchedule - scheduledEntry.time;
-
-                if (timeAfterPrevious <= debounceInterval) {
-                  scheduledEntry.cancelled = true;
-                }
-              }
-
-              scheduledEntry = scheduleEntry({
-                type: 'next',
-                value: ev,
-                time: timeToSchedule,
-                stream: listener
-              });
-            },
-
-            error (error) {
-              scheduleEntry({
-                type: 'error',
-                time: currentTime(),
-                error,
-                stream: listener
-              })
-            },
-
-            complete () {
-              scheduleEntry({
-                type: 'complete',
-                time: currentTime(),
-                stream: listener
-              })
-            }
-          });
+          stream.addListener(debounceListener);
         },
 
         // TODO - maybe cancel the scheduled event?
