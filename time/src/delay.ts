@@ -2,38 +2,40 @@ import xs, {Stream} from 'xstream';
 
 function makeDelay (scheduleEntry, currentTime) {
   return function delay (delayTime: number) {
-    return function (stream: Stream<any>): Stream<any> {
-      const outStream = xs.create();
+    return function delayOperator<T> (stream: Stream<T>): Stream<T> {
+      return xs.create<T>({
+        start (listener) {
+          stream.addListener({
+            next (event: T) {
+              scheduleEntry({
+                time: currentTime() + delayTime,
+                value: event,
+                stream: listener,
+                type: 'next'
+              })
+            },
 
-      stream.addListener({
-        next (event) {
-          scheduleEntry({
-            time: currentTime() + delayTime,
-            value: event,
-            stream: outStream,
-            type: 'next'
+            error (error: Error) {
+              scheduleEntry({
+                time: currentTime() + delayTime,
+                error,
+                stream: listener,
+                type: 'error'
+              })
+            },
+
+            complete () {
+              scheduleEntry({
+                time: currentTime() + delayTime,
+                stream: listener,
+                type: 'complete'
+              })
+            }
           })
         },
 
-        error (error) {
-          scheduleEntry({
-            time: currentTime() + delayTime,
-            error,
-            stream: outStream,
-            type: 'error'
-          })
-        },
-
-        complete () {
-          scheduleEntry({
-            time: currentTime() + delayTime,
-            stream: outStream,
-            type: 'complete'
-          })
-        }
-      })
-
-      return outStream;
+        stop () {}
+      });
     }
   }
 }
