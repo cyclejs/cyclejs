@@ -4,9 +4,18 @@
   "description": "A single source of truth for time in Cycle.js apps",
   "main": "dist/Index.js",
   "types": "dist/Index.d.ts",
+  "author": "Nick Johnstone",
+  "license": "MIT",
+  "homepage": "https://github.com/cyclejs/time#readme",
+
   "files": [
     "dist/"
   ],
+
+  "publishConfig": {
+    "access": "public"
+  },
+
   "scripts": {
     "start": "budo example/index.ts:index.js --live -- -p tsify",
     "test": "mocha 'test/**/*.ts' --compilers ts:ts-node/register && npm run test/docs",
@@ -16,16 +25,16 @@
     "prepublish": "npm run compile",
     "postpublish": "greenkeeper-postpublish"
   },
+
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cyclejs/time.git"
   },
-  "author": "Nick Johnstone",
-  "license": "MIT",
+
   "bugs": {
     "url": "https://github.com/cyclejs/time/issues"
   },
-  "homepage": "https://github.com/cyclejs/time#readme",
+
   "dependencies": {
     "@cycle/xstream-run": "^4.2.0",
     "@types/core-js": "^0.9.35",
@@ -36,6 +45,7 @@
     "sorted-immutable-list": "^1.1.0",
     "xstream": "^9.3.0"
   },
+
   "devDependencies": {
     "@cycle/dom": "^14.1.0",
     "@types/mocha": "^2.2.37",
