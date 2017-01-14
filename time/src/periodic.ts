@@ -1,7 +1,7 @@
 import xs, {Stream} from 'xstream';
 
 function makePeriodic (scheduleEntry, currentTime) {
-  return function periodic (period: number): Stream<any> {
+  return function periodic (period: number): Stream<number> {
     let stopped = false;
 
     function scheduleNextEvent (entry, time) {
@@ -16,13 +16,13 @@ function makePeriodic (scheduleEntry, currentTime) {
         f: scheduleNextEvent,
         type: 'next'
       })
-    }
-
-    let _listener;
+    };
 
     const producer = {
+      listener: null,
+
       start (listener) {
-        _listener = listener;
+        producer.listener = listener;
 
         scheduleEntry({
           time: currentTime() + period,
@@ -38,13 +38,13 @@ function makePeriodic (scheduleEntry, currentTime) {
 
         scheduleEntry({
           time: currentTime(),
-          stream: _listener,
+          stream: producer.listener,
           type: 'complete'
         })
       }
-    }
+    };
 
-    return xs.create(producer);
+    return xs.create<number>(producer);
   }
 }
 
