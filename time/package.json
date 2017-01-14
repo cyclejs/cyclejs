@@ -1,7 +1,7 @@
 {
   "name": "@cycle/time",
   "version": "0.1.0",
-  "description": "A single source of truth for time in Cycle.js apps",
+  "description": "A time driver designed to enable awesome testing and dev tooling",
   "main": "dist/Index.js",
   "types": "dist/Index.d.ts",
   "author": "Nick Johnstone",
