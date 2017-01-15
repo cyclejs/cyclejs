@@ -1,8 +1,8 @@
 import xs, {Stream} from 'xstream';
 
-function makeDebounceListener<T> (scheduleEntry, currentTime, debounceInterval, listener, state) {
+function makeDebounceListener<T> (schedule, currentTime, debounceInterval, listener, state) {
   return {
-    next (ev: T) {
+    next (value: T) {
       const scheduledEntry = state.scheduledEntry;
       const timeToSchedule = currentTime() + debounceInterval;
 
@@ -14,34 +14,20 @@ function makeDebounceListener<T> (scheduleEntry, currentTime, debounceInterval, 
         }
       }
 
-      state.scheduledEntry = scheduleEntry({
-        type: 'next',
-        value: ev,
-        time: timeToSchedule,
-        stream: listener
-      });
+      state.scheduledEntry = schedule.next(listener, timeToSchedule, value);
     },
 
     error (error) {
-      scheduleEntry({
-        type: 'error',
-        time: currentTime(),
-        error,
-        stream: listener
-      })
+      schedule.error(listener, currentTime(), error);
     },
 
     complete () {
-      scheduleEntry({
-        type: 'complete',
-        time: currentTime(),
-        stream: listener
-      })
+      schedule.completion(listener, currentTime());
     }
   }
 }
 
-function makeDebounce (scheduleEntry, currentTime) {
+function makeDebounce (schedule, currentTime) {
   return function debounce (debounceInterval: number) {
     return function debounceOperator<T> (stream: Stream<T>): Stream<T> {
       const state = {scheduledEntry: null};
@@ -49,7 +35,7 @@ function makeDebounce (scheduleEntry, currentTime) {
       return xs.create<T>({
         start (listener) {
           const debounceListener = makeDebounceListener<T>(
-            scheduleEntry,
+            schedule,
             currentTime,
             debounceInterval,
             listener,

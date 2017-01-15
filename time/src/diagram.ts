@@ -9,7 +9,7 @@ const parseIntIfDecimal = (str) => {
   return str;
 }
 
-function makeDiagram (scheduleEntry, currentTime, interval) {
+function makeDiagram (schedule, currentTime, interval) {
   return function diagram (diagram: string, values = {}): Stream<any> {
     const characters = diagram.split('');
     const stream = xs.create();
@@ -23,25 +23,11 @@ function makeDiagram (scheduleEntry, currentTime, interval) {
       const timeToSchedule = index * interval;
 
       if (character === '|') {
-        scheduleEntry({
-          time: timeToSchedule,
-          stream,
-          type: 'complete'
-        })
+        schedule.completion(stream, timeToSchedule);
       } else if (character === '#') {
-        scheduleEntry({
-          time: timeToSchedule,
-          stream,
-          type: 'error',
-          error: new Error(`scheduled error`)
-        })
+        schedule.error(stream, timeToSchedule, new Error(`scheduled error`));
       } else {
-        scheduleEntry({
-          time: timeToSchedule,
-          stream,
-          type: 'next',
-          value: valueFor(character)
-        })
+        schedule.next(stream, timeToSchedule, valueFor(character));
       }
     });
 

@@ -1,8 +1,8 @@
 import xs, {Stream} from 'xstream';
 
-function makeThrottleListener<T> (scheduleEntry, currentTime, period, listener, state) {
+function makeThrottleListener<T> (schedule, currentTime, period, listener, state) {
   return {
-    next (event: T) {
+    next (value: T) {
       const lastEventTime = state.lastEventTime;
       const time = currentTime();
 
@@ -13,36 +13,22 @@ function makeThrottleListener<T> (scheduleEntry, currentTime, period, listener, 
         return;
       }
 
-      scheduleEntry({
-        time: time,
-        value: event,
-        stream: listener,
-        type: 'next'
-      })
+      schedule.next(listener, time, value);
 
       state.lastEventTime = time;
     },
 
     error (error) {
-      scheduleEntry({
-        time: currentTime(),
-        stream: listener,
-        error,
-        type: 'error'
-      })
+      schedule.error(listener, currentTime(), error);
     },
 
     complete () {
-      scheduleEntry({
-        time: currentTime(),
-        stream: listener,
-        type: 'complete'
-      })
+      schedule.completion(listener, currentTime());
     }
   }
 }
 
-function makeThrottle (scheduleEntry, currentTime) {
+function makeThrottle (schedule, currentTime) {
   return function throttle (period: number) {
     return function throttleOperator<T> (stream: Stream<T>): Stream<T> {
       const state = {lastEventTime: -Infinity}; // so that the first event is always scheduled
@@ -50,7 +36,7 @@ function makeThrottle (scheduleEntry, currentTime) {
       return xs.create<T>({
         start (listener) {
           const throttleListener = makeThrottleListener<T>(
-            scheduleEntry,
+            schedule,
             currentTime,
             period,
             listener,

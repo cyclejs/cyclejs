@@ -1,7 +1,7 @@
 import xs, {Stream} from 'xstream';
 import * as deepEqual from 'deep-equal';
 
-function makeAssertEqual (scheduleEntry, currentTime, interval, addAssert) {
+function makeAssertEqual (schedule, currentTime, interval, addAssert) {
   return function assertEqual (actual: Stream<any>, expected: Stream<any>) {
     let calledComplete = 0;
     let completeStore = {};

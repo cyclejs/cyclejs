@@ -1,42 +1,30 @@
 import xs, {Stream} from 'xstream';
 
-function makeDelayListener<T> (scheduleEntry, currentTime, delayTime, listener) {
+function makeDelayListener<T> (schedule, currentTime, delayTime, listener) {
+  const delayedTime = () => currentTime() + delayTime;
+
   return {
-    next (event: T) {
-      scheduleEntry({
-        time: currentTime() + delayTime,
-        value: event,
-        stream: listener,
-        type: 'next'
-      })
+    next (value: T) {
+      schedule.next(listener, delayedTime(), value);
     },
 
     error (error: Error) {
-      scheduleEntry({
-        time: currentTime() + delayTime,
-        error,
-        stream: listener,
-        type: 'error'
-      })
+      schedule.error(listener, delayedTime(), error);
     },
 
     complete () {
-      scheduleEntry({
-        time: currentTime() + delayTime,
-        stream: listener,
-        type: 'complete'
-      })
+      schedule.completion(listener, delayedTime());
     }
   }
 }
 
-function makeDelay (scheduleEntry, currentTime) {
+function makeDelay (schedule, currentTime) {
   return function delay (delayTime: number) {
     return function delayOperator<T> (stream: Stream<T>): Stream<T> {
       const producer = {
         start (listener) {
           const delayListener = makeDelayListener<T>(
-            scheduleEntry,
+            schedule,
             currentTime,
             delayTime,
             listener

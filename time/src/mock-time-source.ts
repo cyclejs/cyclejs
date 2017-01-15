@@ -1,19 +1,14 @@
 import xs, {Stream} from 'xstream';
 import * as assert from 'assert';
 require('setimmediate');
-const makeAccumulator = require('sorted-immutable-list').default;
 
+import {makeScheduler} from './scheduler';
 import {makeDelay} from './delay';
 import {makeDebounce} from './debounce';
 import {makePeriodic} from './periodic';
 import {makeThrottle} from './throttle';
 import {makeDiagram} from './diagram';
 import {makeAssertEqual} from './assert-equal';
-
-const addScheduleEntry = makeAccumulator({
-  key: entry => entry.time,
-  unique: false
-});
 
 function raiseError (err) {
   if (err) {
@@ -23,15 +18,10 @@ function raiseError (err) {
 
 function mockTimeSource ({interval = 20} = {}) {
   let time = 0;
-  let schedule = [];
   let asserts = [];
   let done;
 
-  function scheduleEntry (newEntry) {
-    schedule = addScheduleEntry(schedule, newEntry)
-
-    return newEntry;
-  }
+  const scheduler = makeScheduler();
 
   function addAssert (assert) {
     asserts.push(assert);
@@ -42,7 +32,7 @@ function mockTimeSource ({interval = 20} = {}) {
   }
 
   function processEvent () {
-    const eventToProcess = schedule.shift();
+    const eventToProcess = scheduler.shiftNextEntry();
 
     if (!eventToProcess) {
       const failedAsserts = asserts.filter(assert => assert.state === 'failed');
@@ -88,13 +78,13 @@ function mockTimeSource ({interval = 20} = {}) {
   }
 
   return {
-    diagram: makeDiagram(scheduleEntry, currentTime, interval),
-    assertEqual: makeAssertEqual(scheduleEntry, currentTime, interval, addAssert),
+    diagram: makeDiagram(scheduler.add, currentTime, interval),
+    assertEqual: makeAssertEqual(scheduler.add, currentTime, interval, addAssert),
 
-    delay: makeDelay(scheduleEntry, currentTime),
-    debounce: makeDebounce(scheduleEntry, currentTime),
-    periodic: makePeriodic(scheduleEntry, currentTime),
-    throttle: makeThrottle(scheduleEntry, currentTime),
+    delay: makeDelay(scheduler.add, currentTime),
+    debounce: makeDebounce(scheduler.add, currentTime),
+    periodic: makePeriodic(scheduler.add, currentTime),
+    throttle: makeThrottle(scheduler.add, currentTime),
 
     run (doneCallback = raiseError) {
       done = doneCallback;

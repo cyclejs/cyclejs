@@ -1,26 +1,15 @@
 import xs, {Stream} from 'xstream';
-const makeAccumulator = require('sorted-immutable-list').default;
 const requestAnimationFrame = require('raf');
 
+import {makeScheduler} from './scheduler';
 import {makeDelay} from './delay';
 import {makeDebounce} from './debounce';
 import {makePeriodic} from './periodic';
 import {makeThrottle} from './throttle';
 
-const addScheduleEntry = makeAccumulator({
-  key: entry => entry.time,
-  unique: false
-});
-
 function timeDriver (_, streamAdapter) {
   let time = 0;
-  let schedule = [];
-
-  function scheduleEntry (newEntry) {
-    schedule = addScheduleEntry(schedule, newEntry)
-
-    return newEntry;
-  }
+  const scheduler = makeScheduler();
 
   function currentTime () {
     return time;
@@ -29,16 +18,16 @@ function timeDriver (_, streamAdapter) {
   function processEvent (eventTime) {
     time = eventTime;
 
-    if (schedule.length === 0) {
+    if (scheduler.isEmpty()) {
       requestAnimationFrame(processEvent);
 
       return;
     }
 
-    let nextEventTime = schedule[0].time;
+    let nextEventTime = scheduler.peek().time;
 
     while (nextEventTime < time) {
-      const eventToProcess = schedule.shift();
+      const eventToProcess = scheduler.shiftNextEntry();
 
       if (!eventToProcess.cancelled) {
         if (eventToProcess.f) {
@@ -54,7 +43,7 @@ function timeDriver (_, streamAdapter) {
         }
       }
 
-      nextEventTime = (schedule[0] && schedule[0].time) || Infinity;
+      nextEventTime = (scheduler.peek() && scheduler.peek().time) || Infinity;
     }
 
     requestAnimationFrame(processEvent);
@@ -64,10 +53,10 @@ function timeDriver (_, streamAdapter) {
   requestAnimationFrame(processEvent);
 
   return {
-    delay: makeDelay(scheduleEntry, currentTime),
-    debounce: makeDebounce(scheduleEntry, currentTime),
-    periodic: makePeriodic(scheduleEntry, currentTime),
-    throttle: makeThrottle(scheduleEntry, currentTime),
+    delay: makeDelay(scheduler.add, currentTime),
+    debounce: makeDebounce(scheduler.add, currentTime),
+    periodic: makePeriodic(scheduler.add, currentTime),
+    throttle: makeThrottle(scheduler.add, currentTime),
   }
 }
 
