@@ -781,9 +781,9 @@ describe('isolation', function () {
     let clicksCount = 0;
 
     function Child(sources: {DOM: MainDOMSource}) {
-      sources.DOM.select('.foo').events('click').addListener({
-        next: () => { clicksCount++; },
-      });
+      sources.DOM.select('.foo').events('click').addListener({next: () => {
+        clicksCount++;
+      }});
       return {
         DOM: xs.of(div('.foo', ['This is foo'])),
       };
@@ -799,6 +799,62 @@ describe('isolation', function () {
         );
       return {
         DOM: innerDOM$,
+      };
+    }
+
+    const {sinks, sources, run} = setup(main, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    let dispose: any;
+    sources.DOM.select(':root').elements().drop(1).take(4).addListener({
+      next: (root: any) => {
+        setTimeout(() => {
+          const foo = root.querySelector('.foo');
+          if (!foo) {
+            return;
+          }
+          foo.click();
+        }, 0);
+      },
+    });
+    setTimeout(function(){
+      assert.strictEqual(clicksCount, 4);
+      dispose();
+      done();
+    }, 800);
+    dispose = run();
+  });
+
+  it('should handle events when parent is removed and re-added, and has isolation scope', done => {
+    let clicksCount = 0;
+
+    function Child(sources: {DOM: MainDOMSource}) {
+      sources.DOM.select('.foo').events('click').addListener({next: () => {
+        clicksCount++;
+      }});
+      return {
+        DOM: xs.of(div('.foo', ['This is foo'])),
+      };
+    }
+
+    function Parent(sources: {DOM: MainDOMSource}) {
+      const child = isolate(Child, 'child')(sources);
+      // change parent key, causing it to be recreated
+      const x$ = xs.periodic(120).map(x => x + 1).startWith(0).take(4);
+      const innerDOM$ = xs.combine(x$, child.DOM)
+        .map(([x, childVDOM]) =>
+          div(`.parent${x}`, {key: `key${x}`}, [childVDOM, `${x}`]),
+        );
+      return {
+        DOM: innerDOM$,
+      };
+    }
+
+    function main(sources: {DOM: MainDOMSource}) {
+      const parent = isolate(Parent, 'parent')(sources);
+      return {
+        DOM: parent.DOM,
       };
     }
 

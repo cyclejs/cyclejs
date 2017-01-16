@@ -3,8 +3,14 @@ import {EventDelegator} from './EventDelegator';
 let MapPolyfill: typeof Map = require('es6-map');
 
 export class IsolateModule {
-  private eventDelegators = new MapPolyfill<string, Array<EventDelegator>>();
-  constructor (private isolatedElements: Map<string, Element>) {
+  private isolatedElements: Map<string, Element>;
+  private eventDelegators: Map<string, Array<EventDelegator>>;
+  private scopesBeingUpdated: Array<string>;
+
+  constructor () {
+    this.isolatedElements = new MapPolyfill<string, Element>();
+    this.eventDelegators = new MapPolyfill<string, Array<EventDelegator>>();
+    this.scopesBeingUpdated = [];
   }
 
   private setScope(elm: Element, scope: string) {
@@ -19,7 +25,7 @@ export class IsolateModule {
     data = data || {};
     const scope = data.isolate || '';
     const isCurrentElm = this.isolatedElements.get(scope) === elm;
-    if (scope && isCurrentElm) {
+    if (scope && isCurrentElm && this.scopesBeingUpdated.indexOf(scope) === -1) {
       this.removeScope(scope);
       if (this.eventDelegators.get(scope)) {
         this.eventDelegators.set(scope, []);
@@ -53,6 +59,7 @@ export class IsolateModule {
 
   public reset() {
     this.isolatedElements.clear();
+    this.scopesBeingUpdated = [];
   }
 
   public createModule() {
@@ -65,6 +72,7 @@ export class IsolateModule {
         const scope = data.isolate || ``;
         if (scope) {
           if (oldScope) { self.removeScope(oldScope); }
+          self.scopesBeingUpdated.push(scope);
           self.setScope(elm as Element, scope);
           const delegators = self.eventDelegators.get(scope);
           if (delegators) {
@@ -94,16 +102,18 @@ export class IsolateModule {
         }
       },
 
+      destroy(vNode: VNode) {
+        self.cleanupVNode(vNode);
+      },
+
       remove(vNode: VNode, cb: Function) {
         self.cleanupVNode(vNode);
         cb();
       },
 
-      destroy(vNode: VNode) {
-        self.cleanupVNode(vNode);
+      post() {
+        self.scopesBeingUpdated = [];
       },
     };
   }
-
-  // snabbdom module stuff
 }

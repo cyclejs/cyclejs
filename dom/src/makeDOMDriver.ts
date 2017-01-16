@@ -34,7 +34,7 @@ export interface DOMDriverOptions {
 function makeDOMDriver(container: string | Element, options?: DOMDriverOptions) {
   if (!options) { options = {}; }
   const modules = options.modules || defaultModules;
-  const isolateModule = new IsolateModule((new MapPolyfill<string, Element>()));
+  const isolateModule = new IsolateModule();
   const patch = init([isolateModule.createModule()].concat(modules));
   const rootElement = getElement(container) || document.body;
   const vnodeWrapper = new VNodeWrapper(rootElement);

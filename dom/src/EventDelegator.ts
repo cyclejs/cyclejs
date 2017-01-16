@@ -77,6 +77,7 @@ export class EventDelegator {
     if (!this.topElement.contains(rawEvent.currentTarget as Node)) {
       return;
     }
+    this.roof = this.topElement.parentElement;
     const ev = this.patchEvent(rawEvent);
     for (let el = ev.target as Element | null; el && el !== this.roof; el = el.parentElement) {
       if (!this.topElement.contains(el)) {
