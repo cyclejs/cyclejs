@@ -1,7 +1,6 @@
 import {Stream} from 'xstream';
-import {VNode} from './interfaces';
+import {VNode, vnode} from 'snabbdom/vnode';
 import * as is from 'snabbdom/is';
-const vnode = require('snabbdom/vnode');
 
 function isGenericStream(x: any): boolean {
   return !Array.isArray(x) && typeof x.map === `function`;
@@ -34,29 +33,29 @@ function addNS(data: any,
 
 export function h(sel: string, b?: any, c?: any): VNode {
   let data = {};
-  let children: Array<VNode | string | Stream<VNode>> | undefined;
+  let children: Array<VNode | string> | undefined;
   let text: string | undefined;
   if (arguments.length === 3) {
     data = b;
     if (is.array(c)) {
       children = c;
     } else if (is.primitive(c)) {
-      text = c;
+      text = c as string;
     }
   } else if (arguments.length === 2) {
     if (is.array(b)) {
       children = b;
     } else if (is.primitive(b)) {
-      text = b;
+      text = b as string;
     } else {
       data = b;
     }
   }
   if (is.array(children)) {
-    children = children.filter(x => x as boolean);
+    children = children.filter(x => !!x);
     for (let i = 0; i < children.length; ++i) {
       if (is.primitive(children[i])) {
-        children[i] = vnode(undefined, undefined, undefined, children[i]);
+        children[i] = vnode(undefined as any, undefined, undefined, children[i] as any, undefined);
       }
     }
   }

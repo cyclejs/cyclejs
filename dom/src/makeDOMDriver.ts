@@ -1,9 +1,10 @@
 import {DriverFunction} from '@cycle/run';
 import {init} from 'snabbdom';
+import {Module} from 'snabbdom/modules/module';
 import xs, {Stream} from 'xstream';
 import {DOMSource} from './DOMSource';
 import {MainDOMSource} from './MainDOMSource';
-import {VNode} from './interfaces';
+import {VNode} from 'snabbdom/vnode';
 import {VNodeWrapper} from './VNodeWrapper';
 import {getElement} from './utils';
 import defaultModules from './modules';
@@ -28,7 +29,15 @@ function domDriverInputGuard(view$: Stream<VNode>): void {
 }
 
 export interface DOMDriverOptions {
-  modules?: Array<Object>;
+  modules?: Array<Module>;
+}
+
+function dropCompletion<T>(input: Stream<T>): Stream<T> {
+  return xs.merge(input, xs.never());
+}
+
+function unwrapElementFromVNode(vnode: VNode): Element {
+  return vnode.elm as Element;
 }
 
 function makeDOMDriver(container: string | Element, options?: DOMDriverOptions) {
@@ -43,16 +52,16 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions) 
 
   function DOMDriver(vnode$: Stream<VNode>, name = 'DOM'): DOMSource {
     domDriverInputGuard(vnode$);
-    const sanitation$ = xs.create();
+    const sanitation$ = xs.create<null>();
     const rootElement$ = xs.merge(vnode$.endWhen(sanitation$), sanitation$)
       .map(vnode => vnodeWrapper.call(vnode))
       .fold<VNode | Element>(patch, rootElement)
       .drop(1)
-      .map(function unwrapElementFromVNode(vnode: VNode) { return vnode.elm; })
-      .compose((stream: any) => xs.merge(stream, xs.never())) // don't complete this stream
+      .map(unwrapElementFromVNode)
+      .compose(dropCompletion) // don't complete this stream
       .startWith(rootElement);
 
-    rootElement$.addListener({next: () => {}, error: () => {}, complete: () => {}});
+    rootElement$.addListener({});
 
     return new MainDOMSource(
       rootElement$,

@@ -1,11 +1,11 @@
+import xs from 'xstream';
 import {Stream, MemoryStream} from 'xstream';
 import {DevToolEnabledSource} from '@cycle/run';
 import {adapt} from '@cycle/run/lib/adapt';
 import {DOMSource, EventsFnOptions} from './DOMSource';
 import {DocumentDOMSource} from './DocumentDOMSource';
 import {BodyDOMSource} from './BodyDOMSource';
-import {VNode} from './interfaces';
-import xs from 'xstream';
+import {VNode} from 'snabbdom/vnode';
 import {ElementFinder} from './ElementFinder';
 import {fromEvent} from './fromEvent';
 import {isolateSink as internalIsolateSink, isolateSource} from './isolate';
@@ -93,7 +93,7 @@ function filterBasedOnIsolation(domSource: MainDOMSource, scope: string) {
 export class MainDOMSource implements DOMSource {
 
   constructor(private _rootElement$: Stream<Element>,
-              private _sanitation$: Stream<{}>,
+              private _sanitation$: Stream<null>,
               private _namespace: Array<string> = [],
               public _isolateModule: IsolateModule,
               public _delegators: Map<string, EventDelegator>,
@@ -221,7 +221,7 @@ export class MainDOMSource implements DOMSource {
   }
 
   public dispose(): void {
-    this._sanitation$.shamefullySendNext('');
+    this._sanitation$.shamefullySendNext(null);
     this._isolateModule.reset();
   }
 

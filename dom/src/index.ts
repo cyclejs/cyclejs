@@ -1,6 +1,5 @@
-const thunk = require('snabbdom/thunk');
-export {thunk};
-export * from './interfaces';
+export {thunk, Thunk, ThunkData} from 'snabbdom/thunk';
+export {VNode, VNodeData} from 'snabbdom/vnode';
 export {DOMSource, EventsFnOptions} from './DOMSource';
 export {MainDOMSource} from './MainDOMSource';
 export {HTMLSource} from './HTMLSource';

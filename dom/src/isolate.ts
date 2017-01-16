@@ -1,4 +1,4 @@
-import {VNode} from './interfaces';
+import {VNode} from 'snabbdom/vnode';
 import {SCOPE_PREFIX} from './utils';
 import {DOMSource} from './DOMSource';
 
@@ -11,22 +11,22 @@ interface Mappable<T, R> {
 }
 
 export function isolateSink(sink: any, scope: string): any {
-  return sink.map((vTree: VNode) => {
-    if (vTree.data && vTree.data.isolate) {
-      const existingScope = vTree.data.isolate.replace(/(cycle|\-)/g, '');
+  return sink.map((vnode: VNode) => {
+    if (vnode.data && (vnode.data as any).isolate) {
+      const existingScope = (vnode.data as any).isolate.replace(/(cycle|\-)/g, '');
       const _scope = scope.replace(/(cycle|\-)/g, '');
 
       if (isNaN(parseInt(existingScope))
       || isNaN(parseInt(_scope))
       || existingScope > _scope) {
-        return vTree;
+        return vnode;
       }
     }
-    vTree.data = vTree.data || {};
-    vTree.data.isolate = scope;
-    if (typeof vTree.key === 'undefined') {
-      vTree.key = SCOPE_PREFIX + scope;
+    vnode.data = vnode.data || {};
+    (vnode.data as any).isolate = scope;
+    if (typeof vnode.key === 'undefined') {
+      vnode.key = SCOPE_PREFIX + scope;
     }
-    return vTree;
+    return vnode;
   });
 }

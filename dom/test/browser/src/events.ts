@@ -431,8 +431,10 @@ describe('DOMSource.events()', function () {
           assert.strictEqual(elem.tagName, 'DIV');
           assert.strictEqual(elem.className, 'clickable');
           assert.strictEqual(elem.textContent, 'Hello');
-          const grandparent = (elem.parentElement as Node).parentNode;
-          assert.strictEqual(grandparent instanceof DocumentFragment, true);
+          const top = elem.parentElement as Node;
+          const renderTarget = top.parentNode as Node;
+          const frag = renderTarget.parentNode as Node;
+          assert.strictEqual(frag instanceof DocumentFragment, true);
           done();
         },
       });
@@ -475,8 +477,10 @@ describe('DOMSource.events()', function () {
           assert.strictEqual(elem.tagName, 'DIV');
           assert.strictEqual(elem.className, 'clickable');
           assert.strictEqual(elem.textContent, 'Hello');
-          const grandparent = (elem.parentElement as Node).parentNode;
-          assert.strictEqual(grandparent instanceof DocumentFragment, true);
+          const top = elem.parentElement as Node;
+          const renderTarget = top.parentNode as Node;
+          const frag = renderTarget.parentNode as Node;
+          assert.strictEqual(frag instanceof DocumentFragment, true);
           done();
         },
       });

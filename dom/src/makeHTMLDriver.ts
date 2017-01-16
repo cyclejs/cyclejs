@@ -1,6 +1,6 @@
 import {DriverFunction} from '@cycle/run';
 import {Stream} from 'xstream';
-import {VNode} from './interfaces';
+import {VNode} from 'snabbdom/vnode';
 import {DOMSource} from './DOMSource';
 import {HTMLSource} from './HTMLSource';
 const toHTML: (vnode: VNode) => string = require('snabbdom-to-html');

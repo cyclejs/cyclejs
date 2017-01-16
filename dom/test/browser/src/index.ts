@@ -3,4 +3,3 @@ import './render';
 import './events';
 import './select';
 import './isolation';
-// import './transposition';

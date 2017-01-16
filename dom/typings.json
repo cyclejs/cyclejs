@@ -2,18 +2,6 @@
   "name": "@cycle/dom",
   "main": "lib/index.d.ts",
   "dependencies": {
-    "snabbdom": "file:src/custom-typings/snabbdom.d.ts",
-    "snabbdom/vnode": "file:src/custom-typings/snabbdom-vnode.d.ts",
-    "snabbdom/is": "file:src/custom-typings/snabbdom-is.d.ts",
-    "snabbdom/thunk": "file:src/custom-typings/snabbdom-thunk.d.ts",
-    "snabbdom/modules/attributes": "file:src/custom-typings/snabbdom-modules-attributes.d.ts",
-    "snabbdom/modules/class": "file:src/custom-typings/snabbdom-modules-class.d.ts",
-    "snabbdom/modules/eventlisteners": "file:src/custom-typings/snabbdom-modules-eventlisteners.d.ts",
-    "snabbdom/modules/hero": "file:src/custom-typings/snabbdom-modules-hero.d.ts",
-    "snabbdom/modules/props": "file:src/custom-typings/snabbdom-modules-props.d.ts",
-    "snabbdom/modules/style": "file:src/custom-typings/snabbdom-modules-style.d.ts",
-    "snabbdom-selector/lib/selectorParser": "file:src/custom-typings/snabbdom-selector-lib-selectorParser.d.ts",
-    "snabbdom-selector/lib/classNameFromVNode": "file:src/custom-typings/snabbdom-selector-lib-classNameFromVNode.d.ts",
     "snabbdom-to-html": "file:src/custom-typings/snabbdom-to-html.d.ts"
   }
 }
