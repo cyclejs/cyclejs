@@ -2,18 +2,8 @@ import xs, {Stream} from 'xstream';
 import {ScopeChecker} from './ScopeChecker';
 import {IsolateModule} from './IsolateModule';
 import {getFullScope, getSelectors} from './utils';
+import {matchesSelector} from './matchesSelector';
 declare var requestIdleCallback: any;
-
-interface MatchesSelector {
-  (element: Element, selector: string): boolean;
-}
-let matchesSelector: MatchesSelector;
-declare var require: any;
-try {
-  matchesSelector = require(`matches-selector`);
-} catch (e) {
-  matchesSelector = Function.prototype as MatchesSelector;
-}
 
 interface Destination {
   id: number;

@@ -12,18 +12,7 @@ import {isolateSink as internalIsolateSink, isolateSource} from './isolate';
 import {IsolateModule} from './IsolateModule';
 import {EventDelegator} from './EventDelegator';
 import {getFullScope} from './utils';
-
-interface MatchesSelector {
-  (element: Element, selector: string): boolean;
-}
-let matchesSelector: MatchesSelector;
-declare var require: any;
-declare var requestIdleCallback: any;
-try {
-  matchesSelector = require(`matches-selector`);
-} catch (e) {
-  matchesSelector = Function.prototype as MatchesSelector;
-}
+import {matchesSelector} from './matchesSelector';
 
 const eventTypesThatDontBubble = [
   `blur`,

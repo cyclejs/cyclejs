@@ -1,17 +1,7 @@
 import {ScopeChecker} from './ScopeChecker';
 import {getFullScope, getSelectors} from './utils';
 import {IsolateModule} from './IsolateModule';
-
-interface MatchesSelector {
-  (element: Element, selector: string): boolean;
-}
-let matchesSelector: MatchesSelector;
-declare var require: any;
-try {
-  matchesSelector = require(`matches-selector`);
-} catch (e) {
-  matchesSelector = Function.prototype as MatchesSelector;
-}
+import {matchesSelector} from './matchesSelector';
 
 function toElArray(input: any): Array<Element> {
   return Array.prototype.slice.call(input) as Array<Element>;
