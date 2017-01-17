@@ -1,7 +1,7 @@
 import xs, {Stream} from 'xstream';
 import {ScopeChecker} from './ScopeChecker';
 import {IsolateModule} from './IsolateModule';
-import {getScope, getSelectors} from './utils';
+import {getFullScope, getSelectors} from './utils';
 declare var requestIdleCallback: any;
 
 interface MatchesSelector {
@@ -86,12 +86,16 @@ export class EventDelegator {
 
   /**
    * Creates a *new* destination given the namespace and returns the subject
-   * represeting the destination of events.
+   * representing the destination of events. Is not referentially transparent,
+   * will always return a different output for the same input.
    */
   public createDestination(namespace: Array<string>): Stream<Event> {
     const id = this._lastId++;
     const selector = getSelectors(namespace);
-    const scopeChecker = new ScopeChecker(getScope(namespace), this.isolateModule);
+    const scopeChecker = new ScopeChecker(
+      getFullScope(namespace),
+      this.isolateModule,
+    );
     const subject = xs.create<Event>({
       start: () => {},
       stop: () => {
@@ -158,7 +162,7 @@ export class EventDelegator {
   private matchEventAgainstDestinations(el: Element, ev: CycleDOMEvent) {
     for (let i = 0, n = this.destinations.length; i < n; i++) {
       const dest = this.destinations[i];
-      if (!dest.scopeChecker.isStrictlyInRootScope(el)) {
+      if (!dest.scopeChecker.isDirectlyInScope(el)) {
         continue;
       }
       if (matchesSelector(el, dest.selector)) {

@@ -1,5 +1,5 @@
 import {ScopeChecker} from './ScopeChecker';
-import {getScope, getSelectors} from './utils';
+import {getFullScope, getSelectors} from './utils';
 import {IsolateModule} from './IsolateModule';
 
 interface MatchesSelector {
@@ -24,25 +24,23 @@ export class ElementFinder {
 
   public call(rootElement: Element): Element | Array<Element> {
     const namespace = this.namespace;
-    if (namespace.join(``) === ``) {
+    if (namespace.join('') === '') {
       return rootElement;
     }
 
-    const scope = getScope(namespace);
-    const scopeChecker = new ScopeChecker(scope, this.isolateModule);
     const selector = getSelectors(namespace);
-    let topNode = rootElement;
-    let topNodeMatches: Array<Element> = [];
+    const fullScope = getFullScope(namespace);
+    const scopeChecker = new ScopeChecker(fullScope, this.isolateModule);
 
-    if (scope.length > 0) {
-      topNode = this.isolateModule.getIsolatedElement(scope) || rootElement;
-      if (selector && matchesSelector(topNode, selector)) {
-        topNodeMatches.push(topNode);
-      }
-    }
+    const topNode = fullScope ?
+      this.isolateModule.getElement(fullScope) || rootElement :
+      rootElement;
+
+    const topNodeMatchesSelector =
+      !!fullScope && !!selector && matchesSelector(topNode, selector);
 
     return toElArray(topNode.querySelectorAll(selector))
-      .filter(scopeChecker.isStrictlyInRootScope, scopeChecker)
-      .concat(topNodeMatches);
+      .filter(scopeChecker.isDirectlyInScope, scopeChecker)
+      .concat(topNodeMatchesSelector ? [topNode] : []);
   }
 }

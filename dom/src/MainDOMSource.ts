@@ -11,7 +11,7 @@ import {fromEvent} from './fromEvent';
 import {isolateSink as internalIsolateSink, isolateSource} from './isolate';
 import {IsolateModule} from './IsolateModule';
 import {EventDelegator} from './EventDelegator';
-import {getScope} from './utils';
+import {getFullScope} from './utils';
 
 interface MatchesSelector {
   (element: Element, selector: string): boolean;
@@ -67,22 +67,27 @@ function determineUseCapture(eventType: string, options: EventsFnOptions): boole
   return result;
 }
 
-function filterBasedOnIsolation(domSource: MainDOMSource, scope: string) {
+function filterBasedOnIsolation(domSource: MainDOMSource, fullScope: string) {
   return function filterBasedOnIsolationOperator(rootElement$: Stream<Element>): Stream<Element> {
     interface State {
-      hadIsolatedMutable: boolean;
+      wasIsolated: boolean;
       shouldPass: boolean;
       element: Element;
     }
+    const initialState: State = {
+        wasIsolated: false,
+        shouldPass: false,
+        element: null as any as Element,
+    };
 
     return rootElement$
       .fold(
-        function shouldPass(state: State, element: Element) {
-          const hasIsolated = !!domSource._isolateModule.getIsolatedElement(scope);
-          const shouldPass = hasIsolated && !state.hadIsolatedMutable;
-          return {hadIsolatedMutable: hasIsolated, shouldPass, element};
+        function checkIfShouldPass(state: State, element: Element) {
+          const isIsolated = !!domSource._isolateModule.getElement(fullScope);
+          const shouldPass = isIsolated && !state.wasIsolated;
+          return {wasIsolated: isIsolated, shouldPass, element};
         },
-        {hadIsolatedMutable: false, shouldPass: false, element: null as any as Element},
+        initialState,
       )
       .drop(1)
       .filter(s => s.shouldPass)
@@ -100,9 +105,9 @@ export class MainDOMSource implements DOMSource {
               private _name: string) {
     this.isolateSource = isolateSource;
     this.isolateSink = (sink, scope) => {
-      const existingScope = getScope(this._namespace);
-      const deeperScope = [existingScope, scope].filter(x => !!x).join('-');
-      return internalIsolateSink(sink, deeperScope);
+      const prevFullScope = getFullScope(this._namespace);
+      const nextFullScope = [prevFullScope, scope].filter(x => !!x).join('-');
+      return internalIsolateSink(sink, nextFullScope) as Stream<VNode>;
     };
   }
 
@@ -156,18 +161,18 @@ export class MainDOMSource implements DOMSource {
     const useCapture: boolean = determineUseCapture(eventType, options);
 
     const namespace = this._namespace;
-    const scope = getScope(namespace);
+    const fullScope = getFullScope(namespace);
     const keyParts = [eventType, useCapture];
-    if (scope) {
-      keyParts.push(scope);
+    if (fullScope) {
+      keyParts.push(fullScope);
     }
     const key = keyParts.join('~');
     const domSource = this;
-    let rootElement$: Stream<Element>;
 
-    if (scope) {
+    let rootElement$: Stream<Element>;
+    if (fullScope) {
       rootElement$ = this._rootElement$
-        .compose(filterBasedOnIsolation(domSource, scope));
+        .compose(filterBasedOnIsolation(domSource, fullScope));
     } else {
       rootElement$ = this._rootElement$.take(2);
     }
@@ -179,9 +184,9 @@ export class MainDOMSource implements DOMSource {
           return fromEvent(rootElement, eventType, useCapture);
         }
 
-        // Event listener on the top element as an EventDelegator
+        // Event listener on the origin element as an EventDelegator
         const delegators = domSource._delegators;
-        const origin = domSource._isolateModule.getIsolatedElement(scope) || rootElement;
+        const origin = domSource._isolateModule.getElement(fullScope) || rootElement;
         let delegator: EventDelegator;
         if (delegators.has(key)) {
           delegator = delegators.get(key) as EventDelegator;
@@ -192,8 +197,8 @@ export class MainDOMSource implements DOMSource {
           );
           delegators.set(key, delegator);
         }
-        if (scope) {
-          domSource._isolateModule.addEventDelegator(scope, delegator);
+        if (fullScope) {
+          domSource._isolateModule.addEventDelegator(fullScope, delegator);
         }
 
         const subject = delegator.createDestination(namespace);

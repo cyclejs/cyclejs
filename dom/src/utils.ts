@@ -22,13 +22,18 @@ export function getElement(selectors: Element | string): Element | null {
   return domElement;
 }
 
-export function getScope(namespace: String[]): string {
+/**
+ * The full scope of a namespace is the "absolute path" of scopes from
+ * parent to child. This is extracted from the namespace, filter only for
+ * scopes in the namespace.
+ */
+export function getFullScope(namespace: Array<String>): string {
   return namespace
     .filter(c => c.indexOf(SCOPE_PREFIX) > -1)
     .map(c => c.replace(SCOPE_PREFIX, ''))
-    .join(`-`);
+    .join('-');
 }
 
-export function getSelectors(namespace: String[]): string {
+export function getSelectors(namespace: Array<String>): string {
   return namespace.filter(c => c.indexOf(SCOPE_PREFIX) === -1).join(` `);
 }

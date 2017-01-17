@@ -1,17 +1,23 @@
 import {IsolateModule} from './IsolateModule';
 
 export class ScopeChecker {
-  constructor(private scope: string,
+  constructor(private fullScope: string,
               private isolateModule: IsolateModule) {
   }
 
-  public isStrictlyInRootScope(leaf: Element): boolean {
+  /**
+   * Checks whether the given element is *directly* in the scope of this
+   * scope checker. Being contained *indirectly* through other scopes
+   * is not valid. This is crucial for implementing parent-child isolation,
+   * so that the parent selectors don't search inside a child scope.
+   */
+  public isDirectlyInScope(leaf: Element): boolean {
     for (let el: Element | null = leaf; el; el = el.parentElement) {
-      const scope = this.isolateModule.isIsolatedElement(el);
-      if (scope && scope !== this.scope) {
+      const fullScope = this.isolateModule.getFullScope(el);
+      if (fullScope && fullScope !== this.fullScope) {
         return false;
       }
-      if (scope) {
+      if (fullScope) {
         return true;
       }
     }
