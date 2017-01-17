@@ -73,6 +73,38 @@ describe('DOM Rendering', function () {
     }, 150);
   });
 
+  it('should support snabbdom dataset module by default', function (done) {
+    function app(sources: {DOM: MainDOMSource}) {
+      return {
+        DOM: xs.of(
+          div('.my-class', {
+            dataset: {foo: 'Foo'},
+          }),
+        ),
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    let dispose: any;
+    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+      next: (root: Element) => {
+        const elem = root.querySelector('.my-class') as HTMLElement;
+        assert.notStrictEqual(elem, null);
+        assert.notStrictEqual(typeof elem, 'undefined');
+        assert.strictEqual(elem.tagName, 'DIV');
+        assert.strictEqual(elem.dataset['foo'], 'Foo');
+        setTimeout(() => {
+          dispose();
+          done();
+        });
+      },
+    });
+    dispose = run();
+  });
+
   it('should convert a simple virtual-dom <select> to DOM element', function (done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
