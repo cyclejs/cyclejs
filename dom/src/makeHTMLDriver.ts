@@ -3,10 +3,31 @@ import {Stream} from 'xstream';
 import {VNode} from 'snabbdom/vnode';
 import {DOMSource} from './DOMSource';
 import {HTMLSource} from './HTMLSource';
-const toHTML: (vnode: VNode) => string = require('snabbdom-to-html');
+const init: Init = require('snabbdom-to-html/init');
+const modulesForHTML: ModulesForHTML = require('snabbdom-to-html/modules');
+
+type Init =
+  (modules: Array<Module>) => ((vnode: VNode) => string);
+
+interface ModulesForHTML {
+  attributes: Module;
+  props: Module;
+  class: Module;
+  style: Module;
+}
+
+export type Module =
+  (vnode: VNode, attributes: Map<string, any>) => void;
+
+const defaultModules = [
+  modulesForHTML.attributes,
+  modulesForHTML.props,
+  modulesForHTML.class,
+  modulesForHTML.style,
+];
 
 export interface HTMLDriverOptions {
-  transposition?: boolean;
+  modules?: Array<Module>;
 }
 
 export type EffectCallback = (html: string) => void;
@@ -14,7 +35,8 @@ const noop = () => {};
 
 export function makeHTMLDriver(effect: EffectCallback, options?: HTMLDriverOptions) {
   if (!options) { options = {}; }
-  const transposition = options.transposition || false;
+  const modules = options.modules || defaultModules;
+  const toHTML = init(modules);
   function htmlDriver(vnode$: Stream<VNode>, name: string): DOMSource {
     const html$ = vnode$.map(toHTML);
     html$.addListener({

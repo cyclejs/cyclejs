@@ -163,6 +163,35 @@ describe('HTML Driver', function () {
     run();
   });
 
+  it('should support passing custom modules', function (done) {
+    function main() {
+      return {
+        html: Rx.Observable.of(div(['Hello'])),
+      };
+    }
+
+    function effect(html: string): void {
+      try {
+        assert.strictEqual(html, '<div custom="stuff">Hello</div>');
+      } catch (err) {
+        done(err);
+        return;
+      }
+      done();
+    }
+
+    const {sinks, sources, run} = setup(main, {
+      html: makeHTMLDriver(effect, {
+        modules: [
+          (vnode: VNode, attributes: Map<string, any>) => {
+            attributes.set('custom', 'stuff');
+          },
+        ],
+      }),
+    });
+    run();
+  });
+
   it('should render a complex and nested HTML', function (done) {
     function app() {
       return {
