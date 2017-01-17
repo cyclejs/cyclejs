@@ -1,6 +1,6 @@
 import {ScopeChecker} from './ScopeChecker';
 import {getScope, getSelectors} from './utils';
-import {IsolateModule} from './isolateModule';
+import {IsolateModule} from './IsolateModule';
 
 interface MatchesSelector {
   (element: Element, selector: string): boolean;

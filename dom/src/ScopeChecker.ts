@@ -1,4 +1,4 @@
-import {IsolateModule} from './isolateModule';
+import {IsolateModule} from './IsolateModule';
 
 export class ScopeChecker {
   constructor(private scope: string,

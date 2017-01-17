@@ -1,6 +1,6 @@
 import xs, {Stream} from 'xstream';
 import {ScopeChecker} from './ScopeChecker';
-import {IsolateModule} from './isolateModule';
+import {IsolateModule} from './IsolateModule';
 import {getScope, getSelectors} from './utils';
 declare var requestIdleCallback: any;
 

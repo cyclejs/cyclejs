@@ -8,7 +8,7 @@ import {VNode} from 'snabbdom/vnode';
 import {VNodeWrapper} from './VNodeWrapper';
 import {getElement} from './utils';
 import defaultModules from './modules';
-import {IsolateModule} from './isolateModule';
+import {IsolateModule} from './IsolateModule';
 import {EventDelegator} from './EventDelegator';
 let MapPolyfill: typeof Map = require('es6-map');
 

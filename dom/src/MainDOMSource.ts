@@ -9,7 +9,7 @@ import {VNode} from 'snabbdom/vnode';
 import {ElementFinder} from './ElementFinder';
 import {fromEvent} from './fromEvent';
 import {isolateSink as internalIsolateSink, isolateSource} from './isolate';
-import {IsolateModule} from './isolateModule';
+import {IsolateModule} from './IsolateModule';
 import {EventDelegator} from './EventDelegator';
 import {getScope} from './utils';
 
