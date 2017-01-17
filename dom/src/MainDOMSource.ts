@@ -181,14 +181,14 @@ export class MainDOMSource implements DOMSource {
 
         // Event listener on the top element as an EventDelegator
         const delegators = domSource._delegators;
-        const top = domSource._isolateModule.getIsolatedElement(scope) || rootElement;
+        const origin = domSource._isolateModule.getIsolatedElement(scope) || rootElement;
         let delegator: EventDelegator;
         if (delegators.has(key)) {
           delegator = delegators.get(key) as EventDelegator;
-          delegator.updateTopElement(top);
+          delegator.updateOrigin(origin);
         } else {
           delegator = new EventDelegator(
-            top, eventType, useCapture, domSource._isolateModule,
+            origin, eventType, useCapture, domSource._isolateModule,
           );
           delegators.set(key, delegator);
         }
@@ -196,21 +196,7 @@ export class MainDOMSource implements DOMSource {
           domSource._isolateModule.addEventDelegator(scope, delegator);
         }
 
-        const destinationId = delegator.createDestinationId();
-        const subject = xs.create<Event>({
-          start: () => {},
-          stop: () => {
-            if ('requestIdleCallback' in window) {
-              requestIdleCallback(() => {
-                delegator.removeDestinationId(destinationId);
-              });
-            } else {
-              delegator.removeDestinationId(destinationId);
-            }
-          },
-        });
-
-        delegator.addDestination(subject, namespace, destinationId);
+        const subject = delegator.createDestination(namespace);
         return subject;
       })
       .flatten();

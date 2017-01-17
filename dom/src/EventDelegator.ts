@@ -1,7 +1,8 @@
-import {Stream} from 'xstream';
+import xs, {Stream} from 'xstream';
 import {ScopeChecker} from './ScopeChecker';
 import {IsolateModule} from './isolateModule';
 import {getScope, getSelectors} from './utils';
+declare var requestIdleCallback: any;
 
 interface MatchesSelector {
   (element: Element, selector: string): boolean;
@@ -14,13 +15,11 @@ try {
   matchesSelector = Function.prototype as MatchesSelector;
 }
 
-let gDestinationId = 0;
-
 interface Destination {
-  subject: Stream<Event>;
-  scopeChecker: ScopeChecker;
+  id: number;
   selector: string;
-  destinationId: number;
+  scopeChecker: ScopeChecker;
+  subject: Stream<Event>;
 }
 
 export interface CycleDOMEvent extends Event {
@@ -28,59 +27,114 @@ export interface CycleDOMEvent extends Event {
   ownerTarget?: Element;
 }
 
-function findDestinationId(arr: Array<Destination>, searchId: number): number {
+/**
+ * Finds (with binary search) index of the destination that id equal to searchId
+ * among the destinations in the given array.
+ */
+function indexOf(arr: Array<Destination>, searchId: number): number {
+  let minIndex = 0;
+  let maxIndex = arr.length - 1;
+  let currentIndex: number;
+  let current: Destination;
 
-    let minIndex = 0;
-    let maxIndex = arr.length - 1;
-    let currentIndex: number;
-    let currentElement: Destination;
-
-    while (minIndex <= maxIndex) {
-        currentIndex = (minIndex + maxIndex) / 2 | 0; // tslint:disable-line:no-bitwise
-        currentElement = arr[currentIndex];
-        let currentId: number = currentElement.destinationId;
-        if (currentId < searchId) {
-            minIndex = currentIndex + 1;
-        } else if (currentId > searchId) {
-            maxIndex = currentIndex - 1;
-        } else {
-            return currentIndex;
-        }
+  while (minIndex <= maxIndex) {
+    currentIndex = (minIndex + maxIndex) / 2 | 0; // tslint:disable-line:no-bitwise
+    current = arr[currentIndex];
+    let currentId = current.id;
+    if (currentId < searchId) {
+      minIndex = currentIndex + 1;
+    } else if (currentId > searchId) {
+      maxIndex = currentIndex - 1;
+    } else {
+      return currentIndex;
     }
-
-    return -1;
+  }
+  return -1;
 }
 
 /**
- * Attaches an actual event listener to the DOM root element,
- * handles "destinations" (interested DOMSource output subjects), and bubbling.
+ * Manages "Event delegation", by connecting an origin with multiple
+ * destinations.
+ *
+ * Attaches a DOM event listener to the DOM element called the "origin",
+ * and delegates events to "destinations", which are subjects as outputs
+ * for the DOMSource. Simulates bubbling or capturing, with regards to
+ * isolation boundaries too.
  */
 export class EventDelegator {
   private destinations: Array<Destination> = [];
-  private roof: Element | null;
-  private domListener: EventListener;
+  private listener: EventListener;
+  private _lastId: number = 0;
 
-  constructor(private topElement: Element,
+  constructor(private origin: Element,
               public eventType: string,
               public useCapture: boolean,
               public isolateModule: IsolateModule) {
-    this.roof = topElement.parentElement;
     if (useCapture) {
-      this.domListener = (ev: Event) => this.capture(ev);
+      this.listener = (ev: Event) => this.capture(ev);
     } else {
-      this.domListener = (ev: Event) => this.bubble(ev);
+      this.listener = (ev: Event) => this.bubble(ev);
     }
-    topElement.addEventListener(eventType, this.domListener, useCapture);
+    origin.addEventListener(eventType, this.listener, useCapture);
+  }
+
+  public updateOrigin(newOrigin: Element) {
+    this.origin.removeEventListener(this.eventType, this.listener, this.useCapture);
+    newOrigin.addEventListener(this.eventType, this.listener, this.useCapture);
+    this.origin = newOrigin;
+  }
+
+  /**
+   * Creates a *new* destination given the namespace and returns the subject
+   * represeting the destination of events.
+   */
+  public createDestination(namespace: Array<string>): Stream<Event> {
+    const id = this._lastId++;
+    const selector = getSelectors(namespace);
+    const scopeChecker = new ScopeChecker(getScope(namespace), this.isolateModule);
+    const subject = xs.create<Event>({
+      start: () => {},
+      stop: () => {
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(() => {
+            this.removeDestination(id);
+          });
+        } else {
+          this.removeDestination(id);
+        }
+      },
+    });
+    const destination: Destination = {id, selector, scopeChecker, subject};
+    this.destinations.push(destination);
+    return subject;
+  }
+
+  /**
+   * Removes the destination that has the given id.
+   */
+  private removeDestination(id: number): void {
+    const i = indexOf(this.destinations, id);
+    i >= 0 && this.destinations.splice(i, 1); // tslint:disable-line:no-unused-expression
+  }
+
+  private capture(ev: Event) {
+    for (let i = 0, n = this.destinations.length; i < n; i++) {
+      const dest = this.destinations[i];
+      if (matchesSelector((ev.target as Element), dest.selector)) {
+        dest.subject._n(ev);
+      }
+    }
   }
 
   private bubble(rawEvent: Event): void {
-    if (!this.topElement.contains(rawEvent.currentTarget as Node)) {
+    const origin = this.origin;
+    if (!origin.contains(rawEvent.currentTarget as Node)) {
       return;
     }
-    this.roof = this.topElement.parentElement;
+    const roof = origin.parentElement;
     const ev = this.patchEvent(rawEvent);
-    for (let el = ev.target as Element | null; el && el !== this.roof; el = el.parentElement) {
-      if (!this.topElement.contains(el)) {
+    for (let el = ev.target as Element | null; el && el !== roof; el = el.parentElement) {
+      if (!origin.contains(el)) {
         ev.stopPropagation();
       }
       if (ev.propagationHasBeenStopped) {
@@ -88,6 +142,17 @@ export class EventDelegator {
       }
       this.matchEventAgainstDestinations(el, ev);
     }
+  }
+
+  private patchEvent(event: Event): CycleDOMEvent {
+    const pEvent = event as CycleDOMEvent;
+    pEvent.propagationHasBeenStopped = false;
+    const oldStopPropagation = pEvent.stopPropagation;
+    pEvent.stopPropagation = function stopPropagation() {
+      oldStopPropagation.call(this);
+      this.propagationHasBeenStopped = true;
+    };
+    return pEvent;
   }
 
   private matchEventAgainstDestinations(el: Element, ev: CycleDOMEvent) {
@@ -103,44 +168,6 @@ export class EventDelegator {
     }
   }
 
-  private capture(ev: Event) {
-    for (let i = 0, n = this.destinations.length; i < n; i++) {
-      const dest = this.destinations[i];
-      if (matchesSelector((ev.target as Element), dest.selector)) {
-        dest.subject._n(ev);
-      }
-    }
-  }
-
-  public addDestination(subject: Stream<Event>, namespace: Array<string>, destinationId: number) {
-    const scope = getScope(namespace);
-    const selector = getSelectors(namespace);
-    const scopeChecker = new ScopeChecker(scope, this.isolateModule);
-    this.destinations.push({subject, scopeChecker, selector, destinationId});
-  }
-
-  public createDestinationId(): number {
-    return gDestinationId++;
-  }
-
-  public removeDestinationId(destinationId: number) {
-    const i = findDestinationId(this.destinations, destinationId);
-    if (i >= 0) {
-      this.destinations.splice(i, 1);
-    }
-  }
-
-  private patchEvent(event: Event): CycleDOMEvent {
-    const pEvent = event as CycleDOMEvent;
-    pEvent.propagationHasBeenStopped = false;
-    const oldStopPropagation = pEvent.stopPropagation;
-    pEvent.stopPropagation = function stopPropagation() {
-      oldStopPropagation.call(this);
-      this.propagationHasBeenStopped = true;
-    };
-    return pEvent;
-  }
-
   private mutateEventCurrentTarget(event: CycleDOMEvent, currentTargetElement: Element) {
     try {
       Object.defineProperty(event, `currentTarget`, {
@@ -151,15 +178,5 @@ export class EventDelegator {
       console.log(`please use event.ownerTarget`);
     }
     event.ownerTarget = currentTargetElement;
-  }
-
-  public updateTopElement(newTopElement: Element) {
-    this.topElement.removeEventListener(
-      this.eventType, this.domListener, this.useCapture,
-    );
-    newTopElement.addEventListener(
-      this.eventType, this.domListener, this.useCapture,
-    );
-    this.topElement = newTopElement;
   }
 }
