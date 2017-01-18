@@ -290,15 +290,27 @@ Returns a `TimeSource` object, with all of the methods from the `timeDriver` (`d
 
 Instead of all delays and debounces running in real time in your tests, causing unecessary delays, they will be run in "virtual time".
 
-Has some additional methods:
+Has some additional methods that are useful for testing:
 
 #### `run(doneCallback = raiseError)`
 Executes the schedule. This should be called at the end of your test run. Takes a callback that takes an error as the first argument if an error occurs, such as an assertion failing.
 
 If no callback is provided, errors will be raised.
 
-#### `diagram(diagramString)`
-A constructor that takes a string representing a stream and returns a stream. Useful for testing.
+#### `diagram(diagramString, values = {})`
+A constructor that takes a string representing a stream and returns a stream.
+
+The diagram syntax is inspired by xstream's [fromDiagram](Vhttps://github.com/staltz/xstream/blob/master/EXTRA_DOCS.md#-fromdiagramdiagram-options) and RxJS's [marble diagrams](Vhttps://github.com/ReactiveX/rxjs/blob/master/doc/writing-marble-tests.md).
+
+ * `-` the passage of time without any events, by default 20 virtual millseconds (can be changed by passing an argument to `mockTimeSource`)
+ * `1` numbers 0-9 are treated as literal numeric values
+ * `a` other literal values are strings
+ * `|` completion of the stream
+ * `#` an error
+
+The stream returned by diagram will only emit events once `Time.run()` is called.
+
+`diagram` can also take an optional values object that can be used to emit more complex values than simple literals.
 
 ```js
 Time.diagram('---1---2---3---|').subscribe(i => console.log(i));
@@ -309,6 +321,15 @@ Time.run();
 // 1
 // 2
 // 3
+
+Time.diagram('---a---b---c---|', {a: 'foo', b: 'bar', c: 'baz'});
+
+Time.run();
+
+// Logs:
+// foo
+// bar
+// baz
 ```
 
 #### `assertEqual(actualStream, expectedStream, done)`
