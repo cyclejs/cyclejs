@@ -14,11 +14,11 @@ export class ElementFinder {
 
   public call(rootElement: Element): Element | Array<Element> {
     const namespace = this.namespace;
-    if (namespace.join('') === '') {
+    const selector = getSelectors(namespace);
+    if (!selector) {
       return rootElement;
     }
 
-    const selector = getSelectors(namespace);
     const fullScope = getFullScope(namespace);
     const scopeChecker = new ScopeChecker(fullScope, this.isolateModule);
 

@@ -194,6 +194,34 @@ describe('isolation', function () {
     run();
   });
 
+  it('should allow using elements() in an isolated main() fn', function (done) {
+    function main(sources) {
+      const elem$ = sources.DOM.select(':root').elements();
+      const vnode$ = elem$.map(elem =>
+        h('div.bar', 'left=' + elem.offsetLeft),
+      );
+      return {
+        DOM: vnode$,
+      };
+    }
+
+    const {sinks, sources, run} = setup(isolate(main), {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+      next: (rootElement: Element) => {
+        const barElem = rootElement.querySelector('.bar') as Element;
+        assert.notStrictEqual(barElem, null);
+        assert.notStrictEqual(typeof barElem, 'undefined');
+        assert.strictEqual(barElem.tagName, 'DIV');
+        assert.strictEqual(barElem.textContent, 'left=0');
+        done();
+      },
+    });
+    run();
+  });
+
   it('should allow parent to DOM.select() in its own isolation island', function (done) {
     function app(sources: {DOM: MainDOMSource}) {
       const {isolateSource, isolateSink} = sources.DOM;
