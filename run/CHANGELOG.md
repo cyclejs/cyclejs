@@ -1,3 +1,13 @@
+<a name="1.0.0-rc.7"></a>
+# 1.0.0-rc.7 (2017-01-19)
+
+
+### Bug Fixes
+
+* **run:** support drivers that dont return sources ([cda7602](https://github.com/cyclejs/cyclejs/tree/master/run/commit/cda7602))
+
+
+
 <a name="1.0.0-rc.6"></a>
 # 1.0.0-rc.6 (2016-12-14)
 
