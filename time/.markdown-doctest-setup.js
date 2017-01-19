@@ -60,7 +60,6 @@ module.exports = {
       mockTimeSource: timeDriver.mockTimeSource
     },
     '@cycle/dom': mockedCycleDom,
-    '@cycle/xstream-run': require('@cycle/xstream-run'),
     '@cycle/xstream-adapter': require('@cycle/xstream-adapter'),
     'snabbdom-selector': require('snabbdom-selector'),
     'xstream': require('xstream'),
@@ -84,6 +83,7 @@ module.exports = {
     },
 
     Time: timeDriver.mockTimeSource(),
+    timeDriver: timeDriver.timeDriver,
 
     done: (err) => {
       if (err) {
@@ -96,9 +96,18 @@ module.exports = {
       log () {}
     },
 
+    makeDOMDriver: mockedCycleDom.makeDOMDriver,
+
     xs,
 
     div,
-    button
-  }
+    button,
+    describe: (label, itBlock) => itBlock(),
+    it: (label, test) => {
+      const done = () => {};
+
+      test(done);
+    },
+    run: (main, drivers) => {}
+  },
 }
