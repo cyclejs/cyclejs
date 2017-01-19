@@ -20,6 +20,7 @@ Features
  * Write tests using marble diagram syntax, including expected output
  * Blazing fast! 100x faster than tests written with `xstream`'s `fromDiagram`
  * No more intermittent failures and timing errors. Runs in virtual time so ordering is guaranteed.
+ * No more tests timing out when they fail, assertions works even with streams that don't complete
 
 Installation
 ---
