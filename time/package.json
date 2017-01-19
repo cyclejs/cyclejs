@@ -7,15 +7,12 @@
   "author": "Nick Johnstone",
   "license": "MIT",
   "homepage": "https://github.com/cyclejs/time#readme",
-
   "files": [
     "dist/"
   ],
-
   "publishConfig": {
     "access": "public"
   },
-
   "scripts": {
     "start": "budo example/index.ts:index.js --live -- -p tsify",
     "test": "mocha 'test/**/*.ts' --compilers ts:ts-node/register && npm run test/docs",
@@ -25,27 +22,24 @@
     "prepublish": "npm run compile",
     "postpublish": "greenkeeper-postpublish"
   },
-
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cyclejs/time.git"
   },
-
   "bugs": {
     "url": "https://github.com/cyclejs/time/issues"
   },
-
   "dependencies": {
     "@cycle/xstream-run": "^4.2.0",
     "@types/core-js": "^0.9.35",
     "@types/node": "^7.0.0",
+    "combine-errors": "^3.0.3",
     "deep-equal": "^1.0.1",
     "raf": "^3.3.0",
     "setimmediate": "^1.0.5",
     "sorted-immutable-list": "^1.1.0",
     "xstream": "^9.3.0"
   },
-
   "devDependencies": {
     "@cycle/dom": "^14.1.0",
     "@types/mocha": "^2.2.37",

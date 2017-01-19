@@ -1,5 +1,6 @@
 import xs, {Stream} from 'xstream';
 import * as assert from 'assert';
+import * as combineErrors from 'combine-errors';
 require('setimmediate');
 
 import {makeScheduler} from './scheduler';
@@ -44,7 +45,10 @@ function mockTimeSource ({interval = 20} = {}) {
       const failedAsserts = asserts.filter(assert => assert.state === 'failed');
 
       if (failedAsserts.length > 0) {
-        done(failedAsserts[0].error);
+        const errors = failedAsserts.map(assert => assert.error);
+        const error = combineErrors(errors);
+
+        done(error);
       } else {
         done();
       }
