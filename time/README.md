@@ -268,6 +268,24 @@ describe('Counter', () => {
 
 If you want to see more examples of tests using `@cycle/time`, check out the test directory.
 
+## FAQ
+
+### Why would I want to use the time based operators provided by this library over the ones from `xstream`?
+
+xstream's time-based operators (`periodic`, `delay`, `debounce`, `throttle`, etc) are implemented using `setTimeout`.
+
+`setTimeout` provides no guarantee that it will actually fire the event precisely at the given interval. The variance in `setTimeout` has a few consequences.
+
+ * It makes it impossible to consistently record streams into diagrams, which prevents asserting two streams are equal
+ * Events might occur in different orders each time the code is run
+ * Operators implemented using `setTimeout` cause a real delay in tests. A delay of 300ms is common for normal `fromDiagram` tests
+
+Instead, `@cycle/time` schedules events onto a central queue. In tests, they are then emitted as fast as possible, while guaranteeing the ordering.
+
+This allows incredibly fast tests for complex asynchronous behaviour. A `@cycle/time` test takes 3-5ms to run on my machine.
+
+This approach also means we can express our expected output using a diagram, which is nice.
+
 ## API
 
 ```js
