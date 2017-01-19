@@ -3,7 +3,7 @@
 var assert = require('assert');
 var src = require('../lib/index');
 var Rx = require('rxjs');
-var Cycle = require('@cycle/rxjs-run').default;
+var Cycle = require('@cycle/rxjs-run');
 var makeHTTPDriver = src.makeHTTPDriver;
 
 function run(uri) {
@@ -26,7 +26,7 @@ function run(uri) {
           }
         }
 
-        var output = Cycle(main, { HTTP: makeHTTPDriver() });
+        var output = Cycle.setup(main, { HTTP: makeHTTPDriver() });
         output.sources.HTTP.select().mergeAll().subscribe(
           function next() { assert.fail(); },
           function error(err) {
@@ -49,7 +49,7 @@ function run(uri) {
             HTTP: Rx.Observable.of({method: 'post'})
           }
         }
-        var output = Cycle(main, { HTTP: makeHTTPDriver() });
+        var output = Cycle.setup(main, { HTTP: makeHTTPDriver() });
         output.sources.HTTP.select().mergeAll().subscribe(
           function next() { assert.fail(); },
           function error(err) {
@@ -73,7 +73,7 @@ function run(uri) {
           }
         }
 
-        var output = Cycle(main, { HTTP: makeHTTPDriver() });
+        var output = Cycle.setup(main, { HTTP: makeHTTPDriver() });
 
         output.sources.HTTP.select().subscribe(function(response$) {
           assert.strictEqual(typeof response$.request, 'object');
@@ -95,7 +95,7 @@ function run(uri) {
             HTTP: Rx.Observable.of(uri + '/hello')
           }
         }
-        var output = Cycle(main, { HTTP: makeHTTPDriver() });
+        var output = Cycle.setup(main, { HTTP: makeHTTPDriver() });
         output.run();
         var httpSource = output.sources.HTTP;
         assert.strictEqual(typeof httpSource.isolateSource, 'function');
@@ -116,7 +116,7 @@ function run(uri) {
           };
         }
 
-        var output = Cycle(main, { HTTP: makeHTTPDriver() });
+        var output = Cycle.setup(main, { HTTP: makeHTTPDriver() });
 
         var response$$ = output.sources.HTTP.select();
         response$$.subscribe(function(response$) {
@@ -145,7 +145,7 @@ function run(uri) {
         };
       }
 
-      var output = Cycle(main, { HTTP: makeHTTPDriver() });
+      var output = Cycle.setup(main, { HTTP: makeHTTPDriver() });
 
       var response$$ = output.sources.HTTP.select();
       assert.strictEqual(response$$._isCycleSource, 'HTTP');
@@ -164,7 +164,7 @@ function run(uri) {
         };
       }
 
-      var output = Cycle(main, { HTTP: makeHTTPDriver() });
+      var output = Cycle.setup(main, { HTTP: makeHTTPDriver() });
 
       var response$$ = output.sources.HTTP.select();
       assert.strictEqual(response$$._isCycleSource, 'HTTP');
@@ -184,7 +184,7 @@ function run(uri) {
           }
         }
 
-        var output = Cycle(main, { HTTP: makeHTTPDriver() });
+        var output = Cycle.setup(main, { HTTP: makeHTTPDriver() });
 
         var response$$ = output.sources.HTTP.select();
         response$$.subscribe(function(response$) {
@@ -215,7 +215,7 @@ function run(uri) {
           }
         }
 
-        var output = Cycle(main, { HTTP: makeHTTPDriver() });
+        var output = Cycle.setup(main, { HTTP: makeHTTPDriver() });
         var response$$ = output.sources.HTTP.select();
 
         response$$.subscribe(function(response$) {
@@ -242,7 +242,7 @@ function run(uri) {
           }
         }
 
-        var output = Cycle(main, { HTTP: makeHTTPDriver() });
+        var output = Cycle.setup(main, { HTTP: makeHTTPDriver() });
         var response$$ = output.sources.HTTP.select();
 
         response$$
@@ -267,7 +267,7 @@ function run(uri) {
           }
         }
 
-        var output = Cycle(main, { HTTP: makeHTTPDriver() });
+        var output = Cycle.setup(main, { HTTP: makeHTTPDriver() });
         var response$$ = output.sources.HTTP.select();
 
         response$$.subscribe(function(response$) {
@@ -296,7 +296,7 @@ function run(uri) {
         });
         var response$ = sources.HTTP.select()
           .mergeAll()
-          .map(function (res) { return res.text; });
+          .map(function (res) { return res.text; })
 
         // Notice HTTP comes before Test here. This is crucial for this test.
         return {
@@ -307,15 +307,17 @@ function run(uri) {
       var testDriverExpected = ['Hello World'];
 
       function testDriver(sink) {
-        sink.subscribe(function (x) {
-          assert.strictEqual(testDriverExpected.length, 1);
-          assert.strictEqual(x, testDriverExpected.shift());
-          assert.strictEqual(testDriverExpected.length, 0);
-          done();
+        sink.subscribe({
+          next: function (x) {
+            assert.strictEqual(testDriverExpected.length, 1);
+            assert.strictEqual(x, testDriverExpected.shift());
+            assert.strictEqual(testDriverExpected.length, 0);
+            done();
+          }
         });
       }
 
-      var output = Cycle(main, {
+      var output = Cycle.setup(main, {
         HTTP: makeHTTPDriver(),
         Test: testDriver,
       });
@@ -330,7 +332,7 @@ function run(uri) {
           HTTP: new Rx.Subject()
         }
       }
-      var output = Cycle(main, { HTTP: makeHTTPDriver() });
+      var output = Cycle.setup(main, { HTTP: makeHTTPDriver() });
       var httpSource = output.sources.HTTP;
 
       assert.strictEqual(typeof httpSource.isolateSource, 'function');
@@ -344,7 +346,7 @@ function run(uri) {
           HTTP: new Rx.Subject()
         }
       }
-      var output = Cycle(main, { HTTP: makeHTTPDriver() });
+      var output = Cycle.setup(main, { HTTP: makeHTTPDriver() });
       var httpSource = output.sources.HTTP;
 
       var scopedHTTPSource = httpSource.isolateSource(httpSource, 'foo');
@@ -363,7 +365,7 @@ function run(uri) {
           }
         }
 
-        var output = Cycle(main, { HTTP: makeHTTPDriver() });
+        var output = Cycle.setup(main, { HTTP: makeHTTPDriver() });
         var httpSource = output.sources.HTTP;
 
         var ignoredRequest$ = Rx.Observable.of(uri + '/json');

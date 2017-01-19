@@ -8,7 +8,7 @@ require('./common')(uri);
 // Node.js specific ============================================================
 var assert = require('assert');
 var Rx = require('rxjs');
-var Cycle = require('@cycle/rxjs-run').default;
+var Cycle = require('@cycle/rxjs-run');
 var src = require('../lib/index');
 var makeHTTPDriver = src.makeHTTPDriver;
 var globalSandbox = require('./support/global');
@@ -26,7 +26,7 @@ describe('HTTP Driver in Node.js', function () {
         }
       }
 
-      var output = Cycle(main, { HTTP: makeHTTPDriver() });
+      var output = Cycle.setup(main, { HTTP: makeHTTPDriver() });
       globalSandbox.petPOSTResponse = null;
       output.run();
 
@@ -52,7 +52,7 @@ describe('HTTP Driver in Node.js', function () {
         }
       }
 
-      var output = Cycle(main, { HTTP: makeHTTPDriver() });
+      var output = Cycle.setup(main, { HTTP: makeHTTPDriver() });
       globalSandbox.petPOSTResponse = null;
       output.run();
 
@@ -76,7 +76,7 @@ describe('HTTP Driver in Node.js', function () {
         }
       }
 
-      var output = Cycle(main, { HTTP: makeHTTPDriver() });
+      var output = Cycle.setup(main, { HTTP: makeHTTPDriver() });
       globalSandbox.petPOSTResponse = null;
 
       output.sources.HTTP.select()
@@ -107,7 +107,7 @@ describe('HTTP Driver in Node.js', function () {
         }
       }
 
-      var output = Cycle(main, { HTTP: makeHTTPDriver() });
+      var output = Cycle.setup(main, { HTTP: makeHTTPDriver() });
 
       output.sources.HTTP.select()
         .mergeAll()

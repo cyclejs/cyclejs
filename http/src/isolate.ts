@@ -1,7 +1,7 @@
 import {HTTPSource, RequestOptions, RequestInput} from './interfaces';
 
-export interface Mappable<T, R> {
-  map(project: (x: T) => R): Mappable<R, any>;
+export interface Mappable<T> {
+  map<R>(project: (x: T) => R): Mappable<R>;
 }
 
 export function isolateSource(httpSource: HTTPSource, scope: string): HTTPSource {
@@ -11,7 +11,7 @@ export function isolateSource(httpSource: HTTPSource, scope: string): HTTPSource
   );
 }
 
-export function isolateSink(request$: Mappable<RequestInput | string, RequestOptions>,
+export function isolateSink(request$: Mappable<RequestInput | string>,
                             scope: string): any {
   return request$.map((req: RequestInput | string) => {
     if (typeof req === 'string') {

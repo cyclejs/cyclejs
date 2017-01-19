@@ -7,29 +7,32 @@
   "license": "MIT",
   "repository": "https://github.com/cyclejs/cyclejs/tree/master/packages/http",
   "dependencies": {
-    "@cycle/xstream-adapter": "3.x.x",
     "superagent": "2.3.0"
   },
   "peerDependencies": {
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/base": "*",
-    "@cycle/rxjs-run": "*",
+    "@cycle/rxjs-run": "4.0.0-rc.3",
+    "@cycle/run": "1.0.0-rc.7",
+    "@types/mocha": "^2.2.33",
     "@types/node": "^6.0.45",
+    "@types/sinon": "^1.16.32",
     "body-parser": "1.15.2",
     "cookie-parser": "1.4.3",
     "express": "4.14.0",
     "rx": "^4.1.0",
-    "rxjs": "5.0.0-beta.12",
+    "rxjs": "5.0.1",
     "saucie": "^1.4.1",
-    "xstream": "9.x.x"
+    "xstream": "10.x.x"
   },
   "browserify-shim": {
     "xstream": "global:xstream"
   },
   "scripts": {
     "lint": "../node_modules/.bin/tslint -c ../tslint.json src/**/*.ts",
+    "prelib": "rm -rf lib/ && mkdir -p lib",
+    "lib": "../node_modules/.bin/tsc",
     "test-node": "../node_modules/.bin/mocha test/node.js",
     "test-browser": "npm run start-test-support-server && ../node_modules/.bin/testem ci -l Chrome,Firefox && npm run stop-test-support-server",
     "start-test-support-server": "PORT=8070 node test/support/server.js & echo $! > test-support-server.pid",
@@ -38,8 +41,6 @@
     "test": "npm run lib && npm run lint && npm run test-node && npm run test-browser",
     "browserify": "npm run lib && ../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleHTTPDriver --exclude xstream --outfile dist/cycle-http-driver.js",
     "uglify": "../node_modules/.bin/uglifyjs dist/cycle-http-driver.js -o dist/cycle-http-driver.min.js",
-    "prelib": "rm -rf lib/ && mkdir -p lib",
-    "lib": "../node_modules/.bin/tsc",
     "predist": "rm -rf dist/ && mkdir -p dist/",
     "dist": "npm run lib && npm run browserify && npm run uglify",
     "readme": "node ../.scripts/make-api-docs.js ${PWD##*/} && cat ./.scripts/template-readme.md ./generated-api.md > README.md && rm ./generated-api.md",

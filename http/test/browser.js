@@ -2,7 +2,7 @@
 var assert = require('assert');
 var src = require('../lib/index');
 var Rx = require('rxjs');
-var Cycle = require('@cycle/rxjs-run').default;
+var Cycle = require('@cycle/rxjs-run');
 var makeHTTPDriver = src.makeHTTPDriver;
 var uri = '//' + window.location.host;
 require('./common')(uri);
@@ -21,27 +21,29 @@ describe('HTTP Driver in the browser', function () {
         })
       }
     }
-    var output = Cycle(main, { HTTP: makeHTTPDriver() });
+    var output = Cycle.setup(main, { HTTP: makeHTTPDriver() });
     var response$$ = output.sources.HTTP.select();
 
-    response$$.subscribe(function(response$) {
-      assert.strictEqual(response$.request.url, uri + '/querystring');
-      assert.strictEqual(response$.request.method, 'GET');
-      assert.strictEqual(response$.request.query.foo, 102030);
-      assert.strictEqual(response$.request.query.bar, 'Pub');
-      var progressEventHappened = false;
-      response$.subscribe(function(response) {
-        if (response.type === 'progress') {
-          assert.strictEqual(typeof response.total, 'number');
-          progressEventHappened = true;
-        } else {
-          assert.strictEqual(progressEventHappened, true);
-          assert.strictEqual(response.status, 200);
-          assert.strictEqual(response.body.foo, '102030');
-          assert.strictEqual(response.body.bar, 'Pub');
-          done();
-        }
-      });
+    response$$.subscribe({
+      next: function(response$) {
+        assert.strictEqual(response$.request.url, uri + '/querystring');
+        assert.strictEqual(response$.request.method, 'GET');
+        assert.strictEqual(response$.request.query.foo, 102030);
+        assert.strictEqual(response$.request.query.bar, 'Pub');
+        var progressEventHappened = false;
+        response$.subscribe(function(response) {
+          if (response.type === 'progress') {
+            assert.strictEqual(typeof response.total, 'number');
+            progressEventHappened = true;
+          } else {
+            assert.strictEqual(progressEventHappened, true);
+            assert.strictEqual(response.status, 200);
+            assert.strictEqual(response.body.foo, '102030');
+            assert.strictEqual(response.body.bar, 'Pub');
+            done();
+          }
+        });
+      }
     });
 
     output.run();

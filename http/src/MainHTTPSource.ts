@@ -1,37 +1,26 @@
 import {Stream, MemoryStream} from 'xstream';
 import {HTTPSource} from './interfaces';
 import {isolateSource, isolateSink} from './isolate';
-import {StreamAdapter, DevToolEnabledSource} from '@cycle/base';
-import XStreamAdapter from '@cycle/xstream-adapter';
+import {DevToolEnabledSource} from '@cycle/run';
+import {adapt} from '@cycle/run/lib/adapt';
 import {Response, ResponseStream, RequestOptions} from './interfaces';
 
 export class MainHTTPSource implements HTTPSource {
   constructor(private _res$$: Stream<MemoryStream<Response> & ResponseStream>,
-              private runStreamAdapter: StreamAdapter,
               private _name: string,
               private _namespace: Array<string> = []) {
   }
 
   public filter(predicate: (request: RequestOptions) => boolean): HTTPSource {
-    const filteredResponse$$ = this._res$$.filter((r$) => predicate(r$.request));
-    return new MainHTTPSource(
-      filteredResponse$$,
-      this.runStreamAdapter,
-      this._name,
-      this._namespace,
-    );
+    const filteredResponse$$ = this._res$$.filter(r$ => predicate(r$.request));
+    return new MainHTTPSource(filteredResponse$$, this._name, this._namespace);
   }
 
   public select(category?: string): any {
-    let res$$ = this._res$$;
-    if (category) {
-      res$$ = this._res$$
-        .filter(res$ => res$.request && res$.request.category === category);
-    }
-    const out: DevToolEnabledSource = this.runStreamAdapter.adapt(
-      res$$,
-      XStreamAdapter.streamSubscribe,
-    );
+    const res$$ = category ?
+      this._res$$.filter(res$ => res$.request && res$.request.category === category) :
+      this._res$$;
+    const out: DevToolEnabledSource = adapt(res$$);
     out._isCycleSource = this._name;
     return out;
   }

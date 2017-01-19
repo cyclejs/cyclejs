@@ -1,7 +1,7 @@
 import xs, {Stream, MemoryStream} from 'xstream';
+import {DriverFunction} from '@cycle/run';
+import {adapt} from '@cycle/run/lib/adapt';
 import {MainHTTPSource} from './MainHTTPSource';
-import {StreamAdapter, DriverFunction} from '@cycle/base';
-import XStreamAdapter from '@cycle/xstream-adapter';
 import * as superagent from 'superagent';
 import {
   HTTPSource,
@@ -131,34 +131,27 @@ function normalizeRequestInput(reqOptions: RequestInput): RequestOptions {
 
 export type ResponseMemoryStream = MemoryStream<Response> & ResponseStream;
 
-function makeRequestInputToResponse$(runStreamAdapter: StreamAdapter) {
-  return function requestInputToResponse$(reqInput: RequestInput): ResponseMemoryStream {
-    let response$ = createResponse$(reqInput).remember();
-    let reqOptions = softNormalizeRequestInput(reqInput);
-    if (!reqOptions.lazy) {
-      response$.addListener({next: () => {}, error: () => {}, complete: () => {}});
-    }
-    response$ = (runStreamAdapter) ?
-      runStreamAdapter.adapt(response$, XStreamAdapter.streamSubscribe) :
-      response$;
-    Object.defineProperty(response$, 'request', {
-      value: reqOptions,
-      writable: false,
-    });
-    return response$ as ResponseMemoryStream;
-  };
-}
+function requestInputToResponse$(reqInput: RequestInput): ResponseMemoryStream {
+  let response$ = createResponse$(reqInput).remember();
+  let reqOptions = softNormalizeRequestInput(reqInput);
+  if (!reqOptions.lazy) {
+    response$.addListener({next: () => {}, error: () => {}, complete: () => {}});
+  }
+  response$ = adapt(response$);
+  Object.defineProperty(response$, 'request', {
+    value: reqOptions,
+    writable: false,
+  });
+  return response$ as ResponseMemoryStream;
+};
 
 export function makeHTTPDriver(): Function {
-  function httpDriver(request$: Stream<RequestInput>,
-                      runSA: StreamAdapter,
-                      name: string): HTTPSource {
+  function httpDriver(request$: Stream<RequestInput>, name: string): HTTPSource {
     let response$$ = request$
-      .map(makeRequestInputToResponse$(runSA));
-    let httpSource = new MainHTTPSource(response$$, runSA, name, []);
+      .map(requestInputToResponse$);
+    let httpSource = new MainHTTPSource(response$$, name, []);
     response$$.addListener({next: () => {}, error: () => {}, complete: () => {}});
     return httpSource;
   }
-  (httpDriver as DriverFunction).streamAdapter = XStreamAdapter;
   return httpDriver;
 }
