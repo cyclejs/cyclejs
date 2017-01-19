@@ -40,6 +40,10 @@ function unwrapElementFromVNode(vnode: VNode): Element {
   return vnode.elm as Element;
 }
 
+function reportSnabbdomError(err: any): void {
+  (console.error || console.log)(err);
+}
+
 function makeDOMDriver(container: string | Element, options?: DOMDriverOptions) {
   if (!options) { options = {}; }
   const modules = options.modules || defaultModules;
@@ -61,7 +65,7 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions) 
       .compose(dropCompletion) // don't complete this stream
       .startWith(rootElement);
 
-    rootElement$.addListener({});
+    rootElement$.addListener({error: reportSnabbdomError});
 
     return new MainDOMSource(
       rootElement$,

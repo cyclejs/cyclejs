@@ -1,8 +1,9 @@
 import * as assert from 'assert';
+import * as sinon from 'sinon';
 import xs, {Stream, MemoryStream} from 'xstream';
 import delay from 'xstream/extra/delay';
 import flattenSequentially from 'xstream/extra/flattenSequentially';
-import {setup} from '@cycle/run';
+import {setup, run} from '@cycle/run';
 import {div, h3, makeDOMDriver, DOMSource, MainDOMSource} from '../../../lib';
 
 function createRenderTarget(id: string | null = null) {
@@ -75,6 +76,35 @@ describe('DOM Driver', function () {
     assert.strictEqual(typeof sources.DOM.isolateSink, 'function');
     dispose();
     done();
+  });
+
+  it('should report errors thrown in hooks', function (done) {
+    let sandbox = sinon.sandbox.create();
+    sandbox.stub(console, 'error');
+
+    function main(sources: {DOM: DOMSource}) {
+      return {
+        DOM: xs.of(
+          div('.test', {
+            hook: {insert: () => { throw new Error('error in hook'); }},
+          }),
+        ),
+      };
+    }
+
+    run(main, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    setTimeout(() => {
+      sinon.assert.calledOnce(console.error as any);
+      sinon.assert.calledWithExactly(
+        console.error as any,
+        sinon.match({message: 'error in hook'}),
+      );
+      sandbox.restore();
+      done();
+    }, 100);
   });
 
   it('should not work after has been disposed', function (done) {
