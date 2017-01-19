@@ -79,6 +79,7 @@ function callDrivers(drivers: DriversDefinition, sinkProxies: XStreamSinks): any
 function adaptSources<So extends Object>(sources: So): So {
   for (let name in sources) {
     if (sources.hasOwnProperty(name)
+    && sources[name]
     && typeof sources[name]['shamefullySendNext'] === 'function') {
       sources[name] = adapt(sources[name] as any as Stream<any>);
     }

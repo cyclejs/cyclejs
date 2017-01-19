@@ -105,6 +105,26 @@ describe('setup', function () {
     dispose = run();
   });
 
+  it('should support sink-only drivers', function (done) {
+    function app(sources: any): any {
+      return {
+        other: xs.of(1, 2, 3),
+      };
+    }
+
+    let driverCalled = false;
+    function driver(sink: Stream<string>) {
+      assert.strictEqual(typeof sink, 'object');
+      assert.strictEqual(typeof sink.fold, 'function');
+      driverCalled = true;
+    }
+
+    run(app, {other: driver});
+
+    assert.strictEqual(driverCalled, true);
+    done();
+  });
+
   it('should not adapt() sinks', function (done) {
     function app(sources: any): any {
       return {
