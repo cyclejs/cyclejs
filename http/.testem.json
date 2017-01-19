@@ -1,7 +1,7 @@
 {
   "framework": "mocha",
   "disable_watching": true,
-  "before_tests": "../node_modules/.bin/browserify test/browser.js --outfile test/browser-bundle.js",
+  "before_tests": "../node_modules/.bin/browserify test/browser/lib/index.js --outfile test/browser-bundle.js",
   "on_start": "./.scripts/saucie-connect.js",
   "on_exit": "./.scripts/saucie-disconnect.js",
   "after_tests": "rm test/browser-bundle.js",

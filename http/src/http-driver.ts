@@ -145,7 +145,7 @@ function requestInputToResponse$(reqInput: RequestInput): ResponseMemoryStream {
   return response$ as ResponseMemoryStream;
 };
 
-export function makeHTTPDriver(): Function {
+export function makeHTTPDriver(): DriverFunction {
   function httpDriver(request$: Stream<RequestInput>, name: string): HTTPSource {
     let response$$ = request$
       .map(requestInputToResponse$);
