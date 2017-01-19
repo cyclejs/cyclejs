@@ -294,6 +294,36 @@ describe("@cycle/time", () => {
           done();
         });
       });
+
+      it("handles infinite streams", (done) => {
+        const Time = mockTimeSource();
+
+        const input    = Time.diagram('---1---2---3---');
+        const actual   = input.map(i => i * 2);
+        const expected = Time.diagram('---2---4---6---');
+
+        Time.assertEqual(actual, expected);
+
+        Time.run(done);
+      });
+
+      it("handles infinite streams that have failures", (done) => {
+        const Time = mockTimeSource();
+
+        const input    = Time.diagram('---1---2---3---');
+        const actual   = input.map(i => i * 2);
+        const expected = Time.diagram('---2---7---6---');
+
+        Time.assertEqual(actual, expected);
+
+        Time.run((err) => {
+          if (!err) {
+            return done(new Error('expected test to fail'));
+          }
+
+          done();
+        });
+      });
     });
 
     describe(".periodic", () => {

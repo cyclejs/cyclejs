@@ -35,12 +35,13 @@ function mockTimeSource ({interval = 20} = {}) {
     const eventToProcess = scheduler.shiftNextEntry();
 
     if (!eventToProcess) {
-      const failedAsserts = asserts.filter(assert => assert.state === 'failed');
       const pendingAsserts = asserts.filter(assert => assert.state === 'pending');
 
       if (pendingAsserts.length > 0) {
-        console.log('Pending asserts after run finished: ', pendingAsserts);
+        pendingAsserts.forEach(assert => assert.finish());
       }
+
+      const failedAsserts = asserts.filter(assert => assert.state === 'failed');
 
       if (failedAsserts.length > 0) {
         done(failedAsserts[0].error);

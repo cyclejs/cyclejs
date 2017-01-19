@@ -1,6 +1,67 @@
 import xs, {Stream} from 'xstream';
 import * as deepEqual from 'deep-equal';
 
+function checkEqual (completeStore, assert, interval) {
+  const equal = deepEqual(completeStore['actual'], completeStore['expected']);
+
+  let pass = true;
+
+  completeStore['actual'].forEach((actual, index) => {
+    const expected = completeStore['expected'][index];
+
+    if (!actual || !expected) {
+      pass = false;
+      return;
+    }
+
+    if (actual.type !== expected.type) {
+      pass = false;
+    }
+
+    if (actual.type === 'next') {
+      const rightTime = diagramFrame(actual.time, interval) === diagramFrame(expected.time, interval);
+      const rightValue = deepEqual(actual.value, expected.value);
+
+      if (!rightTime || !rightValue) {
+        pass = false;
+      }
+    }
+
+    if (actual.type === 'error') {
+      const rightTime = diagramFrame(actual.time, interval) === diagramFrame(expected.time, interval);
+
+      if (expected.type !== 'error') {
+        pass = false;
+      }
+
+      if (!rightTime) {
+        pass = false;
+      }
+
+      if (!pass) {
+        assert.unexpectedErrors.push(actual.error);
+      }
+    }
+  });
+
+  if (pass) {
+    assert.state = 'passed';
+  } else {
+    assert.state = 'failed';
+    assert.error = new Error(strip(`
+      Expected
+
+      ${diagramString(completeStore['expected'], interval)}
+
+      Got
+
+      ${diagramString(completeStore['actual'], interval)}
+
+      ${displayUnexpectedErrors(assert.unexpectedErrors)}
+    `));
+  }
+}
+
 function makeAssertEqual (schedule, currentTime, interval, addAssert) {
   return function assertEqual (actual: Stream<any>, expected: Stream<any>) {
     let calledComplete = 0;
@@ -9,7 +70,10 @@ function makeAssertEqual (schedule, currentTime, interval, addAssert) {
     const assert = {
       state: 'pending',
       error: null,
-      unexpectedErrors: []
+      unexpectedErrors: [],
+      finish: () => {
+        checkEqual(completeStore, assert, interval);
+      }
     }
 
     addAssert(assert);
@@ -17,72 +81,14 @@ function makeAssertEqual (schedule, currentTime, interval, addAssert) {
     function complete (label, diagram) {
       calledComplete++;
 
-      completeStore[label] = diagram;
-
       if (calledComplete === 2) {
-        const equal = deepEqual(completeStore['actual'], completeStore['expected']);
-
-        let pass = true;
-
-        completeStore['actual'].forEach((actual, index) => {
-          const expected = completeStore['expected'][index];
-
-          if (!actual || !expected) {
-            pass = false;
-            return;
-          }
-
-          if (actual.type !== expected.type) {
-            pass = false;
-          }
-
-          if (actual.type === 'next') {
-            const rightTime = diagramFrame(actual.time, interval) === diagramFrame(expected.time, interval);
-            const rightValue = deepEqual(actual.value, expected.value);
-
-            if (!rightTime || !rightValue) {
-              pass = false;
-            }
-          }
-
-          if (actual.type === 'error') {
-            const rightTime = diagramFrame(actual.time, interval) === diagramFrame(expected.time, interval);
-
-            if (expected.type !== 'error') {
-              pass = false;
-            }
-
-            if (!rightTime) {
-              pass = false;
-            }
-
-            if (!pass) {
-              assert.unexpectedErrors.push(actual.error);
-            }
-          }
-        });
-
-        if (pass) {
-          assert.state = 'passed';
-        } else {
-          assert.state = 'failed';
-          assert.error = new Error(strip(`
-            Expected
-
-            ${diagramString(completeStore['expected'], interval)}
-
-            Got
-
-            ${diagramString(completeStore['actual'], interval)}
-
-            ${displayUnexpectedErrors(assert.unexpectedErrors)}
-          `));
-        }
+        checkEqual(completeStore, assert, interval);
       }
     }
 
     const completeListener = (label) => {
       const entries = [];
+      completeStore[label] = entries;
 
       return {
         next (ev) {
