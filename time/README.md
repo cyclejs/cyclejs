@@ -266,6 +266,8 @@ describe('Counter', () => {
 });
 ```
 
+If you want to see more examples of tests using `@cycle/time`, check out the test directory.
+
 ## API
 
 ```js
