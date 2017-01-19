@@ -29,13 +29,12 @@
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "dependencies": {
-    "@cycle/run": "1.0.0-rc.6"
+    "@cycle/run": "1.0.0-rc.7"
   },
   "peerDependencies": {
     "rxjs": "*"
   },
   "devDependencies": {
-    "@types/es6-promise": "0.0.32",
     "@types/mocha": "^2.2.33",
     "@types/node": "0.0.2",
     "@types/sinon": "^1.16.32",
