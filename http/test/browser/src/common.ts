@@ -71,11 +71,14 @@ export function run(uri: string) {
       }
 
       const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+      const response$$ = sources.HTTP.select();
+      assert.strictEqual(typeof response$$.switchMap, 'function'); // is RxJS v5
 
-      sources.HTTP.select().subscribe({
+      response$$.subscribe({
         next: (response$) => {
           assert.strictEqual(typeof response$.request, 'object');
           assert.strictEqual(response$.request.url, uri + '/hello');
+          assert.strictEqual(typeof response$.switchMap, 'function'); // is RxJS v5
           response$.subscribe(function(response) {
             assert.strictEqual(response.status, 200);
             assert.strictEqual(response.text, 'Hello World');
