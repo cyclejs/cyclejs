@@ -1,3 +1,13 @@
+<a name="11.3.0"></a>
+# 11.3.0 (2017-01-20)
+
+
+### Features
+
+* **http:** added request object to http err response ([60c2a0b](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/60c2a0b))
+
+
+
 <a name="11.2.0"></a>
 # 11.2.0 (2016-10-27)
 
