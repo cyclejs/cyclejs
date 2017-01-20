@@ -65,7 +65,17 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions) 
       .compose(dropCompletion) // don't complete this stream
       .startWith(rootElement);
 
-    rootElement$.addListener({error: reportSnabbdomError});
+    // Start the snabbdom patching, over time
+    const listener = {error: reportSnabbdomError};
+    if (document.readyState === 'loading') {
+      document.addEventListener('readystatechange', () => {
+        if (document.readyState === 'interactive') {
+          rootElement$.addListener(listener);
+        }
+      });
+    } else {
+      rootElement$.addListener(listener);
+    }
 
     return new MainDOMSource(
       rootElement$,
