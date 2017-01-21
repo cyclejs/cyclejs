@@ -1,4 +1,4 @@
-export { Location } from 'history';
+export {Location} from 'history';
 export * from './types';
-export * from './historyDriver';
+export * from './drivers';
 export * from './captureClicks';

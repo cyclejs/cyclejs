@@ -1,7 +1,17 @@
-import { StreamAdapter } from '@cycle/base';
+import xs, {Stream, MemoryStream} from 'xstream';
+import {
+  HistoryInput,
+  HistoryDriver,
+  GoBackHistoryInput,
+  GoForwardHistoryInput,
+  GoHistoryInput,
+  PushHistoryInput,
+  ReplaceHistoryInput,
+} from './types';
 
-const clickEvent = 'undefined' !== typeof document && document.ontouchstart ?
-  'touchstart' : 'click';
+const CLICK_EVENT = typeof document !== 'undefined' && document.ontouchstart ?
+  'touchstart' :
+  'click';
 
 function which(ev: any) {
   if (typeof window === 'undefined') {
@@ -19,8 +29,8 @@ function sameOrigin(href: string) {
   return href && href.indexOf(window.location.origin) === 0;
 }
 
-function makeClickListener(push: Function) {
-  return function clickListener(event: any) {
+function makeClickListener(push: (p: string) => void) {
+  return function clickListener(event: MouseEvent) {
     if (which(event) !== 1) {
       return;
     }
@@ -33,7 +43,7 @@ function makeClickListener(push: Function) {
       return;
     }
 
-    let element = event.target;
+    let element: any = event.target;
     while (element && element.nodeName !== 'A') {
       element = element.parentNode;
     }
@@ -61,23 +71,20 @@ function makeClickListener(push: Function) {
   };
 }
 
-function captureAnchorClicks(push: Function) {
+function captureAnchorClicks(push: (p: string) => void) {
   const listener = makeClickListener(push);
   if (typeof window !== 'undefined') {
-    document.addEventListener(clickEvent, listener, false);
+    document.addEventListener(CLICK_EVENT, listener, false);
   }
 }
 
-export function captureClicks(historyDriver: (sink$: any, runStreamAdapter: StreamAdapter) => any) {
-  return function historyDriverWithClickCapture(sink$: any, runStreamAdapter: StreamAdapter): any {
-    const { observer, stream } = runStreamAdapter.makeSubject();
-
+export function captureClicks(historyDriver: HistoryDriver): HistoryDriver {
+  return function historyDriverWithClickCapture(sink$: Stream<HistoryInput | string>) {
+    const internalSink$ = xs.create<HistoryInput | string>();
     captureAnchorClicks((pathname: string) => {
-      observer.next({ type: 'push', pathname });
+      internalSink$._n({type: 'push', pathname});
     });
-
-    runStreamAdapter.streamSubscribe(sink$, observer);
-
-    return historyDriver(stream, runStreamAdapter);
+    sink$._add(internalSink$);
+    return historyDriver(internalSink$);
   };
 }

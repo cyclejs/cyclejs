@@ -1,27 +1,19 @@
-import { StreamAdapter } from '@cycle/base';
-import { Location, History, UnregisterCallback } from 'history';
-import { HistoryInput } from './types';
+import xs, {Stream, MemoryStream, Listener} from 'xstream';
+import {Location, History, UnregisterCallback} from 'history';
+import {HistoryInput} from './types';
 
-export function createHistory$ (history: History, sink$: any,
-                                runStreamAdapter: StreamAdapter): any {
-  const push = makePushState(history);
-
-  const { observer, stream } = runStreamAdapter.makeSubject<Location>();
-
-  const history$ = runStreamAdapter.remember<Location>(stream);
-
-  const unlisten = history.listen((loc: Location) => {
-    observer.next(loc);
-  });
-
-  (history$ as any).dispose =
-    runStreamAdapter.streamSubscribe(sink$, createObserver(push, unlisten));
-
+export function createHistory$(history: History,
+                               sink$: Stream<HistoryInput | string>): MemoryStream<Location> {
+  const history$ = xs.createWithMemory<Location>();
+  const call = makeCallOnHistory(history);
+  const unlisten = history.listen((loc: Location) => { history$._n(loc); });
+  const sub = sink$.subscribe(createObserver(call, unlisten));
+  (history$ as any).dispose = () => { sub.unsubscribe(); unlisten(); };
   return history$;
 };
 
-function makePushState (history: History) {
-  return function pushState (input: HistoryInput): void {
+function makeCallOnHistory(history: History) {
+  return function call(input: HistoryInput): void {
     if (input.type === 'push') {
       history.push(input.pathname, input.state);
     }
@@ -44,17 +36,17 @@ function makePushState (history: History) {
   };
 }
 
-function createObserver (push: (input: HistoryInput) => any,
-                         unlisten: UnregisterCallback) {
+function createObserver(call: (input: HistoryInput) => void,
+                        unlisten: UnregisterCallback): Listener<HistoryInput | string> {
   return {
-    next (input: HistoryInput | String) {
+    next (input: HistoryInput | string) {
       if (typeof input === 'string') {
-        push({ type: 'push', pathname: input });
+        call({type: 'push', pathname: input});
       } else {
-        push(input as HistoryInput);
+        call(input);
       }
     },
-    error: unlisten,
-    complete: unlisten,
+    error: (err) => { unlisten(); },
+    complete: () => { setTimeout(unlisten); },
   };
 }
