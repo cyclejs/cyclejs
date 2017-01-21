@@ -24,6 +24,7 @@
     "tempfile": "1.1.1",
     "testem": "1.13.0",
     "ts-node": "1.7.2",
+    "tsify": "^2.0.2",
     "tslint": "4.0.2",
     "typescript": "2.1.4",
     "typings": "2.0.0",
