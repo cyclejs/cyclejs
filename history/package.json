@@ -25,6 +25,7 @@
     "@cycle/rxjs-run": "^3.0.3",
     "@cycle/xstream-adapter": "^3.0.4",
     "@cycle/xstream-run": "^3.1.0",
+    "@types/history": "^4.5.0",
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.46",
     "most": "^1.0.4",

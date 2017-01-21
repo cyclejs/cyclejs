@@ -1,17 +1,17 @@
 import { StreamAdapter } from '@cycle/base';
-import { LocationAndKey, History, Unsubscribe } from 'history';
+import { Location, History, UnregisterCallback } from 'history';
 import { HistoryInput } from './types';
 
 export function createHistory$ (history: History, sink$: any,
                                 runStreamAdapter: StreamAdapter): any {
   const push = makePushState(history);
 
-  const { observer, stream } = runStreamAdapter.makeSubject<LocationAndKey>();
+  const { observer, stream } = runStreamAdapter.makeSubject<Location>();
 
-  const history$ = runStreamAdapter.remember<LocationAndKey>(stream);
+  const history$ = runStreamAdapter.remember<Location>(stream);
 
-  const unlisten = history.listen((x: any) => {
-    observer.next(x);
+  const unlisten = history.listen((loc: Location) => {
+    observer.next(loc);
   });
 
   (history$ as any).dispose =
@@ -45,7 +45,7 @@ function makePushState (history: History) {
 }
 
 function createObserver (push: (input: HistoryInput) => any,
-                         unlisten: Unsubscribe) {
+                         unlisten: UnregisterCallback) {
   return {
     next (input: HistoryInput | String) {
       if (typeof input === 'string') {
