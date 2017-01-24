@@ -66,6 +66,8 @@ run(Timer, drivers);
 
 The `timeDriver` also provides `delay`, `debounce` and `throttle` operators that can be used with `.compose`.
 
+Additionally, the `timeDriver` provides support for animations. `animationFrames` can be used to build games or animations. `throttleAnimation` can be used to throttle a stream so that only one event passes through each frame.
+
 Usage (Testing)
 ---
 
@@ -329,7 +331,7 @@ Time.run();
 ```
 
 #### `periodic(period)`
-Returns a stream that emits every `period` msec. Starts with 0, and increases by 1 every time.
+Returns a stream that emits every `period` msec. Starts with zero and increases by one every time.
 
 ```js
 const actual$ = Time.periodic(80);
@@ -344,7 +346,7 @@ Time.run();
 ```
 
 #### `throttle(period)`
-An operator that can be used with `.compose` that will prevent more than 1 event emitting in the given period.
+An operator that can be used with `.compose` that will prevent more than one event emitting in the given period.
 
 ```js
 const input$    = Time.diagram(`--1-2-----3--4----5|`);
@@ -358,6 +360,32 @@ Time.assertEqual(
 
 Time.run();
 ```
+
+#### `throttleAnimation`
+An operator that can be used with `.compose` that will only allow one event in each animation frame. Uses `requestAnimationFrame`.
+
+Useful for throttling noisy streams like scroll events or mousemose events.
+
+The period between frames should be around `16ms` if the application is focused and running smoothly, but may greatly increase if the application is in the background.
+
+```js
+const scroll$ = DOM.select('body').events('scroll');
+
+const throttledScroll$ = scroll$.compose(Time.throttleAnimation)
+```
+
+#### `animationFrames`
+A factory that returns a stream of frames. Each frame is an object with three values:
+
+* `time` - the elapsed time in millseconds since application start
+* `delta` - the time in milliseconds since the last frame
+* `normalizedDelta` - the delta divided by the expected frame length (16ms). Useful for game development
+
+```js
+const frames$ = Time.animationFrames();
+```
+
+For more information on `requestAnimationFrame`, see the [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame).
 
 ### `mockTimeSource({interval = 20})`
 

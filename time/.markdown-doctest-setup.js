@@ -97,6 +97,7 @@ module.exports = {
     },
 
     makeDOMDriver: mockedCycleDom.makeDOMDriver,
+    DOM: mockedCycleDom.makeDOMDriver()(),
 
     xs,
 
