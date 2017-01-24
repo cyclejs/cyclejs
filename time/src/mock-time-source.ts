@@ -10,6 +10,7 @@ import {makePeriodic} from './periodic';
 import {makeThrottle} from './throttle';
 import {makeDiagram} from './diagram';
 import {makeAssertEqual} from './assert-equal';
+import {makeAnimationFrames} from './animation-frames';
 
 function raiseError (err) {
   if (err) {
@@ -82,7 +83,7 @@ function mockTimeSource ({interval = 20} = {}) {
     setImmediate(processEvent);
   }
 
-  return {
+  const timeSource = {
     diagram: makeDiagram(scheduler.add, currentTime, interval),
     assertEqual: makeAssertEqual(scheduler.add, currentTime, interval, addAssert),
 
@@ -91,10 +92,22 @@ function mockTimeSource ({interval = 20} = {}) {
     periodic: makePeriodic(scheduler.add, currentTime),
     throttle: makeThrottle(scheduler.add, currentTime),
 
+    animationFrames: () => timeSource.periodic(16).map(frame),
+
     run (doneCallback = raiseError) {
       done = doneCallback;
       setImmediate(processEvent);
     }
+  }
+
+  return timeSource;
+}
+
+function frame (i) {
+  return {
+    time: i * 16,
+    delta: 16,
+    normalizedDelta: 1
   }
 }
 

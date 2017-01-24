@@ -12,6 +12,7 @@ describe("@cycle/time", () => {
       const keys = Object.keys(Time).sort();
 
       assert.deepEqual(keys, [
+        "animationFrames",
         "debounce",
         "delay",
         "periodic",
@@ -27,6 +28,7 @@ describe("@cycle/time", () => {
       const keys = Object.keys(Time).sort();
 
       assert.deepEqual(keys, [
+        "animationFrames",
         "assertEqual",
         "debounce",
         "delay",
@@ -442,6 +444,30 @@ describe("@cycle/time", () => {
           stream.compose(Time.throttle(60)),
           expected
         );
+
+        Time.run(done);
+      });
+    });
+
+    describe('.animationFrames', () => {
+      it('provides a stream of frames for animations', (done) => {
+        const Time = mockTimeSource({interval: 8});
+
+        const frames = [0, 1, 2].map(i => (
+          {
+            time: i * 16,
+            delta: 16,
+            normalizedDelta: 1
+          }
+        ));
+
+        const actual$ = Time.animationFrames().take(frames.length);
+        const expected$ = Time.diagram(
+          `--0-1-2|`,
+          frames
+        );
+
+        Time.assertEqual(actual$, expected$);
 
         Time.run(done);
       });
