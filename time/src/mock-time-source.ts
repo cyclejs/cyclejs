@@ -11,6 +11,7 @@ import {makeThrottle} from './throttle';
 import {makeDiagram} from './diagram';
 import {makeAssertEqual} from './assert-equal';
 import {makeAnimationFrames} from './animation-frames';
+import {makeThrottleAnimation} from './throttle-animation';
 
 function raiseError (err) {
   if (err) {
@@ -93,6 +94,7 @@ function mockTimeSource ({interval = 20} = {}) {
     throttle: makeThrottle(scheduler.add, currentTime),
 
     animationFrames: () => timeSource.periodic(16).map(frame),
+    throttleAnimation: makeThrottleAnimation(() => timeSource, scheduler.add, currentTime),
 
     run (doneCallback = raiseError) {
       done = doneCallback;

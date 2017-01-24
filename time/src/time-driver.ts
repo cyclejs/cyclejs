@@ -7,6 +7,7 @@ import {makeDebounce} from './debounce';
 import {makePeriodic} from './periodic';
 import {makeThrottle} from './throttle';
 import {makeAnimationFrames} from './animation-frames';
+import {makeThrottleAnimation} from './throttle-animation';
 
 function popAll (array) {
   const poppedItems = [];
@@ -72,13 +73,16 @@ function timeDriver (_, streamAdapter) {
   // TODO - cancel requestAnimationFrame on dispose
   requestAnimationFrame(processEvent);
 
-  return {
+  const timeSource = {
     animationFrames: makeAnimationFrames(addFrameCallback, currentTime),
     delay: makeDelay(scheduler.add, currentTime),
     debounce: makeDebounce(scheduler.add, currentTime),
     periodic: makePeriodic(scheduler.add, currentTime),
     throttle: makeThrottle(scheduler.add, currentTime),
+    throttleAnimation: makeThrottleAnimation(() => timeSource, scheduler.add, currentTime)
   }
+
+  return timeSource;
 }
 
 export {

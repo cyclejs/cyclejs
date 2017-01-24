@@ -16,7 +16,8 @@ describe("@cycle/time", () => {
         "debounce",
         "delay",
         "periodic",
-        "throttle"
+        "throttle",
+        "throttleAnimation"
       ]);
     });
   });
@@ -36,6 +37,7 @@ describe("@cycle/time", () => {
         "periodic",
         "run",
         "throttle",
+        "throttleAnimation"
       ]);
     });
 
@@ -466,6 +468,20 @@ describe("@cycle/time", () => {
           `--0-1-2|`,
           frames
         );
+
+        Time.assertEqual(actual$, expected$);
+
+        Time.run(done);
+      });
+    });
+
+    describe('.throttleAnimation', () => {
+      it('throttles a stream using animationFrames', (done) => {
+        const Time = mockTimeSource({interval: 8});
+
+        const noisy$    = Time.diagram(`-aaaa-aa-aaa-aa|`);
+        const actual$   = noisy$.compose(Time.throttleAnimation);
+        const expected$ = Time.diagram(`--a-a-a-a-a-a-a|`);
 
         Time.assertEqual(actual$, expected$);
 
