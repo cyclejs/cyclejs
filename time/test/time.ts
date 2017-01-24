@@ -155,12 +155,12 @@ describe("@cycle/time", () => {
           if (err) {
             const lines = err.message.split(/\s+/).filter(a => a.length > 0);
 
-            assert.deepEqual(lines, [
+            assert([
               'Expected',
               '---2---4---5---|',
               'Got',
               '---2---4---6---|',
-            ])
+            ].every(expectedLine => lines.includes(expectedLine)));
 
             done();
           } else {
@@ -192,12 +192,12 @@ describe("@cycle/time", () => {
           if (err) {
             const lines = err.message.split(/\s+/).filter(a => a.length > 0);
 
-            assert.deepEqual(lines, [
+            assert([
               'Expected',
               '---{"a":1}-------{"a":2}---|',
               'Got',
               '---1---2---3---|',
-            ])
+            ].every(expectedLine => lines.includes(expectedLine)));
 
             done();
           } else {

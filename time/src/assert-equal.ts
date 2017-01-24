@@ -4,31 +4,45 @@ import * as deepEqual from 'deep-equal';
 function checkEqual (completeStore, assert, interval) {
   const equal = deepEqual(completeStore['actual'], completeStore['expected']);
 
-  let pass = true;
+  let failReasons = [];
+
+  if (completeStore['actual'].length !== completeStore['expected'].length) {
+    failReasons.push(`Length of actual and expected differs`);
+  }
 
   completeStore['actual'].forEach((actual, index) => {
     const expected = completeStore['expected'][index];
 
-    if (!actual || !expected) {
-      pass = false;
+    if (actual === undefined) {
+      failReasons.push(`Actual at index ${index} was undefined`);
+      return;
+    }
+
+    if (expected === undefined) {
+      failReasons.push(`Expected at index ${index} was undefined`);
       return;
     }
 
     if (actual.type !== expected.type) {
-      pass = false;
+      failReasons.push(`Expected type ${expected.type} at time ${actual.time} but got ${actual.type}`);
     }
 
     if (actual.type === 'next') {
       const rightTime = diagramFrame(actual.time, interval) === diagramFrame(expected.time, interval);
       const rightValue = deepEqual(actual.value, expected.value);
 
+      if (rightValue && !rightTime) {
+        failReasons.push(`Right value at wrong time, expected at ${expected.time} but happened at ${actual.time} (${JSON.stringify(actual.value)})`);
+      }
+
       if (!rightTime || !rightValue) {
-        pass = false;
+        failReasons.push(`Expected value ${JSON.stringify(expected.value)} at time ${expected.time} but got ${JSON.stringify(actual.value)} at ${actual.time}`);
       }
     }
 
     if (actual.type === 'error') {
       const rightTime = diagramFrame(actual.time, interval) === diagramFrame(expected.time, interval);
+      let pass = true;
 
       if (expected.type !== 'error') {
         pass = false;
@@ -39,12 +53,13 @@ function checkEqual (completeStore, assert, interval) {
       }
 
       if (!pass) {
+        failReasons.push(`Unexpected error occurred`);
         assert.unexpectedErrors.push(actual.error);
       }
     }
   });
 
-  if (pass) {
+  if (failReasons.length === 0) {
     assert.state = 'passed';
   } else {
     assert.state = 'failed';
@@ -56,6 +71,10 @@ function checkEqual (completeStore, assert, interval) {
       Got
 
       ${diagramString(completeStore['actual'], interval)}
+
+      Failed because
+
+      ${failReasons[0]}
 
       ${displayUnexpectedErrors(assert.unexpectedErrors)}
     `));
@@ -131,6 +150,10 @@ function diagramFrame (time, interval) {
 }
 
 function diagramString (entries, interval): string {
+  if (entries.length === 0) {
+    return '<empty stream>';
+  }
+
   const maxTime = Math.max(...entries.map(entry => entry.time));
 
   const characterCount = Math.ceil(maxTime / interval);
