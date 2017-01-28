@@ -14,12 +14,23 @@ function checkIsolateArgs(dataflowComponent: Function, scope: any) {
   }
 }
 
-function isolateAllSources<So>(sources: So, scope: string): So {
+export interface IsolateableSource {
+  isolateSource(source: Partial<IsolateableSource>, scope: string): Partial<IsolateableSource>;
+  isolateSink<T>(sink: T, scope: string): T;
+}
+
+export interface Sources {
+  [name: string]: Partial<IsolateableSource>;
+}
+
+function isolateAllSources<So extends Sources>(sources: So, scope: string): So {
   const scopedSources = {} as So;
   for (let key in sources) {
-    if (sources.hasOwnProperty(key) && sources[key]
-    && typeof sources[key].isolateSource === `function`) {
-      scopedSources[key] = sources[key].isolateSource(sources[key], scope);
+    const source = sources[key] as Partial<IsolateableSource>;
+    if (sources.hasOwnProperty(key)
+    && source
+    && typeof source.isolateSource === 'function') {
+      scopedSources[key] = source.isolateSource(source, scope) as So[keyof So];
     } else if (sources.hasOwnProperty(key)) {
       scopedSources[key] = sources[key];
     }
@@ -27,13 +38,14 @@ function isolateAllSources<So>(sources: So, scope: string): So {
   return scopedSources;
 }
 
-function isolateAllSinks<So, Si>(sources: So, sinks: Si, scope: string): Si {
+function isolateAllSinks<So extends Sources, Si>(sources: So, sinks: Si, scope: string): Si {
   const scopedSinks = {} as Si;
   for (let key in sinks) {
+    const source = sources[key] as Partial<IsolateableSource>;
     if (sinks.hasOwnProperty(key)
-    && sources[key]
-    && typeof sources[key].isolateSink === `function`) {
-      scopedSinks[key] = sources[key].isolateSink(sinks[key], scope);
+    && source
+    && typeof source.isolateSink === 'function') {
+      scopedSinks[key] = source.isolateSink(sinks[key], scope);
     } else if (sinks.hasOwnProperty(key)) {
       scopedSinks[key] = sinks[key];
     }
@@ -41,7 +53,7 @@ function isolateAllSinks<So, Si>(sources: So, sinks: Si, scope: string): Si {
   return scopedSinks;
 }
 
-export type Component<So, Si> = (sources: So, ...rest: Array<any>) => Si;
+export type Component<So extends Sources, Si> = (sources: So, ...rest: Array<any>) => Si;
 
 /**
  * Takes a `dataflowComponent` function and an optional `scope` string, and
@@ -73,7 +85,8 @@ export type Component<So, Si> = (sources: So, ...rest: Array<any>) => Si;
  * original `dataflowComponent` function, takes `sources` and returns `sinks`.
  * @function isolate
  */
-function isolate<So, Si>(component: Component<So, Si>, scope: any = newScope()): Component<So, Si> {
+function isolate<So extends Sources, Si>(component: Component<So, Si>,
+                                         scope: any = newScope()): Component<So, Si> {
   checkIsolateArgs(component, scope);
   let convertedScope: string = typeof scope === 'string' ? scope : scope.toString();
   return function scopedComponent(sources: So, ...rest: Array<any>): Si {
