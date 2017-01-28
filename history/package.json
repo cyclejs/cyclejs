@@ -14,7 +14,7 @@
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
   "homepage": "https://cycle.js.org",
   "dependencies": {
-    "history": "^4.3.0"
+    "history": "4.5.x"
   },
   "devDependencies": {
     "@cycle/dom": "15.0.0-rc.1",
