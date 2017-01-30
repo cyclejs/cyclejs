@@ -10,7 +10,7 @@
     "url": "https://github.com/cyclejs/jsonp"
   },
   "dependencies": {
-    "@cycle/run": "^1.0.0-rc.7",
+    "@cycle/run": "*",
     "jsonp": "0.2.0"
   },
   "peerDependencies": {
