@@ -33,6 +33,7 @@
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "dependencies": {
+    "@cycle/run": "*",
     "es6-map": "^0.1.4",
     "snabbdom": "0.6.3",
     "snabbdom-selector": "1.1.1",
@@ -43,8 +44,7 @@
   },
   "devDependencies": {
     "@cycle/isolate": "1.x",
-    "@cycle/run": "1.0.0-rc.6",
-    "@cycle/rxjs-run": "4.0.0-rc.2",
+    "@cycle/rxjs-run": "4.0.0-rc.3",
     "@types/mocha": "^2.2.33",
     "@types/node": "^6.0.45",
     "@types/sinon": "^1.16.32",
