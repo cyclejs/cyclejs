@@ -31,14 +31,17 @@
   "types": "lib/index.d.ts",
   "dependencies": {},
   "devDependencies": {
-    "rx": "4.0.6"
+    "@types/mocha": "^2.2.33",
+    "@types/node": "0.0.2",
+    "@types/sinon": "^1.16.32",
+    "rxjs": "5.0.1"
   },
   "engines": {
     "node": ">=0.10.0"
   },
   "scripts": {
     "lint": "../node_modules/.bin/tslint -c ../tslint.json src/**/*.ts",
-    "mocha": "../node_modules/.bin/mocha --compilers js:babel-register test",
+    "mocha": "../node_modules/.bin/mocha test/*.ts --require ts-node/register",
     "test": "npm run lint && npm run lib && npm run mocha",
     "test-ci": "npm run test",
     "browserify": "../node_modules/.bin/browserify lib/index.js --standalone CycleIsolate --outfile dist/cycle-isolate.js",

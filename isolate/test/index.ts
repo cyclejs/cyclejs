@@ -1,10 +1,8 @@
-/* eslint-disable */
-'use strict';
-/* global describe, it */
-let assert = require('assert');
-let isolate = require('../lib/index').default;
-let Rx = require('rx');
-let sinon = require('sinon');
+import 'mocha';
+import * as assert from 'assert';
+import * as Rx from 'rxjs';
+import isolate from '../lib/index';
+import * as sinon from 'sinon';
 
 describe('isolate', function () {
   it('should be a function', function () {
@@ -13,7 +11,7 @@ describe('isolate', function () {
 
   it('should throw if first argument is not a function', function () {
     assert.throws(() => {
-      isolate('not a function');
+      isolate('not a function' as any);
     }, /First argument given to isolate\(\) must be a 'dataflowComponent' function/i);
   });
 
@@ -24,7 +22,7 @@ describe('isolate', function () {
     }, /Second argument given to isolate\(\) must not be null/i);
   });
 
-  it('should convert the second argument to string if second argument is not a string', function () {
+  it('should convert the 2nd argument to string if it is not a string', function () {
     function MyDataflowComponent() {}
     assert.doesNotThrow(() => {
       isolate(MyDataflowComponent, 12);
@@ -49,9 +47,9 @@ describe('isolate', function () {
         return {};
       }
 
-      function MyDataflowComponent(sources, foo, bar) {
+      function MyDataflowComponent(sources: {other: any}, foo: string, bar: string) {
         return {
-          other: Rx.Observable.just([foo, bar])
+          other: Rx.Observable.of([foo, bar]),
         };
       }
       const scopedMyDataflowComponent = isolate(MyDataflowComponent);
@@ -60,32 +58,32 @@ describe('isolate', function () {
       assert.strictEqual(typeof scopedSinks, `object`);
       scopedSinks.other.subscribe(x => {
         assert.strictEqual(x.join(), `foo,bar`);
-      })
-    })
+      });
+    });
 
     it('should call `isolateSource` of drivers', function () {
       function driver() {
-        const someFunc = function (v) {
+        function isolateSource(source: any, scope: string) {
+          return source.someFunc(scope);
+        };
+        function someFunc(v: string) {
           const scope = this.scope;
           return {
             scope: scope.concat(v),
             someFunc,
-            isolateSource
+            isolateSource,
           };
-        };
-        const isolateSource = function (source, scope) {
-          return source.someFunc(scope);
         };
         return {
           scope: [],
           someFunc,
-          isolateSource
+          isolateSource,
         };
       }
 
-      function MyDataflowComponent(sources) {
+      function MyDataflowComponent(sources: {other: any}) {
         return {
-          other: sources.other.someFunc('a')
+          other: sources.other.someFunc('a'),
         };
       }
       const scopedMyDataflowComponent = isolate(MyDataflowComponent, `myScope`);
@@ -96,36 +94,36 @@ describe('isolate', function () {
     });
 
     it('should not call `isolateSink` for a sink-only driver', function () {
-      function driver(sink) {
+      function driver(sink: any) {
       }
 
-      function MyDataflowComponent(sources) {
+      function MyDataflowComponent(sources: {other: any}) {
         return {
-          other: ['a']
+          other: ['a'],
         };
       }
       let scopedMyDataflowComponent;
       assert.doesNotThrow(function () {
         scopedMyDataflowComponent = isolate(MyDataflowComponent, `myScope`);
       });
-      const scopedSinks = scopedMyDataflowComponent({other: driver()});
+      const scopedSinks = (scopedMyDataflowComponent as any)({other: driver(null)});
       assert.strictEqual(scopedSinks.other.length, 1);
       assert.strictEqual(scopedSinks.other[0], 'a');
     });
 
     it('should call `isolateSink` of drivers', function () {
       function driver() {
-        const isolateSink = function (sink, scope) {
-          return sink.map(v => `${v} ${scope}`);
+        function isolateSink(sink: any, scope: string) {
+          return sink.map((v: string) => `${v} ${scope}`);
         };
         return {
-          isolateSink
+          isolateSink,
         };
       }
 
-      function MyDataflowComponent(sources) {
+      function MyDataflowComponent(sources: {other: any}) {
         return {
-          other: ['a']
+          other: ['a'],
         };
       }
       const scopedMyDataflowComponent = isolate(MyDataflowComponent, `myScope`);
@@ -134,10 +132,10 @@ describe('isolate', function () {
       assert.strictEqual(scopedSinks.other[0], `a myScope`);
     });
 
-    it('should handle driver with no source without failing', function () {
-      const MyDataflowComponent = ()=> ({});
-      const scopedMyDataflowComponent = isolate(MyDataflowComponent, `myScope`);
-      assert.doesNotThrow(()=> scopedMyDataflowComponent({noSource:undefined}))
+    it('should handle undefined cases gracefully', function () {
+      const MyDataflowComponent = () => ({});
+      const scopedMyDataflowComponent = isolate(MyDataflowComponent, 'myScope');
+      assert.doesNotThrow(() => scopedMyDataflowComponent({noSource: void 0 as any}));
     });
   });
 });
