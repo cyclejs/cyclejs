@@ -2,8 +2,8 @@ import xs, {Stream} from 'xstream';
 import jsonp = require('jsonp');
 import {adapt} from '@cycle/run/lib/adapt';
 
-function createResponse$(url: string): ResponseStream<any> {
-  return xs.create({
+function createResponse$(url: string): ResponseStream {
+  const res$: ResponseStream = xs.create<any>({
     start: listener => {
       if (typeof url !== `string`) {
         listener.error(new Error(`Observable of requests given to JSONP ` +
@@ -24,23 +24,19 @@ function createResponse$(url: string): ResponseStream<any> {
       }
     },
     stop: () => {},
-  });
+  }) as ResponseStream;
+
+  res$.request = url;
+  return res$;
 }
 
-export interface ResponseStream<T> extends Stream<T> {
-  request?: string;
+export interface ResponseStream extends Stream<any> {
+  request: string;
 }
 
 function makeJSONPDriver() {
-  return function jsonpDriver(request$: Stream<string>) {
-    const response$$ = request$.map(url => {
-      let response$ = createResponse$(url);
-
-      response$.request = url;
-
-      return adapt(response$);
-    });
-
+  return function jsonpDriver(request$: Stream<string>): Stream<ResponseStream> {
+    const response$$ = request$.map(createResponse$);
     return adapt(response$$);
   };
 }
