@@ -65,7 +65,7 @@
   },
   "scripts": {
     "lint": "../node_modules/.bin/tslint -c ../tslint.json ./src/*.ts ./src/**/*.ts",
-    "prelib": "rm -rf lib/ && mkdir -p lib && ../node_modules/.bin/typings install",
+    "prelib": "rm -rf lib/ && mkdir -p lib",
     "lib": "../node_modules/.bin/tsc",
     "test-node": "../node_modules/.bin/mocha test/node/*.ts --require ts-node/register",
     "pretest-browser": "../node_modules/.bin/tsc -p ./test/browser/ && ../node_modules/.bin/browserify test/browser/lib/index.js -o test/browser/page/tests-bundle.js",

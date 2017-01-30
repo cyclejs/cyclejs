@@ -1,7 +1,0 @@
-{
-  "name": "@cycle/dom",
-  "main": "lib/index.d.ts",
-  "dependencies": {
-    "snabbdom-to-html": "file:src/custom-typings/snabbdom-to-html.d.ts"
-  }
-}
