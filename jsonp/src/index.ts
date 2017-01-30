@@ -1,6 +1,6 @@
 import xs, {Stream} from 'xstream';
-import jsonp = require('jsonp');
 import {adapt} from '@cycle/run/lib/adapt';
+import jsonp = require('jsonp');
 
 function createResponse$(url: string): ResponseStream {
   const res$: ResponseStream = xs.create<any>({
@@ -34,33 +34,29 @@ export interface ResponseStream extends Stream<any> {
   request: string;
 }
 
-function makeJSONPDriver() {
+/**
+ * JSONP Driver factory.
+ *
+ * This is a function which, when called, returns a JSONP Driver for Cycle.js
+ * apps. The driver is also a function, and it takes a stream of requests
+ * (URL strings) as input, and generates a metastream of responses.
+ *
+ * **Requests**. The stream of requests should emit strings as the URL of the
+ * remote resource over HTTP.
+ *
+ * **Responses**. A metastream is a stream of streams. The response metastream
+ * emits streams of responses. These streams of responses have a `request`
+ * field attached to them (to the stream object itself) indicating which
+ * request (from the driver input) generated this response stream. The
+ * response streams themselves emit the response object received through the
+ * npm `jsonp` package.
+ *
+ * @return {Function} the JSONP Driver function
+ * @function makeJSONPDriver
+ */
+export function makeJSONPDriver() {
   return function jsonpDriver(request$: Stream<string>): Stream<ResponseStream> {
     const response$$ = request$.map(createResponse$);
     return adapt(response$$);
   };
-}
-
-export {
-  /**
-   * JSONP Driver factory.
-   *
-   * This is a function which, when called, returns a JSONP Driver for Cycle.js
-   * apps. The driver is also a function, and it takes a stream of requests
-   * (URL strings) as input, and generates a metastream of responses.
-   *
-   * **Requests**. The stream of requests should emit strings as the URL of the
-   * remote resource over HTTP.
-   *
-   * **Responses**. A metastream is a stream of streams. The response metastream
-   * emits streams of responses. These streams of responses have a `request`
-   * field attached to them (to the stream object itself) indicating which
-   * request (from the driver input) generated this response stream. The
-   * response streams themselves emit the response object received through the
-   * npm `jsonp` package.
-   *
-   * @return {Function} the JSONP Driver function
-   * @function makeJSONPDriver
-   */
-  makeJSONPDriver,
 }
