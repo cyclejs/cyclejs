@@ -1,45 +1,51 @@
-let xs = require(`xstream`).default
-let jsonp = require(`jsonp`)
-let xsSA = require(`@cycle/xstream-adapter`).default
+import xs, {Stream} from 'xstream';
+import jsonp = require('jsonp');
+import {adapt} from '@cycle/run/lib/adapt';
 
-function createResponse$(url) {
+function createResponse$(url: string): ResponseStream<any> {
   return xs.create({
     start: listener => {
       if (typeof url !== `string`) {
         listener.error(new Error(`Observable of requests given to JSONP ` +
-          `Driver must emit URL strings.`))
+          `Driver must emit URL strings.`));
       }
 
       try {
-        jsonp(url, (err, res) => {
+        jsonp(url, (err: Error, res: any) => {
           if (err) {
-            listener.error(err)
+            listener.error(err);
           } else {
-            listener.next(res)
-            listener.complete()
+            listener.next(res);
+            listener.complete();
           }
-        })
+        });
       } catch (err) {
-        listener.error(err)
+        listener.error(err);
       }
     },
     stop: () => {},
-  })
+  });
+}
+
+export interface ResponseStream<T> extends Stream<T> {
+  request?: string;
 }
 
 function makeJSONPDriver() {
-  function jsonpDriver(request$) {
-    return request$.map(url => {
-      let response$ = createResponse$(url)
-      response$.request = url
-      return response$
-    })
-  }
-  jsonpDriver.streamAdapter = xsSA
-  return jsonpDriver
+  return function jsonpDriver(request$: Stream<string>) {
+    const response$$ = request$.map(url => {
+      let response$ = createResponse$(url);
+
+      response$.request = url;
+
+      return adapt(response$);
+    });
+
+    return adapt(response$$);
+  };
 }
 
-module.exports = {
+export {
   /**
    * JSONP Driver factory.
    *
