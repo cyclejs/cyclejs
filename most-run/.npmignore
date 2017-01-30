@@ -2,4 +2,3 @@ ignore/
 .idea/
 *.sublime-project
 *.sublime-workspace
-.babelrc

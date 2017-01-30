@@ -3,4 +3,3 @@ ignore/
 test/browser/page/tests-bundle.js
 *.sublime-project
 *.sublime-workspace
-.babelrc
