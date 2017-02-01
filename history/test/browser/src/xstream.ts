@@ -1,10 +1,10 @@
-/// <reference path="../../node_modules/@types/mocha/index.d.ts" />
-/// <reference path="../../node_modules/@types/node/index.d.ts" />
+/// <reference path="../../../node_modules/@types/mocha/index.d.ts" />
+/// <reference path="../../../node_modules/@types/node/index.d.ts" />
 import * as assert from 'assert';
 import xs, {Stream} from 'xstream';
 import {setup, run} from '@cycle/run';
 import {setAdapt} from '@cycle/run/lib/adapt';
-import {makeHashHistoryDriver, captureClicks, Location, HistoryInput} from '../../src';
+import {makeHistoryDriver, captureClicks, Location, HistoryInput} from '../../../lib';
 
 let dispose = () => {};
 
@@ -22,7 +22,7 @@ describe('historyDriver - xstream', () => {
       };
     }
 
-    const {sources, run} = setup(main, { history: makeHashHistoryDriver() });
+    const {sources, run} = setup(main, { history: makeHistoryDriver() });
     assert.strictEqual(typeof sources.history.remember, 'function');
   });
 
@@ -33,7 +33,7 @@ describe('historyDriver - xstream', () => {
       };
     }
 
-    const {sources, run} = setup(main, { history: makeHashHistoryDriver() });
+    const {sources, run} = setup(main, { history: makeHistoryDriver() });
 
     sources.history.subscribe({
       next (location: Location) {
@@ -53,7 +53,7 @@ describe('historyDriver - xstream', () => {
       };
     }
 
-    const {sources, run} = setup(main, { history: makeHashHistoryDriver() });
+    const {sources, run} = setup(main, { history: makeHistoryDriver() });
 
     sources.history.subscribe({
       next (location: Location) {
@@ -73,7 +73,7 @@ describe('historyDriver - xstream', () => {
       };
     }
 
-    const {sources, run} = setup(main, { history: makeHashHistoryDriver() });
+    const {sources, run} = setup(main, { history: makeHistoryDriver() });
 
     sources.history.subscribe({
       next (location: Location) {
@@ -100,7 +100,7 @@ describe('historyDriver - xstream', () => {
       };
     }
 
-    const {sources, run} = setup(main, { history: makeHashHistoryDriver() });
+    const {sources, run} = setup(main, { history: makeHistoryDriver() });
 
     const expected = [
       '/test',
