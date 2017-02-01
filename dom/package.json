@@ -46,10 +46,10 @@
     "@cycle/isolate": "1.x",
     "@cycle/rxjs-run": "4.0.0-rc.3",
     "@types/mocha": "^2.2.33",
-    "@types/node": "^6.0.45",
+    "@types/node": "^7.0.4",
     "@types/sinon": "^1.16.32",
-    "rxjs": "5.0.1",
-    "saucie": "^1.4.1",
+    "rxjs": "5.1.0",
+    "saucie": "3.1.0",
     "simulant": "^0.2.2",
     "snabbdom-jsx": "^0.3.0",
     "xstream": "10.x.x"
