@@ -1,8 +1,10 @@
-/// <reference path="../../../node_modules/@types/mocha/index.d.ts" />
-/// <reference path="../../../node_modules/@types/node/index.d.ts" />
+/// <reference path="../../node_modules/@types/mocha/index.d.ts" />
+/// <reference path="../../node_modules/@types/node/index.d.ts" />
 import * as assert from 'assert';
+
+import {Location, captureClicks, makeHashHistoryDriver, makeHistoryDriver} from '../../src';
+
 import xs from 'xstream';
-import {makeHashHistoryDriver, makeHistoryDriver, captureClicks, Location} from '../../../lib';
 
 describe('makeHistoryDriver', () => {
   it('should be a function', () => {
@@ -25,10 +27,6 @@ describe('makeHashHistoryDriver', () => {
 });
 
 describe('captureClicks', () => {
-  beforeEach(() => {
-    window.location.hash = '';
-  });
-
   it('should allow listening to link clicks and change route', function (done) {
     const historyDriver = makeHistoryDriver();
     const history$ = captureClicks(historyDriver)(xs.never());

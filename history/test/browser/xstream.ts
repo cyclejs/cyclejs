@@ -1,10 +1,12 @@
-/// <reference path="../../../node_modules/@types/mocha/index.d.ts" />
-/// <reference path="../../../node_modules/@types/node/index.d.ts" />
+/// <reference path="../../node_modules/@types/mocha/index.d.ts" />
+/// <reference path="../../node_modules/@types/node/index.d.ts" />
 import * as assert from 'assert';
+
+import {HistoryInput, Location, captureClicks, makeHistoryDriver} from '../../src';
+import {run, setup} from '@cycle/run';
 import xs, {Stream} from 'xstream';
-import {setup, run} from '@cycle/run';
+
 import {setAdapt} from '@cycle/run/lib/adapt';
-import {makeHistoryDriver, captureClicks, Location, HistoryInput} from '../../../lib';
 
 let dispose = () => {};
 
