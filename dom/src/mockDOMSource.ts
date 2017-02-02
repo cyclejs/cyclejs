@@ -28,33 +28,18 @@ export class MockedDOMSource implements DOMSource {
   }
 
   public events(eventType: string, options?: EventsFnOptions): any {
-    const mockConfig = this._mockConfig;
-    const keys = Object.keys(mockConfig);
-    const keysLen = keys.length;
-    for (let i = 0; i < keysLen; i++) {
-      const key = keys[i];
-      if (key === eventType) {
-        const out: DevToolEnabledSource & FantasyObservable = adapt(mockConfig[key] as any);
-        out._isCycleSource = 'MockedDOM';
-        return out;
-      }
-    }
-    const out: DevToolEnabledSource & FantasyObservable = adapt(xs.empty());
+    const streamForEventType = this._mockConfig[eventType] as any;
+    const out: DevToolEnabledSource & FantasyObservable = adapt(streamForEventType || xs.empty());
+
     out._isCycleSource = 'MockedDOM';
+
     return out;
   }
 
   public select(selector: string): MockedDOMSource {
-    const mockConfig = this._mockConfig;
-    const keys = Object.keys(mockConfig);
-    const keysLen = keys.length;
-    for (let i = 0; i < keysLen; i++) {
-      const key = keys[i];
-      if (key === selector) {
-        return new MockedDOMSource(mockConfig[key] as MockConfig);
-      }
-    }
-    return new MockedDOMSource({} as MockConfig);
+    const mockConfigForSelector = this._mockConfig[selector] || {};
+
+    return new MockedDOMSource(mockConfigForSelector as MockConfig);
   }
 
   public isolateSource(source: MockedDOMSource, scope: string): MockedDOMSource {
