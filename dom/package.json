@@ -52,6 +52,7 @@
     "saucie": "3.1.0",
     "simulant": "^0.2.2",
     "snabbdom-jsx": "^0.3.0",
+    "string.prototype.startswith": "^0.2.0",
     "xstream": "10.x.x"
   },
   "engines": {
