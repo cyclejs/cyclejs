@@ -6,6 +6,7 @@ import {HistoryInput, Location, captureClicks, makeHistoryDriver} from '../../sr
 import {run, setup} from '@cycle/rxjs-run';
 
 import {Observable} from 'rxjs';
+import 'rxjs/add/operator/switchMap';
 
 let dispose = () => {};
 
