@@ -1,9 +1,11 @@
-/// <reference path="../../../node_modules/@types/mocha/index.d.ts" />
-/// <reference path="../../../node_modules/@types/node/index.d.ts" />
+/// <reference path="../../node_modules/@types/mocha/index.d.ts" />
+/// <reference path="../../node_modules/@types/node/index.d.ts" />
 import * as assert from 'assert';
+
+import {HistoryInput, Location, captureClicks, makeHistoryDriver} from '../../src';
+import {run, setup} from '@cycle/rxjs-run';
+
 import {Observable} from 'rxjs';
-import {setup, run} from '@cycle/rxjs-run';
-import {makeHistoryDriver, captureClicks, Location, HistoryInput} from '../../../lib';
 
 let dispose = () => {};
 
