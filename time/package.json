@@ -43,7 +43,7 @@
   "devDependencies": {
     "@cycle/dom": "^14.1.0",
     "@types/mocha": "^2.2.37",
-    "browserify": "^13.1.1",
+    "browserify": "^14.0.0",
     "budo": "^9.2.2",
     "garnish": "^5.2.0",
     "greenkeeper-postpublish": "^1.0.1",
