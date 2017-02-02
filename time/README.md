@@ -90,7 +90,7 @@ describe('double', () => {
   it('doubles a number', (done) => {
     const input$ = fromDiagram('---1---2---3--|');
 
-    const actual$ = input$.map(i => i * 2);
+    const actual$ = input$.map(double);
 
     const expectedValues = [2, 4, 6];
 
@@ -128,7 +128,7 @@ describe('double', () => {
     const Time = mockTimeSource();
 
     const input$    = Time.diagram('---1---2---3--|');
-    const actual$   = input$.map(i => i * 2);
+    const actual$   = input$.map(double);
     const expected$ = Time.diagram('---2---4---6--|');
 
     Time.assertEqual(actual$, expected$);
