@@ -74,6 +74,9 @@ describe('DOM Rendering', function () {
   });
 
   it('should support snabbdom dataset module by default', function (done) {
+    const thisBrowserSupportsDataset =
+      typeof document.createElement('DIV').dataset !== 'undefined';
+
     function app(sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(
@@ -84,25 +87,29 @@ describe('DOM Rendering', function () {
       };
     }
 
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver(createRenderTarget()),
-    });
+    if (!thisBrowserSupportsDataset) {
+      done();
+    } else {
+      const {sinks, sources, run} = setup(app, {
+        DOM: makeDOMDriver(createRenderTarget()),
+      });
 
-    let dispose: any;
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const elem = root.querySelector('.my-class') as HTMLElement;
-        assert.notStrictEqual(elem, null);
-        assert.notStrictEqual(typeof elem, 'undefined');
-        assert.strictEqual(elem.tagName, 'DIV');
-        assert.strictEqual(elem.dataset['foo'], 'Foo');
-        setTimeout(() => {
-          dispose();
-          done();
-        });
-      },
-    });
-    dispose = run();
+      let dispose: any;
+      sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+        next: (root: Element) => {
+          const elem = root.querySelector('.my-class') as HTMLElement;
+          assert.notStrictEqual(elem, null);
+          assert.notStrictEqual(typeof elem, 'undefined');
+          assert.strictEqual(elem.tagName, 'DIV');
+          assert.strictEqual(elem.dataset['foo'], 'Foo');
+          setTimeout(() => {
+            dispose();
+            done();
+          });
+        },
+      });
+      dispose = run();
+    }
   });
 
   it('should convert a simple virtual-dom <select> to DOM element', function (done) {
