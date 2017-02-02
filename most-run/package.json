@@ -29,14 +29,15 @@
     "@cycle/run": "1.0.0-rc.6"
   },
   "peerDependencies": {
-    "most": "^1.0.5"
+    "most": "*"
   },
   "devDependencies": {
     "@types/es6-promise": "0.0.32",
     "@types/mocha": "^2.2.33",
     "@types/node": "0.0.2",
     "@types/sinon": "^1.16.32",
-    "creed": "^1.0.1"
+    "creed": "^1.0.1",
+    "most": "1.0.5"
   },
   "browserify-shim": {
     "rxjs": "global:Rx"
