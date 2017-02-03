@@ -1,21 +1,23 @@
-import Cycle from '@cycle/xstream-run';
+import {run} from '@cycle/run';
 import {div, input, p, makeDOMDriver} from '@cycle/dom';
 
 function main(sources) {
-  let sinks = {
-    DOM: sources.DOM.select('input').events('change')
-      .map(ev => ev.target.checked)
-      .startWith(false)
-      .map(toggled =>
-        div([
-          input({attrs: {type: 'checkbox'}}), 'Toggle me',
-          p(toggled ? 'ON' : 'off')
-        ])
-      )
+  const vdom$ = sources.DOM
+    .select('input').events('change')
+    .map(ev => ev.target.checked)
+    .startWith(false)
+    .map(toggled =>
+      div([
+        input({attrs: {type: 'checkbox'}}), 'Toggle me',
+        p(toggled ? 'ON' : 'off')
+      ])
+    );
+
+  return {
+    DOM: vdom$,
   };
-  return sinks;
 }
 
-Cycle.run(main, {
+run(main, {
   DOM: makeDOMDriver('#main-container')
 });
