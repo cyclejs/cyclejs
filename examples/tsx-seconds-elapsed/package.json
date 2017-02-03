@@ -5,24 +5,25 @@
   "author": "Kay Plößer",
   "license": "MIT",
   "dependencies": {
-    "@cycle/xstream-run": "3.0.x",
-    "@cycle/dom": "10.0.0-rc32",
-    "snabbdom-jsx": "0.3.0",
-    "xstream": "5.0.x"
+    "@cycle/run": "1.0.0-rc.8",
+    "@cycle/dom": "15.0.0-rc.2",
+    "snabbdom-jsx": "0.3.1",
+    "xstream": "10.x.x"
   },
   "devDependencies": {
+    "@types/node": "^7.0.4",
+    "@types/react": "^15.0.6",
     "babel-plugin-syntax-jsx": "^6.8.0",
     "babel-plugin-transform-react-jsx": "^6.8.0",
     "babel-register": "^6.4.3",
     "babelify": "^7.2.0",
-    "browserify": "11.0.1",
+    "browserify": "13.0.x",
     "mkdirp": "0.5.x",
-    "typescript": "1.8.7",
-    "typings": "^1.0.4"
+    "typescript": "2.1.x"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prebrowserify": "mkdirp dist && typings install && tsc",
+    "prebrowserify": "mkdirp dist && tsc",
     "browserify": "browserify lib/index.jsx -t babelify --outfile dist/main.js",
     "start": "npm install && npm run browserify && echo 'OPEN index.html IN YOUR BROWSER'"
   }

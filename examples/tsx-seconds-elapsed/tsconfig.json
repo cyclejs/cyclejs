@@ -9,14 +9,18 @@
     "module": "commonjs",
     "target": "ES5",
     "outDir": "lib/",
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "lib": [
+      "dom",
+      "es5",
+      "es2015"
+    ]
   },
   "formatCodeOptions": {
     "indentSize": 2,
     "tabSize": 2
   },
    "files": [
-     "typings/index.d.ts",
      "src/index.tsx"
    ]
 }
