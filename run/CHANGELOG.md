@@ -1,3 +1,13 @@
+<a name="1.0.0-rc.8"></a>
+# 1.0.0-rc.8 (2017-02-03)
+
+
+### Bug Fixes
+
+* **run:** fix race condition for drivers that subscribe late ([58b7991](https://github.com/cyclejs/cyclejs/tree/master/run/commit/58b7991))
+
+
+
 <a name="1.0.0-rc.7"></a>
 # 1.0.0-rc.7 (2017-01-19)
 
