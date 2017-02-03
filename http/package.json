@@ -8,7 +8,7 @@
   "repository": "https://github.com/cyclejs/cyclejs/tree/master/packages/http",
   "dependencies": {
     "@cycle/run": "*",
-    "superagent": "3.4.0"
+    "superagent": "3.4.1"
   },
   "peerDependencies": {
     "xstream": "*"
