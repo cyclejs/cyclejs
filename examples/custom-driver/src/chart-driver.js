@@ -1,5 +1,6 @@
 import Chart from 'chart.js'
 import xs from 'xstream'
+import {adapt} from '@cycle/run/lib/adapt'
 import fromEvent from 'xstream/extra/fromEvent'
 
 export function makeChartDriver(selector, settings) {
@@ -28,22 +29,16 @@ export function makeChartDriver(selector, settings) {
   }
 
   function createEvent(evName) {
-    return fromEvent(el, evName)
-      .filter(() => instance)
-      .map((ev) => instance.getElementsAtEvent(ev))
+    return adapt(
+      fromEvent(el, evName)
+        .filter(() => instance)
+        .map((ev) => instance.getElementsAtEvent(ev))
+    )
   }
 
   return function chartDriver(sink$) {
-    sink$.take(1).addListener({
-      next: createChart,
-      error: () => {},
-      complete: () => {}
-    })
-    sink$.addListener({
-      next: updateChart,
-      error: () => {},
-      complete: () => {}
-    })
+    sink$.take(1).addListener({ next: createChart })
+    sink$.addListener({ next: updateChart })
 
     return {
       events: createEvent,

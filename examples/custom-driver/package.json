@@ -6,9 +6,9 @@
   "license": "MIT",
   "dependencies": {
     "chart.js": "^2.0.0",
-    "@cycle/xstream-run": "3.1.x",
-    "@cycle/dom": "12.2.x",
-    "xstream": "6.1.x"
+    "@cycle/run": "1.0.0-rc.8",
+    "@cycle/dom": "15.0.0-rc.2",
+    "xstream": "10.2"
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.3.13",

@@ -1,6 +1,6 @@
-import Cycle from '@cycle/xstream-run'
-import {makeDOMDriver} from '@cycle/dom'
 import xs from 'xstream'
+import {run} from '@cycle/run'
+import {makeDOMDriver} from '@cycle/dom'
 import {makeChartDriver} from './chart-driver'
 
 const timeframeSec = 1
@@ -17,9 +17,9 @@ const chartDefaults = {
   },
 }
 
-function intent(DOMSource) {
+function intent(domSource) {
   return {
-    click$: DOMSource.events('click').mapTo(1),
+    click$: domSource.events('click').mapTo(1),
     timer$: xs.periodic(timeframeSec * 1000).mapTo(0),
   }
 }
@@ -60,7 +60,7 @@ function main(sources) {
   }
 }
 
-Cycle.run(main, {
+run(main, {
   DOM: makeDOMDriver('body'),
   Chart: makeChartDriver('#clicks-chart', chartDefaults),
 })
