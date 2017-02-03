@@ -1,3 +1,19 @@
+<a name="2.0.0-rc.1"></a>
+# 2.0.0-rc.1 (2017-02-03)
+
+
+### Bug Fixes
+
+* **isolate:** update codebase to use TypeScript 2.1 ([0ec0980](https://github.com/cyclejs/cyclejs/tree/master/packages/isolate/commit/0ec0980))
+
+
+### BREAKING CHANGES
+
+* isolate: If you use JavaScript, this will not be a breaking change. If you use TypeScript 2.0, this is a
+* isolate: as we are using exclusive TypeScript 2.1 features, only supported in v2.1.
+
+
+
 <a name="1.4.0"></a>
 # 1.4.0 (2016-07-16)
 
