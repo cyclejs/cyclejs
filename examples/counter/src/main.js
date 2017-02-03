@@ -1,24 +1,25 @@
 import xs from 'xstream';
-import Cycle from '@cycle/xstream-run';
+import {run} from '@cycle/run';
 import {div, button, p, makeDOMDriver} from '@cycle/dom';
 
 function main(sources) {
-  let action$ = xs.merge(
+  const action$ = xs.merge(
     sources.DOM.select('.decrement').events('click').map(ev => -1),
     sources.DOM.select('.increment').events('click').map(ev => +1)
   );
-  let count$ = action$.fold((x,y) => x + y, 0);
+  const count$ = action$.fold((acc, x) => acc + x, 0);
+  const vdom$ = count$.map(count =>
+    div([
+      button('.decrement', 'Decrement'),
+      button('.increment', 'Increment'),
+      p('Counter: ' + count)
+    ])
+  );
   return {
-    DOM: count$.map(count =>
-        div([
-          button('.decrement', 'Decrement'),
-          button('.increment', 'Increment'),
-          p('Counter: ' + count)
-        ])
-      )
+    DOM: vdom$,
   };
 }
 
-Cycle.run(main, {
+run(main, {
   DOM: makeDOMDriver('#main-container')
 });
