@@ -1,3 +1,14 @@
+<a name="5.0.0-rc.4"></a>
+# 5.0.0-rc.4 (2017-02-03)
+
+
+### Bug Fixes
+
+* **most-run:** support most v1.2 ([d643732](https://github.com/cyclejs/cyclejs/tree/master/most-run/commit/d643732))
+* **most-run:** update run to v1.0.0-rc.8 ([da7f1ec](https://github.com/cyclejs/cyclejs/tree/master/most-run/commit/da7f1ec))
+
+
+
 <a name="5.0.0-rc.3"></a>
 # 5.0.0-rc.3 (2017-02-03)
 
