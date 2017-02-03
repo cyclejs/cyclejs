@@ -38,12 +38,13 @@ module.exports = function (config) {
       version: '9.1',
     },
 
-    SL_android_5_1: {
-      base: 'SauceLabs',
-      browserName: 'android',
-      platform: 'Linux',
-      version: '5.1',
-    },
+    // TODO: fix this!
+    // SL_android_5_1: {
+    //   base: 'SauceLabs',
+    //   browserName: 'android',
+    //   platform: 'Linux',
+    //   version: '5.1',
+    // },
 
     SL_Safari_Current: {
       base: 'SauceLabs',
