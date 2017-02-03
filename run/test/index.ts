@@ -284,6 +284,35 @@ describe('run', function () {
     }, 20);
   });
 
+  it('should support driver that asynchronously subscribes to sink', function (done) {
+    function app(sources: any): any {
+      return {
+        foo: xs.of(10),
+      };
+    }
+
+    const expected = [10];
+    function driver(sink: Stream<number>): Stream<any> {
+      setTimeout(() => {
+        sink.subscribe({
+          next(x) {
+            assert.strictEqual(x, expected.shift());
+          },
+          error() {},
+          complete() {},
+        });
+      });
+      return xs.never();
+    }
+
+    run(app, {foo: driver});
+
+    setTimeout(() => {
+      assert.strictEqual(expected.length, 0);
+      done();
+    }, 100);
+  });
+
   it('should report errors from main() in the console', function (done) {
     let sandbox = sinon.sandbox.create();
     sandbox.stub(console, 'error');

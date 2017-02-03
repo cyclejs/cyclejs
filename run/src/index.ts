@@ -1,4 +1,4 @@
-import xs, {Stream} from 'xstream';
+import xs, {Stream, MemoryStream} from 'xstream';
 import {adapt} from './adapt';
 
 export interface FantasyObserver {
@@ -19,8 +19,23 @@ export interface Sinks {
   [driverName: string]: FantasyObservable;
 }
 
-export interface XStreamSinks extends Sinks {
-  [driverName: string]: Stream<any>;
+/**
+ * Sink proxies should be MemoryStreams in order to fix race conditions for
+ * drivers that subscribe to sink proxies "later".
+ *
+ * Recall that there are two steps:
+ * 1. Setup (sink proxies -> drivers -> sources -> main -> sink)
+ * 2. Execution (also known as replication: sink proxies imitate sinks)
+ *
+ * If a driver does not synchronously/immediately subscribe to the sink proxy
+ * in step (1), but instead does that later, if step (2) feeds a value from the
+ * sink to the sink proxy, then when the driver subscribes to the sink proxy,
+ * it should receive that value. This is why we need MemoryStreams, not just
+ * Streams. Note: Cycle DOM driver is an example of such case, since it waits
+ * for 'readystatechange'.
+ */
+export interface SinkProxies extends Sinks {
+  [driverName: string]: MemoryStream<any>;
 }
 
 export type DisposeFunction = () => void;
@@ -52,17 +67,17 @@ function logToConsoleError(err: any) {
   }
 }
 
-function makeSinkProxies(drivers: DriversDefinition): XStreamSinks {
-  const sinkProxies: XStreamSinks = {};
+function makeSinkProxies(drivers: DriversDefinition): SinkProxies {
+  const sinkProxies: SinkProxies = {};
   for (let name in drivers) {
     if (drivers.hasOwnProperty(name)) {
-      sinkProxies[name] = xs.create<any>();
+      sinkProxies[name] = xs.createWithMemory<any>();
     }
   }
   return sinkProxies;
 }
 
-function callDrivers(drivers: DriversDefinition, sinkProxies: XStreamSinks): any {
+function callDrivers(drivers: DriversDefinition, sinkProxies: SinkProxies): any {
   const sources = {};
   for (let name in drivers) {
     if (drivers.hasOwnProperty(name)) {
@@ -106,7 +121,7 @@ interface ReplicationBuffers {
   };
 }
 
-function replicateMany(sinks: Sinks, sinkProxies: XStreamSinks): DisposeFunction {
+function replicateMany(sinks: Sinks, sinkProxies: SinkProxies): DisposeFunction {
   const sinkNames = Object.keys(sinks).filter(name => !!sinkProxies[name]);
 
   let buffers: ReplicationBuffers = {};
@@ -123,11 +138,17 @@ function replicateMany(sinks: Sinks, sinkProxies: XStreamSinks): DisposeFunction
   const subscriptions = sinkNames
     .map(name => xs.fromObservable<any>(sinks[name]).subscribe(replicators[name]));
 
+  // A sink proxy should not complete before 500 milliseconds.
+  // This is to allow late drivers (drivers that subscribe to the sink proxy
+  // asynchronously later, not immediately when the driver is setup) to
+  // have time to receive the 'next' values from the MemoryStream sink proxy.
+  const EARLIEST_SINK_COMPLETE = 500; // milliseconds
+
   sinkNames.forEach((name) => {
     const listener = sinkProxies[name];
     const next = (x: any) => { listener._n(x); };
     const error = (err: any) => { logToConsoleError(err); listener._e(err); };
-    const complete = () => listener._c();
+    const complete = () => { setTimeout(() => { listener._c(); }, EARLIEST_SINK_COMPLETE); };
     buffers[name]._n.forEach(next);
     buffers[name]._e.forEach(error);
     buffers[name]._c.forEach(complete);
