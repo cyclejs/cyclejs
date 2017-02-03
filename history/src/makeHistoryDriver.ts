@@ -17,7 +17,7 @@ function makeUpdateHistory(history: History) {
       }
     } else {
       throw new Error('History Driver input must be a string or an ' +
-        'object but received ${typeof url}');
+        `object but received ${typeof location}`);
     }
   };
 }
