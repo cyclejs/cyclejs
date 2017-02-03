@@ -1,6 +1,7 @@
 {
   "private": true,
   "license": "MIT",
+  "dependencies": {},
   "devDependencies": {
     "add-stream": "1.0.0",
     "browserify": "13.3.0",
@@ -49,5 +50,5 @@
       "config": "./.cz-config.js"
     }
   },
-  "dependencies": {}
+  "browserify-shim": {}
 }
