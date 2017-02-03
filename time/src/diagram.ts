@@ -10,8 +10,8 @@ const parseIntIfDecimal = (str) => {
 }
 
 function makeDiagram (schedule, currentTime, interval) {
-  return function diagram (diagram: string, values = {}): Stream<any> {
-    const characters = diagram.split('');
+  return function diagram (diagramString: string, values = {}): Stream<any> {
+    const characters = diagramString.split('');
     const stream = xs.create();
     const valueFor = (character) => values[character] || parseIntIfDecimal(character);
 
