@@ -1,7 +1,7 @@
-import Cycle from '@cycle/xstream-run'
 import xs from 'xstream'
 import pairwise from 'xstream/extra/pairwise'
 import fromEvent from 'xstream/extra/fromEvent'
+import {run} from '@cycle/run'
 import {div, ul, li, makeDOMDriver} from '@cycle/dom'
 import {intersection, difference, sortBy} from 'lodash'
 
@@ -108,7 +108,7 @@ function main(sources) {
   }
 }
 
-Cycle.run(main, {
+run(main, {
   Keydown: () => fromEvent(document, 'keydown'),
   DOM: makeDOMDriver('#main-container')
 })
