@@ -10,7 +10,7 @@ import {
 } from '@cycle/run';
 
 setAdapt(function adaptXstreamToMost(stream: Stream<any>): MostStream<any> {
-  return most.from(stream);
+  return most.from(stream as any);
 });
 
 /**
