@@ -3,12 +3,12 @@ import {button, div} from '@cycle/dom';
 import isolate from '@cycle/isolate'
 import Item from './Item';
 
-function intent(DOM, itemRemove$) {
+function intent(domSource, itemRemove$) {
   return xs.merge(
-    DOM.select('.add-one-btn').events('click')
+    domSource.select('.add-one-btn').events('click')
       .mapTo({type: 'ADD_ITEM', payload: 1}),
 
-    DOM.select('.add-many-btn').events('click')
+    domSource.select('.add-many-btn').events('click')
       .mapTo({type: 'ADD_ITEM', payload: 1000}),
 
     itemRemove$.map(id => ({type: 'REMOVE_ITEM', payload: id}))

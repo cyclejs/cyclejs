@@ -1,15 +1,15 @@
-import {button, div, input} from '@cycle/dom';
 import xs from 'xstream';
+import {button, div, input} from '@cycle/dom';
 
-function intent(DOM) {
+function intent(domSource) {
   return xs.merge(
-    DOM.select('.color-field').events('input')
+    domSource.select('.color-field').events('input')
       .map(ev => ({type: 'CHANGE_COLOR', payload: ev.target.value})),
 
-    DOM.select('.width-slider').events('input')
+    domSource.select('.width-slider').events('input')
       .map(ev => ({type: 'CHANGE_WIDTH', payload: parseInt(ev.target.value)})),
 
-    DOM.select('.remove-btn').events('click')
+    domSource.select('.remove-btn').events('click')
       .mapTo({type: 'REMOVE'})
   );
 }
