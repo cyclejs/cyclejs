@@ -2,12 +2,12 @@ import xs from 'xstream';
 import {div, span, input} from '@cycle/dom';
 import isolate from '@cycle/isolate';
 
-function intent(DOMSource) {
-  return DOMSource.select('.slider').events('input').map(ev => ev.target.value);
+function intent(domSource) {
+  return domSource.select('.slider').events('input').map(ev => ev.target.value);
 };
 
 function model(newValue$, props$) {
-  let initialValue$ = props$.map((props) => props.initial).take(1);
+  const initialValue$ = props$.map((props) => props.initial).take(1);
   return xs.merge(initialValue$, newValue$).remember();
 };
 
@@ -22,17 +22,17 @@ function view(props$, value$) {
   );
 };
 
-let LabeledSlider = function(sources) {
-  let change$ = intent(sources.DOM);
-  let value$ = model(change$, sources.props$);
-  let vtree$ = view(sources.props$, value$);
+function LabeledSlider(sources) {
+  const change$ = intent(sources.DOM);
+  const value$ = model(change$, sources.props$);
+  const vdom$ = view(sources.props$, value$);
   return {
-    DOM: vtree$,
+    DOM: vdom$,
     value: value$
   };
 };
 
-let IsolatedLabeledSlider = function (sources) {
+const IsolatedLabeledSlider = function (sources) {
   return isolate(LabeledSlider)(sources);
 };
 

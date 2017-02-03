@@ -5,8 +5,8 @@ import LabeledSlider from './LabeledSlider';
 function model(weightSliderValue$, heightSliderValue$) {
   return xs.combine(weightSliderValue$, heightSliderValue$)
     .map(([weight, height]) => {
-      let heightMeters = height * 0.01;
-      let bmi = Math.round(weight / (heightMeters * heightMeters));
+      const heightMeters = height * 0.01;
+      const bmi = Math.round(weight / (heightMeters * heightMeters));
       return bmi;
     });
 }
@@ -22,19 +22,19 @@ function view(bmi$, weightSliderDOM, heightSliderDOM) {
     );
 }
 
-function BmiCalculator({DOM}) {
-  let weightProps$ = xs.of({
+function BmiCalculator(sources) {
+  const weightProps$ = xs.of({
     label: 'Weight', unit: 'kg', min: 40, initial: 70, max: 140
   });
-  let heightProps$ = xs.of({
+  const heightProps$ = xs.of({
     label: 'Height', unit: 'cm', min: 140, initial: 170, max: 210
   });
-  let weightSlider = LabeledSlider({DOM, props$: weightProps$});
-  let heightSlider = LabeledSlider({DOM, props$: heightProps$});
-  let bmi$ = model(weightSlider.value, heightSlider.value);
-  let vtree$ = view(bmi$, weightSlider.DOM, heightSlider.DOM);
+  const weightSlider = LabeledSlider({DOM: sources.DOM, props$: weightProps$});
+  const heightSlider = LabeledSlider({DOM: sources.DOM, props$: heightProps$});
+  const bmi$ = model(weightSlider.value, heightSlider.value);
+  const vdom$ = view(bmi$, weightSlider.DOM, heightSlider.DOM);
   return {
-      DOM: vtree$
+    DOM: vdom$
   };
 }
 
