@@ -5,42 +5,7 @@ import xs, {Stream} from 'xstream';
 import adapter from '@cycle/xstream-adapter';
 
 describe("@cycle/time", () => {
-  describe("makeTimeDriver", () => {
-    it("returns a Time source", () => {
-      const Time = timeDriver(null, adapter);
-
-      const keys = Object.keys(Time).sort();
-
-      assert.deepEqual(keys, [
-        "animationFrames",
-        "debounce",
-        "delay",
-        "periodic",
-        "throttle",
-        "throttleAnimation"
-      ]);
-    });
-  });
-
   describe("mockTimeSource", () => {
-    it("returns a virtual Time source", () => {
-      const Time = mockTimeSource();
-
-      const keys = Object.keys(Time).sort();
-
-      assert.deepEqual(keys, [
-        "animationFrames",
-        "assertEqual",
-        "debounce",
-        "delay",
-        "diagram",
-        "periodic",
-        "run",
-        "throttle",
-        "throttleAnimation"
-      ]);
-    });
-
     describe(".diagram", () => {
       it("creates streams from ascii diagrams", (done) => {
         const Time = mockTimeSource();

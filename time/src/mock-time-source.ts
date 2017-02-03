@@ -19,6 +19,27 @@ function raiseError (err) {
   }
 }
 
+function finish (asserts, done) {
+  const pendingAsserts = asserts.filter(assert => assert.state === 'pending');
+
+  if (pendingAsserts.length > 0) {
+    pendingAsserts.forEach(assert => assert.finish());
+  }
+
+  const failedAsserts = asserts.filter(assert => assert.state === 'failed');
+
+  const success = failedAsserts.length === 0;
+
+  if (success) {
+    done();
+  } else {
+    const errors = failedAsserts.map(assert => assert.error);
+    const error = combineErrors(errors);
+
+    done(error);
+  }
+}
+
 function mockTimeSource ({interval = 20} = {}) {
   let time = 0;
   let asserts = [];
@@ -38,23 +59,7 @@ function mockTimeSource ({interval = 20} = {}) {
     const eventToProcess = scheduler.shiftNextEntry();
 
     if (!eventToProcess) {
-      const pendingAsserts = asserts.filter(assert => assert.state === 'pending');
-
-      if (pendingAsserts.length > 0) {
-        pendingAsserts.forEach(assert => assert.finish());
-      }
-
-      const failedAsserts = asserts.filter(assert => assert.state === 'failed');
-
-      if (failedAsserts.length > 0) {
-        const errors = failedAsserts.map(assert => assert.error);
-        const error = combineErrors(errors);
-
-        done(error);
-      } else {
-        done();
-      }
-
+      finish(asserts, done);
       return;
     }
 
@@ -99,7 +104,9 @@ function mockTimeSource ({interval = 20} = {}) {
     run (doneCallback = raiseError) {
       done = doneCallback;
       setImmediate(processEvent);
-    }
+    },
+
+    _scheduler: scheduler.add
   }
 
   return timeSource;
