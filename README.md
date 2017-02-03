@@ -4,7 +4,7 @@
   <img alt="logo" src="https://raw.githubusercontent.com/cyclejs/cyclejs/master/logo.png" width="128">
 </div>
 <div align="center">
-  <strong>A functional and reactive JavaScript framework for cleaner code</strong>
+  <strong>A functional and reactive JavaScript framework for predictable code</strong>
 </div>
 
 <div align="center">
