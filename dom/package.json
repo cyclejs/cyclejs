@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@cycle/isolate": "1.x",
-    "@cycle/rxjs-run": "4.0.0-rc.3",
+    "@cycle/rxjs-run": "4.0.0-rc.5",
     "@types/mocha": "^2.2.33",
     "@types/node": "^7.0.4",
     "@types/sinon": "^1.16.32",
