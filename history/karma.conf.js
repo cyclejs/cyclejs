@@ -95,6 +95,7 @@ module.exports = function (config) {
     concurrency: 1,
 
     captureTimeout: 120000,
+    browserNoActivityTimeout: 30000,
 
     // LOG_DISABLE .. LOG_ERROR .. LOG_WARN .. LOG_INFO .. LOG_DEBUG
     logLevel: config.LOG_INFO,
