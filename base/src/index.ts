@@ -50,7 +50,13 @@ export interface CycleExecution<Sources, Sinks> {
   run: () => DisposeFunction;
 }
 
-export interface CycleSetup {
+export interface CycleSetup<A1, A2, B1, B2, C1, C2, D1, D2, E1, E2, F1, F2> {
+  (main: ((sources: [A1]) => [A2]), drivers: [(sink: A2) => A1], options: CycleOptions): CycleExecution<[A1], [A2]>;
+  (main: ((sources: [A1, B1]) => [A2, B2]), drivers: [(sink: A2) => A1, (sink: B2) => B1], options: CycleOptions): CycleExecution<[A1, B1], [A2, B2]>;
+  (main: ((sources: [A1, B1, C1]) => [A2, B2, C2]), drivers: [(sink: A2) => A1, (sink: B2) => B1, (sink: C2) => C1], options: CycleOptions): CycleExecution<[A1, B1, C1], [A2, B2, C2]>;
+  (main: ((sources: [A1, B1, C1, D1]) => [A2, B2, C2, D2]), drivers: [(sink: A2) => A1, (sink: B2) => B1, (sink: C2) => C1, (sink: D2) => D1], options: CycleOptions): CycleExecution<[A1, B1, C1, D1], [A2, B2, C2, D2]>;
+  (main: ((sources: [A1, B1, C1, D1, E1]) => [A2, B2, C2, D2, E2]), drivers: [(sink: A2) => A1, (sink: B2) => B1, (sink: C2) => C1, (sink: D2) => D1, (sink: E2) => E1], options: CycleOptions): CycleExecution<[A1, B1, C1, D1, E1], [A2, B2, C2, D2, E2]>;
+  (main: ((sources: [A1, B1, C1, D1, E1, F1]) => [A2, B2, C2, D2, E2, F2]), drivers: [(sink: A2) => A1, (sink: B2) => B1, (sink: C2) => C1, (sink: D2) => D1, (sink: E2) => E1, (sink: F2) => F1], options: CycleOptions): CycleExecution<[A1, B1, C1, D1, E1, F1], [A2, B2, C2, D2, E2, F2]>;
   (main: (sources: any) => any, drivers: {[name: string]: Function}): CycleExecution<any, any>;
   run: (main: (sources: any) => any, drivers: {[name: string]: Function}) => DisposeFunction;
 }
@@ -195,8 +201,14 @@ function disposeSources<Sources>(sources: Sources) {
 
 const isObjectEmpty = (obj: any) => Object.keys(obj).length === 0;
 
+function Cycle<A1, A2>(main: ((sources: [A1]) => [A2]), drivers: [(sink: A2) => A1], options: CycleOptions): CycleExecution<[A1], [A2]>;
+function Cycle<A1, A2, B1, B2>(main: ((sources: [A1, B1]) => [A2, B2]), drivers: [(sink: A2) => A1, (sink: B2) => B1], options: CycleOptions): CycleExecution<[A1, B1], [A2, B2]>;
+function Cycle<A1, A2, B1, B2, C1, C2>(main: ((sources: [A1, B1, C1]) => [A2, B2, C2]), drivers: [(sink: A2) => A1, (sink: B2) => B1, (sink: C2) => C1], options: CycleOptions): CycleExecution<[A1, B1, C1], [A2, B2, C2]>;
+function Cycle<A1, A2, B1, B2, C1, C2, D1, D2>(main: ((sources: [A1, B1, C1, D1]) => [A2, B2, C2, D2]), drivers: [(sink: A2) => A1, (sink: B2) => B1, (sink: C2) => C1, (sink: D2) => D1], options: CycleOptions): CycleExecution<[A1, B1, C1, D1], [A2, B2, C2, D2]>;
+function Cycle<A1, A2, B1, B2, C1, C2, D1, D2, E1, E2>(main: ((sources: [A1, B1, C1, D1, E1]) => [A2, B2, C2, D2, E2]), drivers: [(sink: A2) => A1, (sink: B2) => B1, (sink: C2) => C1, (sink: D2) => D1, (sink: E2) => E1], options: CycleOptions): CycleExecution<[A1, B1, C1, D1, E1], [A2, B2, C2, D2, E2]>;
+function Cycle<A1, A2, B1, B2, C1, C2, D1, D2, E1, E2, F1, F2>(main: ((sources: [A1, B1, C1, D1, E1, F1]) => [A2, B2, C2, D2, E2, F2]), drivers: [(sink: A2) => A1, (sink: B2) => B1, (sink: C2) => C1, (sink: D2) => D1, (sink: E2) => E1, (sink: F2) => F1], options: CycleOptions): CycleExecution<[A1, B1, C1, D1, E1, F1], [A2, B2, C2, D2, E2, F2]>;
 function Cycle<Sources, Sinks>(main: (sources: Sources) => Sinks,
-                               drivers: {[name: string]: Function},
+                               drivers: {[name: string]: Function} | Array<Function>,
                                options: CycleOptions): CycleExecution<Sources, Sinks> {
   if (typeof main !== `function`) {
     throw new Error(`First argument given to Cycle must be the 'main' ` +
