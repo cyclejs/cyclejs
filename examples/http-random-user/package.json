@@ -5,10 +5,10 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/xstream-run": "3.1.x",
-    "@cycle/dom": "12.2.x",
-    "@cycle/http": "11.0.x",
-    "xstream": "6.1.x"
+    "@cycle/run": "1.0.0-rc.8",
+    "@cycle/dom": "15.0.0-rc.2",
+    "@cycle/http": "12.0.0-rc.1",
+    "xstream": "10.2"
   },
   "devDependencies": {
     "browserify": "13.0.0",
@@ -16,12 +16,11 @@
     "babel-register": "^6.4.3",
     "babelify": "7.2.0",
     "mkdirp": "0.5.x",
-    "typescript": "1.8.7",
-    "typings": "^1.0.4"
+    "typescript": "2.1.x"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prebrowserify": "mkdirp dist && typings install && tsc",
+    "prebrowserify": "mkdirp dist && tsc",
     "browserify": "browserify lib/index.js -t babelify --outfile dist/main.js",
     "start": "npm install && npm run browserify && echo 'OPEN index.html IN YOUR BROWSER'"
   }
