@@ -1,6 +1,6 @@
 {
   "name": "@cycle/jsonp",
-  "version": "6.1.0",
+  "version": "7.0.0-rc.1",
   "description": "A Cycle.js Driver for making HTTP requests through JSONP",
   "main": "lib/index.js",
   "author": "Andre Staltz",
@@ -28,7 +28,7 @@
     "lib": "../node_modules/.bin/tsc",
     "test": "npm run lib && npm run lint",
     "test-ci": "npm run test",
-    "browserify": "npm run lib && ../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleJSONPDriver --exclude xstream --outfile dist/cycle-jsonp-driver.js",
+    "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleJSONPDriver --exclude xstream --outfile dist/cycle-jsonp-driver.js",
     "uglify": "../node_modules/.bin/uglifyjs dist/cycle-jsonp-driver.js -o dist/cycle-jsonp-driver.min.js",
     "predist": "rm -rf dist/ && mkdir -p dist/",
     "dist": "npm run lib && npm run browserify && npm run uglify",
