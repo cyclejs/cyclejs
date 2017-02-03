@@ -2,6 +2,7 @@ import 'mocha';
 import * as assert from 'assert';
 import * as Rx from 'rxjs';
 import {Observable} from 'rxjs';
+import 'rxjs/add/operator/observeOn';
 import {setup} from '@cycle/rxjs-run';
 import {div, h3, h2, h, makeHTMLDriver, VNode, HTMLSource} from '../../lib';
 
@@ -88,6 +89,7 @@ describe('HTML Driver', function () {
     let {sinks, sources, run} = setup(app, {
       html: makeHTMLDriver((html: string) => {}),
     });
+    console.log(sources.html.elements());
     assert.strictEqual(typeof (sources.html.elements() as any).observeOn, 'function');
     done();
   });
