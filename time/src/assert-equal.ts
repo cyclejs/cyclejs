@@ -81,10 +81,12 @@ function checkEqual (completeStore, assert, interval) {
   }
 }
 
-function makeAssertEqual (schedule, currentTime, interval, addAssert) {
+function makeAssertEqual (timeSource, schedule, currentTime, interval, addAssert) {
   return function assertEqual (actual: Stream<any>, expected: Stream<any>) {
     let calledComplete = 0;
     let completeStore = {};
+
+    const Time = timeSource();
 
     const assert = {
       state: 'pending',
@@ -97,39 +99,19 @@ function makeAssertEqual (schedule, currentTime, interval, addAssert) {
 
     addAssert(assert);
 
-    function complete (label, diagram) {
-      calledComplete++;
+    const actualLog$ = actual.compose(Time.record);
+    const expectedLog$ = expected.compose(Time.record);
 
-      if (calledComplete === 2) {
+    xs.combine(actualLog$, expectedLog$).addListener({
+      next ([aLog, bLog]) {
+        completeStore['actual'] = aLog;
+        completeStore['expected'] = bLog;
+      },
+
+      complete () {
         checkEqual(completeStore, assert, interval);
       }
-    }
-
-    const completeListener = (label) => {
-      const entries = [];
-      completeStore[label] = entries;
-
-      return {
-        next (ev) {
-          entries.push({type: 'next', value: ev, time: currentTime()});
-        },
-
-        complete () {
-          entries.push({type: 'complete', time: currentTime()});
-
-          complete(label, entries)
-        },
-
-        error (error) {
-          entries.push({type: 'error', time: currentTime(), error});
-
-          complete(label, entries);
-        }
-      }
-    }
-
-    actual.addListener(completeListener('actual'))
-    expected.addListener(completeListener('expected'))
+    });
   }
 }
 

@@ -12,6 +12,7 @@ import {makeDiagram} from './diagram';
 import {makeAssertEqual} from './assert-equal';
 import {makeAnimationFrames} from './animation-frames';
 import {makeThrottleAnimation} from './throttle-animation';
+import {makeRecord} from './record';
 
 function raiseError (err) {
   if (err) {
@@ -91,7 +92,8 @@ function mockTimeSource ({interval = 20} = {}) {
 
   const timeSource = {
     diagram: makeDiagram(scheduler.add, currentTime, interval),
-    assertEqual: makeAssertEqual(scheduler.add, currentTime, interval, addAssert),
+    record: makeRecord(scheduler.add, currentTime, interval),
+    assertEqual: makeAssertEqual(() => timeSource, scheduler.add, currentTime, interval, addAssert),
 
     delay: makeDelay(scheduler.add, currentTime),
     debounce: makeDebounce(scheduler.add, currentTime),

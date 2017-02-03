@@ -454,6 +454,52 @@ describe("@cycle/time", () => {
       });
     });
 
+    describe('.record', () => {
+      it('records a stream into an array of entries', (done) => {
+        const Time = mockTimeSource();
+
+        const expectedNextEntry = {type: 'next', time: 60, value: 'a'};
+        const expectedCompletionEntry = {type: 'complete', time: 140};
+
+        const input$    = Time.diagram(`---a---|`);
+
+        const actual$   = input$.compose(Time.record);
+        const expected$ = Time.diagram(`x--y---z|`, {
+          x: [],
+          y: [expectedNextEntry],
+          z: [expectedNextEntry, expectedCompletionEntry]
+        });
+
+        Time.assertEqual(
+          actual$,
+          expected$
+        );
+
+        Time.run(done);
+      });
+
+      it('records errors', (done) => {
+        const Time = mockTimeSource();
+
+        const expectedErrorEntry = {type: 'error', time: 60, error: new Error(`scheduled error`)};
+
+        const input$    = Time.diagram(`---#`);
+
+        const actual$   = input$.compose(Time.record);
+        const expected$ = Time.diagram(`x--y|`, {
+          x: [],
+          y: [expectedErrorEntry]
+        });
+
+        Time.assertEqual(
+          actual$,
+          expected$
+        );
+
+        Time.run(done);
+      });
+    })
+
     it("can be used to test Cycle apps", (done) => {
       function Counter ({DOM}) {
         const add$ = DOM
