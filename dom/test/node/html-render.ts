@@ -89,7 +89,6 @@ describe('HTML Driver', function () {
     let {sinks, sources, run} = setup(app, {
       html: makeHTMLDriver((html: string) => {}),
     });
-    console.log(sources.html.elements());
     assert.strictEqual(typeof (sources.html.elements() as any).observeOn, 'function');
     done();
   });
