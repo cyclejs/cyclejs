@@ -1,3 +1,13 @@
+<a name="5.0.0-rc.3"></a>
+# 5.0.0-rc.3 (2017-02-03)
+
+
+### Bug Fixes
+
+* **most-run:** support most v1.2 ([d643732](https://github.com/cyclejs/cyclejs/tree/master/most-run/commit/d643732))
+
+
+
 <a name="5.0.0-rc.2"></a>
 # 5.0.0-rc.2 (2016-12-14)
 
