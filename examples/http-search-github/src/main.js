@@ -1,6 +1,6 @@
-import Cycle from '@cycle/xstream-run';
 import xs from 'xstream';
 import debounce from 'xstream/extra/debounce';
+import {run} from '@cycle/run';
 import {div, label, input, hr, ul, li, a, makeDOMDriver} from '@cycle/dom';
 import {makeHTTPDriver} from '@cycle/http';
 
@@ -43,11 +43,11 @@ function main(sources) {
 
   return {
     DOM: vtree$,
-    HTTP: request$
+    HTTP: request$,
   };
 }
 
-Cycle.run(main, {
+run(main, {
   DOM: makeDOMDriver('#main-container'),
-  HTTP: makeHTTPDriver()
+  HTTP: makeHTTPDriver(),
 });
