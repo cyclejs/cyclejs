@@ -5,11 +5,11 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/rxjs-run": "3.2",
-    "rxjs": "^5.0.1",
-    "@cycle/isolate": "1.4",
-    "@cycle/dom": "14.3",
-    "xstream": "9.2"
+    "@cycle/rxjs-run": "4.0.0-rc.5",
+    "rxjs": "5.1.x",
+    "@cycle/isolate": "2.0.0-rc.1",
+    "@cycle/dom": "15.0.0-rc.2",
+    "xstream": "10.2"
   },
   "devDependencies": {
     "browserify": "13.0.0",
