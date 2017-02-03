@@ -1,9 +1,8 @@
 import xs from 'xstream'
-import Cycle from '@cycle/xstream-run'
+import {run} from '@cycle/run'
 import {makeDOMDriver} from '@cycle/dom'
 import {makeJSONPDriver} from '@cycle/jsonp'
-// import {restart, restartable} from 'cycle-restart'
-let app = require('./app').default;
+import app from './app';
 
 function preventDefaultSinkDriver(prevented$) {
   prevented$.addListener({
@@ -19,23 +18,9 @@ function preventDefaultSinkDriver(prevented$) {
   return xs.empty()
 }
 
-const drivers = {
+
+run(app, {
   DOM: makeDOMDriver('#main-container'),
   JSONP: makeJSONPDriver(),
   preventDefault: preventDefaultSinkDriver,
-  // TODO: support cycle-restart in Cycle Diversity
-  // DOM: restartable(makeDOMDriver('#main-container'), {pauseSinksWhileReplaying: false}),
-  // JSONP: restartable(makeJSONPDriver()),
-  // preventDefault: restartable(preventDefaultSinkDriver),
-}
-
-const {sinks, sources, run} = Cycle(app, drivers)
-
-// if (module && module.hot) {
-//   module.hot.accept('./app', () => {
-//     app = require('./app').default;
-//     restart(app, drivers, {sinks, sources});
-//   });
-// }
-
-run();
+});

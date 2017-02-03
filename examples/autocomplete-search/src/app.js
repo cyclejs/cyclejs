@@ -91,19 +91,19 @@ function notBetween(first, second) {
   )
 }
 
-function intent(DOM) {
+function intent(domSource) {
   const UP_KEYCODE = 38
   const DOWN_KEYCODE = 40
   const ENTER_KEYCODE = 13
   const TAB_KEYCODE = 9
 
-  const input$ = DOM.select('.autocompleteable').events('input')
-  const keydown$ = DOM.select('.autocompleteable').events('keydown')
-  const itemHover$ = DOM.select('.autocomplete-item').events('mouseenter')
-  const itemMouseDown$ = DOM.select('.autocomplete-item').events('mousedown')
-  const itemMouseUp$ = DOM.select('.autocomplete-item').events('mouseup')
-  const inputFocus$ = DOM.select('.autocompleteable').events('focus')
-  const inputBlur$ = DOM.select('.autocompleteable').events('blur')
+  const input$ = domSource.select('.autocompleteable').events('input')
+  const keydown$ = domSource.select('.autocompleteable').events('keydown')
+  const itemHover$ = domSource.select('.autocomplete-item').events('mouseenter')
+  const itemMouseDown$ = domSource.select('.autocomplete-item').events('mousedown')
+  const itemMouseUp$ = domSource.select('.autocomplete-item').events('mouseup')
+  const inputFocus$ = domSource.select('.autocompleteable').events('focus')
+  const inputBlur$ = domSource.select('.autocompleteable').events('blur')
 
   const enterPressed$ = keydown$.filter(({keyCode}) => keyCode === ENTER_KEYCODE)
   const tabPressed$ = keydown$.filter(({keyCode}) => keyCode === TAB_KEYCODE)
