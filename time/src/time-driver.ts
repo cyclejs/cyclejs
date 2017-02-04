@@ -19,21 +19,10 @@ function popAll (array) {
   return poppedItems;
 }
 
-function timeDriver (_, streamAdapter) {
-  let time = 0;
-  let frameCallbacks = [];
-  const scheduler = makeScheduler();
-
-  function currentTime () {
-    return time;
-  }
-
-  function addFrameCallback (callback) {
-    frameCallbacks.push(callback);
-  }
-
+function runRealtime (scheduler, frameCallbacks, currentTime, setTime) {
   function processEvent (eventTime) {
-    time = eventTime;
+    const time = eventTime;
+    setTime(time);
 
     const currentCallbacks = popAll(frameCallbacks);
 
@@ -70,8 +59,29 @@ function timeDriver (_, streamAdapter) {
     requestAnimationFrame(processEvent);
   }
 
-  // TODO - cancel requestAnimationFrame on dispose
   requestAnimationFrame(processEvent);
+}
+
+
+function timeDriver (_, streamAdapter) {
+  let time = 0;
+  let frameCallbacks = [];
+  const scheduler = makeScheduler();
+
+  function currentTime () {
+    return time;
+  }
+
+  function setTime (newTime) {
+    time = newTime;
+  }
+
+  function addFrameCallback (callback) {
+    frameCallbacks.push(callback);
+  }
+
+  // TODO - cancel requestAnimationFrame on dispose
+  runRealtime(scheduler, frameCallbacks, currentTime, setTime)
 
   const timeSource = {
     animationFrames: makeAnimationFrames(addFrameCallback, currentTime),

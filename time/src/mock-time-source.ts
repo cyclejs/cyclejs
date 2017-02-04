@@ -41,21 +41,7 @@ function finish (asserts, done) {
   }
 }
 
-function mockTimeSource ({interval = 20} = {}) {
-  let time = 0;
-  let asserts = [];
-  let done;
-
-  const scheduler = makeScheduler();
-
-  function addAssert (assert) {
-    asserts.push(assert);
-  }
-
-  function currentTime () {
-    return time;
-  }
-
+function runVirtually (scheduler, asserts, done, currentTime, setTime) {
   function processEvent () {
     const eventToProcess = scheduler.shiftNextEntry();
 
@@ -69,7 +55,9 @@ function mockTimeSource ({interval = 20} = {}) {
       return;
     }
 
-    time = eventToProcess.time;
+    const time = eventToProcess.time;
+
+    setTime(time);
 
     if (eventToProcess.f) {
       eventToProcess.f(eventToProcess, time);
@@ -90,6 +78,28 @@ function mockTimeSource ({interval = 20} = {}) {
     setImmediate(processEvent);
   }
 
+  processEvent();
+}
+
+function mockTimeSource ({interval = 20} = {}) {
+  let time = 0;
+  let asserts = [];
+  let done;
+
+  const scheduler = makeScheduler();
+
+  function addAssert (assert) {
+    asserts.push(assert);
+  }
+
+  function currentTime () {
+    return time;
+  }
+
+  function setTime (newTime) {
+    time = newTime;
+  }
+
   const timeSource = {
     diagram: makeDiagram(scheduler.add, currentTime, interval),
     record: makeRecord(scheduler.add, currentTime, interval),
@@ -105,7 +115,7 @@ function mockTimeSource ({interval = 20} = {}) {
 
     run (doneCallback = raiseError) {
       done = doneCallback;
-      setImmediate(processEvent);
+      runVirtually(scheduler, asserts, done, currentTime, setTime)
     },
 
     _scheduler: scheduler.add
