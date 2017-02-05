@@ -1,6 +1,6 @@
 {
   "name": "@cycle/time",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "A time driver designed to enable awesome testing and dev tooling",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
