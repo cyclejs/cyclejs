@@ -1,7 +1,6 @@
 import xs, {Stream} from 'xstream';
 import * as assert from 'assert';
 import * as combineErrors from 'combine-errors';
-require('setimmediate');
 
 import {makeScheduler} from './scheduler';
 import {makeDelay} from './delay';
@@ -13,6 +12,7 @@ import {makeAssertEqual} from './assert-equal';
 import {makeAnimationFrames} from './animation-frames';
 import {makeThrottleAnimation} from './throttle-animation';
 import {makeRecord} from './record';
+import {runVirtually} from './run-virtually';
 
 function raiseError (err) {
   if (err) {
@@ -39,46 +39,6 @@ function finish (asserts, done) {
 
     done(error);
   }
-}
-
-function runVirtually (scheduler, asserts, done, currentTime, setTime) {
-  function processEvent () {
-    const eventToProcess = scheduler.shiftNextEntry();
-
-    if (!eventToProcess) {
-      finish(asserts, done);
-      return;
-    }
-
-    if (eventToProcess.cancelled) {
-      setImmediate(processEvent);
-      return;
-    }
-
-    const time = eventToProcess.time;
-
-    setTime(time);
-
-    if (eventToProcess.f) {
-      eventToProcess.f(eventToProcess, time);
-    }
-
-    if (eventToProcess.type === 'next') {
-      eventToProcess.stream.shamefullySendNext(eventToProcess.value);
-    }
-
-    if (eventToProcess.type === 'error') {
-      eventToProcess.stream.shamefullySendError(eventToProcess.error);
-    }
-
-    if (eventToProcess.type === 'complete') {
-      eventToProcess.stream.shamefullySendComplete();
-    }
-
-    setImmediate(processEvent);
-  }
-
-  processEvent();
 }
 
 function mockTimeSource ({interval = 20} = {}) {
@@ -113,12 +73,13 @@ function mockTimeSource ({interval = 20} = {}) {
     animationFrames: () => timeSource.periodic(16).map(frame),
     throttleAnimation: makeThrottleAnimation(() => timeSource, scheduler.add, currentTime),
 
-    run (doneCallback = raiseError) {
+    run (doneCallback = raiseError, timeToRunTo = null) {
       done = doneCallback;
-      runVirtually(scheduler, asserts, done, currentTime, setTime)
+      runVirtually(scheduler, () => finish(asserts, done), currentTime, setTime, timeToRunTo)
     },
 
-    _scheduler: scheduler.add
+    _scheduler: scheduler.add,
+    _time: currentTime
   }
 
   return timeSource;

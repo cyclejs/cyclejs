@@ -4,7 +4,7 @@ function makePeriodic (schedule, currentTime) {
   return function periodic (period: number): Stream<number> {
     let stopped = false;
 
-    function scheduleNextEvent (entry, time) {
+    function scheduleNextEvent (entry, time, schedule, currentTime) {
       if (stopped) { return; }
 
       const value = entry.value + 1;

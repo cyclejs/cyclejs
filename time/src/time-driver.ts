@@ -8,6 +8,7 @@ import {makePeriodic} from './periodic';
 import {makeThrottle} from './throttle';
 import {makeAnimationFrames} from './animation-frames';
 import {makeThrottleAnimation} from './throttle-animation';
+import {runVirtually} from './run-virtually';
 
 function popAll (array) {
   const poppedItems = [];
@@ -20,7 +21,19 @@ function popAll (array) {
 }
 
 function runRealtime (scheduler, frameCallbacks, currentTime, setTime) {
+  let paused = false;
+  const pause = () => paused = true;
+  const resume = (time) => {
+    setTime(time);
+    paused = false;
+  }
+
   function processEvent (eventTime) {
+    if (paused) {
+      requestAnimationFrame(processEvent);
+      return;
+    }
+
     const time = eventTime;
     setTime(time);
 
@@ -41,7 +54,7 @@ function runRealtime (scheduler, frameCallbacks, currentTime, setTime) {
 
       if (!eventToProcess.cancelled) {
         if (eventToProcess.f) {
-          eventToProcess.f(eventToProcess, time);
+          eventToProcess.f(eventToProcess, time, scheduler.add, currentTime);
         }
 
         if (eventToProcess.type === 'next') {
@@ -60,6 +73,8 @@ function runRealtime (scheduler, frameCallbacks, currentTime, setTime) {
   }
 
   requestAnimationFrame(processEvent);
+
+  return {pause, resume};
 }
 
 
@@ -81,7 +96,7 @@ function timeDriver (_, streamAdapter) {
   }
 
   // TODO - cancel requestAnimationFrame on dispose
-  runRealtime(scheduler, frameCallbacks, currentTime, setTime)
+  const {pause, resume} = runRealtime(scheduler, frameCallbacks, currentTime, setTime)
 
   const timeSource = {
     animationFrames: makeAnimationFrames(addFrameCallback, currentTime),
@@ -89,7 +104,15 @@ function timeDriver (_, streamAdapter) {
     debounce: makeDebounce(scheduler.add, currentTime),
     periodic: makePeriodic(scheduler.add, currentTime),
     throttle: makeThrottle(scheduler.add, currentTime),
-    throttleAnimation: makeThrottleAnimation(() => timeSource, scheduler.add, currentTime)
+    throttleAnimation: makeThrottleAnimation(() => timeSource, scheduler.add, currentTime),
+    _time: currentTime,
+    _scheduler: scheduler.add,
+    _pause: pause,
+    _resume: resume,
+    _runVirtually: function (done, timeToRunTo) {
+      // TODO - frameCallbacks?
+      runVirtually(scheduler, done, currentTime, setTime, timeToRunTo);
+    }
   }
 
   return timeSource;

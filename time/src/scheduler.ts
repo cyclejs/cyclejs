@@ -3,6 +3,10 @@ const makeAccumulator = require('sorted-immutable-list').default;
 function makeScheduler () {
   let schedule = [];
 
+  function getSchedule () {
+    return schedule;
+  }
+
   const addScheduleEntry = makeAccumulator({
     key: entry => entry.time,
       unique: false
@@ -30,6 +34,8 @@ function makeScheduler () {
     },
 
     add: {
+      _schedule: getSchedule,
+
       next (stream, time, value, f = noop) {
         return scheduleEntry({
           type: 'next',
