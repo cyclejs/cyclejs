@@ -3,6 +3,8 @@ import {makeHTTPDriver, RequestInput, Response, ResponseStream} from '../../../l
 import {HTTPSource} from '../../../rxjs-typings';
 import * as Rx from 'rxjs';
 import {Observable} from 'rxjs';
+import 'rxjs/add/operator/mergeAll';
+import 'rxjs/add/operator/switchMap';
 import * as Cycle from '@cycle/rxjs-run';
 
 export function run(uri: string) {
