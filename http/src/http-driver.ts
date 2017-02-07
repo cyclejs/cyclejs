@@ -53,14 +53,14 @@ export function optionsToSuperagent(rawReqOptions: RequestOptions) {
     request = request.auth(reqOptions.user, reqOptions.password);
   }
   if (reqOptions.headers) {
-    for (let key in reqOptions.headers) {
+    for (const key in reqOptions.headers) {
       if (reqOptions.headers.hasOwnProperty(key)) {
         request = request.set(key, reqOptions.headers[key]);
       }
     }
   }
   if (reqOptions.field) {
-    for (let key in reqOptions.field) {
+    for (const key in reqOptions.field) {
       if (reqOptions.field.hasOwnProperty(key)) {
         request = request.field(key, reqOptions.field[key]);
       }
@@ -119,11 +119,11 @@ function softNormalizeRequestInput(reqInput: RequestInput): RequestOptions {
   return reqOptions;
 }
 
-function normalizeRequestInput(reqOptions: RequestInput): RequestOptions {
-  if (typeof reqOptions === 'string') {
-    return {url: reqOptions};
-  } else if (typeof reqOptions === 'object') {
-    return reqOptions;
+function normalizeRequestInput(reqInput: RequestInput): RequestOptions {
+  if (typeof reqInput === 'string') {
+    return {url: reqInput};
+  } else if (typeof reqInput === 'object') {
+    return reqInput;
   } else {
     throw new Error(`Observable of requests given to HTTP Driver must emit ` +
       `either URL strings or objects with parameters.`);
@@ -134,7 +134,7 @@ export type ResponseMemoryStream = MemoryStream<Response> & ResponseStream;
 
 function requestInputToResponse$(reqInput: RequestInput): ResponseMemoryStream {
   let response$ = createResponse$(reqInput).remember();
-  let reqOptions = softNormalizeRequestInput(reqInput);
+  const reqOptions = softNormalizeRequestInput(reqInput);
   if (!reqOptions.lazy) {
     response$.addListener({next: () => {}, error: () => {}, complete: () => {}});
   }
@@ -148,9 +148,9 @@ function requestInputToResponse$(reqInput: RequestInput): ResponseMemoryStream {
 
 export function makeHTTPDriver(): DriverFunction {
   function httpDriver(request$: Stream<RequestInput>, name: string): HTTPSource {
-    let response$$ = request$
+    const response$$ = request$
       .map(requestInputToResponse$);
-    let httpSource = new MainHTTPSource(response$$, name, []);
+    const httpSource = new MainHTTPSource(response$$, name, []);
     response$$.addListener({next: () => {}, error: () => {}, complete: () => {}});
     return httpSource;
   }

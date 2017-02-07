@@ -52,6 +52,6 @@ export interface Response {
 export interface HTTPSource {
   filter<S extends HTTPSource>(predicate: (request: RequestOptions) => boolean): S;
   select(category?: string): Stream<MemoryStream<Response> & ResponseStream>;
-  isolateSource: (source: HTTPSource, scope: string) => HTTPSource;
-  isolateSink: (sink: Stream<RequestInput>, scope: string) => Stream<RequestInput>;
+  isolateSource(source: HTTPSource, scope: string): HTTPSource;
+  isolateSink(sink: Stream<RequestInput>, scope: string): Stream<RequestInput>;
 }

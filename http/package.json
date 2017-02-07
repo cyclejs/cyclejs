@@ -32,7 +32,7 @@
     "xstream": "global:xstream"
   },
   "scripts": {
-    "lint": "../node_modules/.bin/tslint -c ../tslint.json src/**/*.ts",
+    "lint": "../node_modules/.bin/tslint --config ../tslint.json --project tsconfig.json",
     "prelib": "rm -rf lib/ && mkdir -p lib",
     "lib": "../node_modules/.bin/tsc",
     "test-node": "../node_modules/.bin/mocha test/node.ts --require ts-node/register",
