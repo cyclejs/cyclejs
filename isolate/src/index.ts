@@ -25,7 +25,7 @@ export interface Sources {
 
 function isolateAllSources<So extends Sources>(sources: So, scope: string): So {
   const scopedSources = {} as So;
-  for (let key in sources) {
+  for (const key in sources) {
     const source = sources[key] as Partial<IsolateableSource>;
     if (sources.hasOwnProperty(key)
     && source
@@ -40,7 +40,7 @@ function isolateAllSources<So extends Sources>(sources: So, scope: string): So {
 
 function isolateAllSinks<So extends Sources, Si>(sources: So, sinks: Si, scope: string): Si {
   const scopedSinks = {} as Si;
-  for (let key in sinks) {
+  for (const key in sinks) {
     const source = sources[key] as Partial<IsolateableSource>;
     if (sinks.hasOwnProperty(key)
     && source
@@ -88,7 +88,7 @@ export type Component<So extends Sources, Si> = (sources: So, ...rest: Array<any
 function isolate<So extends Sources, Si>(component: Component<So, Si>,
                                          scope: any = newScope()): Component<So, Si> {
   checkIsolateArgs(component, scope);
-  let convertedScope: string = typeof scope === 'string' ? scope : scope.toString();
+  const convertedScope: string = typeof scope === 'string' ? scope : scope.toString();
   return function scopedComponent(sources: So, ...rest: Array<any>): Si {
     const scopedSources = isolateAllSources(sources, convertedScope);
     const sinks = component(scopedSources, ...rest);
