@@ -9,7 +9,6 @@ var packageScopes = [
   'jsonp',
   'most-run',
   'run',
-  'rx-run',
   'rxjs-run'
 ];
 
