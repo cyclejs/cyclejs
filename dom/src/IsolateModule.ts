@@ -1,6 +1,6 @@
 import {VNode} from 'snabbdom/vnode';
 import {EventDelegator} from './EventDelegator';
-let MapPolyfill: typeof Map = require('es6-map');
+const MapPolyfill: typeof Map = require('es6-map');
 
 export class IsolateModule {
   private elementsByFullScope: Map<string, Element>;
@@ -21,14 +21,14 @@ export class IsolateModule {
    */
   private fullScopesBeingUpdated: Array<string>;
 
-  constructor () {
+  constructor() {
     this.elementsByFullScope = new MapPolyfill<string, Element>();
     this.delegatorsByFullScope = new MapPolyfill<string, Array<EventDelegator>>();
     this.fullScopesBeingUpdated = [];
   }
 
   private cleanupVNode({data, elm}: VNode) {
-    const fullScope = (data || {} as any).isolate || '';
+    const fullScope: string = (data || {} as any).isolate || '';
     const isCurrentElm = this.elementsByFullScope.get(fullScope) === elm;
     const isScopeBeingUpdated = this.fullScopesBeingUpdated.indexOf(fullScope) >= 0;
     if (fullScope && isCurrentElm && !isScopeBeingUpdated) {
@@ -42,7 +42,7 @@ export class IsolateModule {
   }
 
   public getFullScope(elm: Element): string {
-    let iterator = this.elementsByFullScope.entries();
+    const iterator = this.elementsByFullScope.entries();
     for (let result = iterator.next(); !!result.value; result = iterator.next()) {
       const [fullScope, element] = result.value;
       if (elm === element) {
@@ -73,8 +73,8 @@ export class IsolateModule {
       create(oldVNode: VNode, vNode: VNode) {
         const {data: oldData = {}} = oldVNode;
         const {elm, data = {}} = vNode;
-        const oldFullScope = (oldData as any).isolate || '';
-        const fullScope = (data as any).isolate || '';
+        const oldFullScope: string = (oldData as any).isolate || '';
+        const fullScope: string = (data as any).isolate || '';
 
         // Update data structures with the newly-created element
         if (fullScope) {
@@ -85,7 +85,8 @@ export class IsolateModule {
           // Update delegators for this scope
           const delegators = self.delegatorsByFullScope.get(fullScope);
           if (delegators) {
-            for (let i = 0, len = delegators.length; i < len; ++i) {
+            const len = delegators.length;
+            for (let i = 0; i < len; ++i) {
               delegators[i].updateOrigin(elm as Element);
             }
           }

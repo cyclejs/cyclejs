@@ -1,12 +1,14 @@
-function isElement(obj: any) {
-  return typeof HTMLElement === `object` ?
+function isElement(obj: any): obj is Element {
+  const ELEM_TYPE = 1;
+  const FRAG_TYPE = 11;
+  return typeof HTMLElement === 'object' ?
     obj instanceof HTMLElement || obj instanceof DocumentFragment :
-    obj && typeof obj === `object` && obj !== null &&
-    (obj.nodeType === 1 || obj.nodeType === 11) &&
-    typeof obj.nodeName === `string`;
+    obj && typeof obj === 'object' && obj !== null &&
+    (obj.nodeType === ELEM_TYPE || obj.nodeType === FRAG_TYPE) &&
+    typeof obj.nodeName === 'string';
 }
 
-export const SCOPE_PREFIX = `$$CYCLEDOM$$-`;
+export const SCOPE_PREFIX = '$$CYCLEDOM$$-';
 
 export function getElement(selectors: Element | string): Element | null {
   const domElement = typeof selectors === 'string' ?
@@ -16,8 +18,8 @@ export function getElement(selectors: Element | string): Element | null {
   if (typeof selectors === 'string' && domElement === null) {
     throw new Error(`Cannot render into unknown element \`${selectors}\``);
   } else if (!isElement(domElement)) {
-    throw new Error(`Given container is not a DOM element neither a ` +
-      `selector string.`);
+    throw new Error('Given container is not a DOM element neither a ' +
+      'selector string.');
   }
   return domElement;
 }
@@ -35,5 +37,5 @@ export function getFullScope(namespace: Array<String>): string {
 }
 
 export function getSelectors(namespace: Array<String>): string {
-  return namespace.filter(c => c.indexOf(SCOPE_PREFIX) === -1).join(` `);
+  return namespace.filter(c => c.indexOf(SCOPE_PREFIX) === -1).join(' ');
 }

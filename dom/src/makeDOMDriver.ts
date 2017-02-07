@@ -10,7 +10,7 @@ import {getElement} from './utils';
 import defaultModules from './modules';
 import {IsolateModule} from './IsolateModule';
 import {EventDelegator} from './EventDelegator';
-let MapPolyfill: typeof Map = require('es6-map');
+const MapPolyfill: typeof Map = require('es6-map');
 
 function makeDOMDriverInputGuard(modules: any) {
   if (!Array.isArray(modules)) {

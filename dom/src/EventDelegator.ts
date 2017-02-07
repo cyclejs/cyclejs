@@ -30,7 +30,7 @@ function indexOf(arr: Array<Destination>, searchId: number): number {
   while (minIndex <= maxIndex) {
     currentIndex = (minIndex + maxIndex) / 2 | 0; // tslint:disable-line:no-bitwise
     current = arr[currentIndex];
-    let currentId = current.id;
+    const currentId = current.id;
     if (currentId < searchId) {
       minIndex = currentIndex + 1;
     } else if (currentId > searchId) {
@@ -54,7 +54,7 @@ function indexOf(arr: Array<Destination>, searchId: number): number {
 export class EventDelegator {
   private destinations: Array<Destination> = [];
   private listener: EventListener;
-  private _lastId: number = 0;
+  private _lastId = 0;
 
   constructor(private origin: Element,
               public eventType: string,
@@ -112,7 +112,8 @@ export class EventDelegator {
   }
 
   private capture(ev: Event) {
-    for (let i = 0, n = this.destinations.length; i < n; i++) {
+    const n = this.destinations.length;
+    for (let i = 0; i < n; i++) {
       const dest = this.destinations[i];
       if (matchesSelector((ev.target as Element), dest.selector)) {
         dest.subject._n(ev);
@@ -150,7 +151,8 @@ export class EventDelegator {
   }
 
   private matchEventAgainstDestinations(el: Element, ev: CycleDOMEvent) {
-    for (let i = 0, n = this.destinations.length; i < n; i++) {
+    const n = this.destinations.length;
+    for (let i = 0; i < n; i++) {
       const dest = this.destinations[i];
       if (!dest.scopeChecker.isDirectlyInScope(el)) {
         continue;
