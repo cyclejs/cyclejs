@@ -2,13 +2,13 @@ import xs, {Stream, MemoryStream} from 'xstream';
 import {adapt} from './adapt';
 
 export interface FantasyObserver {
-  next: (x: any) => void;
-  error: (err: any) => void;
-  complete: (c?: any) => void;
+  next(x: any): void;
+  error(err: any): void;
+  complete(c?: any): void;
 }
 
 export interface FantasySubscription {
-  unsubscribe: () => void;
+  unsubscribe(): void;
 }
 
 export interface FantasyObservable {
@@ -55,7 +55,7 @@ export interface DriversDefinition {
 export interface CycleProgram<So, Si> {
   sources: So;
   sinks: Si;
-  run: () => DisposeFunction;
+  run(): DisposeFunction;
 }
 
 function logToConsoleError(err: any) {
@@ -69,7 +69,7 @@ function logToConsoleError(err: any) {
 
 function makeSinkProxies(drivers: DriversDefinition): SinkProxies {
   const sinkProxies: SinkProxies = {};
-  for (let name in drivers) {
+  for (const name in drivers) {
     if (drivers.hasOwnProperty(name)) {
       sinkProxies[name] = xs.createWithMemory<any>();
     }
@@ -79,7 +79,7 @@ function makeSinkProxies(drivers: DriversDefinition): SinkProxies {
 
 function callDrivers(drivers: DriversDefinition, sinkProxies: SinkProxies): any {
   const sources = {};
-  for (let name in drivers) {
+  for (const name in drivers) {
     if (drivers.hasOwnProperty(name)) {
       sources[name] = drivers[name](sinkProxies[name], name);
       if (sources[name] && typeof sources[name] === 'object') {
@@ -92,7 +92,7 @@ function callDrivers(drivers: DriversDefinition, sinkProxies: SinkProxies): any 
 
 // NOTE: this will mutate `sources`.
 function adaptSources<So extends Object>(sources: So): So {
-  for (let name in sources) {
+  for (const name in sources) {
     if (sources.hasOwnProperty(name)
     && sources[name]
     && typeof sources[name]['shamefullySendNext'] === 'function') {
@@ -104,12 +104,12 @@ function adaptSources<So extends Object>(sources: So): So {
 
 interface SinkReplicators {
   [name: string]: {
-    next: (x: any) => void;
-    _n?: (x: any) => void;
-    error: (err: any) => void;
-    _e?: (err: any) => void;
-    complete: () => void;
-    _c?: () => void;
+    next(x: any): void;
+    _n?(x: any): void;
+    error(err: any): void;
+    _e?(err: any): void;
+    complete(): void;
+    _c?(): void;
   };
 }
 
@@ -167,7 +167,7 @@ function replicateMany(sinks: Sinks, sinkProxies: SinkProxies): DisposeFunction 
 }
 
 function disposeSources<So>(sources: So) {
-  for (let k in sources) {
+  for (const k in sources) {
     if (sources.hasOwnProperty(k) && sources[k] && (sources[k] as any).dispose) {
       (sources[k] as any).dispose();
     }
