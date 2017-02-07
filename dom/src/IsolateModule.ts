@@ -27,21 +27,13 @@ export class IsolateModule {
     this.fullScopesBeingUpdated = [];
   }
 
-  private addElement(fullScope: string, elm: Element) {
-    this.elementsByFullScope.set(fullScope, elm);
-  }
-
-  private removeElement(fullScope: string) {
-    this.elementsByFullScope.delete(fullScope);
-  }
-
   private cleanupVNode({data, elm}: VNode) {
     const fullScope = (data || {} as any).isolate || '';
     const isCurrentElm = this.elementsByFullScope.get(fullScope) === elm;
     const isScopeBeingUpdated = this.fullScopesBeingUpdated.indexOf(fullScope) >= 0;
     if (fullScope && isCurrentElm && !isScopeBeingUpdated) {
-      this.removeElement(fullScope);
-      this.removeEventDelegators(fullScope);
+      this.elementsByFullScope.delete(fullScope);
+      this.delegatorsByFullScope.delete(fullScope);
     }
   }
 
@@ -69,10 +61,6 @@ export class IsolateModule {
     delegators[delegators.length] = eventDelegator;
   }
 
-  private removeEventDelegators(fullScope: string) {
-    this.delegatorsByFullScope.delete(fullScope);
-  }
-
   public reset() {
     this.elementsByFullScope.clear();
     this.delegatorsByFullScope.clear();
@@ -91,8 +79,8 @@ export class IsolateModule {
         // Update data structures with the newly-created element
         if (fullScope) {
           self.fullScopesBeingUpdated.push(fullScope);
-          if (oldFullScope) { self.removeElement(oldFullScope); }
-          self.addElement(fullScope, elm as Element);
+          if (oldFullScope) { self.elementsByFullScope.delete(oldFullScope); }
+          self.elementsByFullScope.set(fullScope, elm as Element);
 
           // Update delegators for this scope
           const delegators = self.delegatorsByFullScope.get(fullScope);
@@ -103,28 +91,30 @@ export class IsolateModule {
           }
         }
         if (oldFullScope && !fullScope) {
-          self.removeElement(fullScope);
+          self.elementsByFullScope.delete(fullScope);
         }
       },
 
       update(oldVNode: VNode, vNode: VNode) {
         const {data: oldData = {}} = oldVNode;
         const {elm, data = {}} = vNode;
-        const oldFullScope = (oldData as any).isolate || '';
-        const fullScope = (data as any).isolate || '';
+        const oldFullScope: string = (oldData as any).isolate || '';
+        const fullScope: string = (data as any).isolate || '';
 
         // Same element, but different scope, so update the data structures
         if (fullScope && fullScope !== oldFullScope) {
-          if (oldFullScope) { self.removeElement(oldFullScope); }
-          self.addElement(fullScope, elm as Element);
+          if (oldFullScope) { self.elementsByFullScope.delete(oldFullScope); }
+          self.elementsByFullScope.set(fullScope, elm as Element);
           const delegators = self.delegatorsByFullScope.get(oldFullScope);
-          self.removeEventDelegators(oldFullScope);
-          self.delegatorsByFullScope.set(fullScope, delegators);
+          if (delegators) {
+            self.delegatorsByFullScope.delete(oldFullScope);
+            self.delegatorsByFullScope.set(fullScope, delegators);
+          }
         }
         // Same element, but lost the scope, so update the data structures
         if (oldFullScope && !fullScope) {
-          self.removeElement(oldFullScope);
-          self.removeEventDelegators(oldFullScope);
+          self.elementsByFullScope.delete(oldFullScope);
+          self.delegatorsByFullScope.delete(oldFullScope);
         }
       },
 
