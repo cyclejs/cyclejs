@@ -1,14 +1,6 @@
 {
+  "extends": "../tsconfig.common.json",
   "compilerOptions": {
-    "removeComments": false,
-    "preserveConstEnums": true,
-    "sourceMap": true,
-    "declaration": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "suppressImplicitAnyIndexErrors": true,
-    "module": "commonjs",
-    "target": "ES5",
     "outDir": "lib/",
     "lib": [
       "dom",
@@ -19,15 +11,8 @@
       "es2015.iterable"
     ]
   },
-  "formatCodeOptions": {
-    "indentSize": 2,
-    "tabSize": 2
-  },
-   "files": [
-     "jsonp.d.ts",
-     "src/index.ts"
-   ],
-   "exclude": [
-     "node_modules"
-   ]
+  "files": [
+    "jsonp.d.ts",
+    "src/index.ts"
+  ]
 }
