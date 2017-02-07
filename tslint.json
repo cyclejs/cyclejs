@@ -9,13 +9,30 @@
     "no-angle-bracket-type-assertion": true,
     "max-line-length": [true, 100],
     "max-file-line-count": [true, 300],
-    "no-consecutive-blank-lines": true,
+    "no-consecutive-blank-lines": [true, 1],
     "member-access": true,
     "no-trailing-whitespace": true,
     "no-bitwise": true,
     "no-debugger": true,
+    "prefer-const": true,
+    "no-empty-interface": true,
+    "no-string-throw": true,
+    "unified-signatures": true,
+    "typeof-compare": true,
+    "space-before-function-paren": [
+      true,
+      {
+        "anonymous": "always",
+        "named": "never",
+        "asyncArrow": "always",
+        "method": "never",
+        "constructor": "never"
+      }
+    ],
+    "prefer-method-signature": true,
+    "arrow-return-shorthand": [true, "multiline"],
     "no-duplicate-variable": true,
-    "no-inferrable-types": true,
+    "no-inferrable-types": [true, "ignore-params"],
     "no-var-keyword": true,
     "variable-name": [
       true,
