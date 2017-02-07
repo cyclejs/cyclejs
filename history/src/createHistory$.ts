@@ -39,7 +39,7 @@ function makeCallOnHistory(history: History) {
 function createObserver(call: (input: HistoryInput) => void,
                         unlisten: UnregisterCallback): Listener<HistoryInput | string> {
   return {
-    next (input: HistoryInput | string) {
+    next(input: HistoryInput | string) {
       if (typeof input === 'string') {
         call({type: 'push', pathname: input});
       } else {

@@ -17,7 +17,7 @@ function which(ev: any) {
   if (typeof window === 'undefined') {
     return false;
   }
-  let e = ev || window.event;
+  const e = ev || window.event;
   return e.which === null ? e.button : e.which;
 }
 
