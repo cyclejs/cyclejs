@@ -96,11 +96,10 @@ describe('setup', function () {
     sources.other.addListener({
       next: x => {
         assert.strictEqual(x, 97);
-        dispose();
-        done();
+        dispose(); // will trigger this listener's complete
       },
       error: err => done(err),
-      complete: () => done('complete should not be called'),
+      complete: () => done(),
     });
     dispose = run();
   });
@@ -196,14 +195,11 @@ describe('setup', function () {
       next: (x) => {
         assert.notStrictEqual(x, 'x3');
         if (x === 'x2') {
-          dispose();
-          setTimeout(() => {
-            done();
-          }, 100);
+          dispose(); // will trigger this listener's complete
         }
       },
       error: err => done(err),
-      complete: () => done('complete should not be called'),
+      complete: () => done(),
     });
     dispose = run();
   });

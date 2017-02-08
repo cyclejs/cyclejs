@@ -102,6 +102,12 @@ function adaptSources<So extends Object>(sources: So): So {
   return sources;
 }
 
+/**
+ * Notice that we do not replicate 'complete' from real sinks, in
+ * SinksReplicators and ReplicationBuffers.
+ * Complete is triggered only on disposeReplication. See discussion in #425
+ * for details.
+ */
 interface SinkReplicators {
   [name: string]: {
     next(x: any): void;
@@ -109,7 +115,6 @@ interface SinkReplicators {
     error(err: any): void;
     _e?(err: any): void;
     complete(): void;
-    _c?(): void;
   };
 }
 
@@ -117,7 +122,6 @@ interface ReplicationBuffers {
   [name: string]: {
     _n: Array<any>;
     _e: Array<any>;
-    _c: Array<null>;
   };
 }
 
@@ -127,42 +131,35 @@ function replicateMany(sinks: Sinks, sinkProxies: SinkProxies): DisposeFunction 
   let buffers: ReplicationBuffers = {};
   const replicators: SinkReplicators = {};
   sinkNames.forEach((name) => {
-    buffers[name] = {_n: [], _e: [], _c: []};
+    buffers[name] = {_n: [], _e: []};
     replicators[name] = {
       next: (x: any) => buffers[name]._n.push(x),
       error: (err: any) => buffers[name]._e.push(err),
-      complete: () => buffers[name]._c.push(null),
+      complete: () => {},
     };
   });
 
   const subscriptions = sinkNames
     .map(name => xs.fromObservable<any>(sinks[name]).subscribe(replicators[name]));
 
-  // A sink proxy should not complete before 500 milliseconds.
-  // This is to allow late drivers (drivers that subscribe to the sink proxy
-  // asynchronously later, not immediately when the driver is setup) to
-  // have time to receive the 'next' values from the MemoryStream sink proxy.
-  const EARLIEST_SINK_COMPLETE = 500; // milliseconds
-
   sinkNames.forEach((name) => {
     const listener = sinkProxies[name];
     const next = (x: any) => { listener._n(x); };
     const error = (err: any) => { logToConsoleError(err); listener._e(err); };
-    const complete = () => { setTimeout(() => { listener._c(); }, EARLIEST_SINK_COMPLETE); };
     buffers[name]._n.forEach(next);
     buffers[name]._e.forEach(error);
-    buffers[name]._c.forEach(complete);
     replicators[name].next = next;
     replicators[name].error = error;
-    replicators[name].complete = complete;
+    // because sink.subscribe(replicator) had mutated replicator to add
+    // _n, _e, _c, we must also update these:
     replicators[name]._n = next;
     replicators[name]._e = error;
-    replicators[name]._c = complete;
   });
   buffers = null as any; // free up for GC
 
   return function disposeReplication() {
     subscriptions.forEach(s => s.unsubscribe());
+    sinkNames.forEach((name) => sinkProxies[name]._c());
   };
 }
 
