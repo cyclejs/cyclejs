@@ -43,7 +43,7 @@
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/isolate": "1.x",
+    "@cycle/isolate": "2.0.0-rc.2",
     "@cycle/rxjs-run": "4.0.0-rc.5",
     "@types/mocha": "^2.2.33",
     "@types/node": "^7.0.4",
@@ -53,7 +53,7 @@
     "simulant": "^0.2.2",
     "snabbdom-jsx": "^0.3.0",
     "string.prototype.startswith": "^0.2.0",
-    "xstream": "10.x.x"
+    "xstream": "10.2"
   },
   "engines": {
     "node": ">=0.10.0"
