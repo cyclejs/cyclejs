@@ -4,7 +4,7 @@ function newScope(): string {
   return `cycle${++counter}`;
 }
 
-function checkIsolateArgs(dataflowComponent: Function, scope: any) {
+function checkIsolateArgs<So, Si>(dataflowComponent: Component<So, Si>, scope: any) {
   if (typeof dataflowComponent !== `function`) {
     throw new Error(`First argument given to isolate() must be a ` +
       `'dataflowComponent' function`);
@@ -30,7 +30,7 @@ function isolateAllSources<So extends Sources>(sources: So, scope: string): So {
     if (sources.hasOwnProperty(key)
     && source
     && typeof source.isolateSource === 'function') {
-      scopedSources[key] = source.isolateSource(source, scope) as So[keyof So];
+      scopedSources[key] = source.isolateSource(source, scope);
     } else if (sources.hasOwnProperty(key)) {
       scopedSources[key] = sources[key];
     }
@@ -53,43 +53,60 @@ function isolateAllSinks<So extends Sources, Si>(sources: So, sinks: Si, scope: 
   return scopedSinks;
 }
 
-export type Component<So extends Sources, Si> = (sources: So, ...rest: Array<any>) => Si;
+export type Component<So, Si> = (sources: So, ...rest: Array<any>) => Si;
 
 /**
- * Takes a `dataflowComponent` function and an optional `scope` string, and
- * returns a scoped version of the `dataflowComponent` function.
+ * `isolate` takes a small component as input, and returns a big component.
+ * A "small" component is a component that operates in a deeper scope.
+ * A "big" component is a component that operates on a scope that
+ * includes/wraps/nests the small component's scope. This is specially true for
+ * isolation contexts such as onionify.
  *
- * When the scoped dataflow component is invoked, each source provided to the
- * scoped dataflowComponent is isolated to the scope using
+ * Notice that we type BigSo/BigSi as any. This is unfortunate, since ideally
+ * these would be generics in `isolate`. TypeScript's inference isn't strong
+ * enough yet for us to automatically provide the typings that would make
+ * `isolate` return a big component. However, we still keep these aliases here
+ * in case TypeScript's inference becomes better, then we know how to proceed
+ * to provide proper types.
+ */
+export type BigSo = any;
+export type BigSi = any;
+
+/**
+ * Takes a `component` function and an optional `scope` string, and returns a
+ * scoped version of the `component` function.
+ *
+ * When the scoped component is invoked, each source provided to the scoped
+ * component is isolated to the given `scope` using
  * `source.isolateSource(source, scope)`, if possible. Likewise, the sinks
- * returned from the scoped dataflow component are isolate to the scope using
+ * returned from the scoped component are isolated to the `scope` using
  * `source.isolateSink(sink, scope)`.
  *
  * If the `scope` is not provided, a new scope will be automatically created.
- * This means that while **`isolate(dataflowComponent, scope)` is pure**
- * (referentially transparent), **`isolate(dataflowComponent)` is impure**
+ * This means that while **`isolate(component, scope)` is pure**
+ * (referentially transparent), **`isolate(component)` is impure**
  * (not referentially transparent). Two calls to `isolate(Foo, bar)` will
- * generate two indistinct dataflow components. But, two calls to `isolate(Foo)`
- * will generate two distinct dataflow components.
+ * generate the same component. But, two calls to `isolate(Foo)` will generate
+ * two distinct components.
  *
  * Note that both `isolateSource()` and `isolateSink()` are static members of
  * `source`. The reason for this is that drivers produce `source` while the
  * application produces `sink`, and it's the driver's responsibility to
  * implement `isolateSource()` and `isolateSink()`.
  *
- * @param {Function} dataflowComponent a function that takes `sources` as input
+ * @param {Function} component a function that takes `sources` as input
  * and outputs a collection of `sinks`.
  * @param {String} scope an optional string that is used to isolate each
- * `sources` and `sinks` when the returned scoped dataflow component is invoked.
- * @return {Function} the scoped dataflow component function that, as the
- * original `dataflowComponent` function, takes `sources` and returns `sinks`.
+ * `sources` and `sinks` when the returned scoped component is invoked.
+ * @return {Function} the scoped component function that, as the original
+ * `component` function, takes `sources` and returns `sinks`.
  * @function isolate
  */
-function isolate<So extends Sources, Si>(component: Component<So, Si>,
-                                         scope: any = newScope()): Component<So, Si> {
+function isolate<SmallSo, SmallSi>(component: Component<SmallSo, SmallSi>,
+                                   scope: any = newScope()): Component<BigSo, BigSi> {
   checkIsolateArgs(component, scope);
   const convertedScope: string = typeof scope === 'string' ? scope : scope.toString();
-  return function scopedComponent(sources: So, ...rest: Array<any>): Si {
+  return function scopedComponent(sources: BigSo, ...rest: Array<any>): BigSi {
     const scopedSources = isolateAllSources(sources, convertedScope);
     const sinks = component(scopedSources, ...rest);
     const scopedSinks = isolateAllSinks(sources, sinks, convertedScope);
