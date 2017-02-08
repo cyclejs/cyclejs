@@ -1,3 +1,22 @@
+<a name="1.0.0-rc.9"></a>
+# 1.0.0-rc.9 (2017-02-08)
+
+
+### Bug Fixes
+
+* **run:** fix race condition for drivers that subscribe late ([58b7991](https://github.com/cyclejs/cyclejs/tree/master/run/commit/58b7991))
+* **run:** sink proxy completes on dispose, not with setTimeout ([47931fc](https://github.com/cyclejs/cyclejs/tree/master/run/commit/47931fc))
+
+
+### BREAKING CHANGES
+
+* run: if you are using sources or sinks from the output of
+Cycle setup(), you may see different behavior of the complete
+notification, which now happens always when run's dispose() is called.
+The complete notifications from main's sinks are ignored.
+
+
+
 <a name="1.0.0-rc.8"></a>
 # 1.0.0-rc.8 (2017-02-03)
 
