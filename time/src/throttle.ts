@@ -34,7 +34,7 @@ function makeThrottle (schedule, currentTime) {
     return function throttleOperator<T> (stream: Stream<T>): Stream<T> {
       const state = {lastEventTime: -Infinity}; // so that the first event is always scheduled
 
-      return adapt(xs.create<T>({
+      const throttledStream = xs.create<T>({
         start (listener) {
           const throttleListener = makeThrottleListener<T>(
             schedule,
@@ -48,7 +48,9 @@ function makeThrottle (schedule, currentTime) {
         },
 
         stop () {}
-      }));
+      });
+
+      return adapt(throttledStream);
     }
   }
 }

@@ -41,7 +41,7 @@
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/dom": "^14.1.0",
+    "@cycle/dom": "^15.0.0-rc.2",
     "@cycle/rxjs-run": "^4.0.0-rc.6",
     "@types/mocha": "^2.2.37",
     "browserify": "^14.0.0",

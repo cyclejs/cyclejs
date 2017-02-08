@@ -2,7 +2,6 @@ import * as assert from 'assert';
 import {mockTimeSource, timeDriver} from '../src/';
 import {mockDOMSource} from '@cycle/dom';
 import xs, {Stream} from 'xstream';
-import adapter from '@cycle/xstream-adapter';
 import {setAdapt} from '@cycle/run/lib/adapt';
 import {Observable} from 'rxjs/Rx';
 import * as most from 'most';
@@ -62,7 +61,7 @@ describe("@cycle/time", () => {
 
     const expectedCount = '0--1-2-3---2--3-|';
 
-    const DOM = mockDOMSource(adapter, {
+    const DOM = mockDOMSource({
       '.add': {
         'click': Time.diagram(addClick)
       },

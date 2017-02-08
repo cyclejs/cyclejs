@@ -29,13 +29,15 @@ function recordListener (currentTime, outListener) {
 
 function makeRecord (schedule, currentTime, interval) {
   return function record (stream: Stream<any>): Stream<any> {
-    return adapt(xs.createWithMemory({
+    const recordedStream = xs.createWithMemory({
       start (listener) {
         xs.fromObservable(stream).addListener(recordListener(currentTime, listener));
       },
 
       stop () {}
-    }));
+    });
+
+    return adapt(recordedStream);
   }
 }
 export {

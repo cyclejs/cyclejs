@@ -33,7 +33,7 @@ function makeDebounce (schedule, currentTime) {
     return function debounceOperator<T> (stream: Stream<T>): Stream<T> {
       const state = {scheduledEntry: null};
 
-      return adapt(xs.create<T>({
+      const debouncedStream = xs.create<T>({
         start (listener) {
           const debounceListener = makeDebounceListener<T>(
             schedule,
@@ -48,7 +48,9 @@ function makeDebounce (schedule, currentTime) {
 
         // TODO - maybe cancel the scheduled event?
         stop () {}
-      }));
+      });
+
+      return adapt(debouncedStream);
     }
   }
 }

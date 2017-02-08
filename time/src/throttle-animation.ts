@@ -6,7 +6,7 @@ function makeThrottleAnimation (timeSource, schedule, currentTime) {
   return function throttleAnimation<T> (stream: Stream<T>): Stream<T> {
     const source = timeSource();
 
-    return adapt(xs.create<T>({
+    const throttledStream = xs.create<T>({
       start (listener) {
         let lastValue = null;
         let emittedLastValue = true;
@@ -40,7 +40,9 @@ function makeThrottleAnimation (timeSource, schedule, currentTime) {
       },
 
       stop () {}
-    }));
+    });
+
+    return adapt(throttledStream);
   }
 }
 
