@@ -1,3 +1,13 @@
+<a name="5.0.0-rc.5"></a>
+# 5.0.0-rc.5 (2017-02-08)
+
+
+### Bug Fixes
+
+* **most-run:** update cycle/run to 1.0.0-rc.9 ([cf68d2c](https://github.com/cyclejs/cyclejs/tree/master/most-run/commit/cf68d2c))
+
+
+
 <a name="5.0.0-rc.4"></a>
 # 5.0.0-rc.4 (2017-02-03)
 
