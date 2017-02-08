@@ -56,7 +56,7 @@ describe('isolate', function () {
       const scopedSinks = scopedMyDataflowComponent({other: driver()}, `foo`, `bar`);
 
       assert.strictEqual(typeof scopedSinks, `object`);
-      scopedSinks.other.subscribe(x => {
+      scopedSinks.other.subscribe((x: Array<string>) => {
         assert.strictEqual(x.join(), `foo,bar`);
       });
     });
