@@ -1,11 +1,10 @@
-import {run} from '@cycle/xstream-run'
+import {run} from '@cycle/run'
 import {makeDOMDriver} from '@cycle/dom'
+import onionify from 'cycle-onionify'
+import Folder from './Folder'
 
-import {createFolderComponent} from './Folder'
+const main = onionify(Folder)
 
-function main(sources) {
-  const Folder = createFolderComponent({id: 0, removable: false})
-  return Folder(sources)
-}
-
-run(main, {DOM: makeDOMDriver('#app', {transposition: true})})
+run(main, {
+  DOM: makeDOMDriver('#app')
+})

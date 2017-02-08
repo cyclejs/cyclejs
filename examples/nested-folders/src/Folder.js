@@ -1,41 +1,60 @@
 import xs from 'xstream'
 import isolate from '@cycle/isolate'
 import {div, button} from '@cycle/dom'
+import {pick, mix} from 'cycle-onionify'
 
-function intent(DOMSource, childAction$, selfId) {
-  return xs.merge(
-    DOMSource.select('.add').events('click')
-      .mapTo({selfId, type: 'addChild'}),
-
-    DOMSource.select('.remove').events('click')
-      .mapTo({selfId, type: 'removeSelf'}),
-
-    childAction$
-      .filter(action => action.type === 'removeSelf')
-      .map(action => ({...action, type: 'removeChild'}))
-  )
+function generateId() {
+  return Number(String(Math.random()).replace(/0\.0*/, ''))
 }
 
-function model(action$, createIsolatedFolder) {
-  const addFolderUpdate$ = action$
+function intent(domSource) {
+  const addChild$ = domSource.select('.add').events('click')
+    .mapTo({type: 'addChild'})
+
+  const removeSelf$ = domSource.select('.remove').events('click')
+    .mapTo({type: 'removeSelf'})
+
+  return xs.merge(addChild$, removeSelf$)
+}
+
+function model(action$) {
+  const initReducer$ = xs.of(function initReducer(prevState) {
+    if (typeof prevState === 'undefined') {
+      return {id: 0, removable: false, children: []}
+    } else {
+      return prevState
+    }
+  })
+
+  const addChildReducer$ = action$
     .filter(({type}) => type === 'addChild')
-    .map(action => function addFolderUpdate(childrenMap) {
-      const childId = String(Math.random()).replace('0.', '')
-      const folder = createIsolatedFolder(childId)
-      return childrenMap.set(childId, folder)
+    .mapTo(function addFolderReducer(state) {
+      const newChildren = state.children.concat({
+        id: generateId(),
+        removable: true,
+        children: [],
+      })
+      return {
+        ...state,
+        children: newChildren,
+      }
     })
 
-  const removeFolderUpdate$ = action$
-    .filter(({type}) => type === 'removeChild')
-    .map(action => function removeFolderUpdate(childrenMap) {
-      childrenMap.delete(action.selfId)
-      return childrenMap
+  const removeSelfReducer$ = action$
+    .filter(({type}) => type === 'removeSelf')
+    .mapTo(function removeSelfReducer(state) {
+      return undefined
     })
 
-  const children$ = xs.merge(addFolderUpdate$, removeFolderUpdate$)
-    .fold((children, update) => update(children), new Map())
+  return xs.merge(initReducer$, addChildReducer$, removeSelfReducer$)
+}
 
-  return children$
+function idToColor(id) {
+  let hexColor = Math.floor(((id + 1) * 1000) % 16777215).toString(16)
+  while (hexColor.length < 6) {
+    hexColor = '0' + hexColor
+  }
+  return '#' + hexColor
 }
 
 function style(backgroundColor) {
@@ -47,57 +66,48 @@ function style(backgroundColor) {
   }
 }
 
-function makeView(removable, color) {
-  return function view(children) {
-    return div({style: style(color)}, [
-      button('.add', ['Add Folder']),
-      removable && button('.remove', ['Remove me']),
-      children && div({}, Array.from(children.values()).map(child =>
-        div({key: child.id}, [child.DOM])
-      ))
-    ])
+function view(state$, childrenVDOM$) {
+  return xs.combine(state$, childrenVDOM$)
+    .map(([state, childrenVDOM]) => {
+      const color = idToColor(state.id)
+      return div({style: style(color)}, [
+        button('.add', ['Add Folder']),
+        state.removable && button('.remove', ['Remove me']),
+        state.children && div({}, childrenVDOM),
+      ])
+    })
+}
+
+function Children(sources) {
+  const array$ = sources.onion.state$
+
+  const childrenSinks$ = array$.map(array =>
+    array.map((item, index) => isolate(Folder, index)(sources))
+  )
+
+  const childrenReducer$ = childrenSinks$
+    .compose(pick('onion'))
+    .compose(mix(xs.merge))
+
+  const childrenVDOM$ = childrenSinks$
+    .compose(pick('DOM'))
+    .compose(mix(xs.combine))
+
+  return {
+    DOM: childrenVDOM$,
+    onion: childrenReducer$,
   }
 }
 
-function makeRandomColor() {
-  let hexColor = Math.floor(Math.random() * 16777215).toString(16)
-  while (hexColor.length < 6) {
-    hexColor = '0' + hexColor
+export default function Folder(sources) {
+  const childrenSinks = isolate(Children, 'children')(sources)
+  const state$ = sources.onion.state$
+  const action$ = intent(sources.DOM)
+  const parentReducer$ = model(action$)
+  const vdom$ = view(state$, childrenSinks.DOM)
+  const reducer$ = xs.merge(parentReducer$, childrenSinks.onion)
+  return {
+    DOM: vdom$,
+    onion: reducer$,
   }
-  return '#' + hexColor
 }
-
-function createFolderComponent({id, removable = true}) {
-  function Folder(sources) {
-    function createFolder(childId) {
-      return createFolderComponent(({id: childId}))(sources)
-    }
-
-    const proxyChildAction$ = xs.create();
-    const action$ = intent(sources.DOM, proxyChildAction$, id)
-    const children$ = model(action$, createFolder)
-    const color = makeRandomColor()
-    const vdom$ = children$.map(makeView(removable, color))
-    const removeSelf$ = action$.filter(({type}) => type === 'removeSelf')
-
-    const childAction$ = children$
-      .map(children => {
-        const childActionStreams = Array.from(children.values())
-          .map(c => c.action$)
-        return xs.merge(...childActionStreams)
-      })
-      .flatten()
-
-    proxyChildAction$.imitate(childAction$.endWhen(removeSelf$.take(1)))
-
-    return {
-      DOM: vdom$,
-      action$,
-      id,
-    }
-  }
-
-  return isolate(Folder)
-}
-
-export {createFolderComponent}
