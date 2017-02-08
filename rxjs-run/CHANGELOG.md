@@ -1,3 +1,13 @@
+<a name="4.0.0-rc.6"></a>
+# 4.0.0-rc.6 (2017-02-08)
+
+
+### Bug Fixes
+
+* **rxjs-run:** update cycle/run to 1.0.0-rc.9 ([7209814](https://github.com/cyclejs/cyclejs/tree/master/rxjs-run/commit/7209814))
+
+
+
 <a name="4.0.0-rc.5"></a>
 # 4.0.0-rc.5 (2017-02-03)
 
