@@ -234,7 +234,6 @@ We can test this counter using `mockDOMSource`, `snabddom-selector` and `@cycle/
 ```js
 import {mockTimeSource} from '@cycle/time';
 import {mockDOMSource} from '@cycle/dom';
-import xsAdapter from '@cycle/xstream-adapter';
 import {select} from 'snabbdom-selector'
 
 import {Counter} from '../src/counter';
@@ -246,7 +245,7 @@ describe('Counter', () => {
     const expectedCount = `0--1--2--1----2--3--|`;
 
     const Time = mockTimeSource();
-    const DOM = mockDOMSource(xsAdapter, {
+    const DOM = mockDOMSource({
       '.add': {
         'click': Time.diagram(addClick)
       },

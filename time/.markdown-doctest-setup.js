@@ -60,7 +60,6 @@ module.exports = {
       mockTimeSource: timeDriver.mockTimeSource
     },
     '@cycle/dom': mockedCycleDom,
-    '@cycle/xstream-adapter': require('@cycle/xstream-adapter'),
     'snabbdom-selector': require('snabbdom-selector'),
     'xstream': require('xstream'),
 
