@@ -5,11 +5,13 @@ import xs, {Stream} from 'xstream';
 import adapter from '@cycle/xstream-adapter';
 import {setAdapt} from '@cycle/run/lib/adapt';
 import {Observable} from 'rxjs/Rx';
+import * as most from 'most';
 
 const libraries = [
   {name: 'xstream', adapt: stream => stream},
-  {name: 'rxjs', adapt: stream => Observable.from(stream)}
-]
+  {name: 'rxjs', adapt: stream => Observable.from(stream)},
+  {name: 'most', adapt: stream => most.from(stream)}
+];
 
 function compose (stream, f) {
   if ('compose' in stream) {
@@ -18,6 +20,10 @@ function compose (stream, f) {
 
   if ('let' in stream) {
     return stream.let(f);
+  }
+
+  if ('thru' in stream) {
+    return stream.thru(f);
   }
 
   throw new Error(`Don't know how to compose`);
@@ -76,6 +82,8 @@ describe("@cycle/time", () => {
   });
 
   libraries.forEach(library => {
+    const skipFor = (name, f) => name === library.name ? null : f()
+
     describe(library.name, () => {
       before(() => setAdapt(library.adapt));
 
@@ -95,7 +103,7 @@ describe("@cycle/time", () => {
                 assert.equal(ev, expectedValues.shift());
               },
 
-              complete: done,
+              complete: () => done(),
               error: done
             });
 
@@ -149,7 +157,7 @@ describe("@cycle/time", () => {
                 assert.deepEqual(ev, expectedValues.shift());
               },
 
-              complete: done,
+              complete: () => done(),
               error: done
             });
 
@@ -293,48 +301,50 @@ describe("@cycle/time", () => {
             Time.run(done);
           });
 
-          it("logs unexpected errors", (done) => {
-            const Time = mockTimeSource();
+          skipFor('most', () => {
+            it("logs unexpected errors", (done) => {
+              const Time = mockTimeSource();
 
-            const input$ = Time.diagram(
-              `---A---B---C---|`
-            );
-
-            const expectedError = 'Something went unexpectedly wrong!';
-
-            function transformation (character) {
-              if (character === 'A') {
-                return 'X';
-              }
-
-              if (character === 'B') {
-                throw new Error(expectedError);
-              }
-            }
-
-            const actual$ = input$.map(transformation);
-
-            const expected$ = Time.diagram(
-              `---X---Y---Z---|`
-            );
-
-            Time.assertEqual(actual$, expected$);
-            Time.run((err) => {
-              if (!err) {
-                done(new Error('expected test to fail'));
-              }
-
-              assert(
-                err.message.includes(expectedError),
-                [
-                  'Expected failure message to include error, did not:',
-                  err.message,
-                  'to include:',
-                  expectedError
-                ].join('\n\n')
+              const input$ = Time.diagram(
+                `---A---B---C---|`
               );
 
-              done();
+              const expectedError = 'Something went unexpectedly wrong!';
+
+              function transformation (character) {
+                if (character === 'A') {
+                  return 'X';
+                }
+
+                if (character === 'B') {
+                  throw new Error(expectedError);
+                }
+              }
+
+              const actual$ = input$.map(transformation);
+
+              const expected$ = Time.diagram(
+                `---X---Y---Z---|`
+              );
+
+              Time.assertEqual(actual$, expected$);
+              Time.run((err) => {
+                if (!err) {
+                  done(new Error('expected test to fail'));
+                }
+
+                assert(
+                  err.message.includes(expectedError),
+                  [
+                    'Expected failure message to include error, did not:',
+                    err.message,
+                    'to include:',
+                    expectedError
+                  ].join('\n\n')
+                );
+
+                done();
+              });
             });
           });
 
