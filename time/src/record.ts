@@ -1,4 +1,5 @@
 import xs, {Stream} from 'xstream';
+import {adapt} from '@cycle/run/lib/adapt';
 
 function recordListener (currentTime, outListener) {
   let entries = [];
@@ -28,14 +29,13 @@ function recordListener (currentTime, outListener) {
 
 function makeRecord (schedule, currentTime, interval) {
   return function record (stream: Stream<any>): Stream<any> {
-    return xs.createWithMemory({
+    return adapt(xs.createWithMemory({
       start (listener) {
-        stream.addListener(recordListener(currentTime, listener));
+        xs.fromObservable(stream).addListener(recordListener(currentTime, listener));
       },
 
-      stop () {
-      }
-    });
+      stop () {}
+    }));
   }
 }
 export {

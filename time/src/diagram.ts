@@ -1,4 +1,4 @@
-
+import {adapt} from '@cycle/run/lib/adapt';
 import xs, {Stream} from 'xstream';
 
 const parseIntIfDecimal = (str) => {
@@ -31,7 +31,7 @@ function makeDiagram (schedule, currentTime, interval) {
       }
     });
 
-    return stream;
+    return adapt(stream);
   }
 }
 

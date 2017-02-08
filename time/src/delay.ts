@@ -1,4 +1,5 @@
 import xs, {Stream} from 'xstream';
+import {adapt} from '@cycle/run/lib/adapt';
 
 function makeDelayListener<T> (schedule, currentTime, delayTime, listener) {
   const delayedTime = () => currentTime() + delayTime;
@@ -30,13 +31,13 @@ function makeDelay (schedule, currentTime) {
             listener
           );
 
-          stream.addListener(delayListener);
+          xs.fromObservable(stream).addListener(delayListener);
         },
 
         stop () {}
       };
 
-      return xs.create<T>(producer);
+      return adapt(xs.create<T>(producer));
     }
   }
 }

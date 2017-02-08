@@ -1,11 +1,12 @@
 import xs, {Stream} from 'xstream';
 import sampleCombine from 'xstream/extra/sampleCombine';
+import {adapt} from '@cycle/run/lib/adapt';
 
 function makeThrottleAnimation (timeSource, schedule, currentTime) {
   return function throttleAnimation<T> (stream: Stream<T>): Stream<T> {
     const source = timeSource();
 
-    return xs.create<T>({
+    return adapt(xs.create<T>({
       start (listener) {
         let lastValue = null;
         let emittedLastValue = true;
@@ -19,7 +20,7 @@ function makeThrottleAnimation (timeSource, schedule, currentTime) {
           }
         }
 
-        stream.addListener({
+        xs.fromObservable(stream).addListener({
           next (event: T) {
             lastValue = event;
             emittedLastValue = false;
@@ -39,7 +40,7 @@ function makeThrottleAnimation (timeSource, schedule, currentTime) {
       },
 
       stop () {}
-    });
+    }));
   }
 }
 

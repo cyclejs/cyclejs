@@ -99,10 +99,10 @@ function makeAssertEqual (timeSource, schedule, currentTime, interval, addAssert
 
     addAssert(assert);
 
-    const actualLog$ = actual.compose(Time.record);
-    const expectedLog$ = expected.compose(Time.record);
+    const actualLog$ = xs.fromObservable(actual).compose(Time.record);
+    const expectedLog$ = xs.fromObservable(expected).compose(Time.record);
 
-    xs.combine(actualLog$, expectedLog$).addListener({
+    xs.combine(xs.fromObservable(actualLog$), xs.fromObservable(expectedLog$)).addListener({
       next ([aLog, bLog]) {
         completeStore['actual'] = aLog;
         completeStore['expected'] = bLog;

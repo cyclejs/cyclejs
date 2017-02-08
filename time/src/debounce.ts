@@ -1,4 +1,5 @@
 import xs, {Stream} from 'xstream';
+import {adapt} from '@cycle/run/lib/adapt';
 
 function makeDebounceListener<T> (schedule, currentTime, debounceInterval, listener, state) {
   return {
@@ -32,7 +33,7 @@ function makeDebounce (schedule, currentTime) {
     return function debounceOperator<T> (stream: Stream<T>): Stream<T> {
       const state = {scheduledEntry: null};
 
-      return xs.create<T>({
+      return adapt(xs.create<T>({
         start (listener) {
           const debounceListener = makeDebounceListener<T>(
             schedule,
@@ -42,12 +43,12 @@ function makeDebounce (schedule, currentTime) {
             state
           );
 
-          stream.addListener(debounceListener);
+          xs.fromObservable(stream).addListener(debounceListener);
         },
 
         // TODO - maybe cancel the scheduled event?
         stop () {}
-      });
+      }));
     }
   }
 }
