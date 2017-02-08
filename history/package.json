@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@cycle/dom": "15.0.0-rc.1",
-    "@cycle/rxjs-run": "4.0.0-rc.5",
+    "@cycle/rxjs-run": "4.0.0-rc.6",
     "@types/history": "^4.5.0",
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.46",
