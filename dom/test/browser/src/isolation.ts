@@ -18,7 +18,6 @@ import {
   MainDOMSource,
   VNode,
 } from '../../../lib';
-require('string.prototype.startswith');
 
 function createRenderTarget(id: string | null = null) {
   let element = document.createElement('div');

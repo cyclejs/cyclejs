@@ -35,7 +35,7 @@
   "dependencies": {
     "@cycle/run": "*",
     "es6-map": "^0.1.4",
-    "snabbdom": "0.6.3",
+    "snabbdom": "0.6.4",
     "snabbdom-selector": "1.1.1",
     "snabbdom-to-html": "3.0.1"
   },
@@ -52,7 +52,6 @@
     "saucie": "3.1.0",
     "simulant": "^0.2.2",
     "snabbdom-jsx": "^0.3.0",
-    "string.prototype.startswith": "^0.2.0",
     "xstream": "10.2"
   },
   "engines": {
