@@ -2,7 +2,7 @@ import xs, {Stream} from 'xstream';
 
 const EXPECTED_DELTA = 1000 / 60;
 
-type Frame = {
+export type Frame = {
   delta: number;
   normalizedDelta: number;
   time: number;

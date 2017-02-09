@@ -13,6 +13,7 @@ import {makeAnimationFrames} from './animation-frames';
 import {makeThrottleAnimation} from './throttle-animation';
 import {makeRecord} from './record';
 import {runVirtually} from './run-virtually';
+import {MockTimeSource} from './time-source';
 
 function raiseError (err) {
   if (err) {
@@ -41,7 +42,7 @@ function finish (asserts, done) {
   }
 }
 
-function mockTimeSource ({interval = 20} = {}) {
+function mockTimeSource ({interval = 20} = {}): MockTimeSource {
   let time = 0;
   let asserts = [];
   let done;

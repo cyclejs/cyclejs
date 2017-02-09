@@ -9,6 +9,7 @@ import {makeThrottle} from './throttle';
 import {makeAnimationFrames} from './animation-frames';
 import {makeThrottleAnimation} from './throttle-animation';
 import {runVirtually} from './run-virtually';
+import {TimeSource} from './time-source';
 
 function popAll (array) {
   const poppedItems = [];
@@ -78,7 +79,7 @@ function runRealtime (scheduler, frameCallbacks, currentTime, setTime) {
 }
 
 
-function timeDriver (_, streamAdapter) {
+function timeDriver (_, streamAdapter): TimeSource {
   let time = 0;
   let frameCallbacks = [];
   const scheduler = makeScheduler();
