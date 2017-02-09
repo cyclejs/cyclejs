@@ -1,3 +1,27 @@
+<a name="15.0.0-rc.3"></a>
+# 15.0.0-rc.3 (2017-02-09)
+
+
+### Bug Fixes
+
+* **dom:** fix client-side rendering to consider existing DOM ([760e1f3](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/760e1f3))
+* **dom:** fix isolation bug of child when parent is re-added ([e18e7f7](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/e18e7f7))
+* **dom:** make cycle/run a hard dependency ([47f7f49](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/47f7f49))
+* **dom:** report errors thrown in snabbdom hooks ([edb025c](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/edb025c))
+* **dom:** rewrite for Cycle Unified ([47346b4](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/47346b4))
+* **dom:** start snabbdom only when DOM is ready ([40d39dd](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/40d39dd))
+* **dom:** support using DOMSource.elements() in isolated main() ([ca192b5](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/ca192b5))
+* **dom:** update snabbdom to v0.6.4 ([f6dd895](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/f6dd895))
+* **dom:** update to snabbdom v0.6.3 ([d1077c8](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/d1077c8))
+
+
+### Features
+
+* **dom:** support passing custom modules to HTML driver ([f965de5](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/f965de5))
+* **dom:** use snabbdom dataset module by default ([36759af](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/36759af))
+
+
+
 <a name="15.0.0-rc.2"></a>
 # 15.0.0-rc.2 (2017-02-03)
 
