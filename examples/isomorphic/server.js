@@ -1,4 +1,4 @@
-import Cycle from '@cycle/xstream-run';
+import {run} from '@cycle/run';
 import xs from 'xstream';
 import express from 'express';
 import browserify from 'browserify';
@@ -27,20 +27,20 @@ function prependHTML5Doctype(html) {
 
 function wrapAppResultWithBoilerplate(appFn, context$, bundle$) {
   return function wrappedAppFn(sources) {
-    let vtree$ = appFn(sources).DOM;
-    let wrappedVTree$ = xs.combine(vtree$, context$, bundle$.take(1))
+    const vdom$ = appFn(sources).DOM;
+    const wrappedVDOM$ = xs.combine(vdom$, context$, bundle$.take(1))
       .map(wrapVTreeWithHTMLBoilerplate)
       .last();
     return {
-      DOM: wrappedVTree$
+      DOM: wrappedVDOM$
     };
   };
 }
 
-let clientBundle$ = (() => {
-  let bundle$ = xs.createWithMemory();
+const clientBundle$ = (() => {
+  const bundle$ = xs.createWithMemory();
   let bundleString = '';
-  let bundleStream = browserify()
+  const bundleStream = browserify()
     .transform('babelify')
     .transform({global: true}, 'uglifyify')
     .add('./client.js')
@@ -55,7 +55,7 @@ let clientBundle$ = (() => {
   return bundle$;
 })();
 
-let server = express();
+const server = express();
 
 server.use(function (req, res) {
   // Ignore favicon requests
@@ -66,16 +66,16 @@ server.use(function (req, res) {
   }
   console.log(`req: ${req.method} ${req.url}`);
 
-  let context$ = xs.of({route: req.url});
-  let wrappedAppFn = wrapAppResultWithBoilerplate(app, context$, clientBundle$);
+  const context$ = xs.of({route: req.url});
+  const wrappedAppFn = wrapAppResultWithBoilerplate(app, context$, clientBundle$);
 
-  Cycle.run(wrappedAppFn, {
+  run(wrappedAppFn, {
     DOM: makeHTMLDriver(html => res.send(prependHTML5Doctype(html))),
     context: () => context$,
     PreventDefault: () => {},
   });
 });
 
-let port = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
 server.listen(port);
 console.log(`Listening on port ${port}`);

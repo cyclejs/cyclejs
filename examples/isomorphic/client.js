@@ -1,10 +1,10 @@
-let Cycle = require('@cycle/xstream-run');
-let xs = require('xstream').default;
-let {makeDOMDriver} = require('@cycle/dom');
-let app = require('./app');
+import {run} from '@cycle/run';
+import xs from 'xstream';
+import {makeDOMDriver} from '@cycle/dom';
+import app from './app';
 
 function clientSideApp(sources) {
-  let sinks = app(sources);
+  const sinks = app(sources);
   sinks.DOM = sinks.DOM.drop(1);
   return sinks;
 }
@@ -12,12 +12,10 @@ function clientSideApp(sources) {
 function preventDefaultDriver(ev$) {
   ev$.addListener({
     next: ev => ev.preventDefault(),
-    error: () => {},
-    complete: () => {},
   });
 }
 
-Cycle.run(clientSideApp, {
+run(clientSideApp, {
   DOM: makeDOMDriver('.app-container'),
   context: () => xs.of(window.appContext),
   PreventDefault: preventDefaultDriver,

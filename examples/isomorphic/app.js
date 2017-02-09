@@ -1,5 +1,5 @@
-let xs = require('xstream').default;
-let {div, ul, li, a, section, h1, p} = require('@cycle/dom');
+import xs from 'xstream';
+import {div, ul, li, a, section, h1, p} from '@cycle/dom';
 
 function renderMenu() {
   return (
@@ -31,17 +31,17 @@ function renderAboutPage() {
   );
 }
 
-function app(sources) {
-  let click$ = sources.DOM.select('.link').events('click');
+export default function app(sources) {
+  const click$ = sources.DOM.select('.link').events('click');
 
-  let preventedEvent$ = click$;
+  const preventedEvent$ = click$;
 
-  let contextFromClick$ = click$
+  const contextFromClick$ = click$
     .map(ev => ({route: ev.currentTarget.attributes.href.value}));
 
-  let context$ = xs.merge(sources.context, contextFromClick$);
+  const context$ = xs.merge(sources.context, contextFromClick$);
 
-  let vtree$ = context$
+  const vdom$ = context$
     .map(({route}) => {
       if (typeof window !== 'undefined') {
         window.history.pushState(null, '', route);
@@ -54,9 +54,7 @@ function app(sources) {
     });
 
   return {
-    DOM: vtree$,
+    DOM: vdom$,
     PreventDefault: preventedEvent$
   };
 }
-
-module.exports = app;
