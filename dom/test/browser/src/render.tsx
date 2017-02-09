@@ -176,6 +176,60 @@ describe('DOM Rendering', function () {
     dispose = run();
   });
 
+  it('should reuse existing DOM tree under the given root element', function (done) {
+    function app(sources: {DOM: MainDOMSource}) {
+      return {
+        DOM: xs.of(select('.my-class', [
+          option({attrs: {value: 'foo'}}, 'Foo'),
+          option({attrs: {value: 'bar'}}, 'Bar'),
+          option({attrs: {value: 'baz'}}, 'Baz'),
+        ])),
+      };
+    }
+
+    // Create DOM tree with 2 <option>s under <select>
+    const rootElem = createRenderTarget();
+    const selectElem = document.createElement('SELECT');
+    selectElem.className = 'my-class';
+    rootElem.appendChild(selectElem);
+    const optionElem1 = document.createElement('OPTION');
+    optionElem1.setAttribute('value', 'foo');
+    optionElem1.textContent = 'Foo';
+    selectElem.appendChild(optionElem1);
+    const optionElem2 = document.createElement('OPTION');
+    optionElem2.setAttribute('value', 'bar');
+    optionElem2.textContent = 'Bar';
+    selectElem.appendChild(optionElem2);
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(rootElem),
+    });
+
+    let dispose: any;
+    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+      next: (root: Element) => {
+        assert.strictEqual(root.childNodes.length, 1);
+        const selectEl = root.childNodes[0] as HTMLElement;
+        assert.strictEqual(selectEl.tagName, 'SELECT');
+        assert.strictEqual(selectEl.childNodes.length, 3);
+        const option1 = selectEl.childNodes[0] as HTMLElement;
+        const option2 = selectEl.childNodes[1] as HTMLElement;
+        const option3 = selectEl.childNodes[2] as HTMLElement;
+        assert.strictEqual(option1.tagName, 'OPTION');
+        assert.strictEqual(option2.tagName, 'OPTION');
+        assert.strictEqual(option3.tagName, 'OPTION');
+        assert.strictEqual(option1.textContent, 'Foo');
+        assert.strictEqual(option2.textContent, 'Bar');
+        assert.strictEqual(option3.textContent, 'Baz');
+        setTimeout(() => {
+          dispose();
+          done();
+        });
+      },
+    });
+    dispose = run();
+  });
+
   it('should give elements as a value-over-time', function (done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {

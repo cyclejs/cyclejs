@@ -5,6 +5,7 @@ import xs, {Stream} from 'xstream';
 import {DOMSource} from './DOMSource';
 import {MainDOMSource} from './MainDOMSource';
 import {VNode} from 'snabbdom/vnode';
+import {toVNode} from 'snabbdom/tovnode';
 import {VNodeWrapper} from './VNodeWrapper';
 import {getElement} from './utils';
 import defaultModules from './modules';
@@ -59,7 +60,7 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions) 
     const sanitation$ = xs.create<null>();
     const rootElement$ = xs.merge(vnode$.endWhen(sanitation$), sanitation$)
       .map(vnode => vnodeWrapper.call(vnode))
-      .fold<VNode | Element>(patch, rootElement)
+      .fold(patch, toVNode(rootElement))
       .drop(1)
       .map(unwrapElementFromVNode)
       .compose(dropCompletion) // don't complete this stream
