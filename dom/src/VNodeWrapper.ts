@@ -1,5 +1,5 @@
 import {VNode} from 'snabbdom/vnode';
-import {h} from './hyperscript';
+import {h} from 'snabbdom/h';
 import {classNameFromVNode} from 'snabbdom-selector/lib/commonjs/classNameFromVNode';
 import {selectorParser} from 'snabbdom-selector/lib/commonjs/selectorParser';
 

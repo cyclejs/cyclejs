@@ -183,7 +183,7 @@ export {CycleDOMEvent} from './EventDelegator';
  *
  * @function h
  */
-export {h} from './hyperscript';
+export {h} from 'snabbdom/h';
 import hh, {HyperScriptHelperFn, SVGHelperFn} from './hyperscript-helpers';
 
 export const svg: SVGHelperFn = hh.svg;

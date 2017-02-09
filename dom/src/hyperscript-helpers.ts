@@ -1,4 +1,4 @@
-import {h} from './hyperscript';
+import {h} from 'snabbdom/h';
 import {VNode} from 'snabbdom/vnode';
 
 function isValidString(param: any): boolean {
