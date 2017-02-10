@@ -8,7 +8,11 @@
   "license": "MIT",
   "homepage": "https://github.com/cyclejs/time#readme",
   "files": [
-    "dist/"
+    "dist/",
+    "most.js",
+    "rxjs.js",
+    "most.d.ts",
+    "rxjs.d.ts"
   ],
   "publishConfig": {
     "access": "public"
@@ -18,7 +22,7 @@
     "test": "mocha 'test/**/*.ts' --compilers ts:ts-node/register && npm run test/docs",
     "test/auto": "mocha 'test/**/*.ts' --compilers ts:ts-node/register --watch -R min",
     "test/docs": "npm run compile && markdown-doctest",
-    "compile": "tsc",
+    "compile": "tsc && tsc rxjs.ts most.ts",
     "prepublish": "npm run compile",
     "postpublish": "greenkeeper-postpublish"
   },

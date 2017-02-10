@@ -42,7 +42,7 @@ function finish (asserts, done) {
   }
 }
 
-function mockTimeSource ({interval = 20} = {}): MockTimeSource {
+function mockTimeSource ({interval = 20} = {}): any {
   let time = 0;
   let asserts = [];
   let done;

@@ -79,7 +79,7 @@ function runRealtime (scheduler, frameCallbacks, currentTime, setTime) {
 }
 
 
-function timeDriver (_, streamAdapter): TimeSource {
+function timeDriver (_, streamAdapter): any {
   let time = 0;
   let frameCallbacks = [];
   const scheduler = makeScheduler();

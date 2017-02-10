@@ -46,7 +46,7 @@ function runVirtually (scheduler, done, currentTime, setTime, timeToRunTo = null
     setImmediate(processEvent);
   }
 
-  processEvent();
+  setImmediate(processEvent);
 }
 
 export {

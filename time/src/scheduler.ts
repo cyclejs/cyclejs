@@ -1,5 +1,30 @@
 const makeAccumulator = require('sorted-immutable-list').default;
 
+const comparator = (a) => (b) => {
+  if (a.time < b.time) {
+    return -1;
+  }
+
+  if (a.time === b.time) {
+    // In the case where a complete and next event occur in the same frame,
+    // the next always comes before the complete
+
+    if (a.stream === b.stream) {
+      if (a.type === 'complete' && b.type === 'next') {
+        return 1;
+      }
+
+      if (b.type === 'complete' && a.type === 'next') {
+        return -1;
+      }
+    }
+
+    return 0;
+  }
+
+  return 1;
+};
+
 function makeScheduler () {
   let schedule = [];
 
@@ -8,8 +33,8 @@ function makeScheduler () {
   }
 
   const addScheduleEntry = makeAccumulator({
-    key: entry => entry.time,
-      unique: false
+    comparator,
+    unique: false
   });
 
   function scheduleEntry (newEntry) {
@@ -65,7 +90,6 @@ function makeScheduler () {
     }
   }
 }
-
 
 export {
   makeScheduler
