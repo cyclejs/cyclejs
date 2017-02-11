@@ -183,39 +183,35 @@ most.js:
 import {mockTimeSource} from '@cycle/time/most';
 ```
 
-For testing components that use `@cycle/dom` we will also want `mockDOMSource`.
+For testing components that use `@cycle/dom` we will also want `mockDOMSource` and potentially `snabbdom-selector`.
 
 ```js
 import {mockDOMSource} from '@cycle/dom';
-```
-
-```js
 import {select} from 'snabbdom-selector'
 
 import {Counter} from '../src/counter';
 
 describe('Counter', () => {
   it('increments and decrements in response to clicks', (done) => {
-    const addClick      = `---x--x-------x--x--|`;
-    const subtractClick = `---------x----------|`;
-    const expectedCount = `0--1--2--1----2--3--|`;
-
     const Time = mockTimeSource();
+
+    const addClick$      = Time.diagram(`---x--x-------x--x--|`);
+    const subtractClick$ = Time.diagram(`---------x----------|`);
+    const expectedCount$ = Time.diagram(`0--1--2--1----2--3--|`);
+
     const DOM = mockDOMSource({
       '.add': {
-        'click': Time.diagram(addClick)
+        click: addClick$
       },
 
       '.subtract': {
-        'click': Time.diagram(subtractClick)
+        click: subtractClick$
       },
     });
 
     const counter = Counter({DOM});
 
     const count$ = counter.DOM.map(vtree => select('.count', vtree)[0].text);
-
-    const expectedCount$ = Time.diagram(expectedCount);
 
     Time.assertEqual(count$, expectedCount$)
 
