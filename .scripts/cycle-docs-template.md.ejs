@@ -1,14 +1,11 @@
 <? docfiles.forEach(function(doc) { ?>
-  <? doc.javadoc.forEach(function(comment) { ?><? if (!comment.ignore) { ?>
-      <? if (comment.name) { ?>- [`<?= comment.name ?>`](#<?= comment.name ?>)<? } ?><? } ?><? }) ?>
-
   <? doc.javadoc.forEach(function(comment) { ?>
     <? if (!comment.ignore) { ?>
       <? if (comment.name) { ?>
         <? if (comment.isMethod || comment.isFunction) { ?>
-          ### <a id="<?= comment.name ?>"></a> `<?= comment.name ?>(<?= comment.paramStr ?>)`
+          ## <a id="<?= comment.name ?>"></a> `<?= comment.name ?>(<?= comment.paramStr ?>)`
         <? } else { ?>
-          ### <a id="<?= comment.name ?>"></a> `<?= comment.name ?>`
+          ## <a id="<?= comment.name ?>"></a> `<?= comment.name ?>`
         <? } ?>
       <? } ?>
 
@@ -37,7 +34,7 @@
       <? } ?>
 
       <? if (comment.returnTags.length > 0) { ?>
-        #### Return:
+        #### Returns:
         <? comment.returnTags.forEach(function(returnTag) { ?>
           *(<?= returnTag.joinedTypes ?>)* <?= returnTag.description ?>
         <? }) ?>

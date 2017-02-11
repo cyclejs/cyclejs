@@ -1,0 +1,161 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width">
+
+  <title>Cycle.js - API reference</title>
+
+  <!-- Flatdoc -->
+  <script src='../support/vendor/jquery.js'></script>
+  <script src='../legacy.js'></script>
+  <script src='../flatdoc.js'></script>
+
+  <!-- Flatdoc theme -->
+  <link href='../theme/style.css' rel='stylesheet'>
+  <script src='../theme/script.js'></script>
+
+  <!-- Meta -->
+  <meta content="Cycle.js" property="og:title">
+  <meta content="A functional and reactive JavaScript framework for predictable code" name="description">
+
+  <!-- Content -->
+  <script id="markdown" type="text/markdown" src="index.html">
+# Cycle History
+
+This is the standard Cycle.js driver for dealing with the History API.
+
+This project is 100% compatible with mjackson/history, most notably used to create React-Router. This allows for a Cycle.js application to be embedded inside of an existing React application and share history instances.
+
+Though this library makes use of the interface that the mjackson/history library provides, any other library can be used which satisfies the interface. Also take note of the ServerHistory object we have made to easily allow for server-side rendering of your Cycle application.
+
+```
+npm install @cycle/history
+```
+
+# API
+
+## <a id="captureClicks"></a> `captureClicks(driver)`
+
+Wraps a History Driver to add "click capturing" functionality.
+
+If you want to intercept and handle any click event that leads to a link,
+like on an `<a>` element, you pass your existing driver (e.g. created from
+`makeHistoryDriver()`) as argument and this function will return another
+driver of the same nature, but including click capturing logic.
+
+#### Arguments:
+
+- `driver: Function` an existing History Driver function.
+
+#### Returns:
+
+*(Function)* a History Driver function
+
+- - -
+
+## <a id="makeHistoryDriver"></a> `makeHistoryDriver(options)`
+
+Create a History Driver to be used in the browser.
+
+This is a function which, when called, returns a History Driver for Cycle.js
+apps. The driver is also a function, and it takes a stream of new locations
+(strings representing pathnames or location objects) as input, and outputs
+another stream of locations that were applied.
+
+#### Arguments:
+
+- `options: object` an object with some options specific to this driver. These options are the same as for the corresponding
+`createBrowserHistory()` function in History v4. Check its
+[docs](https://github.com/mjackson/history/tree/v4.5.1#usage) for a good
+description on the options.
+
+#### Returns:
+
+*(Function)* the History Driver function
+
+- - -
+
+## <a id="makeHashHistoryDriver"></a> `makeHashHistoryDriver(options)`
+
+Create a History Driver for older browsers using hash routing.
+
+This is a function which, when called, returns a History Driver for Cycle.js
+apps. The driver is also a function, and it takes a stream of new locations
+(strings representing pathnames or location objects) as input, and outputs
+another stream of locations that were applied.
+
+#### Arguments:
+
+- `options: object` an object with some options specific to this driver. These options are the same as for the corresponding
+`createHashHistory()` function in History v4. Check its
+[docs](https://github.com/mjackson/history/tree/v4.5.1#usage) for a good
+description on the options.
+
+#### Returns:
+
+*(Function)* the History Driver function
+
+- - -
+
+## <a id="makeHashHistoryDriver"></a> `makeHashHistoryDriver(options)`
+
+Create a History Driver to be used in non-browser enviroments such as
+server-side Node.js.
+
+This is a function which, when called, returns a History Driver for Cycle.js
+apps. The driver is also a function, and it takes a stream of new locations
+(strings representing pathnames or location objects) as input, and outputs
+another stream of locations that were applied.
+
+#### Arguments:
+
+- `options: object` an object with some options specific to this driver. These options are the same as for the corresponding
+`createMemoryHistory()` function in History v4. Check its
+[docs](https://github.com/mjackson/history/tree/v4.5.1#usage) for a good
+description on the options.
+
+#### Returns:
+
+*(Function)* the History Driver function
+
+- - -
+
+  </script>
+
+  <!-- Initializer -->
+  <script>
+    Flatdoc.run({
+      fetcher: function(callback) {
+        callback(null, document.getElementById('markdown').innerHTML);
+      },
+    });
+  </script>
+
+</head>
+<body role='flatdoc'>
+
+  <div class='header'>
+    <div class='left'>
+      <h1><a href="/">Cycle.js</a></h1>
+      <ul>
+        <li><a href='https://github.com/staltz/cycle-onionify'>Documentation</a></li>
+        <li><a href='https://github.com/staltz/cycle-onionify/issues'>API reference</a></li>
+      </ul>
+    </div>
+    <div class='right'>
+      <!-- GitHub buttons: see http://ghbtns.com -->
+      <iframe src="http://ghbtns.com/github-btn.html?user=USER&amp;repo=REPO&amp;type=watch&amp;count=true" allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
+    </div>
+  </div>
+
+  <div class='content-root'>
+    <div class='menubar'>
+      <div class='menu section' role='flatdoc-menu'></div>
+    </div>
+    <div role='flatdoc-content' class='content'></div>
+  </div>
+
+</body>
+</html>
