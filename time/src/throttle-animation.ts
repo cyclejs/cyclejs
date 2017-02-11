@@ -10,7 +10,7 @@ function makeThrottleAnimation (timeSource, schedule, currentTime) {
       start (listener) {
         let lastValue = null;
         let emittedLastValue = true;
-        const frame$ = source.animationFrames();
+        const frame$ = xs.fromObservable(source.animationFrames());
 
         const animationListener = {
           next (event) {

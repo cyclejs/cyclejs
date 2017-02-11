@@ -1,4 +1,5 @@
 import xs, {Stream} from 'xstream';
+import {adapt} from '@cycle/run/lib/adapt';
 
 const EXPECTED_DELTA = 1000 / 60;
 
@@ -18,7 +19,7 @@ function makeAnimationFrames (addFrameCallback, currentTime) {
 
     let stopped = false;
 
-    return xs.create<Frame>({
+    const frameStream = xs.create<Frame>({
       start (listener) {
         frame.time = currentTime();
 
@@ -43,6 +44,8 @@ function makeAnimationFrames (addFrameCallback, currentTime) {
         stopped = true;
       }
     });
+
+    return adapt(frameStream);
   }
 }
 
