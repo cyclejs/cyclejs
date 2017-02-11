@@ -1,6 +1,8 @@
 const timeDriver = require('./dist/');
 const xs = require('xstream').default;
 const dom = require('@cycle/dom');
+const most = require('most');
+const {Observable} = require('rxjs/Rx');
 
 const {div, button} = dom;
 
@@ -83,6 +85,7 @@ module.exports = {
 
     Time: timeDriver.mockTimeSource(),
     timeDriver: timeDriver.timeDriver,
+    mockTimeSource: timeDriver.mockTimeSource,
 
     done: (err) => {
       if (err) {
@@ -99,6 +102,8 @@ module.exports = {
     DOM: mockedCycleDom.makeDOMDriver()(),
 
     xs,
+    Observable,
+    most,
 
     div,
     button,

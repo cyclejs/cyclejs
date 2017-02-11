@@ -71,7 +71,7 @@ Observable.of('Hello World').let(Time.delay(200));
 The equivalent to `.compose` in Most is `.thru`.
 
 ```js
-Observable.of('Hello World').thru(Time.delay(200));
+most.of('Hello World').thru(Time.delay(200));
 ```
 
 Usage (Development / Production)
