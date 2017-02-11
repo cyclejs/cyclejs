@@ -1,4 +1,5 @@
 import xs, {Stream} from 'xstream';
+import {adapt} from '@cycle/run/lib/adapt';
 
 function makePeriodic (schedule, currentTime) {
   return function periodic (period: number): Stream<number> {
@@ -28,7 +29,7 @@ function makePeriodic (schedule, currentTime) {
       }
     };
 
-    return xs.create<number>(producer);
+    return adapt(xs.create<number>(producer));
   }
 }
 
