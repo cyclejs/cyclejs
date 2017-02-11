@@ -9,14 +9,16 @@ It allows you to write beautiful, fast, declarative tests for your Cycle.js appl
 Influences
 ---
 
-`@cycle/time` was inspired and expands upon the approach used by the `TestScheduler` used in `RxJS`. By reimagining the scheduler as a driver, we can better meet the needs of Cycle.js users, and enable powerful test tooling across multiple stream libraries with the same tool.
+`@cycle/time` was inspired by and expands upon the approach used by the `TestScheduler` used in `RxJS`. By reimagining the scheduler as a driver, we can better meet the needs of Cycle.js users, and enable powerful test tooling across multiple stream libraries with the same tool.
 
 Additionally, `@cycle/time` implements the API of all the time-based operators provided by `xstream`.
 
-Rationale
+Why put Time in a Driver?
 ---
 
-Time is a side effect, and should be provided by a driver. Methods like `xs.periodic` and `Observable.delay()` use `setTimeout` and other browser APIs to schedule events. This is a change in state outside of the scope of our applications, and should be treated as a side effect.
+Time is a side effect, therefore we should interact with Time through a driver.
+
+Methods like `xs.periodic` and `Observable.delay()` use imperative calls to `setTimeout` and other browser APIs to schedule events. This is a change in state outside of the scope of our applications, so it should be treated as a side effect.
 
 Installation
 ---
@@ -29,11 +31,11 @@ $ npm install @cycle/time --save
 
 ## FAQ
 
-### Why would I want to use the time based operators provided by this library over the ones from `xstream`?
+### Why would I want to use the time based operators provided by this library over the ones from my stream library?
 
-xstream's time-based operators (`periodic`, `delay`, `debounce`, `throttle`, etc) are implemented using `setTimeout`.
+Stream libraries' time-based operators (`xstream`'s `periodic`, `delay`, `debounce`, `throttle`, etc) are implemented using `setTimeout`.
 
-`setTimeout` provides no guarantee that it will actually fire the event precisely at the given interval. The variance in `setTimeout` has a few consequences.
+`setTimeout` [provides no guarantee](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout#Reasons_for_delays_longer_than_specified) that it will actually fire the event precisely at the given interval. The variance in `setTimeout` has a few consequences.
 
  * It makes it impossible to consistently record streams into diagrams, which prevents asserting two streams are equal
  * Events might occur in different orders each time the code is run
@@ -56,9 +58,9 @@ Aside from it being slightly sad to have to change our app code to enable testin
 
 Other people have solved this with global injection and stubbing, but that doesn't feel very in the spirit of Cycle.js to me.
 
-By using `@cycle/time` you can have testing just as good if not better than the `TestScheduler` while not having to change your code for tests.
+By using `@cycle/time` you can have testing just as good, if not better, than the `TestScheduler` while not having to change your code for tests.
 
-### (RxJS and Most) How do I use operators like `.delay` and `.debounce` with no `.compose`?
+### (RxJS and Most) How do I use operators like `.delay` and `.debounce` without `.compose`?
 
 The equivalent to `.compose` in RxJS is `.let`.
 
@@ -132,91 +134,7 @@ Cycle is also great for building applications with complex asynchronous behaviou
 
 Here's an example of what testing with `@cycle/time` looks like:
 
-Firstly import `mockTimeSource`.
-
-xstream:
-```js
-import {mockTimeSource} from '@cycle/time';
-```
-
-RxJS:
-<!-- skip-example -->
-```js
-import {mockTimeSource} from '@cycle/time/rxjs';
-```
-
-most.js:
-<!-- skip-example -->
-```js
-import {mockTimeSource} from '@cycle/time/most';
-```
-
-```js
-function double (i) {
-  return i * 2;
-}
-
-describe('double', () => {
-  it('doubles a number', (done) => {
-    const Time = mockTimeSource();
-
-    const input$    = Time.diagram('---1---2---3--|');
-    const actual$   = input$.map(double);
-    const expected$ = Time.diagram('---2---4---6--|');
-
-    Time.assertEqual(actual$, expected$);
-
-    Time.run(done);
-  });
-});
-```
-
-**Marble Syntax**
-
-The diagrams in the above test are called [marble diagrams](https://github.com/ReactiveX/rxjs/blob/master/doc/writing-marble-tests.md).
-
-The diagram syntax is inspired by xstream's [fromDiagram](Vhttps://github.com/staltz/xstream/blob/master/EXTRA_DOCS.md#-fromdiagramdiagram-options) and RxJS's [marble diagrams](Vhttps://github.com/ReactiveX/rxjs/blob/master/doc/writing-marble-tests.md).
-
- * `-` the passage of time without any events, by default 20 virtual milliseconds
- * `1` numbers 0-9 are treated as literal numeric values
- * `a` other literal values are strings
- * `|` completion of the stream
- * `#` an error
-
-We make an input stream, perform an operation on it, and then make assertions about what comes out the other side. This approach can be used for testing Cycle apps as well. Input is passed via sources using say `mockDOMSource` or directly stubbing out the driver, and assertions are made about sink streams coming out.
-
-When we call `Time.diagram()`, the events in our diagram are placed on a central queue inside of `Time`. This is called the `schedule`.
-
-This queue is processed when we call `Time.run();`, one event at a time. Even though each character in the diagram still represents 20ms, we don't have to wait all that time.  Instead, the application's time is managed by `@cycle/time`, so we can run on "virtual time". This means this test is much faster than the equivalent using `xstream` `fromDiagram`, around 100x faster.
-
-This approach is comparable to RxJS's schedulers and `TestScheduler` approach, but works across `xstream`, `rxjs` and `most`.
-
-We can also use `@cycle/time` to declaratively test time based operators such as `delay` and `debounce`.
-
-```js
-import {mockTimeSource} from '@cycle/time';
-
-describe('@cycle/time delay', () => {
-  it('is super quick because of virtual time', (done) => {
-    const Time = mockTimeSource();
-
-    const input$    = Time.diagram('-1--------2---|');
-    const actual$   = input$.compose(Time.delay(200));
-    const expected$ = Time.diagram('-----------1--------2---|');
-
-    Time.assertEqual(actual$, expected$);
-
-    Time.run(done);
-  });
-});
-```
-
-Notice that we are now using `Time.delay` instead of the `xstream` equivalent.  Like `Time.diagram`, `Time.delay` is implemented by scheduling onto a central queue, and in tests is processed in "virtual time". This means that we no longer have to wait 200ms, but the `.delay` will function exactly as it did before.
-
-Usage (testing Cycle applications)
----
-
-Say we have a counter, defined like this:
+Say we have a counter component that we want to test,  defined like this:
 
 ```js
 function Counter ({DOM}) {
@@ -246,11 +164,32 @@ function Counter ({DOM}) {
 }
 ```
 
-We can test this counter using `mockDOMSource`, `snabddom-selector` and `@cycle/time`.
+In the test file, firstly import `mockTimeSource`.
 
+xstream:
 ```js
 import {mockTimeSource} from '@cycle/time';
+```
+
+RxJS:
+<!-- skip-example -->
+```js
+import {mockTimeSource} from '@cycle/time/rxjs';
+```
+
+most.js:
+<!-- skip-example -->
+```js
+import {mockTimeSource} from '@cycle/time/most';
+```
+
+For testing components that use `@cycle/dom` we will also want `mockDOMSource`.
+
+```js
 import {mockDOMSource} from '@cycle/dom';
+```
+
+```js
 import {select} from 'snabbdom-selector'
 
 import {Counter} from '../src/counter';
@@ -284,6 +223,48 @@ describe('Counter', () => {
   });
 });
 ```
+
+**Marble Syntax**
+
+The diagrams in the above test are called [marble diagrams](https://github.com/ReactiveX/rxjs/blob/master/doc/writing-marble-tests.md).
+
+The diagram syntax is inspired by xstream's [fromDiagram](Vhttps://github.com/staltz/xstream/blob/master/EXTRA_DOCS.md#-fromdiagramdiagram-options) and RxJS's [marble diagrams](Vhttps://github.com/ReactiveX/rxjs/blob/master/doc/writing-marble-tests.md).
+
+ * `-` the passage of time without any events, by default 20 virtual milliseconds
+ * `1` numbers 0-9 are treated as literal numeric values
+ * `a` other literal values are strings
+ * `|` completion of the stream
+ * `#` an error
+
+We make input streams, run our app, and then make assertions about what comes out the other side.
+
+When we call `Time.diagram()`, the events in our diagram are placed on a central queue inside of `Time`. This is called the `schedule`.
+
+This queue is processed when we call `Time.run();`, one event at a time. Even though each character in the diagram still represents 20ms, we don't have to wait all that time.  Instead, the application's time is managed by `@cycle/time`, so we can run on "virtual time". This means this test is much faster than the equivalent using `xstream` `fromDiagram`, around 100x faster.
+
+This approach is comparable to RxJS's schedulers and `TestScheduler` approach, but works across `xstream`, `rxjs` and `most`.
+
+We can also use `@cycle/time` to declaratively test time based operators such as `delay` and `debounce`.
+
+```js
+import {mockTimeSource} from '@cycle/time';
+
+describe('@cycle/time delay', () => {
+  it('is super quick because of virtual time', (done) => {
+    const Time = mockTimeSource();
+
+    const input$    = Time.diagram('-1--------2---|');
+    const actual$   = input$.compose(Time.delay(200));
+    const expected$ = Time.diagram('-----------1--------2---|');
+
+    Time.assertEqual(actual$, expected$);
+
+    Time.run(done);
+  });
+});
+```
+
+Notice that we are now using `Time.delay` instead of the `xstream` equivalent.  Like `Time.diagram`, `Time.delay` is implemented by scheduling onto a central queue, and in tests is processed in "virtual time". This means that we no longer have to wait 200ms, but the `.delay` will function exactly as it did before.
 
 If you want to see more examples of tests using `@cycle/time`, check out the test directory.
 
