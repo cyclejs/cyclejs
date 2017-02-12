@@ -4,20 +4,24 @@
   <meta charset='utf-8'>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width">
-
-  <title>Cycle.js - API reference</title>
+  <title>Cycle.js - API reference (http)</title>
 
   <!-- Flatdoc -->
   <script src='../support/vendor/jquery.js'></script>
+  <script src='../support/vendor/highlight.pack.js'></script>
   <script src='../legacy.js'></script>
   <script src='../flatdoc.js'></script>
+
+  <!-- Others -->
+  <script async src="//static.jsbin.com/js/embed.js"></script>
 
   <!-- Flatdoc theme -->
   <link href='../theme/style.css' rel='stylesheet'>
   <script src='../theme/script.js'></script>
+  <link href='../support/vendor/highlight-github-gist.css' rel='stylesheet'>
 
   <!-- Meta -->
-  <meta content="Cycle.js" property="og:title">
+  <meta content="Cycle.js - API reference (http)" property="og:title">
   <meta content="A functional and reactive JavaScript framework for predictable code" name="description">
 
   <!-- Content -->
@@ -221,7 +225,6 @@ emit the response object received through superagent.
 
 *(Function)* the HTTP Driver function
 
-- - -
 
   </script>
 
@@ -231,23 +234,27 @@ emit the response object received through superagent.
       fetcher: function(callback) {
         callback(null, document.getElementById('markdown').innerHTML);
       },
+      highlight: function (code, value) {
+        return hljs.highlight(value, code).value;
+      },
     });
   </script>
 
 </head>
-<body role='flatdoc'>
+<body role='flatdoc' class="no-literate">
 
   <div class='header'>
     <div class='left'>
-      <h1><a href="/">Cycle.js</a></h1>
+      <h1><a href="/"><img class="logo" src="../img/cyclejs_logo.svg" >Cycle.js</a></h1>
       <ul>
         <li><a href='https://github.com/staltz/cycle-onionify'>Documentation</a></li>
         <li><a href='https://github.com/staltz/cycle-onionify/issues'>API reference</a></li>
+        <li><a href='https://github.com/staltz/cycle-onionify/issues'>Releases</a></li>
       </ul>
     </div>
     <div class='right'>
       <!-- GitHub buttons: see http://ghbtns.com -->
-      <iframe src="http://ghbtns.com/github-btn.html?user=USER&amp;repo=REPO&amp;type=watch&amp;count=true" allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
+      <iframe src="http://ghbtns.com/github-btn.html?user=cyclejs&amp;repo=cyclejs&amp;type=watch&amp;count=true" allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
     </div>
   </div>
 
@@ -258,5 +265,15 @@ emit the response object received through superagent.
     <div role='flatdoc-content' class='content'></div>
   </div>
 
+  <script>
+  /* TODO: enable once launched?
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-43862400-3', 'auto');
+    ga('send', 'pageview');
+  */
+  </script>
 </body>
 </html>
