@@ -397,7 +397,7 @@ describe("@cycle/time", () => {
             const stream = Time.periodic(80);
 
             const expected = Time.diagram(
-              `----0---1---2---3---4--`
+              `----0---1---2---3---4---`
             );
 
             Time.assertEqual(

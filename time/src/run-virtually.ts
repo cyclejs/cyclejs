@@ -9,7 +9,7 @@ function runVirtually (scheduler, done, currentTime, setTime, timeToRunTo = null
       return;
     }
 
-    const outOfTime = timeToRunTo && nextEvent.time > timeToRunTo;
+    const outOfTime = timeToRunTo && nextEvent.time >= timeToRunTo;
 
     if (outOfTime) {
       done();
