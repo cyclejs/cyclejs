@@ -1,0 +1,73 @@
+<svg width="750px" height="624px" viewBox="0 0 750 624" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.2 (12043) - http://www.bohemiancoding.com/sketch -->
+    <title>custom-element-drivers</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="custom-element-drivers" sketch:type="MSArtboardGroup">
+            <path d="M88.5,193.5 L758.5,193.5" id="Line" stroke="#727481" stroke-width="3" stroke-linecap="square" sketch:type="MSShapeGroup"></path>
+            <g id="computer" sketch:type="MSLayerGroup" transform="translate(215.000000, 27.000000)">
+                <rect id="Rectangle-1" stroke="#409B9E" stroke-width="4" fill-opacity="0.495471014" fill="#58D3D8" sketch:type="MSShapeGroup" x="0" y="0" width="318" height="91"></rect>
+                <text id="customElem()" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="50" font-weight="normal" fill="#409B9E">
+                    <tspan x="15" y="60.95">customElem()</tspan>
+                </text>
+            </g>
+            <text id="app-side" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="24" font-weight="normal" fill="#727481">
+                <tspan x="332" y="180">app side</tspan>
+            </text>
+            <text id="(READ-ONLY)" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="24" font-weight="normal" fill="#67AB83">
+                <tspan x="405" y="260">(READ-ONLY)</tspan>
+            </text>
+            <text id="(WRITE-ONLY)" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="24" font-weight="normal" fill="#67AB83">
+                <tspan x="215" y="612">(WRITE-ONLY)</tspan>
+            </text>
+            <text id="Cycle.js" sketch:type="MSTextLayer" font-family="Merriweather" font-size="20" font-weight="bold" fill="#727481">
+                <tspan x="2" y="199">Cycle.js</tspan>
+            </text>
+            <text id="Sink-Observables" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="24" font-weight="normal" sketch:alignment="right" fill="#409B9E">
+                <tspan x="97.064" y="43">Sink</tspan>
+                <tspan x="54.584" y="74">Observables</tspan>
+            </text>
+            <text id="Source-Observables" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="24" font-weight="normal" fill="#67AB83">
+                <tspan x="581" y="43">Source</tspan>
+                <tspan x="581" y="74">Observables</tspan>
+            </text>
+            <text id="framework-side" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="24" font-weight="normal" fill="#727481">
+                <tspan x="300" y="220">framework side</tspan>
+            </text>
+            <g id="human" sketch:type="MSLayerGroup" transform="translate(215.000000, 268.000000)">
+                <rect id="Rectangle-1-Copy" stroke="#67AB83" stroke-width="4" fill-opacity="0.498245018" fill="#8FE8B4" sketch:type="MSShapeGroup" x="0" y="0.5" width="318" height="91"></rect>
+                <text id="props" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="50" font-weight="normal" fill="#67AB83">
+                    <tspan x="98.5" y="60.45">props</tspan>
+                </text>
+            </g>
+            <g id="human-copy" sketch:type="MSLayerGroup" transform="translate(215.000000, 383.000000)">
+                <rect id="Rectangle-1-Copy" stroke="#67AB83" stroke-width="4" fill-opacity="0.498245018" fill="#8FE8B4" sketch:type="MSShapeGroup" x="0" y="0.5" width="318" height="91"></rect>
+                <text id="DOM" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="50" font-weight="normal" fill="#67AB83">
+                    <tspan x="108.5" y="62.45">DOM</tspan>
+                </text>
+            </g>
+            <g id="human-copy-2" sketch:type="MSLayerGroup" transform="translate(215.000000, 498.000000)">
+                <rect id="Rectangle-1-Copy" stroke="#67AB83" stroke-width="4" fill-opacity="0.498245018" fill="#8FE8B4" sketch:type="MSShapeGroup" x="0" y="0.5" width="318" height="91"></rect>
+                <text id="events" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="50" font-weight="normal" fill="#67AB83">
+                    <tspan x="89.5" y="61.45">events</tspan>
+                </text>
+            </g>
+            <g id="Path-3-+-Path-3-Copy-2" sketch:type="MSLayerGroup" transform="translate(116.000000, 73.000000)" stroke="#409B9E" stroke-width="5">
+                <path d="M85.4911761,0.914027218 C-30.3641007,44.3700386 -25.7845531,317.866582 85.4782532,356.92384" id="Path-3" sketch:type="MSShapeGroup"></path>
+                <path d="M67.8175022,364.763529 L80.3538325,347.211818 L93.0088885,364.788182" id="Path-3-Copy-3" sketch:type="MSShapeGroup" transform="translate(80.413195, 356.000000) rotate(107.000000) translate(-80.413195, -356.000000) "></path>
+            </g>
+            <g id="Path-3-+-Path-3-Copy-4" sketch:type="MSLayerGroup" transform="translate(110.000000, 74.000000)" stroke="#409B9E" stroke-width="5">
+                <path d="M91.4911761,0.211448773 C-40.5865293,43.188099 -19.7845531,420.299359 91.4782532,472.065725" id="Path-3" sketch:type="MSShapeGroup"></path>
+                <path d="M73.8175022,477.763529 L86.3538325,460.211818 L99.0088885,477.788182" id="Path-3-Copy-4" sketch:type="MSShapeGroup" transform="translate(86.413195, 469.000000) rotate(107.000000) translate(-86.413195, -469.000000) "></path>
+            </g>
+            <g id="Path-3-+-Path-3-Copy-3" sketch:type="MSLayerGroup" transform="translate(585.500000, 184.500000) rotate(-180.000000) translate(-585.500000, -184.500000) translate(539.000000, 57.000000)" stroke="#67AB83" stroke-width="5">
+                <path d="M85.4911761,0.616605663 C-30.3641007,29.9321689 -25.7845531,214.433805 85.4782532,240.781956" id="Path-3" sketch:type="MSShapeGroup"></path>
+                <path d="M67.3235408,248.289129 L79.8598711,230.737418 L92.5149271,248.313782" id="Path-3-Copy-2" sketch:type="MSShapeGroup" transform="translate(79.919234, 239.525600) rotate(107.000000) translate(-79.919234, -239.525600) "></path>
+            </g>
+            <g id="Path-3-+-Path-3-Copy-5" sketch:type="MSLayerGroup" transform="translate(593.000000, 251.000000) rotate(-180.000000) translate(-593.000000, -251.000000) translate(546.000000, 71.000000)" stroke="#67AB83" stroke-width="5">
+                <path d="M93.4911761,-2.84217094e-14 C-22.3641007,43.9164545 -38.505074,332.41803 93.4782532,359.781956" id="Path-3" sketch:type="MSShapeGroup"></path>
+            </g>
+        </g>
+    </g>
+</svg>

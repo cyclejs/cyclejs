@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg viewBox="0 0 195 288" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.4.4 (17249) - http://www.bohemiancoding.com/sketch -->
+    <title>dataflow-minimap</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="dataflow-minimap" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g sketch:type="MSArtboardGroup">
+            <g id="Triangle-1-+-Rectangle-2" sketch:type="MSLayerGroup" transform="translate(99.500000, 241.500000) scale(-1, 1) translate(-99.500000, -241.500000) translate(96.000000, 224.000000)" fill="#232323">
+                <polygon id="Triangle-1" sketch:type="MSShapeGroup" transform="translate(3.500000, 32.250000) scale(1, -1) translate(-3.500000, -32.250000) " points="3.5 29.5 6.61111111 35 0.388888889 35 "></polygon>
+                <rect id="Rectangle-1" sketch:type="MSShapeGroup" x="2.85185185" y="0" width="1.2962963" height="30.3899994"></rect>
+            </g>
+            <g id="Triangle-1-+-Rectangle-2" sketch:type="MSLayerGroup" transform="translate(99.500000, 193.500000) scale(-1, 1) translate(-99.500000, -193.500000) translate(96.000000, 176.000000)" fill="#232323">
+                <polygon id="Triangle-1" sketch:type="MSShapeGroup" transform="translate(3.500000, 32.250000) scale(1, -1) translate(-3.500000, -32.250000) " points="3.5 29.5 6.61111111 35 0.388888889 35 "></polygon>
+                <rect id="Rectangle-1" sketch:type="MSShapeGroup" x="2.85185185" y="0" width="1.2962963" height="30.3899994"></rect>
+            </g>
+            <g id="Triangle-1-+-Rectangle-2" sketch:type="MSLayerGroup" transform="translate(99.500000, 149.500000) scale(-1, 1) translate(-99.500000, -149.500000) translate(96.000000, 132.000000)" fill="#232323">
+                <polygon id="Triangle-1" sketch:type="MSShapeGroup" transform="translate(3.500000, 32.250000) scale(1, -1) translate(-3.500000, -32.250000) " points="3.5 29.5 6.61111111 35 0.388888889 35 "></polygon>
+                <rect id="Rectangle-1" sketch:type="MSShapeGroup" x="2.85185185" y="0" width="1.2962963" height="30.3899994"></rect>
+            </g>
+            <g id="Triangle-1-+-Rectangle-2" sketch:type="MSLayerGroup" transform="translate(116.500000, 105.500000) scale(-1, 1) translate(-116.500000, -105.500000) translate(113.000000, 88.000000)" fill="#232323">
+                <polygon id="Triangle-1" sketch:type="MSShapeGroup" transform="translate(3.500000, 32.250000) scale(1, -1) translate(-3.500000, -32.250000) " points="3.5 29.5 6.61111111 35 0.388888889 35 "></polygon>
+                <rect id="Rectangle-1" sketch:type="MSShapeGroup" x="2.85185185" y="0" width="1.2962963" height="30.3899994"></rect>
+            </g>
+            <g id="Triangle-1-+-Rectangle-2" sketch:type="MSLayerGroup" transform="translate(79.500000, 94.500000) scale(-1, 1) translate(-79.500000, -94.500000) translate(76.000000, 66.000000)" fill="#232323">
+                <polygon id="Triangle-1" sketch:type="MSShapeGroup" transform="translate(3.500000, 54.250000) scale(1, -1) translate(-3.500000, -54.250000) " points="3.5 51.5 6.61111111 57 0.388888889 57 "></polygon>
+                <rect id="Rectangle-1" sketch:type="MSShapeGroup" x="2.85185185" y="0" width="1.2962963" height="52.3899994"></rect>
+            </g>
+            <g id="Triangle-1-+-Rectangle-2" sketch:type="MSLayerGroup" transform="translate(132.500000, 50.500000) scale(-1, 1) translate(-132.500000, -50.500000) translate(129.000000, 22.000000)" fill="#232323">
+                <polygon id="Triangle-1" sketch:type="MSShapeGroup" transform="translate(3.500000, 54.250000) scale(1, -1) translate(-3.500000, -54.250000) " points="3.5 51.5 6.61111111 57 0.388888889 57 "></polygon>
+                <rect id="Rectangle-1" sketch:type="MSShapeGroup" x="2.85185185" y="0" width="1.2962963" height="52.3899994"></rect>
+            </g>
+            <g id="Rectangle-19-+-decrement$-+-Rectangle-19-+-decrement$" sketch:type="MSLayerGroup" transform="translate(21.000000, 49.000000)">
+                <g id="Rectangle-19-+-decrement$">
+                    <rect id="Rectangle-19" stroke="#000000" fill="#C7F998" sketch:type="MSShapeGroup" x="0" y="0" width="83" height="22"></rect>
+                    <text id="decrement$" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="14" font-weight="normal" sketch:alignment="middle" fill="#000000">
+                        <tspan x="6.171" y="16">decrement$</tspan>
+                    </text>
+                </g>
+                <g id="Rectangle-19-+-decrement$" transform="translate(70.000000, 30.000000)">
+                    <rect id="Rectangle-19" stroke="#000000" fill="#C7F998" sketch:type="MSShapeGroup" x="0" y="0" width="83" height="22"></rect>
+                    <text id="increment$" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="14" font-weight="normal" sketch:alignment="middle" fill="#000000">
+                        <tspan x="7.977" y="16">increment$</tspan>
+                    </text>
+                </g>
+            </g>
+            <g id="Rectangle-19-+-decrement$" sketch:type="MSLayerGroup" transform="translate(69.000000, 123.000000)">
+                <rect id="Rectangle-19" stroke="#000000" fill="#60D3D8" sketch:type="MSShapeGroup" x="0" y="0" width="58" height="22"></rect>
+                <text id="action$" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="14" font-weight="normal" sketch:alignment="middle" fill="#000000">
+                    <tspan x="7.034" y="16">action$</tspan>
+                </text>
+            </g>
+            <g id="Rectangle-19-+-decrement$" sketch:type="MSLayerGroup" transform="translate(69.000000, 167.000000)">
+                <rect id="Rectangle-19" stroke="#000000" fill="#60D3D8" sketch:type="MSShapeGroup" x="0" y="0" width="58" height="22"></rect>
+                <text id="count$" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="14" font-weight="normal" sketch:alignment="middle" fill="#000000">
+                    <tspan x="8.679" y="16">count$</tspan>
+                </text>
+            </g>
+            <g id="Rectangle-19-+-decrement$" sketch:type="MSLayerGroup" transform="translate(74.000000, 211.000000)">
+                <rect id="Rectangle-19" stroke="#000000" fill="#C7F998" sketch:type="MSShapeGroup" x="0" y="0" width="48" height="22"></rect>
+                <text id="vtree$" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="14" font-weight="normal" sketch:alignment="middle" fill="#000000">
+                    <tspan x="5.583" y="15">vtree$</tspan>
+                </text>
+            </g>
+            <g id="Rectangle-19-+-decrement$" sketch:type="MSLayerGroup" transform="translate(64.000000, 259.000000)">
+                <rect id="Rectangle-19" stroke="#000000" fill="#DDDEE2" sketch:type="MSShapeGroup" x="0" y="0" width="68" height="22"></rect>
+                <text id="DOMSink" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="14" font-weight="normal" sketch:alignment="middle" fill="#000000">
+                    <tspan x="7.204" y="16">DOMSink</tspan>
+                </text>
+            </g>
+            <path d="M0,36.5 L193.5,36.5" id="Line" stroke="#7F7F7F" stroke-linecap="square" stroke-dasharray="4,4" sketch:type="MSShapeGroup"></path>
+            <path d="M0,244.5 L193.5,244.5" id="Line" stroke="#7F7F7F" stroke-linecap="square" stroke-dasharray="4,4" sketch:type="MSShapeGroup"></path>
+            <g id="Triangle-1-+-Rectangle-2" sketch:type="MSLayerGroup" transform="translate(62.500000, 31.500000) scale(-1, 1) translate(-62.500000, -31.500000) translate(59.000000, 14.000000)" fill="#232323">
+                <polygon id="Triangle-1" sketch:type="MSShapeGroup" transform="translate(3.500000, 32.250000) scale(1, -1) translate(-3.500000, -32.250000) " points="3.5 29.5 6.61111111 35 0.388888889 35 "></polygon>
+                <rect id="Rectangle-1" sketch:type="MSShapeGroup" x="2.85185185" y="0" width="1.2962963" height="30.3899994"></rect>
+            </g>
+            <g id="Rectangle-19-+-decrement$" sketch:type="MSLayerGroup" transform="translate(56.000000, 5.000000)">
+                <rect id="Rectangle-19" stroke="#000000" fill="#DDDEE2" sketch:type="MSShapeGroup" x="1.18571429" y="0" width="80.6285714" height="22"></rect>
+                <text id="DOMSource" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="14" font-weight="normal" sketch:alignment="middle" fill="#000000">
+                    <tspan x="7.242" y="16">DOMSource</tspan>
+                </text>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,26 @@
+<svg viewBox="0 0 209 507" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.2 (12043) - http://www.bohemiancoding.com/sketch -->
+    <title>Group</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="human-computer" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="Group" sketch:type="MSLayerGroup" transform="translate(-45.000000, -15.000000)">
+            <circle id="Oval-1" stroke="#9AC572" stroke-width="10" fill="#A5FF51" sketch:type="MSShapeGroup" cx="146" cy="419" r="38"></circle>
+            <circle id="Oval-2" stroke="#B9B9B9" stroke-width="10" fill="#DDDDDD" sketch:type="MSShapeGroup" cx="146" cy="140" r="38"></circle>
+            <text id="Human" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="50" font-weight="normal" sketch:alignment="middle" fill="#7DA25A">
+                <tspan x="68.4" y="521">Human</tspan>
+            </text>
+            <text id="Computer" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="50" font-weight="normal" sketch:alignment="middle" fill="#747474">
+                <tspan x="43.7" y="49">Computer</tspan>
+            </text>
+            <g id="Path-15-+-Path-2" transform="translate(98.500000, 282.000000) scale(1, -1) translate(-98.500000, -282.000000) translate(75.000000, 183.000000)" stroke="#979797" sketch:type="MSShapeGroup">
+                <path d="M37.3775229,1.50509088 L16.9737944,18.4291738 L37.3775229,34.2764494" id="Path-15" stroke-width="7" transform="translate(27.175659, 17.890770) rotate(125.000000) translate(-27.175659, -17.890770) "></path>
+                <path d="M26.9129005,197.154998 C26.9129005,197.154998 -34.8157014,98.8736491 31,12.3678484" id="Path-2" stroke-width="9"></path>
+            </g>
+            <g id="Path-15-+-Path-3" transform="translate(194.500000, 279.000000) scale(-1, 1) translate(-194.500000, -279.000000) translate(171.000000, 180.000000)" stroke="#9BC672" sketch:type="MSShapeGroup">
+                <path d="M37.3775229,1.50509088 L16.9737944,18.4291738 L37.3775229,34.2764494" id="Path-15" stroke-width="7" transform="translate(27.175659, 17.890770) rotate(125.000000) translate(-27.175659, -17.890770) "></path>
+                <path d="M26.9129005,197.154998 C26.9129005,197.154998 -34.8157014,98.8736491 31,12.3678484" id="Path-2" stroke-width="9"></path>
+            </g>
+        </g>
+    </g>
+</svg>

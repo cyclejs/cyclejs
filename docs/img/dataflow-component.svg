@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg viewBox="0 0 133 61" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <title>Dataflow component</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Function" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="Artboard-1" sketch:type="MSArtboardGroup">
+            <path d="M91.8378116,45.7550868 L47.1621884,45.7550868 L47.1621884,16.2691755 L91.8378116,16.2691755 L91.8378116,45.7550868 Z M69.5,11.3548569 L74.959854,5.9494931 L74.959854,3.20481873 L72.2335097,3.20481873 L64.1299736,11.3548569 L64.1299736,16.269176 L58.549964,16.269176 L58.549964,11.3548569 L50.4077578,3.20481873 L47.6629167,3.20481873 L47.6629167,5.9494931 L52.981084,11.3548569 L47.1621884,11.3548569 C44.4071916,11.3548569 42.1982302,13.5417287 42.1982302,16.2691755 L42.1982302,45.7550868 C42.1982302,48.46919 44.42067,50.6694054 47.1621884,50.6694054 L69.5,50.6694044 L64.1299736,56.1461564 L64.1299736,58.7951813 L66.769823,58.7951813 L74.959854,50.6694044 L74.959854,45.7550879 L80.4975275,45.7550879 L80.4975275,50.6694044 L88.6632295,58.7951813 L91.4084038,58.7951813 L91.4084038,56.1461564 L86.0008945,50.6694044 L91.8378116,50.6694054 C94.57933,50.6694054 96.8017698,48.46919 96.8017698,45.7550868 L96.8017698,16.2691755 C96.8017698,13.5417287 94.5679886,11.3548569 91.8378116,11.3548569 L69.5,11.3548569 Z" id="Shape" fill="#333333" sketch:type="MSShapeGroup" transform="translate(69.500000, 31.000000) scale(-1, 1) rotate(-270.000000) translate(-69.500000, -31.000000) "></path>
+            <g id="Triangle-1-+-Rectangle-1" sketch:type="MSLayerGroup" transform="translate(34.500000, 17.000000) scale(-1, 1) rotate(-270.000000) translate(-34.500000, -17.000000) translate(31.500000, 9.500000)" fill="#409B9E">
+                <polygon id="Triangle-1" sketch:type="MSShapeGroup" transform="translate(3.000000, 12.500000) scale(1, -1) translate(-3.000000, -12.500000) " points="3 10 6 15 0 15 "></polygon>
+                <rect id="Rectangle-1" sketch:type="MSShapeGroup" x="2" y="0" width="2" height="10"></rect>
+            </g>
+            <g id="Triangle-1-+-Rectangle-2" sketch:type="MSLayerGroup" transform="translate(104.500000, 34.000000) scale(-1, 1) rotate(-270.000000) translate(-104.500000, -34.000000) translate(101.500000, 26.500000)" fill="#9AC572">
+                <polygon id="Triangle-1" sketch:type="MSShapeGroup" transform="translate(3.000000, 12.500000) scale(1, -1) translate(-3.000000, -12.500000) " points="3 10 6 15 0 15 "></polygon>
+                <rect id="Rectangle-1" sketch:type="MSShapeGroup" x="2" y="0" width="2" height="10"></rect>
+            </g>
+            <g id="Triangle-1-+-Rectangle-2" sketch:type="MSLayerGroup" transform="translate(104.500000, 45.000000) scale(-1, 1) rotate(-270.000000) translate(-104.500000, -45.000000) translate(101.500000, 37.500000)" fill="#9AC572">
+                <polygon id="Triangle-1" sketch:type="MSShapeGroup" transform="translate(3.000000, 12.500000) scale(1, -1) translate(-3.000000, -12.500000) " points="3 10 6 15 0 15 "></polygon>
+                <rect id="Rectangle-1" sketch:type="MSShapeGroup" x="2" y="0" width="2" height="10"></rect>
+            </g>
+            <g id="Triangle-1-+-Rectangle-1" sketch:type="MSLayerGroup" transform="translate(34.500000, 28.000000) scale(-1, 1) rotate(-270.000000) translate(-34.500000, -28.000000) translate(31.500000, 20.500000)" fill="#409B9E">
+                <polygon id="Triangle-1" sketch:type="MSShapeGroup" transform="translate(3.000000, 12.500000) scale(1, -1) translate(-3.000000, -12.500000) " points="3 10 6 15 0 15 "></polygon>
+                <rect id="Rectangle-1" sketch:type="MSShapeGroup" x="2" y="0" width="2" height="10"></rect>
+            </g>
+            <text id="props$" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="5" font-weight="normal" sketch:alignment="right" fill="#409B9E">
+                <tspan x="10.475" y="18">props$</tspan>
+            </text>
+            <text id="user-events" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="5" font-weight="normal" sketch:alignment="right" fill="#409B9E">
+                <tspan x="1.14" y="29">user events</tspan>
+            </text>
+            <text id="vtree$" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="5" font-weight="normal" fill="#67AB83">
+                <tspan x="115" y="35">vtree$</tspan>
+            </text>
+            <text id="value$" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="5" font-weight="normal" fill="#67AB83">
+                <tspan x="114.5" y="46">value$</tspan>
+            </text>
+            <text id="(a-function)" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="5" font-weight="normal" sketch:alignment="middle" fill="#24242D">
+                <tspan x="57.4575" y="40">(a function)</tspan>
+            </text>
+            <text id="dataflow-component" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="5" font-weight="normal" sketch:alignment="middle" fill="#24242D">
+                <tspan x="60.245" y="26">dataflow</tspan>
+                <tspan x="57.4225" y="32">component</tspan>
+            </text>
+            <text id="Sources" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="8" font-weight="normal" sketch:alignment="middle" fill="#409B9E">
+                <tspan x="9.272" y="48">Sources</tspan>
+            </text>
+            <text id="Sinks" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="8" font-weight="normal" sketch:alignment="middle" fill="#67AB83">
+                <tspan x="103.036" y="20">Sinks</tspan>
+            </text>
+        </g>
+    </g>
+</svg>

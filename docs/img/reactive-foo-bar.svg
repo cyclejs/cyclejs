@@ -1,0 +1,26 @@
+<svg viewBox="0 0 504 304" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.2 (12043) - http://www.bohemiancoding.com/sketch -->
+    <title>reactive</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="modules-reactive-passive" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="reactive" sketch:type="MSArtboardGroup">
+            <rect id="Rectangle-1" stroke="#67AB83" stroke-width="3" fill-opacity="0.499745245" fill="#8FE8B4" sketch:type="MSShapeGroup" x="3" y="113" width="143" height="76"></rect>
+            <rect id="Rectangle-1-Copy" stroke="#409B9E" stroke-width="3" fill-opacity="0.504783741" fill="#58D3D8" sketch:type="MSShapeGroup" x="359" y="113" width="143" height="76"></rect>
+            <text id="Foo" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="48" font-weight="normal" fill="#67AB83">
+                <tspan x="36" y="167">Foo</tspan>
+            </text>
+            <text id="Listenable" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="36" font-weight="normal" fill="#727481">
+                <tspan x="-1" y="84">Listenable</tspan>
+            </text>
+            <text id="Reactive" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="36" font-weight="normal" sketch:alignment="middle" fill="#727481">
+                <tspan x="363.848" y="84">Reactive</tspan>
+            </text>
+            <text id="Bar" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="48" font-weight="normal" fill="#409B9E">
+                <tspan x="393" y="167">Bar</tspan>
+            </text>
+            <path d="M209.5,151.5 L351.088318,151.5" id="Line" stroke="#409B9E" stroke-width="5" stroke-linecap="square" sketch:type="MSShapeGroup"></path>
+            <path id="Line-decoration-1" d="M351.088318,151.5 L340.288318,148.5 L340.288318,154.5 L351.088318,151.5 Z" stroke="#409B9E" stroke-width="5" stroke-linecap="square"></path>
+        </g>
+    </g>
+</svg>

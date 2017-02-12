@@ -1,0 +1,59 @@
+<svg width="368px" height="338px" viewBox="0 0 368 338" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.2 (12043) - http://www.bohemiancoding.com/sketch -->
+    <title>mvc-diagram</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="MVC" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="mvc-diagram" sketch:type="MSArtboardGroup">
+            <text id="Updates" fill="#727481" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="18" font-weight="normal" sketch:alignment="middle">
+                <tspan x="20.91" y="76" fill="#727481">Updates</tspan>
+            </text>
+            <text id="Manipulates" fill="#727481" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="18" font-weight="normal" sketch:alignment="middle">
+                <tspan x="271.731" y="76" fill="#727481">Manipulates</tspan>
+            </text>
+            <text id="Manipulates" fill="#727481" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="18" font-weight="normal" sketch:alignment="middle">
+                <tspan x="129.731" y="145" fill="#727481">Manipulates</tspan>
+            </text>
+            <text id="Sees" fill="#727481" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="18" font-weight="normal" sketch:alignment="middle">
+                <tspan x="44.495" y="236" fill="#727481">Sees</tspan>
+            </text>
+            <text id="Uses" fill="#727481" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="18" font-weight="normal" sketch:alignment="middle">
+                <tspan x="273.225" y="236" fill="#727481">Uses</tspan>
+            </text>
+            <g id="Rectangle-1-+-Model" sketch:type="MSLayerGroup" transform="translate(136.000000, 5.000000)">
+                <rect id="Rectangle-1" stroke="#24242D" fill="#F5F5F5" sketch:type="MSShapeGroup" x="0" y="0" width="81" height="54"></rect>
+                <text id="Model" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="18" font-weight="normal" sketch:alignment="middle" fill="#323232">
+                    <tspan x="17.325" y="33.482">Model</tspan>
+                </text>
+            </g>
+            <g id="Rectangle-2-+-View" sketch:type="MSLayerGroup" transform="translate(5.000000, 126.000000)">
+                <rect id="Rectangle-2" stroke="#24242D" fill="#F5F5F5" sketch:type="MSShapeGroup" x="0" y="0" width="81" height="54"></rect>
+                <text id="View" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="18" font-weight="normal" sketch:alignment="middle" fill="#323232">
+                    <tspan x="22.707" y="33.128">View</tspan>
+                </text>
+            </g>
+            <g id="Rectangle-3-+-Controller" sketch:type="MSLayerGroup" transform="translate(262.000000, 126.000000)">
+                <rect id="Rectangle-3" stroke="#24242D" fill="#F5F5F5" sketch:type="MSShapeGroup" x="0" y="0" width="97.9534884" height="54"></rect>
+                <text id="Controller" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="18" font-weight="normal" sketch:alignment="middle" fill="#24242D">
+                    <tspan x="10.9067442" y="33.482">Controller</tspan>
+                </text>
+            </g>
+            <g id="User-+-Oval-1" sketch:type="MSLayerGroup" transform="translate(136.000000, 253.000000)">
+                <circle id="Oval-1" stroke="#24242D" fill="#F5F5F5" sketch:type="MSShapeGroup" cx="40.5" cy="40.5" r="40.5"></circle>
+                <text id="User" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="18" font-weight="normal" fill="#323232">
+                    <tspan x="23" y="48.982">User</tspan>
+                </text>
+            </g>
+            <path d="M135.551086,36.4489096 L47.4444635,124.555534" id="Line" stroke="#727481" stroke-linecap="square" fill="#727481" sketch:type="MSShapeGroup"></path>
+            <path id="Line-decoration-1" d="M47.4444635,124.555534 L57.202537,119.040101 L52.9598963,114.797461 L47.4444635,124.555534 Z" stroke="#727481" stroke-linecap="square" fill="#727481"></path>
+            <path d="M312.069183,126.069183 L218.494657,32.4946565" id="Line-4" stroke="#727481" stroke-linecap="square" fill="#727481" sketch:type="MSShapeGroup"></path>
+            <path id="Line-4-decoration-1" d="M218.494657,32.4946565 L224.010089,42.2527301 L228.25273,38.0100894 L218.494657,32.4946565 Z" stroke="#727481" stroke-linecap="square" fill="#727481"></path>
+            <path d="M261.5,155.5 L86.5,155.5" id="Line-5" stroke="#727481" stroke-linecap="square" fill="#727481" sketch:type="MSShapeGroup"></path>
+            <path id="Line-5-decoration-1" d="M86.5,155.5 L97.3,158.5 L97.3,152.5 L86.5,155.5 Z" stroke="#727481" stroke-linecap="square" fill="#727481"></path>
+            <path d="M44.9879687,180.987969 L138.5,274.5" id="Line-2" stroke="#727481" stroke-linecap="square" fill="#727481" sketch:type="MSShapeGroup"></path>
+            <path id="Line-2-decoration-1" d="M138.5,274.5 L132.984567,264.741926 L128.741926,268.984567 L138.5,274.5 Z" stroke="#727481" stroke-linecap="square" fill="#727481"></path>
+            <path d="M213.5,273.5 L306.00135,180.998649" id="Line-3" stroke="#727481" stroke-linecap="square" fill="#727481" sketch:type="MSShapeGroup"></path>
+            <path id="Line-3-decoration-1" d="M306.00135,180.998649 L296.243277,186.514082 L300.485918,190.756722 L306.00135,180.998649 Z" stroke="#727481" stroke-linecap="square" fill="#727481"></path>
+        </g>
+    </g>
+</svg>

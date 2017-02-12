@@ -1,0 +1,30 @@
+<svg viewBox="0 0 787 296" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.2 (12043) - http://www.bohemiancoding.com/sketch -->
+    <title>completed-observable</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="observable" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="completed-observable" sketch:type="MSArtboardGroup">
+            <path d="M24.5,148.5 L759.758484,148.5" id="Line" stroke="#727481" stroke-width="5" stroke-linecap="square" sketch:type="MSShapeGroup"></path>
+            <path id="Line-decoration-1" d="M759.758484,148.5 L748.958484,145.5 L748.958484,151.5 L759.758484,148.5 Z" stroke="#727481" stroke-width="5" stroke-linecap="square"></path>
+            <circle id="Oval-1" stroke="#67AB83" stroke-width="5" fill="#8FE8B4" sketch:type="MSShapeGroup" cx="85" cy="148" r="10"></circle>
+            <circle id="Oval-1-Copy" stroke="#67AB83" stroke-width="5" fill="#8FE8B4" sketch:type="MSShapeGroup" cx="155" cy="148" r="10"></circle>
+            <circle id="Oval-1-Copy-2" stroke="#67AB83" stroke-width="5" fill="#8FE8B4" sketch:type="MSShapeGroup" cx="325" cy="148" r="10"></circle>
+            <circle id="Oval-1-Copy-3" stroke="#67AB83" stroke-width="5" fill="#8FE8B4" sketch:type="MSShapeGroup" cx="385" cy="148" r="10"></circle>
+            <circle id="Oval-1-Copy-4" stroke="#67AB83" stroke-width="5" fill="#8FE8B4" sketch:type="MSShapeGroup" cx="425" cy="148" r="10"></circle>
+            <circle id="Oval-1-Copy-5" stroke="#67AB83" stroke-width="5" fill="#8FE8B4" sketch:type="MSShapeGroup" cx="585" cy="148" r="10"></circle>
+            <path d="M644.5,137.5 L644.5,158.595022" id="Line" stroke="#727481" stroke-width="5" stroke-linecap="square" sketch:type="MSShapeGroup"></path>
+            <path d="M80,184.139093 L80,210.555906 L589.541081,210.555906 L589.541081,184" id="Path-3" stroke="#67AB83" stroke-width="4" sketch:type="MSShapeGroup"></path>
+            <text id="“onNext”-Events" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="36" font-weight="normal" sketch:alignment="middle" fill="#67AB83">
+                <tspan x="212.276" y="251">“next” Events</tspan>
+            </text>
+            <text id="onCompleted" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="36" font-weight="normal" fill="#727481">
+                <tspan x="540" y="53">complete</tspan>
+            </text>
+            <text id="time" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="20" font-weight="normal" fill="#727481">
+                <tspan x="731.467182" y="177">time</tspan>
+            </text>
+            <path d="M543.025044,75 L644.728379,109.560001 L744.467182,75.1290515" id="Path-4" stroke="#E5E5E5" stroke-width="4" sketch:type="MSShapeGroup"></path>
+        </g>
+    </g>
+</svg>

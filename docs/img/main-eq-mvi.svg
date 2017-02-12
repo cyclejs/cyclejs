@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="749px" height="339px" viewBox="0 0 749 339" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.2 (12043) - http://www.bohemiancoding.com/sketch -->
+    <title>main-eq-mvi</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="main-eq-mvi" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g sketch:type="MSArtboardGroup">
+            <path d="M117.439656,22.1608562 L143.565028,68.2603895 L117.439656,111.263051 L618.232924,111.263051 L649.027724,67.5798751 L618.330146,22.1608562 L117.439656,22.1608562 Z" id="Path-7" stroke="#727481" stroke-width="2" fill="#F5F5F5" sketch:type="MSShapeGroup"></path>
+            <path d="M117.439656,225.160856 L143.565028,271.26039 L117.439656,314.263051 L618.232924,314.263051 L649.027724,270.579875 L618.330146,225.160856 L117.439656,225.160856 Z" id="Path-7-Copy" stroke="#727481" stroke-width="2" fill="#F5F5F5" sketch:type="MSShapeGroup"></path>
+            <text id="main" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="36" font-weight="normal" fill="#727481">
+                <tspan x="344" y="78">main</tspan>
+            </text>
+            <text id="equivalent-to…" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="36" font-weight="normal" fill="#727481">
+                <tspan x="277" y="181">equivalent to…</tspan>
+            </text>
+            <text id="DOM-source" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="24" font-weight="normal" sketch:alignment="middle" fill="#67AB83">
+                <tspan x="44.928" y="60">DOM</tspan>
+                <tspan x="35.268" y="91">source</tspan>
+            </text>
+            <text id="DOM-sink" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="24" font-weight="normal" sketch:alignment="middle" fill="#409B9E">
+                <tspan x="672.928" y="60">DOM</tspan>
+                <tspan x="675.84" y="91">sink</tspan>
+            </text>
+            <text id="DOM-source-Copy" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="24" font-weight="normal" sketch:alignment="middle" fill="#67AB83">
+                <tspan x="44.928" y="260">DOM</tspan>
+                <tspan x="35.268" y="291">source</tspan>
+            </text>
+            <text id="DOM-sink-Copy" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="24" font-weight="normal" sketch:alignment="middle" fill="#409B9E">
+                <tspan x="672.928" y="260">DOM</tspan>
+                <tspan x="675.84" y="291">sink</tspan>
+            </text>
+            <text id="intent" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="36" font-weight="normal" fill="#727481">
+                <tspan x="177" y="280">intent</tspan>
+            </text>
+            <text id="model" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="36" font-weight="normal" fill="#727481">
+                <tspan x="333" y="280">model</tspan>
+            </text>
+            <text id="view" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="36" font-weight="normal" fill="#727481">
+                <tspan x="506" y="280">view</tspan>
+            </text>
+            <path d="M489,225 L436,314" id="Line" stroke="#727481" stroke-width="2" stroke-linecap="square" sketch:type="MSShapeGroup"></path>
+            <path d="M328,225 L275,314" id="Line-Copy" stroke="#727481" stroke-width="2" stroke-linecap="square" sketch:type="MSShapeGroup"></path>
+        </g>
+    </g>
+</svg>

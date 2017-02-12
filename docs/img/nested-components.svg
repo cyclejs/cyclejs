@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg viewBox="0 0 142 70" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.4.4 (17249) - http://www.bohemiancoding.com/sketch -->
+    <title>nested-components</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Nested-components" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="nested-components" sketch:type="MSArtboardGroup">
+            <path d="M107.680004,43.9700012 L107.680004,9.97000122 L42.0600014,9.97000122 L42.0600014,43.9700012 L107.680004,43.9700012 Z M37.1500382,32.3017698 L31.7446744,37.7616238 L29,37.7616238 L29,35.0352795 L37.1500382,26.9317434 L42.0643573,26.9317434 L42.0643573,21.3517338 L37.1500382,21.3517338 L29,13.2095275 L29,10.4646865 L31.7446744,10.4646865 L37.1500382,15.7828537 L37.1500382,9.96395814 C37.1500382,7.20896137 39.33691,5 42.0643568,5 L107.671686,5 C110.385789,5 112.586005,7.22243976 112.586005,9.96395814 L112.586006,26.9317436 L118.062756,21.3517342 L120.711781,21.3517342 L120.711781,23.9328308 L112.586006,32.3017693 L107.671684,32.3017693 L107.671684,37.7616234 L112.586006,37.7616234 L120.711781,45.8047409 L120.711781,48.8026657 L118.062756,48.8026657 L112.586006,43.2992973 C112.586006,46.0408157 110.385787,48.8026657 107.671684,48.8026657 L42.0643568,48.8026657 C39.33691,48.8026657 37.1500378,46.0294743 37.1500378,43.2992973 L37.1500382,32.3017698 Z" id="Shape" fill="#333333" sketch:type="MSShapeGroup"></path>
+            <path d="M82.8393559,31.6449662 L82.8393559,13.9644966 L71.170246,13.9644966 L71.170246,31.6449662 L82.8393559,31.6449662 Z M69.2253943,22.8047314 L67.0862105,24.9654798 L66,24.9654798 L66,23.8865235 L69.2253943,20.6795324 L71.1702462,20.6795324 L71.1702462,18.4712322 L69.2253943,18.4712322 L66,15.2489374 L66,14.1626609 L67.0862105,14.1626609 L69.2253943,16.2673365 L69.2253943,13.9644966 C69.2253943,12.874201 70.0908533,12 71.170246,12 L82.8393559,12 C83.9134678,12 84.7842075,12.8795351 84.7842075,13.9644966 L84.7842071,22.8047314 L86.951643,20.6795324 L88,20.6795324 L88,21.7242582 L84.7842071,24.9654798 L82.8393563,24.9654798 L82.8393563,27.1570254 L84.7842071,27.1570254 L88,30.3886188 L88,31.4750271 L86.951643,31.4750271 L84.7842071,29.3349942 L84.7842075,31.6449662 C84.7842075,32.7299277 83.9134678,33.6094628 82.8393559,33.6094628 L71.170246,33.6094628 C70.0908533,33.6094628 69.2253943,32.7254393 69.2253943,31.6449662 L69.2253943,22.8047314 Z" id="Shape" fill="#333333" sketch:type="MSShapeGroup"></path>
+            <text id="Sources" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="8" font-weight="normal" sketch:alignment="middle" fill="#409B9E">
+                <tspan x="1.272" y="19">Sources</tspan>
+            </text>
+            <text id="Sources" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="5" font-weight="normal" sketch:alignment="middle" fill="#409B9E">
+                <tspan x="46.2325" y="17">Sources</tspan>
+            </text>
+            <text id="Sinks" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="8" font-weight="normal" sketch:alignment="middle" fill="#67AB83">
+                <tspan x="123.036" y="46">Sinks</tspan>
+            </text>
+            <text id="Sinks" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="5" font-weight="normal" sketch:alignment="middle" fill="#67AB83">
+                <tspan x="91.3975" y="32">Sinks</tspan>
+            </text>
+            <g id="Triangle-1-+-Rectangle-2" sketch:type="MSLayerGroup" transform="translate(122.500000, 35.000000) scale(-1, 1) rotate(-270.000000) translate(-122.500000, -35.000000) translate(119.500000, 27.500000)" fill="#9AC572">
+                <polygon id="Triangle-1" sketch:type="MSShapeGroup" transform="translate(3.000000, 12.500000) scale(1, -1) translate(-3.000000, -12.500000) " points="3 10 6 15 0 15 "></polygon>
+                <rect id="Rectangle-1" sketch:type="MSShapeGroup" x="2" y="0" width="2" height="10"></rect>
+            </g>
+            <g id="Triangle-1-+-Rectangle-1" sketch:type="MSLayerGroup" transform="translate(26.500000, 24.000000) scale(-1, 1) rotate(-270.000000) translate(-26.500000, -24.000000) translate(23.500000, 16.500000)" fill="#409B9E">
+                <polygon id="Triangle-1" sketch:type="MSShapeGroup" transform="translate(3.000000, 12.500000) scale(1, -1) translate(-3.000000, -12.500000) " points="3 10 6 15 0 15 "></polygon>
+                <rect id="Rectangle-1" sketch:type="MSShapeGroup" x="2" y="0" width="2" height="10"></rect>
+            </g>
+            <g id="Triangle-1-+-Rectangle-1" sketch:type="MSLayerGroup" transform="translate(64.500000, 19.400000) scale(-1, 1) rotate(-270.000000) translate(-64.500000, -19.400000) translate(63.100000, 15.900000)" fill="#409B9E">
+                <polygon id="Triangle-1" sketch:type="MSShapeGroup" transform="translate(1.400000, 5.833333) scale(1, -1) translate(-1.400000, -5.833333) " points="1.4 4.66666667 2.8 7 0 7 "></polygon>
+                <rect id="Rectangle-1" sketch:type="MSShapeGroup" x="0.933333333" y="0" width="0.933333333" height="4.66666667"></rect>
+            </g>
+            <g id="Triangle-1-+-Rectangle-2" sketch:type="MSLayerGroup" transform="translate(90.000000, 26.400000) scale(-1, 1) rotate(-270.000000) translate(-90.000000, -26.400000) translate(88.600000, 23.400000)" fill="#9AC572">
+                <polygon id="Triangle-1" sketch:type="MSShapeGroup" transform="translate(1.400000, 5.000000) scale(1, -1) translate(-1.400000, -5.000000) " points="1.4 4 2.8 6 0 6 "></polygon>
+                <rect id="Rectangle-1" sketch:type="MSShapeGroup" x="0.933333333" y="0" width="0.933333333" height="4"></rect>
+            </g>
+        </g>
+    </g>
+</svg>
