@@ -17,7 +17,7 @@ function makeDiagram (schedule, currentTime, interval, setMaxTime) {
 
     setMaxTime(diagramString.length * interval);
 
-    let multipleValueFrame : boolean | number = false;
+    let multipleValueFrame : false | number = false;
 
     characters.forEach((character, index) => {
       if (character === '-') {
@@ -37,7 +37,7 @@ function makeDiagram (schedule, currentTime, interval, setMaxTime) {
       }
 
       if (multipleValueFrame !== false) {
-        timeToSchedule = multipleValueFrame as number;
+        timeToSchedule = multipleValueFrame;
       }
 
       if (character === '|') {

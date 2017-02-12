@@ -26,6 +26,14 @@ function checkEqual (completeStore, assert, interval) {
       failReasons.push(`Expected type ${expected.type} at time ${actual.time} but got ${actual.type}`);
     }
 
+    if (actual.type === 'complete') {
+      const rightTime = diagramFrame(actual.time, interval) === diagramFrame(expected.time, interval);
+
+      if (!rightTime) {
+        failReasons.push(`Expected stream to complete at ${expected.time} but completed at ${actual.time}`);
+      }
+    }
+
     if (actual.type === 'next') {
       const rightTime = diagramFrame(actual.time, interval) === diagramFrame(expected.time, interval);
       const rightValue = deepEqual(actual.value, expected.value);
