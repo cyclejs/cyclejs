@@ -1,6 +1,10 @@
+# Model-View-Intent
+
+## Split main into parts
+
 We can write our entire Cycle.js program inside the `main()` function, like we did in the [previous chapter](/basic-examples.html#body-mass-index-calculator). However, any programmer knows this isn't a good idea. Once `main()` grows too large, it becomes hard to maintain.
 
-#### MVI is a simple pattern to refactor the main() function into three parts: Intent (to listen to the user), Model (to process information), and View (to output back to the user).
+**MVI is a simple pattern to refactor the main() function into three parts: Intent (to listen to the user), Model (to process information), and View (to output back to the user).**
 
 ![main equal MVI](img/main-eq-mvi.svg)
 
@@ -333,7 +337,7 @@ function main(sources) {
 
 Seems like we cannot achieve a simpler format for `main`.
 
-#### Recap
+## Summarized
 
 - `intent()` function
   - Purpose: interpret DOM events as user's intended actions
@@ -372,7 +376,7 @@ The opposite direction should be also a straightforward translation from the use
 
 Model-View-Intent (MVI) is **reactive**, **functional**, and follows the **core idea in MVC**. It is reactive because Intent observes the User, Model observes the Intent, View observes the Model, and the User observes the View. It is functional because each of these components is expressed as a [referentially transparent](https://en.wikipedia.org/wiki/Referential_transparency_%28computer_science%29) function over streams. It follows the original MVC purpose because View and Intent bridge the gap between the user and the digital model, each in one direction.
 
-> <h4 id="why-css-selectors-for-querying-dom-events">Why CSS selectors for querying DOM events?</h4>
+> ### Why CSS selectors?
 >
 > Some programmers get concerned about `DOM.select(selector).events(eventType)` being a bad practice because it resembles spaghetti code in jQuery-based programs. They would rather prefer the virtual DOM elements to specify handler callbacks for events, such as `onClick={this.handleClick()}`.
 >
@@ -395,9 +399,9 @@ In fact, MVI itself just naturally emerged from our refactoring of `main()` spli
 
 This is what it means to say Cycle.js is *sliceable*. MVI is just one way of slicing `main()`.
 
-> <h4 id="sliceable">"Sliceable"?</h4>
+> ### "Sliceable"?
 >
-> We mean the ability to refactor the program by extracting pieces of code without having to significantly modify their surroundings. Sliceability is a feature often found in functional programming languages, especially in LISP-based languages like [Clojure](https://en.wikipedia.org/wiki/Clojure), which use S-expressions to enable treating [*code as data*](https://en.wikipedia.org/wiki/Homoiconicity).
+> With "sliceable", we mean the ability to refactor the program by extracting pieces of code without having to significantly modify their surroundings. Sliceability is a feature often found in functional programming languages, especially in LISP-based languages like [Clojure](https://en.wikipedia.org/wiki/Clojure), which use S-expressions to enable treating [*code as data*](https://en.wikipedia.org/wiki/Homoiconicity).
 
 ## Pursuing DRY
 
@@ -464,4 +468,4 @@ function intent(domSource) {
 }
 ```
 
-But this still isn't ideal: we seem to have *more* code now. What we really want is just to create *labeled sliders*: one for height, and the other for weight. We should be able to build a generic and reusable labeled slider. In other words, we want the labeled slider to be a [component](/components.html).
+But this still isn't ideal: we seem to have *more* code now. What we really want is just to create *labeled sliders*: one for height, and the other for weight. We should be able to build a generic and reusable labeled slider.

@@ -1,12 +1,8 @@
-Cycle.js is heavily dependent on reactive and functional streams. One such common example is the Observable from [RxJS](http://reactivex.io/intro.html). The name "Observable" immediately indicates a relation to the [Observer pattern](https://en.wikipedia.org/wiki/Observer_pattern). This pattern is key in many flavors of the [Model-View-Controller](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller) architectural pattern for user interfaces. For instance, typically the View observes changes in the Model. In the Observer pattern, this means the Model would be the "Subject" being observed.
-
-However, an Observable is not exactly the same concept as a traditional Subject from the Observer pattern, because Observables share features with Iterables from the [Iterator pattern](https://en.wikipedia.org/wiki/Iterator_pattern) as well.
-
-#### Observables are lazy event streams which can emit zero or more events, and may or may not finish.
-
-Observables originated from [ReactiveX](http://reactivex.io/intro.html), a Reactive Programming library. Reactivity is an important aspect in Cycle.js, and part of the core principles that led to the creation of this framework. There is a lot of confusion surrounding what Reactive means, so let's focus on that topic for a while.
+# Streams
 
 ## Reactive Programming
+
+Reactivity is an important aspect in Cycle.js, and part of the core principles that led to the creation of this framework. There is a lot of confusion surrounding what Reactive means, so let's focus on that topic for a while.
 
 Say you have a module Foo and a module Bar. A *module* can be considered to be an object of an [OOP](https://en.wikipedia.org/wiki/Object-oriented_programming) class, or any other mechanism of encapsulating state. Let's assume all code lives in some module. Here we have an arrow from Foo to Bar, indicating that Foo somehow affects state living inside Bar.
 
@@ -14,9 +10,9 @@ Say you have a module Foo and a module Bar. A *module* can be considered to be a
 
 A practical example of such arrow would be: *whenever Foo does a network request, increment a counter in Bar*. If all code lives in some module, **where does this arrow live?** Where is it defined? The typical choice would be to write code inside Foo which calls a method in Bar to increment the counter.
 
-```javascript
-// This is inside the Foo module
+> Inside module Foo
 
+```javascript
 function onNetworkRequest() {
   // ...
   Bar.incrementCounter();
@@ -34,17 +30,15 @@ The alternative to this approach inverts the ownership of the arrow, without inv
 
 ![passive foo bar](img/reactive-foo-bar.svg)
 
-With this approach, Bar listens to an event happening in Foo, and manages its own state when that event happens.
+With this approach, Bar listens to an event happening in Foo, and manages its own state when that event happens. Bar is **reactive**: it is fully responsible for managing its own state by reacting to external events. Foo, on the other hand, is unaware of the existence of the arrow originating from its network request event.
+
+> Inside module Bar
 
 ```javascript
-// This is inside the Bar module
-
 Foo.addOnNetworkRequestListener(() => {
   self.incrementCounter(); // self is Bar
 });
 ```
-
-Bar is **reactive**: it is fully responsible for managing its own state by reacting to external events. Foo, on the other hand, is unaware of the existence of the arrow originating from its network request event.
 
 What is the benefit of this approach? It is Inversion of Control, mainly because Bar is responsible for itself. Plus, we can hide Bar's `incrementCounter()` as a private function. In the passive case, it was required to have `incrementCounter()` public, which means we are exposing Bar's internal state management outwards. It also means if we want to discover how Bar's counter works, we need to find all usages of `incrementCounter()` in the codebase. In this regard, Reactive and Passive seem to be dual to each other.
 
@@ -62,21 +56,23 @@ Passive/Proactive programming has been the default way of working for most progr
 
 The challenge with Reactive programming is this paradigm shift where we attempt to choose the Reactive/Listenable approach by default, before considering Passive/Proactive. After rewiring your brain to think Reactive-first, the learning curve flattens and most tasks become straightforward, especially when using a Reactive library like RxJS or *xstream*.
 
-## Streams in xstream
+## What is a Stream?
 
 Reactive programming can be implemented with: event listeners, [RxJS](http://reactivex.io/rxjs), [Bacon.js](http://baconjs.github.io/), [Kefir](https://rpominov.github.io/kefir/), [most.js](https://github.com/cujojs/most), [EventEmitter](https://nodejs.org/api/events.html), [Actors](https://en.wikipedia.org/wiki/Actor_model), and more. Even [spreadsheets](https://en.wikipedia.org/wiki/Reactive_programming) utilize the same idea of the cell formula defined at the arrow head. The above definition of Reactive programming is not limited to streams, and does not conflict with previous definitions of Reactive Programming. Cycle.js supports multiple stream libraries, such as [RxJS v4](https://github.com/Reactive-Extensions/RxJS), [RxJS v5](http://reactivex.io/rxjs), [xstream](http://staltz.com/xstream), and [most.js](https://github.com/cujojs/most), but by default we choose *xstream* because it was custom built for Cycle.js.
 
 In short, a *Stream* in *xstream* is an event stream which can emit zero or more events, and may or may not finish. If it finishes, then it does so by either emitting an error or a special "complete" event.
 
-{% highlight text %}
-Stream contract: (next)* (complete|error){0,1}
-{% endhighlight %}
+> Stream contract
+
+```
+(next)* (complete|error){0,1}
+```
 
 As an example, here is a typical Stream: it emits some events, then it eventually completes.
 
 ![completed stream](img/completed-stream.svg)
 
-Streams can be listened to, just like EventEmitters and DOM events can.
+Streams can be listened to, just like EventEmitters and DOM events can. Notice there are 3 handlers: one for events, one for errors, and one for "complete".
 
 ```javascript
 myStream.addListener({
@@ -92,9 +88,9 @@ myStream.addListener({
 });
 ```
 
-Notice there are 3 handlers: one for events, one for errors, and one for "complete".
-
 *xstream* Streams become very useful when you transform them with the so-called *operators*, pure functions that create new Streams on top of existing ones. Given a Stream of click events, you can easily make a Stream of the number of times the user clicked.
+
+> Operators
 
 ```javascript
 const clickCountStream = clickStream
@@ -144,7 +140,7 @@ While doing the same with the `human()` function would be elegant, we cannot do 
 
 Joining both parts, we have a computer function, often called `main()`, and a driver function, where the output of one is the input of the other.
 
-```text
+```
 y = domDriver(x)
 x = main(y)
 ```
@@ -170,20 +166,3 @@ run(main, drivers); // solve the circular dependency
 ```
 
 This is how the name "*Cycle.js*" came to be. It is a framework that solves the cyclic dependency of Observables which emerge during dialogues (mutual observations) between the Human and the Computer.
-
-> <h4 id="is-cyclejs-a-framework">Is Cycle.js a framework?</h4>
->
-> The Cycle `run()` function is implemented in about 200 lines of code. It's a very small library.
->
-> In the TodoMVC built with Cycle.js, these are the proportions of code each library or section comprises:
->
-> - snabbdom (Virtual DOM library): 39.1 kB
-> - @cycle/dom: 28.9 kB
-> - xstream: 22.2 kB
-> - TodoMVC src: 15.3 kB
-> - @cycle/xstream-run: 4 kB
-> - misc: 59.5 kB
->
-> Notice how small `@cycle/xstream-run` is. Cycle.js is simply an architecture for building reactive web applications: a set of ideas about how you should structure your app using *xstream* or *RxJS* or *most.js*. To help you out, it also provides some libraries to address common use cases: Cycle *DOM*, to help interact with the DOM, and Cycle run functions, to help create loops between the program and the drivers.
-
-Next, read the [basic examples](/basic-examples.html) which apply what we've learned so far about Cycle.js.
