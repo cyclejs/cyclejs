@@ -13,7 +13,7 @@ describe('xstream', () => {
 
       Time.assertEqual(
         xs.of('A'),
-        Time.diagram('A|')
+        Time.diagram('(A|)')
       );
 
       Time.run(done);
@@ -112,7 +112,7 @@ describe('xstream', () => {
 
       const actual   = input.take(3);
 
-      const expected = Time.diagram('--1--2--3|');
+      const expected = Time.diagram('--1--2--(3|)');
 
       Time.assertEqual(actual, expected);
 
@@ -144,7 +144,7 @@ describe('xstream', () => {
 
       const actual   = input.last();
 
-      const expected = Time.diagram('-----------c|');
+      const expected = Time.diagram('-----------(c|)');
 
       Time.assertEqual(actual, expected);
 

@@ -44,6 +44,7 @@ function finish (asserts, done) {
 
 function mockTimeSource ({interval = 20} = {}): any {
   let time = 0;
+  let maxTime = null;
   let asserts = [];
   let done;
 
@@ -61,8 +62,12 @@ function mockTimeSource ({interval = 20} = {}): any {
     time = newTime;
   }
 
+  function setMaxTime (newTime) {
+    maxTime = Math.max(newTime, maxTime);
+  }
+
   const timeSource = {
-    diagram: makeDiagram(scheduler.add, currentTime, interval),
+    diagram: makeDiagram(scheduler.add, currentTime, interval, setMaxTime),
     record: makeRecord(scheduler.add, currentTime, interval),
     assertEqual: makeAssertEqual(() => timeSource, scheduler.add, currentTime, interval, addAssert),
 
@@ -76,6 +81,9 @@ function mockTimeSource ({interval = 20} = {}): any {
 
     run (doneCallback = raiseError, timeToRunTo = null) {
       done = doneCallback;
+      if (!timeToRunTo) {
+        timeToRunTo = maxTime;
+      }
       runVirtually(scheduler, () => finish(asserts, done), currentTime, setTime, timeToRunTo)
     },
 

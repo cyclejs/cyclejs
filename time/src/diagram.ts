@@ -9,18 +9,36 @@ const parseIntIfDecimal = (str) => {
   return str;
 }
 
-function makeDiagram (schedule, currentTime, interval) {
+function makeDiagram (schedule, currentTime, interval, setMaxTime) {
   return function diagram (diagramString: string, values = {}): Stream<any> {
     const characters = diagramString.split('');
     const stream = xs.create();
     const valueFor = (character) => values[character] || parseIntIfDecimal(character);
+
+    setMaxTime(diagramString.length * interval);
+
+    let multipleValueFrame : boolean | number = false;
 
     characters.forEach((character, index) => {
       if (character === '-') {
         return;
       }
 
-      const timeToSchedule = index * interval;
+      let timeToSchedule = index * interval;
+
+      if (character === '(') {
+        multipleValueFrame = timeToSchedule;
+        return;
+      }
+
+      if (character === ')') {
+        multipleValueFrame = false;
+        return;
+      }
+
+      if (multipleValueFrame !== false) {
+        timeToSchedule = multipleValueFrame as number;
+      }
 
       if (character === '|') {
         schedule.completion(stream, timeToSchedule);

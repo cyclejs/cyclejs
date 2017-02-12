@@ -7,9 +7,9 @@ import {Observable} from 'rxjs/Rx';
 import * as most from 'most';
 
 const libraries = [
-  {name: 'xstream', adapt: stream => stream},
-  {name: 'rxjs', adapt: stream => Observable.from(stream)},
-  {name: 'most', adapt: stream => most.from(stream)}
+  {name: 'xstream', adapt: stream => stream, lib: xs},
+  {name: 'rxjs', adapt: stream => Observable.from(stream), lib: Observable},
+  {name: 'most', adapt: stream => most.from(stream), lib: most}
 ];
 
 function compose (stream, f) {
@@ -162,6 +162,18 @@ describe("@cycle/time", () => {
 
             Time.run();
           });
+
+          it("handles multiple events in a single frame", (done) => {
+            const Time = mockTimeSource();
+
+            const a        = Time.diagram('---a---');
+            const b        = Time.diagram('---b---');
+            const expected = Time.diagram('---(ab)---');
+
+            Time.assertEqual((library.lib as any).merge(a, b), expected);
+
+            Time.run(done);
+          });
         });
 
         describe(".assertEqual", () => {
@@ -208,7 +220,7 @@ describe("@cycle/time", () => {
                   '---2---4---5---|',
                   'Got',
                   '---2---4---6---|',
-                ].every(expectedLine => lines.includes(expectedLine)));
+                ].every(expectedLine => lines.includes(expectedLine)), err.message);
 
                 done();
               } else {
@@ -385,11 +397,11 @@ describe("@cycle/time", () => {
             const stream = Time.periodic(80);
 
             const expected = Time.diagram(
-              `----0---1---2---3---4|`
+              `----0---1---2---3---4--`
             );
 
             Time.assertEqual(
-              stream.take(5),
+              stream,
               expected
             );
 
@@ -511,9 +523,9 @@ describe("@cycle/time", () => {
               }
             ));
 
-            const actual$ = Time.animationFrames().take(frames.length);
+            const actual$ = Time.animationFrames()
             const expected$ = Time.diagram(
-              `--0-1-2|`,
+              `--0-1-2`,
               frames
             );
 
@@ -547,7 +559,7 @@ describe("@cycle/time", () => {
             const input$    = Time.diagram(`---a---|`);
 
             const actual$   = compose(input$, Time.record);
-            const expected$ = Time.diagram(`x--y---z|`, {
+            const expected$ = Time.diagram(`x--y---(z|)`, {
               x: [],
               y: [expectedNextEntry],
               z: [expectedNextEntry, expectedCompletionEntry]
@@ -569,7 +581,7 @@ describe("@cycle/time", () => {
             const input$    = Time.diagram(`---#`);
 
             const actual$   = compose(input$, Time.record);
-            const expected$ = Time.diagram(`x--y|`, {
+            const expected$ = Time.diagram(`x--(y|)`, {
               x: [],
               y: [expectedErrorEntry]
             });

@@ -63,19 +63,19 @@ function checkEqual (completeStore, assert, interval) {
   } else {
     assert.state = 'failed';
     assert.error = new Error(strip(`
-      Expected
+Expected
 
-      ${diagramString(completeStore['expected'], interval)}
+${diagramString(completeStore['expected'], interval)}
 
-      Got
+Got
 
-      ${diagramString(completeStore['actual'], interval)}
+${diagramString(completeStore['actual'], interval)}
 
-      Failed because
+Failed because:
 
-      ${failReasons[0]}
+${failReasons.map(reason => ` * ${reason}`).join('\n')}
 
-      ${displayUnexpectedErrors(assert.unexpectedErrors)}
+${displayUnexpectedErrors(assert.unexpectedErrors)}
     `));
   }
 }
@@ -130,6 +130,43 @@ function diagramFrame (time, interval) {
   return Math.ceil(time / interval);
 }
 
+function chunkBy (values, f) {
+  function chunkItGood ({items, previousValue}, value) {
+    const v = f(value);
+
+    if (v !== previousValue) {
+      return {
+        items: [...items, [value]],
+        previousValue: v
+      }
+    }
+
+    const lastItem = items[items.length - 1];
+
+
+    return {
+      items: items.slice(0, -1).concat([lastItem.concat(value)]),
+      previousValue
+    }
+  }
+
+  return values.reduce(chunkItGood, {items: [], previousValue: undefined}).items;
+}
+
+function characterString (entry) {
+  if (entry.type === 'next') {
+    return stringifyIfObject(entry.value);
+  }
+
+  if (entry.type == 'complete') {
+    return '|';
+  }
+
+  if (entry.type === 'error') {
+    return '#';
+  }
+}
+
 function diagramString (entries, interval): string {
   if (entries.length === 0) {
     return '<empty stream>';
@@ -141,31 +178,17 @@ function diagramString (entries, interval): string {
 
   const diagram = fill(new Array(characterCount), '-');
 
-  entries.forEach(entry => {
-    const characterIndex = Math.max(0, Math.floor(entry.time / interval));
+  const chunks = chunkBy(entries, entry => Math.max(0, Math.floor(entry.time / interval)));
 
-    if (entry.type === 'next') {
-      diagram[characterIndex] = stringifyIfObject(entry.value);
-    }
+  chunks.forEach(chunk => {
+    const characterIndex = Math.max(0, Math.floor(chunk[0].time / interval));
 
-    if (entry.type == 'complete') {
-      diagram[characterIndex] = '|';
-    }
-
-    if (entry.type === 'error') {
-      diagram[characterIndex] = '#';
+    if (chunk.length === 1) {
+      diagram[characterIndex] = characterString(chunk[0]);
+    } else {
+      diagram[characterIndex] = `(${chunk.map(characterString).join('')})`;
     }
   });
-
-  if (entries.length > 1) {
-    const completeEntry = entries[entries.length - 1];
-    const lastEntry = entries[entries.length - 2];
-
-    if (completeEntry.type === 'complete' && lastEntry.time === completeEntry.time) {
-      diagram[diagram.length - 1] = lastEntry.value;
-      diagram.push('|');
-    }
-  }
 
   return diagram.join('');
 }
