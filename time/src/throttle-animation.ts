@@ -16,6 +16,7 @@ function makeThrottleAnimation (timeSource, schedule, currentTime) {
           next (event) {
             if (!emittedLastValue) {
               schedule.next(listener, currentTime(), lastValue);
+              emittedLastValue = true;
             }
           }
         }

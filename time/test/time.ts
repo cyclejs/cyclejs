@@ -539,9 +539,9 @@ describe("@cycle/time", () => {
           it('throttles a stream using animationFrames', (done) => {
             const Time = mockTimeSource({interval: 8});
 
-            const noisy$    = Time.diagram(`-aaaa-aa-aaa-aa|`);
+            const noisy$    = Time.diagram(`-123456----`);
             const actual$   = compose(noisy$, Time.throttleAnimation);
-            const expected$ = Time.diagram(`--a-a-a-a-a-a-a|`);
+            const expected$ = Time.diagram(`--2-4-6----`);
 
             Time.assertEqual(actual$, expected$);
 
