@@ -11,6 +11,7 @@
     "conventional-changelog-cli": "1.2.0",
     "cz-conventional-changelog": "1.2.0",
     "cz-customizable": "4.0.0",
+    "ejs": "^2.5.5",
     "git-travis": "2.0.0",
     "jase": "1.2.0",
     "karma": "^1.4.1",
