@@ -10,7 +10,7 @@ describe('rxjs', () => {
     const Time = mockTimeSource();
 
     const actual$   = Observable.of('a').let(Time.delay(60));
-    const expected$ = Time.diagram(`---a|`);
+    const expected$ = Time.diagram(`---(a|)`);
 
     Time.assertEqual(actual$, expected$);
     Time.run(done);
