@@ -231,7 +231,7 @@ a:hover {
   display: block;
   background: transparent;
   font-size: 0.85em;
-  letter-spacing: -1px;
+  letter-spacing: -0.2px;
 }
 .content blockquote :first-child {
   padding-top: 0;
@@ -423,8 +423,6 @@ body:not(.big-h3) .content h3 {
 body.no-literate .content pre > code {
   background: #f3f6fb;
   border: solid 1px #e7eaee;
-  border-top: solid 1px #dbdde2;
-  border-left: solid 1px #e2e5e9;
   display: block;
   padding: 10px;
   -webkit-border-radius: 2px;
