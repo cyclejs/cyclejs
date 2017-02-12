@@ -224,13 +224,14 @@ describe('Counter', () => {
 
 The diagrams in the above test are called [marble diagrams](https://github.com/ReactiveX/rxjs/blob/master/doc/writing-marble-tests.md).
 
-The diagram syntax is inspired by xstream's [fromDiagram](Vhttps://github.com/staltz/xstream/blob/master/EXTRA_DOCS.md#-fromdiagramdiagram-options) and RxJS's [marble diagrams](Vhttps://github.com/ReactiveX/rxjs/blob/master/doc/writing-marble-tests.md).
+The diagram syntax is inspired by xstream's [fromDiagram](https://github.com/staltz/xstream/blob/master/EXTRA_DOCS.md#-fromdiagramdiagram-options) and RxJS's [marble diagrams](Vhttps://github.com/ReactiveX/rxjs/blob/master/doc/writing-marble-tests.md).
 
  * `-` the passage of time without any events, by default 20 virtual milliseconds
  * `1` numbers 0-9 are treated as literal numeric values
  * `a` other literal values are strings
  * `|` completion of the stream
  * `#` an error
+ * `(ab)` "a" and "b" simultaneously
 
 We make input streams, run our app, and then make assertions about what comes out the other side.
 
