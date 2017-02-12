@@ -176,6 +176,11 @@ a:hover {
   border-bottom: 1px solid #409B9E;
 }
 
+.content img {
+  width: 100%;
+  max-height: 15em;
+}
+
 .content pre {
   font-family: Menlo, monospace;
 }
@@ -335,13 +340,24 @@ a:hover {
   font-size: 1.2em;
 }
 .content h1,
-.content h2,
+.content p+h2,
+.content ul+h2,
+.content pre+h2,
+.content blockquote+h2,
 .content .big-heading,
 body.big-h3 .content h3 {
   padding-top: 80px;
 }
+
+.content h1+h2 {
+  padding-top: 40px;
+}
+
 .content h1:before,
-.content h2:before,
+.content p+h2:before,
+.content ul+h2:before,
+.content pre+h2:before,
+.content blockquote+h2:before,
 .content .big-heading:before,
 body.big-h3 .content h3:before {
   display: block;
@@ -638,6 +654,13 @@ body.no-literate .content pre > code:hover::-webkit-scrollbar-thumb {
 .header .right iframe {
   display: inline-block;
   vertical-align: middle;
+}
+.header .logo {
+  display: inline-block;
+  width: 22px;
+  margin-top: -22px;
+  margin-bottom: -6px;
+  margin-right: 7px;
 }
 .header h1 {
   -webkit-font-smoothing: antialiased;
