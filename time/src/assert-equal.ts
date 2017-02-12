@@ -1,9 +1,8 @@
 import xs, {Stream} from 'xstream';
 import * as deepEqual from 'deep-equal';
+import * as variableDiff from 'variable-diff';
 
 function checkEqual (completeStore, assert, interval) {
-  const equal = deepEqual(completeStore['actual'], completeStore['expected']);
-
   let failReasons = [];
 
   if (completeStore['actual'].length !== completeStore['expected'].length) {
@@ -36,7 +35,7 @@ function checkEqual (completeStore, assert, interval) {
       }
 
       if (!rightTime || !rightValue) {
-        failReasons.push(`Expected value ${JSON.stringify(expected.value)} at time ${expected.time} but got ${JSON.stringify(actual.value)} at ${actual.time}`);
+        failReasons.push(`Expected value at time ${expected.time} but got different value at ${actual.time}\n\nDiff (actual => expected):\n${variableDiff(actual.value, expected.value).text}`);
       }
     }
 

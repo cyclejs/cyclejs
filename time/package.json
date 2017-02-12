@@ -42,6 +42,7 @@
     "raf": "^3.3.0",
     "setimmediate": "^1.0.5",
     "sorted-immutable-list": "^1.1.0",
+    "variable-diff": "^1.1.0",
     "xstream": "*"
   },
   "devDependencies": {
