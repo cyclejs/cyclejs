@@ -257,7 +257,7 @@ describe("@cycle/time", () => {
                   '---{"a":1}-------{"a":2}---|',
                   'Got',
                   '---1---2---3---|',
-                ].every(expectedLine => lines.includes(expectedLine)));
+                ].every(expectedLine => lines.indexOf(expectedLine) !== -1));
 
                 done();
               } else {
@@ -345,7 +345,7 @@ describe("@cycle/time", () => {
                 }
 
                 assert(
-                  err.message.includes(expectedError),
+                  err.message.indexOf(expectedError) !== -1,
                   [
                     'Expected failure message to include error, did not:',
                     err.message,
