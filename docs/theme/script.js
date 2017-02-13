@@ -22,7 +22,7 @@
   */
 
  $document.on('flatdoc:ready', function() {
-   $('.menu a').anchorjump();
+   $('.menu a:not(.out-link)').anchorjump();
  });
 
  /*

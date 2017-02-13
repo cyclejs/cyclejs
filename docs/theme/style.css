@@ -764,13 +764,10 @@ a.big.button:hover:visited {
 }
 @media (max-width: 480px) {
   .menubar {
-    padding: 20px;
     border-bottom: solid 1px #dfe2e7;
   }
-}
-@media (max-width: 768px) {
-  .menubar {
-    display: none;
+  .menu a {
+    margin-bottom: 5px;
   }
 }
 @media (min-width: 768px) {
@@ -833,9 +830,9 @@ a.big.button:hover:visited {
 }
 .menu a.level-1 {
   font-family: "Merriweather", "Georgia", serif;
-  text-transform: uppercase;
   font-size: 0.9em;
   font-weight: bold;
+  margin: 3px 0;
 }
 .menu a.level-1,
 .menu a.level-1:visited {
