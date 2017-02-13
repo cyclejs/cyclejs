@@ -4,7 +4,7 @@
   <img alt="logo" src="https://raw.githubusercontent.com/cyclejs/cyclejs/master/logo.png" width="128">
 </div>
 <div align="center">
-  <strong>A functional and reactive JavaScript framework for cleaner code</strong>
+  <strong>A functional and reactive JavaScript framework for predictable code</strong>
 </div>
 
 <div align="center">
@@ -46,23 +46,18 @@
 
 ## Packages
 
-Cycle.js is comprised of many specialized packages. This repository contains all these packages, e.g., the npm package `@cycle/base` lives in the directory `base`. Below you will find a summary of each package.
+Cycle.js is comprised of many specialized packages. This repository contains all these packages, e.g., the npm package `@cycle/run` lives in the directory `run`. Below you will find a summary of each package.
 
 | Package | Version | Dependencies | DevDependencies |
 |--------|-------|------------|----------|
-| `@cycle/base` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/base.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/base/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=base)](https://david-dm.org/cyclejs/cyclejs?path=base) | [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=base)](https://david-dm.org/cyclejs/cyclejs?path=base#info=devDependencies) |
 | `@cycle/dom` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/dom.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/dom/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=dom)](https://david-dm.org/cyclejs/cyclejs?path=dom) | [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=dom)](https://david-dm.org/cyclejs/cyclejs?path=dom#info=devDependencies) |
 | `@cycle/history` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/history.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/history/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=history)](https://david-dm.org/cyclejs/cyclejs?path=history) | [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=history)](https://david-dm.org/cyclejs/cyclejs?path=history#info=devDependencies) |
 | `@cycle/http` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/http.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/http/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=http)](https://david-dm.org/cyclejs/cyclejs?path=http) | [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=http)](https://david-dm.org/cyclejs/cyclejs?path=http#info=devDependencies) |
 | `@cycle/isolate` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/isolate.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/isolate/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=isolate)](https://david-dm.org/cyclejs/cyclejs?path=isolate) |  [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=isolate)](https://david-dm.org/cyclejs/cyclejs?path=isolate#info=devDependencies) |
 | `@cycle/jsonp` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/jsonp.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/jsonp/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=jsonp)](https://david-dm.org/cyclejs/cyclejs?path=jsonp) |  [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=jsonp)](https://david-dm.org/cyclejs/cyclejs?path=jsonp#info=devDependencies) |
-| `@cycle/most-adapter` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/most-adapter.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/most-adapter/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=most-adapter)](https://david-dm.org/cyclejs/cyclejs?path=most-adapter) | [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=most-adapter)](https://david-dm.org/cyclejs/cyclejs?path=most-adapter#info=devDependencies) |
 | `@cycle/most-run` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/most-run.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/most-run/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=most-run)](https://david-dm.org/cyclejs/cyclejs?path=most-run) | [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=most-run)](https://david-dm.org/cyclejs/cyclejs?path=most-run#info=devDependencies) |
-| `@cycle/rx-adapter` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/rx-adapter.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/rx-adapter/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=rx-adapter)](https://david-dm.org/cyclejs/cyclejs?path=rx-adapter) | [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=rx-adapter)](https://david-dm.org/cyclejs/cyclejs?path=rx-adapter#info=devDependencies) |
-| `@cycle/rxjs-adapter` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/rxjs-adapter.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/rxjs-adapter/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=rxjs-adapter)](https://david-dm.org/cyclejs/cyclejs?path=rxjs-adapter) | [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=rxjs-adapter)](https://david-dm.org/cyclejs/cyclejs?path=rxjs-adapter#info=devDependencies) |
+| `@cycle/run` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/run.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/run/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=run)](https://david-dm.org/cyclejs/cyclejs?path=run) | [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=run)](https://david-dm.org/cyclejs/cyclejs?path=run#info=devDependencies) |
 | `@cycle/rxjs-run` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/rxjs-run.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/rxjs-run/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=rxjs-run)](https://david-dm.org/cyclejs/cyclejs?path=rxjs-run) | [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=rxjs-run)](https://david-dm.org/cyclejs/cyclejs?path=rxjs-run#info=devDependencies) |
-| `@cycle/xstream-adapter` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/xstream-adapter.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/xstream-adapter/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=xstream-adapter)](https://david-dm.org/cyclejs/cyclejs?path=xstream-adapter) | [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=xstream-adapter)](https://david-dm.org/cyclejs/cyclejs?path=xstream-adapter#info=devDependencies) |
-| `@cycle/xstream-run` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/xstream-run.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/xstream-run/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=xstream-run)](https://david-dm.org/cyclejs/cyclejs?path=xstream-run) | [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=xstream-run)](https://david-dm.org/cyclejs/cyclejs?path=xstream-run#info=devDependencies) |
 
 Globally: [![Build Status](https://img.shields.io/travis/cyclejs/cyclejs/master.svg?style=flat)](https://travis-ci.org/cyclejs/cyclejs) [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg)](https://david-dm.org/cyclejs/cyclejs#info=devDependencies)
 
@@ -73,7 +68,6 @@ The following packages are not under Cycle.js, but are important dependencies, s
 | Package | Version |
 |--------|-------|
 | `most` | [![npm version](https://img.shields.io/npm/v/most.svg?maxAge=86400)](https://www.npmjs.com/package/most) |
-| `rx` | [![npm version](https://img.shields.io/npm/v/rx.svg?maxAge=86400)](https://www.npmjs.com/package/rx) |
 | `rxjs` | [![npm version](https://img.shields.io/npm/v/rxjs.svg?maxAge=86400)](https://www.npmjs.com/package/rxjs) |
 | `xstream` | [![npm version](https://img.shields.io/npm/v/xstream.svg?maxAge=86400)](https://www.npmjs.com/package/xstream) |
 
