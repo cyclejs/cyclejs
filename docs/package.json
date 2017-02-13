@@ -2,6 +2,7 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "documentation": "node .scripts/make-documentation.js"
+    "documentation": "node .scripts/make-documentation.js",
+    "releases": "node .scripts/make-releases.js"
   }
 }
