@@ -3,6 +3,7 @@
   "license": "MIT",
   "scripts": {
     "documentation": "node .scripts/make-documentation.js",
-    "releases": "node .scripts/make-releases.js"
+    "releases": "node .scripts/make-releases.js",
+    "api": "node .scripts/make-api-index.js && cd .. && ./.scripts/npm-x-for-all-packages.sh run docs && cd docs"
   }
 }

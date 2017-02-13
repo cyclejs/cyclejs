@@ -4,7 +4,7 @@
   <meta charset='utf-8'>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width">
-  <title>Cycle.js - API reference (jsonp)</title>
+  <title>Cycle.js - API reference</title>
 
   <!-- Flatdoc -->
   <script src='../support/vendor/jquery.js'></script>
@@ -21,73 +21,21 @@
   <link href='../support/vendor/highlight-github-gist.css' rel='stylesheet'>
 
   <!-- Meta -->
-  <meta content="Cycle.js - API reference (jsonp)" property="og:title">
+  <meta content="Cycle.js - API reference" property="og:title">
   <meta content="A functional and reactive JavaScript framework for predictable code" name="description">
 
   <!-- Content -->
   <script id="markdown" type="text/markdown" src="index.html">
-# Cycle JSONP
+# API reference
 
-A Driver for making HTTP requests through the JSONP hack, based on the [jsonp](https://github.com/webmodules/jsonp) package. This package is small, hacky (as JSONP is too), and untested. Whenever possible, use proper server and client CORS solution with the HTTP Driver.
-
-```
-npm install @cycle/jsonp
-```
-
-## Usage
-
-```js
-function main(responses) {
-  // This API endpoint returns a JSON response
-  const HELLO_URL = 'http://localhost:8080/hello';
-  let request$ = Rx.Observable.just(HELLO_URL);
-  let vtree$ = responses.JSONP
-    .filter(res$ => res$.request === HELLO_URL)
-    .mergeAll()
-    .startWith({text: 'Loading...'})
-    .map(json =>
-      h('div.container', [
-        h('h1', json.text)
-      ])
-    );
-
-  return {
-    DOM: vtree$,
-    JSONP: request$
-  };
-}
-
-Cycle.run(main, {
-  DOM: makeDOMDriver('.js-container'),
-  JSONP: makeJSONPDriver()
-})
-```
-
-# API
-
-## <a id="makeJSONPDriver"></a> `makeJSONPDriver()`
-
-JSONP Driver factory.
-
-This is a function which, when called, returns a JSONP Driver for Cycle.js
-apps. The driver is also a function, and it takes a stream of requests
-(URL strings) as input, and generates a metastream of responses.
-
-**Requests**. The stream of requests should emit strings as the URL of the
-remote resource over HTTP.
-
-**Responses**. A metastream is a stream of streams. The response metastream
-emits streams of responses. These streams of responses have a `request`
-field attached to them (to the stream object itself) indicating which
-request (from the driver input) generated this response stream. The
-response streams themselves emit the response object received through the
-npm `jsonp` package.
-
-#### Returns:
-
-*(Function)* the JSONP Driver function
-
-
+- **[Cycle Run](run.html)**
+- **[Cycle RxJS Run](rxjs-run.html)**
+- **[Cycle Most Run](most-run.html)**
+- **[Cycle DOM](dom.html)**
+- **[Cycle HTTP](http.html)**
+- **[Cycle History](history.html)**
+- **[Cycle Isolate](isolate.html)**
+- **[Cycle JSONP](jsonp.html)**
   </script>
 
   <!-- Initializer -->
@@ -127,6 +75,26 @@ npm `jsonp` package.
 
         <div role='flatdoc-menu'></div>
 
+        
+          <ul>
+            
+              <li><a href="../api/run.html" class="level-1 out-link">Cycle Run</a></li>
+            
+              <li><a href="../api/rxjs-run.html" class="level-1 out-link">Cycle RxJS Run</a></li>
+            
+              <li><a href="../api/most-run.html" class="level-1 out-link">Cycle Most Run</a></li>
+            
+              <li><a href="../api/dom.html" class="level-1 out-link">Cycle DOM</a></li>
+            
+              <li><a href="../api/http.html" class="level-1 out-link">Cycle HTTP</a></li>
+            
+              <li><a href="../api/history.html" class="level-1 out-link">Cycle History</a></li>
+            
+              <li><a href="../api/isolate.html" class="level-1 out-link">Cycle Isolate</a></li>
+            
+              <li><a href="../api/jsonp.html" class="level-1 out-link">Cycle JSONP</a></li>
+            
+          </ul>
         
       </div>
     </div>
