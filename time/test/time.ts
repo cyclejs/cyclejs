@@ -220,7 +220,7 @@ describe("@cycle/time", () => {
                   '---2---4---5---|',
                   'Got',
                   '---2---4---6---|',
-                ].every(expectedLine => lines.includes(expectedLine)), err.message);
+                ].every(expectedLine => lines.indexOf(expectedLine) !== -1), err.message);
 
                 done();
               } else {
