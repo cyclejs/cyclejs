@@ -58,8 +58,8 @@
             </g>
             <g id="Rectangle-19-+-decrement$" sketch:type="MSLayerGroup" transform="translate(74.000000, 211.000000)">
                 <rect id="Rectangle-19" stroke="#000000" fill="#C7F998" sketch:type="MSShapeGroup" x="0" y="0" width="48" height="22"></rect>
-                <text id="vtree$" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="14" font-weight="normal" sketch:alignment="middle" fill="#000000">
-                    <tspan x="5.583" y="15">vtree$</tspan>
+                <text id="vdom$" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="14" font-weight="normal" sketch:alignment="middle" fill="#000000">
+                    <tspan x="4.25" y="15">vdom$</tspan>
                 </text>
             </g>
             <g id="Rectangle-19-+-decrement$" sketch:type="MSLayerGroup" transform="translate(64.000000, 259.000000)">

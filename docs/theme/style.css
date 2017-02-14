@@ -1,4 +1,3 @@
-@import url("//fonts.googleapis.com/css?family=Montserrat:700|Open+Sans:300");
 @import url("//fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,200italic,300italic,400italic,600italic,700italic");
 @import url("//fonts.googleapis.com/css?family=Merriweather:400,700");
 
@@ -133,6 +132,73 @@ a {
 }
 a:hover {
   color: #228a8a;
+}
+
+.hero {
+  background-color: #24242D;
+  color: #ffffff;
+  margin: 0 calc(0px - 2.5rem);
+  position: relative;
+}
+.hero-body {
+  max-width: 720px;
+  padding: 4rem 1rem;
+  margin: 0 auto;
+}
+.hero-title h1 {
+  display: inline-block;
+  margin: 0 0 0 0.5em;
+  font-weight: bold;
+  font-size: 4em;
+  font-family: "Merriweather", "Georgia", serif;
+}
+.hero-title img.hero-logo {
+  width: 7em;
+  vertical-align: bottom;
+}
+.hero h2 {
+  margin-top: 2.5rem;
+  font-family: "Merriweather", "Georgia", serif;
+  font-size: 20px;
+}
+.hero h3 { margin-top: 4rem; margin-bottom: 1rem; text-align: center; display: block; font-size: 20px; }
+.hero h3 a { font-family: "Source Sans Pro", "Calibri", "Helvetica", sans-serif; font-weight: 400; color: #C6FC93; border: 2px solid #C6FC93; border-radius: 5px; padding: 5px 15px; transition: background-color 0.2s ease-out, color 0.2s ease-out; letter-spacing: 0; display: inline-block; }
+.hero h3 a:hover { border: 2px solid #C6FC93; background-color: #C6FC93; color: #24242D; }
+.hero h4 { margin-top: 1rem; margin-bottom: 4rem; text-align: center; display: block; font-size: 16px; }
+.hero h4 a { font-family: "Source Sans Pro", "Calibri", "Helvetica", sans-serif; font-weight: 400; color: #58D3D8; border: 2px solid #58D3D8; border-radius: 5px; padding: 5px 15px; transition: background-color 0.2s ease-out, color 0.2s ease-out; letter-spacing: 0; display: inline-block; }
+.hero h4 a:hover { border: 2px solid #58D3D8; background-color: #58D3D8; color: #24242D; }
+
+@media (min-width: 768px) {
+  .hero {
+    min-height: calc(100vh - 51px);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    margin: 0;
+  }
+  .hero .hero-title img.hero-logo {
+    width: 3em;
+  }
+  .hero .hero-title h1 {
+    font-size: 2em;
+    top: 0.75em;
+  }
+  .hero h2 {
+    font-size: 1.2em;
+  }
+}
+
+.content .example-hello-world-container { box-sizing: border-box; background-color: #EEE; padding: 8px 12px; }
+.content .example-hello-world-container label { font-size: 1.3em; }
+.content .example-hello-world-container input { font-size: 1.2em; margin-left: 0.5em; }
+.content .example-hello-world-container hr { border-color: #d3d3d3; }
+.content .example-hello-world-container h1 { padding-top: 0; text-align: left; margin: 20px 0 10px; font-size: 2em; }
+.content .example-hello-world-container h1::before { display: none; }
+
+#opencollective-banner center {
+  text-align: left;
 }
 
 /* ----------------------------------------------------------------------------
@@ -343,6 +409,7 @@ a:hover {
 .content p+h2,
 .content ul+h2,
 .content pre+h2,
+.content div+h2,
 .content blockquote+h2,
 .content .big-heading,
 body.big-h3 .content h3 {
@@ -357,6 +424,7 @@ body.big-h3 .content h3 {
 .content p+h2:before,
 .content ul+h2:before,
 .content pre+h2:before,
+.content div+h2:before,
 .content blockquote+h2:before,
 .content .big-heading:before,
 body.big-h3 .content h3:before {

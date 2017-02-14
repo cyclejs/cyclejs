@@ -44,6 +44,20 @@
 </head>
 <body role='flatdoc' class="no-literate">
 
+<% if (typeof frontpage !== 'undefined') { %>
+  <div class="hero">
+    <div class="hero-body">
+      <div class="hero-title">
+        <img src="img/cyclejs_logo.svg" alt="Cycle.js logo" class="hero-logo">
+        <h1>Cycle.js</h1>
+      </div>
+      <h2>A functional and reactive JavaScript framework for predictable code</h2>
+      <h3><a href="<%= pathToRoot %>getting-started.html">Read the docs</a></h3>
+      <h4><a href="http://widdersh.in/tricycle/">Or try it live!</a></h4>
+    </div>
+  </div>
+<% } %>
+
   <div class='header'>
     <div class='left'>
       <h1><a href="/"><img class="logo" src="<%= pathToRoot %>img/cyclejs_logo.svg" >Cycle.js</a></h1>
@@ -62,27 +76,33 @@
   <div class='content-root'>
     <div class='menubar'>
       <div class='menu section'>
-        <% if (typeof premenu !== 'undefined' && premenu.length > 0) { %>
-          <ul>
-            <% premenu.forEach(function (item) { %>
-              <li><a href="<%= pathToRoot %><%= item.link %>" class="level-1 out-link"><%= item.title %></a></li>
-            <% }) %>
-          </ul>
-        <% } %>
-
+<% if (typeof premenu !== 'undefined' && premenu.length > 0) { %>
+        <ul>
+  <% premenu.forEach(function (item) { %>
+            <li><a href="<%= pathToRoot %><%= item.link %>" class="level-1 out-link"><%= item.title %></a></li>
+  <% }) %>
+        </ul>
+<% } %>
         <div role='flatdoc-menu'></div>
-
-        <% if (typeof postmenu !== 'undefined' && postmenu.length > 0) { %>
-          <ul>
-            <% postmenu.forEach(function (item) { %>
-              <li><a href="<%= pathToRoot %><%= item.link %>" class="level-1 out-link"><%= item.title %></a></li>
-            <% }) %>
-          </ul>
-        <% } %>
+<% if (typeof postmenu !== 'undefined' && postmenu.length > 0) { %>
+        <ul>
+  <% postmenu.forEach(function (item) { %>
+            <li><a href="<%= pathToRoot %><%= item.link %>" class="level-1 out-link"><%= item.title %></a></li>
+  <% }) %>
+        </ul>
+<% } %>
       </div>
     </div>
     <div role='flatdoc-content' class='content'></div>
+<% if (typeof frontpage !== 'undefined') { %>
+    <div class='content'>
+      <script src="https://opencollective.com/cyclejs/banner.js"></script>
+    </div>
+<% } %>
   </div>
+<% if (typeof frontpage !== 'undefined') { %>
+  <script src="js/example-hello-world.min.js" async defer></script>
+<% } %>>
 
   <script>
   /* TODO: enable once launched?
@@ -94,5 +114,11 @@
     ga('send', 'pageview');
   */
   </script>
+  <script>
+    ((window.gitter = {}).chat = {}).options = {
+      room: 'cyclejs/cyclejs'
+    };
+  </script>
+  <script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
 </body>
 </html>
