@@ -33,8 +33,8 @@ import XStreamAdapter from '@cycle/xstream-adapter';
  * Cycle.js program, cleaning up resources used.
  * @function run
  */
-export function run<Sources, Sinks>(main: (sources: Sources) => Sinks,
-                                    drivers: {[name: string]: Function}): DisposeFunction {
+function run<Sources, Sinks>(main: (sources: Sources) => Sinks,
+                             drivers: {[name: string]: Function}): DisposeFunction {
   const {run, sinks} = CycleBase(main, drivers, {streamAdapter: XStreamAdapter});
   if (typeof window !== 'undefined' && window['CyclejsDevTool_startGraphSerializer']) {
     window['CyclejsDevTool_startGraphSerializer'](sinks);

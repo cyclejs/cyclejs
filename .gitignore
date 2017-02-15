@@ -12,3 +12,5 @@ node_modules
 npm-debug.log
 .DS_Store
 ignore/
+*.swo
+*.swp
