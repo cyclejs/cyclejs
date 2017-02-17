@@ -13,7 +13,13 @@ function makeDiagram (schedule, currentTime, interval, setMaxTime) {
   return function diagram (diagramString: string, values = {}): Stream<any> {
     const characters = diagramString.split('');
     const stream = xs.create();
-    const valueFor = (character) => values[character] || parseIntIfDecimal(character);
+    const valueFor = (character) => {
+      if (character in values) {
+        return values[character];
+      }
+
+      return parseIntIfDecimal(character);
+    };
 
     setMaxTime(diagramString.length * interval);
 
