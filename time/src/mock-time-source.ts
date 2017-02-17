@@ -24,9 +24,7 @@ function raiseError (err) {
 function finish (asserts, done) {
   const pendingAsserts = asserts.filter(assert => assert.state === 'pending');
 
-  if (pendingAsserts.length > 0) {
-    pendingAsserts.forEach(assert => assert.finish());
-  }
+  pendingAsserts.forEach(assert => assert.finish());
 
   const failedAsserts = asserts.filter(assert => assert.state === 'failed');
 
