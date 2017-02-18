@@ -1,4 +1,4 @@
-import {run} from '@cycle/xstream-run';
+import {run} from '@cycle/run';
 import {makeDOMDriver, div, input} from '@cycle/dom';
 import {timeDriver} from '../';
 import sampleCombine from 'xstream/extra/sampleCombine';
