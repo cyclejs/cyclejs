@@ -123,7 +123,7 @@ input {
   td,
   textarea,
   input {
-    font-size: 12px;
+    font-size: 14px;
   }
 }
 a {
@@ -833,9 +833,10 @@ a.big.button:hover:visited {
 @media (max-width: 480px) {
   .menubar {
     border-bottom: solid 1px #dfe2e7;
+    font-size: 1.1em !important;
   }
-  .menu a {
-    margin-bottom: 5px;
+  .menu a.level-1 {
+    margin-bottom: 5px !important;
   }
 }
 @media (min-width: 768px) {
