@@ -2,7 +2,7 @@
 
 ## Split main into parts
 
-We can write our entire Cycle.js program inside the `main()` function, like we did in the [previous chapter](basic-examples.html#body-mass-index-calculator). However, any programmer knows this isn't a good idea. Once `main()` grows too large, it becomes hard to maintain.
+We can write our entire Cycle.js program inside the `main()` function, like we did in the [previous chapter](basic-examples.html#basic-examples-body-mass-index-calculator). However, any programmer knows this isn't a good idea. Once `main()` grows too large, it becomes hard to maintain.
 
 **MVI is a simple pattern to refactor the main() function into three parts: Intent (to listen to the user), Model (to process information), and View (to output back to the user).**
 
@@ -202,7 +202,7 @@ We have plenty of anonymous functions which could be refactored away from `main`
  });
 ```
 
-Now, `main` is much smaller. But is it doing *one thing*? We still have `changeWeight$`, `changeHeight$`, `weight$`, `height$`, `state$`, and the return using `view(state$)`. Normally when we work with a *View*, we also have a *Model*. What Models normally do is **manage state**. In our case, however, we have `state$` which is self-responsible for its own changes, because it is [reactive](streams.html#reactive-programming). But anyway we have code that defines how `state$` depends on `changeWeight$` and `changeHeight$`. We can put that code inside a `model()` function.
+Now, `main` is much smaller. But is it doing *one thing*? We still have `changeWeight$`, `changeHeight$`, `weight$`, `height$`, `state$`, and the return using `view(state$)`. Normally when we work with a *View*, we also have a *Model*. What Models normally do is **manage state**. In our case, however, we have `state$` which is self-responsible for its own changes, because it is [reactive](streams.html#streams-reactive-programming). But anyway we have code that defines how `state$` depends on `changeWeight$` and `changeHeight$`. We can put that code inside a `model()` function.
 
 ```diff
  import xs from 'xstream';
@@ -261,7 +261,7 @@ Now, `main` is much smaller. But is it doing *one thing*? We still have `changeW
  });
 ```
 
-`main` still defines `changeWeight$` and `changeHeight$`. What are these streams? They are event streams of *Actions*. In the [previous chapter about basic examples](basic-examples.html#increment-and-decrement-a-counter) we had an `action$` stream for incrementing and decrementing a counter. These Actions are deduced or interpreted from DOM events. Their names indicate the user's *intentions*. We can group these stream definitions in an `intent()` function:
+`main` still defines `changeWeight$` and `changeHeight$`. What are these streams? They are event streams of *Actions*. In the [previous chapter about basic examples](basic-examples.html#basic-examples-increment-a-counter) we had an `action$` stream for incrementing and decrementing a counter. These Actions are deduced or interpreted from DOM events. Their names indicate the user's *intentions*. We can group these stream definitions in an `intent()` function:
 
 ```diff
  import xs from 'xstream';

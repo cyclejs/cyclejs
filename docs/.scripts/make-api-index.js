@@ -9,7 +9,6 @@ var htmlFilename = __dirname + '/../api/index.html';
 var content = fs.readFileSync(mdFilename, 'utf-8');
 var outputStr = template({
   title: 'API reference',
-  pathToRoot: '../',
   content: content,
   premenu: [],
   postmenu: [

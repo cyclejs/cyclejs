@@ -1,10 +1,10 @@
 # API reference
 
-- **[Cycle Run](run.html)**
-- **[Cycle RxJS Run](rxjs-run.html)**
-- **[Cycle Most Run](most-run.html)**
-- **[Cycle DOM](dom.html)**
-- **[Cycle HTTP](http.html)**
-- **[Cycle History](history.html)**
-- **[Cycle Isolate](isolate.html)**
-- **[Cycle JSONP](jsonp.html)**
+- **[Cycle Run](api/run.html)**
+- **[Cycle RxJS Run](api/rxjs-run.html)**
+- **[Cycle Most Run](api/most-run.html)**
+- **[Cycle DOM](api/dom.html)**
+- **[Cycle HTTP](api/http.html)**
+- **[Cycle History](api/history.html)**
+- **[Cycle Isolate](api/isolate.html)**
+- **[Cycle JSONP](api/jsonp.html)**

@@ -23,7 +23,6 @@ chapters.forEach(function (chapter, i) {
   var postmenu = menuItems.filter((c, j) => j > i);
   var outputStr = template({
     title: chapter.title,
-    pathToRoot: '',
     content: content,
     premenu: premenu,
     postmenu: postmenu,

@@ -9,7 +9,6 @@ var htmlFilename = __dirname + '/../index.html';
 var content = fs.readFileSync(mdFilename, 'utf-8');
 var outputStr = template({
   title: '',
-  pathToRoot: '',
   content: content,
   frontpage: true,
   premenu: [],
