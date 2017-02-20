@@ -100,11 +100,11 @@ As a recap:
 
 ## Isolating side effects
 
-Drivers should always be associated with some side effect. As we saw, even though the DOM Driver's main purpose is to represent the user, it has write and read effects.
+Drivers should always be associated with some I/O effect. As we saw, even though the DOM Driver's main purpose is to represent the user, it has write and read effects.
 
-In JavaScript, nothing stops you from writing your `main()` function with side effects. A simple `console.log()` is already a side effect. However, to keep `main()` pure and reap its benefits like testability and predictability, it is better to encapsulate all side effects in drivers.
+In JavaScript, nothing stops you from writing your `main()` function with effects. A simple `console.log()` is already an effect. However, to keep `main()` pure and reap its benefits like testability and predictability, it is better to encapsulate all I/O effects in drivers.
 
-Imagine, for instance, a driver for network requests. By isolating the network request side effect, your application's `main()` function can focus on business logic related to the app's behavior, and not on lower-level instructions to interface with external resources. This also allows a simple method for testing network requests: you can replace the actual network driver with a fake network driver. It just needs to be a function that mimics the network driver function, and makes assertions.
+Imagine, for instance, a driver for network requests. By isolating the network request effect, your application's `main()` function can focus on business logic related to the app's behavior, and not on lower-level instructions to interface with external resources. This also allows a simple method for testing network requests: you can replace the actual network driver with a fake network driver. It just needs to be a function that mimics the network driver function, and makes assertions.
 
 Avoid making drivers if they do not have effects to the external world somehow. Especially do not create drivers to contain business logic. This is most likely a code smell.
 
@@ -147,27 +147,64 @@ function WSDriver(/* no sinks */) {
 
 You should only be reading this section if you have clear intentions to make a driver and expose it as a library (unless it's a one-liner driver). Typically, when writing a Cycle.js app, you do not need to create your own drivers.
 
-Consider first carefully which side effects your driver is responsible for. And can it have both read and write effects?
+Consider first carefully which effects your driver is responsible for. And can it have both read and write effects?
 
 Once you map out the read/write effects, consider how diverse those can be. Create an empathic API which covers the common cases elegantly.
 
-The **input** to the driver function is expected to be a single stream. This is a practical API for the app developer to use when returning the `sinks` object in `main()`. Notice how the DOM Driver takes a single `vdom$` stream as input, and how sophisticated and expressive VNodes from Snabbdom can be. On the other hand, don't always choose JavaScript objects as the values emitted in the Observable. Use objects when they make sense, and remember to keep the API simple rather than overly-generic. Don't over-engineer.
+The **input** to the driver function is expected to be a single `xstream` stream. This is a practical API for the app developer to use when returning the `sinks` object in `main()`. Notice how the DOM Driver takes a single `vdom$` stream as input, and how sophisticated and expressive VNodes from Snabbdom can be. On the other hand, don't always choose JavaScript objects as the values emitted in the Observable. Use objects when they make sense, and remember to keep the API simple rather than overly-generic. Don't over-engineer.
 
-As a second, optional, argument to the driver function, you can expect `runStreamAdapter`. A "Stream Adapter" is a library that knows how to convert between one specific stream library (like xstream or RxJS) to a generic adapter interface used internally in Cycle.js. This is needed for those cases your driver function needs to return a sophisticated source object which can create arbitrary streams using the same stream library that your application uses. If your app uses `@cycle/xstream-run`, then it uses under the hood `@cycle/xstream-adapter`, which is the argument `runStreamAdapter` given to drivers. If your app uses `@cycle/rxjs-run`, then `runStreamAdapter` is `@cycle/rxjs-adapter`, and so forth. Hence the driver function signature is:
+Note that even if you are using RxJS and `@cycle/rxjs-run`, the sink given to the driver is always an `xstream` Stream. You may need to convert from xstream to RxJS in the driver code, with `Rx.Observable.from(sink$)`. This is because xstream is powering Cycle.js internally.
+
+As a second, optional, argument to the driver function, you can expect `name`. This is the name that was given to the driver in the `drivers` object in `run(main, drivers)`. For instance, the DOM Driver usually gets the name `DOM`. Typically, drivers don't need to use this argument, but it is available anyway. This is the expected signature for a driver function:
 
 ```javascript
-function myDriver(sink$, runStreamAdapter /* optional */)
+function myDriver(sink$, name /* optional */)
 ```
 
 The **output** of the driver function can either be a single stream or a *queryable collection* of streams.
 
-In the case of a single stream as output source, depending on how diverse the values emitted by this stream are, you might want to make those values easily filterable (using the xstream or RxJS `filter()` operator). Design an API which makes it easy to filter the stream, keeping in mind what was provided as the sink stream to the driver function.
+In the case of a single stream as output source, depending on how diverse the values emitted by this stream are, you might want to make those values easily filterable (using the xstream or RxJS or Most.js `filter()` operator). Design an API which makes it easy to filter the stream, keeping in mind what was provided as the sink stream to the driver function.
 
-In some cases it is necessary to output a queryable collection of Observables, instead of a single one. A **queryable collection of Observables** is essentially a JavaScript object with a function used to choose a particular stream based on a parameter, e.g. `get(param)`.
+In some cases it is necessary to output a queryable collection of streams, instead of a single one. A **queryable collection of streams** is essentially a JavaScript object with a function used to choose a particular stream based on a parameter, e.g. `get(param)`.
 
 The DOM Driver, for instance, outputs a queryable collection of streams. The collection is in fact lazy: none of the streams outputted by `select(selector).events(eventType)` existed prior to the call of `events()`. This is because we cannot afford creating streams for *all* possible events on *all* elements on the DOM. Take inspiration from the lazy queryable collection of streams from the DOM Driver whenever the output source contains a large (possibly infinite) amount of streams.
 
-You most likely will need `runStreamAdapter` only for queryable collections of streams **and** if you want your driver usable by any other stream library. If you are building your driver only for your own use, then just write the driver using the same stream library that your application uses.
+In order to make your driver usable with many stream libraries, you should use the `adapt()` function from `@cycle/run/lib/adapt` to convert the stream to the same library used for `run`. `adapt()` takes an **xstream** stream as input and returns a stream for the library used in `run`.
+
+```typescript
+adapt(stream: xs.Stream<T>): xs.Stream<T>; // for @cycle/run
+adapt(stream: xs.Stream<T>): Rx.Observable<T>; // for @cycle/rxjs-run
+adapt(stream: xs.Stream<T>): most.Stream<T>; // for @cycle/most-run
+```
+
+Note that `adapt` is always imported from as `@cycle/run/lib/adapt`, **not** from `@cycle/rxjs-run/lib/adapt` nor `@cycle/most-run/lib/adapt`. Before returning a single-stream source from the driver, make sure to call `adapt`:
+
+```js
+import {adapt} from '@cycle/run/lib/adapt';
+
+function WSDriver(/* no sinks */) {
+  const source = xs.create({
+    start: listener => {
+      this.connection = new WebSocket('ws://localhost:4000');
+      connection.onerror = (err) => {
+        listener.error(err)
+      }
+      connection.onmessage = (msg) => {
+        listener.next(msg)
+      }
+    },
+    stop: () => {
+      this.connection.close();
+    },
+  });
+
+  return adapt(source);
+}
+```
+
+If you return *queryable collection of streams*, make sure that each method which returns a stream calls `adapt()` as well.
+
+It is usually better to write drivers in xstream, since you don't need to convert the sink, and given xstream's tiny size as a dependency.
 
 ## Example driver
 
@@ -191,6 +228,8 @@ sock.send('Hello world');
 Since both input and output should be streams, it's easy to see `sink` in `sockDriver(sink)` should be an stream of outgoing messages to the peer. And conversely, the source should be an stream of incoming messages. This is a draft of our driver function:
 
 ```javascript
+import {adapt} from '@cycle/run/lib/adapt';
+
 function sockDriver(outgoing$) {
   outgoing$.addListener({
     next: outgoing => {
@@ -200,7 +239,7 @@ function sockDriver(outgoing$) {
     complete: () => {},
   });
 
-  return xs.create({
+  const incoming$ = xs.create({
     start: listener => {
       sock.onReceive(function (msg) {
         listener.next(msg);
@@ -208,12 +247,16 @@ function sockDriver(outgoing$) {
     },
     stop: () => {},
   });
+
+  return adapt(incoming$);
 }
 ```
 
-The listener of `outgoing$` performs the `send()` side effect, and the stream returned based on `sock.onReceive` takes data from the external world. However, `sockDriver` is assuming `sock` to be available in the closure. As we saw, `sock` needs to be created with a constructor `new Sock()`. To solve this dependency, we need to create a factory that makes `sockDriver()` functions.
+The listener of `outgoing$` performs the `send()` effect, and the returned stream `incoming$` is based on `sock.onReceive` to take data from the external world. However, `sockDriver` is assuming `sock` to be available in the closure. As we saw, `sock` needs to be created with a constructor `new Sock()`. To solve this dependency, we need to create a factory that makes `sockDriver()` functions.
 
 ```javascript
+import {adapt} from '@cycle/run/lib/adapt';
+
 function makeSockDriver(peerId) {
   let sock = new Sock(peerId);
 
@@ -226,7 +269,7 @@ function makeSockDriver(peerId) {
       complete: () => {},
     });
 
-    return xs.create({
+    const incoming$ = xs.create({
       start: listener => {
         sock.onReceive(function (msg) {
           listener.next(msg);
@@ -234,6 +277,8 @@ function makeSockDriver(peerId) {
       },
       stop: () => {},
     });
+
+    return adapt(incoming$);
   }
 
   return sockDriver;
@@ -284,7 +329,7 @@ As a framework, it cannot be compared to monoliths which have ruled web developm
 </head>
 <body role='flatdoc' class="no-literate">
 
-  
+
 
   <div class='header'>
     <div class='left'>
@@ -304,29 +349,31 @@ As a framework, it cannot be compared to monoliths which have ruled web developm
   <div class='content-root'>
     <div class='menubar'>
       <div class='menu section'>
-        
-          <ul>
-            
-              <li><a href="getting-started.html" class="level-1 out-link">Getting started</a></li>
-            
-              <li><a href="dialogue.html" class="level-1 out-link">Dialogue abstraction</a></li>
-            
-              <li><a href="streams.html" class="level-1 out-link">Streams</a></li>
-            
-              <li><a href="basic-examples.html" class="level-1 out-link">Basic examples</a></li>
-            
-              <li><a href="model-view-intent.html" class="level-1 out-link">Model-View-Intent</a></li>
-            
-              <li><a href="components.html" class="level-1 out-link">Components</a></li>
-            
-          </ul>
-        
+
+        <ul>
+  
+            <li><a href="getting-started.html" class="level-1 out-link">Getting started</a></li>
+  
+            <li><a href="dialogue.html" class="level-1 out-link">Dialogue abstraction</a></li>
+  
+            <li><a href="streams.html" class="level-1 out-link">Streams</a></li>
+  
+            <li><a href="basic-examples.html" class="level-1 out-link">Basic examples</a></li>
+  
+            <li><a href="model-view-intent.html" class="level-1 out-link">Model-View-Intent</a></li>
+  
+            <li><a href="components.html" class="level-1 out-link">Components</a></li>
+  
+        </ul>
+
         <div role='flatdoc-menu'></div>
-        
+
       </div>
     </div>
     <div role='flatdoc-content' class='content'></div>
+
   </div>
+
 
   <script>
   /* TODO: enable once launched?

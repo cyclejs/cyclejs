@@ -44,7 +44,7 @@ We will point our Cycle.js app to live inside `#app`. The `checkbox-app.js` file
 
 ```javascript
 import xs from 'xstream';
-import {run} from '@cycle/xstream-run';
+import {run} from '@cycle/run';
 import {div, makeDOMDriver} from '@cycle/dom';
 
 function main(sources) {
@@ -65,7 +65,7 @@ We just added a stream of `false` mapped to a VNode. [`xs.of(x)`](https://github
 
 ```javascript
 import xs from 'xstream';
-import {run} from '@cycle/xstream-run';
+import {run} from '@cycle/run';
 import {div, input, p, makeDOMDriver} from '@cycle/dom';
 
 function main(sources) {
@@ -94,7 +94,7 @@ We do that by using `sources.DOM`, mapping `change` events on the checkbox to th
 
 ```diff
  import xs from 'xstream';
- import {run} from '@cycle/xstream-run';
+ import {run} from '@cycle/run';
  import {div, input, p, makeDOMDriver} from '@cycle/dom';
 
  function main(sources) {
@@ -226,7 +226,7 @@ When done, the whole code looks like this.
 
 ```javascript
 import xs from 'xstream';
-import {run} from '@cycle/xstream-run';
+import {run} from '@cycle/run';
 import {div, button, h1, h4, a, makeDOMDriver} from '@cycle/dom';
 import {makeHTTPDriver} from '@cycle/http';
 
@@ -324,7 +324,7 @@ If we put `action$` and `count$` together in our `main()`, we can implement the 
 
 ```javascript
 import xs from 'xstream';
-import {run} from '@cycle/xstream-run';
+import {run} from '@cycle/run';
 import {div, button, p, makeDOMDriver} from '@cycle/dom';
 
 function main(sources) {
@@ -394,7 +394,7 @@ Now we just need a function to visualize the BMI result and the sliders. We do t
 
 ```javascript
 import xs from 'xstream';
-import {run} from '@cycle/xstream-run';
+import {run} from '@cycle/run';
 import {div, input, h2, makeDOMDriver} from '@cycle/dom';
 
 function main(sources) {
@@ -458,7 +458,7 @@ Below is the program that uses `state$` to render all dynamic values correctly t
 
 ```javascript
 import xs from 'xstream';
-import {run} from '@cycle/xstream-run';
+import {run} from '@cycle/run';
 import {div, input, h2, makeDOMDriver} from '@cycle/dom';
 
 function main(sources) {
@@ -508,4 +508,4 @@ Great, this program functions exactly like we want it to. Weight and height labe
 
 However, we wrote all the code inside one function: `main()`. This approach doesn't scale, and even for a small app like this, it already looks too large and is doing too many things.
 
-We need a proper architecture for user interfaces that follows the reactive, functional, and cyclic principles of Cycle.js.
+We need a proper architecture for user interfaces that follows the reactive, functional, and cyclic principles of Cycle.js. This is the subject of our [next chapter](model-view-intent.html).

@@ -2,7 +2,7 @@
 
 ## Split main into parts
 
-We can write our entire Cycle.js program inside the `main()` function, like we did in the [previous chapter](/basic-examples.html#body-mass-index-calculator). However, any programmer knows this isn't a good idea. Once `main()` grows too large, it becomes hard to maintain.
+We can write our entire Cycle.js program inside the `main()` function, like we did in the [previous chapter](basic-examples.html#body-mass-index-calculator). However, any programmer knows this isn't a good idea. Once `main()` grows too large, it becomes hard to maintain.
 
 **MVI is a simple pattern to refactor the main() function into three parts: Intent (to listen to the user), Model (to process information), and View (to output back to the user).**
 
@@ -12,7 +12,7 @@ Let's see how we can refactor the `main()` function we wrote for calculating BMI
 
 ```javascript
 import xs from 'xstream';
-import {run} from '@cycle/xstream-run';
+import {run} from '@cycle/run';
 import {div, input, h2, makeDOMDriver} from '@cycle/dom';
 
 function main(sources) {
@@ -62,7 +62,7 @@ We have plenty of anonymous functions which could be refactored away from `main`
 
 ```diff
  import xs from 'xstream';
- import {run} from '@cycle/xstream-run';
+ import {run} from '@cycle/run';
  import {div, input, h2, makeDOMDriver} from '@cycle/dom';
 
 +function renderWeightSlider(weight) {
@@ -134,7 +134,7 @@ We have plenty of anonymous functions which could be refactored away from `main`
 
 ```diff
  import xs from 'xstream';
- import {run} from '@cycle/xstream-run';
+ import {run} from '@cycle/run';
  import {div, input, h2, makeDOMDriver} from '@cycle/dom';
 
  function renderWeightSlider(weight) {
@@ -202,11 +202,11 @@ We have plenty of anonymous functions which could be refactored away from `main`
  });
 ```
 
-Now, `main` is much smaller. But is it doing *one thing*? We still have `changeWeight$`, `changeHeight$`, `weight$`, `height$`, `state$`, and the return using `view(state$)`. Normally when we work with a *View*, we also have a *Model*. What Models normally do is **manage state**. In our case, however, we have `state$` which is self-responsible for its own changes, because it is [reactive](/observables.html#reactive-programming). But anyway we have code that defines how `state$` depends on `changeWeight$` and `changeHeight$`. We can put that code inside a `model()` function.
+Now, `main` is much smaller. But is it doing *one thing*? We still have `changeWeight$`, `changeHeight$`, `weight$`, `height$`, `state$`, and the return using `view(state$)`. Normally when we work with a *View*, we also have a *Model*. What Models normally do is **manage state**. In our case, however, we have `state$` which is self-responsible for its own changes, because it is [reactive](streams.html#reactive-programming). But anyway we have code that defines how `state$` depends on `changeWeight$` and `changeHeight$`. We can put that code inside a `model()` function.
 
 ```diff
  import xs from 'xstream';
- import {run} from '@cycle/xstream-run';
+ import {run} from '@cycle/run';
  import {div, input, h2, makeDOMDriver} from '@cycle/dom';
 
  // ...
@@ -261,11 +261,11 @@ Now, `main` is much smaller. But is it doing *one thing*? We still have `changeW
  });
 ```
 
-`main` still defines `changeWeight$` and `changeHeight$`. What are these streams? They are event streams of *Actions*. In the [previous chapter about basic examples](/basic-examples.html#increment-and-decrement-a-counter) we had an `action$` stream for incrementing and decrementing a counter. These Actions are deduced or interpreted from DOM events. Their names indicate the user's *intentions*. We can group these stream definitions in an `intent()` function:
+`main` still defines `changeWeight$` and `changeHeight$`. What are these streams? They are event streams of *Actions*. In the [previous chapter about basic examples](basic-examples.html#increment-and-decrement-a-counter) we had an `action$` stream for incrementing and decrementing a counter. These Actions are deduced or interpreted from DOM events. Their names indicate the user's *intentions*. We can group these stream definitions in an `intent()` function:
 
 ```diff
  import xs from 'xstream';
- import {run} from '@cycle/xstream-run';
+ import {run} from '@cycle/run';
  import {div, input, h2, makeDOMDriver} from '@cycle/dom';
 
  // ...
@@ -389,7 +389,7 @@ keystrokes.*"
 >
 > The MVI strategy in Cycle DOM is to name most elements in your View with appropriate semantic classnames. Then you do not need to worry which of those can have event handlers, if all of them can. The classname is the common artifact which the View (DOM sink) and the Intent (DOM source) can use to refer to the same element.
 >
-> As we will see in the [Components](/components.html) chapter, risk of global className collision is not a problem in Cycle.js because of the `isolate()` helper.
+> As we will see in the [Components](components.html) chapter, risk of global className collision is not a problem in Cycle.js because of the `isolate()` helper.
 
 MVI is an architecture, but in Cycle it is nothing else than simply a function decomposition of `main()`.
 
@@ -468,4 +468,4 @@ function intent(domSource) {
 }
 ```
 
-But this still isn't ideal: we seem to have *more* code now. What we really want is just to create *labeled sliders*: one for height, and the other for weight. We should be able to build a generic and reusable labeled slider.
+But this still isn't ideal: we seem to have *more* code now. What we really want is just to create *labeled sliders*: one for height, and the other for weight. We should be able to build a generic and reusable labeled slider. In other words, we want the labeled slider to be a [component](components.html).

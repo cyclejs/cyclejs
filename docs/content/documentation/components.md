@@ -586,24 +586,6 @@ The takeaway is: **when creating multiple instances of the same type of componen
 
 <a class="jsbin-embed" href="//jsbin.com/seqehat/embed?output">JS Bin on jsbin.com</a>
 
-> ### Should I call `isolate()` manually?
->
-> While it seems that you need to manually call `isolate()` every time you want to instantiate a component, in practice you can automate it.
->
-> Instead of exporting the original non-isolated component, like this:
->
-> `export function OriginalComponent(sources) {`<br />
-> `  // ...`<br />
-> `}`<br />
->
-> just export a function that calls `isolate()`:
->
-> `export function Component(sources) {`<br />
-> `  return isolate(OriginalComponent)(sources);`<br />
-> `}`<br />
->
-> Doing this gives the consumer automatic isolation without having to think about it.
-
 ## Recap
 
 To achieve reusability, **any Cycle.js app is simply a function that can be reused as a component in larger Cycle.js app**. Sources and sinks are the interface between the application and the drivers, but they are also the interface between a child component and its parent.
@@ -614,4 +596,4 @@ From a component's perspective, it should make no assumption on what the parent 
 
 Use `isolateSource` and `isolateSink` to separate the execution contexts of sibling components or unrelated components. Use `isolate` to create a component that automatically applies `isolateSource` and `isolateSink`. This way your codebase will be safe against [*collisions*](https://en.wikipedia.org/wiki/Collision_%28computer_science%29), and each component can work as if it would be the only one in the application.
 
-Each driver should define static functions `isolateSource` and `isolateSink`. We only saw those functions implemented for the DOM Driver, but there are other use cases with other drivers where it makes sense to apply the same isolation techniques.
+Each driver should define static functions `isolateSource` and `isolateSink`. We only saw those functions implemented for the DOM Driver, but there are other use cases with other drivers where it makes sense to apply the same isolation techniques. To learn more, read about [Drivers](drivers.html).

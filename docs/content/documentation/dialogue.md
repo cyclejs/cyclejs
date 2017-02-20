@@ -78,4 +78,4 @@ While these abstractions seem to be natural choices for user interfaces, many qu
 - When is the `computer()` function called?
 - If the output of one is the input of the other, how do we solve the circular dependency `y = human(x)` and `x = computer(y)`?
 
-These are questions that drive the core architecture of Cycle.js, but to understand our solution, we first need to understand reactive streams: our building block for everything in Cycle.js.
+These are questions that drive the core architecture of Cycle.js, but to understand our solution, we first need to understand reactive streams: our building block for everything in Cycle.js. [Keep reading](streams.html).
