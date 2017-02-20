@@ -149,7 +149,7 @@ a:hover {
   display: inline-block;
   margin: 0 0 0 0.5em;
   font-weight: bold;
-  font-size: 4em;
+  font-size: 64px;
   font-family: "Merriweather", "Georgia", serif;
 }
 .hero-title img.hero-logo {
@@ -159,7 +159,8 @@ a:hover {
 .hero h2 {
   margin-top: 2.5rem;
   font-family: "Merriweather", "Georgia", serif;
-  font-size: 20px;
+  font-size: 25px;
+  max-width: 25em;
 }
 .hero h3 { margin-top: 4rem; margin-bottom: 1rem; text-align: center; display: block; font-size: 20px; }
 .hero h3 a { font-family: "Source Sans Pro", "Calibri", "Helvetica", sans-serif; font-weight: 400; color: #C6FC93; border: 2px solid #C6FC93; border-radius: 5px; padding: 5px 15px; transition: background-color 0.2s ease-out, color 0.2s ease-out; letter-spacing: 0; display: inline-block; }
@@ -167,6 +168,9 @@ a:hover {
 .hero h4 { margin-top: 1rem; margin-bottom: 4rem; text-align: center; display: block; font-size: 16px; }
 .hero h4 a { font-family: "Source Sans Pro", "Calibri", "Helvetica", sans-serif; font-weight: 400; color: #58D3D8; border: 2px solid #58D3D8; border-radius: 5px; padding: 5px 15px; transition: background-color 0.2s ease-out, color 0.2s ease-out; letter-spacing: 0; display: inline-block; }
 .hero h4 a:hover { border: 2px solid #58D3D8; background-color: #58D3D8; color: #24242D; }
+
+.hero h5 { font-size: 18px; text-align: center; font-style: italic; }
+.hero h5 a { color: #58D3D8; border-bottom: 1px dotted #58D3D8; }
 
 @media (min-width: 768px) {
   .hero {
