@@ -27,7 +27,7 @@ describe('serverHistoryDriver - RxJS', function () {
 
     const {sources, run} = setup(main, { history: makeServerHistoryDriver() });
 
-    sources.history.subscribe({
+    sources.history.skip(1).subscribe({
       next (location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -47,7 +47,7 @@ describe('serverHistoryDriver - RxJS', function () {
 
     const {sources, run} = setup(main, { history: makeServerHistoryDriver() });
 
-    sources.history.subscribe({
+    sources.history.skip(1).subscribe({
       next (location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -67,7 +67,7 @@ describe('serverHistoryDriver - RxJS', function () {
 
     const {sources, run} = setup(main, { history: makeServerHistoryDriver() });
 
-    sources.history.subscribe({
+    sources.history.skip(1).subscribe({
       next (location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -97,7 +97,7 @@ describe('serverHistoryDriver - RxJS', function () {
       '/test',
     ];
 
-    sources.history.subscribe({
+    sources.history.skip(1).subscribe({
       next (location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {
@@ -129,7 +129,7 @@ describe('serverHistoryDriver - RxJS', function () {
       '/test',
     ];
 
-    sources.history.subscribe({
+    sources.history.skip(1).subscribe({
       next (location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {
@@ -163,7 +163,7 @@ describe('serverHistoryDriver - RxJS', function () {
       '/other',
     ];
 
-    sources.history.subscribe({
+    sources.history.skip(1).subscribe({
       next (location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {
@@ -197,7 +197,7 @@ describe('serverHistoryDriver - RxJS', function () {
       '/other',
     ];
 
-    sources.history.subscribe({
+    sources.history.skip(1).subscribe({
       next (location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {

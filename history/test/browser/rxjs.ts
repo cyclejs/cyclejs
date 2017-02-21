@@ -38,7 +38,7 @@ describe.skip('historyDriver - RxJS', () => {
 
     const {sources, run} = setup(main, { history: makeHistoryDriver() });
 
-    sources.history.subscribe({
+    sources.history.skip(1).subscribe({
       next (location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -58,7 +58,7 @@ describe.skip('historyDriver - RxJS', () => {
 
     const {sources, run} = setup(main, { history: makeHistoryDriver() });
 
-    sources.history.subscribe({
+    sources.history.skip(1).subscribe({
       next (location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -78,7 +78,7 @@ describe.skip('historyDriver - RxJS', () => {
 
     const {sources, run} = setup(main, { history: makeHistoryDriver() });
 
-    sources.history.subscribe({
+    sources.history.skip(1).subscribe({
       next (location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -114,7 +114,7 @@ describe.skip('historyDriver - RxJS', () => {
       '/other',
     ];
 
-    sources.history.subscribe({
+    sources.history.skip(1).subscribe({
       next (location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {

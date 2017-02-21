@@ -37,7 +37,7 @@ describe('historyDriver - xstream', () => {
 
     const {sources, run} = setup(main, { history: makeHistoryDriver() });
 
-    sources.history.subscribe({
+    sources.history.drop(1).subscribe({
       next (location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -57,7 +57,7 @@ describe('historyDriver - xstream', () => {
 
     const {sources, run} = setup(main, { history: makeHistoryDriver() });
 
-    sources.history.subscribe({
+    sources.history.drop(1).subscribe({
       next (location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -77,7 +77,7 @@ describe('historyDriver - xstream', () => {
 
     const {sources, run} = setup(main, { history: makeHistoryDriver() });
 
-    sources.history.subscribe({
+    sources.history.drop(1).subscribe({
       next (location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -113,7 +113,7 @@ describe('historyDriver - xstream', () => {
       '/other',
     ];
 
-    sources.history.subscribe({
+    sources.history.drop(1).subscribe({
       next (location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {
