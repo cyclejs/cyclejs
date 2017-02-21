@@ -14,6 +14,23 @@ describe('makeHistoryDriver', () => {
   it('should return a function' , () => {
     assert.strictEqual(typeof makeHistoryDriver(), 'function');
   });
+
+  it('should start emitting the current location', function (done) {
+    const history$ = makeHistoryDriver()(xs.never());
+
+    const sub = history$.subscribe({
+      next: (location: Location) => {
+        assert(location.pathname);
+        done();
+      },
+      error: (err) => {},
+      complete: () => {},
+    });
+
+    setTimeout(() => {
+      sub.unsubscribe();
+    });
+  });
 });
 
 describe('makeHashHistoryDriver', () => {
@@ -24,6 +41,23 @@ describe('makeHashHistoryDriver', () => {
   it('should return a function' , () => {
     assert.strictEqual(typeof makeHashHistoryDriver(), 'function');
   });
+
+  it('should start emitting the current location', function (done) {
+    const history$ = makeHashHistoryDriver()(xs.never());
+
+    const sub = history$.subscribe({
+      next: (location: Location) => {
+        assert(location.pathname);
+        done();
+      },
+      error: (err) => {},
+      complete: () => {},
+    });
+
+    setTimeout(() => {
+      sub.unsubscribe();
+    });
+  });
 });
 
 describe('captureClicks', () => {
@@ -31,7 +65,7 @@ describe('captureClicks', () => {
     const historyDriver = makeHistoryDriver();
     const history$ = captureClicks(historyDriver)(xs.never());
 
-    const sub = history$.subscribe({
+    const sub = history$.drop(1).subscribe({
       next: (location: Location) => {
         assert.strictEqual(location.pathname, '/test');
         sub.unsubscribe();

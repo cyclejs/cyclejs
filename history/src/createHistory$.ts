@@ -4,7 +4,7 @@ import {HistoryInput} from './types';
 
 export function createHistory$(history: History,
                                sink$: Stream<HistoryInput | string>): MemoryStream<Location> {
-  const history$ = xs.createWithMemory<Location>();
+  const history$ = xs.createWithMemory<Location>().startWith(history.location);
   const call = makeCallOnHistory(history);
   const unlisten = history.listen((loc: Location) => { history$._n(loc); });
   const sub = sink$.subscribe(createObserver(call, unlisten));
