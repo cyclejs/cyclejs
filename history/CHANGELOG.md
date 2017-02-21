@@ -1,3 +1,37 @@
+<a name="5.0.0-rc.2"></a>
+# 5.0.0-rc.2 (2017-02-21)
+
+
+### Bug Fixes
+
+* **history:** fix history drivers to start emitting the current location ([09c06eb](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/09c06eb))
+* **history:** make cycle/run a hard dependency ([ad2058a](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/ad2058a))
+* **history:** rewrite for Cycle Unified ([d41bdae](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/d41bdae))
+* **history:** use mjackson/history v4.5 ([ef3f467](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/ef3f467))
+
+
+### Features
+
+* **history:** update and simplify api ([705673b](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/705673b))
+
+
+### BREAKING CHANGES
+
+* history: New API. You no longer need createHistory() calls that
+create history objects to be passed to makeHistoryDriver(). You simply
+call makeHistoryDriver() and those history objects are created under the
+hood.
+* history: ![yes](https://img.shields.io/badge/will%20it%20affect%20me%3F-yes-red.svg)
+We updated the underlying history library from v3 to v4. The API for this driver changed, you no longer need to provide the low-level history object to the driver. Just choose your desired history driver, e.g. makeServerHistoryDriver() or makeHistoryDriver() or makeHashHistoryDriver() which may accept an optional options object.
+makeHistoryDriver(history: History, options?: HistoryOptions) ->  makeHistoryDriver(options?: BrowserHistoryOptions)
+new API - makeServerHistoryDriver (options?: MemoryHistoryOptions)
+new API - makeHashHistoryDriver(options?: HashHistoryOptions)
+captureClicks is now provided as a Higher Order Driver  \\`captureClicks(makeHistoryDriver())\\`
+
+ISSUES CLOSED: 434 465
+
+
+
 <a name="5.0.0-rc.1"></a>
 # 5.0.0-rc.1 (2017-02-03)
 

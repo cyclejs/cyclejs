@@ -1,6 +1,6 @@
 {
   "name": "@cycle/history",
-  "version": "5.0.0-rc.1",
+  "version": "5.0.0-rc.2",
   "description": "The standard history driver for Cycle.js",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
