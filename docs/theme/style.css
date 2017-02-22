@@ -366,6 +366,7 @@ a:hover {
   padding-right: 40px;
   zoom: 1;
   max-width: 700px;
+  margin: 0 auto;
 }
 .content:before,
 .content:after {
