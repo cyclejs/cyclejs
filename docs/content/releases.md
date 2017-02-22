@@ -23,18 +23,21 @@ You are using Cycle Unified whenever you use these packages with the following v
 
 | package | version |
 |---|---|
-| `@cycle/run` | 1.0.0-rc.9 |
-| `@cycle/rxjs-run` | 4.0.0-rc.6 |
-| `@cycle/most-run` | 5.0.0-rc.5 |
-| `@cycle/dom` | 15.0.0-rc.4 |
-| `@cycle/http` | 12.0.0-rc.1 |
-| `@cycle/history` | 5.0.0-rc.1 |
-| `@cycle/isolate` | 2.0.0-rc.2 |
-| `@cycle/jsonp` | 7.0.0-rc.1 |
+| `xstream` | 10.0.0 |
+| `rxjs` | 5.0.0 |
+| `most` | 1.2.0 |
+| `@cycle/run` | 1.0.0 |
+| `@cycle/rxjs-run` | 4.0.0 |
+| `@cycle/most-run` | 5.0.0 |
+| `@cycle/dom` | 15.0.0 |
+| `@cycle/http` | 12.0.0 |
+| `@cycle/history` | 5.0.0 |
+| `@cycle/isolate` | 2.0.0 |
+| `@cycle/jsonp` | 7.0.0 |
 
 ## Motivation
 
-When we built [Cycle Diversity](https://github.com/cyclejs/cyclejs/releases/tag/v7.0.0), the purpose was to extend Cycle.js to support more stream libraries such as RxJS v5, xstream, most.js. At that time, we had to create our own mechanism for converting streams of different types between these libraries. That mechanism was **Adapters**. Each stream library had its corresponding adapter package, e.g. `@cycle/rxjs-adapter`, `@cycle/xstream-adapter`.
+When we built [Cycle Diversity](#cycle-diversity), the purpose was to extend Cycle.js to support more stream libraries such as RxJS v5, xstream, most.js. At that time, we had to create our own mechanism for converting streams of different types between these libraries. That mechanism was **Adapters**. Each stream library had its corresponding adapter package, e.g. `@cycle/rxjs-adapter`, `@cycle/xstream-adapter`.
 
 Today, there is a more reliable conversion mechanism between stream libraries, which is compliance with the [ECMAScript proposal for Observables for the Web](https://github.com/tc39/proposal-observable). Libraries such as RxJS v5, Most.js, xstream, Kefir, all have from/to conversion with ES Observable.
 
