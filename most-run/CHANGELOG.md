@@ -1,3 +1,13 @@
+<a name="5.1.0"></a>
+# 5.1.0 (2017-02-22)
+
+
+### Bug Fixes
+
+* **most-run:** use non-rc cycle/run dependency ([d098871](https://github.com/cyclejs/cyclejs/tree/master/most-run/commit/d098871))
+
+
+
 <a name="5.0.0"></a>
 # 5.0.0 (2017-02-22)
 
