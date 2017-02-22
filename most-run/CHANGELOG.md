@@ -1,3 +1,9 @@
+<a name="5.0.0"></a>
+# 5.0.0 (2017-02-22)
+
+**See the changelog for all the `rc` versions of v5.0.0.**
+
+
 <a name="5.0.0-rc.5"></a>
 # 5.0.0-rc.5 (2017-02-08)
 
