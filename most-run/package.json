@@ -26,7 +26,7 @@
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
   "homepage": "https://cycle.js.org",
   "dependencies": {
-    "@cycle/run": "1.0.0-rc.9"
+    "@cycle/run": "1.x"
   },
   "peerDependencies": {
     "most": "*"
