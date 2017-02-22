@@ -1,3 +1,22 @@
+<a name="12.0.0"></a>
+# 12.0.0 (2017-02-22)
+
+
+### Bug Fixes
+
+* **http:** make cycle/run a hard dependency ([dabf7d7](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/dabf7d7))
+* **http:** rewrite for Cycle Unified ([657ec6b](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/657ec6b))
+* **http:** update superagent to 3.4 ([f9ebe6f](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/f9ebe6f))
+* **http:** update superagent to v3.4.1 ([6c2aaf7](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/6c2aaf7))
+
+
+### BREAKING CHANGES
+
+* http: Superagent had breaking changes. Check their release
+notes: https://github.com/visionmedia/superagent/releases
+
+
+
 <a name="12.0.0-rc.1"></a>
 # 12.0.0-rc.1 (2017-02-03)
 
