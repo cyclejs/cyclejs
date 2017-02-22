@@ -1,3 +1,9 @@
+<a name="2.0.0"></a>
+# 2.0.0 (2017-02-22)
+
+**See the changelog for all the `rc` versions of v2.0.0.**
+
+
 <a name="2.0.0-rc.2"></a>
 # 2.0.0-rc.2 (2017-02-08)
 
