@@ -1,3 +1,9 @@
+<a name="1.0.0"></a>
+# 1.0.0 (2017-02-22)
+
+First stable version of this package.
+
+
 <a name="1.0.0-rc.9"></a>
 # 1.0.0-rc.9 (2017-02-08)
 
