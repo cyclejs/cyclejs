@@ -1,3 +1,13 @@
+<a name="4.1.0"></a>
+# 4.1.0 (2017-02-22)
+
+
+### Bug Fixes
+
+* **rxjs-run:** use non-rc cycle/run dependency ([21751cb](https://github.com/cyclejs/cyclejs/tree/master/rxjs-run/commit/21751cb))
+
+
+
 <a name="4.0.0"></a>
 # 4.0.0 (2017-02-22)
 
