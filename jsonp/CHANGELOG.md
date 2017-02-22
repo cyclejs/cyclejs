@@ -1,3 +1,14 @@
+<a name="7.0.0"></a>
+# 7.0.0 (2017-02-22)
+
+
+### Bug Fixes
+
+* **jsonp:** update jsonp dependency to v0.2.1 ([8808b7b](https://github.com/cyclejs/jsonp/commit/8808b7b))
+* **jsonp:** use wildcard version for cycle/run ([7faeb42](https://github.com/cyclejs/jsonp/commit/7faeb42))
+
+
+
 <a name="7.0.0-rc.1"></a>
 # 7.0.0-rc.1 (2017-02-03)
 
