@@ -428,6 +428,31 @@ describe('DOM Rendering', function () {
     dispose = run();
   });
 
+  it('should render correctly even if hyperscript-helper first is empty string', function (done) {
+    function app(sources: {DOM: MainDOMSource}) {
+      return {
+        DOM: xs.of(h4('', {}, ['Hello world'])),
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    let dispose: any;
+    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+      next: (root: Element) => {
+        const H4 = root.querySelector('h4') as HTMLElement;
+        assert.strictEqual(H4.textContent, 'Hello world');
+        setTimeout(() => {
+          dispose();
+          done();
+        });
+      },
+    });
+    dispose = run();
+  });
+
   it('should render textContent "0" given hyperscript content value number 0', function (done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {

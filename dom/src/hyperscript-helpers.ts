@@ -10,19 +10,24 @@ function isSelector(param: any): boolean {
 }
 
 function createTagFunction(tagName: string): Function {
-  return function hyperscript(first: any, b?: any, c?: any): VNode {
-    if (isSelector(first)) {
-      if (typeof b !== 'undefined' && typeof c !== 'undefined') {
-        return h(tagName + first, b, c);
-      } else if (typeof b !== 'undefined') {
-        return h(tagName + first, b);
+  return function hyperscript(a: any, b?: any, c?: any): VNode {
+    const hasA = typeof a !== 'undefined';
+    const hasB = typeof b !== 'undefined';
+    const hasC = typeof c !== 'undefined';
+    if (isSelector(a)) {
+      if (hasB && hasC) {
+        return h(tagName + a, b, c);
+      } else if (hasB) {
+        return h(tagName + a, b);
       } else {
-        return h(tagName + first, {});
+        return h(tagName + a, {});
       }
-    } else if (!!b) {
-      return h(tagName, first, b);
-    } else if (!!first) {
-      return h(tagName, first);
+    } else if (hasC) {
+      return h(tagName + a, b, c);
+    } else if (hasB) {
+      return h(tagName, a, b);
+    } else if (hasA) {
+      return h(tagName, a);
     } else {
       return h(tagName, {});
     }
