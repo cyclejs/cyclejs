@@ -35,8 +35,6 @@
   },
   "dependencies": {
     "@cycle/run": "^1.0.0-rc.9",
-    "@types/core-js": "^0.9.35",
-    "@types/node": "^7.0.0",
     "combine-errors": "^3.0.3",
     "deep-equal": "^1.0.1",
     "raf": "^3.3.0",
@@ -46,6 +44,8 @@
     "xstream": "*"
   },
   "devDependencies": {
+    "@types/core-js": "^0.9.35",
+    "@types/node": "^7.0.0",
     "@cycle/dom": "^15.0.0-rc.2",
     "@cycle/rxjs-run": "^4.0.0-rc.6",
     "@types/mocha": "^2.2.37",
