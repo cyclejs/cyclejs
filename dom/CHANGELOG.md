@@ -1,3 +1,13 @@
+<a name="15.1.0"></a>
+# 15.1.0 (2017-02-24)
+
+
+### Bug Fixes
+
+* **dom:** fix issue 531 ([539a196](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/539a196))
+
+
+
 <a name="15.0.0"></a>
 # 15.0.0 (2017-02-22)
 
