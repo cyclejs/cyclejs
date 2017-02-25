@@ -1,3 +1,13 @@
+<a name="15.2.0"></a>
+# 15.2.0 (2017-02-25)
+
+
+### Bug Fixes
+
+* **dom:** update snabbdom to v0.6.5, which solves some bugs ([0ab2f52](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/0ab2f52))
+
+
+
 <a name="15.1.0"></a>
 # 15.1.0 (2017-02-24)
 
