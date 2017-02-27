@@ -32,7 +32,7 @@ function main(sources: {DOM: DOMSource, HTTP: HTTPSource}) {
     .map(() => {
       const randomNum = Math.round(Math.random() * 9) + 1;
       return {
-        url: 'http://jsonplaceholder.typicode.com/users/' + String(randomNum),
+        url: 'https://jsonplaceholder.typicode.com/users/' + String(randomNum),
         category: 'users',
         method: 'GET',
       };
