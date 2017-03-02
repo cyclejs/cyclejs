@@ -66,6 +66,6 @@ export {makeHashHistoryDriver} from './drivers';
  * [docs](https://github.com/mjackson/history/tree/v4.5.1#usage) for a good
  * description on the options.
  * @return {Function} the History Driver function
- * @function makeHashHistoryDriver
+ * @function makeServerHistoryDriver
  */
 export {makeServerHistoryDriver} from './drivers';
