@@ -341,7 +341,7 @@ describe('DOM Rendering', function () {
   });
 
   it('should render embedded HTML within SVG <foreignObject>', function (done) {
-    const thisBrowserSupportsForeignObject = document.implementation
+    const thisBrowserSupportsForeignObject = (document as any).implementation
       .hasFeature('www.http://w3.org/TR/SVG11/feature#Extensibility', '1.1');
 
     function app(sources: {DOM: MainDOMSource}) {
