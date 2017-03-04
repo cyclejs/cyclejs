@@ -54,6 +54,20 @@ describe('setup', function () {
     assert.strictEqual(typeof sources.other.addListener, 'function');
   });
 
+  it('should type-check keyof sources and sinks in main and drivers', function () {
+    function app(ext: {other: Stream<string>}) {
+      return {
+        other: ext.other.take(1).startWith('a'),
+      };
+    }
+
+    function driver() {
+      return xs.of('b');
+    }
+
+    setup(app, {other: driver});
+  });
+
   it('should call DevTool internal function to pass sinks', function () {
     let sandbox = sinon.sandbox.create();
     let spy = sandbox.spy();
@@ -73,14 +87,11 @@ describe('setup', function () {
   });
 
   it('should return a run() which in turn returns a dispose()', function (done) {
-    interface TestSources {
+    type TestSources = {
       other: Stream<number>;
-    }
-    interface TestSinks {
-      other: Stream<string>;
-    }
+    };
 
-    function app(sources: TestSources): TestSinks {
+    function app(sources: TestSources) {
       return {
         other: concat(
           sources.other.take(6).map(x => String(x)).startWith('a'),
@@ -88,10 +99,13 @@ describe('setup', function () {
         ),
       };
     }
+
     function driver(sink: Stream<string>) {
       return sink.map(x => x.charCodeAt(0)).compose(delay(1));
     }
-    let {sources, run} = setup<TestSources, TestSinks>(app, {other: driver});
+
+    const {sources, run} = setup(app, {other: driver});
+
     let dispose: any;
     sources.other.addListener({
       next: x => {
@@ -172,21 +186,18 @@ describe('setup', function () {
   });
 
   it('should not work after has been disposed', function (done) {
-    interface MySources {
+    type MySources = {
       other: Stream<string>;
-    }
-    interface MySinks {
-      other: Stream<number>;
-    }
+    };
 
-    function app(sources: MySources): MySinks {
+    function app(sources: MySources) {
       return {other: xs.periodic(100).map(i => i + 1)};
     }
     function driver(num$: Stream<number>): Stream<string> {
       return num$.map(num => 'x' + num);
     }
 
-    const {sources, run} = setup<MySources, MySinks>(app, {
+    const {sources, run} = setup(app, {
       other: driver,
     });
 
@@ -232,12 +243,12 @@ describe('run', function () {
     let sandbox = sinon.sandbox.create();
     const spy = sandbox.spy();
 
-    interface NiceSources {
+    type NiceSources = {
       other: Stream<string>;
-    }
-    interface NiceSinks {
+    };
+    type NiceSinks = {
       other: Stream<string>;
-    }
+    };
 
     function app(sources: NiceSources): NiceSinks {
       return {
@@ -249,7 +260,7 @@ describe('run', function () {
       return xs.of('b').debug(spy);
     }
 
-    let dispose = run<NiceSources, NiceSinks>(app, {other: driver});
+    let dispose = run(app, {other: driver});
     assert.strictEqual(typeof dispose, 'function');
     sinon.assert.calledOnce(spy);
     dispose();

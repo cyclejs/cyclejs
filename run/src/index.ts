@@ -15,9 +15,23 @@ export interface FantasyObservable {
   subscribe(observer: FantasyObserver): FantasySubscription;
 }
 
-export interface Sinks {
-  [driverName: string]: FantasyObservable;
+export type DisposeFunction = () => void;
+
+export interface DevToolEnabledSource {
+  _isCycleSource: string;
 }
+
+export type Drivers<So extends Sources, Si extends Sinks> = {
+  [P in keyof (So & Si)]: (stream: FantasyObservable, driverName: string) => any;
+};
+
+export type Sources = {
+  [name: string]: any;
+};
+
+export type Sinks = {
+  [name: string]: FantasyObservable;
+};
 
 /**
  * Sink proxies should be MemoryStreams in order to fix race conditions for
@@ -34,25 +48,11 @@ export interface Sinks {
  * Streams. Note: Cycle DOM driver is an example of such case, since it waits
  * for 'readystatechange'.
  */
-export interface SinkProxies extends Sinks {
-  [driverName: string]: MemoryStream<any>;
-}
+export type SinkProxies<Si extends Sinks> = {
+  [P in keyof Si]: MemoryStream<any>;
+};
 
-export type DisposeFunction = () => void;
-
-export interface DevToolEnabledSource {
-  _isCycleSource: string;
-}
-
-export interface DriverFunction {
-  (stream: FantasyObservable, driverName: string): any;
-}
-
-export interface DriversDefinition {
-  [driverName: string]: DriverFunction;
-}
-
-export interface CycleProgram<So, Si> {
+export interface CycleProgram<So extends Sources, Si extends Sinks> {
   sources: So;
   sinks: Si;
   run(): DisposeFunction;
@@ -67,8 +67,9 @@ function logToConsoleError(err: any) {
   }
 }
 
-function makeSinkProxies(drivers: DriversDefinition): SinkProxies {
-  const sinkProxies: SinkProxies = {};
+function makeSinkProxies<So extends Sources, Si extends Sinks>(
+                        drivers: Drivers<So, Si>): SinkProxies<Si> {
+  const sinkProxies: SinkProxies<Si> = {} as SinkProxies<Si>;
   for (const name in drivers) {
     if (drivers.hasOwnProperty(name)) {
       sinkProxies[name] = xs.createWithMemory<any>();
@@ -77,13 +78,15 @@ function makeSinkProxies(drivers: DriversDefinition): SinkProxies {
   return sinkProxies;
 }
 
-function callDrivers(drivers: DriversDefinition, sinkProxies: SinkProxies): any {
-  const sources = {};
+function callDrivers<So extends Sources, Si extends Sinks>(
+                    drivers: Drivers<So, Si>,
+                    sinkProxies: SinkProxies<Si>): So {
+  const sources: So = {} as So;
   for (const name in drivers) {
     if (drivers.hasOwnProperty(name)) {
-      sources[name] = drivers[name](sinkProxies[name], name);
-      if (sources[name] && typeof sources[name] === 'object') {
-        (sources[name] as DevToolEnabledSource)._isCycleSource = name;
+      sources[name as any] = drivers[name](sinkProxies[name], name);
+      if (sources[name as any] && typeof sources[name as any] === 'object') {
+        (sources[name as any] as DevToolEnabledSource)._isCycleSource = name;
       }
     }
   }
@@ -91,7 +94,7 @@ function callDrivers(drivers: DriversDefinition, sinkProxies: SinkProxies): any 
 }
 
 // NOTE: this will mutate `sources`.
-function adaptSources<So extends Object>(sources: So): So {
+function adaptSources<So extends Sources>(sources: So): So {
   for (const name in sources) {
     if (sources.hasOwnProperty(name)
     && sources[name]
@@ -108,28 +111,30 @@ function adaptSources<So extends Object>(sources: So): So {
  * Complete is triggered only on disposeReplication. See discussion in #425
  * for details.
  */
-interface SinkReplicators {
-  [name: string]: {
+type SinkReplicators<Si extends Sinks> = {
+  [P in keyof Si]: {
     next(x: any): void;
     _n?(x: any): void;
     error(err: any): void;
     _e?(err: any): void;
     complete(): void;
   };
-}
+};
 
-interface ReplicationBuffers {
-  [name: string]: {
+type ReplicationBuffers<Si extends Sinks> = {
+  [P in keyof Si]: {
     _n: Array<any>;
     _e: Array<any>;
   };
-}
+};
 
-function replicateMany(sinks: Sinks, sinkProxies: SinkProxies): DisposeFunction {
-  const sinkNames = Object.keys(sinks).filter(name => !!sinkProxies[name]);
+function replicateMany<So extends Sources, Si extends Sinks>(
+                      sinks: Si,
+                      sinkProxies: SinkProxies<Si>): DisposeFunction {
+  const sinkNames: Array<keyof Si> = Object.keys(sinks).filter(name => !!sinkProxies[name]);
 
-  let buffers: ReplicationBuffers = {};
-  const replicators: SinkReplicators = {};
+  let buffers: ReplicationBuffers<Si> = {} as ReplicationBuffers<Si>;
+  const replicators: SinkReplicators<Si> = {} as SinkReplicators<Si>;
   sinkNames.forEach((name) => {
     buffers[name] = {_n: [], _e: []};
     replicators[name] = {
@@ -140,7 +145,7 @@ function replicateMany(sinks: Sinks, sinkProxies: SinkProxies): DisposeFunction 
   });
 
   const subscriptions = sinkNames
-    .map(name => xs.fromObservable<any>(sinks[name]).subscribe(replicators[name]));
+    .map(name => xs.fromObservable(sinks[name] as any).subscribe(replicators[name]));
 
   sinkNames.forEach((name) => {
     const listener = sinkProxies[name];
@@ -163,7 +168,7 @@ function replicateMany(sinks: Sinks, sinkProxies: SinkProxies): DisposeFunction 
   };
 }
 
-function disposeSources<So>(sources: So) {
+function disposeSources<So extends Sources>(sources: So) {
   for (const k in sources) {
     if (sources.hasOwnProperty(k) && sources[k] && (sources[k] as any).dispose) {
       (sources[k] as any).dispose();
@@ -203,8 +208,9 @@ function isObjectEmpty(obj: any): boolean {
  * is the function that once called will execute the application.
  * @function setup
  */
-export function setup<So, Si>(main: (sources: So) => Si,
-                              drivers: DriversDefinition): CycleProgram<So, Si> {
+export function setup<So extends Sources, Si extends Sinks>(
+                     main: (sources: So) => Si,
+                     drivers: Drivers<So, Si>): CycleProgram<So, Si> {
   if (typeof main !== `function`) {
     throw new Error(`First argument given to Cycle must be the 'main' ` +
       `function.`);
@@ -219,15 +225,15 @@ export function setup<So, Si>(main: (sources: So) => Si,
   }
 
   const sinkProxies = makeSinkProxies(drivers);
-  const sources: So = callDrivers(drivers, sinkProxies);
-  const adaptedSources: So = adaptSources(sources);
-  const sinks: Si = main(adaptedSources);
+  const sources = callDrivers(drivers, sinkProxies);
+  const adaptedSources = adaptSources(sources);
+  const sinks = main(adaptedSources);
   if (typeof window !== 'undefined') {
     (window as any).Cyclejs = (window as any).Cyclejs || {};
     (window as any).Cyclejs.sinks = sinks;
   }
   function run(): DisposeFunction {
-    const disposeReplication = replicateMany(sinks as any as Sinks, sinkProxies);
+    const disposeReplication = replicateMany(sinks, sinkProxies);
     return function dispose() {
       disposeSources(sources);
       disposeReplication();
@@ -263,8 +269,9 @@ export function setup<So, Si>(main: (sources: So) => Si,
  * Cycle.js program, cleaning up resources used.
  * @function run
  */
-export function run<So, Si>(main: (sources: So) => Si,
-                            drivers: DriversDefinition): DisposeFunction {
+export function run<So extends Sources, Si extends Sinks>(
+                   main: (sources: So) => Si,
+                   drivers: Drivers<So, Si>): DisposeFunction {
   const {run, sinks} = setup(main, drivers);
   if (typeof window !== 'undefined' && window['CyclejsDevTool_startGraphSerializer']) {
     window['CyclejsDevTool_startGraphSerializer'](sinks);
