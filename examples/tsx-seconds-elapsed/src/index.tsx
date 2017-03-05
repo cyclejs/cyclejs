@@ -3,19 +3,17 @@ import {run} from '@cycle/run';
 import {makeDOMDriver, DOMSource, VNode} from '@cycle/dom';
 const {html} = require('snabbdom-jsx');
 
-interface Sources {
+type Sources = {
   DOM: DOMSource;
-}
+};
 
-interface Sinks {
-  DOM: Stream<VNode>;
-}
+type Sinks = {
+  DOM: Stream<JSX.Element>;
+};
 
-function main(sources: Sources) {
+function main(sources: Sources): Sinks {
    const vdom$ = xs.periodic(1000).map(i => i + 1).startWith(0)
-     .map(i =>
-       <div>Seconds elapsed {i}</div>
-     );
+     .map(i => <div>Seconds elapsed {i}</div>);
 
   return {
     DOM: vdom$,
@@ -23,5 +21,5 @@ function main(sources: Sources) {
 }
 
 run(main, {
-  DOM: makeDOMDriver('#main-container')
+  DOM: makeDOMDriver('#main-container'),
 });

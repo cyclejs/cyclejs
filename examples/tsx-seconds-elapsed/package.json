@@ -5,10 +5,10 @@
   "author": "Kay Plößer",
   "license": "MIT",
   "dependencies": {
-    "@cycle/run": "1.0.0-rc.8",
-    "@cycle/dom": "15.0.0-rc.2",
+    "@cycle/run": "2.0",
+    "@cycle/dom": "15.2",
     "snabbdom-jsx": "0.3.1",
-    "xstream": "10.x.x"
+    "xstream": "10.x"
   },
   "devDependencies": {
     "@types/node": "^7.0.4",
@@ -19,7 +19,7 @@
     "babelify": "^7.2.0",
     "browserify": "13.0.x",
     "mkdirp": "0.5.x",
-    "typescript": "2.1.x"
+    "typescript": "2.2.x"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
