@@ -21,8 +21,12 @@ export interface DevToolEnabledSource {
   _isCycleSource: string;
 }
 
+export interface Driver<Sink, Source> {
+  (stream: Sink, driverName?: string): Source;
+}
+
 export type Drivers<So extends Sources, Si extends Sinks> = {
-  [P in keyof (So & Si)]: (stream: Si[P], driverName?: string) => So[P];
+  [P in keyof (So & Si)]: Driver<Si[P], So[P]>;
 };
 
 export type Sources = {

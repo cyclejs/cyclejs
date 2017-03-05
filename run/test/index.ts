@@ -1,7 +1,7 @@
 import 'mocha';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
-import {run, setup, Sources, Sinks} from '../lib';
+import {run, setup, Sources, Sinks, Driver} from '../lib';
 import {setAdapt} from '../lib/adapt';
 import xs, {Stream} from 'xstream';
 import concat from 'xstream/extra/concat';
@@ -72,13 +72,14 @@ describe('setup', function () {
       };
     }
 
-    function stringDriver(sink: Stream<string>) {
-      return xs.of('b');
-    }
+    const stringDriver: Driver<Stream<string>, Stream<string>> =
+      (sink: Stream<string>) => xs.of('b');
 
-    const numberWriteOnlyDriver = (sink: Stream<number>) => {};
+    const numberWriteOnlyDriver: Driver<Stream<number>, void> =
+      (sink: Stream<number>) => {};
 
-    const objectReadOnlyDriver = () => xs.of({});
+    const objectReadOnlyDriver: Driver<void, Stream<object>> =
+      () => xs.of({});
 
     setup(app, {
       str: stringDriver,
