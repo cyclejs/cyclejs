@@ -81,8 +81,6 @@ describe("@cycle/time", () => {
   });
 
   libraries.forEach(library => {
-    const skipFor = (name, f) => name === library.name ? null : f()
-
     describe(library.name, () => {
       before(() => setAdapt(library.adapt));
 
@@ -312,50 +310,48 @@ describe("@cycle/time", () => {
             Time.run(done);
           });
 
-          skipFor('most', () => {
-            it("logs unexpected errors", (done) => {
-              const Time = mockTimeSource();
+          it("logs unexpected errors", (done) => {
+            const Time = mockTimeSource();
 
-              const input$ = Time.diagram(
-                `---A---B---C---|`
-              );
+            const input$ = Time.diagram(
+              `---A---B---C---|`
+            );
 
-              const expectedError = 'Something went unexpectedly wrong!';
+            const expectedError = 'Something went unexpectedly wrong!';
 
-              function transformation (character) {
-                if (character === 'A') {
-                  return 'X';
-                }
-
-                if (character === 'B') {
-                  throw new Error(expectedError);
-                }
+            function transformation (character) {
+              if (character === 'A') {
+                return 'X';
               }
 
-              const actual$ = input$.map(transformation);
+              if (character === 'B') {
+                throw new Error(expectedError);
+              }
+            }
 
-              const expected$ = Time.diagram(
-                `---X---Y---Z---|`
+            const actual$ = input$.map(transformation);
+
+            const expected$ = Time.diagram(
+              `---X---Y---Z---|`
+            );
+
+            Time.assertEqual(actual$, expected$);
+            Time.run((err) => {
+              if (!err) {
+                done(new Error('expected test to fail'));
+              }
+
+              assert(
+                err.message.indexOf(expectedError) !== -1,
+                [
+                  'Expected failure message to include error, did not:',
+                  err.message,
+                  'to include:',
+                  expectedError
+                ].join('\n\n')
               );
 
-              Time.assertEqual(actual$, expected$);
-              Time.run((err) => {
-                if (!err) {
-                  done(new Error('expected test to fail'));
-                }
-
-                assert(
-                  err.message.indexOf(expectedError) !== -1,
-                  [
-                    'Expected failure message to include error, did not:',
-                    err.message,
-                    'to include:',
-                    expectedError
-                  ].join('\n\n')
-                );
-
-                done();
-              });
+              done();
             });
           });
 

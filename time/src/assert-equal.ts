@@ -151,7 +151,6 @@ function chunkBy (values, f) {
 
     const lastItem = items[items.length - 1];
 
-
     return {
       items: items.slice(0, -1).concat([lastItem.concat(value)]),
       previousValue
