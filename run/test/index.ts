@@ -1,7 +1,7 @@
 import 'mocha';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
-import {run, setup} from '../lib';
+import {run, setup, Sources, Sinks} from '../lib';
 import {setAdapt} from '../lib/adapt';
 import xs, {Stream} from 'xstream';
 import concat from 'xstream/extra/concat';
@@ -55,17 +55,63 @@ describe('setup', function () {
   });
 
   it('should type-check keyof sources and sinks in main and drivers', function () {
-    function app(ext: {other: Stream<string>}) {
+    type Sources = {
+      str: Stream<string>;
+      obj: Stream<object>;
+    };
+
+    function app(sources: Sources) {
       return {
-        other: ext.other.take(1).startWith('a'),
+        str: sources.str.take(1).startWith('a'), // good
+        // str: sources.obj.mapTo('good'), // good
+        // strTYPO: sources.str.take(1).startWith('a'), // bad
+        // str: xs.of(123), // bad
+        num: xs.of(100), // good
+        // numTYPO: xs.of(100), // bad
+        // num: xs.of('BAD TYPE'), // bad
       };
     }
 
-    function driver() {
+    function stringDriver(sink: Stream<string>) {
       return xs.of('b');
     }
 
-    setup(app, {other: driver});
+    const numberWriteOnlyDriver = (sink: Stream<number>) => {};
+
+    const objectReadOnlyDriver = () => xs.of({});
+
+    setup(app, {
+      str: stringDriver,
+      num: numberWriteOnlyDriver,
+      obj: objectReadOnlyDriver,
+    });
+  });
+
+  it('should type-check and allow more drivers than sinks', function () {
+    type Sources = {
+      str: Stream<string>;
+      num: Stream<number>;
+      obj: Stream<object>;
+    };
+
+    function app(sources: Sources) {
+      return {
+      };
+    }
+
+    function stringDriver(sink: Stream<string>) {
+      return xs.of('b');
+    }
+
+    const numberDriver = (sink: Stream<number>) => xs.of(100);
+
+    const objectReadOnlyDriver = () => xs.of({});
+
+    setup(app, {
+      str: stringDriver,
+      num: numberDriver,
+      obj: objectReadOnlyDriver,
+    });
   });
 
   it('should call DevTool internal function to pass sinks', function () {

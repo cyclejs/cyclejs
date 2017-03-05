@@ -22,7 +22,7 @@ export interface DevToolEnabledSource {
 }
 
 export type Drivers<So extends Sources, Si extends Sinks> = {
-  [P in keyof (So & Si)]: (stream: FantasyObservable, driverName: string) => any;
+  [P in keyof (So & Si)]: (stream: Si[P], driverName?: string) => So[P];
 };
 
 export type Sources = {
@@ -224,8 +224,8 @@ export function setup<So extends Sources, Si extends Sinks>(
       `with at least one driver function declared as a property.`);
   }
 
-  const sinkProxies = makeSinkProxies(drivers);
-  const sources = callDrivers(drivers, sinkProxies);
+  const sinkProxies = makeSinkProxies<So, Si>(drivers);
+  const sources = callDrivers<So, Si>(drivers, sinkProxies);
   const adaptedSources = adaptSources(sources);
   const sinks = main(adaptedSources);
   if (typeof window !== 'undefined') {
