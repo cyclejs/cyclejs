@@ -193,7 +193,11 @@ function diagramString (entries, interval): string {
     if (chunk.length === 1) {
       diagram[characterIndex] = characterString(chunk[0]);
     } else {
-      diagram[characterIndex] = `(${chunk.map(characterString).join('')})`;
+      const characters = ['(', ...chunk.map(characterString), ')'];
+
+      characters.forEach((character, subIndex) => {
+        diagram[characterIndex + subIndex] = character;
+      });
     }
   });
 

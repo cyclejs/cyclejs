@@ -384,6 +384,37 @@ describe("@cycle/time", () => {
               done();
             });
           });
+
+          it("displays simultaneous events correcly", (done) => {
+            const Time = mockTimeSource();
+
+            const input    = `---(11)---(22)---(33)---|`;
+            const expected = `---(11)---(22)---(34)---|`;
+
+            const complete = (err) => {
+              if (err) {
+                const lines = err.message.split(/\s+/).filter(a => a.length > 0);
+
+                assert([
+                  'Expected',
+                  expected,
+                  'Got',
+                  input
+                ].every(expectedLine => lines.indexOf(expectedLine) !== -1));
+
+                done();
+              } else {
+                throw new Error('expected test to fail');
+              }
+            }
+
+            Time.assertEqual(
+              Time.diagram(input),
+              Time.diagram(expected)
+            );
+
+            Time.run(complete);
+          });
         });
 
         describe(".periodic", () => {
