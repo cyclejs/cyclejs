@@ -25,18 +25,18 @@ describe('setup', function () {
 
   it('should throw if second argument is an empty object', function () {
     assert.throws(() => {
-      setup(() => {}, {});
+      setup(() => ({}), {});
     }, /Second argument given to Cycle must be an object with at least one/i);
   });
 
   it('should return sinks object and sources object', function () {
-    interface MySources {
+    type MySources = {
       other: Stream<string>;
-    }
+    };
 
-    interface MySinks {
+    type MySinks = {
       other: Stream<string>;
-    }
+    };
 
     function app(sources: MySources): MySinks {
       return {
@@ -56,13 +56,13 @@ describe('setup', function () {
   });
 
   it('should return a run() which in turn returns a dispose()', function (done) {
-    interface TestSources {
+    type TestSources = {
       other: Stream<number>;
-    }
+    };
 
-    interface TestSinks {
+    type TestSinks = {
       other: Stream<string>;
-    }
+    };
 
     function app(sources: TestSources): TestSinks {
       return {
@@ -126,7 +126,7 @@ describe('run()', function () {
 
   it('should throw if second argument is an empty object', function () {
     assert.throws(() => {
-      run(() => {}, {});
+      run(() => ({}), {});
     }, /Second argument given to Cycle must be an object with at least one/i);
   });
 
