@@ -1,3 +1,23 @@
+<a name="7.0.0"></a>
+# 7.0.0 (2017-03-05)
+
+
+### Bug Fixes
+
+* **most-run:** check for matching stream types in sinks and drivers ([06dd793](https://github.com/cyclejs/cyclejs/tree/master/most-run/commit/06dd793))
+
+
+### BREAKING CHANGES
+
+* most-run: If you are using JavaScript, literally nothing changes. If you are using
+TypeScript, this version may detect more errors than before, and may
+break (by not compiling) your existing code if your existing code
+happened to have a sneaky bug.
+
+ISSUES CLOSED: 541
+
+
+
 <a name="6.0.0"></a>
 # 6.0.0 (2017-03-05)
 
