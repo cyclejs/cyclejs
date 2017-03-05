@@ -29,13 +29,13 @@ describe('setup', function () {
   });
 
   it('should return sinks object and sources object', function () {
-    interface MySources {
+    type MySources = {
       other: Observable<string>;
-    }
+    };
 
-    interface MySinks {
+    type MySinks = {
       other: Observable<string>;
-    }
+    };
 
     function app(sources: MySources): MySinks {
       return {
@@ -55,13 +55,13 @@ describe('setup', function () {
   });
 
   it('should return a run() which in turn returns a dispose()', function (done) {
-    interface TestSources {
+    type TestSources = {
       other: Observable<number>;
-    }
+    };
 
-    interface TestSinks {
+    type TestSinks = {
       other: Observable<string>;
-    }
+    };
 
     function app(sources: TestSources): TestSinks {
       return {

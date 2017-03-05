@@ -4,7 +4,9 @@ import {setAdapt} from '@cycle/run/lib/adapt';
 import {
   setup as coreSetup,
   DisposeFunction,
-  DriversDefinition,
+  Drivers,
+  Sources,
+  Sinks,
   CycleProgram,
 } from '@cycle/run';
 
@@ -39,8 +41,9 @@ setAdapt(function adaptXstreamToRx(stream: Stream<any>): Observable<any> {
  * Cycle.js program, cleaning up resources used.
  * @function run
  */
-export function run<So, Si>(main: (sources: So) => Si,
-                            drivers: DriversDefinition): DisposeFunction {
+export function run<So extends Sources, Si extends Sinks>(
+                   main: (sources: So) => Si,
+                   drivers: Drivers<So, Si>): DisposeFunction {
   const {run} = coreSetup(main, drivers);
   return run();
 }
@@ -73,8 +76,9 @@ export function run<So, Si>(main: (sources: So) => Si,
  * is the function that once called will execute the application.
  * @function setup
  */
-export function setup<So, Si>(main: (sources: So) => Si,
-                              drivers: DriversDefinition): CycleProgram<So, Si> {
+export function setup<So extends Sources, Si extends Sinks>(
+                     main: (sources: So) => Si,
+                     drivers: Drivers<So, Si>): CycleProgram<So, Si> {
   return coreSetup(main, drivers);
 };
 
