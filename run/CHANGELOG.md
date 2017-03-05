@@ -1,3 +1,23 @@
+<a name="3.0.0"></a>
+# 3.0.0 (2017-03-05)
+
+
+### Bug Fixes
+
+* **run:** check for matching stream types of sinks and drivers ([4b4094c](https://github.com/cyclejs/cyclejs/tree/master/run/commit/4b4094c))
+* **run:** reintroduce Driver function TS type ([1ad62cb](https://github.com/cyclejs/cyclejs/tree/master/run/commit/1ad62cb))
+
+
+### BREAKING CHANGES
+
+* run: If you are using JavaScript, literally nothing changes. If you are using TypeScript, this version
+may detect more errors than before, and may break (by not compiling) your existing code if your
+existing code happened to have a sneaky bug.
+
+ISSUES CLOSED: 541
+
+
+
 <a name="2.0.0"></a>
 # 2.0.0 (2017-03-05)
 
