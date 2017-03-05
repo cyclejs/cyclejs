@@ -1,3 +1,24 @@
+<a name="2.0.0"></a>
+# 2.0.0 (2017-03-05)
+
+
+### Bug Fixes
+
+* **run:** type check keyof drivers and main with TypeScript 2.2 ([da528c7](https://github.com/cyclejs/cyclejs/tree/master/run/commit/da528c7))
+
+
+### BREAKING CHANGES
+
+* run: If you are using JavaScript, literally nothing has changed, and this is not a breaking release.
+However, if you are using TypeScript, this version may catch errors and typos that previous Cycle
+Run versions didnt. Also, this version expects that if Sinks of main() are typed, they must be a
+type alias, not an interface. Usually you should leave the Sinks object implicitly typed, but we
+also support type aliases if you want to explicitly type them.
+
+ISSUES CLOSED: 538
+
+
+
 <a name="1.0.0"></a>
 # 1.0.0 (2017-02-22)
 
