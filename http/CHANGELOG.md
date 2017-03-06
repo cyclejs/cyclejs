@@ -1,3 +1,23 @@
+<a name="13.0.0"></a>
+# 13.0.0 (2017-03-06)
+
+
+### Bug Fixes
+
+* **http:** make the drivers type-checkable by TypeScript 2.2 ([a96243e](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/a96243e))
+
+
+### BREAKING CHANGES
+
+* http: If you are using JavaScript, literally nothing changed. If you
+are using TypeScript, notice that this version may catch errors
+that were not catched before, but these errors indicate real
+issues/bugs in your application.
+
+ISSUES CLOSED: 542
+
+
+
 <a name="12.0.0"></a>
 # 12.0.0 (2017-02-22)
 
