@@ -250,6 +250,7 @@ describe('isolation', function () {
 
     const {sinks, sources, run} = setup(app, {
       DOM: makeDOMDriver(createRenderTarget()),
+      island: (sink) => {},
     });
 
     sinks.island.drop(1).take(1).addListener({
@@ -304,6 +305,8 @@ describe('isolation', function () {
 
     const {sources, sinks, run} = setup(Monalisa, {
       DOM: makeDOMDriver(createRenderTarget()),
+      frameClick: (sink) => {},
+      monalisaClick: (sink) => {},
     });
     let dispose: any;
 
@@ -449,6 +452,7 @@ describe('isolation', function () {
 
     const {sinks, sources, run} = setup(IsolatedApp, {
       DOM: makeDOMDriver(createRenderTarget()),
+      triangleElement: (sink) => {},
     });
 
     // Make assertions

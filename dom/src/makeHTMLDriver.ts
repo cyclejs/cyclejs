@@ -1,4 +1,4 @@
-import {DriverFunction} from '@cycle/run';
+import {Driver, FantasyObservable} from '@cycle/run';
 import {Stream} from 'xstream';
 import {VNode} from 'snabbdom/vnode';
 import {DOMSource} from './DOMSource';
@@ -33,11 +33,12 @@ export interface HTMLDriverOptions {
 export type EffectCallback = (html: string) => void;
 const noop = () => {};
 
-export function makeHTMLDriver(effect: EffectCallback, options?: HTMLDriverOptions) {
+export function makeHTMLDriver<T>(effect: EffectCallback,
+                                  options?: HTMLDriverOptions): Driver<T, HTMLSource> {
   if (!options) { options = {}; }
   const modules = options.modules || defaultModules;
   const toHTML = init(modules);
-  function htmlDriver(vnode$: Stream<VNode>, name: string): DOMSource {
+  function htmlDriver(vnode$: Stream<VNode>, name: string): HTMLSource {
     const html$ = vnode$.map(toHTML);
     html$.addListener({
       next: effect || noop,
@@ -46,5 +47,5 @@ export function makeHTMLDriver(effect: EffectCallback, options?: HTMLDriverOptio
     });
     return new HTMLSource(html$, name);
   };
-  return htmlDriver;
+  return htmlDriver as any;
 }

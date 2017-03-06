@@ -74,12 +74,12 @@ describe('HTML Driver', function () {
   });
 
   it('should output HTMLSource as an adapted stream', function (done) {
-    interface MySources {
+    type MySources = {
       html: HTMLSource;
-    }
-    interface MySinks {
+    };
+    type MySinks = {
       html: Observable<VNode>;
-    }
+    };
 
     function app(sources: MySources): MySinks {
       return {

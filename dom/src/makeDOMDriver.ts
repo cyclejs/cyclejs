@@ -1,4 +1,4 @@
-import {DriverFunction} from '@cycle/run';
+import {Driver, FantasyObservable} from '@cycle/run';
 import {init} from 'snabbdom';
 import {Module} from 'snabbdom/modules/module';
 import xs, {Stream} from 'xstream';
@@ -45,7 +45,8 @@ function reportSnabbdomError(err: any): void {
   (console.error || console.log)(err);
 }
 
-function makeDOMDriver(container: string | Element, options?: DOMDriverOptions) {
+function makeDOMDriver<T>(container: string | Element,
+                          options?: DOMDriverOptions): Driver<T, MainDOMSource> {
   if (!options) { options = {}; }
   const modules = options.modules || defaultModules;
   const isolateModule = new IsolateModule();
@@ -55,7 +56,7 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions) 
   const delegators = new MapPolyfill<string, EventDelegator>();
   makeDOMDriverInputGuard(modules);
 
-  function DOMDriver(vnode$: Stream<VNode>, name = 'DOM'): DOMSource {
+  function DOMDriver(vnode$: Stream<VNode>, name = 'DOM'): MainDOMSource {
     domDriverInputGuard(vnode$);
     const sanitation$ = xs.create<null>();
     const rootElement$ = xs.merge(vnode$.endWhen(sanitation$), sanitation$)
@@ -88,7 +89,7 @@ function makeDOMDriver(container: string | Element, options?: DOMDriverOptions) 
     );
   };
 
-  return DOMDriver;
+  return DOMDriver as any;
 }
 
 export {makeDOMDriver}
