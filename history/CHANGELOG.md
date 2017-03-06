@@ -1,3 +1,22 @@
+<a name="6.0.0"></a>
+# 6.0.0 (2017-03-06)
+
+
+### Bug Fixes
+
+* **history:** make the drivers type-checkable by TypeScript 2.2 ([3f24624](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/3f24624))
+
+
+### BREAKING CHANGES
+
+* history: If you are using JavaScript, literally nothing changed. If you are using TypeScript, notice that
+this version may catch errors that were not catched before, but these errors indicate real
+issues/bugs in your application.
+
+ISSUES CLOSED: 542
+
+
+
 <a name="5.0.0"></a>
 # 5.0.0 (2017-02-22)
 
