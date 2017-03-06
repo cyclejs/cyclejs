@@ -1,5 +1,5 @@
 import xs, {Stream, MemoryStream} from 'xstream';
-import {DriverFunction} from '@cycle/run';
+import {Driver} from '@cycle/run';
 import {adapt} from '@cycle/run/lib/adapt';
 import {MainHTTPSource} from './MainHTTPSource';
 import * as superagent from 'superagent';
@@ -146,7 +146,7 @@ function requestInputToResponse$(reqInput: RequestInput): ResponseMemoryStream {
   return response$ as ResponseMemoryStream;
 };
 
-export function makeHTTPDriver(): DriverFunction {
+export function makeHTTPDriver(): Driver<Stream<RequestInput>, HTTPSource> {
   function httpDriver(request$: Stream<RequestInput>, name: string): HTTPSource {
     const response$$ = request$
       .map(requestInputToResponse$);
