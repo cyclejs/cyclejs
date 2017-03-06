@@ -1,5 +1,6 @@
 import {Stream} from 'xstream';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/observable/from';
 import {setAdapt} from '@cycle/run/lib/adapt';
 import {
   setup as coreSetup,
