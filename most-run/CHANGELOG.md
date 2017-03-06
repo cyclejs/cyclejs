@@ -1,3 +1,13 @@
+<a name="7.1.0"></a>
+# 7.1.0 (2017-03-06)
+
+
+### Bug Fixes
+
+* **most-run:** catch less impossible-to-satisfy TypeScript errors ([0a45529](https://github.com/cyclejs/cyclejs/tree/master/most-run/commit/0a45529))
+
+
+
 <a name="7.0.0"></a>
 # 7.0.0 (2017-03-05)
 
