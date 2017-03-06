@@ -230,7 +230,7 @@ describe('isolation on MockedDOMSource', function () {
     const {sinks, sources, run} = setup(app, {
       DOM: () => mockDOMSource({}),
     });
-    let dispose = run();
+    const dispose = run();
     const isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'foo');
     // Make assertions
     assert.strictEqual(typeof isolatedDOMSource.isolateSource, 'function');

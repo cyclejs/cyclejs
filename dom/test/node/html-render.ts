@@ -3,7 +3,7 @@ import * as assert from 'assert';
 import * as Rx from 'rxjs';
 import {Observable} from 'rxjs';
 import 'rxjs/add/operator/observeOn';
-import {setup} from '@cycle/rxjs-run';
+import {setup, run} from '@cycle/rxjs-run';
 import {div, h3, h2, h, makeHTMLDriver, VNode, HTMLSource} from '../../lib';
 
 describe('HTML Driver', function () {
@@ -19,10 +19,9 @@ describe('HTML Driver', function () {
       done();
     }
 
-    let {sinks, sources, run} = setup(app, {
+    run(app, {
       html: makeHTMLDriver(effect),
     });
-    run();
   });
 
   it('should allow effect to see one or many HTML outputs', function (done) {
@@ -47,10 +46,9 @@ describe('HTML Driver', function () {
       }
     }
 
-    let {sinks, sources, run} = setup(app, {
+    run(app, {
       html: makeHTMLDriver(effect),
     });
-    run();
   });
 
   it('should allow effect to see one (the last) HTML outputs', function (done) {
@@ -67,10 +65,9 @@ describe('HTML Driver', function () {
       done();
     }
 
-    let {sinks, sources, run} = setup(app, {
+    run(app, {
       html: makeHTMLDriver(effect),
     });
-    run();
   });
 
   it('should output HTMLSource as an adapted stream', function (done) {
@@ -86,7 +83,7 @@ describe('HTML Driver', function () {
         html: Rx.Observable.of(div('.test-element', ['Foobar'])),
       };
     }
-    let {sinks, sources, run} = setup(app, {
+    const {sources} = setup(app, {
       html: makeHTMLDriver((html: string) => {}),
     });
     assert.strictEqual(typeof (sources.html.elements() as any).observeOn, 'function');
@@ -99,7 +96,7 @@ describe('HTML Driver', function () {
         html: Rx.Observable.of(div('.test-element', ['Foobar'])),
       };
     }
-    let {sinks, sources, run} = setup(app, {
+    const {sources} = setup(app, {
       html: makeHTMLDriver((html: string) => {}),
     });
     assert.strictEqual((sources.html.elements() as any)._isCycleSource, 'html');
@@ -112,7 +109,7 @@ describe('HTML Driver', function () {
         html: Rx.Observable.of(div('.test-element', ['Foobar'])),
       };
     }
-    let {sinks, sources, run} = setup(app, {
+    const {sources} = setup(app, {
       html: makeHTMLDriver((html: string) => {}),
     });
     assert.strictEqual((sources.html.events('click') as any)._isCycleSource, 'html');
@@ -140,10 +137,9 @@ describe('HTML Driver', function () {
       done();
     }
 
-    let {sinks, sources, run} = setup(app, {
+    run(app, {
       html: makeHTMLDriver(effect),
     });
-    run();
   });
 
   it('should output simple HTML Observable', function (done) {
@@ -158,10 +154,9 @@ describe('HTML Driver', function () {
       done();
     }
 
-    let {sinks, sources, run} = setup(app, {
+    run(app, {
       html: makeHTMLDriver(effect),
     });
-    run();
   });
 
   it('should support passing custom modules', function (done) {
@@ -235,10 +230,8 @@ describe('HTML Driver', function () {
       done();
     }
 
-    let {sources, run} = setup(app, {
+    run(app, {
       html: makeHTMLDriver(effect),
     });
-
-    run();
   });
 });

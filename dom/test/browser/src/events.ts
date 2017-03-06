@@ -18,7 +18,7 @@ import {
 } from '../../../lib';
 
 function createRenderTarget(id: string | null = null) {
-  let element = document.createElement('div');
+  const element = document.createElement('div');
   element.className = 'cycletest';
   if (id) {
     element.id = id;
@@ -37,12 +37,8 @@ function testFragmentEvents() {
   const child = document.createElement('div');
   fragment.appendChild(parent);
   parent.appendChild(child);
-  parent.addEventListener('fragmentCapture', function() {
-    captures = true;
-  }, true);
-  parent.addEventListener('fragmentBubble', function() {
-    bubbles = true;
-  }, false);
+  parent.addEventListener('fragmentCapture', () => { captures = true; }, true);
+  parent.addEventListener('fragmentBubble', () => { bubbles = true; }, false);
   captureEvent.initCustomEvent('fragmentCapture', false, true, null);
   bubbleEvent.initCustomEvent('fragmentBubble', true, true, null);
   child.dispatchEvent(captureEvent);
@@ -97,7 +93,7 @@ describe('DOMSource.events()', function () {
     const {sinks, sources, run} = setup(app, {
       DOM: makeDOMDriver(createRenderTarget()),
     });
-    let dispose = run();
+    const dispose = run();
     sources.DOM.select('.myelementclass').events('click').addListener({
       next(ev: Event) {
         assert.strictEqual(ev.type, 'click');
@@ -126,7 +122,7 @@ describe('DOMSource.events()', function () {
     }
 
     const containerElement = createRenderTarget();
-    let headerElement = document.createElement('H3');
+    const headerElement = document.createElement('H3');
     headerElement.className = 'myelementclass';
     headerElement.textContent = 'Foobar';
     containerElement.appendChild(headerElement);
@@ -134,7 +130,7 @@ describe('DOMSource.events()', function () {
     const {sinks, sources, run} = setup(app, {
       DOM: makeDOMDriver(containerElement),
     });
-    let dispose = run();
+    const dispose = run();
     sources.DOM.select('.myelementclass').events('click').addListener({
       next: (ev: Event) => {
         assert.strictEqual(ev.type, 'click');
@@ -432,8 +428,8 @@ describe('DOMSource.events()', function () {
           assert.strictEqual(elem.className, 'clickable');
           assert.strictEqual(elem.textContent, 'Hello');
           const top = elem.parentElement as Node;
-          const renderTarget = top.parentNode as Node;
-          const frag = renderTarget.parentNode as Node;
+          const renderTarget2 = top.parentNode as Node;
+          const frag = renderTarget2.parentNode as Node;
           assert.strictEqual(frag instanceof DocumentFragment, true);
           done();
         },
@@ -478,8 +474,8 @@ describe('DOMSource.events()', function () {
           assert.strictEqual(elem.className, 'clickable');
           assert.strictEqual(elem.textContent, 'Hello');
           const top = elem.parentElement as Node;
-          const renderTarget = top.parentNode as Node;
-          const frag = renderTarget.parentNode as Node;
+          const renderTarget2 = top.parentNode as Node;
+          const frag = renderTarget2.parentNode as Node;
           assert.strictEqual(frag instanceof DocumentFragment, true);
           done();
         },

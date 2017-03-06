@@ -19,7 +19,7 @@ import {
 } from '../../../lib';
 
 function createRenderTarget(id: string | null = null) {
-  let element = document.createElement('div');
+  const element = document.createElement('div');
   element.className = 'cycletest';
   if (id) {
     element.id = id;
@@ -74,7 +74,7 @@ describe('DOMSource.select()', function () {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    let dispose = run();
+    const dispose = run();
     // Make assertions
     const selection = sources.DOM.select('.myelementclass');
     assert.strictEqual(typeof selection, 'object');

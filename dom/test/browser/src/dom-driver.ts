@@ -7,7 +7,7 @@ import {setup, run} from '@cycle/run';
 import {div, h3, makeDOMDriver, DOMSource, MainDOMSource} from '../../../lib';
 
 function createRenderTarget(id: string | null = null) {
-  let element = document.createElement('div');
+  const element = document.createElement('div');
   element.className = 'cycletest';
   if (id) {
     element.id = id;
@@ -71,7 +71,7 @@ describe('DOM Driver', function () {
     const {sinks, sources, run} = setup(app, {
       DOM: makeDOMDriver(createRenderTarget()),
     });
-    let dispose = run();
+    const dispose = run();
     assert.strictEqual(typeof sources.DOM.isolateSource, 'function');
     assert.strictEqual(typeof sources.DOM.isolateSink, 'function');
     dispose();
@@ -79,7 +79,7 @@ describe('DOM Driver', function () {
   });
 
   it('should report errors thrown in hooks', function (done) {
-    let sandbox = sinon.sandbox.create();
+    const sandbox = sinon.sandbox.create();
     sandbox.stub(console, 'error');
 
     function main(sources: {DOM: DOMSource}) {
@@ -163,7 +163,7 @@ describe('DOM Driver', function () {
   it('should clean up DOM on disposal', function (done) {
     let hookTick = 0;
     let hookInterval: any;
-    let hook = {
+    const hook = {
       insert: () => {
         hookInterval = setInterval(() => hookTick++, 10);
       },
@@ -190,7 +190,7 @@ describe('DOM Driver', function () {
       const hookTickOnDisposal = hookTick;
 
       setTimeout(() => {
-        let renderTarget = document.getElementById('disposal') as Element;
+        const renderTarget = document.getElementById('disposal') as Element;
         assert.equal(renderTarget.innerHTML, '');
         assert.ok(hookTick > 0);
         assert.equal(hookTickOnDisposal, hookTick);

@@ -20,7 +20,7 @@ import {
 } from '../../../lib';
 
 function createRenderTarget(id: string | null = null) {
-  let element = document.createElement('div');
+  const element = document.createElement('div');
   element.className = 'cycletest';
   if (id) {
     element.id = id;
@@ -79,7 +79,7 @@ describe('isolateSource', function () {
     const {sinks, sources, run} = setup(app, {
       DOM: makeDOMDriver(createRenderTarget()),
     });
-    let dispose = run();
+    const dispose = run();
     const isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'top-most');
     // Make assertions
     assert.strictEqual(typeof isolatedDOMSource.isolateSource, 'function');
@@ -334,7 +334,7 @@ describe('isolation', function () {
     ];
     frameClick$.take(2).addListener({
       next: event => {
-        let e = expected.shift() as any;
+        const e = expected.shift() as any;
         assert.strictEqual(event.type, e.type);
         assert.strictEqual(event.tagName, e.tagName);
         if (expected.length === 0) {
@@ -351,7 +351,7 @@ describe('isolation', function () {
     ];
     monalisaClick$.take(2).addListener({
       next: event => {
-        let e = otherExpected.shift() as any;
+        const e = otherExpected.shift() as any;
         assert.strictEqual(event.type, e.type);
         assert.strictEqual(event.tagName, e.tagName);
       },
@@ -469,7 +469,7 @@ describe('isolation', function () {
     run();
   });
 
-  it('should allow DOM.select()ing its own root without classname or id', function(done) {
+  it('should allow DOM.select()ing its own root without classname or id', function (done) {
     function app(sources: {DOM: MainDOMSource}) {
       const child$ = sources.DOM.isolateSink(xs.of(
         span([
@@ -510,7 +510,7 @@ describe('isolation', function () {
     run();
   });
 
-  it('should allow DOM.select()ing all elements with `*`', function(done) {
+  it('should allow DOM.select()ing all elements with `*`', function (done) {
     function app(sources: {DOM: MainDOMSource}) {
       const child$ = sources.DOM.isolateSink(xs.of(
         span([
@@ -801,7 +801,7 @@ describe('isolation', function () {
         }, 0);
       },
     });
-    setTimeout(function(){
+    setTimeout(() => {
       assert.strictEqual(clicksCount, 2);
       dispose();
       done();
@@ -850,7 +850,7 @@ describe('isolation', function () {
         }, 0);
       },
     });
-    setTimeout(function(){
+    setTimeout(() => {
       assert.strictEqual(clicksCount, 4);
       dispose();
       done();
@@ -906,7 +906,7 @@ describe('isolation', function () {
         }, 0);
       },
     });
-    setTimeout(function(){
+    setTimeout(() => {
       assert.strictEqual(clicksCount, 4);
       dispose();
       done();

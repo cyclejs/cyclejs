@@ -35,7 +35,7 @@ declare global {
 }
 
 function createRenderTarget(id: string | null = null) {
-  let element = document.createElement('div');
+  const element = document.createElement('div');
   element.className = 'cycletest';
   if (id) {
     element.id = id;
