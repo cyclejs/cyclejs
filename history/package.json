@@ -18,14 +18,14 @@
     "history": "4.5.x"
   },
   "devDependencies": {
-    "@cycle/dom": "15.0",
-    "@cycle/rxjs-run": "4.1",
+    "@cycle/dom": "15.2",
+    "@cycle/rxjs-run": "6.x",
     "@types/history": "^4.5.0",
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.46",
     "rxjs": "5.1.0",
     "saucie": "3.1.0",
-    "xstream": "10.x.x"
+    "xstream": "10.x"
   },
   "scripts": {
     "lint": "../node_modules/.bin/tslint --config ../tslint.json --project tsconfig.json",
