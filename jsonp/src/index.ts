@@ -1,4 +1,5 @@
 import xs, {Stream} from 'xstream';
+import {Driver} from '@cycle/run';
 import {adapt} from '@cycle/run/lib/adapt';
 import jsonp = require('jsonp');
 
@@ -54,7 +55,7 @@ export interface ResponseStream extends Stream<any> {
  * @return {Function} the JSONP Driver function
  * @function makeJSONPDriver
  */
-export function makeJSONPDriver() {
+export function makeJSONPDriver(): Driver<Stream<string>, Stream<ResponseStream>> {
   return function jsonpDriver(request$: Stream<string>): Stream<ResponseStream> {
     const response$$ = request$.map(createResponse$);
     return adapt(response$$);
