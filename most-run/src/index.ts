@@ -5,11 +5,16 @@ import {setAdapt} from '@cycle/run/lib/adapt';
 import {
   setup as coreSetup,
   DisposeFunction,
-  Drivers,
+  Driver,
+  FantasyObservable,
   Sources,
   Sinks,
   CycleProgram,
 } from '@cycle/run';
+
+export type Drivers<So extends Sources, Si extends Sinks> = {
+  [P in keyof (So & Si)]: Driver<FantasyObservable, any>;
+};
 
 setAdapt(function adaptXstreamToMost(stream: Stream<any>): MostStream<any> {
   return most.from(stream as any);

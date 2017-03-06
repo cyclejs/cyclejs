@@ -4,6 +4,7 @@ import * as sinon from 'sinon';
 import {run, setup} from '../lib';
 import * as most from 'most';
 import {Stream} from 'most';
+import xs from 'xstream';
 // require('creed').shim()
 
 describe('setup', function () {
@@ -83,6 +84,33 @@ describe('setup', function () {
       done();
     }).catch(done);
     dispose = run();
+  });
+
+  it('should not type check drivers that use xstream', function () {
+    type MySources = {
+      other: Stream<string>;
+    };
+
+    type MySinks = {
+      other: Stream<string>;
+    };
+
+    function app(sources: MySources): MySinks {
+      return {
+        other: sources.other.take(1).startWith('a'),
+      };
+    }
+    function xsdriver(sink: xs<string>): xs<string> {
+      return xs.of('b');
+    }
+
+    const {sinks, sources} = setup(app, {other: xsdriver});
+    assert.strictEqual(typeof sinks, 'object');
+    assert.strictEqual(typeof sinks.other.subscribe, 'function');
+    assert.strictEqual(typeof sources, 'object');
+    assert.notStrictEqual(typeof sources.other, 'undefined');
+    assert.notStrictEqual(sources.other, null);
+    assert.strictEqual(typeof sources.other.subscribe, 'function');
   });
 
   it('should not work after has been disposed', function (done) {
