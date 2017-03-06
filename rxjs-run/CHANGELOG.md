@@ -1,3 +1,13 @@
+<a name="6.1.0"></a>
+# 6.1.0 (2017-03-06)
+
+
+### Bug Fixes
+
+* **rxjs-run:** catch less impossible-to-satisfy TypeScript errors ([681c783](https://github.com/cyclejs/cyclejs/tree/master/rxjs-run/commit/681c783))
+
+
+
 <a name="6.0.0"></a>
 # 6.0.0 (2017-03-05)
 
