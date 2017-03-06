@@ -2,6 +2,7 @@ import 'mocha';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {run, setup} from '../lib';
+import xs, {Stream} from 'xstream';
 import * as Rx from 'rxjs';
 import {Observable} from 'rxjs';
 
@@ -46,6 +47,33 @@ describe('setup', function () {
       return Rx.Observable.of('b');
     }
     let {sinks, sources} = setup(app, {other: driver});
+    assert.strictEqual(typeof sinks, 'object');
+    assert.strictEqual(typeof sinks.other.subscribe, 'function');
+    assert.strictEqual(typeof sources, 'object');
+    assert.notStrictEqual(typeof sources.other, 'undefined');
+    assert.notStrictEqual(sources.other, null);
+    assert.strictEqual(typeof sources.other.subscribe, 'function');
+  });
+
+  it('should not type check drivers that use xstream', function () {
+    type MySources = {
+      other: Observable<string>;
+    };
+
+    type MySinks = {
+      other: Observable<string>;
+    };
+
+    function app(sources: MySources): MySinks {
+      return {
+        other: sources.other.take(1).startWith('a'),
+      };
+    }
+    function xsdriver(sink: Stream<string>): Stream<string> {
+      return xs.of('b');
+    }
+
+    const {sinks, sources} = setup(app, {other: xsdriver});
     assert.strictEqual(typeof sinks, 'object');
     assert.strictEqual(typeof sinks.other.subscribe, 'function');
     assert.strictEqual(typeof sources, 'object');

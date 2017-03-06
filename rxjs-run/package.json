@@ -38,7 +38,8 @@
     "@types/mocha": "2.2.x",
     "@types/node": "7.0.x",
     "@types/sinon": "1.16.x",
-    "rxjs": "5.1.x"
+    "rxjs": "5.1.x",
+    "xstream": "10.x"
   },
   "engines": {
     "node": ">=0.12.0"
