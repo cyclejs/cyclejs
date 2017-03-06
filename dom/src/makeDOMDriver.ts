@@ -45,8 +45,8 @@ function reportSnabbdomError(err: any): void {
   (console.error || console.log)(err);
 }
 
-function makeDOMDriver<T>(container: string | Element,
-                          options?: DOMDriverOptions): Driver<T, MainDOMSource> {
+function makeDOMDriver(container: string | Element,
+                       options?: DOMDriverOptions): Driver<Stream<VNode>, MainDOMSource> {
   if (!options) { options = {}; }
   const modules = options.modules || defaultModules;
   const isolateModule = new IsolateModule();

@@ -33,8 +33,8 @@ export interface HTMLDriverOptions {
 export type EffectCallback = (html: string) => void;
 const noop = () => {};
 
-export function makeHTMLDriver<T>(effect: EffectCallback,
-                                  options?: HTMLDriverOptions): Driver<T, HTMLSource> {
+export function makeHTMLDriver(effect: EffectCallback,
+                               options?: HTMLDriverOptions): Driver<Stream<VNode>, HTMLSource> {
   if (!options) { options = {}; }
   const modules = options.modules || defaultModules;
   const toHTML = init(modules);
