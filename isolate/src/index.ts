@@ -23,34 +23,34 @@ export interface Sources {
   [name: string]: Partial<IsolateableSource>;
 }
 
-function isolateAllSources<So extends Sources>(sources: So, scope: string): So {
-  const scopedSources = {} as So;
-  for (const key in sources) {
-    const source = sources[key] as Partial<IsolateableSource>;
-    if (sources.hasOwnProperty(key)
+function isolateAllSources<So extends Sources>(outerSources: So, scope: string): So {
+  const innerSources = {} as So;
+  for (const key in outerSources) {
+    const source = outerSources[key] as Partial<IsolateableSource>;
+    if (outerSources.hasOwnProperty(key)
     && source
     && typeof source.isolateSource === 'function') {
-      scopedSources[key] = source.isolateSource(source, scope);
-    } else if (sources.hasOwnProperty(key)) {
-      scopedSources[key] = sources[key];
+      innerSources[key] = source.isolateSource(source, scope);
+    } else if (outerSources.hasOwnProperty(key)) {
+      innerSources[key] = outerSources[key];
     }
   }
-  return scopedSources;
+  return innerSources;
 }
 
-function isolateAllSinks<So extends Sources, Si>(sources: So, sinks: Si, scope: string): Si {
-  const scopedSinks = {} as Si;
-  for (const key in sinks) {
+function isolateAllSinks<So extends Sources, Si>(sources: So, innerSinks: Si, scope: string): Si {
+  const outerSinks = {} as Si;
+  for (const key in innerSinks) {
     const source = sources[key] as Partial<IsolateableSource>;
-    if (sinks.hasOwnProperty(key)
+    if (innerSinks.hasOwnProperty(key)
     && source
     && typeof source.isolateSink === 'function') {
-      scopedSinks[key] = source.isolateSink(sinks[key], scope);
-    } else if (sinks.hasOwnProperty(key)) {
-      scopedSinks[key] = sinks[key];
+      outerSinks[key] = source.isolateSink(innerSinks[key], scope);
+    } else if (innerSinks.hasOwnProperty(key)) {
+      outerSinks[key] = innerSinks[key];
     }
   }
-  return scopedSinks;
+  return outerSinks;
 }
 
 export type Component<So, Si> = (sources: So, ...rest: Array<any>) => Si;
@@ -69,8 +69,8 @@ export type Component<So, Si> = (sources: So, ...rest: Array<any>) => Si;
  * in case TypeScript's inference becomes better, then we know how to proceed
  * to provide proper types.
  */
-export type BigSo = any;
-export type BigSi = any;
+export type OuterSo = any;
+export type OuterSi = any;
 
 /**
  * Takes a `component` function and an optional `scope` string, and returns a
@@ -102,15 +102,15 @@ export type BigSi = any;
  * `component` function, takes `sources` and returns `sinks`.
  * @function isolate
  */
-function isolate<SmallSo, SmallSi>(component: Component<SmallSo, SmallSi>,
-                                   scope: any = newScope()): Component<BigSo, BigSi> {
+function isolate<InnerSo, InnerSi>(component: Component<InnerSo, InnerSi>,
+                                   scope: any = newScope()): Component<OuterSo, OuterSi> {
   checkIsolateArgs(component, scope);
   const convertedScope: string = typeof scope === 'string' ? scope : scope.toString();
-  return function scopedComponent(sources: BigSo, ...rest: Array<any>): BigSi {
-    const scopedSources = isolateAllSources(sources, convertedScope);
-    const sinks = component(scopedSources, ...rest);
-    const scopedSinks = isolateAllSinks(sources, sinks, convertedScope);
-    return scopedSinks;
+  return function wrappedComponent(outerSources: OuterSo, ...rest: Array<any>): OuterSi {
+    const innerSources = isolateAllSources(outerSources, convertedScope);
+    const innerSinks = component(innerSources, ...rest);
+    const outerSinks = isolateAllSinks(outerSources, innerSinks, convertedScope);
+    return outerSinks;
   };
 }
 
