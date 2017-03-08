@@ -1,3 +1,13 @@
+<a name="13.1.0"></a>
+# 13.1.0 (2017-03-08)
+
+
+### Features
+
+* **http:** accept null isolation scope to turn off isolation ([e16febc](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/e16febc))
+
+
+
 <a name="13.0.0"></a>
 # 13.0.0 (2017-03-06)
 
