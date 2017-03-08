@@ -1,3 +1,25 @@
+<a name="16.0.0"></a>
+# 16.0.0 (2017-03-08)
+
+
+### Features
+
+* **dom:** allow choosing no isolation or sibling isolation ([13cb6bc](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/13cb6bc))
+
+
+### BREAKING CHANGES
+
+* dom: Rare breaking change that will likely NOT affect you: we are giving special meaning to some scope
+strings given to isolation. Before, every string given as isolation scope would mean total
+isolation. Now, the string ':root' means no isolation and strings starting with '.' or '#' mean
+sibling-sibling isolation. This is a technically a breaking change in case you happened to use
+strings like that as isolation scopes (which is unlikely). But otherwise, this is safe to update
+without migration.
+
+ISSUES CLOSED: 526
+
+
+
 <a name="15.2.0"></a>
 # 15.2.0 (2017-02-25)
 
