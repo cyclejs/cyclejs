@@ -1,3 +1,13 @@
+<a name="2.1.0"></a>
+# 2.1.0 (2017-03-08)
+
+
+### Features
+
+* **isolate:** allow a scopes-per-channel object as second arg ([e35b731](https://github.com/cyclejs/cyclejs/tree/master/packages/isolate/commit/e35b731))
+
+
+
 <a name="2.0.0"></a>
 # 2.0.0 (2017-02-22)
 
