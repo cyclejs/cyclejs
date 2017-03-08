@@ -136,4 +136,16 @@ For a more advanced usage, check the [Search example](https://github.com/cyclejs
 
 IE 8 is not supported because this library depends on [superagent](https://github.com/visionmedia/superagent), which knowingly doesn't support IE 8.
 
+# Isolation semantics
+
+Cycle HTTP supports isolation between components using the `@cycle/isolate` package. Here is how isolation contexts work in Cycle HTTP given a `scope` to `isolate(Component, scope)`:
+
+**When the scope is `null`: no isolation.**
+
+The child component will have run in the same context as its parent, and methods like `HTTPSource.select()` will have access to response streams related to the parent. This means the child component is able to see responses that it did not itself produce.
+
+**When the scope is a string: siblings isolation.**
+
+A `HTTPSource.select()` call in a parent component will have access to HTTP responses from its children. However, a `HTTPSource.select()` inside a child component isolated with "siblings isolation" will have no access to HTTP responses in other children components isolated with "siblings isolation".
+
 # API
