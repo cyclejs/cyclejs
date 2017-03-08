@@ -8,6 +8,10 @@ function isElement(obj: any): obj is Element {
     typeof obj.nodeName === 'string';
 }
 
+export function isClassOrId(str: string): boolean {
+  return str.length > 1 && (str[0] === '.' || str[0] === '#');
+}
+
 export const SCOPE_PREFIX = '$$CYCLEDOM$$-';
 
 export function getElement(selectors: Element | string): Element | null {

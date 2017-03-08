@@ -8,10 +8,10 @@ import {BodyDOMSource} from './BodyDOMSource';
 import {VNode} from 'snabbdom/vnode';
 import {ElementFinder} from './ElementFinder';
 import {fromEvent} from './fromEvent';
-import {isolateSink as internalIsolateSink, isolateSource} from './isolate';
+import {totalIsolateSink, siblingIsolateSink, isolateSource} from './isolate';
 import {IsolateModule} from './IsolateModule';
 import {EventDelegator} from './EventDelegator';
-import {getFullScope} from './utils';
+import {getFullScope, isClassOrId} from './utils';
 import {matchesSelector} from './matchesSelector';
 
 const eventTypesThatDontBubble = [
@@ -94,9 +94,15 @@ export class MainDOMSource implements DOMSource {
               private _name: string) {
     this.isolateSource = isolateSource;
     this.isolateSink = (sink, scope) => {
-      const prevFullScope = getFullScope(this._namespace);
-      const nextFullScope = [prevFullScope, scope].filter(x => !!x).join('-');
-      return internalIsolateSink(sink, nextFullScope) as Stream<VNode>;
+      if (scope === ':root') {
+        return sink;
+      } else if (isClassOrId(scope)) {
+        return siblingIsolateSink(sink, scope);
+      } else {
+        const prevFullScope = getFullScope(this._namespace);
+        const nextFullScope = [prevFullScope, scope].filter(x => !!x).join('-');
+        return totalIsolateSink(sink, nextFullScope);
+      }
     };
   }
 

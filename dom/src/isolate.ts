@@ -1,36 +1,53 @@
-import {VNode} from 'snabbdom/vnode';
-import {SCOPE_PREFIX} from './utils';
+import {Stream} from 'xstream';
+import {VNode, vnode} from 'snabbdom/vnode';
+import {SCOPE_PREFIX, isClassOrId} from './utils';
 import {DOMSource} from './DOMSource';
 
-export function isolateSource<S extends DOMSource>(source: S, scope: string): S {
+function totalIsolateSource<S extends DOMSource>(source: S, scope: string): S {
   return source.select<S>(SCOPE_PREFIX + scope);
 }
 
-export interface Mappable<T> {
-  map<R>(mapFn: (x: T) => R): Mappable<R>;
+function siblingIsolateSource<S extends DOMSource>(source: S, scope: string): S {
+  return source.select<S>(scope);
 }
 
-export function isolateSink(sink: Mappable<VNode>, fullScope: string): Mappable<VNode> {
-  return sink.map((vnode: VNode) => {
+export function isolateSource<S extends DOMSource>(source: S, scope: string): S {
+  if (scope === ':root') {
+    return source;
+  } else if (isClassOrId(scope)) {
+    return siblingIsolateSource(source, scope);
+  } else {
+    return totalIsolateSource(source, scope);
+  }
+}
+
+export function siblingIsolateSink(sink: Stream<VNode>, scope: string): Stream<VNode> {
+  return sink.map((node: VNode) =>
+    vnode(node.sel + scope, node.data, node.children, node.text, node.elm as any),
+  );
+}
+
+export function totalIsolateSink(sink: Stream<VNode>, fullScope: string): Stream<VNode> {
+  return sink.map((node: VNode) => {
     // Ignore if already had up-to-date full scope in vnode.data.isolate
-    if (vnode.data && (vnode.data as any).isolate) {
-      const isolateData = (vnode.data as any).isolate as string;
+    if (node.data && (node.data as any).isolate) {
+      const isolateData = (node.data as any).isolate as string;
       const prevFullScopeNum = isolateData.replace(/(cycle|\-)/g, '');
       const fullScopeNum = fullScope.replace(/(cycle|\-)/g, '');
 
       if (isNaN(parseInt(prevFullScopeNum))
       || isNaN(parseInt(fullScopeNum))
       || prevFullScopeNum > fullScopeNum) { // > is lexicographic string comparison
-        return vnode;
+        return node;
       }
     }
 
     // Insert up-to-date full scope in vnode.data.isolate, and also a key if needed
-    vnode.data = vnode.data || {};
-    (vnode.data as any).isolate = fullScope;
-    if (typeof vnode.key === 'undefined') {
-      vnode.key = SCOPE_PREFIX + fullScope;
+    node.data = node.data || {};
+    (node.data as any).isolate = fullScope;
+    if (typeof node.key === 'undefined') {
+      node.key = SCOPE_PREFIX + fullScope;
     }
-    return vnode;
+    return node;
   });
 }

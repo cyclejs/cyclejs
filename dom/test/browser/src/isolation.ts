@@ -194,6 +194,172 @@ describe('isolation', function () {
     run();
   });
 
+  it('should not occur with scope ":root"', function (done) {
+    function app(sources: {DOM: MainDOMSource}) {
+      const child$ = sources.DOM.isolateSink(xs.of(
+        div('.foo', [
+          h4('.bar', 'Not wrong'),
+        ]),
+      ), ':root');
+
+      const vdom$ = xs.combine(xs.of(null), child$).map(([_, child]) =>
+        h3('.top-most', [
+          child,
+          h2('.bar', 'Correct'),
+        ]),
+      );
+
+      return {
+        DOM: vdom$,
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    sources.DOM.select('.bar').elements().drop(1).take(1).addListener({
+      next: (elements: Array<Element>) => {
+        assert.strictEqual(Array.isArray(elements), true);
+        assert.strictEqual(elements.length, 2);
+
+        const notWrongElement = elements[0];
+        assert.notStrictEqual(notWrongElement, null);
+        assert.notStrictEqual(typeof notWrongElement, 'undefined');
+        assert.strictEqual(notWrongElement.tagName, 'H4');
+        assert.strictEqual(notWrongElement.textContent, 'Not wrong');
+
+        const correctElement = elements[1];
+        assert.notStrictEqual(correctElement, null);
+        assert.notStrictEqual(typeof correctElement, 'undefined');
+        assert.strictEqual(correctElement.tagName, 'H2');
+        assert.strictEqual(correctElement.textContent, 'Correct');
+        done();
+      },
+    });
+    run();
+  });
+
+  it('should apply only between siblings when given scope ".foo"', function (done) {
+    function app(sources: {DOM: MainDOMSource}) {
+      const foo$ = sources.DOM.isolateSink(xs.of(
+        div('.container', [
+          h4('.header', 'Correct'),
+        ]),
+      ), '.foo');
+
+      const bar$ = sources.DOM.isolateSink(xs.of(
+        div('.container', [
+          h3('.header', 'Wrong'),
+        ]),
+      ), '.bar');
+
+      const vdom$ = xs.combine(foo$, bar$).map(([foo, bar]) =>
+        div('.top-most', [
+          foo,
+          bar,
+          h2('.header', 'Correct'),
+        ]),
+      );
+
+      return {
+        DOM: vdom$,
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    // Assert parent has total access to its children
+    sources.DOM.select('.header').elements().drop(1).take(1).addListener({
+      next: (elements: Array<Element>) => {
+        assert.strictEqual(Array.isArray(elements), true);
+        assert.strictEqual(elements.length, 3);
+        assert.strictEqual(elements[0].tagName, 'H4');
+        assert.strictEqual(elements[0].textContent, 'Correct');
+        assert.strictEqual(elements[1].tagName, 'H3');
+        assert.strictEqual(elements[1].textContent, 'Wrong');
+        assert.strictEqual(elements[2].tagName, 'H2');
+        assert.strictEqual(elements[2].textContent, 'Correct');
+
+        // Assert .foo child has no access to .bar child
+        sources.DOM.isolateSource(sources.DOM, '.foo')
+          .select('.header').elements().take(1).addListener({
+            next: (els: Array<Element>) => {
+              assert.strictEqual(Array.isArray(els), true);
+              assert.strictEqual(els.length, 1);
+              assert.strictEqual(els[0].tagName, 'H4');
+              assert.strictEqual(els[0].textContent, 'Correct');
+              done();
+            },
+          });
+      },
+    });
+
+    run();
+  });
+
+  it('should apply only between siblings when given scope "#foo"', function (done) {
+    function app(sources: {DOM: MainDOMSource}) {
+      const foo$ = sources.DOM.isolateSink(xs.of(
+        div('.container', [
+          h4('.header', 'Correct'),
+        ]),
+      ), '#foo');
+
+      const bar$ = sources.DOM.isolateSink(xs.of(
+        div('.container', [
+          h3('.header', 'Wrong'),
+        ]),
+      ), '#bar');
+
+      const vdom$ = xs.combine(foo$, bar$).map(([foo, bar]) =>
+        div('.top-most', [
+          foo,
+          bar,
+          h2('.header', 'Correct'),
+        ]),
+      );
+
+      return {
+        DOM: vdom$,
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    // Assert parent has total access to its children
+    sources.DOM.select('.header').elements().drop(1).take(1).addListener({
+      next: (elements: Array<Element>) => {
+        assert.strictEqual(Array.isArray(elements), true);
+        assert.strictEqual(elements.length, 3);
+        assert.strictEqual(elements[0].tagName, 'H4');
+        assert.strictEqual(elements[0].textContent, 'Correct');
+        assert.strictEqual(elements[1].tagName, 'H3');
+        assert.strictEqual(elements[1].textContent, 'Wrong');
+        assert.strictEqual(elements[2].tagName, 'H2');
+        assert.strictEqual(elements[2].textContent, 'Correct');
+
+        // Assert .foo child has no access to .bar child
+        sources.DOM.isolateSource(sources.DOM, '#foo')
+          .select('.header').elements().take(1).addListener({
+            next: (els: Array<Element>) => {
+              assert.strictEqual(Array.isArray(els), true);
+              assert.strictEqual(els.length, 1);
+              assert.strictEqual(els[0].tagName, 'H4');
+              assert.strictEqual(els[0].textContent, 'Correct');
+              done();
+            },
+          });
+      },
+    });
+
+    run();
+  });
+
   it('should allow using elements() in an isolated main() fn', function (done) {
     function main(sources) {
       const elem$ = sources.DOM.select(':root').elements();
