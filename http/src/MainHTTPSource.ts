@@ -25,6 +25,6 @@ export class MainHTTPSource implements HTTPSource {
     return out;
   }
 
-  public isolateSource: (source: HTTPSource, scope: string) => HTTPSource = isolateSource;
-  public isolateSink: (sink: Stream<any>, scope: string) => Stream<any> = isolateSink;
+  public isolateSource = isolateSource;
+  public isolateSink = isolateSink;
 }

@@ -377,5 +377,36 @@ export function run(uri: string) {
 
       run();
     });
+
+    it('should allow null scope to bypass isolation', function (done) {
+      const proxyRequest$ = new Rx.Subject();
+      function main(sources: {HTTP: HTTPSource}) {
+        return {
+          HTTP: proxyRequest$,
+        };
+      }
+
+      const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+
+      const ignoredRequest$ = Rx.Observable.of(uri + '/json');
+      const request$ = Rx.Observable.of(uri + '/hello').delay(100);
+      const scopedRequest$ = sources.HTTP.isolateSink(proxyRequest$, null);
+      const scopedHTTPSource = sources.HTTP.isolateSource(sources.HTTP, null);
+
+      const expected = [uri + '/json', uri + '/hello'];
+
+      scopedHTTPSource.select().subscribe(function (response$: any) {
+        assert.strictEqual(typeof response$.request, 'object');
+        assert.strictEqual(response$.request.url, expected.shift());
+        if (expected.length === 0) {
+          done();
+        }
+      });
+
+      run();
+
+      Rx.Observable.merge(ignoredRequest$, request$)
+        .subscribe(proxyRequest$);
+    });
   });
 }
