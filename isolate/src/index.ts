@@ -112,21 +112,45 @@ function newScope(): string {
 }
 
 /**
- * Takes a `component` function and an optional `scope` string, and returns a
- * scoped version of the `component` function.
+ * Takes a `component` function and a `scope`, and returns an isolated version
+ * of the `component` function.
  *
- * When the scoped component is invoked, each source provided to the scoped
- * component is isolated to the given `scope` using
- * `source.isolateSource(source, scope)`, if possible. Likewise, the sinks
- * returned from the scoped component are isolated to the `scope` using
- * `source.isolateSink(sink, scope)`.
+ * When the isolated component is invoked, each source provided to it is
+ * isolated to the given `scope` using `source.isolateSource(source, scope)`,
+ * if possible. Likewise, the sinks returned from the isolated component are
+ * isolated to the given `scope` using `source.isolateSink(sink, scope)`.
  *
- * If the `scope` is not provided, a new scope will be automatically created.
- * This means that while **`isolate(component, scope)` is pure**
- * (referentially transparent), **`isolate(component)` is impure**
- * (not referentially transparent). Two calls to `isolate(Foo, bar)` will
- * generate the same component. But, two calls to `isolate(Foo)` will generate
- * two distinct components.
+ * The `scope` can be a string or an object. If it is anything else than those
+ * two types, it will be converted to a string. If `scope` is an object, it
+ * represents "scopes per channel", allowing you to specify a different scope
+ * for each key of sources/sinks. For instance
+ *
+ * ```js
+ * const childSinks = isolate(Child, {DOM: 'foo', HTTP: 'bar'})(sources);
+ * ```
+ *
+ * You can also use a wildcard `'*'` to use as a default for source/sinks
+ * channels that did not receive a specific scope:
+ *
+ * ```js
+ * // Uses 'bar' as the isolation scope for HTTP and other channels
+ * const childSinks = isolate(Child, {DOM: 'foo', '*': 'bar'})(sources);
+ * ```
+ *
+ * If you don't have a wildcard and some channels are unspecified, then
+ * `isolate` will generate a random scope.
+ *
+ * ```js
+ * // Uses some arbitrary string as the isolation scope for HTTP and other channels
+ * const childSinks = isolate(Child, {DOM: 'foo'})(sources);
+ * ```
+ *
+ * If the `scope` argument is not provided at all, a new scope will be
+ * automatically created. This means that while **`isolate(component, scope)` is
+ * pure** (referentially transparent), **`isolate(component)` is impure** (not
+ * referentially transparent). Two calls to `isolate(Foo, bar)` will generate
+ * the same component. But, two calls to `isolate(Foo)` will generate two
+ * distinct components.
  *
  * Note that both `isolateSource()` and `isolateSink()` are static members of
  * `source`. The reason for this is that drivers produce `source` while the
