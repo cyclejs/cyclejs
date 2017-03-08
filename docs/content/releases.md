@@ -1,3 +1,62 @@
+# Flexible isolation
+
+This applies to the following versions and above:
+
+| package | version | changelog |
+|---|---|---|
+| `@cycle/dom` | 16.0.0 | [changelog](https://github.com/cyclejs/cyclejs/blob/master/dom/CHANGELOG.md#1600-2017-03-08) |
+| `@cycle/http` | 13.1.0 | [changelog](https://github.com/cyclejs/cyclejs/blob/master/http/CHANGELOG.md#1310-2017-03-08) |
+| `@cycle/isolate` | 2.1.0 | [changelog](https://github.com/cyclejs/cyclejs/blob/master/isolate/CHANGELOG.md#210-2017-03-08) |
+
+Packages `@cycle/isolate`, `@cycle/dom`, `@cycle/http` were updated to provide more options when isolating components.
+
+The scope argument to `isolate(component, scope)` can now be an object called "scopes per channel" which allows you to give multiple different scopes:
+
+```js
+const childSinks = isolate(Child, {DOM: 'foo', HTTP: 'bar'})(sources);
+```
+
+You can also use a wildcard `'*'` to use as a default for source/sinks channels that did not receive a specific scope:
+
+```js
+// Uses 'bar' as the isolation scope for HTTP and other channels
+const childSinks = isolate(Child, {DOM: 'foo', '*': 'bar'})(sources);
+```
+
+If you don't have a wildcard and some channels are unspecified, then `isolate` will generate a random scope.
+
+```js
+// Uses some arbitrary string as the isolation scope for HTTP and other channels
+const childSinks = isolate(Child, {DOM: 'foo'})(sources);
+```
+
+As an additional feature, Cycle DOM recognizes special scope strings: `':root'` as the scope will apply no isolation, and `'.foo'` or `'#foo'` will apply isolation between sibling components.
+
+In the example below, a `sources.DOM.select()` call will have access to the DOM trees in both foo and bar children (which means there is no parent-child isolation). However, a `sources.DOM.select()` inside `Child` foo will have no access to the DOM trees in `Child` bar (which means between-siblings isolation).
+
+```js
+function Parent(sources) {
+  const fooChildSinks = isolate(Child, {DOM: '.foo', '*': 'f'})(sources);
+  const barChildSinks = isolate(Child, {DOM: '.bar', '*': 'b'})(sources);
+
+  // ...
+}
+```
+
+Similarly, Cycle HTTP now has a way of detecting a special scope to mean "no isolation". Just pass `null` as the scope, and no isolation will be applied.
+
+```js
+function Parent(sources) {
+  const childSinks = isolate(Child, {HTTP: null})(sources);
+
+  // ...
+}
+```
+
+The Child component will have access to all responses for the Parent component, because there is no isolation, they are in the same isolation context.
+
+For more discussion on the motivation and development of these features, read [issue 526](https://github.com/cyclejs/cyclejs/issues/526).
+
 # Cycle Unified
 
 > 2017-02-09
@@ -378,6 +437,7 @@ Today we are releasing Cycle Diversity, the next big version of Cycle.js, after 
 - Cycle HTTP has a better, simpler API with `HTTPSource.select(category)`
 
 Because Cycle.js is split in packages, the packages and their versions which constitute "Cycle Diversity" are:
+
 - `@cycle/rx-run` or `@cycle/core` v7.0.0 or greater
 - `@cycle/rxjs-run` v3.0.0 or greater
 - `@cycle/most-run` v3.0.0 or greater
