@@ -10,6 +10,8 @@ This applies to the following versions and above:
 
 Packages `@cycle/isolate`, `@cycle/dom`, `@cycle/http` were updated to provide more options when isolating components.
 
+## isolate
+
 The scope argument to `isolate(component, scope)` can now be an object called "scopes per channel" which allows you to give multiple different scopes:
 
 ```js
@@ -30,6 +32,8 @@ If you don't have a wildcard and some channels are unspecified, then `isolate` w
 const childSinks = isolate(Child, {DOM: 'foo'})(sources);
 ```
 
+## Cycle DOM
+
 As an additional feature, Cycle DOM recognizes special scope strings: `':root'` as the scope will apply no isolation, and `'.foo'` or `'#foo'` will apply isolation between sibling components.
 
 In the example below, a `sources.DOM.select()` call will have access to the DOM trees in both foo and bar children (which means there is no parent-child isolation). However, a `sources.DOM.select()` inside `Child` foo will have no access to the DOM trees in `Child` bar (which means between-siblings isolation).
@@ -42,6 +46,8 @@ function Parent(sources) {
   // ...
 }
 ```
+
+## Cycle HTTP
 
 Similarly, Cycle HTTP now has a way of detecting a special scope to mean "no isolation". Just pass `null` as the scope, and no isolation will be applied.
 
