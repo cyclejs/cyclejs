@@ -1,8 +1,23 @@
-let counter = 0;
+export type Component<So, Si> = (sources: So, ...rest: Array<any>) => Si;
 
-function newScope(): string {
-  return `cycle${++counter}`;
+export interface IsolateableSource {
+  isolateSource(source: Partial<IsolateableSource>, scope: any): Partial<IsolateableSource>;
+  isolateSink<T>(sink: T, scope: any): T;
 }
+
+export interface Sources {
+  [name: string]: Partial<IsolateableSource>;
+}
+
+export type WildcardScope = {
+  ['*']?: string;
+};
+
+export type ScopesPerChannel<So> = {
+  [K in keyof So]: any;
+};
+
+export type Scopes<So> = (Partial<ScopesPerChannel<So>> & WildcardScope) | string;
 
 function checkIsolateArgs<So, Si>(dataflowComponent: Component<So, Si>, scope: any) {
   if (typeof dataflowComponent !== `function`) {
@@ -14,46 +29,65 @@ function checkIsolateArgs<So, Si>(dataflowComponent: Component<So, Si>, scope: a
   }
 }
 
-export interface IsolateableSource {
-  isolateSource(source: Partial<IsolateableSource>, scope: string): Partial<IsolateableSource>;
-  isolateSink<T>(sink: T, scope: string): T;
+function normalizeScopes<So>(sources: So,
+                             scopes: Scopes<So>,
+                             randomScope: string): ScopesPerChannel<So> {
+  const perChannel = {} as ScopesPerChannel<So>;
+  Object.keys(sources).forEach((channel: keyof So) => {
+    if (typeof scopes === 'string') {
+      perChannel[channel] = scopes;
+      return;
+    }
+    const candidate = (scopes as ScopesPerChannel<So>)[channel];
+    if (typeof candidate !== 'undefined') {
+      perChannel[channel] = candidate;
+      return;
+    }
+    const wildcard = (scopes as WildcardScope)['*'];
+    if (typeof wildcard !== 'undefined') {
+      perChannel[channel] = wildcard;
+      return;
+    }
+    perChannel[channel] = randomScope;
+  });
+  return perChannel;
 }
 
-export interface Sources {
-  [name: string]: Partial<IsolateableSource>;
-}
-
-function isolateAllSources<So extends Sources>(outerSources: So, scope: string): So {
+function isolateAllSources<So extends Sources>(
+                          outerSources: So,
+                          scopes: ScopesPerChannel<So>): So {
   const innerSources = {} as So;
-  for (const key in outerSources) {
-    const source = outerSources[key] as Partial<IsolateableSource>;
-    if (outerSources.hasOwnProperty(key)
-    && source
-    && typeof source.isolateSource === 'function') {
-      innerSources[key] = source.isolateSource(source, scope);
-    } else if (outerSources.hasOwnProperty(key)) {
-      innerSources[key] = outerSources[key];
+  for (const channel in outerSources) {
+    const outerSource = outerSources[channel] as Partial<IsolateableSource>;
+    if (outerSources.hasOwnProperty(channel)
+    && outerSource
+    && typeof outerSource.isolateSource === 'function') {
+      innerSources[channel] = outerSource.isolateSource(outerSource, scopes[channel]);
+    } else if (outerSources.hasOwnProperty(channel)) {
+      innerSources[channel] = outerSources[channel];
     }
   }
   return innerSources;
 }
 
-function isolateAllSinks<So extends Sources, Si>(sources: So, innerSinks: Si, scope: string): Si {
+function isolateAllSinks<So extends Sources, Si>(
+                        sources: So,
+                        innerSinks: Si,
+                        scopes: ScopesPerChannel<So>): Si {
   const outerSinks = {} as Si;
-  for (const key in innerSinks) {
-    const source = sources[key] as Partial<IsolateableSource>;
-    if (innerSinks.hasOwnProperty(key)
+  for (const channel in innerSinks) {
+    const source = sources[channel] as Partial<IsolateableSource>;
+    const innerSink = innerSinks[channel];
+    if (innerSinks.hasOwnProperty(channel)
     && source
     && typeof source.isolateSink === 'function') {
-      outerSinks[key] = source.isolateSink(innerSinks[key], scope);
-    } else if (innerSinks.hasOwnProperty(key)) {
-      outerSinks[key] = innerSinks[key];
+      outerSinks[channel] = source.isolateSink(innerSink, scopes[channel]);
+    } else if (innerSinks.hasOwnProperty(channel)) {
+      outerSinks[channel] = innerSinks[channel];
     }
   }
   return outerSinks;
 }
-
-export type Component<So, Si> = (sources: So, ...rest: Array<any>) => Si;
 
 /**
  * `isolate` takes a small component as input, and returns a big component.
@@ -71,6 +105,11 @@ export type Component<So, Si> = (sources: So, ...rest: Array<any>) => Si;
  */
 export type OuterSo = any;
 export type OuterSi = any;
+
+let counter = 0;
+function newScope(): string {
+  return `cycle${++counter}`;
+}
 
 /**
  * Takes a `component` function and an optional `scope` string, and returns a
@@ -105,11 +144,15 @@ export type OuterSi = any;
 function isolate<InnerSo, InnerSi>(component: Component<InnerSo, InnerSi>,
                                    scope: any = newScope()): Component<OuterSo, OuterSi> {
   checkIsolateArgs(component, scope);
-  const convertedScope: string = typeof scope === 'string' ? scope : scope.toString();
+  const randomScope = typeof scope === 'object' ? newScope() : '';
+  const scopes: any = typeof scope === 'string' || typeof scope === 'object' ?
+    scope :
+    scope.toString();
   return function wrappedComponent(outerSources: OuterSo, ...rest: Array<any>): OuterSi {
-    const innerSources = isolateAllSources(outerSources, convertedScope);
+    const scopesPerChannel = normalizeScopes(outerSources, scopes, randomScope);
+    const innerSources = isolateAllSources(outerSources, scopesPerChannel);
     const innerSinks = component(innerSources, ...rest);
-    const outerSinks = isolateAllSinks(outerSources, innerSinks, convertedScope);
+    const outerSinks = isolateAllSinks(outerSources, innerSinks, scopesPerChannel);
     return outerSinks;
   };
 }

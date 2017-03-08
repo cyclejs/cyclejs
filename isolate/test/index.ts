@@ -5,6 +5,10 @@ import isolate from '../lib/index';
 import * as sinon from 'sinon';
 
 describe('isolate', function () {
+  beforeEach(function () {
+    (isolate as any).reset();
+  });
+
   it('should be a function', function () {
     assert.strictEqual(typeof isolate, 'function');
   });
@@ -39,6 +43,202 @@ describe('isolate', function () {
     function MyDataflowComponent() {}
     const scopedMyDataflowComponent = isolate(MyDataflowComponent);
     assert.strictEqual(typeof scopedMyDataflowComponent, `function`);
+  });
+
+  it('should accept a scopes-per-channel object as the second argument', function () {
+    function Component(sources: any) {
+      return {
+        first: sources.first.getSink(),
+        second: sources.second.getSink(),
+      };
+    }
+
+    const scopedComponent = isolate(Component, {first: 'scope1', second: 'scope2'});
+    let actual1 = '';
+    let actual2 = '';
+    let actual3 = '';
+    let actual4 = '';
+
+    const sources = {
+      first: {
+        getSink() { return 10; },
+        isolateSource(source: any, scope: string) {
+          actual1 = scope;
+          return source;
+        },
+        isolateSink(sink: any, scope: string) {
+          actual2 = scope;
+          return sink;
+        },
+      },
+
+      second: {
+        getSink() { return 20; },
+        isolateSource(source: any, scope: string) {
+          actual3 = scope;
+          return source;
+        },
+        isolateSink(sink: any, scope: string) {
+          actual4 = scope;
+          return sink;
+        },
+      },
+    };
+    const sinks = scopedComponent(sources);
+
+    assert.strictEqual(actual1, 'scope1');
+    assert.strictEqual(actual2, 'scope1');
+    assert.strictEqual(actual3, 'scope2');
+    assert.strictEqual(actual4, 'scope2');
+    assert.strictEqual(sinks.first, 10);
+    assert.strictEqual(sinks.second, 20);
+  });
+
+  it('should generate a scope if a channel is undefined in scopes-per-channel', function () {
+    function Component(sources: any) {
+      return {
+        first: sources.first.getSink(),
+        second: sources.second.getSink(),
+      };
+    }
+
+    const scopedComponent = isolate(Component, {first: 'scope1'});
+    let actual1 = '';
+    let actual2 = '';
+    let actual3 = '';
+    let actual4 = '';
+
+    const sources = {
+      first: {
+        getSink() { return 10; },
+        isolateSource(source: any, scope: string) {
+          actual1 = scope;
+          return source;
+        },
+        isolateSink(sink: any, scope: string) {
+          actual2 = scope;
+          return sink;
+        },
+      },
+
+      second: {
+        getSink() { return 20; },
+        isolateSource(source: any, scope: string) {
+          actual3 = scope;
+          return source;
+        },
+        isolateSink(sink: any, scope: string) {
+          actual4 = scope;
+          return sink;
+        },
+      },
+    };
+    const sinks = scopedComponent(sources);
+
+    assert.strictEqual(actual1, 'scope1');
+    assert.strictEqual(actual2, 'scope1');
+    assert.strictEqual(actual3, 'cycle1');
+    assert.strictEqual(actual4, 'cycle1');
+    assert.strictEqual(sinks.first, 10);
+    assert.strictEqual(sinks.second, 20);
+  });
+
+  it('should accept a wildcard * in the scopes-per-channel object', function () {
+    function Component(sources: any) {
+      return {
+        first: sources.first.getSink(),
+        second: sources.second.getSink(),
+      };
+    }
+
+    const scopedComponent = isolate(Component, {first: 'scope1', '*': 'default'});
+    let actual1 = '';
+    let actual2 = '';
+    let actual3 = '';
+    let actual4 = '';
+
+    const sources = {
+      first: {
+        getSink() { return 10; },
+        isolateSource(source: any, scope: string) {
+          actual1 = scope;
+          return source;
+        },
+        isolateSink(sink: any, scope: string) {
+          actual2 = scope;
+          return sink;
+        },
+      },
+
+      second: {
+        getSink() { return 20; },
+        isolateSource(source: any, scope: string) {
+          actual3 = scope;
+          return source;
+        },
+        isolateSink(sink: any, scope: string) {
+          actual4 = scope;
+          return sink;
+        },
+      },
+    };
+    const sinks = scopedComponent(sources);
+
+    assert.strictEqual(actual1, 'scope1');
+    assert.strictEqual(actual2, 'scope1');
+    assert.strictEqual(actual3, 'default');
+    assert.strictEqual(actual4, 'default');
+    assert.strictEqual(sinks.first, 10);
+    assert.strictEqual(sinks.second, 20);
+  });
+
+  it('should not convert to string values in scopes-per-channel object', function () {
+    function Component(sources: any) {
+      return {
+        first: sources.first.getSink(),
+        second: sources.second.getSink(),
+      };
+    }
+
+    const scopedComponent = isolate(Component, {first: 123, second: 456});
+    let actual1 = '';
+    let actual2 = '';
+    let actual3 = '';
+    let actual4 = '';
+
+    const sources = {
+      first: {
+        getSink() { return 10; },
+        isolateSource(source: any, scope: string) {
+          actual1 = scope;
+          return source;
+        },
+        isolateSink(sink: any, scope: string) {
+          actual2 = scope;
+          return sink;
+        },
+      },
+
+      second: {
+        getSink() { return 20; },
+        isolateSource(source: any, scope: string) {
+          actual3 = scope;
+          return source;
+        },
+        isolateSink(sink: any, scope: string) {
+          actual4 = scope;
+          return sink;
+        },
+      },
+    };
+    const sinks = scopedComponent(sources);
+
+    assert.strictEqual(actual1, 123);
+    assert.strictEqual(actual2, 123);
+    assert.strictEqual(actual3, 456);
+    assert.strictEqual(actual4, 456);
+    assert.strictEqual(sinks.first, 10);
+    assert.strictEqual(sinks.second, 20);
   });
 
   describe('scopedDataflowComponent', function () {
