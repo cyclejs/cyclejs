@@ -35,9 +35,12 @@ export interface RequestOptions {
 
 export type RequestInput = RequestOptions | string;
 
-export interface ResponseStream {
+export interface RequestBearing {
   request: RequestOptions;
 }
+
+export type ResponseStream = Stream<Response> & RequestBearing;
+export type ResponseMemoryStream = MemoryStream<Response> & RequestBearing;
 
 export interface Response {
   text?: string;
@@ -51,7 +54,7 @@ export interface Response {
 
 export interface HTTPSource {
   filter<S extends HTTPSource>(predicate: (request: RequestOptions) => boolean): S;
-  select(category?: string): Stream<MemoryStream<Response> & ResponseStream>;
+  select(category?: string): Stream<ResponseMemoryStream>;
   isolateSource(source: HTTPSource, scope: string): HTTPSource;
   isolateSink(sink: Stream<RequestInput>, scope: string): Stream<RequestInput>;
 }

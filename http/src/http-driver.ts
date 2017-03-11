@@ -9,6 +9,7 @@ import {
   RequestOptions,
   RequestInput,
   Response,
+  ResponseMemoryStream,
 } from './interfaces';
 
 function preprocessReqOptions(reqOptions: RequestOptions): RequestOptions {
@@ -129,8 +130,6 @@ function normalizeRequestInput(reqInput: RequestInput): RequestOptions {
       `either URL strings or objects with parameters.`);
   }
 }
-
-export type ResponseMemoryStream = MemoryStream<Response> & ResponseStream;
 
 function requestInputToResponse$(reqInput: RequestInput): ResponseMemoryStream {
   let response$ = createResponse$(reqInput).remember();
