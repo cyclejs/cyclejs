@@ -3,7 +3,11 @@
     "target": "es5",
     "outDir": "dist/",
     "module": "commonjs",
-    "declaration": true
+    "declaration": true,
+    "lib": [
+      "ES5",
+      "ES6"
+    ]
   },
   "include": [
     "src/**/*.ts"
