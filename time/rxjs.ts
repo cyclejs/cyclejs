@@ -8,9 +8,9 @@ import {Frame} from './dist/animation-frames';
 
 setAdapt(stream => Observable.from(stream));
 
-export type Operator = <T>(observable: Observable<T>) => Observable<T>;
+type Operator = <T>(observable: Observable<T>) => Observable<T>;
 
-export interface TimeSource {
+interface TimeSource {
   animationFrames (): Observable<Frame>;
   delay (delayTime: number): Operator;
   debounce (period: number): Operator;
@@ -19,17 +19,27 @@ export interface TimeSource {
   throttleAnimation: Operator;
 }
 
-export interface MockTimeSource extends TimeSource {
+interface MockTimeSource extends TimeSource {
   diagram (str: string, values?: Object): Observable<any>;
   record (observable: Observable<any>): Observable<Array<any>>;
   assertEqual (actual: Observable<any>, expected: Observable<any>): void;
   run (cb?: (err?: Error) => void): void;
 }
 
-export function mockTimeSource (args?: Object): MockTimeSource {
+function mockTimeSource (args?: Object): MockTimeSource {
   return mockTimeSourceUntyped(args);
 }
 
-export function timeDriver (_, adapter): TimeSource {
+function timeDriver (_, adapter): TimeSource {
   return timeDriverUntyped(_, adapter);
 }
+
+export {
+  Operator,
+
+  TimeSource,
+  timeDriver,
+
+  MockTimeSource,
+  mockTimeSource
+};
