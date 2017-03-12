@@ -1,8 +1,9 @@
 import xs, {Stream} from 'xstream';
-import * as deepEqual from 'deep-equal';
+// import * as deepEqual from 'deep-equal';
+import {deepEqual} from 'assert';
 import * as variableDiff from 'variable-diff';
 
-function checkEqual (completeStore, assert, interval) {
+function checkEqual (completeStore, assert, interval, comparator) {
   let failReasons = [];
 
   if (completeStore['actual'].length !== completeStore['expected'].length) {
@@ -36,7 +37,15 @@ function checkEqual (completeStore, assert, interval) {
 
     if (actual.type === 'next') {
       const rightTime = diagramFrame(actual.time, interval) === diagramFrame(expected.time, interval);
-      const rightValue = deepEqual(actual.value, expected.value);
+      let rightValue = true;
+
+      try {
+        comparator(actual.value, expected.value);
+      } catch (error) {
+        rightValue = false;
+
+        assert.unexpectedErrors.push(error);
+      }
 
       if (rightValue && !rightTime) {
         failReasons.push(`Right value at wrong time, expected at ${expected.time} but happened at ${actual.time} (${JSON.stringify(actual.value)})`);
@@ -89,7 +98,7 @@ ${displayUnexpectedErrors(assert.unexpectedErrors)}
 }
 
 function makeAssertEqual (timeSource, schedule, currentTime, interval, addAssert) {
-  return function assertEqual (actual: Stream<any>, expected: Stream<any>) {
+  return function assertEqual (actual: Stream<any>, expected: Stream<any>, comparator = deepEqual) {
     let calledComplete = 0;
     let completeStore = {};
 
@@ -100,7 +109,7 @@ function makeAssertEqual (timeSource, schedule, currentTime, interval, addAssert
       error: null,
       unexpectedErrors: [],
       finish: () => {
-        checkEqual(completeStore, assert, interval);
+        checkEqual(completeStore, assert, interval, comparator);
       }
     }
 
@@ -116,7 +125,7 @@ function makeAssertEqual (timeSource, schedule, currentTime, interval, addAssert
       },
 
       complete () {
-        checkEqual(completeStore, assert, interval);
+        checkEqual(completeStore, assert, interval, comparator);
       }
     });
   }
