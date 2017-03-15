@@ -3,7 +3,7 @@
 import * as assert from 'assert';
 
 import {Location, captureClicks, makeHashHistoryDriver, makeHistoryDriver} from '../../src';
-
+import {createMemoryHistory} from 'history'
 import xs from 'xstream';
 
 describe('makeHistoryDriver', () => {
@@ -14,6 +14,12 @@ describe('makeHistoryDriver', () => {
   it('should return a function' , () => {
     assert.strictEqual(typeof makeHistoryDriver(), 'function');
   });
+
+  it('should return allow injecting History object directly' , () => {
+    const history = createMemoryHistory()
+    assert.strictEqual(typeof makeHistoryDriver(history), 'function');
+  });
+
 
   it('should start emitting the current location', function (done) {
     const history$ = makeHistoryDriver()(xs.never());

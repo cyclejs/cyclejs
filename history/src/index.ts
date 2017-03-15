@@ -1,4 +1,4 @@
-export {Location} from 'history';
+export {Location, History} from 'history';
 export * from './types';
 
 /**
@@ -23,11 +23,13 @@ export {captureClicks} from './captureClicks';
  * (strings representing pathnames or location objects) as input, and outputs
  * another stream of locations that were applied.
  *
- * @param {object} options an object with some options specific to
+ * @param {object|History|MemoryHistory} options an object with some options specific to
  * this driver. These options are the same as for the corresponding
  * `createBrowserHistory()` function in History v4. Check its
  * [docs](https://github.com/mjackson/history/tree/v4.5.1#usage) for a good
- * description on the options.
+ * description on the options. Alternatively, a History object can also be sent
+ * in case the external consumer needs direct access to any of the direct History
+ * methods
  * @return {Function} the History Driver function
  * @function makeHistoryDriver
  */

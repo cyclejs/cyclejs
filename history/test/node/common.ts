@@ -1,7 +1,8 @@
 /// <reference path="../../node_modules/@types/mocha/index.d.ts" />
 /// <reference path="../../node_modules/@types/node/index.d.ts" />
 import * as assert from 'assert';
-import {Location, makeServerHistoryDriver} from '../../src';
+import {Location, makeHistoryDriver, makeServerHistoryDriver} from '../../src';
+import {createMemoryHistory} from 'history';
 import xs from 'xstream';
 
 describe('makeServerHistoryDriver', () => {
@@ -11,6 +12,11 @@ describe('makeServerHistoryDriver', () => {
 
   it('should return a function' , () => {
     assert.strictEqual(typeof makeServerHistoryDriver(), 'function');
+  });
+
+  it('should return allow injecting MemoryHistory object directly' , () => {
+    const history = createMemoryHistory()
+    assert.strictEqual(typeof makeHistoryDriver(history), 'function');
   });
 
   it('should start emitting the current location', function (done) {
