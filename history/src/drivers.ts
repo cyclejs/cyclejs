@@ -7,6 +7,8 @@ import {
   MemoryHistoryBuildOptions,
   HashHistoryBuildOptions,
   Location,
+  History,
+  MemoryHistory,
 } from 'history';
 import {createHistory$} from './createHistory$';
 import {
@@ -19,8 +21,16 @@ import {
   ReplaceHistoryInput,
 } from './types';
 
-export function makeHistoryDriver(options?: BrowserHistoryBuildOptions): HistoryDriver {
-  const history = createBrowserHistory(options);
+export function makeHistoryDriver(
+    options?: BrowserHistoryBuildOptions | History | MemoryHistory,
+  ): HistoryDriver {
+  let history: any;
+  if (options && options.hasOwnProperty('createHref')) {
+    history = options;
+  } else {
+    history = createBrowserHistory(options);
+  }
+
   return function historyDriver(sink$: Stream<HistoryInput | string>) {
     return createHistory$(history, sink$);
   };
