@@ -112,4 +112,33 @@ describe('HTTP Driver in Node.js', function () {
 
     run();
   });
+
+  it('should handle errors when sending request to non-existent server', function (done) {
+    function main(sources: {HTTP: HTTPSource}) {
+      return {
+        HTTP: Rx.Observable.of({
+          url: 'http://localhost:9999', // no server here
+          category: 'noServerCat',
+          _id: 'petRequest',
+        }),
+      };
+    }
+
+    const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+
+    sources.HTTP.select()
+      .mergeAll()
+      .subscribe({
+        next: function (r) {
+          done('next() should not be called');
+        },
+        error: function (err) {
+          assert.strictEqual(err.code, 'ECONNREFUSED');
+          assert.strictEqual(err.port, 9999);
+          done();
+        },
+      });
+
+    run();
+  });
 });

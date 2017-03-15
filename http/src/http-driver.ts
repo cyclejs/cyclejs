@@ -89,7 +89,9 @@ export function createResponse$(reqInput: RequestInput): Stream<Response> {
         }
         this.request.end((err: any, res: Response) => {
           if (err) {
-            err.response.request = reqOptions;
+            if (err.response) {
+              err.response.request = reqOptions;
+            }
             listener.error(err);
           } else {
             res.request = reqOptions;
