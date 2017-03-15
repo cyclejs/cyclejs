@@ -8,6 +8,7 @@
   "repository": "https://github.com/cyclejs/cyclejs/tree/master/packages/http",
   "dependencies": {
     "@cycle/run": "*",
+    "@types/superagent": "2.0.36",
     "superagent": "3.4.1"
   },
   "peerDependencies": {

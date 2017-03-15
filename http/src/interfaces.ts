@@ -1,4 +1,5 @@
 import {Stream, MemoryStream} from 'xstream';
+import {Response as SuperagentResponse} from 'superagent';
 
 export interface Attachment {
   name: string;
@@ -39,13 +40,8 @@ export interface ResponseStream {
   request: RequestOptions;
 }
 
-export interface Response {
-  text?: string;
-  body?: Object;
-  header?: Object;
-  type?: string;
-  status?: number;
-  total?: number;
+export interface Response extends SuperagentResponse {
+  total?: number; // Not sure what is this. Stays here to avoid breaking change
   request: RequestOptions;
 }
 

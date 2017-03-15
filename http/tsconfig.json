@@ -12,7 +12,6 @@
     ]
   },
   "files": [
-    "superagent.d.ts",
     "src/index.ts"
   ]
 }
