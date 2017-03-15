@@ -1,3 +1,14 @@
+<a name="13.2.0"></a>
+# 13.2.0 (2017-03-15)
+
+
+### Bug Fixes
+
+* **http:** add missing fields on Response type ([3701efa](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/3701efa))
+* **http:** handle errors when server did not respond at all ([473f059](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/473f059))
+
+
+
 <a name="13.1.0"></a>
 # 13.1.0 (2017-03-08)
 
