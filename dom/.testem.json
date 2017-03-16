@@ -5,7 +5,7 @@
   "on_start": "./.scripts/saucie-connect.js; cp ../node_modules/mocha/mocha.* ./test/browser/page/",
   "on_exit": "./.scripts/saucie-disconnect.js; rm ./test/browser/page/mocha.*",
   "port": 8080,
-  "browser_start_timeout": 120,
+  "browser_start_timeout": 500,
   "launchers": {
     "SL_Chrome_Current": {
       "exe": "./node_modules/.bin/saucie",
@@ -42,9 +42,9 @@
       "args": ["-b", "iphone", "-v", "9.1", "--no-connect", "--attach", "-u"],
       "protocol": "browser"
     },
-    "SL_android_5_1": {
+    "SL_android_4_4": {
       "exe": "./node_modules/.bin/saucie",
-      "args": ["-b", "android", "-p", "Linux", "-v", "5.1", "--no-connect", "--attach", "-u"],
+      "args": ["-b", "android", "-p", "Linux", "-v", "4.4", "--device-name", "Samsung Galaxy S3 Emulator", "--no-connect", "--attach", "-u"],
       "protocol": "browser"
     },
     "SL_Safari_8": {
@@ -82,7 +82,7 @@
     "SL_Chrome_50",
     "SL_Chrome_49",
     "SL_Safari_8",
-    "SL_android_5_1",
+    "SL_android_4_4",
     "SL_IE_11",
     "SL_IE_10"
   ]
