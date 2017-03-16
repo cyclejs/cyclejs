@@ -12,6 +12,9 @@
   <script src='legacy.js'></script>
   <script src='flatdoc.js'></script>
 
+  <!-- Algolia's DocSearch main theme -->
+  <link href='//cdn.jsdelivr.net/docsearch.js/2/docsearch.min.css' rel='stylesheet' />
+
   <!-- Others -->
   <script async src="//static.jsbin.com/js/embed.js"></script>
 
@@ -524,6 +527,7 @@ But this still isn't ideal: we seem to have *more* code now. What we really want
         <li><a href='api/index.html'>API reference</a></li>
         <li><a href='releases.html'>Releases</a></li>
       </ul>
+      <input id="docsearch" />
     </div>
     <div class='right'>
       <!-- GitHub buttons: see https://ghbtns.com -->
@@ -578,5 +582,7 @@ But this still isn't ideal: we seem to have *more* code now. What we really want
     };
   </script>
   <script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
+  <script src='//cdn.jsdelivr.net/docsearch.js/2/docsearch.min.js'></script>
+  <script src='docsearch.js'></script>
 </body>
 </html>
