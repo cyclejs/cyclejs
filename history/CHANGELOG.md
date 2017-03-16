@@ -1,3 +1,13 @@
+<a name="6.1.0"></a>
+# 6.1.0 (2017-03-16)
+
+
+### Features
+
+* **history:** update makeHistoryDriver to accept History object ([a065c49](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/a065c49))
+
+
+
 <a name="6.0.0"></a>
 # 6.0.0 (2017-03-06)
 

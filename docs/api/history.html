@@ -71,10 +71,12 @@ another stream of locations that were applied.
 
 #### Arguments:
 
-- `options: object` an object with some options specific to this driver. These options are the same as for the corresponding
+- `options: object|History|MemoryHistory` an object with some options specific to this driver. These options are the same as for the corresponding
 `createBrowserHistory()` function in History v4. Check its
 [docs](https://github.com/mjackson/history/tree/v4.5.1#usage) for a good
-description on the options.
+description on the options. Alternatively, a History object can also be sent
+in case the external consumer needs direct access to any of the direct History
+methods
 
 #### Returns:
 
