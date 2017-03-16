@@ -1,3 +1,20 @@
+<a name="7.0.0"></a>
+# 7.0.0 (2017-03-16)
+
+
+### Bug Fixes
+
+* **rxjs-run:** optimize bundle size of rxjs ([7224237](https://github.com/cyclejs/cyclejs/tree/master/rxjs-run/commit/7224237))
+
+
+### BREAKING CHANGES
+
+* rxjs-run: Consumer will need to add operators individually.
+
+ISSUES CLOSED: #510
+
+
+
 <a name="6.1.0"></a>
 # 6.1.0 (2017-03-06)
 
