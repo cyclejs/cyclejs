@@ -12,6 +12,9 @@
   <script src='<%= pathToRoot %>legacy.js'></script>
   <script src='<%= pathToRoot %>flatdoc.js'></script>
 
+  <!-- Algolia's DocSearch main theme -->
+  <link href='//cdn.jsdelivr.net/docsearch.js/2/docsearch.min.css' rel='stylesheet' />
+
   <!-- Others -->
   <script async src="//static.jsbin.com/js/embed.js"></script>
 
@@ -67,6 +70,7 @@
         <li><a href='<%= pathToRoot %>api/index.html'>API reference</a></li>
         <li><a href='<%= pathToRoot %>releases.html'>Releases</a></li>
       </ul>
+      <input id="docsearch" />
     </div>
     <div class='right'>
       <!-- GitHub buttons: see https://ghbtns.com -->
@@ -119,5 +123,7 @@
     };
   </script>
   <script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
+  <script src='//cdn.jsdelivr.net/docsearch.js/2/docsearch.min.js'></script>
+  <script src='<%= pathToRoot %>docsearch.js'></script>
 </body>
 </html>
