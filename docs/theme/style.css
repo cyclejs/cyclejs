@@ -717,6 +717,8 @@ body.no-literate .content pre > code:hover::-webkit-scrollbar-thumb {
 }
 .header .left {
   float: left;
+  display: flex;
+  align-items: center;
 }
 .header .right {
   text-align: right;
