@@ -38,13 +38,13 @@ module.exports = function (config) {
       version: '9.1',
     },
 
-    // TODO: fix this!
-    // SL_android_5_1: {
-    //   base: 'SauceLabs',
-    //   browserName: 'android',
-    //   platform: 'Linux',
-    //   version: '5.1',
-    // },
+    SL_android_4_4: {
+      base: 'SauceLabs',
+      browserName: 'android',
+      platform: 'Linux',
+      version: '4.4',
+      deviceName: 'Samsung Galaxy S3 Emulator',
+    },
 
     SL_Safari_Current: {
       base: 'SauceLabs',
@@ -75,6 +75,9 @@ module.exports = function (config) {
   const configuration = {
     sauceLabs: {
       testName: 'Cycle History Karma tests on Sauce Labs',
+      connectOptions: {
+        noSslBumpDomains: "all"
+      }
     },
 
     files: [
@@ -95,7 +98,7 @@ module.exports = function (config) {
 
     concurrency: 1,
 
-    captureTimeout: 120000,
+    captureTimeout: 300000,
     browserNoActivityTimeout: 30000,
 
     // LOG_DISABLE .. LOG_ERROR .. LOG_WARN .. LOG_INFO .. LOG_DEBUG
