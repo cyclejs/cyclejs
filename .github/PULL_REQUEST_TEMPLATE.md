@@ -1,5 +1,5 @@
 <!--
-Thank you for your contribution!
+Thank you for your contribution! You're awesome.
 To help speed up the process of merging your code, check the following:
 -->
 
