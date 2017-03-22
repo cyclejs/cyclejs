@@ -1,11 +1,10 @@
 import * as assert from 'assert';
 import {mockTimeSource, timeDriver} from '../src/';
-import {mockDOMSource, makeHTMLDriver, div, button, VNode} from '@cycle/dom';
+import {mockDOMSource} from '@cycle/dom';
 import xs, {Stream} from 'xstream';
 import {setAdapt} from '@cycle/run/lib/adapt';
 import {Observable} from 'rxjs/Rx';
 import * as most from 'most';
-import * as htmlLooksLike from 'html-looks-like';
 
 const libraries = [
   {name: 'xstream', adapt: stream => stream, lib: xs},
@@ -29,89 +28,53 @@ function compose (stream, f) {
   throw new Error(`Don't know how to compose`);
 }
 
-// TODO:
-// - Put the counter boilerplate in its own file
-// - Remove unnecessary dependencies
-// - Any other cleanup
-// - Improve error messages
-// - Optimisation work
-
-function Counter ({DOM}) {
-  function view (count) {
-    return (
-      div('.counter', [
-        div('.count', `Count: ${count}`),
-        button('.subtract', '-'),
-        button('.add', '+')
-      ])
-    );
-  }
-
-  const add$ = DOM
-    .select('.add')
-    .events('click')
-    .mapTo(+1);
-
-  const subtract$ = DOM
-    .select('.subtract')
-    .events('click')
-    .mapTo(-1);
-
-  const change$ = xs.merge(add$, subtract$);
-
-  const add = (a, b) => a + b;
-
-  const count$ = change$.fold(add, 0);
-
-  return {
-    DOM: count$.map(view)
-  }
-}
-
-function toHTML (vtree$: Stream<VNode>) {
-  const htmlDriver = makeHTMLDriver(() => {});
-
-  return htmlDriver(vtree$, 'DOM').elements();
-}
-
 describe("@cycle/time", () => {
   before(() => setAdapt(stream => stream));
 
   it("can be used to test Cycle apps", (done) => {
+    function Counter ({DOM}) {
+      const add$ = DOM
+        .select('.add')
+        .events('click')
+        .mapTo(+1);
+
+      const subtract$ = DOM
+        .select('.subtract')
+        .events('click')
+        .mapTo(-1);
+
+      const change$ = xs.merge(add$, subtract$);
+
+      const add = (a, b) => a + b;
+
+      const count$ = change$.fold(add, 0);
+
+      return {
+        count$
+      }
+    }
+
     const Time = mockTimeSource();
 
-    const expectedHTML = (count: number) => `
-      <div class="counter">
-        {{ ... }}
-        <div class="count">Count: ${count}</div>
-        {{ ... }}
-      </div>
-    `;
+    const addClick      = '---x-x-x------x-|';
+    const subtractClick = '-----------x----|';
 
-    const addClick$      = Time.diagram('---x-x-x------x-|');
-    const subtractClick$ = Time.diagram('-----------x----|');
-
-    const expectedCount$ = Time.diagram('0--1-2-3---2--3-|');
-
-    const expectedHTML$  = expectedCount$.map(expectedHTML);
+    const expectedCount = '0--1-2-3---2--3-|';
 
     const DOM = mockDOMSource({
       '.add': {
-        'click': addClick$
+        'click': Time.diagram(addClick)
       },
       '.subtract': {
-        'click': subtractClick$
+        'click': Time.diagram(subtractClick)
       }
     });
 
     const counter = Counter({DOM});
 
-    const HTML$ = counter.DOM.compose(toHTML);
-
     Time.assertEqual(
-      HTML$,
-      expectedHTML$,
-      htmlLooksLike
+      counter.count$,
+      Time.diagram(expectedCount)
     );
 
     Time.run(done);
@@ -422,7 +385,7 @@ describe("@cycle/time", () => {
             });
           });
 
-          it("displays simultaneous events correctly", (done) => {
+          it("displays simultaneous events correcly", (done) => {
             const Time = mockTimeSource();
 
             const input    = `---(11)---(22)---(33)---|`;
