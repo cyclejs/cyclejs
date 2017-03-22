@@ -1,9 +1,9 @@
 import xs, {Stream} from 'xstream';
-// import * as deepEqual from 'deep-equal';
 import {deepEqual} from 'assert';
 import * as variableDiff from 'variable-diff';
 
 function checkEqual (completeStore, assert, interval, comparator) {
+  const usingCustomComparator = comparator !== deepEqual;
   let failReasons = [];
 
   if (completeStore['actual'].length !== completeStore['expected'].length) {
@@ -40,7 +40,11 @@ function checkEqual (completeStore, assert, interval, comparator) {
       let rightValue = true;
 
       try {
-        comparator(actual.value, expected.value);
+        const comparatorResult = comparator(actual.value, expected.value);
+
+        if (typeof(comparatorResult) === "boolean") {
+          rightValue = comparatorResult;
+        }
       } catch (error) {
         rightValue = false;
 
@@ -52,7 +56,21 @@ function checkEqual (completeStore, assert, interval, comparator) {
       }
 
       if (!rightTime || !rightValue) {
-        failReasons.push(`Expected value at time ${expected.time} but got different value at ${actual.time}\n\nDiff (actual => expected):\n${variableDiff(actual.value, expected.value).text}`);
+        const errorMessage = [
+          `Expected value at time ${expected.time} but got different value at ${actual.time}\n`,
+          `Expected ${JSON.stringify(expected.value)}, got ${JSON.stringify(actual.value)}`
+        ];
+
+        if (!usingCustomComparator) {
+          const diffMessage = [
+            `Diff (actual => expected):`,
+            variableDiff(actual.value, expected.value).text
+          ].join('\n');
+
+          errorMessage.push(diffMessage);
+        }
+
+        failReasons.push(errorMessage.join('\n'));
       }
     }
 

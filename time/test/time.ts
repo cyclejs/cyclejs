@@ -285,7 +285,7 @@ describe("@cycle/time", () => {
             Time.run(done);
           });
 
-          it("compares objects using deep equality", (done) => {
+          it("compares objects using deep equality by default", (done) => {
             const Time = mockTimeSource();
 
             const actual = Time.diagram(
@@ -308,6 +308,72 @@ describe("@cycle/time", () => {
 
             Time.assertEqual(actual, expected);
             Time.run(done);
+          });
+
+          describe("custom equality functions", () => {
+            it("passes", (done) => {
+              const Time = mockTimeSource();
+
+              const actual = Time.diagram(
+                `---A---B---C---|`,
+                {
+                  A: {foo: 1, bar: 2},
+                  B: {foo: 2, bar: 4},
+                  C: {foo: 3, bar: 6}
+                }
+              );
+
+              const expected = Time.diagram(
+                `---X---Y---Z---|`,
+                {
+                  X: {foo: 1, bar: 3},
+                  Y: {foo: 2, bar: 4},
+                  Z: {foo: 3, bar: 6}
+                }
+              );
+
+              function comparator (actual, expected) {
+                return actual.foo === expected.foo
+              }
+
+              Time.assertEqual(actual, expected, comparator);
+              Time.run(done);
+            });
+
+            it("fails", (done) => {
+              const Time = mockTimeSource();
+
+              const actual = Time.diagram(
+                `---A---B---C---|`,
+                {
+                  A: {foo: 1, bar: 2},
+                  B: {foo: 2, bar: 4},
+                  C: {foo: 3, bar: 6}
+                }
+              );
+
+              const expected = Time.diagram(
+                `---X---Y---Z---|`,
+                {
+                  X: {foo: 5, bar: 3},
+                  Y: {foo: 2, bar: 4},
+                  Z: {foo: 3, bar: 6}
+                }
+              );
+
+              function comparator (actual, expected) {
+                return actual.foo === expected.foo
+              }
+
+              Time.assertEqual(actual, expected, comparator);
+              Time.run((err) => {
+                if(!err) {
+                  done(new Error('expected test to fail'));
+                } else {
+                  done();
+                }
+              });
+            });
           });
 
           it("logs unexpected errors", (done) => {
