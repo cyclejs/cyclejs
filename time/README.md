@@ -433,7 +433,7 @@ Time.assertEqual(
 Time.run(err => console.error(err));
 ```
 
-You can optionally pass a custom comparator function.
+You can optionally pass a custom comparator function. This is useful if you want to do things like testing your DOM with tools such as [html-looks-like](https://github.com/staltz/html-looks-like).
 
 ```js
 // passes
