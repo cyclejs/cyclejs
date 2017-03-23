@@ -314,7 +314,7 @@ describe("@cycle/time", () => {
             it("passes", (done) => {
               const Time = mockTimeSource();
 
-              const actual = Time.diagram(
+              const actual$ = Time.diagram(
                 `---A---B---C---|`,
                 {
                   A: {foo: 1, bar: 2},
@@ -323,7 +323,7 @@ describe("@cycle/time", () => {
                 }
               );
 
-              const expected = Time.diagram(
+              const expected$ = Time.diagram(
                 `---X---Y---Z---|`,
                 {
                   X: {foo: 1, bar: 3},
@@ -336,14 +336,14 @@ describe("@cycle/time", () => {
                 return actual.foo === expected.foo
               }
 
-              Time.assertEqual(actual, expected, comparator);
+              Time.assertEqual(actual$, expected$, comparator);
               Time.run(done);
             });
 
             it("fails", (done) => {
               const Time = mockTimeSource();
 
-              const actual = Time.diagram(
+              const actual$ = Time.diagram(
                 `---A---B---C---|`,
                 {
                   A: {foo: 1, bar: 2},
@@ -352,7 +352,7 @@ describe("@cycle/time", () => {
                 }
               );
 
-              const expected = Time.diagram(
+              const expected$ = Time.diagram(
                 `---X---Y---Z---|`,
                 {
                   X: {foo: 5, bar: 3},
@@ -365,13 +365,62 @@ describe("@cycle/time", () => {
                 return actual.foo === expected.foo
               }
 
-              Time.assertEqual(actual, expected, comparator);
+              Time.assertEqual(actual$, expected$, comparator);
+
               Time.run((err) => {
                 if(!err) {
                   done(new Error('expected test to fail'));
                 } else {
                   done();
                 }
+              });
+            });
+
+            it("logs errors", (done) => {
+              const Time = mockTimeSource();
+
+              const actual$ = Time.diagram(
+                `---A---B---C---|`,
+                {
+                  A: {foo: 1, bar: 2},
+                  B: {foo: 2, bar: 4},
+                  C: {foo: 3, bar: 6}
+                }
+              );
+
+              const expected$ = Time.diagram(
+                `---X---Y---Z---|`,
+                {
+                  X: {foo: 5, bar: 3},
+                  Y: {foo: 2, bar: 4},
+                  Z: {foo: 3, bar: 6}
+                }
+              );
+
+              function comparator (actual, expected) {
+                if (actual.foo !== expected.foo) {
+                  throw new Error("Something went wrong");
+                }
+              }
+
+              Time.assertEqual(actual$, expected$, comparator);
+
+              Time.run((err) => {
+                if (!err) {
+                  done(new Error("expected test to fail"));
+                }
+
+                assert(
+                  err.message.indexOf("Something went wrong") !== -1,
+                  [
+                    "Expected failure message to include error, did not:",
+                    err.message,
+                    "to include:",
+                    "Something went wrong"
+                  ].join('\n\n')
+                );
+
+                done();
               });
             });
           });
