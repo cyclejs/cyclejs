@@ -58,10 +58,13 @@ function checkEqual (completeStore, assert, interval, comparator) {
       if (!rightTime || !rightValue) {
         const errorMessage = [
           `Expected value at time ${expected.time} but got different value at ${actual.time}\n`,
-          `Expected ${JSON.stringify(expected.value)}, got ${JSON.stringify(actual.value)}`
         ];
 
-        if (!usingCustomComparator) {
+        if (usingCustomComparator) {
+          const message = `Expected ${JSON.stringify(expected.value)}, got ${JSON.stringify(actual.value)}`
+
+          errorMessage.push(message);
+        } else {
           const diffMessage = [
             `Diff (actual => expected):`,
             variableDiff(actual.value, expected.value).text
