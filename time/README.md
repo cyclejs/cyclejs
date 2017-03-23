@@ -311,10 +311,10 @@ Returns a stream that emits every `period` msec. Starts with zero and increases 
 
 ```js
 const actual$ = Time.periodic(80);
-const expected$ = Time.diagram(`---0---1---2---3---4|`);
+const expected$ = Time.diagram(`----0---1---2---3-`);
 
 Time.assertEqual(
-  actual$.take(5),
+  actual$,
   expected$
 );
 
@@ -420,7 +420,9 @@ Time.assertEqual(
 );
 
 Time.run();
-
+```
+<!-- skip-example -->
+```js
 // fails
 
 Time.assertEqual(
