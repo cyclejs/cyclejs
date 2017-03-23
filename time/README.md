@@ -408,7 +408,7 @@ Time.run();
 // baz
 ```
 
-#### `assertEqual(actualStream, expectedStream, done)`
+#### `assertEqual(actualStream, expectedStream, comparator = assert.deepEqual)`
 Can be used to assert two streams are equivalent. This is useful when combine with `.diagram` for creating tests.
 
 ```js
@@ -431,6 +431,41 @@ Time.assertEqual(
 Time.run(err => console.error(err));
 ```
 
+You can optionally pass a custom comparator function.
+
+```js
+// passes
+
+const expected = Time.diagram(
+  `---A---B---C---|`,
+  {
+    A: {foo: 1, bar: 4},
+    B: {foo: 2, bar: 5},
+    C: {foo: 3, bar: 6}
+  }
+);
+
+const actual = Time.diagram(
+  `---A---B---C---|`,
+  {
+    A: {foo: 0, bar: 4},
+    B: {foo: 5, bar: 5},
+    C: {foo: 8, bar: 6}
+  }
+);
+
+function comparator (expected, actual) {
+  return expected.bar === actual.bar;
+}
+
+Time.assertEqual(
+  expected,
+  actual,
+  comparator
+);
+
+Time.run();
+```
 ## License
 
 MIT
