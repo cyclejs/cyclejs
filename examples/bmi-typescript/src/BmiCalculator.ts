@@ -11,14 +11,14 @@ export type Sinks = {
 };
 
 function BmiCalculator(sources: Sources): Sinks {
-  const WeightSlider = isolate(LabeledSlider);
-  const HeightSlider = isolate(LabeledSlider);
+  const WeightSlider = isolate(LabeledSlider) as typeof LabeledSlider;
+  const HeightSlider = isolate(LabeledSlider) as typeof LabeledSlider;
 
-  const weightProps$ = xs.of<LabeledSliderProps>({
-    label: 'Weight', unit: 'kg', min: 40, initial: 70, max: 140
+  const weightProps$ = xs.of({
+    label: 'Weight', unit: 'kg', min: 40, initial: 70, max: 140,
   }).remember();
-  const heightProps$ = xs.of<LabeledSliderProps>({
-    label: 'Height', unit: 'cm', min: 140, initial: 170, max: 210
+  const heightProps$ = xs.of({
+    label: 'Height', unit: 'cm', min: 140, initial: 170, max: 210,
   }).remember();
 
   const weightSlider = WeightSlider({DOM: sources.DOM, props$: weightProps$});

@@ -23,10 +23,10 @@ function LabeledSlider(sources: Sources): Sinks {
   const props$: Stream<LabeledSliderProps> = sources.props$;
   const initialValue$ = props$.map(props => props.initial).take(1);
   const newValue$ = sources.DOM.select('.slider').events('input')
-    .map(ev => parseInt((<HTMLInputElement> ev.target).value));
+    .map(ev => parseInt((ev.target as HTMLInputElement).value));
   const value$ = xs.merge(initialValue$, newValue$).remember();
 
-  let vdom$ = xs.combine(props$, value$)
+  const vdom$ = xs.combine(props$, value$)
     .map(([props, value]) =>
       div('.labeled-slider', [
         span('.label', [ props.label + ' ' + value + props.unit ]),
