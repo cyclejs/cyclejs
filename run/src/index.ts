@@ -37,8 +37,8 @@ export type Sinks = {
   [name: string]: any;
 };
 
-export type FantasyMap<Si> = {
-  [S in keyof Si]: FantasyObservable
+export type FantasySinks<Si> = {
+  [S in keyof Si]: FantasyObservable;
 };
 
 /**
@@ -216,7 +216,7 @@ function isObjectEmpty(obj: any): boolean {
  * is the function that once called will execute the application.
  * @function setup
  */
-export function setup<So extends Sources, Si extends FantasyMap<Si>>(
+export function setup<So extends Sources, Si extends FantasySinks<Si>>(
                      main: (sources: So) => Si,
                      drivers: Drivers<So, Si>): CycleProgram<So, Si> {
   if (typeof main !== `function`) {
@@ -277,7 +277,7 @@ export function setup<So extends Sources, Si extends FantasyMap<Si>>(
  * Cycle.js program, cleaning up resources used.
  * @function run
  */
-export function run<So extends Sources, Si extends FantasyMap<Si>>(
+export function run<So extends Sources, Si extends FantasySinks<Si>>(
                    main: (sources: So) => Si,
                    drivers: Drivers<So, Si>): DisposeFunction {
   const {run, sinks} = setup(main, drivers);
