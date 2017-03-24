@@ -26,7 +26,7 @@ export interface Driver<Sink, Source> {
 }
 
 export type Drivers<So extends Sources, Si extends Sinks> = {
-  [P in keyof (So & Si )]: Driver<Si[P], So[P]>;
+  [P in keyof (So & Si)]: Driver<Si[P], So[P]>;
 };
 
 export type Sources = {
