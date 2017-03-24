@@ -1,3 +1,13 @@
+<a name="3.1.0"></a>
+# 3.1.0 (2017-03-24)
+
+
+### Features
+
+* **run:** sinks to support TypeScript interface  ([c59ec55](https://github.com/cyclejs/cyclejs/tree/master/run/commit/c59ec55))
+
+
+
 <a name="3.0.0"></a>
 # 3.0.0 (2017-03-05)
 
