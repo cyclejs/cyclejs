@@ -60,7 +60,12 @@ describe('setup', function () {
       obj: Stream<object>;
     };
 
-    function app(sources: Sources) {
+    interface Sinks {
+      str: Stream<string>;
+      num: Stream<number>;
+    };
+
+    function app(sources: Sources): Sinks {
       return {
         str: sources.str.take(1).startWith('a'), // good
         // str: sources.obj.mapTo('good'), // good
