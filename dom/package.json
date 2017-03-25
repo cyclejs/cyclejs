@@ -36,8 +36,7 @@
     "@cycle/run": "*",
     "es6-map": "^0.1.4",
     "snabbdom": "0.6.5",
-    "snabbdom-selector": "1.1.1",
-    "snabbdom-to-html": "3.0.1"
+    "snabbdom-selector": "1.1.1"
   },
   "peerDependencies": {
     "xstream": "*"

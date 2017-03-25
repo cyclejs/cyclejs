@@ -12,7 +12,6 @@
     ]
   },
   "files": [
-    "./snabbdom-to-html.d.ts",
     "src/index.ts"
   ]
 }
