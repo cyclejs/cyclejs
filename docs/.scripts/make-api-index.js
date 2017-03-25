@@ -17,6 +17,7 @@ var outputStr = template({
     {title: 'Cycle RxJS Run', link: 'api/rxjs-run.html'},
     {title: 'Cycle Most Run', link: 'api/most-run.html'},
     {title: 'Cycle DOM', link: 'api/dom.html'},
+    {title: 'Cycle HTML', link: 'api/html.html'},
     {title: 'Cycle HTTP', link: 'api/http.html'},
     {title: 'Cycle History', link: 'api/history.html'},
     {title: 'Cycle Isolate', link: 'api/isolate.html'},
