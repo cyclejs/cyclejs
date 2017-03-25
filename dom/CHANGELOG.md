@@ -1,3 +1,20 @@
+<a name="17.0.0"></a>
+# 17.0.0 (2017-03-25)
+
+
+### Bug Fixes
+
+* **dom:** remove HTML driver from Cycle DOM ([8a5aac7](https://github.com/https://github.com/cyclejs/cyclejs/commit/8a5aac7))
+
+
+### BREAKING CHANGES
+
+* **dom:** We extracted the HTML driver to its own package, under Cycle HTML. It still depends on Cycle DOM and
+does the same as before, but lives under a different package. This extraction benefits you to reduce
+the bundle size client-side, since the HTML driver is usually not used client-side.
+
+
+
 <a name="16.0.0"></a>
 # 16.0.0 (2017-03-08)
 
