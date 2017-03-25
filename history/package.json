@@ -8,7 +8,7 @@
   "directories": {
     "test": "test"
   },
-  "repository": "https://github.com/cyclejs/cyclejs/tree/master/packages/history",
+  "repository": "https://github.com/cyclejs/cyclejs/tree/master/history",
   "author": "Tylor Steinberger",
   "license": "MIT",
   "bugs": "https://github.com/cyclejs/cyclejs/issues",

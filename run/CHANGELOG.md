@@ -4,7 +4,7 @@
 
 ### Features
 
-* **run:** sinks to support TypeScript interface  ([c59ec55](https://github.com/cyclejs/cyclejs/tree/master/run/commit/c59ec55))
+* **run:** sinks to support TypeScript interface  ([c59ec55](https://github.com/cyclejs/cyclejs/commit/c59ec55))
 
 
 
@@ -14,8 +14,8 @@
 
 ### Bug Fixes
 
-* **run:** check for matching stream types of sinks and drivers ([4b4094c](https://github.com/cyclejs/cyclejs/tree/master/run/commit/4b4094c))
-* **run:** reintroduce Driver function TS type ([1ad62cb](https://github.com/cyclejs/cyclejs/tree/master/run/commit/1ad62cb))
+* **run:** check for matching stream types of sinks and drivers ([4b4094c](https://github.com/cyclejs/cyclejs/commit/4b4094c))
+* **run:** reintroduce Driver function TS type ([1ad62cb](https://github.com/cyclejs/cyclejs/commit/1ad62cb))
 
 
 ### BREAKING CHANGES
@@ -34,7 +34,7 @@ ISSUES CLOSED: 541
 
 ### Bug Fixes
 
-* **run:** type check keyof drivers and main with TypeScript 2.2 ([da528c7](https://github.com/cyclejs/cyclejs/tree/master/run/commit/da528c7))
+* **run:** type check keyof drivers and main with TypeScript 2.2 ([da528c7](https://github.com/cyclejs/cyclejs/commit/da528c7))
 
 
 ### BREAKING CHANGES
@@ -61,8 +61,8 @@ First stable version of this package.
 
 ### Bug Fixes
 
-* **run:** fix race condition for drivers that subscribe late ([58b7991](https://github.com/cyclejs/cyclejs/tree/master/run/commit/58b7991))
-* **run:** sink proxy completes on dispose, not with setTimeout ([47931fc](https://github.com/cyclejs/cyclejs/tree/master/run/commit/47931fc))
+* **run:** fix race condition for drivers that subscribe late ([58b7991](https://github.com/cyclejs/cyclejs/commit/58b7991))
+* **run:** sink proxy completes on dispose, not with setTimeout ([47931fc](https://github.com/cyclejs/cyclejs/commit/47931fc))
 
 
 ### BREAKING CHANGES
@@ -80,7 +80,7 @@ The complete notifications from main's sinks are ignored.
 
 ### Bug Fixes
 
-* **run:** fix race condition for drivers that subscribe late ([58b7991](https://github.com/cyclejs/cyclejs/tree/master/run/commit/58b7991))
+* **run:** fix race condition for drivers that subscribe late ([58b7991](https://github.com/cyclejs/cyclejs/commit/58b7991))
 
 
 
@@ -90,7 +90,7 @@ The complete notifications from main's sinks are ignored.
 
 ### Bug Fixes
 
-* **run:** support drivers that dont return sources ([cda7602](https://github.com/cyclejs/cyclejs/tree/master/run/commit/cda7602))
+* **run:** support drivers that dont return sources ([cda7602](https://github.com/cyclejs/cyclejs/commit/cda7602))
 
 
 
@@ -100,7 +100,7 @@ The complete notifications from main's sinks are ignored.
 
 ### Bug Fixes
 
-* **run:** adapt() sources, do not adapt() sinks ([0fd15ed](https://github.com/cyclejs/cyclejs/tree/master/run/commit/0fd15ed))
+* **run:** adapt() sources, do not adapt() sinks ([0fd15ed](https://github.com/cyclejs/cyclejs/commit/0fd15ed))
 
 
 
@@ -110,7 +110,7 @@ The complete notifications from main's sinks are ignored.
 
 ### Bug Fixes
 
-* **run:** update to TypeScript 2.1 ([b7cabbc](https://github.com/cyclejs/cyclejs/tree/master/run/commit/b7cabbc))
+* **run:** update to TypeScript 2.1 ([b7cabbc](https://github.com/cyclejs/cyclejs/commit/b7cabbc))
 
 
 
@@ -120,7 +120,7 @@ The complete notifications from main's sinks are ignored.
 
 ### Bug Fixes
 
-* **run:** clear buffers after all sink replicators are mutated ([432e4a6](https://github.com/cyclejs/cyclejs/tree/master/run/commit/432e4a6))
+* **run:** clear buffers after all sink replicators are mutated ([432e4a6](https://github.com/cyclejs/cyclejs/commit/432e4a6))
 
 
 
@@ -130,8 +130,8 @@ The complete notifications from main's sinks are ignored.
 
 ### Bug Fixes
 
-* **run:** adapt sink to target stream lib before calling driver ([5edd925](https://github.com/cyclejs/cyclejs/tree/master/run/commit/5edd925))
-* **run:** only free up buffers after replicator has been mutated ([bf8a7e1](https://github.com/cyclejs/cyclejs/tree/master/run/commit/bf8a7e1))
+* **run:** adapt sink to target stream lib before calling driver ([5edd925](https://github.com/cyclejs/cyclejs/commit/5edd925))
+* **run:** only free up buffers after replicator has been mutated ([bf8a7e1](https://github.com/cyclejs/cyclejs/commit/bf8a7e1))
 
 
 
@@ -141,7 +141,7 @@ The complete notifications from main's sinks are ignored.
 
 ### Bug Fixes
 
-* **run:** use FantasyObservable in Sinks, not xstream Stream ([d68a50e](https://github.com/cyclejs/cyclejs/tree/master/run/commit/d68a50e))
+* **run:** use FantasyObservable in Sinks, not xstream Stream ([d68a50e](https://github.com/cyclejs/cyclejs/commit/d68a50e))
 
 
 

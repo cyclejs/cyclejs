@@ -4,8 +4,8 @@
 
 ### Bug Fixes
 
-* **jsonp:** update jsonp dependency to v0.2.1 ([8808b7b](https://github.com/cyclejs/jsonp/commit/8808b7b))
-* **jsonp:** use wildcard version for cycle/run ([7faeb42](https://github.com/cyclejs/jsonp/commit/7faeb42))
+* **jsonp:** update jsonp dependency to v0.2.1 ([8808b7b](https://github.com/cyclejs/cyclejs/commit/8808b7b))
+* **jsonp:** use wildcard version for cycle/run ([7faeb42](https://github.com/cyclejs/cyclejs/commit/7faeb42))
 
 
 
@@ -15,8 +15,8 @@
 
 ### Bug Fixes
 
-* **jsonp:** update jsonp dependency to v0.2.1 ([8808b7b](https://github.com/cyclejs/jsonp/commit/8808b7b))
-* **jsonp:** use wildcard version for cycle/run ([7faeb42](https://github.com/cyclejs/jsonp/commit/7faeb42))
+* **jsonp:** update jsonp dependency to v0.2.1 ([8808b7b](https://github.com/cyclejs/cyclejs/commit/8808b7b))
+* **jsonp:** use wildcard version for cycle/run ([7faeb42](https://github.com/cyclejs/cyclejs/commit/7faeb42))
 
 
 
@@ -31,7 +31,7 @@
 
 ### Bug Fixes
 
-* **jsonp:** use a fixed major version of xstream-adapter ([8c4a20c](https://github.com/cyclejs/jsonp/commit/8c4a20c))
+* **jsonp:** use a fixed major version of xstream-adapter ([8c4a20c](https://github.com/cyclejs/cyclejs/commit/8c4a20c))
 
 
 

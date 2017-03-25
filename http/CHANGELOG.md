@@ -4,8 +4,8 @@
 
 ### Bug Fixes
 
-* **http:** add missing fields on Response type ([3701efa](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/3701efa))
-* **http:** handle errors when server did not respond at all ([473f059](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/473f059))
+* **http:** add missing fields on Response type ([3701efa](https://github.com/cyclejs/cyclejs/commit/3701efa))
+* **http:** handle errors when server did not respond at all ([473f059](https://github.com/cyclejs/cyclejs/commit/473f059))
 
 
 
@@ -15,7 +15,7 @@
 
 ### Features
 
-* **http:** accept null isolation scope to turn off isolation ([e16febc](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/e16febc))
+* **http:** accept null isolation scope to turn off isolation ([e16febc](https://github.com/cyclejs/cyclejs/commit/e16febc))
 
 
 
@@ -25,7 +25,7 @@
 
 ### Bug Fixes
 
-* **http:** make the drivers type-checkable by TypeScript 2.2 ([a96243e](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/a96243e))
+* **http:** make the drivers type-checkable by TypeScript 2.2 ([a96243e](https://github.com/cyclejs/cyclejs/commit/a96243e))
 
 
 ### BREAKING CHANGES
@@ -45,10 +45,10 @@ ISSUES CLOSED: 542
 
 ### Bug Fixes
 
-* **http:** make cycle/run a hard dependency ([dabf7d7](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/dabf7d7))
-* **http:** rewrite for Cycle Unified ([657ec6b](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/657ec6b))
-* **http:** update superagent to 3.4 ([f9ebe6f](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/f9ebe6f))
-* **http:** update superagent to v3.4.1 ([6c2aaf7](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/6c2aaf7))
+* **http:** make cycle/run a hard dependency ([dabf7d7](https://github.com/cyclejs/cyclejs/commit/dabf7d7))
+* **http:** rewrite for Cycle Unified ([657ec6b](https://github.com/cyclejs/cyclejs/commit/657ec6b))
+* **http:** update superagent to 3.4 ([f9ebe6f](https://github.com/cyclejs/cyclejs/commit/f9ebe6f))
+* **http:** update superagent to v3.4.1 ([6c2aaf7](https://github.com/cyclejs/cyclejs/commit/6c2aaf7))
 
 
 ### BREAKING CHANGES
@@ -64,10 +64,10 @@ notes: https://github.com/visionmedia/superagent/releases
 
 ### Bug Fixes
 
-* **http:** make cycle/run a hard dependency ([dabf7d7](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/dabf7d7))
-* **http:** rewrite for Cycle Unified ([657ec6b](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/657ec6b))
-* **http:** update superagent to 3.4 ([f9ebe6f](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/f9ebe6f))
-* **http:** update superagent to v3.4.1 ([6c2aaf7](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/6c2aaf7))
+* **http:** make cycle/run a hard dependency ([dabf7d7](https://github.com/cyclejs/cyclejs/commit/dabf7d7))
+* **http:** rewrite for Cycle Unified ([657ec6b](https://github.com/cyclejs/cyclejs/commit/657ec6b))
+* **http:** update superagent to 3.4 ([f9ebe6f](https://github.com/cyclejs/cyclejs/commit/f9ebe6f))
+* **http:** update superagent to v3.4.1 ([6c2aaf7](https://github.com/cyclejs/cyclejs/commit/6c2aaf7))
 
 
 ### BREAKING CHANGES
@@ -83,7 +83,7 @@ notes: https://github.com/visionmedia/superagent/releases
 
 ### Features
 
-* **http:** added request object to http err response ([60c2a0b](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/60c2a0b))
+* **http:** added request object to http err response ([60c2a0b](https://github.com/cyclejs/cyclejs/commit/60c2a0b))
 
 
 
@@ -93,12 +93,12 @@ notes: https://github.com/visionmedia/superagent/releases
 
 ### Bug Fixes
 
-* **http:** remove [@types](https://github.com/types)/core-js in favore of tsconfig --options ([547efca](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/547efca))
+* **http:** remove [@types](https://github.com/types)/core-js in favore of tsconfig --options ([547efca](https://github.com/cyclejs/cyclejs/commit/547efca))
 
 
 ### Features
 
-* **http:** support SSL certificate authentication ([b3f841c](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/b3f841c))
+* **http:** support SSL certificate authentication ([b3f841c](https://github.com/cyclejs/cyclejs/commit/b3f841c))
 
 
 
@@ -108,7 +108,7 @@ notes: https://github.com/visionmedia/superagent/releases
 
 ### Features
 
-* **http:** update to superagent v2.3.0 ([68ea0f4](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/68ea0f4))
+* **http:** update to superagent v2.3.0 ([68ea0f4](https://github.com/cyclejs/cyclejs/commit/68ea0f4))
 
 
 
@@ -118,8 +118,8 @@ notes: https://github.com/visionmedia/superagent/releases
 
 ### Bug Fixes
 
-* **http:** remove remember() from response$$ ([6973409](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/6973409))
-* **http:** update typings of HTTPSource ([2dcd64e](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/2dcd64e))
+* **http:** remove remember() from response$$ ([6973409](https://github.com/cyclejs/cyclejs/commit/6973409))
+* **http:** update typings of HTTPSource ([2dcd64e](https://github.com/cyclejs/cyclejs/commit/2dcd64e))
 
 
 
@@ -129,7 +129,7 @@ notes: https://github.com/visionmedia/superagent/releases
 
 ### Bug Fixes
 
-* **http:** simplify the HTTPSource API ([f740fc1](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/f740fc1))
+* **http:** simplify the HTTPSource API ([f740fc1](https://github.com/cyclejs/cyclejs/commit/f740fc1))
 
 
 ### BREAKING CHANGES
@@ -149,7 +149,7 @@ ISSUES CLOSED: #376
 
 ### Bug Fixes
 
-* **http:** use a fixed major version of xstream-adapter ([bc14598](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/bc14598))
+* **http:** use a fixed major version of xstream-adapter ([bc14598](https://github.com/cyclejs/cyclejs/commit/bc14598))
 
 
 
@@ -159,7 +159,7 @@ ISSUES CLOSED: #376
 
 ### Features
 
-* **http:** support the Chrome DevTool to distinguish source streams ([cb81c23](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/cb81c23))
+* **http:** support the Chrome DevTool to distinguish source streams ([cb81c23](https://github.com/cyclejs/cyclejs/commit/cb81c23))
 
 
 
@@ -169,7 +169,7 @@ ISSUES CLOSED: #376
 
 ### Features
 
-* **http:** allow lazy (cancellable) requests  ([2417bd6](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/2417bd6))
+* **http:** allow lazy (cancellable) requests  ([2417bd6](https://github.com/cyclejs/cyclejs/commit/2417bd6))
 
 
 
@@ -179,12 +179,12 @@ ISSUES CLOSED: #376
 
 ### Bug Fixes
 
-* **http:** by default do not set Content-Type header ([3a55d4d](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/3a55d4d))
+* **http:** by default do not set Content-Type header ([3a55d4d](https://github.com/cyclejs/cyclejs/commit/3a55d4d))
 
 
 ### Features
 
-* **http:** update superagent to v2.1.0 ([34569ad](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/34569ad))
+* **http:** update superagent to v2.1.0 ([34569ad](https://github.com/cyclejs/cyclejs/commit/34569ad))
 
 
 ### BREAKING CHANGES
@@ -206,7 +206,7 @@ also to read the recent release notes: https://github.com/visionmedia/superagent
 
 ### Bug Fixes
 
-* **http:** remove jspm from package.json ([ecab193](https://github.com/cyclejs/cyclejs/tree/master/packages/http/commit/ecab193))
+* **http:** remove jspm from package.json ([ecab193](https://github.com/cyclejs/cyclejs/commit/ecab193))
 
 
 

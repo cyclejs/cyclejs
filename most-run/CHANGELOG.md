@@ -4,7 +4,7 @@
 
 ### Bug Fixes
 
-* **most-run:** catch less impossible-to-satisfy TypeScript errors ([0a45529](https://github.com/cyclejs/cyclejs/tree/master/most-run/commit/0a45529))
+* **most-run:** catch less impossible-to-satisfy TypeScript errors ([0a45529](https://github.com/cyclejs/cyclejs/commit/0a45529))
 
 
 
@@ -14,7 +14,7 @@
 
 ### Bug Fixes
 
-* **most-run:** check for matching stream types in sinks and drivers ([06dd793](https://github.com/cyclejs/cyclejs/tree/master/most-run/commit/06dd793))
+* **most-run:** check for matching stream types in sinks and drivers ([06dd793](https://github.com/cyclejs/cyclejs/commit/06dd793))
 
 
 ### BREAKING CHANGES
@@ -34,7 +34,7 @@ ISSUES CLOSED: 541
 
 ### Bug Fixes
 
-* **most-run:** type check keyof drivers and main with TypeScript 2.2 ([4597b3e](https://github.com/cyclejs/cyclejs/tree/master/most-run/commit/4597b3e))
+* **most-run:** type check keyof drivers and main with TypeScript 2.2 ([4597b3e](https://github.com/cyclejs/cyclejs/commit/4597b3e))
 
 
 ### BREAKING CHANGES
@@ -57,7 +57,7 @@ ISSUES CLOSED: 538
 
 ### Bug Fixes
 
-* **most-run:** use non-rc cycle/run dependency ([d098871](https://github.com/cyclejs/cyclejs/tree/master/most-run/commit/d098871))
+* **most-run:** use non-rc cycle/run dependency ([d098871](https://github.com/cyclejs/cyclejs/commit/d098871))
 
 
 
@@ -73,7 +73,7 @@ ISSUES CLOSED: 538
 
 ### Bug Fixes
 
-* **most-run:** update cycle/run to 1.0.0-rc.9 ([cf68d2c](https://github.com/cyclejs/cyclejs/tree/master/most-run/commit/cf68d2c))
+* **most-run:** update cycle/run to 1.0.0-rc.9 ([cf68d2c](https://github.com/cyclejs/cyclejs/commit/cf68d2c))
 
 
 
@@ -83,8 +83,8 @@ ISSUES CLOSED: 538
 
 ### Bug Fixes
 
-* **most-run:** support most v1.2 ([d643732](https://github.com/cyclejs/cyclejs/tree/master/most-run/commit/d643732))
-* **most-run:** update run to v1.0.0-rc.8 ([da7f1ec](https://github.com/cyclejs/cyclejs/tree/master/most-run/commit/da7f1ec))
+* **most-run:** support most v1.2 ([d643732](https://github.com/cyclejs/cyclejs/commit/d643732))
+* **most-run:** update run to v1.0.0-rc.8 ([da7f1ec](https://github.com/cyclejs/cyclejs/commit/da7f1ec))
 
 
 
@@ -94,7 +94,7 @@ ISSUES CLOSED: 538
 
 ### Bug Fixes
 
-* **most-run:** support most v1.2 ([d643732](https://github.com/cyclejs/cyclejs/tree/master/most-run/commit/d643732))
+* **most-run:** support most v1.2 ([d643732](https://github.com/cyclejs/cyclejs/commit/d643732))
 
 
 
@@ -104,7 +104,7 @@ ISSUES CLOSED: 538
 
 ### Bug Fixes
 
-* **most-run:** use run rc6, where sinks are not adapted ([a792ff1](https://github.com/cyclejs/cyclejs/tree/master/most-run/commit/a792ff1))
+* **most-run:** use run rc6, where sinks are not adapted ([a792ff1](https://github.com/cyclejs/cyclejs/commit/a792ff1))
 
 <a name="4.4.0"></a>
 # 4.4.0 (2016-12-21)
@@ -117,7 +117,7 @@ ISSUES CLOSED: 538
 
 ### Bug Fixes
 
-* **most-run:** update dependency cycle/base to v4.2 ([dc754b7](https://github.com/cyclejs/cyclejs/tree/master/packages/most-run/commit/dc754b7))
+* **most-run:** update dependency cycle/base to v4.2 ([dc754b7](https://github.com/cyclejs/cyclejs/commit/dc754b7))
 
 
 
@@ -127,7 +127,7 @@ ISSUES CLOSED: 538
 
 ### Features
 
-* **most-run:** update to latest dependencies ([d586ab3](https://github.com/cyclejs/cyclejs/tree/master/packages/most-run/commit/d586ab3))
+* **most-run:** update to latest dependencies ([d586ab3](https://github.com/cyclejs/cyclejs/commit/d586ab3))
 
 
 
@@ -137,7 +137,7 @@ ISSUES CLOSED: 538
 
 ### Bug Fixes
 
-* **most-run:** fix Cycle() TypeScript signature of drivers object ([45468ad](https://github.com/cyclejs/cyclejs/tree/master/packages/most-run/commit/45468ad))
+* **most-run:** fix Cycle() TypeScript signature of drivers object ([45468ad](https://github.com/cyclejs/cyclejs/commit/45468ad))
 
 
 
@@ -147,7 +147,7 @@ ISSUES CLOSED: 538
 
 ### Bug Fixes
 
-* **most-run:** fix run() TypeScript signature of drivers object ([fee7545](https://github.com/cyclejs/cyclejs/tree/master/packages/most-run/commit/fee7545))
+* **most-run:** fix run() TypeScript signature of drivers object ([fee7545](https://github.com/cyclejs/cyclejs/commit/fee7545))
 
 
 
@@ -157,7 +157,7 @@ ISSUES CLOSED: 538
 
 ### Bug Fixes
 
-* **most-run:** export run function  ([e409bf9](https://github.com/cyclejs/cyclejs/tree/master/packages/most-run/commit/e409bf9))
+* **most-run:** export run function  ([e409bf9](https://github.com/cyclejs/cyclejs/commit/e409bf9))
 
 
 
@@ -167,7 +167,7 @@ ISSUES CLOSED: 538
 
 ### Features
 
-* **most-run:** update cycle base run() to v4.1 ([e7801fa](https://github.com/cyclejs/cyclejs/tree/master/packages/most-run/commit/e7801fa))
+* **most-run:** update cycle base run() to v4.1 ([e7801fa](https://github.com/cyclejs/cyclejs/commit/e7801fa))
 
 
 
@@ -177,7 +177,7 @@ ISSUES CLOSED: 538
 
 ### Features
 
-* **most-run:** update most to v1.0.0 ([ce35480](https://github.com/cyclejs/cyclejs/tree/master/packages/most-run/commit/ce35480))
+* **most-run:** update most to v1.0.0 ([ce35480](https://github.com/cyclejs/cyclejs/commit/ce35480))
 
 
 ### BREAKING CHANGES

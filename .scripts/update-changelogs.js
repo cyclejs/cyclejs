@@ -63,11 +63,12 @@ function runUpdateChangelogs() {
           }
         },
       };
+      var context = {repository: 'https://github.com/cyclejs/cyclejs'};
       var gitRawCommitsOpts = { from: startCommits[package] };
 
       var readStream = fs.createReadStream(filename);
       var tmp = tempfile();
-      conventionalChangelog(changelogOpts, {}, gitRawCommitsOpts)
+      conventionalChangelog(changelogOpts, context, gitRawCommitsOpts)
         .pipe(addStream(readStream))
         .pipe(fs.createWriteStream(tmp))
         .on('finish', function () {

@@ -4,7 +4,7 @@
 
 ### Features
 
-* **dom:** allow choosing no isolation or sibling isolation ([13cb6bc](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/13cb6bc))
+* **dom:** allow choosing no isolation or sibling isolation ([13cb6bc](https://github.com/cyclejs/cyclejs/commit/13cb6bc))
 
 
 ### BREAKING CHANGES
@@ -26,7 +26,7 @@ ISSUES CLOSED: 526
 
 ### Bug Fixes
 
-* **dom:** update snabbdom to v0.6.5, which solves some bugs ([0ab2f52](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/0ab2f52))
+* **dom:** update snabbdom to v0.6.5, which solves some bugs ([0ab2f52](https://github.com/cyclejs/cyclejs/commit/0ab2f52))
 
 
 
@@ -36,7 +36,7 @@ ISSUES CLOSED: 526
 
 ### Bug Fixes
 
-* **dom:** fix issue 531 ([539a196](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/539a196))
+* **dom:** fix issue 531 ([539a196](https://github.com/cyclejs/cyclejs/commit/539a196))
 
 
 
@@ -57,21 +57,21 @@ ISSUES CLOSED: 526
 
 ### Bug Fixes
 
-* **dom:** fix client-side rendering to consider existing DOM ([760e1f3](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/760e1f3))
-* **dom:** fix isolation bug of child when parent is re-added ([e18e7f7](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/e18e7f7))
-* **dom:** make cycle/run a hard dependency ([47f7f49](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/47f7f49))
-* **dom:** report errors thrown in snabbdom hooks ([edb025c](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/edb025c))
-* **dom:** rewrite for Cycle Unified ([47346b4](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/47346b4))
-* **dom:** start snabbdom only when DOM is ready ([40d39dd](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/40d39dd))
-* **dom:** support using DOMSource.elements() in isolated main() ([ca192b5](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/ca192b5))
-* **dom:** update snabbdom to v0.6.4 ([f6dd895](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/f6dd895))
-* **dom:** update to snabbdom v0.6.3 ([d1077c8](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/d1077c8))
+* **dom:** fix client-side rendering to consider existing DOM ([760e1f3](https://github.com/cyclejs/cyclejs/commit/760e1f3))
+* **dom:** fix isolation bug of child when parent is re-added ([e18e7f7](https://github.com/cyclejs/cyclejs/commit/e18e7f7))
+* **dom:** make cycle/run a hard dependency ([47f7f49](https://github.com/cyclejs/cyclejs/commit/47f7f49))
+* **dom:** report errors thrown in snabbdom hooks ([edb025c](https://github.com/cyclejs/cyclejs/commit/edb025c))
+* **dom:** rewrite for Cycle Unified ([47346b4](https://github.com/cyclejs/cyclejs/commit/47346b4))
+* **dom:** start snabbdom only when DOM is ready ([40d39dd](https://github.com/cyclejs/cyclejs/commit/40d39dd))
+* **dom:** support using DOMSource.elements() in isolated main() ([ca192b5](https://github.com/cyclejs/cyclejs/commit/ca192b5))
+* **dom:** update snabbdom to v0.6.4 ([f6dd895](https://github.com/cyclejs/cyclejs/commit/f6dd895))
+* **dom:** update to snabbdom v0.6.3 ([d1077c8](https://github.com/cyclejs/cyclejs/commit/d1077c8))
 
 
 ### Features
 
-* **dom:** support passing custom modules to HTML driver ([f965de5](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/f965de5))
-* **dom:** use snabbdom dataset module by default ([36759af](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/36759af))
+* **dom:** support passing custom modules to HTML driver ([f965de5](https://github.com/cyclejs/cyclejs/commit/f965de5))
+* **dom:** use snabbdom dataset module by default ([36759af](https://github.com/cyclejs/cyclejs/commit/36759af))
 
 
 
@@ -81,19 +81,19 @@ ISSUES CLOSED: 526
 
 ### Bug Fixes
 
-* **dom:** fix isolation bug of child when parent is re-added ([e18e7f7](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/e18e7f7))
-* **dom:** make cycle/run a hard dependency ([47f7f49](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/47f7f49))
-* **dom:** report errors thrown in snabbdom hooks ([edb025c](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/edb025c))
-* **dom:** rewrite for Cycle Unified ([47346b4](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/47346b4))
-* **dom:** start snabbdom only when DOM is ready ([40d39dd](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/40d39dd))
-* **dom:** support using DOMSource.elements() in isolated main() ([ca192b5](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/ca192b5))
-* **dom:** update to snabbdom v0.6.3 ([d1077c8](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/d1077c8))
+* **dom:** fix isolation bug of child when parent is re-added ([e18e7f7](https://github.com/cyclejs/cyclejs/commit/e18e7f7))
+* **dom:** make cycle/run a hard dependency ([47f7f49](https://github.com/cyclejs/cyclejs/commit/47f7f49))
+* **dom:** report errors thrown in snabbdom hooks ([edb025c](https://github.com/cyclejs/cyclejs/commit/edb025c))
+* **dom:** rewrite for Cycle Unified ([47346b4](https://github.com/cyclejs/cyclejs/commit/47346b4))
+* **dom:** start snabbdom only when DOM is ready ([40d39dd](https://github.com/cyclejs/cyclejs/commit/40d39dd))
+* **dom:** support using DOMSource.elements() in isolated main() ([ca192b5](https://github.com/cyclejs/cyclejs/commit/ca192b5))
+* **dom:** update to snabbdom v0.6.3 ([d1077c8](https://github.com/cyclejs/cyclejs/commit/d1077c8))
 
 
 ### Features
 
-* **dom:** support passing custom modules to HTML driver ([f965de5](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/f965de5))
-* **dom:** use snabbdom dataset module by default ([36759af](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/36759af))
+* **dom:** support passing custom modules to HTML driver ([f965de5](https://github.com/cyclejs/cyclejs/commit/f965de5))
+* **dom:** use snabbdom dataset module by default ([36759af](https://github.com/cyclejs/cyclejs/commit/36759af))
 
 
 
@@ -108,7 +108,7 @@ ISSUES CLOSED: 526
 
 ### Bug Fixes
 
-* **dom:** change EventDelegator bubble to search topElement ([ae5113e](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/ae5113e))
+* **dom:** change EventDelegator bubble to search topElement ([ae5113e](https://github.com/cyclejs/cyclejs/commit/ae5113e))
 
 
 
@@ -118,7 +118,7 @@ ISSUES CLOSED: 526
 
 ### Bug Fixes
 
-* **dom:** skip calling addNS on svg "text" children ([faf52d4](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/faf52d4))
+* **dom:** skip calling addNS on svg "text" children ([faf52d4](https://github.com/cyclejs/cyclejs/commit/faf52d4))
 
 
 
@@ -128,7 +128,7 @@ ISSUES CLOSED: 526
 
 ### Bug Fixes
 
-* **dom:** allow same isolate scope for parent and child ([54dbdfe](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/54dbdfe))
+* **dom:** allow same isolate scope for parent and child ([54dbdfe](https://github.com/cyclejs/cyclejs/commit/54dbdfe))
 
 
 ### BREAKING CHANGES
@@ -147,7 +147,7 @@ ISSUES CLOSED: #453
 
 ### Bug Fixes
 
-* **dom:** fix stream libraries DOMSource.elements typings ([a30f5cb](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/a30f5cb))
+* **dom:** fix stream libraries DOMSource.elements typings ([a30f5cb](https://github.com/cyclejs/cyclejs/commit/a30f5cb))
 
 
 ### BREAKING CHANGES
@@ -168,7 +168,7 @@ ISSUES CLOSED: #451
 
 ### Bug Fixes
 
-* **dom:** enable restarting of event streams on isolated components ([08265db](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/08265db))
+* **dom:** enable restarting of event streams on isolated components ([08265db](https://github.com/cyclejs/cyclejs/commit/08265db))
 
 
 
@@ -183,7 +183,7 @@ ISSUES CLOSED: #451
 
 ### Bug Fixes
 
-* **dom:** add virtual DOM sanitation on `dispose()` (#442) ([c91e7c6](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/c91e7c6)), closes [#263](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/issues/263)
+* **dom:** add virtual DOM sanitation on `dispose()` (#442) ([c91e7c6](https://github.com/cyclejs/cyclejs/commit/c91e7c6)), closes [#263](https://github.com/cyclejs/cyclejs/issues/263)
 
 
 
@@ -193,7 +193,7 @@ ISSUES CLOSED: #451
 
 ### Bug Fixes
 
-* **dom:** retain event streams when isolated parent is recreated ([5b37dd0](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/5b37dd0))
+* **dom:** retain event streams when isolated parent is recreated ([5b37dd0](https://github.com/cyclejs/cyclejs/commit/5b37dd0))
 
 
 
@@ -203,7 +203,7 @@ ISSUES CLOSED: #451
 
 ### Bug Fixes
 
-* **dom:** fix small obstacle to using web components ([a74551c](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/a74551c))
+* **dom:** fix small obstacle to using web components ([a74551c](https://github.com/cyclejs/cyclejs/commit/a74551c))
 
 
 
@@ -213,7 +213,7 @@ ISSUES CLOSED: #451
 
 ### Bug Fixes
 
-* **dom:** small refactor, safe to upgrade ([2e3de51](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/2e3de51))
+* **dom:** small refactor, safe to upgrade ([2e3de51](https://github.com/cyclejs/cyclejs/commit/2e3de51))
 
 
 
@@ -223,7 +223,7 @@ ISSUES CLOSED: #451
 
 ### Bug Fixes
 
-* **dom:** slightly faster IsolateModule ([0126d2e](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/0126d2e))
+* **dom:** slightly faster IsolateModule ([0126d2e](https://github.com/cyclejs/cyclejs/commit/0126d2e))
 
 
 
@@ -233,7 +233,7 @@ ISSUES CLOSED: #451
 
 ### Bug Fixes
 
-* **dom:** use a fixed major version of xstream-adapter ([549180b](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/549180b))
+* **dom:** use a fixed major version of xstream-adapter ([549180b](https://github.com/cyclejs/cyclejs/commit/549180b))
 
 
 
@@ -243,7 +243,7 @@ ISSUES CLOSED: #451
 
 ### Features
 
-* **dom:** support the Chrome DevTool to distinguish source streams ([053718c](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/053718c))
+* **dom:** support the Chrome DevTool to distinguish source streams ([053718c](https://github.com/cyclejs/cyclejs/commit/053718c))
 
 
 
@@ -253,7 +253,7 @@ ISSUES CLOSED: #451
 
 ### Features
 
-* **dom:** add support for selecting `document` and `body` ([93bd3c4](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/93bd3c4))
+* **dom:** add support for selecting `document` and `body` ([93bd3c4](https://github.com/cyclejs/cyclejs/commit/93bd3c4))
 
 
 
@@ -263,7 +263,7 @@ ISSUES CLOSED: #451
 
 ### Bug Fixes
 
-* **dom:** fix support for SVG polyline ([d0eb12c](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/d0eb12c))
+* **dom:** fix support for SVG polyline ([d0eb12c](https://github.com/cyclejs/cyclejs/commit/d0eb12c))
 
 
 
@@ -273,7 +273,7 @@ ISSUES CLOSED: #451
 
 ### Performance Improvements
 
-* **dom:** clear out delegator destinations for stopped streams ([a9268e0](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/a9268e0))
+* **dom:** clear out delegator destinations for stopped streams ([a9268e0](https://github.com/cyclejs/cyclejs/commit/a9268e0))
 
 
 
@@ -283,7 +283,7 @@ ISSUES CLOSED: #451
 
 ### Bug Fixes
 
-* **dom:** use isolation scope as snabbdom key ([b763d25](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/b763d25))
+* **dom:** use isolation scope as snabbdom key ([b763d25](https://github.com/cyclejs/cyclejs/commit/b763d25))
 
 
 
@@ -293,7 +293,7 @@ ISSUES CLOSED: #451
 
 ### Features
 
-* **dom:** html driver supports multiple emissions ([c02dfe8](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/c02dfe8))
+* **dom:** html driver supports multiple emissions ([c02dfe8](https://github.com/cyclejs/cyclejs/commit/c02dfe8))
 
 
 ### BREAKING CHANGES
@@ -316,7 +316,7 @@ ISSUES CLOSED: #348
 
 ### Bug Fixes
 
-* **dom:** use snabbdom exactly 0.5.0 as a fixed version ([642bd6c](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/642bd6c))
+* **dom:** use snabbdom exactly 0.5.0 as a fixed version ([642bd6c](https://github.com/cyclejs/cyclejs/commit/642bd6c))
 
 
 
@@ -326,7 +326,7 @@ ISSUES CLOSED: #348
 
 ### Bug Fixes
 
-* **dom:** update Snabbdom to v0.5.0 ([6ec38f0](https://github.com/cyclejs/cyclejs/tree/master/packages/dom/commit/6ec38f0))
+* **dom:** update Snabbdom to v0.5.0 ([6ec38f0](https://github.com/cyclejs/cyclejs/commit/6ec38f0))
 
 
 ### BREAKING CHANGES

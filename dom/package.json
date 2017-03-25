@@ -5,7 +5,7 @@
   "license": "MIT",
   "homepage": "https://cycle.js.org",
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
-  "repository": "https://github.com/cyclejs/cyclejs/tree/master/packages/dom",
+  "repository": "https://github.com/cyclejs/cyclejs/tree/master/dom",
   "contributors": [
     {
       "name": "Andre Staltz",

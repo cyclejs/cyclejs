@@ -15,7 +15,7 @@
       "email": "tlsteinberger167@gmail.com"
     }
   ],
-  "repository": "https://github.com/cyclejs/cyclejs/tree/master/packages/isolate",
+  "repository": "https://github.com/cyclejs/cyclejs/tree/master/isolate",
   "keywords": [
     "reactive",
     "framework",
