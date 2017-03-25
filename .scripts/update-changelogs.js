@@ -10,7 +10,7 @@ var theCommitThatStartedTheMonorepo = fs
   .trim();
 
 var packagesWithChangelog = fs
-  .readFileSync(__dirname + '/PACKAGES_WITH_CHANGELOG', 'utf8')
+  .readFileSync(__dirname + '/RELEASABLE_PACKAGES', 'utf8')
   .trim()
   .split('\n');
 
