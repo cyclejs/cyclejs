@@ -63,7 +63,7 @@ function runUpdateChangelogs() {
           }
         },
       };
-      var context = {repository: 'https://github.com/cyclejs/cyclejs'};
+      var context = {host: 'https://github.com', repository: 'cyclejs/cyclejs'};
       var gitRawCommitsOpts = { from: startCommits[package] };
 
       var readStream = fs.createReadStream(filename);

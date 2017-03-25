@@ -4,7 +4,7 @@
 
 ### Bug Fixes
 
-* **dom:** remove HTML driver from Cycle DOM ([8a5aac7](https://github.com/https://github.com/cyclejs/cyclejs/commit/8a5aac7))
+* **dom:** remove HTML driver from Cycle DOM ([8a5aac7](https://github.com/cyclejs/cyclejs/commit/8a5aac7))
 
 
 ### BREAKING CHANGES
