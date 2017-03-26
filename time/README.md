@@ -435,6 +435,24 @@ Time.run(err => console.error(err));
 
 You can optionally pass a custom comparator function. This is useful if you want to do things like testing your DOM with tools such as [html-looks-like](https://github.com/staltz/html-looks-like).
 
+A custom comparator function should take two arguments: `actual`, and `expected`. It can either return a boolean, or throw an error. If an error is thrown, it will be shown in the error log.
+
+```js
+// returns a boolean
+
+function comparator (actual, expected) {
+  return actual.foo === expected.foo;
+}
+
+// throws an error
+
+function comparator (actual, expected) {
+  if (actual.foo !== expected.foo) {
+    throw new Error(`${actual.foo} should be the same as ${expected.foo}`);
+  }
+}
+```
+
 ```js
 // passes
 
@@ -456,13 +474,13 @@ const actual = Time.diagram(
   }
 );
 
-function comparator (expected, actual) {
-  return expected.bar === actual.bar;
+function comparator (actual, expected) {
+  return actual.bar === expected.bar;
 }
 
 Time.assertEqual(
-  expected,
   actual,
+  expected,
   comparator
 );
 
