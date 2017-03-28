@@ -409,7 +409,7 @@ Time.run();
 ```
 
 #### `assertEqual(actualStream, expectedStream, comparator = assert.deepEqual)`
-Can be used to assert two streams are equivalent. This is useful when combine with `.diagram` for creating tests.
+Can be used to assert two streams are equivalent. This is useful when combined with `.diagram` for creating tests.
 
 ```js
 // passes
