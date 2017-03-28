@@ -1325,6 +1325,58 @@ describe('isolation', function () {
       dispose = run();
     });
 
+  it('should allow null or undefined isolated child DOM', function (done) {
+    function child(sources: {DOM: MainDOMSource}) {
+      const visible$ = xs.periodic(50).take(1).fold((acc, _) => !acc, true);
+      const vdom$ = visible$.map(visible =>
+        visible ? h4('child') : null,
+      );
+      return {
+        DOM: vdom$,
+      };
+    }
+
+    function main(sources: {DOM: MainDOMSource}) {
+      const childSinks = isolate(child, 'child')(sources);
+      const vdom$ = childSinks.DOM.map(childVDom =>
+        div('.parent', [
+          childVDom,
+          h2('part of parent'),
+        ]),
+      );
+      return {
+        DOM: vdom$,
+      };
+    }
+
+    const {sinks, sources, run} = setup(main, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    let dispose: any;
+    sources.DOM.elements().drop(1).take(1).addListener({
+      next: (root: Element) => {
+        const parentEl = root.querySelector('.parent') as Element;
+        assert.strictEqual(parentEl.childNodes.length, 2);
+        assert.strictEqual(parentEl.children[0].tagName, 'H4');
+        assert.strictEqual(parentEl.children[0].textContent, 'child');
+        assert.strictEqual(parentEl.children[1].tagName, 'H2');
+        assert.strictEqual(parentEl.children[1].textContent, 'part of parent');
+      },
+    });
+    sources.DOM.elements().drop(2).take(1).addListener({
+      next: (root: Element) => {
+        const parentEl = root.querySelector('.parent') as Element;
+        assert.strictEqual(parentEl.childNodes.length, 1);
+        assert.strictEqual(parentEl.children[0].tagName, 'H2');
+        assert.strictEqual(parentEl.children[0].textContent, 'part of parent');
+        dispose();
+        done();
+      },
+    });
+    dispose = run();
+  });
+
   it('should allow recursive isolation using the same scope', (done) => {
     function Item(sources: {DOM: MainDOMSource}, count: number) {
       const childVdom$: Stream<VNode> = count > 0 ?

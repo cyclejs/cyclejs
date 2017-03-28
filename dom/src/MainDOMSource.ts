@@ -217,5 +217,5 @@ export class MainDOMSource implements DOMSource {
   // not get bitten by a missing `this` reference.
 
   public isolateSource: (source: MainDOMSource, scope: string) => MainDOMSource;
-  public isolateSink: (sink: Stream<VNode>, scope: string) => Stream<VNode>;
+  public isolateSink: typeof siblingIsolateSink;
 }
