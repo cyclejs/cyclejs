@@ -18,6 +18,11 @@ Then, this command will create a project called *my-awesome-app* (or another nam
 create-cycle-app my-awesome-app
 ```
 
+If you want to use typescript use the `one-fits-all` flavor.
+```
+create-cycle-app my-awesome-app --flavor cycle-scripts-one-fits-all
+```
+
 ## Install from npm
 
 If you want to have more control over your project, the recommended channel for downloading Cycle.js as a package is through [npm](http://npmjs.org/).
