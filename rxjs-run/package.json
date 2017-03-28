@@ -62,7 +62,7 @@
     "docs": "node ../.scripts/make-api-docs.js ${PWD##*/}",
     "preversion": "yarn test",
     "version": "yarn run dist && yarn run docs && yarn run changelog",
-    "postversion": "git add -A && git commit -m \"release(${PWD##*/}): v$(cat package.json | ../node_modules/.bin/jase version)\" && git push origin master && yarn publish",
+    "postversion": "git add -A && git commit -m \"release(${PWD##*/}): v$(cat package.json | ../node_modules/.bin/jase version)\" && git push origin master && npm publish",
     "release-patch": "false",
     "release-minor": "npm --no-git-tag-version version minor",
     "release-major": "npm --no-git-tag-version version major",
