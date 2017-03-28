@@ -1,3 +1,13 @@
+<a name="17.1.0"></a>
+# 17.1.0 (2017-03-28)
+
+
+### Bug Fixes
+
+* **dom:** support null and undefined isolated DOM sinks ([98af6fb](https://github.com/cyclejs/cyclejs/commit/98af6fb))
+
+
+
 <a name="17.0.0"></a>
 # 17.0.0 (2017-03-25)
 
