@@ -1,11 +1,11 @@
 import * as assert from 'assert';
 import * as Rx from 'rxjs';
 import * as Cycle from '@cycle/rxjs-run';
-import {makeHTTPDriver} from '../lib/index';
-import {HTTPSource} from '../rxjs-typings';
-import {run as runCommon} from './browser/src/common';
-import {globalSandbox} from './support/global';
-import {startServer} from './support/server';
+import {makeHTTPDriver} from '../../lib/index';
+import {HTTPSource} from '../../rxjs-typings';
+import {run as runCommon} from '../browser/src/common';
+import {globalSandbox} from '../support/global';
+import {startServer} from '../support/server';
 
 declare const process: any;
 process.env.PORT = 5000;
