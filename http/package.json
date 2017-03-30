@@ -33,8 +33,11 @@
     "xstream": "global:xstream"
   },
   "scripts": {
-    "test-node": "../node_modules/.bin/mocha test/node.ts --require ts-node/register --exit",
-    "pretest-browser": "../node_modules/.bin/tsc -p ./test/browser/ && npm run start-test-support-server",
+    "lint": "../node_modules/.bin/tslint --config ../tslint.json --project tsconfig.json",
+    "prelib": "rm -rf lib/ && mkdir -p lib",
+    "lib": "../node_modules/.bin/tsc",
+    "test-node": "../node_modules/.bin/mocha test/node/*.ts --require ts-node/register --exit",
+    "pretest-browser": "../node_modules/.bin/tsc -p ./test/browser/ && yarn run start-test-support-server",
     "test-browser": "../node_modules/.bin/testem ci -l Chrome,Firefox",
     "posttest-browser": "npm run stop-test-support-server",
     "pretest-browser-ci": "npm run pretest-browser",
@@ -49,8 +52,7 @@
   },
   "homepage": "https://cycle.js.org",
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
-  "contributors": [
-    {
+  "contributors": [{
       "name": "Andre Staltz",
       "email": "andre@staltz.com"
     },

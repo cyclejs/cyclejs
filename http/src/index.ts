@@ -67,3 +67,4 @@ export {
   ResponseStream,
   HTTPSource,
 } from './interfaces';
+export {mockHTTPSource, MockConfig, MockedHttpSource} from './mockHTTPSource';
