@@ -72,9 +72,9 @@ The following packages are not under Cycle.js, but are important dependencies, s
 | `rxjs` | [![npm version](https://img.shields.io/npm/v/rxjs.svg?maxAge=86400)](https://www.npmjs.com/package/rxjs) |
 | `xstream` | [![npm version](https://img.shields.io/npm/v/xstream.svg?maxAge=86400)](https://www.npmjs.com/package/xstream) |
 
-##Support [![OpenCollective](https://opencollective.com/cyclejs/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/cyclejs/sponsors/badge.svg)](#sponsors)
+## Support [![OpenCollective](https://opencollective.com/cyclejs/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/cyclejs/sponsors/badge.svg)](#sponsors)
 
-###Backers
+### Backers
 
 Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/cyclejs#backer)]
 
@@ -109,7 +109,7 @@ Support us with a monthly donation and help us continue our activities. [[Become
 <a href="https://opencollective.com/cyclejs/backer/28/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/28/avatar.svg"></a>
 <a href="https://opencollective.com/cyclejs/backer/29/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/29/avatar.svg"></a>
 
-## Sponsors
+### Sponsors
 
 Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/cyclejs#sponsor)]
 
