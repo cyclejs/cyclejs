@@ -117,8 +117,8 @@ test :
 	fi
 
 test-ci :
-	make setup
 	@if [ "$(ARG)" = "" ]; then \
+		make setup ;\
 		make test-ci-all ;\
 	else \
 		make lint $(ARG) ;\
