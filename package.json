@@ -6,6 +6,7 @@
     "add-stream": "1.0.0",
     "browserify": "13.3.0",
     "browserify-shim": "3.8.13",
+    "bump-cli": "^1.1.3",
     "commitizen": "2.9.5",
     "conventional-changelog": "1.1.3",
     "conventional-changelog-cli": "1.3.1",
@@ -31,17 +32,6 @@
     "typings": "2.1.0",
     "uglify-js": "2.7.5",
     "validate-commit-msg": "2.11.1"
-  },
-  "scripts": {
-    "internal-install-all": ".scripts/yarn-x-for-all-packages.sh install",
-    "unused-internal-link-all": ".scripts/symlink-to-each-other.sh",
-    "setup": "yarn install && yarn run internal-install-all",
-    "test": ".scripts/yarn-x-for-all-packages.sh test",
-    "test-ci": "yarn run setup && .scripts/yarn-x-for-all-packages.sh run test-ci",
-    "commit": "git-cz",
-    "changelog": ".scripts/update-changelogs.js",
-    "check-release": ".scripts/pre-check-release.sh",
-    "release": ".scripts/release-whatever-needs-release.sh"
   },
   "config": {
     "commitizen": {
