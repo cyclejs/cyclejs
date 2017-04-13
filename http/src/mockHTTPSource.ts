@@ -1,23 +1,27 @@
-import {HTTPSource, RequestOptions, ResponseStream, RequestInput, Response} from './interfaces';
-import {Stream, MemoryStream} from 'xstream';
-import {FantasyObservable} from '@cycle/run';
+import {HTTPSource, RequestOptions, ResponseStream, Response} from './interfaces';
+import xs, {Stream, MemoryStream} from 'xstream';
 import {isolateSource, isolateSink} from './isolate';
+import {adapt} from '@cycle/run/lib/adapt';
 
-export type MockConfig = {
-  [name: string]: FantasyObservable | MockConfig;
+export type Responses = Stream<MemoryStream<Response> & ResponseStream>;
+
+export type MockConfig = Responses | {
+  [categoryName: string]: Responses | MockConfig,
 };
 
 export class MockedHttpSource implements HTTPSource {
+  private _responses: Stream<MemoryStream<Response> & ResponseStream>;
+
   constructor(private _mockConfig: MockConfig) {
-    return;
+    this._responses = adapt(xs.empty());
   }
 
-  public filter<S extends HTTPSource>(predicate: (request: RequestOptions) => boolean): S {
-    throw new Error('Not implemented');
+  public filter(predicate: (request: RequestOptions) => boolean): HTTPSource {
+    return new MockedHttpSource(this._responses.filter(r$ => predicate(r$.request)));
   }
 
-  public select(selector?: string): Stream<MemoryStream<Response> & ResponseStream> {
-    throw new Error('Not implemented');
+  public select(categoryName?: string): any {
+    return categoryName && (this._mockConfig[categoryName] || xs.empty());
   }
 
   public isolateSource = isolateSource;
