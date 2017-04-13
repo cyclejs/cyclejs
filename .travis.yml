@@ -2,7 +2,7 @@ sudo: false
 language: node_js
 node_js:
   - '6.10.1'
-script: yarn run test-ci
+script: make test-ci
 cache: yarn
 branches:
   only:
