@@ -10,7 +10,7 @@ export type MockConfig = Responses | {
 };
 
 export class MockedHttpSource implements HTTPSource {
-  private _responses: Stream<MemoryStream<Response> & ResponseStream>;
+  private _responses: Responses;
 
   constructor(private _mockConfig: MockConfig) {
     this._responses = adapt(xs.empty());
