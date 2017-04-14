@@ -3,6 +3,7 @@ import pairwise from 'xstream/extra/pairwise'
 import fromEvent from 'xstream/extra/fromEvent'
 import {run} from '@cycle/run'
 import {div, ul, li, makeDOMDriver} from '@cycle/dom'
+import {timeDriver} from '@cycle/time'
 import {intersection, difference, sortBy} from 'lodash'
 
 function intent(keydownSource) {
@@ -37,10 +38,12 @@ function determineDeltaPoints(state$) {
   }).flatten()
 }
 
-function expandAsRenderingFrames(point$) {
-  return point$.map(point =>
-    xs.periodic(10).mapTo(point).take(100)
-  ).flatten()
+function expandAsRenderingFrames(Time) {
+  return function (point$) {
+    return point$.map(point =>
+      Time.periodic(10).mapTo(point).take(100)
+    ).flatten()
+  }
 }
 
 function calculateAnimationSteps(point$) {
@@ -81,15 +84,15 @@ function calculateAnimationSteps(point$) {
   }, [])
 }
 
-function animate(state$) {
+function animate(state$, Time) {
   return state$
     .compose(determineDeltaPoints)
-    .compose(expandAsRenderingFrames)
+    .compose(expandAsRenderingFrames(Time))
     .compose(calculateAnimationSteps)
 }
 
-function view(state$) {
-  const animatedState$ = animate(state$)
+function view(state$, Time) {
+  const animatedState$ = animate(state$, Time)
   const ulStyle = {padding: '0', listStyle: 'none', display: 'flex'}
   const liStyle = {fontSize: '50px'}
   return animatedState$.map(animStates =>
@@ -102,7 +105,7 @@ function view(state$) {
 function main(sources) {
   const key$ = intent(sources.Keydown)
   const state$ = model(key$)
-  const vtree$ = view(state$)
+  const vtree$ = view(state$, sources.Time)
   return {
     DOM: vtree$,
   }
@@ -110,5 +113,6 @@ function main(sources) {
 
 run(main, {
   Keydown: () => fromEvent(document, 'keydown'),
-  DOM: makeDOMDriver('#main-container')
+  DOM: makeDOMDriver('#main-container'),
+  Time: timeDriver
 })
