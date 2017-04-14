@@ -5,11 +5,12 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/run": "1.0.0-rc.8",
     "@cycle/dom": "15.0.0-rc.2",
     "@cycle/jsonp": "7.0.0-rc.1",
-    "xstream": "10.2",
-    "immutable": "^3.7.4"
+    "@cycle/run": "1.0.0-rc.8",
+    "@cycle/time": "^0.8.0",
+    "immutable": "^3.7.4",
+    "xstream": "10.2"
   },
   "devDependencies": {
     "browserify": "13.0.x",
