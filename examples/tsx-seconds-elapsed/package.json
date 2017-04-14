@@ -5,8 +5,9 @@
   "author": "Kay Plößer",
   "license": "MIT",
   "dependencies": {
-    "@cycle/run": "2.0",
     "@cycle/dom": "15.2",
+    "@cycle/run": "2.0",
+    "@cycle/time": "^0.8.0",
     "snabbdom-jsx": "0.3.1",
     "xstream": "10.x"
   },
