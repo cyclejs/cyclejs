@@ -48,7 +48,7 @@
     "@types/mocha": "^2.2.37",
     "@types/node": "^7.0.8",
     "browserify": "^14.3.0",
-    "budo": "^9.2.2",
+    "budo": "^10.0.2",
     "garnish": "^5.2.0",
     "greenkeeper-postpublish": "^1.0.1",
     "markdown-doctest": "^0.9.1",
