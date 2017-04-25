@@ -54,7 +54,7 @@ export {makeDOMDriver, DOMDriverOptions} from './makeDOMDriver';
  *
  * The `streamAdapter` parameter is a package such as `@cycle/xstream-adapter`,
  * `@cycle/rxjs-adapter`, etc. Import it as `import a from '@cycle/rx-adapter`,
- * then provide it to `mockDOMSource. This is important so the DOMSource created
+ * then provide it to `mockDOMSource`. This is important so the DOMSource created
  * knows which stream library should it use to export its streams when you call
  * `DOMSource.events()` for instance.
  *
