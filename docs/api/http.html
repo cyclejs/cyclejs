@@ -43,7 +43,7 @@ Basics:
 
 ```js
 import xs from 'xstream';
-import {run} from '@cycle/xstream-run';
+import {run} from '@cycle/run';
 import {makeHTTPDriver} from '@cycle/http';
 
 function main(sources) {
@@ -180,6 +180,7 @@ The child component will have run in the same context as its parent, and methods
 A `HTTPSource.select()` call in a parent component will have access to HTTP responses from its children. However, a `HTTPSource.select()` inside a child component isolated with "siblings isolation" will have no access to HTTP responses in other children components isolated with "siblings isolation".
 
 # API
+
 
 ## <a id="makeHTTPDriver"></a> `makeHTTPDriver()`
 
