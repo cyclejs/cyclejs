@@ -22,7 +22,7 @@ markdox.process(
       console.log('File `' + dirOfThePackage + '/generated-api.md' + '` generated with success');
 
       var content =
-        fs.readFileSync(dirOfThePackage + '/.scripts/docs-template.md', 'utf-8') +
+        fs.readFileSync(__dirname + '/../docs/content/api/' + argPackage + '.md', 'utf-8') +
         fs.readFileSync(dirOfThePackage + '/generated-api.md', 'utf-8');
 
       var outputStr = template({
