@@ -1,1 +1,2 @@
-[Documentation for Cycle History on cycle.js.org](https://cycle.js.org/api/history.html)
+- [**Read the docs here**](https://cycle.js.org/api/history.html)
+- [**Edit the docs here**](https://github.com/cyclejs/cyclejs/blob/master/docs/content/api/history.html)

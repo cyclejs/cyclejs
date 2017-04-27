@@ -1,1 +1,2 @@
-[Documentation for Cycle Isolate on cycle.js.org](https://cycle.js.org/api/isolate.html)
+- [**Read the docs here**](https://cycle.js.org/api/isolate.html)
+- [**Edit the docs here**](https://github.com/cyclejs/cyclejs/blob/master/docs/content/api/isolate.html)
