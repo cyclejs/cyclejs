@@ -49,7 +49,7 @@ lint :
 	@if [ "$(ARG)" = "" ]; then \
 		echo "Error: please call 'make lint' with an argument, like 'make lint dom'" ;\
 	else \
-		$(TSLINT) --config tslint.json --project $(ARG)/tsconfig.json ;\
+		$(TSLINT) --config tslint.json --project $(ARG)/tsconfig.json &&\
 		echo "✓ Passed lint" ;\
 	fi
 
@@ -110,20 +110,20 @@ test :
 	@if [ "$(ARG)" = "" ]; then \
 		make test-all ;\
 	else \
-		make lint $(ARG) ;\
-		make lib $(ARG) ;\
-		cd $(ARG) ; npm run test ; cd .. ;\
+		make lib $(ARG) &&\
+		cd $(ARG) && npm run test && cd .. &&\
+		make lint $(ARG) &&\
 		echo "✓ Tested $(ARG)" ;\
 	fi
 
 test-ci :
 	@if [ "$(ARG)" = "" ]; then \
-		make setup ;\
+		make setup &&\
 		make test-ci-all ;\
 	else \
-		make lint $(ARG) ;\
-		make lib $(ARG) ;\
-		cd $(ARG) ; npm run test-ci ; cd .. ;\
+		make lib $(ARG) &&\
+		cd $(ARG) && npm run test-ci && cd .. &&\
+		make lint $(ARG) &&\
 		echo "✓ Tested CI $(ARG)" ;\
 	fi
 
