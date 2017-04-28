@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # This script runs a yarn command for every registered package
 # in the file `RELEASABLE_PACKAGES`.
