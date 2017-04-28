@@ -128,14 +128,10 @@ test-ci :
 	fi
 
 test-all :
-	@while read d ;\
-		make test $(ARG) ;\
-	done < .scripts/RELEASABLE_PACKAGES
+	.scripts/test-all.sh
 
 test-ci-all :
-	@while read d ;\
-		make test-ci $(ARG) ;\
-	done < .scripts/RELEASABLE_PACKAGES
+	.scripts/test-ci-all.sh
 
 check-release :
 	.scripts/pre-check-release.sh
