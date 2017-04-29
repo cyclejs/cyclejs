@@ -73,8 +73,10 @@ function filterBasedOnIsolation(domSource: MainDOMSource, fullScope: string) {
       .fold(
         function checkIfShouldPass(state: State, element: Element) {
           const isIsolated = !!domSource._isolateModule.getElement(fullScope);
-          const shouldPass = isIsolated && !state.wasIsolated;
-          return {wasIsolated: isIsolated, shouldPass, element};
+          state.shouldPass = isIsolated && !state.wasIsolated;
+          state.wasIsolated = isIsolated;
+          state.element = element;
+          return state;
         },
         initialState,
       )
