@@ -1,6 +1,6 @@
 import 'mocha';
 import * as assert from 'assert';
-import { mockHTTPSource } from '../../lib/index';
+import { mockHTTPSource } from '../../src/index';
 import xs from 'xstream';
 
 describe('mockHttpSource', function () {
@@ -14,6 +14,26 @@ describe('mockHttpSource', function () {
     });
     userEvents.select('foo').subscribe({
       next: () => done(new Error('Should not emit any value')),
+      error: (err: any) => done(err),
+      complete: () => done(),
+    });
+  });
+
+  it('supports categorized streams', (done) => {
+    const response: any = {
+      text: 'Hello world',
+    };
+
+    const response$ = xs.of(response);
+
+    const userEvents = mockHTTPSource({
+      'foo': xs.of(response$)
+    });
+
+    userEvents.select('foo').flatten().take(1).subscribe({
+      next: (res: any) => {
+        assert.equal(res.text, 'Hello world');
+      },
       error: (err: any) => done(err),
       complete: () => done(),
     });
