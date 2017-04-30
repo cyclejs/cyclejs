@@ -1,6 +1,7 @@
 import xs from 'xstream'
 import {run} from '@cycle/run'
 import {makeDOMDriver} from '@cycle/dom'
+import {timeDriver} from '@cycle/time'
 import {makeChartDriver} from './chart-driver'
 
 const timeframeSec = 1
@@ -17,10 +18,10 @@ const chartDefaults = {
   },
 }
 
-function intent(domSource) {
+function intent(domSource, timeSource) {
   return {
     click$: domSource.events('click').mapTo(1),
-    timer$: xs.periodic(timeframeSec * 1000).mapTo(0),
+    timer$: timeSource.periodic(timeframeSec * 1000).mapTo(0),
   }
 }
 
@@ -51,7 +52,7 @@ function view(clicksHistory$) {
 }
 
 function main(sources) {
-  const actions = intent(sources.DOM)
+  const actions = intent(sources.DOM, sources.Time)
   const clicksHistory$ = model(actions)
   const chartData$ = view(clicksHistory$)
 
@@ -63,4 +64,5 @@ function main(sources) {
 run(main, {
   DOM: makeDOMDriver('body'),
   Chart: makeChartDriver('#clicks-chart', chartDefaults),
+  Time: timeDriver
 })

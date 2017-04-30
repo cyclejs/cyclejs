@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # This script checks each package and if it needs a new version
 # released, then it publishes that new version.

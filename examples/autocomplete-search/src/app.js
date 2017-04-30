@@ -91,7 +91,7 @@ function notBetween(first, second) {
   )
 }
 
-function intent(domSource) {
+function intent(domSource, timeSource) {
   const UP_KEYCODE = 38
   const DOWN_KEYCODE = 40
   const ENTER_KEYCODE = 13
@@ -116,7 +116,7 @@ function intent(domSource) {
 
   return {
     search$: input$
-      .compose(debounce(500))
+      .compose(timeSource.debounce(500))
       .compose(between(inputFocus$, inputBlur$))
       .map(ev => ev.target.value)
       .filter(query => query.length > 0),
@@ -291,9 +291,9 @@ function preventedEvents(actions, state$) {
     .filter(ev => ev !== null)
 }
 
-export default function app(responses) {
-  const suggestionsFromResponse$ = networking.processResponses(responses.JSONP)
-  const actions = intent(responses.DOM)
+export default function app(sources) {
+  const suggestionsFromResponse$ = networking.processResponses(sources.JSONP)
+  const actions = intent(sources.DOM, sources.Time)
   const state$ = model(suggestionsFromResponse$, actions)
   const vtree$ = view(state$)
   const prevented$ = preventedEvents(actions, state$)

@@ -169,8 +169,10 @@ a:hover {
 .hero h4 a { font-family: "Source Sans Pro", "Calibri", "Helvetica", sans-serif; font-weight: 400; color: #58D3D8; border: 2px solid #58D3D8; border-radius: 5px; padding: 5px 15px; transition: background-color 0.2s ease-out, color 0.2s ease-out; letter-spacing: 0; display: inline-block; }
 .hero h4 a:hover { border: 2px solid #58D3D8; background-color: #58D3D8; color: #24242D; }
 
-.hero h5 { font-size: 18px; text-align: center; font-style: italic; }
-.hero h5 a { color: #58D3D8; border-bottom: 1px dotted #58D3D8; }
+.hero-sponsor { font-size: 18px; text-align: center; font-style: italic; }
+.hero-sponsor a { color: white; border-bottom: 1px dotted white; }
+.hero-sponsor img { transform: translateY(15px); }
+a.hero-sponsor-logo { border: none; }
 
 @media (min-width: 768px) {
   .hero {
