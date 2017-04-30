@@ -3,7 +3,7 @@ import xs, {Stream, MemoryStream} from 'xstream';
 import {isolateSource, isolateSink} from './isolate';
 import {adapt} from '@cycle/run/lib/adapt';
 
-export type Responses = Stream<MemoryStream<Response> & ResponseStream>;
+export type Responses = Stream<any>;
 
 export type MockConfig = Responses | {
   [categoryName: string]: Responses | MockConfig,
