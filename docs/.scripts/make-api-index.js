@@ -13,6 +13,7 @@ var outputStr = template({
   content: content,
   premenu: [],
   postmenu: [
+    {title: 'Streams', link: 'api/streams.html'},
     {title: 'Cycle Run', link: 'api/run.html'},
     {title: 'Cycle RxJS Run', link: 'api/rxjs-run.html'},
     {title: 'Cycle Most Run', link: 'api/most-run.html'},
