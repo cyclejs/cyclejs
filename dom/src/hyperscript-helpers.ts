@@ -1,6 +1,6 @@
 import {h} from 'snabbdom/h';
-import {VNode} from 'snabbdom/vnode';
-
+import {VNode, VNodeData as _VNodeData} from 'snabbdom/vnode';
+import {HTMLInputElementProperties} from './HtmlProperties'
 function isValidString(param: any): boolean {
   return typeof param === 'string' && param.length > 0;
 }
@@ -77,8 +77,27 @@ TAG_NAMES.forEach(n => {
 });
 export default (exported as any as HyperScriptHelpers);
 
-export interface HyperScriptHelperFn {
-  (selector?: any, properties?: any, children?: any): VNode;
+export interface VNodeData<Props> extends _VNodeData {
+  props?: Props
+}
+
+export type HyperScriptChildren =
+  string |
+  number |
+  Array<string | VNode | null> |
+  ReadonlyArray<string | VNode | null>;
+
+export interface HyperScriptHelperFn<
+  T extends Element = Element,
+  Props = any> {
+  (): VNode;
+  (selector: string, data: VNodeData<Props>, children: HyperScriptChildren): VNode;
+  (selector: string, data: VNodeData<Props>): VNode;
+  (selector: string, children: HyperScriptChildren): VNode;
+  (selector: string): VNode;
+  (data: VNodeData<Props>): VNode;
+  (data: VNodeData<Props>, children: HyperScriptChildren): VNode;
+  (children: HyperScriptChildren): VNode;
 }
 
 export interface SVGHelperFn extends HyperScriptHelperFn {
@@ -214,7 +233,7 @@ export interface HyperScriptHelpers {
   i: HyperScriptHelperFn;
   iframe: HyperScriptHelperFn;
   img: HyperScriptHelperFn;
-  input: HyperScriptHelperFn;
+  input: HyperScriptHelperFn<HTMLInputElement, HTMLInputElementProperties>;
   ins: HyperScriptHelperFn;
   kbd: HyperScriptHelperFn;
   keygen: HyperScriptHelperFn;

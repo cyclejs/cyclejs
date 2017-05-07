@@ -136,7 +136,8 @@ export {CycleDOMEvent} from './EventDelegator';
  * @function h
  */
 export {h} from 'snabbdom/h';
-import hh, {HyperScriptHelperFn, SVGHelperFn} from './hyperscript-helpers';
+import hh, {HyperScriptHelperFn, SVGHelperFn, 
+  HyperScriptHelpers} from './hyperscript-helpers';
 
 export const svg: SVGHelperFn = hh.svg;
 export const a: HyperScriptHelperFn = hh.a;
@@ -188,7 +189,7 @@ export const html: HyperScriptHelperFn = hh.html;
 export const i: HyperScriptHelperFn = hh.i;
 export const iframe: HyperScriptHelperFn = hh.iframe;
 export const img: HyperScriptHelperFn = hh.img;
-export const input: HyperScriptHelperFn = hh.input;
+export const input: HyperScriptHelpers['input'] = hh.input;
 export const ins: HyperScriptHelperFn = hh.ins;
 export const kbd: HyperScriptHelperFn = hh.kbd;
 export const keygen: HyperScriptHelperFn = hh.keygen;
