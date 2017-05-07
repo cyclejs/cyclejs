@@ -2,20 +2,6 @@ export {Location, History} from 'history';
 export * from './types';
 
 /**
- * Wraps a History Driver to add "click capturing" functionality.
- *
- * If you want to intercept and handle any click event that leads to a link,
- * like on an `<a>` element, you pass your existing driver (e.g. created from
- * `makeHistoryDriver()`) as argument and this function will return another
- * driver of the same nature, but including click capturing logic.
- *
- * @param {Function} driver an existing History Driver function.
- * @return {Function} a History Driver function
- * @function captureClicks
- */
-export {captureClicks} from './captureClicks';
-
-/**
  * Create a History Driver to be used in the browser.
  *
  * This is a function which, when called, returns a History Driver for Cycle.js
@@ -52,6 +38,20 @@ export {makeHistoryDriver} from './drivers';
  * @function makeHashHistoryDriver
  */
 export {makeHashHistoryDriver} from './drivers';
+
+/**
+ * Wraps a History Driver to add "click capturing" functionality.
+ *
+ * If you want to intercept and handle any click event that leads to a link,
+ * like on an `<a>` element, you pass your existing driver (e.g. created from
+ * `makeHistoryDriver()`) as argument and this function will return another
+ * driver of the same nature, but including click capturing logic.
+ *
+ * @param {Function} driver an existing History Driver function.
+ * @return {Function} a History Driver function
+ * @function captureClicks
+ */
+export {captureClicks} from './captureClicks';
 
 /**
  * Create a History Driver to be used in non-browser enviroments such as
