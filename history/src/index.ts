@@ -21,7 +21,25 @@ export {captureClicks} from './captureClicks';
  * This is a function which, when called, returns a History Driver for Cycle.js
  * apps. The driver is also a function, and it takes a stream of new locations
  * (strings representing pathnames or location objects) as input, and outputs
- * another stream of locations that were applied.
+ * another stream of locations that were applied. Example:
+ *
+ * ```js
+ * import {run} from '@cycle/run';
+ * import {makeHistoryDriver} from '@cycle/history';
+ *
+ * function main(sources){
+ *   return {
+ *     // updates the browser URL every 500ms
+ *     history: xs.periodic(500).map(i => `url-${i}`)
+ *   };
+ * }
+ *
+ * const drivers = {
+ *   history: makeHistoryDriver()
+ * };
+ *
+ * run(main, drivers);
+ * ```
  *
  * @param {object|History|MemoryHistory} options an object with some options specific to
  * this driver. These options are the same as for the corresponding
