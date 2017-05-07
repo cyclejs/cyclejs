@@ -1,7 +1,6 @@
-import {Driver, FantasyObservable} from '@cycle/run';
+import {Driver} from '@cycle/run';
 import {Stream} from 'xstream';
 import {VNode} from 'snabbdom/vnode';
-import {DOMSource} from './DOMSource';
 import {HTMLSource} from './HTMLSource';
 const init: Init = require('snabbdom-to-html/init');
 const modulesForHTML: ModulesForHTML = require('snabbdom-to-html/modules');

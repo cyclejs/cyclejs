@@ -5,9 +5,10 @@
   "author": "Adam Florczak",
   "license": "MIT",
   "dependencies": {
-    "chart.js": "^2.0.0",
-    "@cycle/run": "1.0.0-rc.8",
     "@cycle/dom": "15.0.0-rc.2",
+    "@cycle/run": "1.0.0-rc.8",
+    "@cycle/time": "^0.8.0",
+    "chart.js": "^2.0.0",
     "xstream": "10.2"
   },
   "devDependencies": {

@@ -8,7 +8,7 @@
   "directories": {
     "test": "test"
   },
-  "repository": "https://github.com/cyclejs/cyclejs/tree/master/packages/history",
+  "repository": "https://github.com/cyclejs/cyclejs/tree/master/history",
   "author": "Tylor Steinberger",
   "license": "MIT",
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
@@ -28,25 +28,12 @@
     "xstream": "10.x"
   },
   "scripts": {
-    "lint": "../node_modules/.bin/tslint --config ../tslint.json --project tsconfig.json",
-    "prelib": "rm -rf lib/ && mkdir -p lib",
-    "lib": "../node_modules/.bin/tsc",
     "test-node": "../node_modules/.bin/mocha -r ts-node/register test/node/*.ts",
     "test-browser": "../node_modules/.bin/karma start --single-run",
     "test-browser-wait": "../node_modules/.bin/karma start",
-    "test": "npm run lint && npm run test-node && npm run test-browser",
-    "test-ci": "npm run lint && npm run test-node && npm run test-browser",
+    "test": "npm run test-node && yarn run test-browser",
+    "test-ci": "npm run test",
     "browserify": "../node_modules/.bin/browserify lib/index.js --standalone CycleHistory --outfile dist/cycle-history.js",
-    "uglify": "../node_modules/.bin/uglifyjs dist/cycle-history.js -o dist/cycle-history.min.js",
-    "predist": "rm -rf dist/ && mkdir -p dist/",
-    "dist": "npm run lib && npm run browserify && npm run uglify",
-    "docs": "node ../.scripts/make-api-docs.js ${PWD##*/}",
-    "preversion": "npm test",
-    "version": "npm run dist && npm run docs && npm run changelog",
-    "postversion": "git add -A && git commit -m \"release(${PWD##*/}): v$(cat package.json | ../node_modules/.bin/jase version)\" && git push origin master && npm publish",
-    "release-patch": "false",
-    "release-minor": "npm --no-git-tag-version version minor",
-    "release-major": "npm --no-git-tag-version version major",
-    "changelog": "node ../.scripts/update-changelogs.js ${PWD##*/}"
+    "uglify": "../node_modules/.bin/uglifyjs dist/cycle-history.js -o dist/cycle-history.min.js"
   }
 }

@@ -4,7 +4,7 @@
 
 ### Bug Fixes
 
-* **rxjs-run:** optimize bundle size of rxjs ([7224237](https://github.com/cyclejs/cyclejs/tree/master/rxjs-run/commit/7224237))
+* **rxjs-run:** optimize bundle size of rxjs ([7224237](https://github.com/cyclejs/cyclejs/commit/7224237))
 
 
 ### BREAKING CHANGES
@@ -21,7 +21,7 @@ ISSUES CLOSED: #510
 
 ### Bug Fixes
 
-* **rxjs-run:** catch less impossible-to-satisfy TypeScript errors ([681c783](https://github.com/cyclejs/cyclejs/tree/master/rxjs-run/commit/681c783))
+* **rxjs-run:** catch less impossible-to-satisfy TypeScript errors ([681c783](https://github.com/cyclejs/cyclejs/commit/681c783))
 
 
 
@@ -31,7 +31,7 @@ ISSUES CLOSED: #510
 
 ### Bug Fixes
 
-* **rxjs-run:** check for matching stream types in sinks and drivers ([7c7c743](https://github.com/cyclejs/cyclejs/tree/master/rxjs-run/commit/7c7c743))
+* **rxjs-run:** check for matching stream types in sinks and drivers ([7c7c743](https://github.com/cyclejs/cyclejs/commit/7c7c743))
 
 
 ### BREAKING CHANGES
@@ -51,7 +51,7 @@ ISSUES CLOSED: 541
 
 ### Bug Fixes
 
-* **rxjs-run:** type check keyof drivers and main with TypeScript 2.2 ([1d72b64](https://github.com/cyclejs/cyclejs/tree/master/rxjs-run/commit/1d72b64))
+* **rxjs-run:** type check keyof drivers and main with TypeScript 2.2 ([1d72b64](https://github.com/cyclejs/cyclejs/commit/1d72b64))
 
 
 ### BREAKING CHANGES
@@ -74,7 +74,7 @@ ISSUES CLOSED: 538
 
 ### Bug Fixes
 
-* **rxjs-run:** use non-rc cycle/run dependency ([21751cb](https://github.com/cyclejs/cyclejs/tree/master/rxjs-run/commit/21751cb))
+* **rxjs-run:** use non-rc cycle/run dependency ([21751cb](https://github.com/cyclejs/cyclejs/commit/21751cb))
 
 
 
@@ -91,7 +91,7 @@ ISSUES CLOSED: 538
 
 ### Bug Fixes
 
-* **rxjs-run:** update cycle/run to 1.0.0-rc.9 ([7209814](https://github.com/cyclejs/cyclejs/tree/master/rxjs-run/commit/7209814))
+* **rxjs-run:** update cycle/run to 1.0.0-rc.9 ([7209814](https://github.com/cyclejs/cyclejs/commit/7209814))
 
 
 
@@ -101,7 +101,7 @@ ISSUES CLOSED: 538
 
 ### Bug Fixes
 
-* **rxjs-run:** update run to v1.0.0-rc.8 ([2877010](https://github.com/cyclejs/cyclejs/tree/master/rxjs-run/commit/2877010))
+* **rxjs-run:** update run to v1.0.0-rc.8 ([2877010](https://github.com/cyclejs/cyclejs/commit/2877010))
 
 
 
@@ -111,14 +111,14 @@ ISSUES CLOSED: 538
 
 ### Bug Fixes
 
-* **rxjs-run:** use run v1.0.0-rc.7 ([dab8bb5](https://github.com/cyclejs/cyclejs/tree/master/rxjs-run/commit/dab8bb5))
+* **rxjs-run:** use run v1.0.0-rc.7 ([dab8bb5](https://github.com/cyclejs/cyclejs/commit/dab8bb5))
 
 
 
 <a name="4.0.0-rc.2"></a>
 # 4.0.0-rc.2 (2016-12-14)
 
-* **rxjs-run:** use run rc6, where sinks are not adapted ([93af810](https://github.com/cyclejs/cyclejs/tree/master/rxjs-run/commit/93af810))
+* **rxjs-run:** use run rc6, where sinks are not adapted ([93af810](https://github.com/cyclejs/cyclejs/commit/93af810))
 
 <a name="3.3.0"></a>
 # 3.3.0 (2016-12-22)
@@ -126,7 +126,7 @@ ISSUES CLOSED: 538
 
 ### Bug Fixes
 
-* **rxjs-run:** remove dependency on types/es6-promise ([e3d31ef](https://github.com/cyclejs/cyclejs/tree/master/packages/rxjs-run/commit/e3d31ef))
+* **rxjs-run:** remove dependency on types/es6-promise ([e3d31ef](https://github.com/cyclejs/cyclejs/commit/e3d31ef))
 
 
 
@@ -136,7 +136,7 @@ ISSUES CLOSED: 538
 
 ### Bug Fixes
 
-* **rxjs-run:** correctly depend on rxjs-adapter v3.1 ([b039cf4](https://github.com/cyclejs/cyclejs/tree/master/packages/rxjs-run/commit/b039cf4))
+* **rxjs-run:** correctly depend on rxjs-adapter v3.1 ([b039cf4](https://github.com/cyclejs/cyclejs/commit/b039cf4))
 
 
 
@@ -146,7 +146,7 @@ ISSUES CLOSED: 538
 
 ### Bug Fixes
 
-* **rxjs-run:** update dependency cycle/base to v4.2 ([976a182](https://github.com/cyclejs/cyclejs/tree/master/packages/rxjs-run/commit/976a182))
+* **rxjs-run:** update dependency cycle/base to v4.2 ([976a182](https://github.com/cyclejs/cyclejs/commit/976a182))
 
 
 
@@ -156,7 +156,7 @@ ISSUES CLOSED: 538
 
 ### Bug Fixes
 
-* **rxjs-run:** fix major versions of dependencies ([d568161](https://github.com/cyclejs/cyclejs/tree/master/packages/rxjs-run/commit/d568161))
+* **rxjs-run:** fix major versions of dependencies ([d568161](https://github.com/cyclejs/cyclejs/commit/d568161))
 
 
 

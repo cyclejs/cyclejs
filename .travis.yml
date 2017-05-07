@@ -1,8 +1,9 @@
 sudo: false
 language: node_js
 node_js:
-  - '6.9.1'
-script: npm run test-ci
+  - '6.10.1'
+script: make test-ci
+cache: yarn
 branches:
   only:
     - master

@@ -43,25 +43,11 @@
     "rxjs": "global:Rx"
   },
   "scripts": {
-    "lint": "../node_modules/.bin/tslint --config ../tslint.json --project tsconfig.json",
-    "prelib": "rm -rf lib/ && mkdir -p lib/",
-    "lib": "../node_modules/.bin/tsc",
-    "premocha": "npm run lib",
     "mocha": "../node_modules/.bin/mocha test/*.ts --require ts-node/register",
-    "test": "npm run lint && npm run mocha",
+    "test": "npm run mocha",
     "test-ci": "npm run test",
     "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone Cycle --exclude most -o dist/cycle-most-run.js",
-    "uglify": "../node_modules/.bin/uglifyjs dist/cycle-most-run.js -o dist/cycle-most-run.min.js",
-    "predist": "rm -rf dist/ && mkdir -p dist",
-    "dist": "npm run lib && npm run browserify && npm run uglify",
-    "docs": "node ../.scripts/make-api-docs.js ${PWD##*/}",
-    "preversion": "npm test",
-    "version": "npm run dist && npm run docs && npm run changelog",
-    "postversion": "git add -A && git commit -m \"release(${PWD##*/}): v$(cat package.json | ../node_modules/.bin/jase version)\" && git push origin master && npm publish",
-    "release-patch": "false",
-    "release-minor": "npm --no-git-tag-version version minor",
-    "release-major": "npm --no-git-tag-version version major",
-    "changelog": "node ../.scripts/update-changelogs.js ${PWD##*/}"
+    "uglify": "../node_modules/.bin/uglifyjs dist/cycle-most-run.js -o dist/cycle-most-run.min.js"
   },
   "publishConfig": {
     "access": "public"

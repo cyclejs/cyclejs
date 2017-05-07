@@ -52,6 +52,7 @@ Cycle.js is comprised of many specialized packages. This repository contains all
 |--------|-------|------------|----------|
 | `@cycle/dom` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/dom.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/dom/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=dom)](https://david-dm.org/cyclejs/cyclejs?path=dom) | [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=dom)](https://david-dm.org/cyclejs/cyclejs?path=dom#info=devDependencies) |
 | `@cycle/history` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/history.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/history/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=history)](https://david-dm.org/cyclejs/cyclejs?path=history) | [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=history)](https://david-dm.org/cyclejs/cyclejs?path=history#info=devDependencies) |
+| `@cycle/html` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/html.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/html/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=html)](https://david-dm.org/cyclejs/cyclejs?path=html) | [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=html)](https://david-dm.org/cyclejs/cyclejs?path=html#info=devDependencies) |
 | `@cycle/http` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/http.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/http/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=http)](https://david-dm.org/cyclejs/cyclejs?path=http) | [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=http)](https://david-dm.org/cyclejs/cyclejs?path=http#info=devDependencies) |
 | `@cycle/isolate` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/isolate.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/isolate/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=isolate)](https://david-dm.org/cyclejs/cyclejs?path=isolate) |  [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=isolate)](https://david-dm.org/cyclejs/cyclejs?path=isolate#info=devDependencies) |
 | `@cycle/jsonp` | [![npm (scoped)](https://img.shields.io/npm/v/@cycle/jsonp.svg?maxAge=86400)](https://github.com/cyclejs/cyclejs/blob/master/jsonp/CHANGELOG.md) | [![Dependency Status](https://david-dm.org/cyclejs/cyclejs.svg?path=jsonp)](https://david-dm.org/cyclejs/cyclejs?path=jsonp) |  [![devDependency Status](https://david-dm.org/cyclejs/cyclejs/dev-status.svg?path=jsonp)](https://david-dm.org/cyclejs/cyclejs?path=jsonp#info=devDependencies) |
@@ -71,9 +72,9 @@ The following packages are not under Cycle.js, but are important dependencies, s
 | `rxjs` | [![npm version](https://img.shields.io/npm/v/rxjs.svg?maxAge=86400)](https://www.npmjs.com/package/rxjs) |
 | `xstream` | [![npm version](https://img.shields.io/npm/v/xstream.svg?maxAge=86400)](https://www.npmjs.com/package/xstream) |
 
-##Support [![OpenCollective](https://opencollective.com/cyclejs/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/cyclejs/sponsors/badge.svg)](#sponsors)
+## Support [![OpenCollective](https://opencollective.com/cyclejs/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/cyclejs/sponsors/badge.svg)](#sponsors)
 
-###Backers
+### Backers
 
 Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/cyclejs#backer)]
 
@@ -108,7 +109,7 @@ Support us with a monthly donation and help us continue our activities. [[Become
 <a href="https://opencollective.com/cyclejs/backer/28/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/28/avatar.svg"></a>
 <a href="https://opencollective.com/cyclejs/backer/29/website" target="_blank"><img src="https://opencollective.com/cyclejs/backer/29/avatar.svg"></a>
 
-## Sponsors
+### Sponsors
 
 Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/cyclejs#sponsor)]
 

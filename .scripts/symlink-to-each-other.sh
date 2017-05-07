@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 IFS=$'\n' read -d '' -r -a packages <$(dirname $0)/RELEASABLE_PACKAGES
 

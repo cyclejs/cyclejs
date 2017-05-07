@@ -10,7 +10,7 @@ var theCommitThatStartedTheMonorepo = fs
   .trim();
 
 var packagesWithChangelog = fs
-  .readFileSync(__dirname + '/PACKAGES_WITH_CHANGELOG', 'utf8')
+  .readFileSync(__dirname + '/RELEASABLE_PACKAGES', 'utf8')
   .trim()
   .split('\n');
 
@@ -63,11 +63,12 @@ function runUpdateChangelogs() {
           }
         },
       };
+      var context = {host: 'https://github.com', repository: 'cyclejs/cyclejs'};
       var gitRawCommitsOpts = { from: startCommits[package] };
 
       var readStream = fs.createReadStream(filename);
       var tmp = tempfile();
-      conventionalChangelog(changelogOpts, {}, gitRawCommitsOpts)
+      conventionalChangelog(changelogOpts, context, gitRawCommitsOpts)
         .pipe(addStream(readStream))
         .pipe(fs.createWriteStream(tmp))
         .on('finish', function () {

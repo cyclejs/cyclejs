@@ -4,7 +4,7 @@
 
 ### Features
 
-* **history:** update makeHistoryDriver to accept History object ([a065c49](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/a065c49))
+* **history:** update makeHistoryDriver to accept History object ([a065c49](https://github.com/cyclejs/cyclejs/commit/a065c49))
 
 
 
@@ -14,7 +14,7 @@
 
 ### Bug Fixes
 
-* **history:** make the drivers type-checkable by TypeScript 2.2 ([3f24624](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/3f24624))
+* **history:** make the drivers type-checkable by TypeScript 2.2 ([3f24624](https://github.com/cyclejs/cyclejs/commit/3f24624))
 
 
 ### BREAKING CHANGES
@@ -39,15 +39,15 @@ ISSUES CLOSED: 542
 
 ### Bug Fixes
 
-* **history:** fix history drivers to start emitting the current location ([09c06eb](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/09c06eb))
-* **history:** make cycle/run a hard dependency ([ad2058a](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/ad2058a))
-* **history:** rewrite for Cycle Unified ([d41bdae](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/d41bdae))
-* **history:** use mjackson/history v4.5 ([ef3f467](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/ef3f467))
+* **history:** fix history drivers to start emitting the current location ([09c06eb](https://github.com/cyclejs/cyclejs/commit/09c06eb))
+* **history:** make cycle/run a hard dependency ([ad2058a](https://github.com/cyclejs/cyclejs/commit/ad2058a))
+* **history:** rewrite for Cycle Unified ([d41bdae](https://github.com/cyclejs/cyclejs/commit/d41bdae))
+* **history:** use mjackson/history v4.5 ([ef3f467](https://github.com/cyclejs/cyclejs/commit/ef3f467))
 
 
 ### Features
 
-* **history:** update and simplify api ([705673b](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/705673b))
+* **history:** update and simplify api ([705673b](https://github.com/cyclejs/cyclejs/commit/705673b))
 
 
 ### BREAKING CHANGES
@@ -73,14 +73,14 @@ ISSUES CLOSED: 434 465
 
 ### Bug Fixes
 
-* **history:** make cycle/run a hard dependency ([ad2058a](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/ad2058a))
-* **history:** rewrite for Cycle Unified ([d41bdae](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/d41bdae))
-* **history:** use mjackson/history v4.5 ([ef3f467](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/ef3f467))
+* **history:** make cycle/run a hard dependency ([ad2058a](https://github.com/cyclejs/cyclejs/commit/ad2058a))
+* **history:** rewrite for Cycle Unified ([d41bdae](https://github.com/cyclejs/cyclejs/commit/d41bdae))
+* **history:** use mjackson/history v4.5 ([ef3f467](https://github.com/cyclejs/cyclejs/commit/ef3f467))
 
 
 ### Features
 
-* **history:** update and simplify api ([705673b](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/705673b))
+* **history:** update and simplify api ([705673b](https://github.com/cyclejs/cyclejs/commit/705673b))
 
 
 ### BREAKING CHANGES
@@ -111,7 +111,7 @@ ISSUES CLOSED: 434 465
 
 ### Bug Fixes
 
-* **history:** use ponyfill for ES6 Object.assign ([dec9c61](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/dec9c61))
+* **history:** use ponyfill for ES6 Object.assign ([dec9c61](https://github.com/cyclejs/cyclejs/commit/dec9c61))
 
 
 
@@ -121,7 +121,7 @@ ISSUES CLOSED: 434 465
 
 ### Bug Fixes
 
-* **history:** fix scope of captureClicks to properly exclude hash links  ([86433e2](https://github.com/cyclejs/cyclejs/tree/master/packages/history/commit/86433e2))
+* **history:** fix scope of captureClicks to properly exclude hash links  ([86433e2](https://github.com/cyclejs/cyclejs/commit/86433e2))
 
 
 

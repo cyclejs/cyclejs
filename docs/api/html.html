@@ -1,0 +1,158 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width">
+  <title>Cycle.js - API reference (html)</title>
+
+  <!-- Flatdoc -->
+  <script src='../support/vendor/jquery.js'></script>
+  <script src='../support/vendor/highlight.pack.js'></script>
+  <script src='../legacy.js'></script>
+  <script src='../flatdoc.js'></script>
+
+  <!-- Algolia's DocSearch main theme -->
+  <link href='//cdn.jsdelivr.net/docsearch.js/2/docsearch.min.css' rel='stylesheet' />
+
+  <!-- Others -->
+  <script async src="//static.jsbin.com/js/embed.js"></script>
+
+  <!-- Flatdoc theme -->
+  <link href='../theme/style.css' rel='stylesheet'>
+  <script src='../theme/script.js'></script>
+  <link href='../support/vendor/highlight-github-gist.css' rel='stylesheet'>
+
+  <!-- Meta -->
+  <meta content="Cycle.js - API reference (html)" property="og:title">
+  <meta content="A functional and reactive JavaScript framework for predictable code" name="description">
+
+  <!-- Content -->
+  <script id="markdown" type="text/markdown" src="index.html">
+# Cycle HTML
+
+A Cycle.js driver to render virtual DOM streams as HTML. This is based on the DOM driver and [snabbdom](https://github.com/paldepind/snabbdom/), and is intended for server-side rendered HTML that mirrors what the DOM driver would render client-side.
+
+```
+npm install @cycle/html
+```
+
+# API
+
+
+## <a id="makeHTMLDriver"></a> `makeHTMLDriver(effect, options)`
+
+A factory for the HTML driver function.
+
+Takes an `effect` callback function and an `options` object as arguments. The
+input to this driver is a stream of virtual DOM objects, or in other words,
+Snabbdom "VNode" objects. The output of this driver is a "DOMSource": a
+collection of Observables queried with the methods `select()` and `events()`.
+
+The HTML Driver is supplementary to the DOM Driver. Instead of producing
+elements on the DOM, it generates HTML as strings and does a side effect on
+those HTML strings. That side effect is described by the `effect` callback
+function. So, if you want to use the HTML Driver on the server-side to render
+your application as HTML and send as a response (which is the typical use
+case for the HTML Driver), you need to pass something like the
+`html => response.send(html)` function as the `effect` argument. This way,
+the driver knows what side effect to cause based on the HTML string it just
+rendered.
+
+The HTML driver is useful only for that side effect in the `effect` callback.
+It can be considered a sink-only driver. However, in order to serve as a
+transparent replacement to the DOM Driver when rendering from the server, the
+HTML driver returns a source object that behaves just like the DOMSource.
+This helps reuse the same application that is written for the DOM Driver.
+This fake DOMSource returns empty streams when you query it, because there
+are no user events on the server.
+
+`DOMSource.select(selector)` returns a new DOMSource with scope restricted to
+the element(s) that matches the CSS `selector` given.
+
+`DOMSource.events(eventType, options)` returns an empty stream. The returned
+stream is an *xstream* Stream if you use `@cycle/xstream-run` to run your app
+with this driver, or it is an RxJS Observable if you use `@cycle/rxjs-run`,
+and so forth.
+
+`DOMSource.elements()` returns the stream of HTML string rendered from your
+sink virtual DOM stream.
+
+#### Arguments:
+
+- `effect: Function` a callback function that takes a string of rendered HTML as input and should run a side effect, returning nothing.
+- `options: HTMLDriverOptions` an object with one optional property: `transposition: boolean` enables/disables transposition of inner streams in
+the virtual DOM tree.
+
+#### Returns:
+
+*(Function)* the HTML driver function. The function expects a stream of VNode as input, and outputs the DOMSource object.
+
+
+  </script>
+
+  <!-- Initializer -->
+  <script>
+    Flatdoc.run({
+      fetcher: function(callback) {
+        callback(null, document.getElementById('markdown').innerHTML);
+      },
+      highlight: function (code, value) {
+        return hljs.highlight(value, code).value;
+      },
+    });
+  </script>
+
+</head>
+<body role='flatdoc' class="no-literate">
+
+
+
+  <div class='header'>
+    <div class='left'>
+      <h1><a href="/"><img class="logo" src="../img/cyclejs_logo.svg" >Cycle.js</a></h1>
+      <ul>
+        <li><a href='../getting-started.html'>Documentation</a></li>
+        <li><a href='../api/index.html'>API reference</a></li>
+        <li><a href='../releases.html'>Releases</a></li>
+        <li><a href='https://github.com/cyclejs/cyclejs'>GitHub</a></li>
+      </ul>
+      <input id="docsearch" />
+    </div>
+    <div class='right'>
+      <!-- GitHub buttons: see https://ghbtns.com -->
+      <iframe src="https://ghbtns.com/github-btn.html?user=cyclejs&amp;repo=cyclejs&amp;type=watch&amp;count=true" allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
+    </div>
+  </div>
+
+  <div class='content-root'>
+    <div class='menubar'>
+      <div class='menu section'>
+
+        <div role='flatdoc-menu'></div>
+
+      </div>
+    </div>
+    <div role='flatdoc-content' class='content'></div>
+
+  </div>
+
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-43862400-3', 'auto');
+    ga('send', 'pageview');
+  </script>
+  <script>
+    ((window.gitter = {}).chat = {}).options = {
+      room: 'cyclejs/cyclejs'
+    };
+  </script>
+  <script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
+  <script src='//cdn.jsdelivr.net/docsearch.js/2/docsearch.min.js'></script>
+  <script src='../docsearch.js'></script>
+</body>
+</html>

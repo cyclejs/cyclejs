@@ -4,7 +4,7 @@
 
 ### Features
 
-* **isolate:** allow a scopes-per-channel object as second arg ([e35b731](https://github.com/cyclejs/cyclejs/tree/master/packages/isolate/commit/e35b731))
+* **isolate:** allow a scopes-per-channel object as second arg ([e35b731](https://github.com/cyclejs/cyclejs/commit/e35b731))
 
 
 
@@ -20,8 +20,8 @@
 
 ### Bug Fixes
 
-* **isolate:** fix typings for isolate, accepts any sources ([ccd5ec1](https://github.com/cyclejs/cyclejs/tree/master/packages/isolate/commit/ccd5ec1))
-* **isolate:** update codebase to use TypeScript 2.1 ([0ec0980](https://github.com/cyclejs/cyclejs/tree/master/packages/isolate/commit/0ec0980))
+* **isolate:** fix typings for isolate, accepts any sources ([ccd5ec1](https://github.com/cyclejs/cyclejs/commit/ccd5ec1))
+* **isolate:** update codebase to use TypeScript 2.1 ([0ec0980](https://github.com/cyclejs/cyclejs/commit/0ec0980))
 
 
 ### BREAKING CHANGES
@@ -37,7 +37,7 @@
 
 ### Bug Fixes
 
-* **isolate:** update codebase to use TypeScript 2.1 ([0ec0980](https://github.com/cyclejs/cyclejs/tree/master/packages/isolate/commit/0ec0980))
+* **isolate:** update codebase to use TypeScript 2.1 ([0ec0980](https://github.com/cyclejs/cyclejs/commit/0ec0980))
 
 
 ### BREAKING CHANGES

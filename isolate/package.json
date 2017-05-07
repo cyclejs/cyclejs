@@ -15,7 +15,7 @@
       "email": "tlsteinberger167@gmail.com"
     }
   ],
-  "repository": "https://github.com/cyclejs/cyclejs/tree/master/packages/isolate",
+  "repository": "https://github.com/cyclejs/cyclejs/tree/master/isolate",
   "keywords": [
     "reactive",
     "framework",
@@ -40,24 +40,11 @@
     "node": ">=0.10.0"
   },
   "scripts": {
-    "lint": "../node_modules/.bin/tslint --config ../tslint.json --project tsconfig.json",
     "mocha": "../node_modules/.bin/mocha test/*.ts --require ts-node/register",
-    "test": "npm run lint && npm run lib && npm run mocha",
+    "test": "npm run mocha",
     "test-ci": "npm run test",
     "browserify": "../node_modules/.bin/browserify lib/index.js --standalone CycleIsolate --outfile dist/cycle-isolate.js",
-    "uglify": "../node_modules/.bin/uglifyjs dist/cycle-isolate.js -o dist/cycle-isolate.min.js",
-    "predist": "rm -rf dist/ && mkdir -p dist/",
-    "dist": "npm run lib && npm run browserify && npm run uglify",
-    "docs": "node ../.scripts/make-api-docs.js ${PWD##*/}",
-    "prelib": "rm -rf lib/ && mkdir -p lib",
-    "lib": "../node_modules/.bin/tsc",
-    "preversion": "npm test",
-    "version": "npm run dist && npm run docs && npm run changelog",
-    "postversion": "git add -A && git commit -m \"release(${PWD##*/}): v$(cat package.json | ../node_modules/.bin/jase version)\" && git push origin master && npm publish",
-    "release-patch": "false",
-    "release-minor": "npm --no-git-tag-version version minor",
-    "release-major": "npm --no-git-tag-version version major",
-    "changelog": "node ../.scripts/update-changelogs.js ${PWD##*/}"
+    "uglify": "../node_modules/.bin/uglifyjs dist/cycle-isolate.js -o dist/cycle-isolate.min.js"
   },
   "publishConfig": {
     "access": "public"

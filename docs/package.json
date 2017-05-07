@@ -5,7 +5,7 @@
     "index": "node .scripts/make-index.js",
     "documentation": "node .scripts/make-documentation.js",
     "releases": "node .scripts/make-releases.js",
-    "api": "node .scripts/make-api-index.js && cd .. && ./.scripts/npm-x-for-all-packages.sh run docs && cd docs",
-    "all": "npm run index && npm run documentation && npm run releases && npm run api"
+    "api": "node .scripts/make-api-index.js && cd .. && ./.scripts/yarn-x-for-all-packages.sh run docs && cd docs",
+    "all": "yarn run index && yarn run documentation && yarn run releases && yarn run api"
   }
 }

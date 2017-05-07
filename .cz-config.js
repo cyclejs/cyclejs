@@ -3,6 +3,7 @@
 var packageScopes = [
   'devtool',
   'dom',
+  'html',
   'history',
   'http',
   'isolate',

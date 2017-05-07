@@ -88,6 +88,45 @@ describe('setup', function () {
     });
   });
 
+  it('should type-check keyof sources and sinks, supporting interfaces', function () {
+    interface Sources {
+      str: Stream<string>;
+      obj: Stream<object>;
+    };
+
+    interface Sinks {
+      str: Stream<string>;
+      num: Stream<number>;
+    };
+
+    function app(sources: Sources): Sinks {
+      return {
+        str: sources.str.take(1).startWith('a'), // good
+        // str: sources.obj.mapTo('good'), // good
+        // strTYPO: sources.str.take(1).startWith('a'), // bad
+        // str: xs.of(123), // bad
+        num: xs.of(100), // good
+        // numTYPO: xs.of(100), // bad
+        // num: xs.of('BAD TYPE'), // bad
+      };
+    }
+
+    const stringDriver: Driver<Stream<string>, Stream<string>> =
+      (sink: Stream<string>) => xs.of('b');
+
+    const numberWriteOnlyDriver: Driver<Stream<number>, void> =
+      (sink: Stream<number>) => {};
+
+    const objectReadOnlyDriver: Driver<void, Stream<object>> =
+      () => xs.of({});
+
+    setup(app, {
+      str: stringDriver,
+      num: numberWriteOnlyDriver,
+      obj: objectReadOnlyDriver,
+    });
+  });
+
   it('should type-check and allow more drivers than sinks', function () {
     type Sources = {
       str: Stream<string>;

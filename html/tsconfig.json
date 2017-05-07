@@ -1,0 +1,18 @@
+{
+  "extends": "../tsconfig.common.json",
+  "compilerOptions": {
+    "outDir": "lib/",
+    "lib": [
+      "dom",
+      "es5",
+      "scripthost",
+      "es2015.collection",
+      "es2015.promise",
+      "es2015.iterable"
+    ]
+  },
+  "files": [
+    "./snabbdom-to-html.d.ts",
+    "src/index.ts"
+  ]
+}

@@ -1,1 +1,2 @@
-[Documentation for Cycle JSONP on cycle.js.org](https://cycle.js.org/api/jsonp.html)
+- [**Read the docs here**](https://cycle.js.org/api/jsonp.html)
+- [**Edit the docs here**](https://github.com/cyclejs/cyclejs/blob/master/docs/content/api/jsonp.html)

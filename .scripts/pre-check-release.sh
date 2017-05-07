@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # This script checks if the Travis build for the latest commit has passed,
 # and if it has, then it runs check-release. Otherwise it tells the status
