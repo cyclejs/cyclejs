@@ -1,6 +1,7 @@
 import {Stream, MemoryStream} from 'xstream';
 export interface EventsFnOptions {
   useCapture?: boolean;
+  preventDefault?: boolean;
 }
 
 export interface DOMSource {

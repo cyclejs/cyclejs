@@ -27,6 +27,12 @@ export class DocumentDOMSource implements DOMSource {
     } else {
       stream = fromEvent(document, eventType);
     }
+    if (options && options.preventDefault) {
+      stream = stream.map(ev => {
+        ev.preventDefault();
+        return ev;
+      });
+    }
     const out: DevToolEnabledSource & Stream<Event> = adapt(stream);
     out._isCycleSource = this._name;
     return out;

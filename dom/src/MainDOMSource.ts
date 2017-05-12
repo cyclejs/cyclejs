@@ -174,7 +174,7 @@ export class MainDOMSource implements DOMSource {
       rootElement$ = this._rootElement$.take(2);
     }
 
-    const event$: Stream<Event> = rootElement$
+    let event$: Stream<Event> = rootElement$
       .map(function setupEventDelegatorOnTopElement(rootElement) {
         // Event listener just for the root element
         if (!namespace || namespace.length === 0) {
@@ -202,6 +202,13 @@ export class MainDOMSource implements DOMSource {
         return subject;
       })
       .flatten();
+
+    if (options && options.preventDefault) {
+      event$ = event$.map(ev => {
+        ev.preventDefault();
+        return ev;
+      });
+    }
 
     const out: DevToolEnabledSource & Stream<Event> = adapt(event$);
     out._isCycleSource = domSource._name;
