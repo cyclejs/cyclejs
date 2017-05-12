@@ -72,6 +72,9 @@ export function optionsToSuperagent(rawReqOptions: RequestOptions) {
       request = request.attach(a.name, a.path, a.filename);
     }
   }
+  if (reqOptions.binary) {
+    request = request.responseType(reqOptions.binary);
+  }
   return request;
 }
 

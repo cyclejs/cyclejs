@@ -38,6 +38,7 @@
  * the request happens if and only if its corresponding response stream from the
  * HTTP Source is subscribed to. By default this value is false: requests run
  * eagerly, even if their response is ignored by the application.
+ * - `binary` *(String)*: setting for xhr responseType.
  *
  * **Responses**. A metastream is a stream that emits streams. The HTTP Source
  * manages response metastreams. These streams of responses have a `request`

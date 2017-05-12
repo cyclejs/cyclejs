@@ -30,6 +30,7 @@ export interface RequestOptions {
   redirects?: number;
   category?: string;
   lazy?: boolean;
+  binary?: string;
   _error?: any;
   _namespace?: Array<string>;
 }
