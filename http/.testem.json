@@ -16,7 +16,8 @@
     "/json": { "target": "http://localhost:8070" },
     "/querystring": { "target": "http://localhost:8070" },
     "/error": { "target": "http://localhost:8070" },
-    "/delete": { "target": "http://localhost:8070" }
+    "/delete": { "target": "http://localhost:8070" },
+    "/binary": { "target": "http://localhost:8070" }
   },
   "launchers": {
     "SL_Chrome_Current": {
