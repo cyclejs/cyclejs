@@ -839,4 +839,42 @@ describe('DOMSource.events()', function () {
     });
     run();
   });
+
+  it('should prevent default event behavior', function (done) {
+    function app(sources: {DOM: DOMSource}) {
+      return {
+        DOM: xs.of(div('.parent', [
+          form('.form', [
+            input('.field', {type: 'text'}),
+            button('.submit', {type: 'submit'})
+          ]),
+        ])),
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    sources.DOM.select('.form').events('submit', { preventDefault: true }).addListener({
+      next: (ev: Event) => {
+        assert.strictEqual(ev.type, 'submit');
+        const target = ev.target as HTMLElement;
+        assert.strictEqual(target.tagName, 'FORM');
+        assert.strictEqual(target.className, 'form');
+        assert.strictEqual(ev.defaultPrevented, true);
+        done();
+      },
+    });
+
+    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+      next: (root: Element) => {
+        const button = root.querySelector('.submit') as HTMLButtonElement;
+        setTimeout(() => button.click());
+      },
+    });
+    run();
+  });
+
+
 });
