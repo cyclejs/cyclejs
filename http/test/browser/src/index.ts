@@ -49,4 +49,65 @@ describe('HTTP Driver in the browser', function () {
 
     run();
   });
+
+  it('should return binary response when given a binary option is set to arraybuffer', function(done) {
+    function main(sources: {HTTP: HTTPSource}) {
+      return {
+        HTTP: Rx.Observable.of({
+          url: uri + '/binary',
+          method: 'GET',
+          binary: 'arraybuffer'
+        }),
+      };
+    }
+
+    const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+
+    const response$$ = sources.HTTP.select();
+    response$$.subscribe(function(response$) {
+      assert.strictEqual(response$.request.url, uri + '/binary');
+      assert.strictEqual(response$.request.method, 'GET');
+      assert.strictEqual(response$.request.binary, 'arraybuffer');
+      response$.subscribe(function(response) {
+        assert.strictEqual(response.status, 200);
+        assert.deepStrictEqual(new Uint8Array(response.body), new Uint8Array([1,2,3]));
+        done();
+      });
+    });
+    run();
+  });
+
+  it('should return binary response when given a binary option is set to blob', function(done) {
+    function main(sources: {HTTP: HTTPSource}) {
+      return {
+        HTTP: Rx.Observable.of({
+          url: uri + '/binary',
+          method: 'GET',
+          binary: 'blob'
+        }),
+      };
+    }
+
+    const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+
+    const response$$ = sources.HTTP.select();
+    response$$.subscribe(function(response$) {
+      assert.strictEqual(response$.request.url, uri + '/binary');
+      assert.strictEqual(response$.request.method, 'GET');
+      assert.strictEqual(response$.request.binary, 'blob');
+      response$.subscribe(function(response) {
+        assert.strictEqual(response.status, 200);
+        const fr = new FileReader();
+        fr.onload = (ev) => {
+          assert.deepStrictEqual(new Uint8Array(fr.result), new Uint8Array([1,2,3]))
+          done();
+        };
+        fr.onerror = (ev) => {
+          done('should not be called')
+        };
+        fr.readAsArrayBuffer(response.body);
+      });
+    });
+    run();
+  });
 });

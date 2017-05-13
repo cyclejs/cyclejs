@@ -61,5 +61,16 @@ export function startServer() {
     }, 150);
   });
 
+  app.get('/binary', function(req, res){
+    setTimeout(function() {
+      const result = new Buffer([1,2,3]);
+      res.writeHead(200, {
+        'Content-Type': 'application/octet-stream',
+        'Content-Length': result.byteLength
+      });
+      res.status(200).write(result, 'binary');
+    }, 150);
+  });
+
   app.listen(process.env.PORT);
 }
