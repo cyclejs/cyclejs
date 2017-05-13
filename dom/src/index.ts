@@ -27,7 +27,7 @@ export {MainDOMSource} from './MainDOMSource';
  * https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
  * about the `useCapture` and its purpose.
  * The other option is `preventDefault` that is set to false by default.
- * If set to true, the driver will automaticly call `preventDefault()` on every event.
+ * If set to true, the driver will automatically call `preventDefault()` on every event.
  *
  * `DOMSource.elements()` returns a stream of the DOM element(s) matched by the
  * selectors in the DOMSource. Also, `DOMSource.select(':root').elements()`
