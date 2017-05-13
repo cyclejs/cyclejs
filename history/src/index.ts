@@ -63,7 +63,15 @@ export {makeHashHistoryDriver} from './drivers';
  * If you want to intercept and handle any click event that leads to a link,
  * like on an `<a>` element, you pass your existing driver (e.g. created from
  * `makeHistoryDriver()`) as argument and this function will return another
- * driver of the same nature, but including click capturing logic.
+ * driver of the same nature, but including click capturing logic. Example:
+ *
+ * ```js
+ * import {captureClicks, makeHistoryDriver} from '@cycle/history';
+ *
+ * const drivers = {
+ *   history: captureClicks(makeHistoryDriver())
+ * };
+ * ```
  *
  * @param {Function} driver an existing History Driver function.
  * @return {Function} a History Driver function
