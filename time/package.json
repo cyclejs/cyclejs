@@ -52,7 +52,7 @@
     "garnish": "^5.2.0",
     "greenkeeper-postpublish": "^1.0.1",
     "markdown-doctest": "^0.9.1",
-    "mocha": "^3.1.2",
+    "mocha": "^3.4.0",
     "most": "^1.2.2",
     "rxjs": "^5.1.0",
     "snabbdom-selector": "^1.1.1",
