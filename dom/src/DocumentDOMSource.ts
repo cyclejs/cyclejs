@@ -1,7 +1,7 @@
 import xs, {Stream, MemoryStream} from 'xstream';
 import {adapt} from '@cycle/run/lib/adapt';
 import {DevToolEnabledSource} from '@cycle/run';
-import {DOMSource, EventsFnOptions} from './DOMSource';
+import {DOMSource, EventsFnOptions, Predicate} from './DOMSource';
 import {fromEvent} from './fromEvent';
 
 export class DocumentDOMSource implements DOMSource {
@@ -27,9 +27,15 @@ export class DocumentDOMSource implements DOMSource {
     } else {
       stream = fromEvent(document, eventType);
     }
-    if (options && options.preventDefault) {
+    if (options && typeof options.preventDefault !== 'undefined') {
+      let cond : Predicate = options.preventDefault as Predicate;
+      if (typeof options.preventDefault === 'boolean') {
+        cond = (() => options.preventDefault) as Predicate;
+      }
       stream = stream.map(ev => {
-        ev.preventDefault();
+        if (cond(ev)) {
+          ev.preventDefault();
+        }
         return ev;
       });
     }
