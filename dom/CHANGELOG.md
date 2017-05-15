@@ -1,3 +1,18 @@
+<a name="17.2.0"></a>
+# 17.2.0 (2017-05-15)
+
+
+### Features
+
+* **dom:** add preventDefault option ([5d829a8](https://github.com/cyclejs/cyclejs/commit/5d829a8))
+
+
+### Performance Improvements
+
+* **dom:** avoid an object allocation in MainDOMSource ([fc218cf](https://github.com/cyclejs/cyclejs/commit/fc218cf))
+
+
+
 <a name="17.1.0"></a>
 # 17.1.0 (2017-03-28)
 
