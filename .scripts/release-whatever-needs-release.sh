@@ -10,17 +10,15 @@ while read d; do
   echo "> ($d)";
   echo "> ... check if it needs a new version released, and publishes";
   echo "";
-  cd $d;
   needsRelease=0
-  node ../.scripts/check-release.js $d || needsRelease=$?;
+  node .scripts/check-release.js $d || needsRelease=$?;
   if [ $needsRelease -eq 1 ]; then
-    npm run release-patch || exitstatus=$?;
+    echo "WILL NOT release a patch, we are following ComVer"
   elif [ $needsRelease -eq 2 ]; then
-    npm run release-minor || exitstatus=$?;
+    make release-minor $d || exitstatus=$?;
   elif [ $needsRelease -eq 3 ]; then
-    npm run release-major || exitstatus=$?;
+    make release-major $d || exitstatus=$?;
   fi
-  cd ..;
   if [ $exitstatus -ne 0 ]; then
     break;
     exit $exitstatus;
