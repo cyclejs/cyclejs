@@ -35,8 +35,8 @@
   "dependencies": {
     "@cycle/run": "*",
     "es6-map": "^0.1.4",
-    "snabbdom": "0.6.5",
-    "snabbdom-selector": "1.1.1"
+    "snabbdom": "0.6.7",
+    "snabbdom-selector": "1.2.0"
   },
   "peerDependencies": {
     "xstream": "*"

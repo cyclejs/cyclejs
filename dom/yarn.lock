@@ -719,15 +719,15 @@ snabbdom-jsx@^0.3.0:
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/snabbdom-jsx/-/snabbdom-jsx-0.3.1.tgz#3a8c58fd88da4b76a472c0ffd2f30566a5c3c172"
 
-snabbdom-selector@1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/snabbdom-selector/-/snabbdom-selector-1.1.1.tgz#bde66fc54b34effc2f6a13d4a74de0d3cc771bfd"
+snabbdom-selector@1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/snabbdom-selector/-/snabbdom-selector-1.2.0.tgz#4260a269d9d46f50b9c1f39da628c2af6828dd53"
   dependencies:
     cssauron "^1.4.0"
 
-snabbdom@0.6.5:
-  version "0.6.5"
-  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-0.6.5.tgz#01b0cba8d623eca19e570876630c12c057830066"
+snabbdom@0.6.7:
+  version "0.6.7"
+  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-0.6.7.tgz#045d9fc292574fe3597578bde2d9c403f79a1352"
 
 sntp@1.x.x:
   version "1.0.9"
