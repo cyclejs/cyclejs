@@ -1,3 +1,19 @@
+<a name="17.3.0"></a>
+# 17.3.0 (2017-05-16)
+
+
+### Bug Fixes
+
+* **dom:** thunk() supports isolation ([ea50dc5](https://github.com/cyclejs/cyclejs/commit/ea50dc5))
+* **dom:** update snabbdom to v0.6.8 ([4c11676](https://github.com/cyclejs/cyclejs/commit/4c11676))
+
+
+### Features
+
+* **dom:** update snabbdom to 0.6.7, snabbdom-selector to 1.2 ([3fc528b](https://github.com/cyclejs/cyclejs/commit/3fc528b))
+
+
+
 <a name="17.2.0"></a>
 # 17.2.0 (2017-05-15)
 
