@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@cycle/isolate@2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@cycle/isolate/-/isolate-2.0.0.tgz#80f25eba3eaf51f98fff420635fe565ffcde6408"
+"@cycle/isolate@2.1":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@cycle/isolate/-/isolate-2.1.0.tgz#8db1c6a068dc1d3fc709d5adbe838083577ad0e0"
 
 "@cycle/run@*", "@cycle/run@3.x":
   version "3.1.0"
@@ -12,9 +12,9 @@
   dependencies:
     xstream "10.x"
 
-"@cycle/rxjs-run@6.x":
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/@cycle/rxjs-run/-/rxjs-run-6.1.0.tgz#50e1bea07fa1fe18bf16f2537574cbcaacfff4ef"
+"@cycle/rxjs-run@7.x":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@cycle/rxjs-run/-/rxjs-run-7.0.0.tgz#f4c95d9a1b390e3a2e61706284f9e737e7de8aa8"
   dependencies:
     "@cycle/run" "3.x"
 
@@ -855,7 +855,13 @@ wrappy@1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
 
-xstream@10.2, xstream@10.x:
+xstream@10.8:
+  version "10.8.0"
+  resolved "https://registry.yarnpkg.com/xstream/-/xstream-10.8.0.tgz#f3c70b12a71ef34dcc6af44ea7e1b0c40d320f4f"
+  dependencies:
+    symbol-observable "^1.0.2"
+
+xstream@10.x:
   version "10.2.0"
   resolved "https://registry.yarnpkg.com/xstream/-/xstream-10.2.0.tgz#c121f3f67b34a921f473dd2b596f01ab4646f957"
   dependencies:

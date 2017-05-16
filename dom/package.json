@@ -42,8 +42,8 @@
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/isolate": "2.0.0",
-    "@cycle/rxjs-run": "6.x",
+    "@cycle/isolate": "2.1",
+    "@cycle/rxjs-run": "7.x",
     "@types/mocha": "^2.2.33",
     "@types/node": "^7.0.4",
     "@types/sinon": "^1.16.32",
@@ -51,7 +51,7 @@
     "saucie": "3.1.0",
     "simulant": "^0.2.2",
     "snabbdom-jsx": "^0.3.0",
-    "xstream": "10.2"
+    "xstream": "10.8"
   },
   "engines": {
     "node": ">=0.10.0"
