@@ -1,3 +1,14 @@
+<a name="13.3.0"></a>
+# 13.3.0 (2017-05-16)
+
+
+### Features
+
+* **http:** add option responseType ([df1f30a](https://github.com/cyclejs/cyclejs/commit/df1f30a))
+* **http:** update superagent to v3.5.2 ([c91f37f](https://github.com/cyclejs/cyclejs/commit/c91f37f))
+
+
+
 <a name="13.2.0"></a>
 # 13.2.0 (2017-03-15)
 
