@@ -17,6 +17,7 @@ import {
   DOMSource,
   MainDOMSource,
   VNode,
+  thunk,
 } from '../../../lib';
 
 function createRenderTarget(id: string | null = null) {
@@ -357,6 +358,45 @@ describe('isolation', function () {
       },
     });
 
+    run();
+  });
+
+  it('should work with thunks', function (done) {
+    function app(sources: {DOM: MainDOMSource}) {
+      const child$ = sources.DOM.isolateSink(xs.of(
+        thunk('div.foo', () => div('.foo', [
+          h4('.bar', 'Wrong'),
+        ]), []),
+      ), 'ISOLATION');
+
+      const vdom$ = xs.combine(xs.of(null), child$).map(([_, child]) =>
+        h3('.top-most', [
+          child,
+          h2('.bar', 'Correct'),
+        ]),
+      );
+
+      return {
+        DOM: vdom$,
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    sources.DOM.select('.bar').elements().drop(1).take(1).addListener({
+      next: (elements: Array<Element>) => {
+        assert.strictEqual(Array.isArray(elements), true);
+        assert.strictEqual(elements.length, 1);
+        const correctElement = elements[0];
+        assert.notStrictEqual(correctElement, null);
+        assert.notStrictEqual(typeof correctElement, 'undefined');
+        assert.strictEqual(correctElement.tagName, 'H2');
+        assert.strictEqual(correctElement.textContent, 'Correct');
+        done();
+      },
+    });
     run();
   });
 

@@ -1,4 +1,4 @@
-export {thunk, Thunk, ThunkData} from 'snabbdom/thunk';
+export {thunk, Thunk, ThunkData} from './thunk';
 export {VNode, VNodeData} from 'snabbdom/vnode';
 export {DOMSource, EventsFnOptions} from './DOMSource';
 export {MainDOMSource} from './MainDOMSource';
