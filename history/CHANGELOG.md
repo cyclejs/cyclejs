@@ -1,3 +1,13 @@
+<a name="6.2.0"></a>
+# 6.2.0 (2017-05-16)
+
+
+### Features
+
+* **history:** update history dependency to v4.6 ([04d1e4c](https://github.com/cyclejs/cyclejs/commit/04d1e4c))
+
+
+
 <a name="6.1.0"></a>
 # 6.1.0 (2017-03-16)
 
