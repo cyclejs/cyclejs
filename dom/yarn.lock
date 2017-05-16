@@ -725,9 +725,9 @@ snabbdom-selector@1.2.0:
   dependencies:
     cssauron "^1.4.0"
 
-snabbdom@0.6.7:
-  version "0.6.7"
-  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-0.6.7.tgz#045d9fc292574fe3597578bde2d9c403f79a1352"
+snabbdom@0.6.8:
+  version "0.6.8"
+  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-0.6.8.tgz#6ca7f90c203e0450e2525a1c11b0ad7410413c4b"
 
 sntp@1.x.x:
   version "1.0.9"
@@ -855,15 +855,9 @@ wrappy@1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
 
-xstream@10.8:
+xstream@10.8, xstream@10.x:
   version "10.8.0"
   resolved "https://registry.yarnpkg.com/xstream/-/xstream-10.8.0.tgz#f3c70b12a71ef34dcc6af44ea7e1b0c40d320f4f"
-  dependencies:
-    symbol-observable "^1.0.2"
-
-xstream@10.x:
-  version "10.2.0"
-  resolved "https://registry.yarnpkg.com/xstream/-/xstream-10.2.0.tgz#c121f3f67b34a921f473dd2b596f01ab4646f957"
   dependencies:
     symbol-observable "^1.0.2"
 
