@@ -15,12 +15,12 @@
   "homepage": "https://cycle.js.org",
   "dependencies": {
     "@cycle/run": "*",
-    "history": "4.5.x"
+    "history": "4.6.x"
   },
   "devDependencies": {
-    "@cycle/dom": "15.2",
+    "@cycle/dom": "17.2",
     "@cycle/rxjs-run": "6.x",
-    "@types/history": "^4.5.0",
+    "@types/history": "^4.5.1",
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.46",
     "rxjs": "5.1.0",
