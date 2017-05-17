@@ -59,11 +59,26 @@ export class EventDelegator {
   constructor(private origin: Element,
               public eventType: string,
               public useCapture: boolean,
-              public isolateModule: IsolateModule) {
-    if (useCapture) {
-      this.listener = (ev: Event) => this.capture(ev);
+              public isolateModule: IsolateModule,
+              public preventDefault = false) {
+    if (preventDefault) {
+      if (useCapture) {
+        this.listener = (ev: Event) => {
+          ev.preventDefault();
+          this.capture(ev);
+        };
+      } else {
+        this.listener = (ev: Event) => {
+          ev.preventDefault();
+          this.bubble(ev);
+        };
+      }
     } else {
-      this.listener = (ev: Event) => this.bubble(ev);
+      if (useCapture) {
+        this.listener = (ev: Event) => this.capture(ev);
+      } else {
+        this.listener = (ev: Event) => this.bubble(ev);
+      }
     }
     origin.addEventListener(eventType, this.listener, useCapture);
   }

@@ -840,14 +840,11 @@ describe('DOMSource.events()', function () {
     run();
   });
 
-  it('should prevent default event behavior', function (done) {
+  it('should allow preventing default event behavior', function (done) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(div('.parent', [
-          form('.form', [
-            input('.field', {type: 'text'}),
-            button('.submit', {type: 'submit'})
-          ]),
+          button('.button'),
         ])),
       };
     }
@@ -856,12 +853,12 @@ describe('DOMSource.events()', function () {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM.select('.form').events('submit', { preventDefault: true }).addListener({
+    sources.DOM.select('.button').events('click', { preventDefault: true }).addListener({
       next: (ev: Event) => {
-        assert.strictEqual(ev.type, 'submit');
+        assert.strictEqual(ev.type, 'click');
         const target = ev.target as HTMLElement;
-        assert.strictEqual(target.tagName, 'FORM');
-        assert.strictEqual(target.className, 'form');
+        assert.strictEqual(target.tagName, 'BUTTON');
+        assert.strictEqual(target.className, 'button');
         assert.strictEqual(ev.defaultPrevented, true);
         done();
       },
@@ -869,12 +866,11 @@ describe('DOMSource.events()', function () {
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
       next: (root: Element) => {
-        const button = root.querySelector('.submit') as HTMLButtonElement;
+        const button = root.querySelector('.button') as HTMLButtonElement;
         setTimeout(() => button.click());
       },
     });
     run();
   });
-
 
 });

@@ -174,11 +174,11 @@ export class MainDOMSource implements DOMSource {
       rootElement$ = this._rootElement$.take(2);
     }
 
-    let event$: Stream<Event> = rootElement$
+    const event$: Stream<Event> = rootElement$
       .map(function setupEventDelegatorOnTopElement(rootElement) {
         // Event listener just for the root element
         if (!namespace || namespace.length === 0) {
-          return fromEvent(rootElement, eventType, useCapture);
+          return fromEvent(rootElement, eventType, useCapture, options.preventDefault);
         }
 
         // Event listener on the origin element as an EventDelegator
@@ -190,7 +190,7 @@ export class MainDOMSource implements DOMSource {
           delegator.updateOrigin(origin);
         } else {
           delegator = new EventDelegator(
-            origin, eventType, useCapture, domSource._isolateModule,
+            origin, eventType, useCapture, domSource._isolateModule, options.preventDefault,
           );
           delegators.set(key, delegator);
         }
@@ -202,13 +202,6 @@ export class MainDOMSource implements DOMSource {
         return subject;
       })
       .flatten();
-
-    if (options && options.preventDefault) {
-      event$ = event$.map(ev => {
-        ev.preventDefault();
-        return ev;
-      });
-    }
 
     const out: DevToolEnabledSource & Stream<Event> = adapt(event$);
     out._isCycleSource = domSource._name;

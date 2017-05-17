@@ -22,17 +22,9 @@ export class BodyDOMSource implements DOMSource {
 
   public events(eventType: string, options: EventsFnOptions = {}): Stream<Event> {
     let stream: Stream<Event>;
-    if (options && typeof options.useCapture === 'boolean') {
-      stream = fromEvent(document.body, eventType, options.useCapture);
-    } else {
-      stream = fromEvent(document.body, eventType);
-    }
-    if (options && options.preventDefault) {
-      stream = stream.map(ev => {
-        ev.preventDefault();
-        return ev;
-      });
-    }
+
+    stream = fromEvent(document.body, eventType, options.useCapture, options.preventDefault);
+
     const out: DevToolEnabledSource & Stream<Event> = adapt(stream);
     out._isCycleSource = this._name;
     return out;
