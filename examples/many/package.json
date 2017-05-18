@@ -4,26 +4,31 @@
   "private": true,
   "author": "Andre Staltz",
   "license": "MIT",
-  "contributors": [{
-    "name": "Frederik Krautwald"
-  }],
+  "contributors": [
+    {
+      "name": "Frederik Krautwald"
+    }
+  ],
   "dependencies": {
-    "@cycle/isolate": "2.0.0-rc.1",
-    "@cycle/run": "1.0.0-rc.8",
-    "@cycle/dom": "15.0.0-rc.2",
-    "xstream": "10.2"
+    "@cycle/isolate": "2.1",
+    "@cycle/run": "3.1",
+    "@cycle/dom": "17.3",
+    "cycle-onionify": "4.0.0-rc.3",
+    "xstream": "10.x"
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.3.13",
+    "babel-preset-stage-2": "^6.22.0",
     "babel-register": "^6.4.3",
     "babelify": "^7.2.0",
     "browserify": "13.0.x",
-    "mkdirp": "0.5.x"
+    "mkdirp": "0.5.x",
+    "typescript": "2.1.x"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prebrowserify": "mkdirp dist",
-    "browserify": "browserify src/main.js -t babelify --outfile dist/main.js",
+    "prebrowserify": "mkdirp dist && tsc",
+    "browserify": "browserify lib/main.js -t babelify --outfile dist/main.js",
     "start": "npm install && npm run browserify && echo 'OPEN index.html IN YOUR BROWSER'"
   }
 }

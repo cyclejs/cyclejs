@@ -1,11 +1,10 @@
 import {run} from '@cycle/run';
 import {makeDOMDriver} from '@cycle/dom';
+import onionify from 'cycle-onionify';
 import List from './List';
 
-function main(sources) {
-  return List(sources);
-}
+const main = onionify(List);
 
 run(main, {
-  DOM: makeDOMDriver('#main-container')
+  DOM: makeDOMDriver('#main-container'),
 });
