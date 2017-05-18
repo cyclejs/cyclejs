@@ -1,7 +1,6 @@
-/// <reference path="./circular-json.d.ts" />
 /* tslint:disable:max-file-line-count */
 import xs, {Stream, Listener} from 'xstream';
-import {DevToolEnabledSource} from '@cycle/base';
+import {DevToolEnabledSource} from '@cycle/run';
 import debounce from 'xstream/extra/debounce';
 import * as dagre from 'dagre';
 import * as CircularJSON from 'circular-json';
@@ -71,7 +70,9 @@ class IdTable {
   }
 }
 
-function makeSureNodeIsRegistered(graph: Dagre.Graph, idTable: IdTable, stream: Stream<any>) {
+function makeSureNodeIsRegistered(graph: dagre.graphlib.Graph,
+                                  idTable: IdTable,
+                                  stream: Stream<any>): void {
   if (!graph.node(idTable.getId(stream))) {
     let node: StreamGraphNode;
     if (stream['_isCycleSource']) {
@@ -96,7 +97,9 @@ function makeSureNodeIsRegistered(graph: Dagre.Graph, idTable: IdTable, stream: 
   }
 }
 
-function visitOperator(graph: Dagre.Graph, idTable: IdTable, operator: InternalProducer) {
+function visitOperator(graph: dagre.graphlib.Graph,
+                       idTable: IdTable,
+                       operator: InternalProducer): void {
   const id = idTable.getId(operator);
   if (!graph.node(id)) {
     graph.setNode(id, {
@@ -109,7 +112,7 @@ function visitOperator(graph: Dagre.Graph, idTable: IdTable, operator: InternalP
   }
 }
 
-function visitEdge(graph: Dagre.Graph,
+function visitEdge(graph: dagre.graphlib.Graph,
                    idTable: IdTable,
                    inStream: Stream<any>,
                    operator: InternalProducer,
@@ -123,7 +126,9 @@ function visitEdge(graph: Dagre.Graph,
   }
 }
 
-function traverse(graph: Dagre.Graph, idTable: IdTable, outStream: Stream<any>) {
+function traverse(graph: dagre.graphlib.Graph,
+                  idTable: IdTable,
+                  outStream: Stream<any>): void {
   if (outStream._prod && outStream._prod['ins']) {
     const inStream: Stream<any> = outStream._prod['ins'];
     visitOperator(graph, idTable, outStream._prod);
@@ -141,7 +146,7 @@ function traverse(graph: Dagre.Graph, idTable: IdTable, outStream: Stream<any>) 
   }
 }
 
-function buildGraph(sinks: Object): Dagre.Graph {
+function buildGraph(sinks: Object): dagre.graphlib.Graph {
   const idTable = new IdTable();
   const graph = new dagre.graphlib.Graph();
   graph.setGraph({nodesep: 60, ranksep: 20});
@@ -164,7 +169,7 @@ function buildGraph(sinks: Object): Dagre.Graph {
 }
 
 interface Diagram {
-  graph: Dagre.Graph;
+  graph: dagre.graphlib.Graph;
   zaps$: Stream<Array<Zap>>;
 }
 
@@ -197,7 +202,7 @@ class ZapRegistry {
   }
 }
 
-function setupZapping([graph, zapSpeed]: [Dagre.Graph, ZapSpeed]): Diagram {
+function setupZapping([graph, zapSpeed]: [dagre.graphlib.Graph, ZapSpeed]): Diagram {
   const registry: ZapRegistry = new ZapRegistry();
   const sourceNodes: Array<string> = graph['sources']();
   sourceNodes.forEach(id => {
@@ -206,7 +211,8 @@ function setupZapping([graph, zapSpeed]: [Dagre.Graph, ZapSpeed]): Diagram {
 
   const rawZap$ = xs.create<Zap>({
     start(listener: Listener<Zap>) {
-      for (let i = 0, N = registry.records.length; i < N; i++) {
+      const n = registry.records.length;
+      for (let i = 0; i < n; i++) {
         const record = registry.records[i];
         const id = record.id;
         record.stream.setDebugListener({
@@ -222,16 +228,19 @@ function setupZapping([graph, zapSpeed]: [Dagre.Graph, ZapSpeed]): Diagram {
   const actualZaps$ = rawZap$
     .compose(timeSpread(zapSpeedToMilliseconds(zapSpeed)));
 
-  const stopZaps$ = actualZaps$
-    .mapTo([]).compose(debounce<Array<Zap>>(200))
+  const stopZaps$: Stream<Array<any>> = actualZaps$
+    .mapTo([]).compose(debounce(200))
     .startWith([]);
 
   const zaps$ = xs.merge(actualZaps$, stopZaps$);
 
-  return { graph, zaps$ };
+  return {graph, zaps$};
 }
 
-function zapVisit(nodeId: string, depth: number, graph: Dagre.Graph, registry: ZapRegistry) {
+function zapVisit(nodeId: string,
+                  depth: number,
+                  graph: dagre.graphlib.Graph,
+                  registry: ZapRegistry) {
   if (registry.has(nodeId)) {
     return;
   } else {
@@ -251,7 +260,8 @@ function makeObjectifyGraph(id$: Stream<string>) {
     return xs.combine(diagram$, id$)
       .map(([{graph, zaps$}, id]) => {
         const object = dagre.graphlib['json'].write(graph);
-        for (let i = 0, N = object.nodes.length; i < N; i++) {
+        const n = object.nodes.length;
+        for (let i = 0; i < n; i++) {
           delete object.nodes[i].stream;
         }
         return zaps$.map(zaps => {
@@ -289,20 +299,20 @@ interface GraphSerializerSinks {
 }
 
 function GraphSerializer(sources: GraphSerializerSources): GraphSerializerSinks {
-  let zapSpeed$ = sources.Settings.map(settings =>
+  const zapSpeed$ = sources.Settings.map(settings =>
     (sources.FromPanel as Stream<ZapSpeed>).startWith(settings.zapSpeed),
   ).flatten();
 
-  let graph$ = sources.DebugSinks
+  const graph$ = sources.DebugSinks
     .filter(sinksAreXStream)
     .map(buildGraph);
 
-  let serializedGraph$ = xs.combine(graph$, zapSpeed$)
+  const serializedGraph$ = xs.combine(graph$, zapSpeed$)
     .map(setupZapping)
     .compose(makeObjectifyGraph(sources.id))
     .map(object => CircularJSON.stringify(object));
 
-  let invalid$ = sources.DebugSinks
+  const invalid$ = sources.DebugSinks
     .filter(x => !sinksAreXStream(x))
     .mapTo('');
 
@@ -352,7 +362,7 @@ function startGraphSerializer(appSinks: Object | null) {
 
 window['CyclejsDevTool_startGraphSerializer'] = startGraphSerializer;
 
-let intervalID = setInterval(function () {
+const intervalID = setInterval(function () {
   if (window['Cyclejs'] && window['Cyclejs'].sinks) {
     clearInterval(intervalID);
     startGraphSerializer(window['Cyclejs'].sinks);

@@ -1,7 +1,6 @@
 import xs, {Stream} from 'xstream';
-import xsSA from '@cycle/xstream-adapter';
 import {VNode, makeDOMDriver} from '@cycle/dom';
-import {DOMSource} from '@cycle/dom/xstream-typings';
+import {DOMSource} from '@cycle/dom';
 import intent from './intent';
 import model, {ZapSpeed} from './model';
 import view from './view';
@@ -62,7 +61,7 @@ export function startPanel(graph$: Stream<string>): void {
   );
 
   const domSinkProxy = xs.create<VNode>();
-  const domSource = domDriver(domSinkProxy, xsSA);
+  const domSource = domDriver(domSinkProxy);
 
   const panelSources = {graph: graph$, DOM: domSource};
   const panelSinks = Panel(panelSources);

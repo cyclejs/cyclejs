@@ -40,8 +40,8 @@ function renderNodeLabel(node: StreamGraphNode, zap: Zap | null, style: string):
       [styles.nodeLabelZapErrorStyle]: zap && zap.type === 'error',
     },
     attrs: {
-      x: DIAGRAM_PADDING_H + node.x + node.width * 0.5 + 10,
-      y: DIAGRAM_PADDING_V + node.y + 5,
+      x: DIAGRAM_PADDING_H + (node.x || 0) + node.width * 0.5 + 10,
+      y: DIAGRAM_PADDING_V + (node.y || 0) + 5,
     },
     hook: {
       insert(vnode: VNode) { setTSpanContent(vnode); },
@@ -63,16 +63,16 @@ function renderSourceOrSinkNode(node: StreamGraphNode, zaps: Array<Zap>) {
       const textElem = gElem.childNodes[1] as Element;
       const tspanElem = textElem.childNodes[0] as Element;
       tspanElem.setAttribute('x',
-        String(DIAGRAM_PADDING_H + node.x - textElem.clientWidth * 0.5 - P * 0.4),
+        String(DIAGRAM_PADDING_H + (node.x || 0) - textElem.clientWidth * 0.5 - P * 0.4),
       );
       tspanElem.setAttribute('y',
-        String(DIAGRAM_PADDING_V + node.y + textElem.clientHeight * 0.5 - P * 0.5),
+        String(DIAGRAM_PADDING_V + (node.y || 0) + textElem.clientHeight * 0.5 - P * 0.5),
       );
       rectElem.setAttribute('x',
-        String(DIAGRAM_PADDING_H + node.x - textElem.clientWidth * 0.5 - P),
+        String(DIAGRAM_PADDING_H + (node.x || 0) - textElem.clientWidth * 0.5 - P),
       );
       rectElem.setAttribute('y',
-        String(DIAGRAM_PADDING_V + node.y - textElem.clientHeight * 0.5 - P),
+        String(DIAGRAM_PADDING_V + (node.y || 0) - textElem.clientHeight * 0.5 - P),
       );
       rectElem.setAttribute('width', String(textElem.clientWidth + 2 * P));
       rectElem.setAttribute('height', String(textElem.clientHeight + 2 * P));
@@ -88,8 +88,8 @@ function renderSourceOrSinkNode(node: StreamGraphNode, zaps: Array<Zap>) {
         [styles.nodeZapCompleteStyle]: zap && zap.type === 'complete',
       },
       attrs: {
-        x: node.x - node.width * 0.5 + DIAGRAM_PADDING_H,
-        y: node.y - node.height * 0.5 + DIAGRAM_PADDING_V,
+        x: (node.x || 0) - node.width * 0.5 + DIAGRAM_PADDING_H,
+        y: (node.y || 0) - node.height * 0.5 + DIAGRAM_PADDING_V,
         rx: 9,
         ry: 9,
         width: node.width,
@@ -109,10 +109,10 @@ function renderOperatorNode(node: StreamGraphNode) {
       const textElem = vnode.elm as Element;
       const tspanElem = textElem.childNodes[0] as Element;
       tspanElem.setAttribute('x',
-        String(DIAGRAM_PADDING_H + node.x - textElem.clientWidth * 0.5),
+        String(DIAGRAM_PADDING_H + (node.x || 0) - textElem.clientWidth * 0.5),
       );
       tspanElem.setAttribute('y',
-        String(DIAGRAM_PADDING_V + node.y + textElem.clientHeight * 0.5 - 4),
+        String(DIAGRAM_PADDING_V + (node.y || 0) + textElem.clientHeight * 0.5 - 4),
       );
     },
   };
@@ -135,8 +135,8 @@ function renderCommonNode(node: StreamGraphNode, zaps: Array<Zap>): VNode {
         [styles.nodeZapCompleteStyle]: zap && zap.type === 'complete',
       },
       attrs: {
-        x: node.x - node.width * 0.5 + DIAGRAM_PADDING_H,
-        y: node.y - node.height * 0.5 + DIAGRAM_PADDING_V,
+        x: (node.x || 0) - node.width * 0.5 + DIAGRAM_PADDING_H,
+        y: (node.y || 0) - node.height * 0.5 + DIAGRAM_PADDING_V,
         rx: 9,
         ry: 9,
         width: node.width,
@@ -166,7 +166,7 @@ function renderCommonNode(node: StreamGraphNode, zaps: Array<Zap>): VNode {
   ]);
 }
 
-function renderNode(id: string, graph: Dagre.Graph, zaps: Array<Zap>): VNode {
+function renderNode(id: string, graph: dagre.graphlib.Graph, zaps: Array<Zap>): VNode {
   const node: StreamGraphNode = graph.node(id);
   if (node.type === 'source' || node.type === 'sink') {
     return renderSourceOrSinkNode(node, zaps);
@@ -177,7 +177,7 @@ function renderNode(id: string, graph: Dagre.Graph, zaps: Array<Zap>): VNode {
   }
 }
 
-function renderArrowHead(vw: Dagre.Edge): VNode {
+function renderArrowHead(vw: dagre.Edge): VNode {
   return svg.defs([
     svg.marker({
       attrs: {
@@ -203,7 +203,7 @@ function renderArrowHead(vw: Dagre.Edge): VNode {
   ]);
 }
 
-function renderEdgeType1(vw: Dagre.Edge, graph: Dagre.Graph): VNode | null {
+function renderEdgeType1(vw: dagre.Edge, graph: dagre.graphlib.Graph): VNode | null {
   const edgeData: StreamGraphEdge = (graph as any).edge(vw.v, vw.w);
   if (!edgeData.points) {
     return null;
@@ -229,7 +229,7 @@ function renderEdgeType1(vw: Dagre.Edge, graph: Dagre.Graph): VNode | null {
   });
 }
 
-function renderEdgeType2(vw: Dagre.Edge, graph: Dagre.Graph): VNode | null {
+function renderEdgeType2(vw: dagre.Edge, graph: dagre.graphlib.Graph): VNode | null {
   const edgeData: StreamGraphEdge = (graph as any).edge(vw.v, vw.w);
   if (!edgeData.points) {
     return null;
@@ -251,7 +251,7 @@ function renderEdgeType2(vw: Dagre.Edge, graph: Dagre.Graph): VNode | null {
   ]);
 }
 
-function renderEdge(vw: Dagre.Edge, graph: Dagre.Graph): VNode | null {
+function renderEdge(vw: dagre.Edge, graph: dagre.graphlib.Graph): VNode | null {
   const orig = graph.node(vw.v) as StreamGraphNode;
   const dest = graph.node(vw.w) as StreamGraphNode;
   if (dest.type === 'operator') {
@@ -263,7 +263,7 @@ function renderEdge(vw: Dagre.Edge, graph: Dagre.Graph): VNode | null {
   }
 }
 
-export function renderGraph(graph: Dagre.Graph, zaps: Array<Zap>, id: string): VNode {
+export function renderGraph(graph: dagre.graphlib.Graph, zaps: Array<Zap>, id: string): VNode {
   const g = typeof graph['graph'] === 'function' ? graph['graph']() : {};
   const attrs = {
     width: g.width + 2 * DIAGRAM_PADDING_H + 100,

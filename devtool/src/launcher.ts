@@ -3,12 +3,14 @@ import {ZapSpeed} from './panel/model';
 let code = '';
 
 // Settings that last only while the DevTool is open.
-let sessionSettings: SessionSettings = {
+const sessionSettings: SessionSettings = {
   zapSpeed: 'normal',
 };
 
 // Create a panel
-chrome.devtools.panels.create('Cycle.js', '128.png', 'panel.html', function(extensionPanel) {
+// alert('LAUNCHER will create panel')
+chrome.devtools.panels.create('Cycle.js', '128.png', 'panel.html', function (extensionPanel) {
+  // alert('LAUNCHER is currently creating panel')
   const portToBackground = chrome.runtime.connect({name: 'cyclejs'});
   extensionPanel.onShown.addListener(function (panelWindow) {
     loadGraphSerializerCode();
@@ -39,8 +41,8 @@ chrome.devtools.panels.create('Cycle.js', '128.png', 'panel.html', function(exte
             window.CyclejsDevToolSettings = ${JSON.stringify(sessionSettings)};
           `;
           chrome.devtools.inspectedWindow.reload({
-            injectedScript: `${settings} ${code}` as any as boolean,
-          } as chrome.devtools.inspectedWindow.ReloadOptions);
+            injectedScript: `${settings} ${code}`,
+          });
         }
       });
     }

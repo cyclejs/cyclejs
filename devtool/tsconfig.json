@@ -13,7 +13,7 @@
     ]
   },
   "files": [
-    "typings/index.d.ts",
+    "src/circular-json.d.ts",
     "src/background.ts",
     "src/contentScript.ts",
     "src/graphSerializer.ts",
