@@ -1,36 +1,33 @@
 import xs from 'xstream'
 import isolate from '@cycle/isolate'
+import {collection, pickCombine, pickMerge} from 'cycle-onionify'
 import {div, button} from '@cycle/dom'
 import {pick, mix} from 'cycle-onionify'
 
-function generateId() {
+function generateKey() {
   return Number(String(Math.random()).replace(/0\.0*/, ''))
 }
 
 function intent(domSource) {
-  const addChild$ = domSource.select('.add').events('click')
-    .mapTo({type: 'addChild'})
-
-  const removeSelf$ = domSource.select('.remove').events('click')
-    .mapTo({type: 'removeSelf'})
-
-  return xs.merge(addChild$, removeSelf$)
+  return {
+    addChild$: domSource.select('.add').events('click').mapTo(null),
+    removeSelf$: domSource.select('.remove').events('click').mapTo(null),
+  }
 }
 
-function model(action$) {
+function model(actions) {
   const initReducer$ = xs.of(function initReducer(prevState) {
     if (typeof prevState === 'undefined') {
-      return {id: 0, removable: false, children: []}
+      return {key: 0, removable: false, children: []}
     } else {
       return prevState
     }
   })
 
-  const addChildReducer$ = action$
-    .filter(({type}) => type === 'addChild')
+  const addChildReducer$ = actions.addChild$
     .mapTo(function addFolderReducer(state) {
       const newChildren = state.children.concat({
-        id: generateId(),
+        key: generateKey(),
         removable: true,
         children: [],
       })
@@ -40,8 +37,7 @@ function model(action$) {
       }
     })
 
-  const removeSelfReducer$ = action$
-    .filter(({type}) => type === 'removeSelf')
+  const removeSelfReducer$ = actions.removeSelf$
     .mapTo(function removeSelfReducer(state) {
       return undefined
     })
@@ -49,8 +45,8 @@ function model(action$) {
   return xs.merge(initReducer$, addChildReducer$, removeSelfReducer$)
 }
 
-function idToColor(id) {
-  let hexColor = Math.floor(((id + 1) * 1000) % 16777215).toString(16)
+function keyToColor(key) {
+  let hexColor = Math.floor(((key + 1) * 1000) % 16777215).toString(16)
   while (hexColor.length < 6) {
     hexColor = '0' + hexColor
   }
@@ -69,29 +65,19 @@ function style(backgroundColor) {
 function view(state$, childrenVDOM$) {
   return xs.combine(state$, childrenVDOM$)
     .map(([state, childrenVDOM]) => {
-      const color = idToColor(state.id)
+      const color = keyToColor(state.key)
       return div({style: style(color)}, [
         button('.add', ['Add Folder']),
-        state.removable && button('.remove', ['Remove me']),
-        state.children && div({}, childrenVDOM),
+        state.removable ? button('.remove', ['Remove me']) : null,
+        state.children ? div({}, childrenVDOM) : null,
       ])
     })
 }
 
 function Children(sources) {
-  const array$ = sources.onion.state$
-
-  const childrenSinks$ = array$.map(array =>
-    array.map((item, index) => isolate(Folder, index)(sources))
-  )
-
-  const childrenReducer$ = childrenSinks$
-    .compose(pick('onion'))
-    .compose(mix(xs.merge))
-
-  const childrenVDOM$ = childrenSinks$
-    .compose(pick('DOM'))
-    .compose(mix(xs.combine))
+  const folders$ = collection(Folder, sources);
+  const childrenReducer$ = folders$.compose(pickMerge('onion'))
+  const childrenVDOM$ = folders$.compose(pickCombine('DOM'))
 
   return {
     DOM: childrenVDOM$,

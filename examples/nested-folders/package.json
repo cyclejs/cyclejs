@@ -6,11 +6,11 @@
   "author": "Tylor Steinberger <tlsteinberger167@gmail.com> (github.com/Tylors)",
   "license": "MIT",
   "dependencies": {
-    "@cycle/isolate": "2.0.0-rc.2",
-    "@cycle/run": "1.0.0-rc.9",
-    "@cycle/dom": "15.0.0-rc.2",
-    "cycle-onionify": "3.0.0-rc.1",
-    "xstream": "10.2"
+    "@cycle/isolate": "2.x",
+    "@cycle/run": "3.x",
+    "@cycle/dom": "17.x",
+    "cycle-onionify": "4.0.0-rc.3",
+    "xstream": "10.x"
   },
   "devDependencies": {
     "babel-plugin-transform-object-rest-spread": "^6.6.5",
