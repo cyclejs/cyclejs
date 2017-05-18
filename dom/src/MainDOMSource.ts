@@ -2,7 +2,7 @@ import xs from 'xstream';
 import {Stream, MemoryStream} from 'xstream';
 import {DevToolEnabledSource} from '@cycle/run';
 import {adapt} from '@cycle/run/lib/adapt';
-import {DOMSource, EventsFnOptions} from './DOMSource';
+import {DOMSource, EventsFnOptions, Predicate} from './DOMSource';
 import {DocumentDOMSource} from './DocumentDOMSource';
 import {BodyDOMSource} from './BodyDOMSource';
 import {VNode} from 'snabbdom/vnode';
@@ -203,9 +203,15 @@ export class MainDOMSource implements DOMSource {
       })
       .flatten();
 
-    if (options && options.preventDefault) {
+    if (options && typeof options.preventDefault !== 'undefined') {
+      let cond : Predicate = options.preventDefault as Predicate;
+      if (typeof options.preventDefault === 'boolean') {
+        cond = (() => options.preventDefault) as Predicate;
+      }
       event$ = event$.map(ev => {
-        ev.preventDefault();
+        if (cond(ev)) {
+          ev.preventDefault();
+        }
         return ev;
       });
     }

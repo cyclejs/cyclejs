@@ -1,7 +1,8 @@
 import {Stream, MemoryStream} from 'xstream';
+export type Predicate = (e : any) => boolean;
 export interface EventsFnOptions {
   useCapture?: boolean;
-  preventDefault?: boolean;
+  preventDefault?: boolean | Predicate;
 }
 
 export interface DOMSource {
