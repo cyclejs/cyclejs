@@ -1,6 +1,6 @@
 import {Stream, Producer, Listener} from 'xstream';
 
-export type Predicate = (ev : any) => boolean;
+export type Predicate = (ev: any) => boolean;
 export type PreventDefaultOpt = boolean | Predicate | Comparator;
 export type Comparator = { [key: string]: any };
 
@@ -34,7 +34,7 @@ export function fromEvent(
   );
 }
 
-export function preventDefaultConditional(event: any, preventDefault: PreventDefaultOpt) : void {
+export function preventDefaultConditional(event: any, preventDefault: PreventDefaultOpt): void {
   if (preventDefault) {
     if (typeof preventDefault === 'boolean') {
       event.preventDefault();
