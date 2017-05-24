@@ -3,6 +3,7 @@ import {ScopeChecker} from './ScopeChecker';
 import {IsolateModule} from './IsolateModule';
 import {getFullScope, getSelectors} from './utils';
 import {matchesSelector} from './matchesSelector';
+import {PreventDefaultOpt, preventDefaultConditional} from './fromEvent';
 declare var requestIdleCallback: any;
 
 interface Destination {
@@ -61,17 +62,17 @@ export class EventDelegator {
     public eventType: string,
     public useCapture: boolean,
     public isolateModule: IsolateModule,
-    public preventDefault = false,
+    public preventDefault: PreventDefaultOpt = false,
   ) {
     if (preventDefault) {
       if (useCapture) {
         this.listener = (ev: Event) => {
-          ev.preventDefault();
+          preventDefaultConditional(ev, preventDefault);
           this.capture(ev);
         };
       } else {
         this.listener = (ev: Event) => {
-          ev.preventDefault();
+          preventDefaultConditional(ev, preventDefault);
           this.bubble(ev);
         };
       }
