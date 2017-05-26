@@ -725,9 +725,9 @@ snabbdom-selector@1.2.0:
   dependencies:
     cssauron "^1.4.0"
 
-snabbdom@0.6.8:
-  version "0.6.8"
-  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-0.6.8.tgz#6ca7f90c203e0450e2525a1c11b0ad7410413c4b"
+snabbdom@0.6.9:
+  version "0.6.9"
+  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-0.6.9.tgz#65a392f4c82ca7e8ec72aa0d2fa797cf5c73b8d7"
 
 sntp@1.x.x:
   version "1.0.9"
