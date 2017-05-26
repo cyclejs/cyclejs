@@ -18,6 +18,7 @@ help :
 	@echo "  make commit\t\t\tgit commit following our format"
 	@echo "  make lint <package>\t\tlint just <package> (e.g. 'make lint dom')"
 	@echo "  make lib <package>\t\tcompile just <package> (e.g. 'make lib dom')"
+	@echo "  make lib all\t\tcompile all packages"
 	@echo "  make test\t\t\ttest everything"
 	@echo "  make test <package>\t\ttest just <package>"
 	@echo "  make test-ci\t\t\ttest everything for continuous integration"
@@ -41,6 +42,7 @@ setup :
 		cd $$d ; yarn install ; cd .. ;\
 		echo "" ;\
 	done < .scripts/RELEASABLE_PACKAGES
+	@make lib all
 
 commit :
 	$(BINDIR)/git-cz
@@ -54,8 +56,13 @@ lint :
 	fi
 
 lib :
-	@if [ "$(ARG)" = "" ]; then \
-		echo "Error: please call 'make lib' with an argument, like 'make lib dom'" ;\
+	@if [ "$(ARG)" = "all" ]; then \
+		while read d ; do \
+			echo "Compiling $$d" ; \
+			make lib $$d ; \
+		done < .scripts/RELEASABLE_PACKAGES; \
+	elif [ "$(ARG)" = "" ]; then \
+		echo "Error: please call 'make lib' with an argument, like 'make lib dom' 'make lib all'" ;\
 	else \
 		rm -rf $(ARG)/lib/ ;\
 		mkdir -p $(ARG)/lib ;\
