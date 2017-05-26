@@ -18,7 +18,7 @@ help :
 	@echo "  make commit\t\t\tgit commit following our format"
 	@echo "  make lint <package>\t\tlint just <package> (e.g. 'make lint dom')"
 	@echo "  make lib <package>\t\tcompile just <package> (e.g. 'make lib dom')"
-	@echo "  make lib all\t\tcompile all packages"
+	@echo "  make lib all\t\t\tcompile all packages"
 	@echo "  make test\t\t\ttest everything"
 	@echo "  make test <package>\t\ttest just <package>"
 	@echo "  make test-ci\t\t\ttest everything for continuous integration"
