@@ -1,3 +1,13 @@
+<a name="17.4.0"></a>
+# 17.4.0 (2017-05-29)
+
+
+### Bug Fixes
+
+* **dom:** update to snabbdom 0.6.9 ([22d5cf0](https://github.com/cyclejs/cyclejs/commit/22d5cf0)), closes [#612](https://github.com/cyclejs/cyclejs/issues/612)
+
+
+
 <a name="17.3.0"></a>
 # 17.3.0 (2017-05-16)
 

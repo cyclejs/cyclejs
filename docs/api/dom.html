@@ -112,28 +112,22 @@ the app on the DOM.
 
 A factory function to create mocked DOMSource objects, for testing purposes.
 
-Takes a `streamAdapter` and a `mockConfig` object as arguments, and returns
+Takes a `mockConfig` object as argument, and returns
 a DOMSource that can be given to any Cycle.js app that expects a DOMSource in
 the sources, for testing.
-
-The `streamAdapter` parameter is a package such as `@cycle/xstream-adapter`,
-`@cycle/rxjs-adapter`, etc. Import it as `import a from '@cycle/rx-adapter`,
-then provide it to `mockDOMSource`. This is important so the DOMSource created
-knows which stream library should it use to export its streams when you call
-`DOMSource.events()` for instance.
 
 The `mockConfig` parameter is an object specifying selectors, eventTypes and
 their streams. Example:
 
 ```js
-const domSource = mockDOMSource(RxAdapter, {
+const domSource = mockDOMSource({
   '.foo': {
-    'click': Rx.Observable.of({target: {}}),
-    'mouseover': Rx.Observable.of({target: {}}),
+    'click': xs.of({target: {}}),
+    'mouseover': xs.of({target: {}}),
   },
   '.bar': {
-    'scroll': Rx.Observable.of({target: {}}),
-    elements: Rx.Observable.of({tagName: 'div'}),
+    'scroll': xs.of({target: {}}),
+    elements: xs.of({tagName: 'div'}),
   }
 });
 
