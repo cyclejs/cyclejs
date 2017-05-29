@@ -1,7 +1,7 @@
 import xs, {Stream} from 'xstream';
 import {button, div, DOMSource, VNode} from '@cycle/dom';
 import isolate from '@cycle/isolate';
-import {StateSource, collection, pickCombine, pickMerge} from 'cycle-onionify';
+import {StateSource, pickCombine, pickMerge} from 'cycle-onionify';
 import Item, {State as ItemState} from './Item';
 
 export type Actions = {
@@ -63,9 +63,7 @@ function view(childrenVDoms$: Stream<Array<VNode>>) {
 }
 
 function List(sources: {onion: StateSource<State>, DOM: DOMSource}) {
-  const array$ = sources.onion.state$;
-
-  const instances$ = collection(Item, sources);
+  const instances$ = sources.onion.asCollection(Item, sources);
   const childrenVDoms$ = instances$.compose(pickCombine('DOM'));
   const childrenReducer$ = instances$.compose(pickMerge('onion'));
 

@@ -71,8 +71,6 @@ function view(state$: Stream<State>) {
       margin: '10px 0px',
     };
 
-    // Note! we should roll our own thunk which carries data.isolate
-
     return thunk('div.item', key, (_color: string, _width: number) =>
       div('.item', {style, key: key}, [
         input('.color-field', {
@@ -80,7 +78,6 @@ function view(state$: Stream<State>) {
         }),
         div('.slider-container', [
           input('.width-slider', {
-            // attrs: {type: 'range', min: '200', max: '1000', value: '300'}
             attrs: {type: 'range', min: '200', max: '1000', value: _width},
           }),
         ]),
