@@ -9,7 +9,7 @@
     "@cycle/isolate": "2.x",
     "@cycle/run": "3.x",
     "@cycle/dom": "17.x",
-    "cycle-onionify": "4.0.0-rc.3",
+    "cycle-onionify": "4.0.0-rc.8",
     "xstream": "10.x"
   },
   "devDependencies": {

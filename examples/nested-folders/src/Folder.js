@@ -1,6 +1,6 @@
 import xs from 'xstream'
 import isolate from '@cycle/isolate'
-import {collection, pickCombine, pickMerge} from 'cycle-onionify'
+import {pickCombine, pickMerge} from 'cycle-onionify'
 import {div, button} from '@cycle/dom'
 import {pick, mix} from 'cycle-onionify'
 
@@ -75,7 +75,7 @@ function view(state$, childrenVDOM$) {
 }
 
 function Children(sources) {
-  const folders$ = collection(Folder, sources);
+  const folders$ = sources.onion.asCollection(Folder, sources, s => s.key);
   const childrenReducer$ = folders$.compose(pickMerge('onion'))
   const childrenVDOM$ = folders$.compose(pickCombine('DOM'))
 
