@@ -34,22 +34,22 @@
   "types": "lib/index.d.ts",
   "dependencies": {
     "@cycle/run": "*",
-    "@cycle/dom": "16.x",
-    "snabbdom": "0.6.7",
-    "snabbdom-to-html": "3.0.1"
+    "@cycle/dom": "17.x",
+    "snabbdom": "0.6.9",
+    "snabbdom-to-html": "3.1.1"
   },
   "peerDependencies": {
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/isolate": "2.0.0",
+    "@cycle/isolate": "2.1.0",
     "@types/mocha": "^2.2.33",
     "@types/node": "^7.0.4",
     "@types/sinon": "^1.16.32",
     "saucie": "3.1.0",
     "simulant": "^0.2.2",
     "snabbdom-jsx": "^0.3.0",
-    "xstream": "10.2"
+    "xstream": "10.x"
   },
   "engines": {
     "node": ">=0.10.0"

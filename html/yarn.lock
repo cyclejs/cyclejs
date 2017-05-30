@@ -2,19 +2,18 @@
 # yarn lockfile v1
 
 
-"@cycle/dom@16.x":
-  version "16.0.0"
-  resolved "https://registry.yarnpkg.com/@cycle/dom/-/dom-16.0.0.tgz#579d09b5b87d3df0195ac76d342c9acc9312680d"
+"@cycle/dom@17.x":
+  version "17.4.0"
+  resolved "https://registry.yarnpkg.com/@cycle/dom/-/dom-17.4.0.tgz#232e9f21323b34b244000e0fa0a067642ae905d2"
   dependencies:
     "@cycle/run" "*"
     es6-map "^0.1.4"
-    snabbdom "0.6.5"
-    snabbdom-selector "1.1.1"
-    snabbdom-to-html "3.0.1"
+    snabbdom "0.6.9"
+    snabbdom-selector "1.2.0"
 
-"@cycle/isolate@2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@cycle/isolate/-/isolate-2.0.0.tgz#80f25eba3eaf51f98fff420635fe565ffcde6408"
+"@cycle/isolate@2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@cycle/isolate/-/isolate-2.1.0.tgz#8db1c6a068dc1d3fc709d5adbe838083577ad0e0"
 
 "@cycle/run@*":
   version "3.1.0"
@@ -751,15 +750,15 @@ snabbdom-jsx@^0.3.0:
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/snabbdom-jsx/-/snabbdom-jsx-0.3.1.tgz#3a8c58fd88da4b76a472c0ffd2f30566a5c3c172"
 
-snabbdom-selector@1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/snabbdom-selector/-/snabbdom-selector-1.1.1.tgz#bde66fc54b34effc2f6a13d4a74de0d3cc771bfd"
+snabbdom-selector@1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/snabbdom-selector/-/snabbdom-selector-1.2.0.tgz#4260a269d9d46f50b9c1f39da628c2af6828dd53"
   dependencies:
     cssauron "^1.4.0"
 
-snabbdom-to-html@3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/snabbdom-to-html/-/snabbdom-to-html-3.0.1.tgz#6ec000c4a9472f06e12715ebac1e945b1174f4ed"
+snabbdom-to-html@3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/snabbdom-to-html/-/snabbdom-to-html-3.1.1.tgz#733fcf33c0bb60d73622e47b15740a9e5c9e7cd4"
   dependencies:
     lodash.escape "^4.0.1"
     lodash.forown "^4.4.0"
@@ -769,13 +768,9 @@ snabbdom-to-html@3.0.1:
     object-assign "^4.1.0"
     parse-sel "^1.0.0"
 
-snabbdom@0.6.5:
-  version "0.6.5"
-  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-0.6.5.tgz#01b0cba8d623eca19e570876630c12c057830066"
-
-snabbdom@0.6.7:
-  version "0.6.7"
-  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-0.6.7.tgz#045d9fc292574fe3597578bde2d9c403f79a1352"
+snabbdom@0.6.9:
+  version "0.6.9"
+  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-0.6.9.tgz#65a392f4c82ca7e8ec72aa0d2fa797cf5c73b8d7"
 
 sntp@1.x.x:
   version "1.0.9"
@@ -903,7 +898,7 @@ wrappy@1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
 
-xstream@10.2, xstream@10.x:
+xstream@10.x:
   version "10.2.0"
   resolved "https://registry.yarnpkg.com/xstream/-/xstream-10.2.0.tgz#c121f3f67b34a921f473dd2b596f01ab4646f957"
   dependencies:
