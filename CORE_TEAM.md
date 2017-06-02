@@ -75,4 +75,11 @@ So if you are interested in becoming a core team member, just get involved with 
 
 # Purpose
 
-Create a framework for user interfaces where code is easily visualizable, written in a consistent style, easy to test, easy to trace and follow its execution, easy to compose.
+Create a framework for user interfaces where code is
+
+- easy to visualize
+- easy to test
+- easy to compose
+- consistent in style
+- readable - emphasizing readability over writability
+- explicit - easy to trace and follow its execution
