@@ -33,7 +33,7 @@
     "xstream": "global:xstream"
   },
   "scripts": {
-    "test-node": "../node_modules/.bin/mocha test/node.ts --require ts-node/register",
+    "test-node": "../node_modules/.bin/mocha test/node/*.ts --require ts-node/register",
     "pretest-browser": "../node_modules/.bin/tsc -p ./test/browser/ && yarn run start-test-support-server",
     "test-browser": "../node_modules/.bin/testem ci -l Chrome,Firefox",
     "posttest-browser": "yarn run stop-test-support-server",
