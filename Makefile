@@ -44,7 +44,16 @@ setup :
 	done < .scripts/RELEASABLE_PACKAGES
 	@make lib all
 
+prettier-all :
+	@echo "Formatting all source files using prettier"
+	@while read d ; do \
+		$(BINDIR)/prettier --write \
+		--single-quote --no-bracket-spacing --trailing-comma=all \
+		"$$d/{src,test}/**/*.ts" ;\
+	done < .scripts/RELEASABLE_PACKAGES
+
 commit :
+	.scripts/prettier-staged-files.sh
 	$(BINDIR)/git-cz
 
 lint :

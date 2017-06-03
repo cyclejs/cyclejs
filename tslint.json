@@ -3,13 +3,16 @@
     "adjacent-overload-signatures": true,
     "curly": true,
     "eofline": false,
-    "align": [true, "parameters"],
+    "align": [
+      true,
+      "parameters"
+    ],
     "class-name": true,
-    "indent": [true, "spaces"],
     "no-angle-bracket-type-assertion": true,
-    "max-line-length": [true, 100],
-    "max-file-line-count": [true, 300],
-    "no-consecutive-blank-lines": [true, 1],
+    "max-file-line-count": [
+      true,
+      300
+    ],
     "member-access": true,
     "no-trailing-whitespace": true,
     "no-bitwise": true,
@@ -19,20 +22,16 @@
     "no-string-throw": true,
     "unified-signatures": true,
     "typeof-compare": true,
-    "space-before-function-paren": [
-      true,
-      {
-        "anonymous": "always",
-        "named": "never",
-        "asyncArrow": "always",
-        "method": "never",
-        "constructor": "never"
-      }
-    ],
     "prefer-method-signature": true,
-    "arrow-return-shorthand": [true, "multiline"],
+    "arrow-return-shorthand": [
+      true,
+      "multiline"
+    ],
     "no-duplicate-variable": true,
-    "no-inferrable-types": [true, "ignore-params"],
+    "no-inferrable-types": [
+      true,
+      "ignore-params"
+    ],
     "no-var-keyword": true,
     "variable-name": [
       true,
@@ -47,15 +46,12 @@
     "triple-equals": true,
     "no-use-before-declare": true,
     "jsdoc-format": true,
-    "one-line": [true,
+    "one-line": [
+      true,
       "check-else",
       "check-whitespace",
-      "check-open-brace"],
-    "trailing-comma": [true, {"multiline": "always", "singleline": "never"}],
-    "quotemark": [true,
-      "single",
-      "avoid-escape"],
-    "semicolon": [true, "always"],
+      "check-open-brace"
+    ],
     "typedef-whitespace": [
       true,
       {
@@ -73,11 +69,13 @@
         "variable-declaration": "onespace"
       }
     ],
-    "whitespace": [true,
+    "whitespace": [
+      true,
       "check-branch",
       "check-decl",
       "check-operator",
       "check-separator",
-      "check-type"]
+      "check-type"
+    ]
   }
 }
