@@ -22,6 +22,7 @@
     "karma-typescript": "3.0.0-beta.1",
     "markdox": "0.1.10",
     "mocha": "3.2.0",
+    "prettier": "^1.4.2",
     "sinon": "1.17.7",
     "tempfile": "1.1.1",
     "testem": "1.14.3",
