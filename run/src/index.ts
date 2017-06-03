@@ -1,5 +1,6 @@
 import xs, {Stream, MemoryStream} from 'xstream';
 import {adapt} from './adapt';
+import {Pullable} from './pullable';
 
 export interface FantasyObserver {
   next(x: any): void;
@@ -60,9 +61,14 @@ export type SinkProxies<Si extends Sinks> = {
   [P in keyof Si]: MemoryStream<any>;
 };
 
-export interface CycleProgram<So extends Sources, Si extends Sinks> {
+export type Pulleys = {
+  [name: string]: Pullable<any, any>;
+};
+
+export interface CycleProgram<So extends Sources, Si extends Sinks, Pu extends Pulleys> {
   sources: So;
   sinks: Si;
+  pulleys?: Pulleys;
   run(): DisposeFunction;
 }
 
@@ -188,6 +194,17 @@ function isObjectEmpty(obj: any): boolean {
   return Object.keys(obj).length === 0;
 }
 
+export interface SinksAndPulleys<Si extends Sinks, Pu extends Pulleys> {
+  sinks: Si;
+  pulleys: Pu;
+}
+
+function isSinkAndPulleys(sp: any): boolean {
+  return ((Object.keys(sp).length === 2) &&
+          !!(sp as SinksAndPulleys<any, any>).sinks &&
+          !!(sp as SinksAndPulleys<any, any>).pulleys);
+}
+
 /**
  * A function that prepares the Cycle application to be executed. Takes a `main`
  * function and prepares to circularly connects it to the given collection of
@@ -210,15 +227,20 @@ function isObjectEmpty(obj: any): boolean {
  * `sinks`.
  * @param {Object} drivers an object where keys are driver names and values
  * are driver functions.
+ * @param {Object} incomingPulleys an object where keys are pullable names and
+ * values are incoming pullable instances. This argument can be omitted, when
+ * no pullables are used.
  * @return {Object} an object with three properties: `sources`, `sinks` and
  * `run`. `sources` is the collection of driver sources, `sinks` is the
  * collection of driver sinks, these can be used for debugging or testing. `run`
  * is the function that once called will execute the application.
  * @function setup
  */
-export function setup<So extends Sources, Si extends FantasySinks<Si>>(
-                     main: (sources: So) => Si,
-                     drivers: Drivers<So, Si>): CycleProgram<So, Si> {
+export function setup<So extends Sources, Si extends FantasySinks<Si>,
+                      PuIn extends Pulleys, PuOut extends Pulleys>(
+        main: (sources: So, pullyes?: PuIn) => Si|SinksAndPulleys<Si, PuOut>,
+        drivers: Drivers<So, Si>,
+        incomingPulleys?: PuIn): CycleProgram<So, Si, PuOut> {
   if (typeof main !== `function`) {
     throw new Error(`First argument given to Cycle must be the 'main' ` +
       `function.`);
@@ -231,11 +253,28 @@ export function setup<So extends Sources, Si extends FantasySinks<Si>>(
     throw new Error(`Second argument given to Cycle must be an object ` +
       `with at least one driver function declared as a property.`);
   }
+  if (incomingPulleys !== undefined) {
+    if (typeof incomingPulleys !== `object`) {
+    throw new Error(`Third argument given to Cycle must be an object ` +
+      `with pullables as properties.`);
+  }
+    if (isObjectEmpty(incomingPulleys)) {
+      throw new Error(`Third argument given to Cycle must be an object ` +
+        `with at least one pullable declared as a property.`);
+    }
+  }
 
   const sinkProxies = makeSinkProxies<So, Si>(drivers);
   const sources = callDrivers<So, Si>(drivers, sinkProxies);
   const adaptedSources = adaptSources(sources);
-  const sinks = main(adaptedSources);
+  const sOrSP = main(adaptedSources, incomingPulleys);
+  let sinks: Si;
+  let pulleys: PuOut|undefined;
+  if (isSinkAndPulleys(sOrSP)) {
+    ({sinks, pulleys} = (sOrSP as SinksAndPulleys<Si, PuOut>));
+  } else {
+    sinks = sOrSP as Si;
+  }
   if (typeof window !== 'undefined') {
     (window as any).Cyclejs = (window as any).Cyclejs || {};
     (window as any).Cyclejs.sinks = sinks;
@@ -247,7 +286,7 @@ export function setup<So extends Sources, Si extends FantasySinks<Si>>(
       disposeReplication();
     };
   };
-  return {sinks, sources, run};
+  return {sinks, sources, pulleys, run};
 }
 
 /**
@@ -270,17 +309,22 @@ export function setup<So extends Sources, Si extends FantasySinks<Si>>(
  * details on what types of sources it outputs and sinks it receives.
  *
  * @param {Function} main a function that takes `sources` as input and outputs
- * `sinks`.
+ * `sinks` or a pair of `sinks` and `pulleys`.
  * @param {Object} drivers an object where keys are driver names and values
  * are driver functions.
+ * @param {Object} pullyes an object where keys are pullable names and values
+ * are pullable instances. This argument can be omitted, when no pullables are
+ * used.
  * @return {Function} a dispose function, used to terminate the execution of the
  * Cycle.js program, cleaning up resources used.
  * @function run
  */
-export function run<So extends Sources, Si extends FantasySinks<Si>>(
-                   main: (sources: So) => Si,
-                   drivers: Drivers<So, Si>): DisposeFunction {
-  const {run, sinks} = setup(main, drivers);
+export function run<So extends Sources, Si extends FantasySinks<Si>,
+                      PuIn extends Pulleys, PuOut extends Pulleys>(
+          main: (sources: So, pullyes?: PuIn) => Si|SinksAndPulleys<Si, PuOut>,
+          drivers: Drivers<So, Si>,
+          pullyes?: PuIn): DisposeFunction {
+  const {run, sinks} = setup(main, drivers, pullyes);
   if (typeof window !== 'undefined' && window['CyclejsDevTool_startGraphSerializer']) {
     window['CyclejsDevTool_startGraphSerializer'](sinks);
   }
