@@ -28,7 +28,7 @@ function indexOf(arr: Array<Destination>, searchId: number): number {
   let current: Destination;
 
   while (minIndex <= maxIndex) {
-    currentIndex = (minIndex + maxIndex) / 2 | 0; // tslint:disable-line:no-bitwise
+    currentIndex = ((minIndex + maxIndex) / 2) | 0; // tslint:disable-line:no-bitwise
     current = arr[currentIndex];
     const currentId = current.id;
     if (currentId < searchId) {
@@ -56,11 +56,13 @@ export class EventDelegator {
   private listener: EventListener;
   private _lastId = 0;
 
-  constructor(private origin: Element,
-              public eventType: string,
-              public useCapture: boolean,
-              public isolateModule: IsolateModule,
-              public preventDefault = false) {
+  constructor(
+    private origin: Element,
+    public eventType: string,
+    public useCapture: boolean,
+    public isolateModule: IsolateModule,
+    public preventDefault = false,
+  ) {
     if (preventDefault) {
       if (useCapture) {
         this.listener = (ev: Event) => {
@@ -84,7 +86,11 @@ export class EventDelegator {
   }
 
   public updateOrigin(newOrigin: Element) {
-    this.origin.removeEventListener(this.eventType, this.listener, this.useCapture);
+    this.origin.removeEventListener(
+      this.eventType,
+      this.listener,
+      this.useCapture,
+    );
     newOrigin.addEventListener(this.eventType, this.listener, this.useCapture);
     this.origin = newOrigin;
   }
@@ -130,7 +136,7 @@ export class EventDelegator {
     const n = this.destinations.length;
     for (let i = 0; i < n; i++) {
       const dest = this.destinations[i];
-      if (matchesSelector((ev.target as Element), dest.selector)) {
+      if (matchesSelector(ev.target as Element, dest.selector)) {
         dest.subject._n(ev);
       }
     }
@@ -143,7 +149,11 @@ export class EventDelegator {
     }
     const roof = origin.parentElement;
     const ev = this.patchEvent(rawEvent);
-    for (let el = ev.target as Element | null; el && el !== roof; el = el.parentElement) {
+    for (
+      let el = ev.target as Element | null;
+      el && el !== roof;
+      el = el.parentElement
+    ) {
       if (!origin.contains(el)) {
         ev.stopPropagation();
       }
@@ -179,7 +189,10 @@ export class EventDelegator {
     }
   }
 
-  private mutateEventCurrentTarget(event: CycleDOMEvent, currentTargetElement: Element) {
+  private mutateEventCurrentTarget(
+    event: CycleDOMEvent,
+    currentTargetElement: Element,
+  ) {
     try {
       Object.defineProperty(event, `currentTarget`, {
         value: currentTargetElement,

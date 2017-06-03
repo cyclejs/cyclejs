@@ -1,9 +1,10 @@
 import {IsolateModule} from './IsolateModule';
 
 export class ScopeChecker {
-  constructor(private fullScope: string,
-              private isolateModule: IsolateModule) {
-  }
+  constructor(
+    private fullScope: string,
+    private isolateModule: IsolateModule,
+  ) {}
 
   /**
    * Checks whether the given element is *directly* in the scope of this

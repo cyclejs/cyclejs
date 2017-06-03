@@ -4,8 +4,7 @@ import {classNameFromVNode} from 'snabbdom-selector/lib/commonjs/classNameFromVN
 import {selectorParser} from 'snabbdom-selector/lib/commonjs/selectorParser';
 
 export class VNodeWrapper {
-  constructor(public rootElement: Element) {
-  }
+  constructor(public rootElement: Element) {}
 
   public call(vnode: VNode | null): VNode {
     if (vnode === null) {
@@ -33,8 +32,7 @@ export class VNodeWrapper {
   private wrap(children: Array<VNode>) {
     const {tagName, id, className} = this.rootElement;
     const selId = id ? `#${id}` : '';
-    const selClass = className ?
-      `.${className.split(` `).join(`.`)}` : '';
+    const selClass = className ? `.${className.split(` `).join(`.`)}` : '';
     return h(`${tagName.toLowerCase()}${selId}${selClass}`, {}, children);
   }
 }

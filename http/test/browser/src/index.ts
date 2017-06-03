@@ -10,8 +10,10 @@ runCommon(uri);
 
 (global as any).mocha.globals(['Cyclejs']);
 
-describe('HTTP Driver in the browser', function () {
-  it('should be able to emit progress events on the response stream', function(done) {
+describe('HTTP Driver in the browser', function() {
+  it('should be able to emit progress events on the response stream', function(
+    done,
+  ) {
     function main(sources: {HTTP: HTTPSource}) {
       return {
         HTTP: Rx.Observable.of({
@@ -22,7 +24,7 @@ describe('HTTP Driver in the browser', function () {
         }),
       };
     }
-    const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+    const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
     const response$$ = sources.HTTP.select();
 
     response$$.subscribe({
@@ -50,7 +52,9 @@ describe('HTTP Driver in the browser', function () {
     run();
   });
 
-  it('should return binary response when responseType option is arraybuffer', function (done) {
+  it('should return binary response when responseType option is arraybuffer', function(
+    done,
+  ) {
     function main(sources: {HTTP: HTTPSource}) {
       return {
         HTTP: Rx.Observable.of({
@@ -61,23 +65,28 @@ describe('HTTP Driver in the browser', function () {
       };
     }
 
-    const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+    const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
     const response$$ = sources.HTTP.select();
-    response$$.subscribe(function (response$) {
+    response$$.subscribe(function(response$) {
       assert.strictEqual(response$.request.url, uri + '/binary');
       assert.strictEqual(response$.request.method, 'GET');
       assert.strictEqual(response$.request.responseType, 'arraybuffer');
-      response$.subscribe(function (response) {
+      response$.subscribe(function(response) {
         assert.strictEqual(response.status, 200);
-        assert.deepStrictEqual(new Uint8Array(response.body), new Uint8Array([1, 2, 3]));
+        assert.deepStrictEqual(
+          new Uint8Array(response.body),
+          new Uint8Array([1, 2, 3]),
+        );
         done();
       });
     });
     run();
   });
 
-  it('should return binary response when responseType option is blob', function (done) {
+  it('should return binary response when responseType option is blob', function(
+    done,
+  ) {
     function main(sources: {HTTP: HTTPSource}) {
       return {
         HTTP: Rx.Observable.of({
@@ -88,21 +97,24 @@ describe('HTTP Driver in the browser', function () {
       };
     }
 
-    const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+    const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
     const response$$ = sources.HTTP.select();
-    response$$.subscribe(function (response$) {
+    response$$.subscribe(function(response$) {
       assert.strictEqual(response$.request.url, uri + '/binary');
       assert.strictEqual(response$.request.method, 'GET');
       assert.strictEqual(response$.request.responseType, 'blob');
-      response$.subscribe(function (response) {
+      response$.subscribe(function(response) {
         assert.strictEqual(response.status, 200);
         const fr = new FileReader();
-        fr.onload = (ev) => {
-          assert.deepStrictEqual(new Uint8Array(fr.result), new Uint8Array([1, 2, 3]));
+        fr.onload = ev => {
+          assert.deepStrictEqual(
+            new Uint8Array(fr.result),
+            new Uint8Array([1, 2, 3]),
+          );
           done();
         };
-        fr.onerror = (ev) => {
+        fr.onerror = ev => {
           done('should not be called');
         };
         fr.readAsArrayBuffer(response.body);

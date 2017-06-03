@@ -8,9 +8,10 @@ function toElArray(input: any): Array<Element> {
 }
 
 export class ElementFinder {
-  constructor(public namespace: Array<string>,
-              public isolateModule: IsolateModule) {
-  }
+  constructor(
+    public namespace: Array<string>,
+    public isolateModule: IsolateModule,
+  ) {}
 
   public call(rootElement: Element): Element | Array<Element> {
     const namespace = this.namespace;
@@ -22,9 +23,9 @@ export class ElementFinder {
     const fullScope = getFullScope(namespace);
     const scopeChecker = new ScopeChecker(fullScope, this.isolateModule);
 
-    const topNode = fullScope ?
-      this.isolateModule.getElement(fullScope) || rootElement :
-      rootElement;
+    const topNode = fullScope
+      ? this.isolateModule.getElement(fullScope) || rootElement
+      : rootElement;
 
     const topNodeMatchesSelector =
       !!fullScope && !!selector && matchesSelector(topNode, selector);

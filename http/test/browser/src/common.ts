@@ -1,5 +1,10 @@
 import * as assert from 'assert';
-import {makeHTTPDriver, RequestInput, Response, ResponseStream} from '../../../lib/index';
+import {
+  makeHTTPDriver,
+  RequestInput,
+  Response,
+  ResponseStream,
+} from '../../../lib/index';
 import {HTTPSource} from '../../../rxjs-typings';
 import * as Rx from 'rxjs';
 import {Observable} from 'rxjs';
@@ -8,76 +13,92 @@ import 'rxjs/add/operator/switchMap';
 import * as Cycle from '@cycle/rxjs-run';
 
 export function run(uri: string) {
-  describe('makeHTTPDriver', function () {
-    it('should be a driver factory', function () {
+  describe('makeHTTPDriver', function() {
+    it('should be a driver factory', function() {
       assert.strictEqual(typeof makeHTTPDriver, 'function');
       const output = makeHTTPDriver();
       assert.strictEqual(typeof output, 'function');
     });
   });
 
-  describe('HTTP Driver', function () {
+  describe('HTTP Driver', function() {
     this.timeout(8000);
 
-    it('should throw when request stream emits neither string nor object', function(done) {
+    it('should throw when request stream emits neither string nor object', function(
+      done,
+    ) {
       function main(sources: {HTTP: HTTPSource}) {
         return {
           HTTP: Rx.Observable.of(123),
         };
       }
 
-      const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+      const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
       sources.HTTP.select().mergeAll().subscribe({
-        next: () => { done('next should not be called'); },
-        error: (err) => {
-          assert.strictEqual(err.message, 'Observable of requests given to ' +
-            'HTTP Driver must emit either URL strings or objects with ' +
-            'parameters.',
+        next: () => {
+          done('next should not be called');
+        },
+        error: err => {
+          assert.strictEqual(
+            err.message,
+            'Observable of requests given to ' +
+              'HTTP Driver must emit either URL strings or objects with ' +
+              'parameters.',
           );
           done();
         },
-        complete: () => { done('complete should not be called'); },
+        complete: () => {
+          done('complete should not be called');
+        },
       });
       run();
     });
 
-    it('should throw when given options object without url string', function (done) {
+    it('should throw when given options object without url string', function(
+      done,
+    ) {
       function main(sources: {HTTP: HTTPSource}) {
         return {
           HTTP: Rx.Observable.of({method: 'post'}),
         };
       }
 
-      const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+      const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
       sources.HTTP.select().mergeAll().subscribe({
-        next: () => { done('next should not be called'); },
-        error: (err) => {
+        next: () => {
+          done('next should not be called');
+        },
+        error: err => {
           assert.strictEqual(
-            err.message, 'Please provide a `url` property in the request ' +
-            'options.',
+            err.message,
+            'Please provide a `url` property in the request ' + 'options.',
           );
           done();
         },
-        complete: () => { done('complete should not be called'); },
+        complete: () => {
+          done('complete should not be called');
+        },
       });
       run();
     });
 
-    it('should return response metastream when given a simple URL string', function(done) {
+    it('should return response metastream when given a simple URL string', function(
+      done,
+    ) {
       function main(sources: {HTTP: HTTPSource}) {
         return {
           HTTP: Rx.Observable.of(uri + '/hello'),
         };
       }
 
-      const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+      const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
       const response$$ = sources.HTTP.select();
       assert.strictEqual(typeof response$$.switchMap, 'function'); // is RxJS v5
 
       response$$.subscribe({
-        next: (response$) => {
+        next: response$ => {
           assert.strictEqual(typeof response$.request, 'object');
           assert.strictEqual(response$.request.url, uri + '/hello');
           assert.strictEqual(typeof response$.switchMap, 'function'); // is RxJS v5
@@ -91,14 +112,16 @@ export function run(uri: string) {
       run();
     });
 
-    it('should return HTTPSource with isolateSource and isolateSink', function(done) {
+    it('should return HTTPSource with isolateSource and isolateSink', function(
+      done,
+    ) {
       function main(sources: {HTTP: HTTPSource}) {
         return {
           HTTP: Rx.Observable.of(uri + '/hello'),
         };
       }
 
-      const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+      const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
       const httpSource = sources.HTTP;
 
       run();
@@ -107,7 +130,9 @@ export function run(uri: string) {
       done();
     });
 
-    it('should return response metastream when given simple options obj', function(done) {
+    it('should return response metastream when given simple options obj', function(
+      done,
+    ) {
       function main(sources: {HTTP: HTTPSource}) {
         return {
           HTTP: Rx.Observable.of({
@@ -118,7 +143,7 @@ export function run(uri: string) {
         };
       }
 
-      const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+      const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
       const response$$ = sources.HTTP.select();
       response$$.subscribe(function(response$) {
@@ -146,7 +171,7 @@ export function run(uri: string) {
         };
       }
 
-      const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+      const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
       const response$$ = sources.HTTP.select();
       assert.strictEqual((response$$ as any)._isCycleSource, 'HTTP');
@@ -165,7 +190,7 @@ export function run(uri: string) {
         };
       }
 
-      const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+      const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
       const response$$ = sources.HTTP.select();
       assert.strictEqual((response$$ as any)._isCycleSource, 'HTTP');
@@ -173,7 +198,9 @@ export function run(uri: string) {
       run();
     });
 
-    it('should return response metastream when given another options obj', function(done) {
+    it('should return response metastream when given another options obj', function(
+      done,
+    ) {
       function main(sources: {HTTP: HTTPSource}) {
         return {
           HTTP: Rx.Observable.of({
@@ -184,7 +211,7 @@ export function run(uri: string) {
         };
       }
 
-      const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+      const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
       const response$$ = sources.HTTP.select();
       response$$.subscribe(function(response$) {
@@ -202,7 +229,9 @@ export function run(uri: string) {
       run();
     });
 
-    it('should return response metastream when given yet another options obj', function(done) {
+    it('should return response metastream when given yet another options obj', function(
+      done,
+    ) {
       function main(sources: {HTTP: HTTPSource}) {
         return {
           HTTP: Rx.Observable.of({
@@ -213,7 +242,7 @@ export function run(uri: string) {
         };
       }
 
-      const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+      const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
       const response$$ = sources.HTTP.select();
 
       response$$.subscribe(function(response$) {
@@ -228,7 +257,9 @@ export function run(uri: string) {
       run();
     });
 
-    it('should not be possible to change the metastream\'s request', function (done) {
+    it("should not be possible to change the metastream's request", function(
+      done,
+    ) {
       function main(sources: {HTTP: HTTPSource}) {
         return {
           HTTP: Rx.Observable.of({
@@ -238,19 +269,23 @@ export function run(uri: string) {
         };
       }
 
-      const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+      const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
-      sources.HTTP.select()
+      sources.HTTP
+        .select()
         .map(response$ => {
           response$.request = 1234 as any;
           return response$;
         })
-        .subscribe(function next(response$) {
-          done('next should not be called');
-        }, (err) => {
-          assert.strictEqual(err instanceof TypeError, true);
-          done();
-        });
+        .subscribe(
+          function next(response$) {
+            done('next should not be called');
+          },
+          err => {
+            assert.strictEqual(err instanceof TypeError, true);
+            done();
+          },
+        );
       run();
     });
 
@@ -261,33 +296,40 @@ export function run(uri: string) {
         };
       }
 
-      const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+      const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
       const response$$ = sources.HTTP.select();
 
       response$$.subscribe(function(response$) {
         assert.strictEqual(typeof response$.request, 'object');
         assert.strictEqual(response$.request.url, uri + '/error');
         response$.subscribe({
-          next: () => { done('next should not be called'); },
-          error: (err) => {
+          next: () => {
+            done('next should not be called');
+          },
+          error: err => {
             assert.strictEqual(err.status, 500);
             assert.strictEqual(err.message, 'Internal Server Error');
             assert.strictEqual(err.response.text, 'boom');
             done();
           },
-          complete: () => { done('complete should not be called'); },
+          complete: () => {
+            done('complete should not be called');
+          },
         });
       });
       run();
     });
 
-    it('should not be sensitive to ordering of sinks (issue #476)', function(done) {
+    it('should not be sensitive to ordering of sinks (issue #476)', function(
+      done,
+    ) {
       function main(sources: {HTTP: HTTPSource}) {
         const request$ = Rx.Observable.of({
           url: uri + '/hello',
           method: 'GET',
         });
-        const str$ = sources.HTTP.select()
+        const str$ = sources.HTTP
+          .select()
           .mergeAll()
           .map(res => res.text as string);
 
@@ -301,7 +343,7 @@ export function run(uri: string) {
 
       function testDriver(sink: Observable<string>) {
         sink.subscribe({
-          next: (x) => {
+          next: x => {
             assert.strictEqual(testDriverExpected.length, 1);
             assert.strictEqual(x, testDriverExpected.shift());
             assert.strictEqual(testDriverExpected.length, 0);
@@ -318,14 +360,14 @@ export function run(uri: string) {
     });
   });
 
-  describe('isolateSource and isolateSink', function () {
+  describe('isolateSource and isolateSink', function() {
     it('should exist on the HTTPSource', function(done) {
       function main(sources: {HTTP: HTTPSource}) {
         return {
           HTTP: new Rx.Subject(),
         };
       }
-      const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+      const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
       assert.strictEqual(typeof sources.HTTP.isolateSource, 'function');
       assert.strictEqual(typeof sources.HTTP.isolateSink, 'function');
@@ -338,7 +380,7 @@ export function run(uri: string) {
           HTTP: new Rx.Subject(),
         };
       }
-      const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+      const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
       const scopedHTTPSource = sources.HTTP.isolateSource(sources.HTTP, 'foo');
 
@@ -355,7 +397,7 @@ export function run(uri: string) {
         };
       }
 
-      const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+      const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
       const ignoredRequest$ = Rx.Observable.of(uri + '/json');
       const request$ = Rx.Observable.of(uri + '/hello').delay(10);
@@ -372,13 +414,14 @@ export function run(uri: string) {
         });
       });
 
-      Rx.Observable.merge(ignoredRequest$, scopedRequest$)
+      Rx.Observable
+        .merge(ignoredRequest$, scopedRequest$)
         .subscribe(proxyRequest$);
 
       run();
     });
 
-    it('should allow null scope to bypass isolation', function (done) {
+    it('should allow null scope to bypass isolation', function(done) {
       const proxyRequest$ = new Rx.Subject();
       function main(sources: {HTTP: HTTPSource}) {
         return {
@@ -386,7 +429,7 @@ export function run(uri: string) {
         };
       }
 
-      const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+      const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
       const ignoredRequest$ = Rx.Observable.of(uri + '/json');
       const request$ = Rx.Observable.of(uri + '/hello').delay(100);
@@ -395,7 +438,7 @@ export function run(uri: string) {
 
       const expected = [uri + '/json', uri + '/hello'];
 
-      scopedHTTPSource.select().subscribe(function (response$: any) {
+      scopedHTTPSource.select().subscribe(function(response$: any) {
         assert.strictEqual(typeof response$.request, 'object');
         assert.strictEqual(response$.request.url, expected.shift());
         if (expected.length === 0) {
@@ -405,8 +448,7 @@ export function run(uri: string) {
 
       run();
 
-      Rx.Observable.merge(ignoredRequest$, request$)
-        .subscribe(proxyRequest$);
+      Rx.Observable.merge(ignoredRequest$, request$).subscribe(proxyRequest$);
     });
   });
 }

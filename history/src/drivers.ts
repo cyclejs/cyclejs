@@ -22,8 +22,8 @@ import {
 } from './types';
 
 export function makeHistoryDriver(
-    options?: BrowserHistoryBuildOptions | History | MemoryHistory,
-  ): HistoryDriver {
+  options?: BrowserHistoryBuildOptions | History | MemoryHistory,
+): HistoryDriver {
   let history: any;
   if (options && options.hasOwnProperty('createHref')) {
     history = options;
@@ -36,14 +36,18 @@ export function makeHistoryDriver(
   };
 }
 
-export function makeServerHistoryDriver(options?: MemoryHistoryBuildOptions): HistoryDriver {
+export function makeServerHistoryDriver(
+  options?: MemoryHistoryBuildOptions,
+): HistoryDriver {
   const history = createMemoryHistory(options);
   return function serverHistoryDriver(sink$: Stream<HistoryInput | string>) {
     return createHistory$(history, sink$);
   };
 }
 
-export function makeHashHistoryDriver(options?: HashHistoryBuildOptions): HistoryDriver {
+export function makeHashHistoryDriver(
+  options?: HashHistoryBuildOptions,
+): HistoryDriver {
   const history = createHashHistory(options);
   return function hashHistoryDriver(sink$: Stream<HistoryInput | string>) {
     return createHistory$(history, sink$);

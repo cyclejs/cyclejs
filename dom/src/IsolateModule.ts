@@ -23,14 +23,18 @@ export class IsolateModule {
 
   constructor() {
     this.elementsByFullScope = new MapPolyfill<string, Element>();
-    this.delegatorsByFullScope = new MapPolyfill<string, Array<EventDelegator>>();
+    this.delegatorsByFullScope = new MapPolyfill<
+      string,
+      Array<EventDelegator>
+    >();
     this.fullScopesBeingUpdated = [];
   }
 
   private cleanupVNode({data, elm}: VNode) {
-    const fullScope: string = (data || {} as any).isolate || '';
+    const fullScope: string = (data || ({} as any)).isolate || '';
     const isCurrentElm = this.elementsByFullScope.get(fullScope) === elm;
-    const isScopeBeingUpdated = this.fullScopesBeingUpdated.indexOf(fullScope) >= 0;
+    const isScopeBeingUpdated =
+      this.fullScopesBeingUpdated.indexOf(fullScope) >= 0;
     if (fullScope && isCurrentElm && !isScopeBeingUpdated) {
       this.elementsByFullScope.delete(fullScope);
       this.delegatorsByFullScope.delete(fullScope);
@@ -43,7 +47,11 @@ export class IsolateModule {
 
   public getFullScope(elm: Element): string {
     const iterator = this.elementsByFullScope.entries();
-    for (let result = iterator.next(); !!result.value; result = iterator.next()) {
+    for (
+      let result = iterator.next();
+      !!result.value;
+      result = iterator.next()
+    ) {
       const [fullScope, element] = result.value;
       if (elm === element) {
         return fullScope;
@@ -79,7 +87,9 @@ export class IsolateModule {
         // Update data structures with the newly-created element
         if (fullScope) {
           self.fullScopesBeingUpdated.push(fullScope);
-          if (oldFullScope) { self.elementsByFullScope.delete(oldFullScope); }
+          if (oldFullScope) {
+            self.elementsByFullScope.delete(oldFullScope);
+          }
           self.elementsByFullScope.set(fullScope, elm as Element);
 
           // Update delegators for this scope
@@ -104,7 +114,9 @@ export class IsolateModule {
 
         // Same element, but different scope, so update the data structures
         if (fullScope && fullScope !== oldFullScope) {
-          if (oldFullScope) { self.elementsByFullScope.delete(oldFullScope); }
+          if (oldFullScope) {
+            self.elementsByFullScope.delete(oldFullScope);
+          }
           self.elementsByFullScope.set(fullScope, elm as Element);
           const delegators = self.delegatorsByFullScope.get(oldFullScope);
           if (delegators) {

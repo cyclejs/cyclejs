@@ -5,8 +5,7 @@ import {DOMSource, EventsFnOptions} from './DOMSource';
 import {fromEvent} from './fromEvent';
 
 export class BodyDOMSource implements DOMSource {
-  constructor(private _name: string) {
-  }
+  constructor(private _name: string) {}
 
   public select(selector: string): DOMSource {
     // This functionality is still undefined/undecided.
@@ -14,16 +13,25 @@ export class BodyDOMSource implements DOMSource {
   }
 
   public elements(): MemoryStream<HTMLBodyElement> {
-    const out: DevToolEnabledSource & MemoryStream<HTMLBodyElement> =
-      adapt(xs.of(document.body));
+    const out: DevToolEnabledSource & MemoryStream<HTMLBodyElement> = adapt(
+      xs.of(document.body),
+    );
     out._isCycleSource = this._name;
     return out;
   }
 
-  public events(eventType: string, options: EventsFnOptions = {}): Stream<Event> {
+  public events(
+    eventType: string,
+    options: EventsFnOptions = {},
+  ): Stream<Event> {
     let stream: Stream<Event>;
 
-    stream = fromEvent(document.body, eventType, options.useCapture, options.preventDefault);
+    stream = fromEvent(
+      document.body,
+      eventType,
+      options.useCapture,
+      options.preventDefault,
+    );
 
     const out: DevToolEnabledSource & Stream<Event> = adapt(stream);
     out._isCycleSource = this._name;

@@ -13,7 +13,7 @@ import {
 } from '@cycle/run';
 
 export type Drivers<So extends Sources, Si extends Sinks> = {
-  [P in keyof (So & Si)]: Driver<FantasyObservable, any>;
+  [P in keyof (So & Si)]: Driver<FantasyObservable, any>
 };
 
 setAdapt(function adaptXstreamToMost(stream: Stream<any>): MostStream<any> {
@@ -48,8 +48,9 @@ setAdapt(function adaptXstreamToMost(stream: Stream<any>): MostStream<any> {
  * @function run
  */
 export function run<So extends Sources, Si extends Sinks>(
-                   main: (sources: So) => Si,
-                   drivers: Drivers<So, Si>): DisposeFunction {
+  main: (sources: So) => Si,
+  drivers: Drivers<So, Si>,
+): DisposeFunction {
   const {run} = coreSetup(main, drivers);
   return run();
 }
@@ -83,8 +84,9 @@ export function run<So extends Sources, Si extends Sinks>(
  * @function setup
  */
 export function setup<So extends Sources, Si extends Sinks>(
-                     main: (sources: So) => Si,
-                     drivers: Drivers<So, Si>): CycleProgram<So, Si> {
+  main: (sources: So) => Si,
+  drivers: Drivers<So, Si>,
+): CycleProgram<So, Si> {
   return coreSetup(main, drivers);
 }
 

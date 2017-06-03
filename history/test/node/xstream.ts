@@ -6,12 +6,12 @@ import {setup, run} from '@cycle/run';
 import {setAdapt} from '@cycle/run/lib/adapt';
 import {makeServerHistoryDriver, Location, HistoryInput} from '../../src';
 
-describe('serverHistoryDriver - xstream', function () {
-  beforeEach(function () {
+describe('serverHistoryDriver - xstream', function() {
+  beforeEach(function() {
     setAdapt(x => x);
   });
 
-  it('should return a stream', function () {
+  it('should return a stream', function() {
     function main(sources: {history: Stream<Location>}) {
       assert.strictEqual(typeof sources.history.remember, 'function');
       return {
@@ -19,135 +19,146 @@ describe('serverHistoryDriver - xstream', function () {
       };
     }
 
-    const {sources, run} = setup(main, { history: makeServerHistoryDriver() });
+    const {sources, run} = setup(main, {
+      history: makeServerHistoryDriver(),
+    });
     assert.strictEqual(typeof sources.history.remember, 'function');
   });
 
-  it('should create a location from pathname', (done) => {
+  it('should create a location from pathname', done => {
     function main(sources: {history: Stream<Location>}) {
       return {
         history: xs.of('/test'),
       };
     }
 
-    const {sources, run} = setup(main, { history: makeServerHistoryDriver() });
+    const {sources, run} = setup(main, {
+      history: makeServerHistoryDriver(),
+    });
 
     sources.history.drop(1).subscribe({
-      next (location: Location) {
+      next(location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
       },
       error: done,
-      complete: () => { done('complete should not be called'); },
+      complete: () => {
+        done('complete should not be called');
+      },
     });
     run();
   });
 
-  it('should create a location from PushHistoryInput', (done) => {
+  it('should create a location from PushHistoryInput', done => {
     function main(sources: {history: Stream<Location>}) {
       return {
         history: xs.of({type: 'push', pathname: '/test'}),
       };
     }
 
-    const {sources, run} = setup(main, { history: makeServerHistoryDriver() });
+    const {sources, run} = setup(main, {
+      history: makeServerHistoryDriver(),
+    });
 
     sources.history.drop(1).subscribe({
-      next (location: Location) {
+      next(location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
       },
       error: done,
-      complete: () => { done('complete should not be called'); },
+      complete: () => {
+        done('complete should not be called');
+      },
     });
     run();
   });
 
-  it('should create a location from ReplaceHistoryInput', (done) => {
+  it('should create a location from ReplaceHistoryInput', done => {
     function main(sources: {history: Stream<Location>}) {
       return {
         history: xs.of({type: 'replace', pathname: '/test'}),
       };
     }
 
-    const {sources, run} = setup(main, { history: makeServerHistoryDriver() });
+    const {sources, run} = setup(main, {
+      history: makeServerHistoryDriver(),
+    });
 
     sources.history.drop(1).subscribe({
-      next (location: Location) {
+      next(location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
       },
       error: done,
-      complete: () => { done('complete should not be called'); },
+      complete: () => {
+        done('complete should not be called');
+      },
     });
     run();
   });
 
-  it('should allow going back a route with type `go`', (done) => {
+  it('should allow going back a route with type `go`', done => {
     function main(sources: {history: Stream<Location>}) {
       return {
-        history: xs.of<HistoryInput | string>(
-          '/test',
-          '/other',
-          {type: 'go', amount: -1},
-        ),
+        history: xs.of<HistoryInput | string>('/test', '/other', {
+          type: 'go',
+          amount: -1,
+        }),
       };
     }
 
-    const {sources, run} = setup(main, { history: makeServerHistoryDriver() });
+    const {sources, run} = setup(main, {
+      history: makeServerHistoryDriver(),
+    });
 
-    const expected = [
-      '/test',
-      '/other',
-      '/test',
-    ];
+    const expected = ['/test', '/other', '/test'];
 
     sources.history.drop(1).subscribe({
-      next (location: Location) {
+      next(location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {
           done();
         }
       },
       error: done,
-      complete: () => { done('complete should not be called'); },
+      complete: () => {
+        done('complete should not be called');
+      },
     });
     run();
   });
 
-  it('should allow going back a route with type `goBack`', (done) => {
+  it('should allow going back a route with type `goBack`', done => {
     function main(sources: {history: Stream<Location>}) {
       return {
-        history: xs.of<HistoryInput | string>(
-          '/test',
-          '/other',
-          {type: 'goBack'},
-        ),
+        history: xs.of<HistoryInput | string>('/test', '/other', {
+          type: 'goBack',
+        }),
       };
     }
 
-    const {sources, run} = setup(main, { history: makeServerHistoryDriver() });
+    const {sources, run} = setup(main, {
+      history: makeServerHistoryDriver(),
+    });
 
-    const expected = [
-      '/test',
-      '/other',
-      '/test',
-    ];
+    const expected = ['/test', '/other', '/test'];
 
     sources.history.drop(1).subscribe({
-      next (location: Location) {
+      next(location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {
           done();
         }
       },
       error: done,
-      complete: () => { done('complete should not be called'); },
+      complete: () => {
+        done('complete should not be called');
+      },
     });
     run();
   });
 
-  it('should allow going forward a route with type `go`', (done) => {
+  it('should allow going forward a route with type `go`', done => {
     function main(sources: {history: Stream<Location>}) {
       return {
         history: xs.of<HistoryInput | string>(
@@ -159,29 +170,28 @@ describe('serverHistoryDriver - xstream', function () {
       };
     }
 
-    const {sources, run} = setup(main, { history: makeServerHistoryDriver() });
+    const {sources, run} = setup(main, {
+      history: makeServerHistoryDriver(),
+    });
 
-    const expected = [
-      '/test',
-      '/other',
-      '/test',
-      '/other',
-    ];
+    const expected = ['/test', '/other', '/test', '/other'];
 
     sources.history.drop(1).subscribe({
-      next (location: Location) {
+      next(location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {
           done();
         }
       },
       error: done,
-      complete: () => { done('complete should not be called'); },
+      complete: () => {
+        done('complete should not be called');
+      },
     });
     run();
   });
 
-  it('should allow going forward a route with type `goForward`', (done) => {
+  it('should allow going forward a route with type `goForward`', done => {
     function main(sources: {history: Stream<Location>}) {
       return {
         history: xs.of<HistoryInput | string>(
@@ -193,24 +203,23 @@ describe('serverHistoryDriver - xstream', function () {
       };
     }
 
-    const {sources, run} = setup(main, { history: makeServerHistoryDriver() });
+    const {sources, run} = setup(main, {
+      history: makeServerHistoryDriver(),
+    });
 
-    const expected = [
-      '/test',
-      '/other',
-      '/test',
-      '/other',
-    ];
+    const expected = ['/test', '/other', '/test', '/other'];
 
     sources.history.drop(1).subscribe({
-      next (location: Location) {
+      next(location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {
           done();
         }
       },
       error: done,
-      complete: () => { done('complete should not be called'); },
+      complete: () => {
+        done('complete should not be called');
+      },
     });
     run();
   });

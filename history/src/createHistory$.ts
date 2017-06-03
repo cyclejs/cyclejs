@@ -2,15 +2,22 @@ import xs, {Stream, MemoryStream, Listener} from 'xstream';
 import {Location, History, UnregisterCallback} from 'history';
 import {HistoryInput} from './types';
 
-export function createHistory$(history: History,
-                               sink$: Stream<HistoryInput | string>): MemoryStream<Location> {
+export function createHistory$(
+  history: History,
+  sink$: Stream<HistoryInput | string>,
+): MemoryStream<Location> {
   const history$ = xs.createWithMemory<Location>().startWith(history.location);
   const call = makeCallOnHistory(history);
-  const unlisten = history.listen((loc: Location) => { history$._n(loc); });
+  const unlisten = history.listen((loc: Location) => {
+    history$._n(loc);
+  });
   const sub = sink$.subscribe(createObserver(call, unlisten));
-  (history$ as any).dispose = () => { sub.unsubscribe(); unlisten(); };
+  (history$ as any).dispose = () => {
+    sub.unsubscribe();
+    unlisten();
+  };
   return history$;
-};
+}
 
 function makeCallOnHistory(history: History) {
   return function call(input: HistoryInput): void {
@@ -36,8 +43,10 @@ function makeCallOnHistory(history: History) {
   };
 }
 
-function createObserver(call: (input: HistoryInput) => void,
-                        unlisten: UnregisterCallback): Listener<HistoryInput | string> {
+function createObserver(
+  call: (input: HistoryInput) => void,
+  unlisten: UnregisterCallback,
+): Listener<HistoryInput | string> {
   return {
     next(input: HistoryInput | string) {
       if (typeof input === 'string') {
@@ -46,7 +55,11 @@ function createObserver(call: (input: HistoryInput) => void,
         call(input);
       }
     },
-    error: (err) => { unlisten(); },
-    complete: () => { setTimeout(unlisten); },
+    error: err => {
+      unlisten();
+    },
+    complete: () => {
+      setTimeout(unlisten);
+    },
   };
 }

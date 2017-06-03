@@ -63,5 +63,5 @@ export {
   RequestInput,
   Response,
   ResponseStream,
-  HTTPSource
+  HTTPSource,
 } from './interfaces';

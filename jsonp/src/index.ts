@@ -7,8 +7,12 @@ function createResponse$(url: string): ResponseStream {
   const res$: ResponseStream = xs.create<any>({
     start: listener => {
       if (typeof url !== `string`) {
-        listener.error(new Error(`Observable of requests given to JSONP ` +
-          `Driver must emit URL strings.`));
+        listener.error(
+          new Error(
+            `Observable of requests given to JSONP ` +
+              `Driver must emit URL strings.`,
+          ),
+        );
       }
 
       try {
@@ -55,8 +59,13 @@ export interface ResponseStream extends Stream<any> {
  * @return {Function} the JSONP Driver function
  * @function makeJSONPDriver
  */
-export function makeJSONPDriver(): Driver<Stream<string>, Stream<ResponseStream>> {
-  return function jsonpDriver(request$: Stream<string>): Stream<ResponseStream> {
+export function makeJSONPDriver(): Driver<
+  Stream<string>,
+  Stream<ResponseStream>
+> {
+  return function jsonpDriver(
+    request$: Stream<string>,
+  ): Stream<ResponseStream> {
     const response$$ = request$.map(createResponse$);
     return adapt(response$$);
   };
