@@ -9,9 +9,9 @@ import {
   ReplaceHistoryInput,
 } from './types';
 
-const CLICK_EVENT = typeof document !== 'undefined' && document.ontouchstart ?
-  'touchstart' :
-  'click';
+const CLICK_EVENT = typeof document !== 'undefined' && document.ontouchstart
+  ? 'touchstart'
+  : 'click';
 
 function which(ev: any) {
   if (typeof window === 'undefined') {
@@ -48,16 +48,24 @@ function makeClickListener(push: (p: string) => void) {
       element = element.parentNode;
     }
 
-    if (!element || element.nodeName !== 'A') { return; }
+    if (!element || element.nodeName !== 'A') {
+      return;
+    }
 
-    if (element.hasAttribute('download') ||
-      element.getAttribute('rel') === 'external') { return; }
+    if (
+      element.hasAttribute('download') ||
+      element.getAttribute('rel') === 'external'
+    ) {
+      return;
+    }
 
-    if (element.target) { return; }
+    if (element.target) {
+      return;
+    }
 
     const link = element.getAttribute('href');
 
-    if (link && link.indexOf('mailto:') > -1 || link.charAt(0) === '#') {
+    if ((link && link.indexOf('mailto:') > -1) || link.charAt(0) === '#') {
       return;
     }
 
@@ -79,7 +87,9 @@ function captureAnchorClicks(push: (p: string) => void) {
 }
 
 export function captureClicks(historyDriver: HistoryDriver): HistoryDriver {
-  return function historyDriverWithClickCapture(sink$: Stream<HistoryInput | string>) {
+  return function historyDriverWithClickCapture(
+    sink$: Stream<HistoryInput | string>,
+  ) {
     const internalSink$ = xs.create<HistoryInput | string>();
     captureAnchorClicks((pathname: string) => {
       internalSink$._n({type: 'push', pathname});

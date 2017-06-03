@@ -1,11 +1,13 @@
 function isElement(obj: any): obj is Element {
   const ELEM_TYPE = 1;
   const FRAG_TYPE = 11;
-  return typeof HTMLElement === 'object' ?
-    obj instanceof HTMLElement || obj instanceof DocumentFragment :
-    obj && typeof obj === 'object' && obj !== null &&
-    (obj.nodeType === ELEM_TYPE || obj.nodeType === FRAG_TYPE) &&
-    typeof obj.nodeName === 'string';
+  return typeof HTMLElement === 'object'
+    ? obj instanceof HTMLElement || obj instanceof DocumentFragment
+    : obj &&
+        typeof obj === 'object' &&
+        obj !== null &&
+        (obj.nodeType === ELEM_TYPE || obj.nodeType === FRAG_TYPE) &&
+        typeof obj.nodeName === 'string';
 }
 
 export function isClassOrId(str: string): boolean {
@@ -15,15 +17,16 @@ export function isClassOrId(str: string): boolean {
 export const SCOPE_PREFIX = '$$CYCLEDOM$$-';
 
 export function getElement(selectors: Element | string): Element | null {
-  const domElement = typeof selectors === 'string' ?
-    document.querySelector(selectors) :
-    selectors;
+  const domElement = typeof selectors === 'string'
+    ? document.querySelector(selectors)
+    : selectors;
 
   if (typeof selectors === 'string' && domElement === null) {
     throw new Error(`Cannot render into unknown element \`${selectors}\``);
   } else if (!isElement(domElement)) {
-    throw new Error('Given container is not a DOM element neither a ' +
-      'selector string.');
+    throw new Error(
+      'Given container is not a DOM element neither a ' + 'selector string.',
+    );
   }
   return domElement;
 }

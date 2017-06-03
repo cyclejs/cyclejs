@@ -22,14 +22,17 @@ export class MockedDOMSource implements DOMSource {
   }
 
   public elements(): any {
-    const out: Partial<DevToolEnabledSource> & FantasyObservable = this._elements;
+    const out: Partial<DevToolEnabledSource> & FantasyObservable = this
+      ._elements;
     out._isCycleSource = 'MockedDOM';
     return out;
   }
 
   public events(eventType: string, options?: EventsFnOptions): any {
     const streamForEventType = this._mockConfig[eventType] as any;
-    const out: DevToolEnabledSource & FantasyObservable = adapt(streamForEventType || xs.empty());
+    const out: DevToolEnabledSource & FantasyObservable = adapt(
+      streamForEventType || xs.empty(),
+    );
 
     out._isCycleSource = 'MockedDOM';
 
@@ -42,7 +45,10 @@ export class MockedDOMSource implements DOMSource {
     return new MockedDOMSource(mockConfigForSelector as MockConfig);
   }
 
-  public isolateSource(source: MockedDOMSource, scope: string): MockedDOMSource {
+  public isolateSource(
+    source: MockedDOMSource,
+    scope: string,
+  ): MockedDOMSource {
     return source.select('.' + SCOPE_PREFIX + scope);
   }
 

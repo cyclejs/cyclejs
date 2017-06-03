@@ -26,7 +26,7 @@ export interface Driver<Sink, Source> {
 }
 
 export type Drivers<So extends Sources, Si extends Sinks> = {
-  [P in keyof (So & Si)]: Driver<Si[P], So[P]>;
+  [P in keyof (So & Si)]: Driver<Si[P], So[P]>
 };
 
 export type Sources = {
@@ -37,9 +37,7 @@ export type Sinks = {
   [name: string]: any;
 };
 
-export type FantasySinks<Si> = {
-  [S in keyof Si]: FantasyObservable;
-};
+export type FantasySinks<Si> = {[S in keyof Si]: FantasyObservable};
 
 /**
  * Sink proxies should be MemoryStreams in order to fix race conditions for
@@ -57,7 +55,7 @@ export type FantasySinks<Si> = {
  * for 'readystatechange'.
  */
 export type SinkProxies<Si extends Sinks> = {
-  [P in keyof Si]: MemoryStream<any>;
+  [P in keyof Si]: MemoryStream<any>
 };
 
 export interface CycleProgram<So extends Sources, Si extends Sinks> {
@@ -76,7 +74,8 @@ function logToConsoleError(err: any) {
 }
 
 function makeSinkProxies<So extends Sources, Si extends Sinks>(
-                        drivers: Drivers<So, Si>): SinkProxies<Si> {
+  drivers: Drivers<So, Si>,
+): SinkProxies<Si> {
   const sinkProxies: SinkProxies<Si> = {} as SinkProxies<Si>;
   for (const name in drivers) {
     if (drivers.hasOwnProperty(name)) {
@@ -87,8 +86,9 @@ function makeSinkProxies<So extends Sources, Si extends Sinks>(
 }
 
 function callDrivers<So extends Sources, Si extends Sinks>(
-                    drivers: Drivers<So, Si>,
-                    sinkProxies: SinkProxies<Si>): So {
+  drivers: Drivers<So, Si>,
+  sinkProxies: SinkProxies<Si>,
+): So {
   const sources: So = {} as So;
   for (const name in drivers) {
     if (drivers.hasOwnProperty(name)) {
@@ -104,10 +104,12 @@ function callDrivers<So extends Sources, Si extends Sinks>(
 // NOTE: this will mutate `sources`.
 function adaptSources<So extends Sources>(sources: So): So {
   for (const name in sources) {
-    if (sources.hasOwnProperty(name)
-    && sources[name]
-    && typeof sources[name]['shamefullySendNext'] === 'function') {
-      sources[name] = adapt(sources[name] as any as Stream<any>);
+    if (
+      sources.hasOwnProperty(name) &&
+      sources[name] &&
+      typeof sources[name]['shamefullySendNext'] === 'function'
+    ) {
+      sources[name] = adapt((sources[name] as any) as Stream<any>);
     }
   }
   return sources;
@@ -126,24 +128,27 @@ type SinkReplicators<Si extends Sinks> = {
     error(err: any): void;
     _e?(err: any): void;
     complete(): void;
-  };
+  }
 };
 
 type ReplicationBuffers<Si extends Sinks> = {
   [P in keyof Si]: {
     _n: Array<any>;
     _e: Array<any>;
-  };
+  }
 };
 
 function replicateMany<So extends Sources, Si extends Sinks>(
-                      sinks: Si,
-                      sinkProxies: SinkProxies<Si>): DisposeFunction {
-  const sinkNames: Array<keyof Si> = Object.keys(sinks).filter(name => !!sinkProxies[name]);
+  sinks: Si,
+  sinkProxies: SinkProxies<Si>,
+): DisposeFunction {
+  const sinkNames: Array<keyof Si> = Object.keys(sinks).filter(
+    name => !!sinkProxies[name],
+  );
 
   let buffers: ReplicationBuffers<Si> = {} as ReplicationBuffers<Si>;
   const replicators: SinkReplicators<Si> = {} as SinkReplicators<Si>;
-  sinkNames.forEach((name) => {
+  sinkNames.forEach(name => {
     buffers[name] = {_n: [], _e: []};
     replicators[name] = {
       next: (x: any) => buffers[name]._n.push(x),
@@ -152,13 +157,19 @@ function replicateMany<So extends Sources, Si extends Sinks>(
     };
   });
 
-  const subscriptions = sinkNames
-    .map(name => xs.fromObservable(sinks[name] as any).subscribe(replicators[name]));
+  const subscriptions = sinkNames.map(name =>
+    xs.fromObservable(sinks[name] as any).subscribe(replicators[name]),
+  );
 
-  sinkNames.forEach((name) => {
+  sinkNames.forEach(name => {
     const listener = sinkProxies[name];
-    const next = (x: any) => { listener._n(x); };
-    const error = (err: any) => { logToConsoleError(err); listener._e(err); };
+    const next = (x: any) => {
+      listener._n(x);
+    };
+    const error = (err: any) => {
+      logToConsoleError(err);
+      listener._e(err);
+    };
     buffers[name]._n.forEach(next);
     buffers[name]._e.forEach(error);
     replicators[name].next = next;
@@ -172,13 +183,17 @@ function replicateMany<So extends Sources, Si extends Sinks>(
 
   return function disposeReplication() {
     subscriptions.forEach(s => s.unsubscribe());
-    sinkNames.forEach((name) => sinkProxies[name]._c());
+    sinkNames.forEach(name => sinkProxies[name]._c());
   };
 }
 
 function disposeSources<So extends Sources>(sources: So) {
   for (const k in sources) {
-    if (sources.hasOwnProperty(k) && sources[k] && (sources[k] as any).dispose) {
+    if (
+      sources.hasOwnProperty(k) &&
+      sources[k] &&
+      (sources[k] as any).dispose
+    ) {
       (sources[k] as any).dispose();
     }
   }
@@ -217,19 +232,25 @@ function isObjectEmpty(obj: any): boolean {
  * @function setup
  */
 export function setup<So extends Sources, Si extends FantasySinks<Si>>(
-                     main: (sources: So) => Si,
-                     drivers: Drivers<So, Si>): CycleProgram<So, Si> {
+  main: (sources: So) => Si,
+  drivers: Drivers<So, Si>,
+): CycleProgram<So, Si> {
   if (typeof main !== `function`) {
-    throw new Error(`First argument given to Cycle must be the 'main' ` +
-      `function.`);
+    throw new Error(
+      `First argument given to Cycle must be the 'main' ` + `function.`,
+    );
   }
   if (typeof drivers !== `object` || drivers === null) {
-    throw new Error(`Second argument given to Cycle must be an object ` +
-      `with driver functions as properties.`);
+    throw new Error(
+      `Second argument given to Cycle must be an object ` +
+        `with driver functions as properties.`,
+    );
   }
   if (isObjectEmpty(drivers)) {
-    throw new Error(`Second argument given to Cycle must be an object ` +
-      `with at least one driver function declared as a property.`);
+    throw new Error(
+      `Second argument given to Cycle must be an object ` +
+        `with at least one driver function declared as a property.`,
+    );
   }
 
   const sinkProxies = makeSinkProxies<So, Si>(drivers);
@@ -246,7 +267,7 @@ export function setup<So extends Sources, Si extends FantasySinks<Si>>(
       disposeSources(sources);
       disposeReplication();
     };
-  };
+  }
   return {sinks, sources, run};
 }
 
@@ -278,10 +299,14 @@ export function setup<So extends Sources, Si extends FantasySinks<Si>>(
  * @function run
  */
 export function run<So extends Sources, Si extends FantasySinks<Si>>(
-                   main: (sources: So) => Si,
-                   drivers: Drivers<So, Si>): DisposeFunction {
+  main: (sources: So) => Si,
+  drivers: Drivers<So, Si>,
+): DisposeFunction {
   const {run, sinks} = setup(main, drivers);
-  if (typeof window !== 'undefined' && window['CyclejsDevTool_startGraphSerializer']) {
+  if (
+    typeof window !== 'undefined' &&
+    window['CyclejsDevTool_startGraphSerializer']
+  ) {
     window['CyclejsDevTool_startGraphSerializer'](sinks);
   }
   return run();

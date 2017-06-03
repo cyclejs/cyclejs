@@ -15,17 +15,22 @@ const MapPolyfill: typeof Map = require('es6-map');
 
 function makeDOMDriverInputGuard(modules: any) {
   if (!Array.isArray(modules)) {
-    throw new Error(`Optional modules option must be ` +
-     `an array for snabbdom modules`);
+    throw new Error(
+      `Optional modules option must be ` + `an array for snabbdom modules`,
+    );
   }
 }
 
 function domDriverInputGuard(view$: Stream<VNode>): void {
-  if (!view$
-  || typeof view$.addListener !== `function`
-  || typeof view$.fold !== `function`) {
-    throw new Error(`The DOM driver function expects as input a Stream of ` +
-      `virtual DOM elements`);
+  if (
+    !view$ ||
+    typeof view$.addListener !== `function` ||
+    typeof view$.fold !== `function`
+  ) {
+    throw new Error(
+      `The DOM driver function expects as input a Stream of ` +
+        `virtual DOM elements`,
+    );
   }
 }
 
@@ -45,9 +50,13 @@ function reportSnabbdomError(err: any): void {
   (console.error || console.log)(err);
 }
 
-function makeDOMDriver(container: string | Element,
-                       options?: DOMDriverOptions): Driver<Stream<VNode>, MainDOMSource> {
-  if (!options) { options = {}; }
+function makeDOMDriver(
+  container: string | Element,
+  options?: DOMDriverOptions,
+): Driver<Stream<VNode>, MainDOMSource> {
+  if (!options) {
+    options = {};
+  }
   const modules = options.modules || defaultModules;
   const isolateModule = new IsolateModule();
   const patch = init([isolateModule.createModule()].concat(modules));
@@ -59,7 +68,8 @@ function makeDOMDriver(container: string | Element,
   function DOMDriver(vnode$: Stream<VNode>, name = 'DOM'): MainDOMSource {
     domDriverInputGuard(vnode$);
     const sanitation$ = xs.create<null>();
-    const rootElement$ = xs.merge(vnode$.endWhen(sanitation$), sanitation$)
+    const rootElement$ = xs
+      .merge(vnode$.endWhen(sanitation$), sanitation$)
       .map(vnode => vnodeWrapper.call(vnode))
       .fold(patch, toVNode(rootElement))
       .drop(1)
@@ -87,9 +97,9 @@ function makeDOMDriver(container: string | Element,
       delegators,
       name,
     );
-  };
+  }
 
   return DOMDriver as any;
 }
 
-export {makeDOMDriver}
+export {makeDOMDriver};

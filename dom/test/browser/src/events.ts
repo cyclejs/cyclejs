@@ -37,19 +37,31 @@ function testFragmentEvents() {
   const child = document.createElement('div');
   fragment.appendChild(parent);
   parent.appendChild(child);
-  parent.addEventListener('fragmentCapture', () => { captures = true; }, true);
-  parent.addEventListener('fragmentBubble', () => { bubbles = true; }, false);
+  parent.addEventListener(
+    'fragmentCapture',
+    () => {
+      captures = true;
+    },
+    true,
+  );
+  parent.addEventListener(
+    'fragmentBubble',
+    () => {
+      bubbles = true;
+    },
+    false,
+  );
   captureEvent.initCustomEvent('fragmentCapture', false, true, null);
   bubbleEvent.initCustomEvent('fragmentBubble', true, true, null);
   child.dispatchEvent(captureEvent);
   child.dispatchEvent(bubbleEvent);
-  return { captures, bubbles };
+  return {captures, bubbles};
 }
 
 const fragmentSupport = testFragmentEvents();
 
-describe('DOMSource.events()', function () {
-  it('should catch a basic click interaction Observable', function (done) {
+describe('DOMSource.events()', function() {
+  it('should catch a basic click interaction Observable', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(h3('.myelementclass', 'Foobar')),
@@ -70,12 +82,12 @@ describe('DOMSource.events()', function () {
     });
     // Make assertions
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: function (root: Element) {
+      next: function(root: Element) {
         const myElement = root.querySelector('.myelementclass') as HTMLElement;
         assert.notStrictEqual(myElement, null);
         assert.notStrictEqual(typeof myElement, 'undefined');
         assert.strictEqual(myElement.tagName, 'H3');
-        assert.doesNotThrow(function () {
+        assert.doesNotThrow(function() {
           setTimeout(() => myElement.click());
         });
       },
@@ -83,7 +95,9 @@ describe('DOMSource.events()', function () {
     dispose = run();
   });
 
-  it('should setup click detection with events() after run() occurs', function (done) {
+  it('should setup click detection with events() after run() occurs', function(
+    done,
+  ) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(h3('.test2.myelementclass', 'Foobar')),
@@ -104,17 +118,21 @@ describe('DOMSource.events()', function () {
     });
     // Make assertions
     setTimeout(() => {
-      const myElement = document.querySelector('.test2.myelementclass') as HTMLElement;
+      const myElement = document.querySelector(
+        '.test2.myelementclass',
+      ) as HTMLElement;
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
       assert.strictEqual(myElement.tagName, 'H3');
-      assert.doesNotThrow(function () {
+      assert.doesNotThrow(function() {
         setTimeout(() => myElement.click());
       });
     }, 200);
   });
 
-  it('should setup click detection on a ready DOM element (e.g. from server)', function (done) {
+  it('should setup click detection on a ready DOM element (e.g. from server)', function(
+    done,
+  ) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.never(),
@@ -141,17 +159,21 @@ describe('DOMSource.events()', function () {
     });
     // Make assertions
     setTimeout(() => {
-      const myElement = containerElement.querySelector('.myelementclass') as HTMLElement;
+      const myElement = containerElement.querySelector(
+        '.myelementclass',
+      ) as HTMLElement;
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
       assert.strictEqual(myElement.tagName, 'H3');
-      assert.doesNotThrow(function () {
+      assert.doesNotThrow(function() {
         setTimeout(() => myElement.click());
       });
     }, 200);
   });
 
-  it('should catch events using id of root element in DOM.select', function (done) {
+  it('should catch events using id of root element in DOM.select', function(
+    done,
+  ) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(h3('.myelementclass', 'Foobar')),
@@ -179,7 +201,7 @@ describe('DOMSource.events()', function () {
         assert.notStrictEqual(myElement, null);
         assert.notStrictEqual(typeof myElement, 'undefined');
         assert.strictEqual(myElement.tagName, 'H3');
-        assert.doesNotThrow(function () {
+        assert.doesNotThrow(function() {
           setTimeout(() => myElement.click());
         });
       },
@@ -187,7 +209,9 @@ describe('DOMSource.events()', function () {
     dispose = run();
   });
 
-  it('should catch events using id of top element in DOM.select', function (done) {
+  it('should catch events using id of top element in DOM.select', function(
+    done,
+  ) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(h3('#myElementId', 'Foobar')),
@@ -215,7 +239,7 @@ describe('DOMSource.events()', function () {
         assert.notStrictEqual(myElement, null);
         assert.notStrictEqual(typeof myElement, 'undefined');
         assert.strictEqual(myElement.tagName, 'H3');
-        assert.doesNotThrow(function () {
+        assert.doesNotThrow(function() {
           setTimeout(() => myElement.click());
         });
       },
@@ -223,12 +247,10 @@ describe('DOMSource.events()', function () {
     dispose = run();
   });
 
-  it('should catch interaction events without prior select()', function (done) {
+  it('should catch interaction events without prior select()', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
-        DOM: xs.of(div('.parent', [
-          h3('.myelementclass', 'Foobar'),
-        ])),
+        DOM: xs.of(div('.parent', [h3('.myelementclass', 'Foobar')])),
       };
     }
 
@@ -253,7 +275,7 @@ describe('DOMSource.events()', function () {
         assert.notStrictEqual(myElement, null);
         assert.notStrictEqual(typeof myElement, 'undefined');
         assert.strictEqual(myElement.tagName, 'H3');
-        assert.doesNotThrow(function () {
+        assert.doesNotThrow(function() {
           setTimeout(() => myElement.click());
         });
       },
@@ -261,15 +283,15 @@ describe('DOMSource.events()', function () {
     dispose = run();
   });
 
-  it('should catch user events using DOM.select().select().events()', function (done) {
+  it('should catch user events using DOM.select().select().events()', function(
+    done,
+  ) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(
           h3('.top-most', [
             h2('.bar', 'Wrong'),
-            div('.foo', [
-              h4('.bar', 'Correct'),
-            ]),
+            div('.foo', [h4('.bar', 'Correct')]),
           ]),
         ),
       };
@@ -300,7 +322,7 @@ describe('DOMSource.events()', function () {
         assert.notStrictEqual(typeof correctElement, 'undefined');
         assert.strictEqual(wrongElement.tagName, 'H2');
         assert.strictEqual(correctElement.tagName, 'H4');
-        assert.doesNotThrow(function () {
+        assert.doesNotThrow(function() {
           setTimeout(() => wrongElement.click());
           setTimeout(() => correctElement.click(), 15);
         });
@@ -309,13 +331,17 @@ describe('DOMSource.events()', function () {
     dispose = run();
   });
 
-  it('should catch events from many elements using DOM.select().events()', function (done) {
+  it('should catch events from many elements using DOM.select().events()', function(
+    done,
+  ) {
     function app(sources: {DOM: DOMSource}) {
       return {
-        DOM: xs.of(div('.parent', [
-          h4('.clickable.first', 'First'),
-          h4('.clickable.second', 'Second'),
-        ])),
+        DOM: xs.of(
+          div('.parent', [
+            h4('.clickable.first', 'First'),
+            h4('.clickable.second', 'Second'),
+          ]),
+        ),
       };
     }
 
@@ -332,14 +358,19 @@ describe('DOMSource.events()', function () {
       },
     });
 
-    sources.DOM.select('.clickable').events('click').drop(1).take(1).addListener({
-      next: (ev: Event) => {
-        assert.strictEqual(ev.type, 'click');
-        assert.strictEqual((ev.target as HTMLElement).textContent, 'Second');
-        dispose();
-        done();
-      },
-    });
+    sources.DOM
+      .select('.clickable')
+      .events('click')
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (ev: Event) => {
+          assert.strictEqual(ev.type, 'click');
+          assert.strictEqual((ev.target as HTMLElement).textContent, 'Second');
+          dispose();
+          done();
+        },
+      });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
       next: (root: Element) => {
@@ -349,7 +380,7 @@ describe('DOMSource.events()', function () {
         assert.notStrictEqual(typeof firstElem, 'undefined');
         assert.notStrictEqual(secondElem, null);
         assert.notStrictEqual(typeof secondElem, 'undefined');
-        assert.doesNotThrow(function () {
+        assert.doesNotThrow(function() {
           setTimeout(() => firstElem.click());
           setTimeout(() => secondElem.click(), 5);
         });
@@ -358,7 +389,7 @@ describe('DOMSource.events()', function () {
     dispose = run();
   });
 
-  it('should catch interaction events from future elements', function (done) {
+  it('should catch interaction events from future elements', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: concat(
@@ -391,7 +422,7 @@ describe('DOMSource.events()', function () {
         assert.notStrictEqual(typeof myElement, 'undefined');
         assert.strictEqual(myElement.tagName, 'H4');
         assert.strictEqual(myElement.textContent, 'Blosh');
-        assert.doesNotThrow(function () {
+        assert.doesNotThrow(function() {
           setTimeout(() => myElement.click());
         });
       },
@@ -399,14 +430,12 @@ describe('DOMSource.events()', function () {
     dispose = run();
   });
 
-  it('should catch bubbling events in a DocumentFragment', function (done) {
+  it('should catch bubbling events in a DocumentFragment', function(done) {
     const {bubbles: thisBrowserBubblesFragmentEvents} = fragmentSupport;
 
     function app(sources: {DOM: DOMSource}) {
       return {
-        DOM: xs.of(div([
-          div('.clickable', 'Hello'),
-        ])),
+        DOM: xs.of(div([div('.clickable', 'Hello')])),
       };
     }
 
@@ -420,20 +449,23 @@ describe('DOMSource.events()', function () {
         DOM: makeDOMDriver(renderTarget as Element),
       });
 
-      sources.DOM.select('.clickable').events('click', {useCapture: false}).addListener({
-        next: (ev: Event) => {
-          const elem = ev.target as HTMLElement;
-          assert.strictEqual(ev.type, 'click');
-          assert.strictEqual(elem.tagName, 'DIV');
-          assert.strictEqual(elem.className, 'clickable');
-          assert.strictEqual(elem.textContent, 'Hello');
-          const top = elem.parentElement as Node;
-          const renderTarget2 = top.parentNode as Node;
-          const frag = renderTarget2.parentNode as Node;
-          assert.strictEqual(frag instanceof DocumentFragment, true);
-          done();
-        },
-      });
+      sources.DOM
+        .select('.clickable')
+        .events('click', {useCapture: false})
+        .addListener({
+          next: (ev: Event) => {
+            const elem = ev.target as HTMLElement;
+            assert.strictEqual(ev.type, 'click');
+            assert.strictEqual(elem.tagName, 'DIV');
+            assert.strictEqual(elem.className, 'clickable');
+            assert.strictEqual(elem.textContent, 'Hello');
+            const top = elem.parentElement as Node;
+            const renderTarget2 = top.parentNode as Node;
+            const frag = renderTarget2.parentNode as Node;
+            assert.strictEqual(frag instanceof DocumentFragment, true);
+            done();
+          },
+        });
 
       sources.DOM.select(':root').elements().drop(1).take(1).addListener({
         next: (root: Element) => {
@@ -445,14 +477,14 @@ describe('DOMSource.events()', function () {
     }
   });
 
-  it('should catch non-bubbling events in a DocumentFragment with useCapture', function (done) {
+  it('should catch non-bubbling events in a DocumentFragment with useCapture', function(
+    done,
+  ) {
     const {captures: thisBrowserCapturesFragmentEvents} = fragmentSupport;
 
     function app(sources: {DOM: DOMSource}) {
       return {
-        DOM: xs.of(div([
-          div('.clickable', 'Hello'),
-        ])),
+        DOM: xs.of(div([div('.clickable', 'Hello')])),
       };
     }
 
@@ -466,20 +498,23 @@ describe('DOMSource.events()', function () {
         DOM: makeDOMDriver(renderTarget as Element),
       });
 
-      sources.DOM.select('.clickable').events('click', {useCapture: true}).addListener({
-        next: (ev: Event) => {
-          const elem = ev.target as HTMLElement;
-          assert.strictEqual(ev.type, 'click');
-          assert.strictEqual(elem.tagName, 'DIV');
-          assert.strictEqual(elem.className, 'clickable');
-          assert.strictEqual(elem.textContent, 'Hello');
-          const top = elem.parentElement as Node;
-          const renderTarget2 = top.parentNode as Node;
-          const frag = renderTarget2.parentNode as Node;
-          assert.strictEqual(frag instanceof DocumentFragment, true);
-          done();
-        },
-      });
+      sources.DOM
+        .select('.clickable')
+        .events('click', {useCapture: true})
+        .addListener({
+          next: (ev: Event) => {
+            const elem = ev.target as HTMLElement;
+            assert.strictEqual(ev.type, 'click');
+            assert.strictEqual(elem.tagName, 'DIV');
+            assert.strictEqual(elem.className, 'clickable');
+            assert.strictEqual(elem.textContent, 'Hello');
+            const top = elem.parentElement as Node;
+            const renderTarget2 = top.parentNode as Node;
+            const frag = renderTarget2.parentNode as Node;
+            assert.strictEqual(frag instanceof DocumentFragment, true);
+            done();
+          },
+        });
 
       sources.DOM.select(':root').elements().drop(1).take(1).addListener({
         next: (root: Element) => {
@@ -491,14 +526,14 @@ describe('DOMSource.events()', function () {
     }
   });
 
-  it('should have currentTarget or ownerTarget pointed to the selected parent', function (done) {
+  it('should have currentTarget or ownerTarget pointed to the selected parent', function(
+    done,
+  ) {
     function app(sources: {DOM: DOMSource}) {
       return {
-        DOM: xs.of(div('.top', [
-          h2('.parent', [
-            span('.child', 'Hello world'),
-          ]),
-        ])),
+        DOM: xs.of(
+          div('.top', [h2('.parent', [span('.child', 'Hello world')])]),
+        ),
       };
     }
 
@@ -517,10 +552,14 @@ describe('DOMSource.events()', function () {
         const currentTarget = ev.currentTarget as HTMLElement;
         const ownerTarget = (ev as any).ownerTarget as HTMLElement;
         const currentTargetIsParentH2 =
-          currentTarget.tagName === 'H2' && currentTarget.className === 'parent';
+          currentTarget.tagName === 'H2' &&
+          currentTarget.className === 'parent';
         const ownerTargetIsParentH2 =
           ownerTarget.tagName === 'H2' && ownerTarget.className === 'parent';
-        assert.strictEqual(currentTargetIsParentH2 || ownerTargetIsParentH2, true);
+        assert.strictEqual(
+          currentTargetIsParentH2 || ownerTargetIsParentH2,
+          true,
+        );
         dispose();
         done();
       },
@@ -534,7 +573,7 @@ describe('DOMSource.events()', function () {
         assert.notStrictEqual(typeof child, 'undefined');
         assert.strictEqual(child.tagName, 'SPAN');
         assert.strictEqual(child.className, 'child');
-        assert.doesNotThrow(function () {
+        assert.doesNotThrow(function() {
           setTimeout(() => child.click());
         });
       },
@@ -542,14 +581,12 @@ describe('DOMSource.events()', function () {
     dispose = run();
   });
 
-  it('should catch a non-bubbling Form `reset` event', function (done) {
+  it('should catch a non-bubbling Form `reset` event', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
-        DOM: xs.of(div('.parent', [
-          form('.form', [
-            input('.field', {type: 'text'}),
-          ]),
-        ])),
+        DOM: xs.of(
+          div('.parent', [form('.form', [input('.field', {type: 'text'})])]),
+        ),
       };
     }
 
@@ -576,12 +613,10 @@ describe('DOMSource.events()', function () {
     run();
   });
 
-  it('should catch a non-bubbling click event with useCapture', function (done) {
+  it('should catch a non-bubbling click event with useCapture', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
-        DOM: xs.of(div('.parent', [
-          div('.clickable', 'Hello'),
-        ])),
+        DOM: xs.of(div('.parent', [div('.clickable', 'Hello')])),
       };
     }
 
@@ -589,11 +624,20 @@ describe('DOMSource.events()', function () {
       const ev = document.createEvent(`MouseEvent`) as MouseEvent;
       ev.initMouseEvent(
         `click`,
-        false /* bubble */, true /* cancelable */,
-        window, 0,
-        0, 0, 0, 0, /* coordinates */
-        false, false, false, false, /* modifier keys */
-        0 /*left*/, null,
+        false /* bubble */,
+        true /* cancelable */,
+        window,
+        0,
+        0,
+        0,
+        0,
+        0 /* coordinates */,
+        false,
+        false,
+        false,
+        false /* modifier keys */,
+        0 /*left*/,
+        null,
       );
       el.dispatchEvent(ev);
     }
@@ -602,22 +646,28 @@ describe('DOMSource.events()', function () {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM.select('.clickable').events('click', {useCapture: true}).addListener({
-      next: (ev: Event) => {
-        assert.strictEqual(ev.type, 'click');
-        const target = ev.target as HTMLElement;
-        assert.strictEqual(target.tagName, 'DIV');
-        assert.strictEqual(target.className, 'clickable');
-        assert.strictEqual(target.textContent, 'Hello');
-        done();
-      },
-    });
+    sources.DOM
+      .select('.clickable')
+      .events('click', {useCapture: true})
+      .addListener({
+        next: (ev: Event) => {
+          assert.strictEqual(ev.type, 'click');
+          const target = ev.target as HTMLElement;
+          assert.strictEqual(target.tagName, 'DIV');
+          assert.strictEqual(target.className, 'clickable');
+          assert.strictEqual(target.textContent, 'Hello');
+          done();
+        },
+      });
 
-    sources.DOM.select('.clickable').events('click', {useCapture: false}).addListener({
-      next: (x) => {
-        done(x);
-      },
-    });
+    sources.DOM
+      .select('.clickable')
+      .events('click', {useCapture: false})
+      .addListener({
+        next: x => {
+          done(x);
+        },
+      });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
       next: (root: Element) => {
@@ -628,14 +678,16 @@ describe('DOMSource.events()', function () {
     run();
   });
 
-  it('should catch a blur event with useCapture', function (done) {
+  it('should catch a blur event with useCapture', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
-        DOM: xs.of(div('.parent', [
-          input('.correct', {type: 'text'}, []),
-          input('.wrong', {type: 'text'}, []),
-          input('.dummy', {type: 'text'}),
-        ])),
+        DOM: xs.of(
+          div('.parent', [
+            input('.correct', {type: 'text'}, []),
+            input('.wrong', {type: 'text'}, []),
+            input('.dummy', {type: 'text'}),
+          ]),
+        ),
       };
     }
 
@@ -646,13 +698,16 @@ describe('DOMSource.events()', function () {
         DOM: makeDOMDriver(createRenderTarget()),
       });
 
-      sources.DOM.select('.correct').events('blur', {useCapture: true}).addListener({
-        next: (ev: Event) => {
-          assert.strictEqual(ev.type, 'blur');
-          assert.strictEqual((ev.target as HTMLElement).className, 'correct');
-          done();
-        },
-      });
+      sources.DOM
+        .select('.correct')
+        .events('blur', {useCapture: true})
+        .addListener({
+          next: (ev: Event) => {
+            assert.strictEqual(ev.type, 'blur');
+            assert.strictEqual((ev.target as HTMLElement).className, 'correct');
+            done();
+          },
+        });
 
       sources.DOM.select(':root').elements().drop(1).take(1).addListener({
         next: (root: Element) => {
@@ -669,14 +724,16 @@ describe('DOMSource.events()', function () {
     }
   });
 
-  it('should catch a blur event by default (no options)', function (done) {
+  it('should catch a blur event by default (no options)', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
-        DOM: xs.of(div('.parent', [
-          input('.correct', {type: 'text'}, []),
-          input('.wrong', {type: 'text'}, []),
-          input('.dummy', {type: 'text'}),
-        ])),
+        DOM: xs.of(
+          div('.parent', [
+            input('.correct', {type: 'text'}, []),
+            input('.wrong', {type: 'text'}, []),
+            input('.dummy', {type: 'text'}),
+          ]),
+        ),
       };
     }
 
@@ -713,11 +770,9 @@ describe('DOMSource.events()', function () {
   it('should not simulate bubbling for non-bubbling events', done => {
     function app(sources: {DOM: DOMSource}) {
       return {
-        DOM: xs.of(div('.parent', [
-          form('.form', [
-            input('.field', {type: 'text'}),
-          ]),
-        ])),
+        DOM: xs.of(
+          div('.parent', [form('.form', [input('.field', {type: 'text'})])]),
+        ),
       };
     }
 
@@ -731,15 +786,19 @@ describe('DOMSource.events()', function () {
       },
     });
 
-    sources.DOM.select('.form').events('reset').compose(delay(200)).addListener({
-      next: (ev: Event) => {
-        assert.strictEqual(ev.type, 'reset');
-        const target = ev.target as HTMLElement;
-        assert.strictEqual(target.tagName, 'FORM');
-        assert.strictEqual(target.className, 'form');
-        done();
-      },
-    });
+    sources.DOM
+      .select('.form')
+      .events('reset')
+      .compose(delay(200))
+      .addListener({
+        next: (ev: Event) => {
+          assert.strictEqual(ev.type, 'reset');
+          const target = ev.target as HTMLElement;
+          assert.strictEqual(target.tagName, 'FORM');
+          assert.strictEqual(target.className, 'form');
+          done();
+        },
+      });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
       next: (root: Element) => {
@@ -750,7 +809,7 @@ describe('DOMSource.events()', function () {
     run();
   });
 
-  it('should have the DevTools flag in the source stream', function (done) {
+  it('should have the DevTools flag in the source stream', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(h3('.myelementclass', 'Foobar')),
@@ -765,7 +824,9 @@ describe('DOMSource.events()', function () {
     done();
   });
 
-  it('should allow restarting of event streams from isolated components', function (done) {
+  it('should allow restarting of event streams from isolated components', function(
+    done,
+  ) {
     const outSubject = xs.create<any>();
     const switchSubject = xs.create<any>();
 
@@ -798,11 +859,20 @@ describe('DOMSource.events()', function () {
       const ev = document.createEvent('MouseEvent') as MouseEvent;
       ev.initMouseEvent(
         type,
-        false /* bubble */, true /* cancelable */,
-        window, 0,
-        0, 0, 0, 0, /* coordinates */
-        false, false, false, false, /* modifier keys */
-        0 /*left*/, null,
+        false /* bubble */,
+        true /* cancelable */,
+        window,
+        0,
+        0,
+        0,
+        0,
+        0 /* coordinates */,
+        false,
+        false,
+        false,
+        false /* modifier keys */,
+        0 /*left*/,
+        null,
       );
 
       // Would rather user this line below but does not work on IE10
@@ -840,12 +910,10 @@ describe('DOMSource.events()', function () {
     run();
   });
 
-  it('should allow preventing default event behavior', function (done) {
+  it('should allow preventing default event behavior', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
-        DOM: xs.of(div('.parent', [
-          button('.button'),
-        ])),
+        DOM: xs.of(div('.parent', [button('.button')])),
       };
     }
 
@@ -853,16 +921,19 @@ describe('DOMSource.events()', function () {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM.select('.button').events('click', { preventDefault: true }).addListener({
-      next: (ev: Event) => {
-        assert.strictEqual(ev.type, 'click');
-        const target = ev.target as HTMLElement;
-        assert.strictEqual(target.tagName, 'BUTTON');
-        assert.strictEqual(target.className, 'button');
-        assert.strictEqual(ev.defaultPrevented, true);
-        done();
-      },
-    });
+    sources.DOM
+      .select('.button')
+      .events('click', {preventDefault: true})
+      .addListener({
+        next: (ev: Event) => {
+          assert.strictEqual(ev.type, 'click');
+          const target = ev.target as HTMLElement;
+          assert.strictEqual(target.tagName, 'BUTTON');
+          assert.strictEqual(target.className, 'button');
+          assert.strictEqual(ev.defaultPrevented, true);
+          done();
+        },
+      });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
       next: (root: Element) => {
@@ -872,5 +943,4 @@ describe('DOMSource.events()', function () {
     });
     run();
   });
-
 });

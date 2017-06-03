@@ -45,7 +45,10 @@ const eventTypesThatDontBubble = [
   `waiting`,
 ];
 
-function determineUseCapture(eventType: string, options: EventsFnOptions): boolean {
+function determineUseCapture(
+  eventType: string,
+  options: EventsFnOptions,
+): boolean {
   let result = false;
   if (typeof options.useCapture === 'boolean') {
     result = options.useCapture;
@@ -57,29 +60,28 @@ function determineUseCapture(eventType: string, options: EventsFnOptions): boole
 }
 
 function filterBasedOnIsolation(domSource: MainDOMSource, fullScope: string) {
-  return function filterBasedOnIsolationOperator(rootElement$: Stream<Element>): Stream<Element> {
+  return function filterBasedOnIsolationOperator(
+    rootElement$: Stream<Element>,
+  ): Stream<Element> {
     interface State {
       wasIsolated: boolean;
       shouldPass: boolean;
       element: Element;
     }
     const initialState: State = {
-        wasIsolated: false,
-        shouldPass: false,
-        element: null as any as Element,
+      wasIsolated: false,
+      shouldPass: false,
+      element: (null as any) as Element,
     };
 
     return rootElement$
-      .fold(
-        function checkIfShouldPass(state: State, element: Element) {
-          const isIsolated = !!domSource._isolateModule.getElement(fullScope);
-          state.shouldPass = isIsolated && !state.wasIsolated;
-          state.wasIsolated = isIsolated;
-          state.element = element;
-          return state;
-        },
-        initialState,
-      )
+      .fold(function checkIfShouldPass(state: State, element: Element) {
+        const isIsolated = !!domSource._isolateModule.getElement(fullScope);
+        state.shouldPass = isIsolated && !state.wasIsolated;
+        state.wasIsolated = isIsolated;
+        state.element = element;
+        return state;
+      }, initialState)
       .drop(1)
       .filter(s => s.shouldPass)
       .map(s => s.element);
@@ -87,13 +89,14 @@ function filterBasedOnIsolation(domSource: MainDOMSource, fullScope: string) {
 }
 
 export class MainDOMSource implements DOMSource {
-
-  constructor(private _rootElement$: Stream<Element>,
-              private _sanitation$: Stream<null>,
-              private _namespace: Array<string> = [],
-              public _isolateModule: IsolateModule,
-              public _delegators: Map<string, EventDelegator>,
-              private _name: string) {
+  constructor(
+    private _rootElement$: Stream<Element>,
+    private _sanitation$: Stream<null>,
+    private _namespace: Array<string> = [],
+    public _isolateModule: IsolateModule,
+    public _delegators: Map<string, EventDelegator>,
+    private _name: string,
+  ) {
     this.isolateSource = isolateSource;
     this.isolateSink = (sink, scope) => {
       if (scope === ':root') {
@@ -113,10 +116,15 @@ export class MainDOMSource implements DOMSource {
     if (this._namespace.length === 0) {
       output$ = this._rootElement$;
     } else {
-      const elementFinder = new ElementFinder(this._namespace, this._isolateModule);
+      const elementFinder = new ElementFinder(
+        this._namespace,
+        this._isolateModule,
+      );
       output$ = this._rootElement$.map(el => elementFinder.call(el));
     }
-    const out: DevToolEnabledSource & MemoryStream<Element> = adapt(output$.remember());
+    const out: DevToolEnabledSource & MemoryStream<Element> = adapt(
+      output$.remember(),
+    );
     out._isCycleSource = this._name;
     return out;
   }
@@ -127,8 +135,10 @@ export class MainDOMSource implements DOMSource {
 
   public select(selector: string): DOMSource {
     if (typeof selector !== 'string') {
-      throw new Error(`DOM driver's select() expects the argument to be a ` +
-        `string as a CSS selector`);
+      throw new Error(
+        `DOM driver's select() expects the argument to be a ` +
+          `string as a CSS selector`,
+      );
     }
     if (selector === 'document') {
       return new DocumentDOMSource(this._name);
@@ -137,9 +147,9 @@ export class MainDOMSource implements DOMSource {
       return new BodyDOMSource(this._name);
     }
     const trimmedSelector = selector.trim();
-    const childNamespace = trimmedSelector === `:root` ?
-      this._namespace :
-      this._namespace.concat(trimmedSelector);
+    const childNamespace = trimmedSelector === `:root`
+      ? this._namespace
+      : this._namespace.concat(trimmedSelector);
     return new MainDOMSource(
       this._rootElement$,
       this._sanitation$,
@@ -150,10 +160,15 @@ export class MainDOMSource implements DOMSource {
     );
   }
 
-  public events(eventType: string, options: EventsFnOptions = {}): Stream<Event> {
+  public events(
+    eventType: string,
+    options: EventsFnOptions = {},
+  ): Stream<Event> {
     if (typeof eventType !== `string`) {
-      throw new Error(`DOM driver's events() expects argument to be a ` +
-        `string representing the event type to listen for.`);
+      throw new Error(
+        `DOM driver's events() expects argument to be a ` +
+          `string representing the event type to listen for.`,
+      );
     }
     const useCapture: boolean = determineUseCapture(eventType, options);
 
@@ -168,8 +183,9 @@ export class MainDOMSource implements DOMSource {
 
     let rootElement$: Stream<Element>;
     if (fullScope) {
-      rootElement$ = this._rootElement$
-        .compose(filterBasedOnIsolation(domSource, fullScope));
+      rootElement$ = this._rootElement$.compose(
+        filterBasedOnIsolation(domSource, fullScope),
+      );
     } else {
       rootElement$ = this._rootElement$.take(2);
     }
@@ -178,19 +194,29 @@ export class MainDOMSource implements DOMSource {
       .map(function setupEventDelegatorOnTopElement(rootElement) {
         // Event listener just for the root element
         if (!namespace || namespace.length === 0) {
-          return fromEvent(rootElement, eventType, useCapture, options.preventDefault);
+          return fromEvent(
+            rootElement,
+            eventType,
+            useCapture,
+            options.preventDefault,
+          );
         }
 
         // Event listener on the origin element as an EventDelegator
         const delegators = domSource._delegators;
-        const origin = domSource._isolateModule.getElement(fullScope) || rootElement;
+        const origin =
+          domSource._isolateModule.getElement(fullScope) || rootElement;
         let delegator: EventDelegator;
         if (delegators.has(key)) {
           delegator = delegators.get(key) as EventDelegator;
           delegator.updateOrigin(origin);
         } else {
           delegator = new EventDelegator(
-            origin, eventType, useCapture, domSource._isolateModule, options.preventDefault,
+            origin,
+            eventType,
+            useCapture,
+            domSource._isolateModule,
+            options.preventDefault,
           );
           delegators.set(key, delegator);
         }

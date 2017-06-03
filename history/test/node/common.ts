@@ -10,16 +10,16 @@ describe('makeServerHistoryDriver', () => {
     assert.strictEqual(typeof makeServerHistoryDriver, 'function');
   });
 
-  it('should return a function' , () => {
+  it('should return a function', () => {
     assert.strictEqual(typeof makeServerHistoryDriver(), 'function');
   });
 
-  it('should return allow injecting MemoryHistory object directly' , () => {
-    const history = createMemoryHistory()
+  it('should return allow injecting MemoryHistory object directly', () => {
+    const history = createMemoryHistory();
     assert.strictEqual(typeof makeHistoryDriver(history), 'function');
   });
 
-  it('should start emitting the current location', function (done) {
+  it('should start emitting the current location', function(done) {
     const history$ = makeServerHistoryDriver()(xs.never());
 
     const sub = history$.subscribe({
@@ -27,7 +27,7 @@ describe('makeServerHistoryDriver', () => {
         assert(location.pathname);
         done();
       },
-      error: (err) => {},
+      error: err => {},
       complete: () => {},
     });
 

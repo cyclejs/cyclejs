@@ -13,8 +13,10 @@ startServer();
 const uri = 'http://localhost:5000';
 runCommon(uri);
 
-describe('HTTP Driver in Node.js', function () {
-  it('should auto-execute HTTP request when without listening to response stream', function(done) {
+describe('HTTP Driver in Node.js', function() {
+  it('should auto-execute HTTP request when without listening to response stream', function(
+    done,
+  ) {
     function main(sources: {HTTP: HTTPSource}) {
       return {
         HTTP: Rx.Observable.of({
@@ -25,11 +27,11 @@ describe('HTTP Driver in Node.js', function () {
       };
     }
 
-    const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+    const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
     globalSandbox.petPOSTResponse = null;
     run();
 
-    setTimeout(function () {
+    setTimeout(function() {
       assert.notStrictEqual(globalSandbox.petPOSTResponse, null);
       assert.strictEqual(globalSandbox.petPOSTResponse, 'added Woof the Dog');
       globalSandbox.petPOSTResponse = null;
@@ -37,7 +39,9 @@ describe('HTTP Driver in Node.js', function () {
     }, 250);
   });
 
-  it('should not auto-execute lazy request without listening to response stream', function(done) {
+  it('should not auto-execute lazy request without listening to response stream', function(
+    done,
+  ) {
     function main(sources: {HTTP: HTTPSource}) {
       return {
         HTTP: Rx.Observable.of({
@@ -49,17 +53,19 @@ describe('HTTP Driver in Node.js', function () {
       };
     }
 
-    const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+    const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
     globalSandbox.petPOSTResponse = null;
     run();
 
-    setTimeout(function () {
+    setTimeout(function() {
       assert.strictEqual(globalSandbox.petPOSTResponse, null);
       done();
     }, 250);
   });
 
-  it('should execute lazy HTTP request when listening to response stream', function(done) {
+  it('should execute lazy HTTP request when listening to response stream', function(
+    done,
+  ) {
     function main(sources: {HTTP: HTTPSource}) {
       return {
         HTTP: Rx.Observable.of({
@@ -71,16 +77,14 @@ describe('HTTP Driver in Node.js', function () {
       };
     }
 
-    const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+    const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
     globalSandbox.petPOSTResponse = null;
 
-    sources.HTTP.select()
-      .mergeAll()
-      .subscribe();
+    sources.HTTP.select().mergeAll().subscribe();
 
     run();
 
-    setTimeout(function () {
+    setTimeout(function() {
       assert.notStrictEqual(globalSandbox.petPOSTResponse, null);
       assert.strictEqual(globalSandbox.petPOSTResponse, 'added Woof the Dog');
       globalSandbox.petPOSTResponse = null;
@@ -100,20 +104,20 @@ describe('HTTP Driver in Node.js', function () {
       };
     }
 
-    const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+    const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
-    sources.HTTP.select()
-      .mergeAll()
-      .subscribe(function (r) {
-        assert.ok(r.request);
-        assert.strictEqual((r.request as any)._id, 'petRequest');
-        done();
-      });
+    sources.HTTP.select().mergeAll().subscribe(function(r) {
+      assert.ok(r.request);
+      assert.strictEqual((r.request as any)._id, 'petRequest');
+      done();
+    });
 
     run();
   });
 
-  it('should handle errors when sending request to non-existent server', function (done) {
+  it('should handle errors when sending request to non-existent server', function(
+    done,
+  ) {
     function main(sources: {HTTP: HTTPSource}) {
       return {
         HTTP: Rx.Observable.of({
@@ -124,20 +128,18 @@ describe('HTTP Driver in Node.js', function () {
       };
     }
 
-    const {sources, run} = Cycle.setup(main, { HTTP: makeHTTPDriver() });
+    const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
-    sources.HTTP.select()
-      .mergeAll()
-      .subscribe({
-        next: function (r) {
-          done('next() should not be called');
-        },
-        error: function (err) {
-          assert.strictEqual(err.code, 'ECONNREFUSED');
-          assert.strictEqual(err.port, 9999);
-          done();
-        },
-      });
+    sources.HTTP.select().mergeAll().subscribe({
+      next: function(r) {
+        done('next() should not be called');
+      },
+      error: function(err) {
+        assert.strictEqual(err.code, 'ECONNREFUSED');
+        assert.strictEqual(err.port, 9999);
+        done();
+      },
+    });
 
     run();
   });

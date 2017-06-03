@@ -3,8 +3,10 @@ import {Driver} from '@cycle/run';
 import {Location} from 'history';
 export type Pathname = string;
 
-export type HistoryDriver =
-  Driver<Stream<HistoryInput | GenericInput | string>, MemoryStream<Location>>;
+export type HistoryDriver = Driver<
+  Stream<HistoryInput | GenericInput | string>,
+  MemoryStream<Location>
+>;
 
 /**
  * A "catch all" case that is necessary because sometimes the sink from the app
@@ -45,7 +47,7 @@ export type GoForwardHistoryInput = {
 };
 
 export type HistoryInput =
-  PushHistoryInput
+  | PushHistoryInput
   | ReplaceHistoryInput
   | GoHistoryInput
   | GoBackHistoryInput

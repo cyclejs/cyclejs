@@ -13,7 +13,9 @@ import {
 
 function preprocessReqOptions(reqOptions: RequestOptions): RequestOptions {
   reqOptions.withCredentials = reqOptions.withCredentials || false;
-  reqOptions.redirects = typeof reqOptions.redirects === 'number' ? reqOptions.redirects : 5;
+  reqOptions.redirects = typeof reqOptions.redirects === 'number'
+    ? reqOptions.redirects
+    : 5;
   reqOptions.method = reqOptions.method || `get`;
   return reqOptions;
 }
@@ -21,10 +23,14 @@ function preprocessReqOptions(reqOptions: RequestOptions): RequestOptions {
 export function optionsToSuperagent(rawReqOptions: RequestOptions) {
   const reqOptions = preprocessReqOptions(rawReqOptions);
   if (typeof reqOptions.url !== `string`) {
-    throw new Error(`Please provide a \`url\` property in the request options.`);
+    throw new Error(
+      `Please provide a \`url\` property in the request options.`,
+    );
   }
   const lowerCaseMethod = (reqOptions.method || 'GET').toLowerCase();
-  const sanitizedMethod = lowerCaseMethod === `delete` ? `del` : lowerCaseMethod;
+  const sanitizedMethod = lowerCaseMethod === `delete`
+    ? `del`
+    : lowerCaseMethod;
 
   let request = superagent[sanitizedMethod](reqOptions.url);
   if (typeof request.redirects === `function`) {
@@ -49,7 +55,10 @@ export function optionsToSuperagent(rawReqOptions: RequestOptions) {
     request = request.key(reqOptions.agent.key);
     request = request.cert(reqOptions.agent.cert);
   }
-  if (typeof reqOptions.user === 'string' && typeof reqOptions.password === 'string') {
+  if (
+    typeof reqOptions.user === 'string' &&
+    typeof reqOptions.password === 'string'
+  ) {
     request = request.auth(reqOptions.user, reqOptions.password);
   }
   if (reqOptions.headers) {
@@ -130,8 +139,10 @@ function normalizeRequestInput(reqInput: RequestInput): RequestOptions {
   } else if (typeof reqInput === 'object') {
     return reqInput;
   } else {
-    throw new Error(`Observable of requests given to HTTP Driver must emit ` +
-      `either URL strings or objects with parameters.`);
+    throw new Error(
+      `Observable of requests given to HTTP Driver must emit ` +
+        `either URL strings or objects with parameters.`,
+    );
   }
 }
 
@@ -141,7 +152,11 @@ function requestInputToResponse$(reqInput: RequestInput): ResponseMemoryStream {
   let response$ = createResponse$(reqInput).remember();
   const reqOptions = softNormalizeRequestInput(reqInput);
   if (!reqOptions.lazy) {
-    response$.addListener({next: () => {}, error: () => {}, complete: () => {}});
+    response$.addListener({
+      next: () => {},
+      error: () => {},
+      complete: () => {},
+    });
   }
   response$ = adapt(response$);
   Object.defineProperty(response$, 'request', {
@@ -149,14 +164,20 @@ function requestInputToResponse$(reqInput: RequestInput): ResponseMemoryStream {
     writable: false,
   });
   return response$ as ResponseMemoryStream;
-};
+}
 
 export function makeHTTPDriver(): Driver<Stream<RequestInput>, HTTPSource> {
-  function httpDriver(request$: Stream<RequestInput>, name: string): HTTPSource {
-    const response$$ = request$
-      .map(requestInputToResponse$);
+  function httpDriver(
+    request$: Stream<RequestInput>,
+    name: string,
+  ): HTTPSource {
+    const response$$ = request$.map(requestInputToResponse$);
     const httpSource = new MainHTTPSource(response$$, name, []);
-    response$$.addListener({next: () => {}, error: () => {}, complete: () => {}});
+    response$$.addListener({
+      next: () => {},
+      error: () => {},
+      complete: () => {},
+    });
     return httpSource;
   }
   return httpDriver;

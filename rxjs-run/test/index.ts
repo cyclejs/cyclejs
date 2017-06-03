@@ -6,30 +6,30 @@ import xs, {Stream} from 'xstream';
 import * as Rx from 'rxjs';
 import {Observable} from 'rxjs';
 
-describe('setup', function () {
-  it('should be a function', function () {
+describe('setup', function() {
+  it('should be a function', function() {
     assert.strictEqual(typeof setup, 'function');
   });
 
-  it('should throw if first argument is not a function', function () {
+  it('should throw if first argument is not a function', function() {
     assert.throws(() => {
       (setup as any)('not a function');
     }, /First argument given to Cycle must be the 'main' function/i);
   });
 
-  it('should throw if second argument is not an object', function () {
+  it('should throw if second argument is not an object', function() {
     assert.throws(() => {
       (setup as any)(() => {}, 'not an object');
     }, /Second argument given to Cycle must be an object with driver functions/i);
   });
 
-  it('should throw if second argument is an empty object', function () {
+  it('should throw if second argument is an empty object', function() {
     assert.throws(() => {
       (setup as any)(() => {}, {});
     }, /Second argument given to Cycle must be an object with at least one/i);
   });
 
-  it('should return sinks object and sources object', function () {
+  it('should return sinks object and sources object', function() {
     type MySources = {
       other: Observable<string>;
     };
@@ -55,7 +55,7 @@ describe('setup', function () {
     assert.strictEqual(typeof sources.other.subscribe, 'function');
   });
 
-  it('should not type check drivers that use xstream', function () {
+  it('should not type check drivers that use xstream', function() {
     type MySources = {
       other: Observable<string>;
     };
@@ -82,7 +82,7 @@ describe('setup', function () {
     assert.strictEqual(typeof sources.other.subscribe, 'function');
   });
 
-  it('should return a run() which in turn returns a dispose()', function (done) {
+  it('should return a run() which in turn returns a dispose()', function(done) {
     type TestSources = {
       other: Observable<number>;
     };
@@ -97,7 +97,9 @@ describe('setup', function () {
       };
     }
     function driver(xsSink: any): Observable<number> {
-      return Observable.from(xsSink).map((x: string) => x.charCodeAt(0)).delay(1);
+      return Observable.from(xsSink)
+        .map((x: string) => x.charCodeAt(0))
+        .delay(1);
     }
     let {sources, run} = setup(app, {other: driver});
     let dispose: any;
@@ -109,8 +111,9 @@ describe('setup', function () {
     dispose = run();
   });
 
-  it('should not work after has been disposed', function (done) {
-    let number$ = Rx.Observable.range(1, 3)
+  it('should not work after has been disposed', function(done) {
+    let number$ = Rx.Observable
+      .range(1, 3)
       .concatMap(x => Rx.Observable.of(x).delay(150));
 
     function app(sources: any): any {
@@ -122,7 +125,7 @@ describe('setup', function () {
     });
 
     let dispose: any;
-    sources.other.subscribe(function (x: any) {
+    sources.other.subscribe(function(x: any) {
       assert.notStrictEqual(x, 'x3');
       if (x === 'x2') {
         dispose();
@@ -135,30 +138,30 @@ describe('setup', function () {
   });
 });
 
-describe('run', function () {
-  it('should be a function', function () {
+describe('run', function() {
+  it('should be a function', function() {
     assert.strictEqual(typeof run, 'function');
   });
 
-  it('should throw if first argument is not a function', function () {
+  it('should throw if first argument is not a function', function() {
     assert.throws(() => {
       (run as any)('not a function');
     }, /First argument given to Cycle must be the 'main' function/i);
   });
 
-  it('should throw if second argument is not an object', function () {
+  it('should throw if second argument is not an object', function() {
     assert.throws(() => {
       (run as any)(() => {}, 'not an object');
     }, /Second argument given to Cycle must be an object with driver functions/i);
   });
 
-  it('should throw if second argument is an empty object', function () {
+  it('should throw if second argument is an empty object', function() {
     assert.throws(() => {
       (run as any)(() => {}, {});
     }, /Second argument given to Cycle must be an object with at least one/i);
   });
 
-  it('should return a dispose function', function () {
+  it('should return a dispose function', function() {
     let sandbox = sinon.sandbox.create();
     const spy = sandbox.spy();
     function app(sources: any): any {
@@ -175,7 +178,7 @@ describe('run', function () {
     dispose();
   });
 
-  it('should happen synchronously', function (done) {
+  it('should happen synchronously', function(done) {
     let sandbox = sinon.sandbox.create();
     const spy = sandbox.spy();
     function app(sources: any): any {
@@ -200,7 +203,7 @@ describe('run', function () {
     }, 20);
   });
 
-  it('should report main() errors in the console', function (done) {
+  it('should report main() errors in the console', function(done) {
     let sandbox = sinon.sandbox.create();
     sandbox.stub(console, 'error');
 
@@ -217,7 +220,7 @@ describe('run', function () {
     function driver(xsSink: any) {
       Observable.from(xsSink).subscribe({
         next: () => {},
-        error: (err) => {},
+        error: err => {},
       });
       return Rx.Observable.of('b');
     }
@@ -231,7 +234,10 @@ describe('run', function () {
     }
     setTimeout(() => {
       sinon.assert.calledOnce(console.error as any);
-      sinon.assert.calledWithExactly(console.error as any, sinon.match('malfunction'));
+      sinon.assert.calledWithExactly(
+        console.error as any,
+        sinon.match('malfunction'),
+      );
 
       // Should be false because the error was already reported in the console.
       // Otherwise we would have double reporting of the error.

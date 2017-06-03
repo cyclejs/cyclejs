@@ -13,30 +13,30 @@ if (typeof global === 'object') {
   window = (global as any).window;
 }
 
-describe('setup', function () {
-  it('should be a function', function () {
+describe('setup', function() {
+  it('should be a function', function() {
     assert.strictEqual(typeof setup, 'function');
   });
 
-  it('should throw if first argument is not a function', function () {
+  it('should throw if first argument is not a function', function() {
     assert.throws(() => {
       (setup as any)('not a function');
     }, /First argument given to Cycle must be the 'main' function/i);
   });
 
-  it('should throw if second argument is not an object', function () {
+  it('should throw if second argument is not an object', function() {
     assert.throws(() => {
       (setup as any)(() => {}, 'not an object');
     }, /Second argument given to Cycle must be an object with driver functions/i);
   });
 
-  it('should throw if second argument is an empty object', function () {
+  it('should throw if second argument is an empty object', function() {
     assert.throws(() => {
       (setup as any)(() => {}, {});
     }, /Second argument given to Cycle must be an object with at least one/i);
   });
 
-  it('should return sinks object and sources object', function () {
+  it('should return sinks object and sources object', function() {
     function app(ext: any): any {
       return {
         other: ext.other.take(1).startWith('a'),
@@ -54,7 +54,7 @@ describe('setup', function () {
     assert.strictEqual(typeof sources.other.addListener, 'function');
   });
 
-  it('should type-check keyof sources and sinks in main and drivers', function () {
+  it('should type-check keyof sources and sinks in main and drivers', function() {
     type Sources = {
       str: Stream<string>;
       obj: Stream<object>;
@@ -72,14 +72,15 @@ describe('setup', function () {
       };
     }
 
-    const stringDriver: Driver<Stream<string>, Stream<string>> =
-      (sink: Stream<string>) => xs.of('b');
+    const stringDriver: Driver<Stream<string>, Stream<string>> = (
+      sink: Stream<string>,
+    ) => xs.of('b');
 
-    const numberWriteOnlyDriver: Driver<Stream<number>, void> =
-      (sink: Stream<number>) => {};
+    const numberWriteOnlyDriver: Driver<Stream<number>, void> = (
+      sink: Stream<number>,
+    ) => {};
 
-    const objectReadOnlyDriver: Driver<void, Stream<object>> =
-      () => xs.of({});
+    const objectReadOnlyDriver: Driver<void, Stream<object>> = () => xs.of({});
 
     setup(app, {
       str: stringDriver,
@@ -88,16 +89,16 @@ describe('setup', function () {
     });
   });
 
-  it('should type-check keyof sources and sinks, supporting interfaces', function () {
+  it('should type-check keyof sources and sinks, supporting interfaces', function() {
     interface Sources {
       str: Stream<string>;
       obj: Stream<object>;
-    };
+    }
 
     interface Sinks {
       str: Stream<string>;
       num: Stream<number>;
-    };
+    }
 
     function app(sources: Sources): Sinks {
       return {
@@ -111,14 +112,15 @@ describe('setup', function () {
       };
     }
 
-    const stringDriver: Driver<Stream<string>, Stream<string>> =
-      (sink: Stream<string>) => xs.of('b');
+    const stringDriver: Driver<Stream<string>, Stream<string>> = (
+      sink: Stream<string>,
+    ) => xs.of('b');
 
-    const numberWriteOnlyDriver: Driver<Stream<number>, void> =
-      (sink: Stream<number>) => {};
+    const numberWriteOnlyDriver: Driver<Stream<number>, void> = (
+      sink: Stream<number>,
+    ) => {};
 
-    const objectReadOnlyDriver: Driver<void, Stream<object>> =
-      () => xs.of({});
+    const objectReadOnlyDriver: Driver<void, Stream<object>> = () => xs.of({});
 
     setup(app, {
       str: stringDriver,
@@ -127,7 +129,7 @@ describe('setup', function () {
     });
   });
 
-  it('should type-check and allow more drivers than sinks', function () {
+  it('should type-check and allow more drivers than sinks', function() {
     type Sources = {
       str: Stream<string>;
       num: Stream<number>;
@@ -135,8 +137,7 @@ describe('setup', function () {
     };
 
     function app(sources: Sources) {
-      return {
-      };
+      return {};
     }
 
     function stringDriver(sink: Stream<string>) {
@@ -154,7 +155,7 @@ describe('setup', function () {
     });
   });
 
-  it('should call DevTool internal function to pass sinks', function () {
+  it('should call DevTool internal function to pass sinks', function() {
     let sandbox = sinon.sandbox.create();
     let spy = sandbox.spy();
     window['CyclejsDevTool_startGraphSerializer'] = spy;
@@ -172,7 +173,7 @@ describe('setup', function () {
     sinon.assert.calledOnce(spy);
   });
 
-  it('should return a run() which in turn returns a dispose()', function (done) {
+  it('should return a run() which in turn returns a dispose()', function(done) {
     type TestSources = {
       other: Stream<number>;
     };
@@ -204,7 +205,7 @@ describe('setup', function () {
     dispose = run();
   });
 
-  it('should support sink-only drivers', function (done) {
+  it('should support sink-only drivers', function(done) {
     function app(sources: any): any {
       return {
         other: xs.of(1, 2, 3),
@@ -224,7 +225,7 @@ describe('setup', function () {
     done();
   });
 
-  it('should not adapt() sinks', function (done) {
+  it('should not adapt() sinks', function(done) {
     function app(sources: any): any {
       return {
         other: xs.of(1, 2, 3),
@@ -247,7 +248,7 @@ describe('setup', function () {
     done();
   });
 
-  it('should adapt() a simple source (stream)', function (done) {
+  it('should adapt() a simple source (stream)', function(done) {
     let appCalled = false;
     function app(sources: any): any {
       assert.strictEqual(typeof sources.other, 'string');
@@ -271,7 +272,7 @@ describe('setup', function () {
     done();
   });
 
-  it('should not work after has been disposed', function (done) {
+  it('should not work after has been disposed', function(done) {
     type MySources = {
       other: Stream<string>;
     };
@@ -289,7 +290,7 @@ describe('setup', function () {
 
     let dispose: any;
     sources.other.addListener({
-      next: (x) => {
+      next: x => {
         assert.notStrictEqual(x, 'x3');
         if (x === 'x2') {
           dispose(); // will trigger this listener's complete
@@ -302,30 +303,30 @@ describe('setup', function () {
   });
 });
 
-describe('run', function () {
-  it('should be a function', function () {
+describe('run', function() {
+  it('should be a function', function() {
     assert.strictEqual(typeof run, 'function');
   });
 
-  it('should throw if first argument is not a function', function () {
+  it('should throw if first argument is not a function', function() {
     assert.throws(() => {
       (run as any)('not a function');
     }, /First argument given to Cycle must be the 'main' function/i);
   });
 
-  it('should throw if second argument is not an object', function () {
+  it('should throw if second argument is not an object', function() {
     assert.throws(() => {
       (run as any)(() => {}, 'not an object');
     }, /Second argument given to Cycle must be an object with driver functions/i);
   });
 
-  it('should throw if second argument is an empty object', function () {
+  it('should throw if second argument is an empty object', function() {
     assert.throws(() => {
       (run as any)(() => {}, {});
     }, /Second argument given to Cycle must be an object with at least one/i);
   });
 
-  it('should return a dispose function', function () {
+  it('should return a dispose function', function() {
     let sandbox = sinon.sandbox.create();
     const spy = sandbox.spy();
 
@@ -352,11 +353,15 @@ describe('run', function () {
     dispose();
   });
 
-  it('should happen synchronously', function (done) {
+  it('should happen synchronously', function(done) {
     let sandbox = sinon.sandbox.create();
     const spy = sandbox.spy();
     function app(sources: any): any {
-      sources.other.addListener({next: () => {}, error: () => {}, complete: () => {}});
+      sources.other.addListener({
+        next: () => {},
+        error: () => {},
+        complete: () => {},
+      });
       return {
         other: xs.of(10),
       };
@@ -377,7 +382,9 @@ describe('run', function () {
     }, 20);
   });
 
-  it('should support driver that asynchronously subscribes to sink', function (done) {
+  it('should support driver that asynchronously subscribes to sink', function(
+    done,
+  ) {
     function app(sources: any): any {
       return {
         foo: xs.of(10),
@@ -406,7 +413,7 @@ describe('run', function () {
     }, 100);
   });
 
-  it('should report errors from main() in the console', function (done) {
+  it('should report errors from main() in the console', function(done) {
     let sandbox = sinon.sandbox.create();
     sandbox.stub(console, 'error');
 
@@ -434,7 +441,10 @@ describe('run', function () {
     }
     setTimeout(() => {
       sinon.assert.calledOnce(console.error as any);
-      sinon.assert.calledWithExactly(console.error as any, sinon.match('malfunction'));
+      sinon.assert.calledWithExactly(
+        console.error as any,
+        sinon.match('malfunction'),
+      );
 
       // Should be false because the error was already reported in the console.
       // Otherwise we would have double reporting of the error.

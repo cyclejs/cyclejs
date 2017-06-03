@@ -2,8 +2,13 @@
 /// <reference path="../../node_modules/@types/node/index.d.ts" />
 import * as assert from 'assert';
 
-import {Location, captureClicks, makeHashHistoryDriver, makeHistoryDriver} from '../../src';
-import {createMemoryHistory} from 'history'
+import {
+  Location,
+  captureClicks,
+  makeHashHistoryDriver,
+  makeHistoryDriver,
+} from '../../src';
+import {createMemoryHistory} from 'history';
 import xs from 'xstream';
 
 describe('makeHistoryDriver', () => {
@@ -11,17 +16,16 @@ describe('makeHistoryDriver', () => {
     assert.strictEqual(typeof makeHistoryDriver, 'function');
   });
 
-  it('should return a function' , () => {
+  it('should return a function', () => {
     assert.strictEqual(typeof makeHistoryDriver(), 'function');
   });
 
-  it('should return allow injecting History object directly' , () => {
-    const history = createMemoryHistory()
+  it('should return allow injecting History object directly', () => {
+    const history = createMemoryHistory();
     assert.strictEqual(typeof makeHistoryDriver(history), 'function');
   });
 
-
-  it('should start emitting the current location', function (done) {
+  it('should start emitting the current location', function(done) {
     const history$ = makeHistoryDriver()(xs.never());
 
     const sub = history$.subscribe({
@@ -29,7 +33,7 @@ describe('makeHistoryDriver', () => {
         assert(location.pathname);
         done();
       },
-      error: (err) => {},
+      error: err => {},
       complete: () => {},
     });
 
@@ -47,11 +51,11 @@ describe.skip('makeHashHistoryDriver', () => {
     assert.strictEqual(typeof makeHashHistoryDriver, 'function');
   });
 
-  it('should return a function' , () => {
+  it('should return a function', () => {
     assert.strictEqual(typeof makeHashHistoryDriver(), 'function');
   });
 
-  it('should start emitting the current location', function (done) {
+  it('should start emitting the current location', function(done) {
     const history$ = makeHashHistoryDriver()(xs.never());
 
     const sub = history$.subscribe({
@@ -59,7 +63,7 @@ describe.skip('makeHashHistoryDriver', () => {
         assert(location.pathname);
         done();
       },
-      error: (err) => {},
+      error: err => {},
       complete: () => {},
     });
 
@@ -70,7 +74,7 @@ describe.skip('makeHashHistoryDriver', () => {
 });
 
 describe('captureClicks', () => {
-  it('should allow listening to link clicks and change route', function (done) {
+  it('should allow listening to link clicks and change route', function(done) {
     const historyDriver = makeHistoryDriver();
     const history$ = captureClicks(historyDriver)(xs.never());
 
@@ -80,7 +84,7 @@ describe('captureClicks', () => {
         sub.unsubscribe();
         done();
       },
-      error: (err) => {},
+      error: err => {},
       complete: () => {},
     });
 

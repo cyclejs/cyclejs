@@ -16,52 +16,52 @@ function createRenderTarget(id: string | null = null) {
   return element;
 }
 
-describe('makeDOMDriver', function () {
-  it('should accept a DOM element as input', function () {
+describe('makeDOMDriver', function() {
+  it('should accept a DOM element as input', function() {
     const element = createRenderTarget();
-    assert.doesNotThrow(function () {
+    assert.doesNotThrow(function() {
       makeDOMDriver(element);
     });
   });
 
-  it('should accept a DocumentFragment as input', function () {
+  it('should accept a DocumentFragment as input', function() {
     const element = document.createDocumentFragment();
-    assert.doesNotThrow(function () {
+    assert.doesNotThrow(function() {
       makeDOMDriver(element as Element);
     });
   });
 
-  it('should accept a string selector to an existing element as input', function () {
+  it('should accept a string selector to an existing element as input', function() {
     const id = 'testShouldAcceptSelectorToExisting';
     const element = createRenderTarget();
     element.id = id;
-    assert.doesNotThrow(function () {
+    assert.doesNotThrow(function() {
       makeDOMDriver('#' + id);
     });
   });
 
-  it('should not accept a selector to an unknown element as input', function () {
-    assert.throws(function () {
+  it('should not accept a selector to an unknown element as input', function() {
+    assert.throws(function() {
       makeDOMDriver('#nonsenseIdToNothing');
     }, /Cannot render into unknown element/);
   });
 
-  it('should not accept a number as input', function () {
-    assert.throws(function () {
+  it('should not accept a number as input', function() {
+    assert.throws(function() {
       makeDOMDriver(123 as any);
     }, /Given container is not a DOM element neither a selector string/);
   });
 });
 
-describe('DOM Driver', function () {
-  it('should throw if input is not an Observable<VTree>', function () {
+describe('DOM Driver', function() {
+  it('should throw if input is not an Observable<VTree>', function() {
     const domDriver = makeDOMDriver(createRenderTarget());
-    assert.throws(function () {
+    assert.throws(function() {
       domDriver({} as any);
     }, /The DOM driver function expects as input a Stream of virtual/);
   });
 
-  it('should have isolateSource() and isolateSink() in source', function (done) {
+  it('should have isolateSource() and isolateSink() in source', function(done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div()),
@@ -78,7 +78,7 @@ describe('DOM Driver', function () {
     done();
   });
 
-  it('should report errors thrown in hooks', function (done) {
+  it('should report errors thrown in hooks', function(done) {
     const sandbox = sinon.sandbox.create();
     sandbox.stub(console, 'error');
 
@@ -86,7 +86,11 @@ describe('DOM Driver', function () {
       return {
         DOM: xs.of(
           div('.test', {
-            hook: {insert: () => { throw new Error('error in hook'); }},
+            hook: {
+              insert: () => {
+                throw new Error('error in hook');
+              },
+            },
           }),
         ),
       };
@@ -107,16 +111,15 @@ describe('DOM Driver', function () {
     }, 100);
   });
 
-  it('should not work after has been disposed', function (done) {
-    const num$ = xs.of(1, 2, 3)
+  it('should not work after has been disposed', function(done) {
+    const num$ = xs
+      .of(1, 2, 3)
       .map(x => xs.of(x).compose(delay(50)))
       .compose(flattenSequentially);
 
     function app(sources: {DOM: DOMSource}) {
       return {
-        DOM: num$.map(num =>
-            h3('.target', String(num)),
-        ),
+        DOM: num$.map(num => h3('.target', String(num))),
       };
     }
 
@@ -127,40 +130,40 @@ describe('DOM Driver', function () {
     let dispose: any;
     let hasDisposed = false;
     let assertionOngoing = false;
-    sources.DOM.select(':root').elements()
-      .drop(1)
-      .addListener({
-        next: (root: Element) => {
-          const selectEl = root.querySelector('.target') as Element;
-          if (!selectEl && assertionOngoing && hasDisposed) {
-            // This synchronous delivery of the empty root element is allowed
-            return;
-          }
-          if (!selectEl && !assertionOngoing && hasDisposed) {
-            done('DOM Driver should not emit anything asynchronously after dispose()');
-          }
-          if (selectEl && hasDisposed) {
-            done('DOM Driver should not emit a target element after dispose()');
-          }
-          assertionOngoing = true;
-          assert.notStrictEqual(selectEl, null);
-          assert.notStrictEqual(typeof selectEl, 'undefined');
-          assert.strictEqual(selectEl.tagName, 'H3');
-          assert.notStrictEqual(selectEl.textContent, '3');
-          if (selectEl.textContent === '2') {
-            hasDisposed = true;
-            dispose();
-            setTimeout(() => {
-              done();
-            }, 100);
-          }
-          assertionOngoing = false;
-        },
-      });
+    sources.DOM.select(':root').elements().drop(1).addListener({
+      next: (root: Element) => {
+        const selectEl = root.querySelector('.target') as Element;
+        if (!selectEl && assertionOngoing && hasDisposed) {
+          // This synchronous delivery of the empty root element is allowed
+          return;
+        }
+        if (!selectEl && !assertionOngoing && hasDisposed) {
+          done(
+            'DOM Driver should not emit anything asynchronously after dispose()',
+          );
+        }
+        if (selectEl && hasDisposed) {
+          done('DOM Driver should not emit a target element after dispose()');
+        }
+        assertionOngoing = true;
+        assert.notStrictEqual(selectEl, null);
+        assert.notStrictEqual(typeof selectEl, 'undefined');
+        assert.strictEqual(selectEl.tagName, 'H3');
+        assert.notStrictEqual(selectEl.textContent, '3');
+        if (selectEl.textContent === '2') {
+          hasDisposed = true;
+          dispose();
+          setTimeout(() => {
+            done();
+          }, 100);
+        }
+        assertionOngoing = false;
+      },
+    });
     dispose = run();
   });
 
-  it('should clean up DOM on disposal', function (done) {
+  it('should clean up DOM on disposal', function(done) {
     let hookTick = 0;
     let hookInterval: any;
     const hook = {
@@ -174,9 +177,7 @@ describe('DOM Driver', function () {
 
     function app() {
       return {
-        DOM: xs.of(
-            h3('.target', {hook}, 'dummy text'),
-        ),
+        DOM: xs.of(h3('.target', {hook}, 'dummy text')),
       };
     }
 

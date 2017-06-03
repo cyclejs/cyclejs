@@ -28,16 +28,11 @@ function createRenderTarget(id: string | null = null) {
   return element;
 }
 
-describe('DOMSource.select()', function () {
-  it('should have Observable `:root` in DOM source', function (done) {
+describe('DOMSource.select()', function() {
+  it('should have Observable `:root` in DOM source', function(done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
-        DOM: xs.of(
-          div('.top-most', [
-            p('Foo'),
-            span('Bar'),
-          ]),
-        ),
+        DOM: xs.of(div('.top-most', [p('Foo'), span('Bar')])),
       };
     }
 
@@ -63,7 +58,9 @@ describe('DOMSource.select()', function () {
     dispose = run();
   });
 
-  it('should return a DOMSource with elements(), events(), select()', function (done) {
+  it('should return a DOMSource with elements(), events(), select()', function(
+    done,
+  ) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(h3('.myelementclass', 'Foobar')),
@@ -90,7 +87,7 @@ describe('DOMSource.select()', function () {
     done();
   });
 
-  it('should have an observable of DOM elements', function (done) {
+  it('should have an observable of DOM elements', function(done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(h3('.myelementclass', 'Foobar')),
@@ -103,34 +100,37 @@ describe('DOMSource.select()', function () {
 
     let dispose: any;
     // Make assertions
-    sources.DOM.select('.myelementclass').elements().drop(1).take(1).addListener({
-      next: (elements: Array<Element>) => {
-        assert.notStrictEqual(elements, null);
-        assert.notStrictEqual(typeof elements, 'undefined');
-        // Is an Array
-        assert.strictEqual(Array.isArray(elements), true);
-        assert.strictEqual(elements.length, 1);
-        // Array with the H3 element
-        assert.strictEqual(elements[0].tagName, 'H3');
-        assert.strictEqual(elements[0].textContent, 'Foobar');
-        setTimeout(() => {
-          dispose();
-          done();
-        });
-      },
-    });
+    sources.DOM
+      .select('.myelementclass')
+      .elements()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (elements: Array<Element>) => {
+          assert.notStrictEqual(elements, null);
+          assert.notStrictEqual(typeof elements, 'undefined');
+          // Is an Array
+          assert.strictEqual(Array.isArray(elements), true);
+          assert.strictEqual(elements.length, 1);
+          // Array with the H3 element
+          assert.strictEqual(elements[0].tagName, 'H3');
+          assert.strictEqual(elements[0].textContent, 'Foobar');
+          setTimeout(() => {
+            dispose();
+            done();
+          });
+        },
+      });
     dispose = run();
   });
 
-  it('should not select element outside the given scope', function (done) {
+  it('should not select element outside the given scope', function(done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(
           h3('.top-most', [
             h2('.bar', 'Wrong'),
-            div('.foo', [
-              h4('.bar', 'Correct'),
-            ]),
+            div('.foo', [h4('.bar', 'Correct')]),
           ]),
         ),
       };
@@ -142,24 +142,30 @@ describe('DOMSource.select()', function () {
 
     let dispose: any;
     // Make assertions
-    sources.DOM.select('.foo').select('.bar').elements().drop(1).take(1).addListener({
-      next: (elements: Array<Element>) => {
-        assert.strictEqual(elements.length, 1);
-        const element = elements[0];
-        assert.notStrictEqual(element, null);
-        assert.notStrictEqual(typeof element, 'undefined');
-        assert.strictEqual(element.tagName, 'H4');
-        assert.strictEqual(element.textContent, 'Correct');
-        setTimeout(() => {
-          dispose();
-          done();
-        });
-      },
-    });
+    sources.DOM
+      .select('.foo')
+      .select('.bar')
+      .elements()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (elements: Array<Element>) => {
+          assert.strictEqual(elements.length, 1);
+          const element = elements[0];
+          assert.notStrictEqual(element, null);
+          assert.notStrictEqual(typeof element, 'undefined');
+          assert.strictEqual(element.tagName, 'H4');
+          assert.strictEqual(element.textContent, 'Correct');
+          setTimeout(() => {
+            dispose();
+            done();
+          });
+        },
+      });
     dispose = run();
   });
 
-  it('should select svg element', function (done) {
+  it('should select svg element', function(done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(
@@ -180,7 +186,11 @@ describe('DOMSource.select()', function () {
     });
 
     // Make assertions
-    const selection = sources.DOM.select('.triangle').elements().drop(1).take(1)
+    const selection = sources.DOM
+      .select('.triangle')
+      .elements()
+      .drop(1)
+      .take(1)
       .addListener({
         next: (elements: Array<Element>) => {
           assert.strictEqual(elements.length, 1);
@@ -194,12 +204,10 @@ describe('DOMSource.select()', function () {
     run();
   });
 
-  it('should support selecting the document element', function (done) {
+  it('should support selecting the document element', function(done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
-        DOM: xs.of(
-          div('hello world'),
-        ),
+        DOM: xs.of(div('hello world')),
       };
     }
 
@@ -225,12 +233,10 @@ describe('DOMSource.select()', function () {
     simulant.fire(document, 'click');
   });
 
-  it('should support selecting the body element', function (done) {
+  it('should support selecting the body element', function(done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
-        DOM: xs.of(
-          div('hello world'),
-        ),
+        DOM: xs.of(div('hello world')),
       };
     }
 
@@ -252,12 +258,12 @@ describe('DOMSource.select()', function () {
     simulant.fire(document.body, 'click');
   });
 
-  it('should have DevTools flag in BodyDOMSource elements() stream', function (done) {
+  it('should have DevTools flag in BodyDOMSource elements() stream', function(
+    done,
+  ) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
-        DOM: xs.of(
-          div('hello world'),
-        ),
+        DOM: xs.of(div('hello world')),
       };
     }
 
@@ -270,12 +276,12 @@ describe('DOMSource.select()', function () {
     done();
   });
 
-  it('should have DevTools flag in BodyDOMSource events() stream', function (done) {
+  it('should have DevTools flag in BodyDOMSource events() stream', function(
+    done,
+  ) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
-        DOM: xs.of(
-          div('hello world'),
-        ),
+        DOM: xs.of(div('hello world')),
       };
     }
 
@@ -288,12 +294,12 @@ describe('DOMSource.select()', function () {
     done();
   });
 
-  it('should have DevTools flag in DocumentDOMSource elements() stream', function (done) {
+  it('should have DevTools flag in DocumentDOMSource elements() stream', function(
+    done,
+  ) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
-        DOM: xs.of(
-          div('hello world'),
-        ),
+        DOM: xs.of(div('hello world')),
       };
     }
 
@@ -306,12 +312,12 @@ describe('DOMSource.select()', function () {
     done();
   });
 
-  it('should have DevTools flag in DocumentDOMSource events() stream', function (done) {
+  it('should have DevTools flag in DocumentDOMSource events() stream', function(
+    done,
+  ) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
-        DOM: xs.of(
-          div('hello world'),
-        ),
+        DOM: xs.of(div('hello world')),
       };
     }
 
