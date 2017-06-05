@@ -20,12 +20,14 @@ function popAll(array: Array<any>): Array<any> {
   return poppedItems;
 }
 
-function runRealtime(scheduler: any,
-                     frameCallbacks: any,
-                     currentTime: () => number,
-                     setTime: (t: number) => void) {
+function runRealtime(
+  scheduler: any,
+  frameCallbacks: any,
+  currentTime: () => number,
+  setTime: (t: number) => void,
+) {
   let paused = false;
-  const pause = () => paused = true;
+  const pause = () => (paused = true);
   const resume = (time: number) => {
     setTime(time);
     paused = false;
@@ -98,7 +100,12 @@ function timeDriver(sink: any): any {
   }
 
   // TODO - cancel requestAnimationFrame on dispose
-  const {pause, resume} = runRealtime(scheduler, frameCallbacks, currentTime, setTime);
+  const {pause, resume} = runRealtime(
+    scheduler,
+    frameCallbacks,
+    currentTime,
+    setTime,
+  );
 
   const timeSource = {
     animationFrames: makeAnimationFrames(addFrameCallback, currentTime),
@@ -106,12 +113,16 @@ function timeDriver(sink: any): any {
     debounce: makeDebounce(scheduler.add, currentTime),
     periodic: makePeriodic(scheduler.add, currentTime),
     throttle: makeThrottle(scheduler.add, currentTime),
-    throttleAnimation: makeThrottleAnimation(() => timeSource, scheduler.add, currentTime),
+    throttleAnimation: makeThrottleAnimation(
+      () => timeSource,
+      scheduler.add,
+      currentTime,
+    ),
     _time: currentTime,
     _scheduler: scheduler.add,
     _pause: pause,
     _resume: resume,
-    _runVirtually: function (done: any, timeToRunTo: any) {
+    _runVirtually: function(done: any, timeToRunTo: any) {
       // TODO - frameCallbacks?
       runVirtually(scheduler, done, currentTime, setTime, timeToRunTo);
     },
@@ -120,6 +131,4 @@ function timeDriver(sink: any): any {
   return timeSource;
 }
 
-export {
-  timeDriver
-}
+export {timeDriver};

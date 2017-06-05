@@ -89,6 +89,4 @@ function makeScheduler() {
   };
 }
 
-export {
-  makeScheduler
-}
+export {makeScheduler};

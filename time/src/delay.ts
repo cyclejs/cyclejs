@@ -1,10 +1,12 @@
 import xs, {Stream, Listener} from 'xstream';
 import {adapt} from '@cycle/run/lib/adapt';
 
-function makeDelayListener<T>(schedule: any,
-                              currentTime: () => number,
-                              delayTime: number,
-                              listener: any) {
+function makeDelayListener<T>(
+  schedule: any,
+  currentTime: () => number,
+  delayTime: number,
+  listener: any,
+) {
   const delayedTime = () => currentTime() + delayTime;
 
   return {
@@ -45,6 +47,4 @@ function makeDelay(schedule: any, currentTime: () => number) {
   };
 }
 
-export {
-  makeDelay
-}
+export {makeDelay};

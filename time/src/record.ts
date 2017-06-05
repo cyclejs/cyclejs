@@ -27,11 +27,17 @@ function recordListener(currentTime: () => number, outListener: Listener<any>) {
   };
 }
 
-function makeRecord(schedule: any, currentTime: () => number, interval: number) {
+function makeRecord(
+  schedule: any,
+  currentTime: () => number,
+  interval: number,
+) {
   return function record(stream: Stream<any>): Stream<any> {
     const recordedStream = xs.createWithMemory({
       start(listener) {
-        xs.fromObservable(stream).addListener(recordListener(currentTime, listener));
+        xs
+          .fromObservable(stream)
+          .addListener(recordListener(currentTime, listener));
       },
 
       stop() {},
@@ -40,6 +46,4 @@ function makeRecord(schedule: any, currentTime: () => number, interval: number) 
     return adapt(recordedStream);
   };
 }
-export {
-  makeRecord
-}
+export {makeRecord};

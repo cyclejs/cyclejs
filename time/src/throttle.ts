@@ -1,11 +1,13 @@
 import xs, {Stream, Listener} from 'xstream';
 import {adapt} from '@cycle/run/lib/adapt';
 
-function makeThrottleListener<T>(schedule: any,
-                                 currentTime: () => number,
-                                 period: number,
-                                 listener: Listener<any>,
-                                 state: any) {
+function makeThrottleListener<T>(
+  schedule: any,
+  currentTime: () => number,
+  period: number,
+  listener: Listener<any>,
+  state: any,
+) {
   return {
     next(value: T) {
       const lastEventTime = state.lastEventTime;
@@ -59,6 +61,4 @@ function makeThrottle(schedule: any, currentTime: () => number) {
   };
 }
 
-export {
-  makeThrottle
-}
+export {makeThrottle};

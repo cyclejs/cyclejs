@@ -72,7 +72,13 @@ function mockTimeSource({interval = 20} = {}): any {
   const timeSource = {
     diagram: makeDiagram(scheduler.add, currentTime, interval, setMaxTime),
     record: makeRecord(scheduler.add, currentTime, interval),
-    assertEqual: makeAssertEqual(() => timeSource, scheduler.add, currentTime, interval, addAssert),
+    assertEqual: makeAssertEqual(
+      () => timeSource,
+      scheduler.add,
+      currentTime,
+      interval,
+      addAssert,
+    ),
 
     delay: makeDelay(scheduler.add, currentTime),
     debounce: makeDebounce(scheduler.add, currentTime),
@@ -80,14 +86,24 @@ function mockTimeSource({interval = 20} = {}): any {
     throttle: makeThrottle(scheduler.add, currentTime),
 
     animationFrames: () => timeSource.periodic(16).map(frame),
-    throttleAnimation: makeThrottleAnimation(() => timeSource, scheduler.add, currentTime),
+    throttleAnimation: makeThrottleAnimation(
+      () => timeSource,
+      scheduler.add,
+      currentTime,
+    ),
 
     run(doneCallback = raiseError, timeToRunTo = 0) {
       done = doneCallback;
       if (!timeToRunTo) {
         timeToRunTo = maxTime;
       }
-      runVirtually(scheduler, () => finish(asserts, done), currentTime, setTime, timeToRunTo);
+      runVirtually(
+        scheduler,
+        () => finish(asserts, done),
+        currentTime,
+        setTime,
+        timeToRunTo,
+      );
     },
 
     _scheduler: scheduler.add,
@@ -105,6 +121,4 @@ function frame(i: number) {
   };
 }
 
-export {
-  mockTimeSource
-}
+export {mockTimeSource};

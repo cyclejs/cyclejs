@@ -37,7 +37,7 @@ function makeAnimationFrames(addFrameCallback: any, currentTime: () => number) {
           listener.next(frame);
 
           addFrameCallback(nextFrame);
-        };
+        }
 
         addFrameCallback(nextFrame);
       },
@@ -51,6 +51,4 @@ function makeAnimationFrames(addFrameCallback: any, currentTime: () => number) {
   };
 }
 
-export {
-  makeAnimationFrames
-}
+export {makeAnimationFrames};

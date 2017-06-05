@@ -8,7 +8,11 @@ import * as most from 'most';
 
 const libraries = [
   {name: 'xstream', adapt: (stream: Stream<any>) => stream, lib: xs},
-  {name: 'rxjs', adapt: (stream: Stream<any>) => Observable.from(stream), lib: Observable},
+  {
+    name: 'rxjs',
+    adapt: (stream: Stream<any>) => Observable.from(stream),
+    lib: Observable,
+  },
   {name: 'most', adapt: (stream: Stream<any>) => most.from(stream), lib: most},
 ];
 
@@ -31,17 +35,11 @@ function compose(stream: any, f: any) {
 describe('@cycle/time', () => {
   before(() => setAdapt(stream => stream));
 
-  it('can be used to test Cycle apps', (done) => {
+  it('can be used to test Cycle apps', done => {
     function Counter({DOM}: any) {
-      const add$ = DOM
-        .select('.add')
-        .events('click')
-        .mapTo(+1);
+      const add$ = DOM.select('.add').events('click').mapTo(+1);
 
-      const subtract$ = DOM
-        .select('.subtract')
-        .events('click')
-        .mapTo(-1);
+      const subtract$ = DOM.select('.subtract').events('click').mapTo(-1);
 
       const change$ = xs.merge(add$, subtract$);
 
@@ -56,26 +54,23 @@ describe('@cycle/time', () => {
 
     const Time = mockTimeSource();
 
-    const addClick      = '---x-x-x------x-|';
+    const addClick = '---x-x-x------x-|';
     const subtractClick = '-----------x----|';
 
     const expectedCount = '0--1-2-3---2--3-|';
 
     const DOM = mockDOMSource({
       '.add': {
-        'click': Time.diagram(addClick),
+        click: Time.diagram(addClick),
       },
       '.subtract': {
-        'click': Time.diagram(subtractClick),
+        click: Time.diagram(subtractClick),
       },
     });
 
     const counter = Counter({DOM});
 
-    Time.assertEqual(
-      counter.count$,
-      Time.diagram(expectedCount),
-    );
+    Time.assertEqual(counter.count$, Time.diagram(expectedCount));
 
     Time.run(done);
   });
@@ -86,12 +81,10 @@ describe('@cycle/time', () => {
 
       describe('mockTimeSource', () => {
         describe('.diagram', () => {
-          it('creates streams from ascii diagrams', (done) => {
+          it('creates streams from ascii diagrams', done => {
             const Time = mockTimeSource();
 
-            const stream = Time.diagram(
-              `---1---2---3---|`
-            );
+            const stream = Time.diagram(`---1---2---3---|`);
 
             const expectedValues = [1, 2, 3];
 
@@ -107,65 +100,56 @@ describe('@cycle/time', () => {
             Time.run();
           });
 
-          it('schedules errors', (done) => {
+          it('schedules errors', done => {
             const Time = mockTimeSource();
 
-            const stream = Time.diagram(
-              `---1---2---#`
-            );
+            const stream = Time.diagram(`---1---2---#`);
 
             const expectedValues = [1, 2];
 
             stream.subscribe({
-              next (ev) {
+              next(ev) {
                 assert.equal(ev, expectedValues.shift());
               },
 
               complete: () => {},
-              error: (error) => {
+              error: error => {
                 assert.equal(expectedValues.length, 0);
                 done();
-              }
+              },
             });
 
             Time.run();
           });
 
-          it('optionally takes an object of values', (done) => {
+          it('optionally takes an object of values', done => {
             const Time = mockTimeSource();
 
-            const stream = Time.diagram(
-              `---A---B---C---|`,
-              {
-                A: {foo: 1},
-                B: {foo: 2},
-                C: {foo: 3}
-              }
-            );
+            const stream = Time.diagram(`---A---B---C---|`, {
+              A: {foo: 1},
+              B: {foo: 2},
+              C: {foo: 3},
+            });
 
-            const expectedValues = [
-              {foo: 1},
-              {foo: 2},
-              {foo: 3}
-            ];
+            const expectedValues = [{foo: 1}, {foo: 2}, {foo: 3}];
 
             stream.take(expectedValues.length).subscribe({
-              next (ev) {
+              next(ev) {
                 assert.deepEqual(ev, expectedValues.shift());
               },
 
               complete: () => done(),
-              error: done
+              error: done,
             });
 
             Time.run();
           });
 
-          it('handles multiple events in a single frame', (done) => {
+          it('handles multiple events in a single frame', done => {
             const Time = mockTimeSource();
 
-            const a        = Time.diagram('---a---');
-            const b        = Time.diagram('---b---');
+            const a = Time.diagram('---a---');
+            const b = Time.diagram('---b---');
             const expected = Time.diagram('---(ab)---');
 
             Time.assertEqual((library.lib as any).merge(a, b), expected);
@@ -175,191 +159,160 @@ describe('@cycle/time', () => {
         });
 
         describe('.assertEqual', () => {
-          it('allows testing via marble diagrams', (done) => {
+          it('allows testing via marble diagrams', done => {
             const Time = mockTimeSource();
 
-            const input = Time.diagram(
-              `---1---2---3---|`
-            );
+            const input = Time.diagram(`---1---2---3---|`);
 
             const value = input.map(i => i * 2);
 
-            const expected = Time.diagram(
-              `---2---4---6---|`
-            );
+            const expected = Time.diagram(`---2---4---6---|`);
 
-            Time.assertEqual(
-              value,
-              expected
-            );
+            Time.assertEqual(value, expected);
 
             Time.run(done);
           });
 
-          it('fails when actual differs from expected', (done) => {
+          it('fails when actual differs from expected', done => {
             const Time = mockTimeSource();
 
-            const input = Time.diagram(
-              `---1---2---3---|`
-            );
+            const input = Time.diagram(`---1---2---3---|`);
 
-            const expected = Time.diagram(
-              `---2---4---5---|`
-            );
+            const expected = Time.diagram(`---2---4---5---|`);
 
             const value = input.map(i => i * 2);
 
             const complete = (err: any) => {
               if (err) {
-                const lines = err.message.split(/\s+/).filter((a: string) => a.length > 0);
+                const lines = err.message
+                  .split(/\s+/)
+                  .filter((a: string) => a.length > 0);
 
-                assert([
-                  'Expected',
-                  '---2---4---5---|',
-                  'Got',
-                  '---2---4---6---|',
-                ].every(expectedLine => lines.indexOf(expectedLine) !== -1), err.message);
+                assert(
+                  [
+                    'Expected',
+                    '---2---4---5---|',
+                    'Got',
+                    '---2---4---6---|',
+                  ].every(expectedLine => lines.indexOf(expectedLine) !== -1),
+                  err.message,
+                );
 
                 done();
               } else {
                 throw new Error('expected test to fail');
               }
-            }
+            };
 
-            Time.assertEqual(
-              value,
-              expected
-            );
+            Time.assertEqual(value, expected);
 
             Time.run(complete);
           });
 
-          it('stringifies objects', (done) => {
+          it('stringifies objects', done => {
             const Time = mockTimeSource();
 
-            const input = Time.diagram(
-              `---1---2---3---|`
-            );
+            const input = Time.diagram(`---1---2---3---|`);
 
-            const expected = Time.diagram(
-              `---a-------b---|`,
-              {a: {a: 1}, b: {a: 2}}
-            );
+            const expected = Time.diagram(`---a-------b---|`, {
+              a: {a: 1},
+              b: {a: 2},
+            });
 
             const complete = (err: any) => {
               if (err) {
-                const lines = err.message.split(/\s+/).filter((a: string) => a.length > 0);
+                const lines = err.message
+                  .split(/\s+/)
+                  .filter((a: string) => a.length > 0);
 
-                assert([
-                  'Expected',
-                  '---{"a":1}-------{"a":2}---|',
-                  'Got',
-                  '---1---2---3---|',
-                ].every(expectedLine => lines.indexOf(expectedLine) !== -1));
+                assert(
+                  [
+                    'Expected',
+                    '---{"a":1}-------{"a":2}---|',
+                    'Got',
+                    '---1---2---3---|',
+                  ].every(expectedLine => lines.indexOf(expectedLine) !== -1),
+                );
 
                 done();
               } else {
                 throw new Error('expected test to fail');
               }
-            }
+            };
 
-            Time.assertEqual(
-              input,
-              expected
-            );
+            Time.assertEqual(input, expected);
 
             Time.run(complete);
           });
 
-          it('handles errors', (done) => {
+          it('handles errors', done => {
             const Time = mockTimeSource();
 
             const stream = xs.throw(new Error('Test!'));
             const expected = '#';
 
-            Time.assertEqual(
-              stream,
-              Time.diagram(expected)
-            );
+            Time.assertEqual(stream, Time.diagram(expected));
 
             Time.run(done);
           });
 
-          it('compares objects using deep equality by default', (done) => {
+          it('compares objects using deep equality by default', done => {
             const Time = mockTimeSource();
 
-            const actual = Time.diagram(
-              `---A---B---C---|`,
-              {
-                A: {foo: 1},
-                B: {foo: 2},
-                C: {foo: 3}
-              }
-            );
+            const actual = Time.diagram(`---A---B---C---|`, {
+              A: {foo: 1},
+              B: {foo: 2},
+              C: {foo: 3},
+            });
 
-            const expected = Time.diagram(
-              `---X---Y---Z---|`,
-              {
-                X: {foo: 1},
-                Y: {foo: 2},
-                Z: {foo: 3}
-              }
-            );
+            const expected = Time.diagram(`---X---Y---Z---|`, {
+              X: {foo: 1},
+              Y: {foo: 2},
+              Z: {foo: 3},
+            });
 
             Time.assertEqual(actual, expected);
             Time.run(done);
           });
 
           describe('custom equality functions', () => {
-            it('passes', (done) => {
+            it('passes', done => {
               const Time = mockTimeSource();
 
-              const actual$ = Time.diagram(
-                `---A---B---C---|`,
-                {
-                  A: {foo: 1, bar: 2},
-                  B: {foo: 2, bar: 4},
-                  C: {foo: 3, bar: 6}
-                }
-              );
+              const actual$ = Time.diagram(`---A---B---C---|`, {
+                A: {foo: 1, bar: 2},
+                B: {foo: 2, bar: 4},
+                C: {foo: 3, bar: 6},
+              });
 
-              const expected$ = Time.diagram(
-                `---X---Y---Z---|`,
-                {
-                  X: {foo: 1, bar: 3},
-                  Y: {foo: 2, bar: 4},
-                  Z: {foo: 3, bar: 6}
-                }
-              );
+              const expected$ = Time.diagram(`---X---Y---Z---|`, {
+                X: {foo: 1, bar: 3},
+                Y: {foo: 2, bar: 4},
+                Z: {foo: 3, bar: 6},
+              });
 
-              function comparator (actual: any, expected: any) {
-                return actual.foo === expected.foo
+              function comparator(actual: any, expected: any) {
+                return actual.foo === expected.foo;
               }
 
               Time.assertEqual(actual$, expected$, comparator);
               Time.run(done);
             });
 
-            it('fails', (done) => {
+            it('fails', done => {
               const Time = mockTimeSource();
 
-              const actual$ = Time.diagram(
-                `---A---B---C---|`,
-                {
-                  A: {foo: 1, bar: 2},
-                  B: {foo: 2, bar: 4},
-                  C: {foo: 3, bar: 6}
-                }
-              );
+              const actual$ = Time.diagram(`---A---B---C---|`, {
+                A: {foo: 1, bar: 2},
+                B: {foo: 2, bar: 4},
+                C: {foo: 3, bar: 6},
+              });
 
-              const expected$ = Time.diagram(
-                `---X---Y---Z---|`,
-                {
-                  X: {foo: 5, bar: 3},
-                  Y: {foo: 2, bar: 4},
-                  Z: {foo: 3, bar: 6}
-                }
-              );
+              const expected$ = Time.diagram(`---X---Y---Z---|`, {
+                X: {foo: 5, bar: 3},
+                Y: {foo: 2, bar: 4},
+                Z: {foo: 3, bar: 6},
+              });
 
               function comparator(actual: any, expected: any) {
                 return actual.foo === expected.foo;
@@ -367,8 +320,8 @@ describe('@cycle/time', () => {
 
               Time.assertEqual(actual$, expected$, comparator);
 
-              Time.run((err) => {
-                if(!err) {
+              Time.run(err => {
+                if (!err) {
                   done(new Error('expected test to fail'));
                 } else {
                   done();
@@ -376,26 +329,20 @@ describe('@cycle/time', () => {
               });
             });
 
-            it('logs errors', (done) => {
+            it('logs errors', done => {
               const Time = mockTimeSource();
 
-              const actual$ = Time.diagram(
-                `---A---B---C---|`,
-                {
-                  A: {foo: 1, bar: 2},
-                  B: {foo: 2, bar: 4},
-                  C: {foo: 3, bar: 6}
-                }
-              );
+              const actual$ = Time.diagram(`---A---B---C---|`, {
+                A: {foo: 1, bar: 2},
+                B: {foo: 2, bar: 4},
+                C: {foo: 3, bar: 6},
+              });
 
-              const expected$ = Time.diagram(
-                `---X---Y---Z---|`,
-                {
-                  X: {foo: 5, bar: 3},
-                  Y: {foo: 2, bar: 4},
-                  Z: {foo: 3, bar: 6}
-                }
-              );
+              const expected$ = Time.diagram(`---X---Y---Z---|`, {
+                X: {foo: 5, bar: 3},
+                Y: {foo: 2, bar: 4},
+                Z: {foo: 3, bar: 6},
+              });
 
               function comparator(actual: any, expected: any) {
                 if (actual.foo !== expected.foo) {
@@ -416,8 +363,8 @@ describe('@cycle/time', () => {
                     'Expected failure message to include error, did not:',
                     err.message,
                     'to include:',
-                    'Something went wrong'
-                  ].join('\n\n')
+                    'Something went wrong',
+                  ].join('\n\n'),
                 );
 
                 done();
@@ -425,12 +372,10 @@ describe('@cycle/time', () => {
             });
           });
 
-          it('logs unexpected errors', (done) => {
+          it('logs unexpected errors', done => {
             const Time = mockTimeSource();
 
-            const input$ = Time.diagram(
-              `---A---B---C---|`
-            );
+            const input$ = Time.diagram(`---A---B---C---|`);
 
             const expectedError = 'Something went unexpectedly wrong!';
 
@@ -446,9 +391,7 @@ describe('@cycle/time', () => {
 
             const actual$ = input$.map(transformation);
 
-            const expected$ = Time.diagram(
-              `---X---Y---Z---|`
-            );
+            const expected$ = Time.diagram(`---X---Y---Z---|`);
 
             Time.assertEqual(actual$, expected$);
             Time.run((err: any) => {
@@ -462,19 +405,19 @@ describe('@cycle/time', () => {
                   'Expected failure message to include error, did not:',
                   err.message,
                   'to include:',
-                  expectedError
-                ].join('\n\n')
+                  expectedError,
+                ].join('\n\n'),
               );
 
               done();
             });
           });
 
-          it('handles infinite streams', (done) => {
+          it('handles infinite streams', done => {
             const Time = mockTimeSource();
 
-            const input    = Time.diagram('---1---2---3---');
-            const actual   = input.map(i => i * 2);
+            const input = Time.diagram('---1---2---3---');
+            const actual = input.map(i => i * 2);
             const expected = Time.diagram('---2---4---6---');
 
             Time.assertEqual(actual, expected);
@@ -482,16 +425,16 @@ describe('@cycle/time', () => {
             Time.run(done);
           });
 
-          it('handles infinite streams that have failures', (done) => {
+          it('handles infinite streams that have failures', done => {
             const Time = mockTimeSource();
 
-            const input    = Time.diagram('---1---2---3---');
-            const actual   = input.map(i => i * 2);
+            const input = Time.diagram('---1---2---3---');
+            const actual = input.map(i => i * 2);
             const expected = Time.diagram('---2---7---6---');
 
             Time.assertEqual(actual, expected);
 
-            Time.run((err) => {
+            Time.run(err => {
               if (!err) {
                 return done(new Error('expected test to fail'));
               }
@@ -500,176 +443,145 @@ describe('@cycle/time', () => {
             });
           });
 
-          it('displays simultaneous events correcly', (done) => {
+          it('displays simultaneous events correcly', done => {
             const Time = mockTimeSource();
 
-            const input    = `---(11)---(22)---(33)---|`;
+            const input = `---(11)---(22)---(33)---|`;
             const expected = `---(11)---(22)---(34)---|`;
 
             const complete = (err: any) => {
               if (err) {
-                const lines = err.message.split(/\s+/).filter((a: string) => a.length > 0);
+                const lines = err.message
+                  .split(/\s+/)
+                  .filter((a: string) => a.length > 0);
 
-                assert([
-                  'Expected',
-                  expected,
-                  'Got',
-                  input
-                ].every(expectedLine => lines.indexOf(expectedLine) !== -1));
+                assert(
+                  ['Expected', expected, 'Got', input].every(
+                    expectedLine => lines.indexOf(expectedLine) !== -1,
+                  ),
+                );
 
                 done();
               } else {
                 throw new Error('expected test to fail');
               }
-            }
+            };
 
-            Time.assertEqual(
-              Time.diagram(input),
-              Time.diagram(expected)
-            );
+            Time.assertEqual(Time.diagram(input), Time.diagram(expected));
 
             Time.run(complete);
           });
         });
 
         describe('.periodic', () => {
-          it('creates a stream that emits every period ms', (done) => {
+          it('creates a stream that emits every period ms', done => {
             const Time = mockTimeSource();
 
             const stream = Time.periodic(80);
 
-            const expected = Time.diagram(
-              `----0---1---2---3---4---`
-            );
+            const expected = Time.diagram(`----0---1---2---3---4---`);
 
-            Time.assertEqual(
-              stream,
-              expected
-            );
+            Time.assertEqual(stream, expected);
 
             Time.run(done);
           });
         });
 
         describe('.delay', () => {
-          it('delays events by the given period', (done) => {
+          it('delays events by the given period', done => {
             const Time = mockTimeSource();
 
-            const input = Time.diagram(
-              `---1---2---3---|`
-            ) as any;
+            const input = Time.diagram(`---1---2---3---|`) as any;
 
-            const expected = Time.diagram(
-              `------1---2---3---|`
-            );
+            const expected = Time.diagram(`------1---2---3---|`);
 
             const value = compose(input, Time.delay(60));
 
-            Time.assertEqual(
-              value,
-              expected
-            );
+            Time.assertEqual(value, expected);
 
             Time.run(done);
           });
 
-          it('propagates errors', (done) => {
+          it('propagates errors', done => {
             const Time = mockTimeSource();
 
-            const stream = compose(xs.throw(new Error('Test!')), Time.delay(60));
+            const stream = compose(
+              xs.throw(new Error('Test!')),
+              Time.delay(60),
+            );
             const expected = '---#';
 
-            Time.assertEqual(
-              stream,
-              Time.diagram(expected)
-            );
+            Time.assertEqual(stream, Time.diagram(expected));
 
             Time.run(done);
           });
-        })
+        });
 
         describe('.debounce', () => {
-          it('delays events until the period has passed', (done) => {
+          it('delays events until the period has passed', done => {
             const Time = mockTimeSource();
 
-            const input    = `--1----2-3----|`;
+            const input = `--1----2-3----|`;
             const expected = `-----1------3-|`;
 
             const stream = compose(Time.diagram(input), Time.debounce(60));
             const expectedStream = Time.diagram(expected);
 
-            Time.assertEqual(
-              stream,
-              expectedStream
-            );
+            Time.assertEqual(stream, expectedStream);
 
             Time.run(done);
           });
 
-          it('propagates errors', (done) => {
+          it('propagates errors', done => {
             const Time = mockTimeSource();
 
-            const stream   = Time.diagram('---1-2---3-#');
+            const stream = Time.diagram('---1-2---3-#');
             const expected = Time.diagram('--------2--#');
 
-            Time.assertEqual(
-              compose(stream, Time.debounce(60)),
-              expected
-            );
+            Time.assertEqual(compose(stream, Time.debounce(60)), expected);
 
             Time.run(done);
           });
         });
 
         describe('.throttle', () => {
-          it('only allows one event per period', (done) => {
+          it('only allows one event per period', done => {
             const Time = mockTimeSource();
 
-            const input    = `--1-2-----3--4-5---6-|`;
+            const input = `--1-2-----3--4-5---6-|`;
             const expected = `--1-------3----5---6-|`;
             const stream = compose(Time.diagram(input), Time.throttle(60));
             const expectedStream = Time.diagram(expected);
 
-            Time.assertEqual(
-              stream,
-              expectedStream
-            );
+            Time.assertEqual(stream, expectedStream);
 
             Time.run(done);
           });
 
-          it('propagates errors', (done) => {
+          it('propagates errors', done => {
             const Time = mockTimeSource();
 
-            const stream   = Time.diagram('---1-2---3-#');
+            const stream = Time.diagram('---1-2---3-#');
             const expected = Time.diagram('---1-----3-#');
 
-            Time.assertEqual(
-              compose(stream, Time.throttle(60)),
-              expected
-            );
+            Time.assertEqual(compose(stream, Time.throttle(60)), expected);
 
             Time.run(done);
           });
         });
 
         describe('.animationFrames', () => {
-          it('provides a stream of frames for animations', (done) => {
+          it('provides a stream of frames for animations', done => {
             const Time = mockTimeSource({interval: 8});
 
-            const frames = [0, 1, 2].map(i => (
-              {
-                time: i * 16,
-                delta: 16,
-                normalizedDelta: 1
-              }
-            ));
+            const frames = [0, 1, 2].map(i => ({
+              time: i * 16,
+              delta: 16,
+              normalizedDelta: 1,
+            }));
 
-            const actual$ = Time.animationFrames()
-            const expected$ = Time.diagram(
-              `--0-1-2`,
-              frames
-            );
+            const actual$ = Time.animationFrames();
+            const expected$ = Time.diagram(`--0-1-2`, frames);
 
             Time.assertEqual(actual$, expected$);
 
@@ -678,11 +590,11 @@ describe('@cycle/time', () => {
         });
 
         describe('.throttleAnimation', () => {
-          it('throttles a stream using animationFrames', (done) => {
+          it('throttles a stream using animationFrames', done => {
             const Time = mockTimeSource({interval: 8});
 
-            const noisy$    = Time.diagram(`-123456----`);
-            const actual$   = compose(noisy$, Time.throttleAnimation);
+            const noisy$ = Time.diagram(`-123456----`);
+            const actual$ = compose(noisy$, Time.throttleAnimation);
             const expected$ = Time.diagram(`--2-4-6----`);
 
             Time.assertEqual(actual$, expected$);
@@ -692,50 +604,48 @@ describe('@cycle/time', () => {
         });
 
         describe('.record', () => {
-          it('records a stream into an array of entries', (done) => {
+          it('records a stream into an array of entries', done => {
             const Time = mockTimeSource();
 
             const expectedNextEntry = {type: 'next', time: 60, value: 'a'};
             const expectedCompletionEntry = {type: 'complete', time: 140};
 
-            const input$    = Time.diagram(`---a---|`);
+            const input$ = Time.diagram(`---a---|`);
 
-            const actual$   = compose(input$, Time.record);
+            const actual$ = compose(input$, Time.record);
             const expected$ = Time.diagram(`x--y---(z|)`, {
               x: [],
               y: [expectedNextEntry],
-              z: [expectedNextEntry, expectedCompletionEntry]
+              z: [expectedNextEntry, expectedCompletionEntry],
             });
 
-            Time.assertEqual(
-              actual$,
-              expected$
-            );
+            Time.assertEqual(actual$, expected$);
 
             Time.run(done);
           });
 
-          it('records errors', (done) => {
+          it('records errors', done => {
             const Time = mockTimeSource();
 
-            const expectedErrorEntry = {type: 'error', time: 60, error: new Error(`scheduled error`)};
+            const expectedErrorEntry = {
+              type: 'error',
+              time: 60,
+              error: new Error(`scheduled error`),
+            };
 
-            const input$    = Time.diagram(`---#`);
+            const input$ = Time.diagram(`---#`);
 
-            const actual$   = compose(input$, Time.record);
+            const actual$ = compose(input$, Time.record);
             const expected$ = Time.diagram(`x--(y|)`, {
               x: [],
-              y: [expectedErrorEntry]
+              y: [expectedErrorEntry],
             });
 
-            Time.assertEqual(
-              actual$,
-              expected$
-            );
+            Time.assertEqual(actual$, expected$);
 
             Time.run(done);
           });
-        })
+        });
       });
     });
   });

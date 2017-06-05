@@ -1,11 +1,13 @@
 import xs, {Stream, Listener} from 'xstream';
 import {adapt} from '@cycle/run/lib/adapt';
 
-function makeDebounceListener<T>(schedule: any,
-                                 currentTime: () => number,
-                                 debounceInterval: number,
-                                 listener: any,
-                                 state: any) {
+function makeDebounceListener<T>(
+  schedule: any,
+  currentTime: () => number,
+  debounceInterval: number,
+  listener: any,
+  state: any,
+) {
   return {
     next(value: T) {
       const scheduledEntry = state.scheduledEntry;
@@ -59,6 +61,4 @@ function makeDebounce(schedule: any, currentTime: () => number) {
   };
 }
 
-export {
-  makeDebounce
-}
+export {makeDebounce};

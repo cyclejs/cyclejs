@@ -16,6 +16,10 @@ export interface TimeSource {
 export interface MockTimeSource extends TimeSource {
   diagram(str: string, values?: Object): Stream<any>;
   record(stream: Stream<any>): Stream<Array<any>>;
-  assertEqual(actual: Stream<any>, expected: Stream<any>, comparator?: Comparator): void;
+  assertEqual(
+    actual: Stream<any>,
+    expected: Stream<any>,
+    comparator?: Comparator,
+  ): void;
   run(cb?: (err?: Error) => void): void;
 }

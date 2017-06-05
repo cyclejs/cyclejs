@@ -8,10 +8,12 @@ function parseIntIfDecimal(str: string): number | string {
   return str;
 }
 
-function makeDiagram(schedule: any,
-                     currentTime: () => number,
-                     interval: number,
-                     setMaxTime: any) {
+function makeDiagram(
+  schedule: any,
+  currentTime: () => number,
+  interval: number,
+  setMaxTime: any,
+) {
   return function diagram(diagramString: string, values = {}): Stream<any> {
     const characters = diagramString.split('');
     const stream = xs.create();
@@ -20,7 +22,7 @@ function makeDiagram(schedule: any,
         return values[character];
       }
       return parseIntIfDecimal(character);
-    };
+    }
 
     setMaxTime(diagramString.length * interval);
 
@@ -60,6 +62,4 @@ function makeDiagram(schedule: any,
   };
 }
 
-export {
-  makeDiagram
-}
+export {makeDiagram};

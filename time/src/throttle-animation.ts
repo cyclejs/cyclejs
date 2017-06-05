@@ -2,7 +2,11 @@ import xs, {Stream} from 'xstream';
 import sampleCombine from 'xstream/extra/sampleCombine';
 import {adapt} from '@cycle/run/lib/adapt';
 
-function makeThrottleAnimation(timeSource: any, schedule: any, currentTime: () => number) {
+function makeThrottleAnimation(
+  timeSource: any,
+  schedule: any,
+  currentTime: () => number,
+) {
   return function throttleAnimation<T>(stream: Stream<T>): Stream<T> {
     const source = timeSource();
 
@@ -47,6 +51,4 @@ function makeThrottleAnimation(timeSource: any, schedule: any, currentTime: () =
   };
 }
 
-export {
-  makeThrottleAnimation
-}
+export {makeThrottleAnimation};

@@ -40,16 +40,16 @@ function processEvent(args: any) {
   setImmediate(processEvent, args);
 }
 
-function runVirtually(scheduler: any,
-                      done: any,
-                      currentTime: () => number,
-                      setTime: any,
-                      timeToRunTo = 0) {
+function runVirtually(
+  scheduler: any,
+  done: any,
+  currentTime: () => number,
+  setTime: any,
+  timeToRunTo = 0,
+) {
   const args = {scheduler, done, currentTime, setTime, timeToRunTo};
 
   setImmediate(processEvent, args);
 }
 
-export {
-  runVirtually
-}
+export {runVirtually};

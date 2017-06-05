@@ -2,7 +2,12 @@ import xs, {Stream} from 'xstream';
 import {deepEqual} from 'assert';
 const variableDiff = require('variable-diff');
 
-function checkEqual(completeStore: any, assert: any, interval: number, comparator: any) {
+function checkEqual(
+  completeStore: any,
+  assert: any,
+  interval: number,
+  comparator: any,
+) {
   const usingCustomComparator = comparator !== deepEqual;
   const failReasons: Array<any> = [];
 
@@ -31,7 +36,8 @@ function checkEqual(completeStore: any, assert: any, interval: number, comparato
 
     if (actual.type === 'complete') {
       const rightTime =
-        diagramFrame(actual.time, interval) === diagramFrame(expected.time, interval);
+        diagramFrame(actual.time, interval) ===
+        diagramFrame(expected.time, interval);
 
       if (!rightTime) {
         failReasons.push(
@@ -42,7 +48,8 @@ function checkEqual(completeStore: any, assert: any, interval: number, comparato
 
     if (actual.type === 'next') {
       const rightTime =
-        diagramFrame(actual.time, interval) === diagramFrame(expected.time, interval);
+        diagramFrame(actual.time, interval) ===
+        diagramFrame(expected.time, interval);
       let rightValue = true;
 
       try {
@@ -58,7 +65,7 @@ function checkEqual(completeStore: any, assert: any, interval: number, comparato
       if (rightValue && !rightTime) {
         failReasons.push(
           `Right value at wrong time, expected at ${expected.time} but ` +
-          `happened at ${actual.time} (${JSON.stringify(actual.value)})`,
+            `happened at ${actual.time} (${JSON.stringify(actual.value)})`,
         );
       }
 
@@ -68,8 +75,9 @@ function checkEqual(completeStore: any, assert: any, interval: number, comparato
         ];
 
         if (usingCustomComparator) {
-          const message =
-            `Expected ${JSON.stringify(expected.value)}, got ${JSON.stringify(actual.value)}`;
+          const message = `Expected ${JSON.stringify(
+            expected.value,
+          )}, got ${JSON.stringify(actual.value)}`;
 
           errorMessage.push(message);
         } else {
@@ -87,7 +95,8 @@ function checkEqual(completeStore: any, assert: any, interval: number, comparato
 
     if (actual.type === 'error') {
       const rightTime =
-        diagramFrame(actual.time, interval) === diagramFrame(expected.time, interval);
+        diagramFrame(actual.time, interval) ===
+        diagramFrame(expected.time, interval);
       let pass = true;
 
       if (expected.type !== 'error') {
@@ -109,7 +118,8 @@ function checkEqual(completeStore: any, assert: any, interval: number, comparato
     assert.state = 'passed';
   } else {
     assert.state = 'failed';
-    assert.error = new Error(strip(`
+    assert.error = new Error(
+      strip(`
 Expected
 
 ${diagramString(completeStore['expected'], interval)}
@@ -123,16 +133,23 @@ Failed because:
 ${failReasons.map(reason => ` * ${reason}`).join('\n')}
 
 ${displayUnexpectedErrors(assert.unexpectedErrors)}
-    `));
+    `),
+    );
   }
 }
 
-function makeAssertEqual(timeSource: any,
-                         schedule: any,
-                         currentTime: () => number,
-                         interval: number,
-                         addAssert: any) {
-  return function assertEqual(actual: Stream<any>, expected: Stream<any>, comparator = deepEqual) {
+function makeAssertEqual(
+  timeSource: any,
+  schedule: any,
+  currentTime: () => number,
+  interval: number,
+  addAssert: any,
+) {
+  return function assertEqual(
+    actual: Stream<any>,
+    expected: Stream<any>,
+    comparator = deepEqual,
+  ) {
     const completeStore = {};
 
     const Time = timeSource();
@@ -151,16 +168,18 @@ function makeAssertEqual(timeSource: any,
     const actualLog$ = Time.record(actual);
     const expectedLog$ = Time.record(expected);
 
-    xs.combine(xs.fromObservable(actualLog$), xs.fromObservable(expectedLog$)).addListener({
-      next([aLog, bLog]) {
-        completeStore['actual'] = aLog;
-        completeStore['expected'] = bLog;
-      },
+    xs
+      .combine(xs.fromObservable(actualLog$), xs.fromObservable(expectedLog$))
+      .addListener({
+        next([aLog, bLog]) {
+          completeStore['actual'] = aLog;
+          completeStore['expected'] = bLog;
+        },
 
-      complete() {
-        checkEqual(completeStore, assert, interval, comparator);
-      },
-    });
+        complete() {
+          checkEqual(completeStore, assert, interval, comparator);
+        },
+      });
   };
 }
 
@@ -196,7 +215,8 @@ function chunkBy(values: Array<any>, f: any) {
     };
   }
 
-  return values.reduce(chunkItGood, {items: [], previousValue: undefined}).items;
+  return values.reduce(chunkItGood, {items: [], previousValue: undefined})
+    .items;
 }
 
 function characterString(entry: any) {
@@ -224,7 +244,9 @@ function diagramString(entries: Array<any>, interval: number): string {
 
   const diagram = fill(new Array(characterCount), '-');
 
-  const chunks = chunkBy(entries, (entry: any) => Math.max(0, Math.floor(entry.time / interval)));
+  const chunks = chunkBy(entries, (entry: any) =>
+    Math.max(0, Math.floor(entry.time / interval)),
+  );
 
   chunks.forEach((chunk: any) => {
     const characterIndex = Math.max(0, Math.floor(chunk[0].time / interval));
@@ -246,9 +268,7 @@ function diagramString(entries: Array<any>, interval: number): string {
 function strip(str: string): string {
   const lines = str.split('\n');
 
-  return lines
-    .map(line => line.replace(/^\s{12}/, ''))
-    .join('\n');
+  return lines.map(line => line.replace(/^\s{12}/, '')).join('\n');
 }
 
 function stringifyIfObject(value: any): string {
@@ -268,6 +288,4 @@ function displayUnexpectedErrors(errors: Array<any>) {
   return `Unexpected error:\n ${messages}`;
 }
 
-export {
-  makeAssertEqual
-}
+export {makeAssertEqual};
