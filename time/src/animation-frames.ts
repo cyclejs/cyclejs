@@ -7,24 +7,26 @@ export type Frame = {
   delta: number;
   normalizedDelta: number;
   time: number;
-}
+};
 
-function makeAnimationFrames (addFrameCallback, currentTime) {
-  return function animationFrames (): Stream<Frame> {
-    let frame = {
+function makeAnimationFrames(addFrameCallback: any, currentTime: () => number) {
+  return function animationFrames(): Stream<Frame> {
+    const frame = {
       time: 0,
       delta: 16,
-      normalizedDelta: 1
+      normalizedDelta: 1,
     };
 
     let stopped = false;
 
     const frameStream = xs.create<Frame>({
-      start (listener) {
+      start(listener) {
         frame.time = currentTime();
 
-        function nextFrame () {
-          if (stopped) {console.log('wow'); return; }
+        function nextFrame() {
+          if (stopped) {
+            return;
+          }
 
           const oldTime = frame.time;
 
@@ -40,15 +42,14 @@ function makeAnimationFrames (addFrameCallback, currentTime) {
         addFrameCallback(nextFrame);
       },
 
-      stop () {
+      stop() {
         stopped = true;
-      }
+      },
     });
 
     return adapt(frameStream);
-  }
+  };
 }
-
 
 export {
   makeAnimationFrames

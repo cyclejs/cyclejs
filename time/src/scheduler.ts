@@ -1,6 +1,6 @@
 const makeAccumulator = require('sorted-immutable-list').default;
 
-const comparator = (a) => (b) => {
+const comparator = (a: any) => (b: any) => {
   if (a.time < b.time) {
     return -1;
   }
@@ -23,70 +23,70 @@ const comparator = (a) => (b) => {
   return 1;
 };
 
-function makeScheduler () {
-  let schedule = [];
+function makeScheduler() {
+  let schedule: Array<any> = [];
 
-  function getSchedule () {
+  function getSchedule() {
     return schedule;
   }
 
   const addScheduleEntry = makeAccumulator({
     comparator,
-    unique: false
+    unique: false,
   });
 
-  function scheduleEntry (newEntry) {
-    schedule = addScheduleEntry(schedule, newEntry)
+  function scheduleEntry(newEntry: any) {
+    schedule = addScheduleEntry(schedule, newEntry);
 
     return newEntry;
   }
 
-  function noop () {}
+  function noop() {}
 
   return {
-    shiftNextEntry () {
+    shiftNextEntry() {
       return schedule.shift();
     },
 
-    isEmpty () {
+    isEmpty() {
       return schedule.length === 0;
     },
 
-    peek () {
+    peek() {
       return schedule[0];
     },
 
     add: {
       _schedule: getSchedule,
 
-      next (stream, time, value, f = noop) {
+      next(stream: any, time: number, value: any, f = noop) {
         return scheduleEntry({
           type: 'next',
           stream,
           time,
           value,
-          f
-        })
+          f,
+        });
       },
 
-      error (stream, time, error) {
+      error(stream: any, time: number, error: any) {
         return scheduleEntry({
           type: 'error',
           stream,
           time,
-          error
-        })
+          error,
+        });
       },
 
-      completion (stream, time) {
+      completion(stream: any, time: number) {
         return scheduleEntry({
           type: 'complete',
           stream,
-          time
-        })
-      }
-    }
-  }
+          time,
+        });
+      },
+    },
+  };
 }
 
 export {

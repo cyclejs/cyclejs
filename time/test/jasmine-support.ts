@@ -1,4 +1,4 @@
-import {mockTimeSource} from '../src/';
+import {mockTimeSource} from '../';
 import {setAdapt} from '@cycle/run/lib/adapt';
 
 describe('jasmine support', () => {
@@ -7,7 +7,7 @@ describe('jasmine support', () => {
       throw new Error('expected test to fail');
     };
 
-    done['fail'] = (err) => {
+    done['fail'] = (err: any) => {
       mochaDone();
     };
 
@@ -15,7 +15,7 @@ describe('jasmine support', () => {
 
     Time.assertEqual(
       Time.diagram('-1-'),
-      Time.diagram('-2-')
+      Time.diagram('-2-'),
     );
 
     Time.run(done);

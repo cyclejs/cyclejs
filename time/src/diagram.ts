@@ -1,29 +1,30 @@
 import {adapt} from '@cycle/run/lib/adapt';
 import xs, {Stream} from 'xstream';
 
-const parseIntIfDecimal = (str) => {
+function parseIntIfDecimal(str: string): number | string {
   if (str.match(/[0-9]/)) {
     return parseInt(str, 10);
   }
-
   return str;
 }
 
-function makeDiagram (schedule, currentTime, interval, setMaxTime) {
-  return function diagram (diagramString: string, values = {}): Stream<any> {
+function makeDiagram(schedule: any,
+                     currentTime: () => number,
+                     interval: number,
+                     setMaxTime: any) {
+  return function diagram(diagramString: string, values = {}): Stream<any> {
     const characters = diagramString.split('');
     const stream = xs.create();
-    const valueFor = (character) => {
+    function valueFor(character: string) {
       if (character in values) {
         return values[character];
       }
-
       return parseIntIfDecimal(character);
     };
 
     setMaxTime(diagramString.length * interval);
 
-    let multipleValueFrame : false | number = false;
+    let multipleValueFrame: false | number = false;
 
     characters.forEach((character, index) => {
       if (character === '-') {
@@ -56,7 +57,7 @@ function makeDiagram (schedule, currentTime, interval, setMaxTime) {
     });
 
     return adapt(stream);
-  }
+  };
 }
 
 export {

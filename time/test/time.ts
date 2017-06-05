@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import {mockTimeSource, timeDriver} from '../src/';
+import {mockTimeSource, timeDriver} from '../';
 import {mockDOMSource} from '@cycle/dom';
 import xs, {Stream} from 'xstream';
 import {setAdapt} from '@cycle/run/lib/adapt';
@@ -7,12 +7,12 @@ import {Observable} from 'rxjs/Rx';
 import * as most from 'most';
 
 const libraries = [
-  {name: 'xstream', adapt: stream => stream, lib: xs},
-  {name: 'rxjs', adapt: stream => Observable.from(stream), lib: Observable},
-  {name: 'most', adapt: stream => most.from(stream), lib: most}
+  {name: 'xstream', adapt: (stream: Stream<any>) => stream, lib: xs},
+  {name: 'rxjs', adapt: (stream: Stream<any>) => Observable.from(stream), lib: Observable},
+  {name: 'most', adapt: (stream: Stream<any>) => most.from(stream), lib: most},
 ];
 
-function compose (stream, f) {
+function compose(stream: any, f: any) {
   if ('compose' in stream) {
     return stream.compose(f);
   }
@@ -28,11 +28,11 @@ function compose (stream, f) {
   throw new Error(`Don't know how to compose`);
 }
 
-describe("@cycle/time", () => {
+describe('@cycle/time', () => {
   before(() => setAdapt(stream => stream));
 
-  it("can be used to test Cycle apps", (done) => {
-    function Counter ({DOM}) {
+  it('can be used to test Cycle apps', (done) => {
+    function Counter({DOM}: any) {
       const add$ = DOM
         .select('.add')
         .events('click')
@@ -45,13 +45,13 @@ describe("@cycle/time", () => {
 
       const change$ = xs.merge(add$, subtract$);
 
-      const add = (a, b) => a + b;
+      const add = (a: number, b: number) => a + b;
 
       const count$ = change$.fold(add, 0);
 
       return {
-        count$
-      }
+        count$,
+      };
     }
 
     const Time = mockTimeSource();
@@ -63,18 +63,18 @@ describe("@cycle/time", () => {
 
     const DOM = mockDOMSource({
       '.add': {
-        'click': Time.diagram(addClick)
+        'click': Time.diagram(addClick),
       },
       '.subtract': {
-        'click': Time.diagram(subtractClick)
-      }
+        'click': Time.diagram(subtractClick),
+      },
     });
 
     const counter = Counter({DOM});
 
     Time.assertEqual(
       counter.count$,
-      Time.diagram(expectedCount)
+      Time.diagram(expectedCount),
     );
 
     Time.run(done);
@@ -84,9 +84,9 @@ describe("@cycle/time", () => {
     describe(library.name, () => {
       before(() => setAdapt(library.adapt));
 
-      describe("mockTimeSource", () => {
-        describe(".diagram", () => {
-          it("creates streams from ascii diagrams", (done) => {
+      describe('mockTimeSource', () => {
+        describe('.diagram', () => {
+          it('creates streams from ascii diagrams', (done) => {
             const Time = mockTimeSource();
 
             const stream = Time.diagram(
@@ -96,18 +96,18 @@ describe("@cycle/time", () => {
             const expectedValues = [1, 2, 3];
 
             stream.take(expectedValues.length).subscribe({
-              next (ev) {
+              next(ev) {
                 assert.equal(ev, expectedValues.shift());
               },
 
               complete: () => done(),
-              error: done
+              error: done,
             });
 
             Time.run();
           });
 
-          it("schedules errors", (done) => {
+          it('schedules errors', (done) => {
             const Time = mockTimeSource();
 
             const stream = Time.diagram(
@@ -131,7 +131,7 @@ describe("@cycle/time", () => {
             Time.run();
           });
 
-          it("optionally takes an object of values", (done) => {
+          it('optionally takes an object of values', (done) => {
             const Time = mockTimeSource();
 
             const stream = Time.diagram(
@@ -161,7 +161,7 @@ describe("@cycle/time", () => {
             Time.run();
           });
 
-          it("handles multiple events in a single frame", (done) => {
+          it('handles multiple events in a single frame', (done) => {
             const Time = mockTimeSource();
 
             const a        = Time.diagram('---a---');
@@ -174,8 +174,8 @@ describe("@cycle/time", () => {
           });
         });
 
-        describe(".assertEqual", () => {
-          it("allows testing via marble diagrams", (done) => {
+        describe('.assertEqual', () => {
+          it('allows testing via marble diagrams', (done) => {
             const Time = mockTimeSource();
 
             const input = Time.diagram(
@@ -196,7 +196,7 @@ describe("@cycle/time", () => {
             Time.run(done);
           });
 
-          it("fails when actual differs from expected", (done) => {
+          it('fails when actual differs from expected', (done) => {
             const Time = mockTimeSource();
 
             const input = Time.diagram(
@@ -209,9 +209,9 @@ describe("@cycle/time", () => {
 
             const value = input.map(i => i * 2);
 
-            const complete = (err) => {
+            const complete = (err: any) => {
               if (err) {
-                const lines = err.message.split(/\s+/).filter(a => a.length > 0);
+                const lines = err.message.split(/\s+/).filter((a: string) => a.length > 0);
 
                 assert([
                   'Expected',
@@ -234,7 +234,7 @@ describe("@cycle/time", () => {
             Time.run(complete);
           });
 
-          it("stringifies objects", (done) => {
+          it('stringifies objects', (done) => {
             const Time = mockTimeSource();
 
             const input = Time.diagram(
@@ -246,9 +246,9 @@ describe("@cycle/time", () => {
               {a: {a: 1}, b: {a: 2}}
             );
 
-            const complete = (err) => {
+            const complete = (err: any) => {
               if (err) {
-                const lines = err.message.split(/\s+/).filter(a => a.length > 0);
+                const lines = err.message.split(/\s+/).filter((a: string) => a.length > 0);
 
                 assert([
                   'Expected',
@@ -271,7 +271,7 @@ describe("@cycle/time", () => {
             Time.run(complete);
           });
 
-          it("handles errors", (done) => {
+          it('handles errors', (done) => {
             const Time = mockTimeSource();
 
             const stream = xs.throw(new Error('Test!'));
@@ -285,7 +285,7 @@ describe("@cycle/time", () => {
             Time.run(done);
           });
 
-          it("compares objects using deep equality by default", (done) => {
+          it('compares objects using deep equality by default', (done) => {
             const Time = mockTimeSource();
 
             const actual = Time.diagram(
@@ -310,8 +310,8 @@ describe("@cycle/time", () => {
             Time.run(done);
           });
 
-          describe("custom equality functions", () => {
-            it("passes", (done) => {
+          describe('custom equality functions', () => {
+            it('passes', (done) => {
               const Time = mockTimeSource();
 
               const actual$ = Time.diagram(
@@ -332,7 +332,7 @@ describe("@cycle/time", () => {
                 }
               );
 
-              function comparator (actual, expected) {
+              function comparator (actual: any, expected: any) {
                 return actual.foo === expected.foo
               }
 
@@ -340,7 +340,7 @@ describe("@cycle/time", () => {
               Time.run(done);
             });
 
-            it("fails", (done) => {
+            it('fails', (done) => {
               const Time = mockTimeSource();
 
               const actual$ = Time.diagram(
@@ -361,8 +361,8 @@ describe("@cycle/time", () => {
                 }
               );
 
-              function comparator (actual, expected) {
-                return actual.foo === expected.foo
+              function comparator(actual: any, expected: any) {
+                return actual.foo === expected.foo;
               }
 
               Time.assertEqual(actual$, expected$, comparator);
@@ -376,7 +376,7 @@ describe("@cycle/time", () => {
               });
             });
 
-            it("logs errors", (done) => {
+            it('logs errors', (done) => {
               const Time = mockTimeSource();
 
               const actual$ = Time.diagram(
@@ -397,26 +397,26 @@ describe("@cycle/time", () => {
                 }
               );
 
-              function comparator (actual, expected) {
+              function comparator(actual: any, expected: any) {
                 if (actual.foo !== expected.foo) {
-                  throw new Error("Something went wrong");
+                  throw new Error('Something went wrong');
                 }
               }
 
               Time.assertEqual(actual$, expected$, comparator);
 
-              Time.run((err) => {
+              Time.run((err: any) => {
                 if (!err) {
-                  done(new Error("expected test to fail"));
+                  done(new Error('expected test to fail'));
                 }
 
                 assert(
-                  err.message.indexOf("Something went wrong") !== -1,
+                  err.message.indexOf('Something went wrong') !== -1,
                   [
-                    "Expected failure message to include error, did not:",
+                    'Expected failure message to include error, did not:',
                     err.message,
-                    "to include:",
-                    "Something went wrong"
+                    'to include:',
+                    'Something went wrong'
                   ].join('\n\n')
                 );
 
@@ -425,7 +425,7 @@ describe("@cycle/time", () => {
             });
           });
 
-          it("logs unexpected errors", (done) => {
+          it('logs unexpected errors', (done) => {
             const Time = mockTimeSource();
 
             const input$ = Time.diagram(
@@ -434,7 +434,7 @@ describe("@cycle/time", () => {
 
             const expectedError = 'Something went unexpectedly wrong!';
 
-            function transformation (character) {
+            function transformation(character: string) {
               if (character === 'A') {
                 return 'X';
               }
@@ -451,7 +451,7 @@ describe("@cycle/time", () => {
             );
 
             Time.assertEqual(actual$, expected$);
-            Time.run((err) => {
+            Time.run((err: any) => {
               if (!err) {
                 done(new Error('expected test to fail'));
               }
@@ -470,7 +470,7 @@ describe("@cycle/time", () => {
             });
           });
 
-          it("handles infinite streams", (done) => {
+          it('handles infinite streams', (done) => {
             const Time = mockTimeSource();
 
             const input    = Time.diagram('---1---2---3---');
@@ -482,7 +482,7 @@ describe("@cycle/time", () => {
             Time.run(done);
           });
 
-          it("handles infinite streams that have failures", (done) => {
+          it('handles infinite streams that have failures', (done) => {
             const Time = mockTimeSource();
 
             const input    = Time.diagram('---1---2---3---');
@@ -500,15 +500,15 @@ describe("@cycle/time", () => {
             });
           });
 
-          it("displays simultaneous events correcly", (done) => {
+          it('displays simultaneous events correcly', (done) => {
             const Time = mockTimeSource();
 
             const input    = `---(11)---(22)---(33)---|`;
             const expected = `---(11)---(22)---(34)---|`;
 
-            const complete = (err) => {
+            const complete = (err: any) => {
               if (err) {
-                const lines = err.message.split(/\s+/).filter(a => a.length > 0);
+                const lines = err.message.split(/\s+/).filter((a: string) => a.length > 0);
 
                 assert([
                   'Expected',
@@ -532,8 +532,8 @@ describe("@cycle/time", () => {
           });
         });
 
-        describe(".periodic", () => {
-          it("creates a stream that emits every period ms", (done) => {
+        describe('.periodic', () => {
+          it('creates a stream that emits every period ms', (done) => {
             const Time = mockTimeSource();
 
             const stream = Time.periodic(80);
@@ -551,8 +551,8 @@ describe("@cycle/time", () => {
           });
         });
 
-        describe(".delay", () => {
-          it("delays events by the given period", (done) => {
+        describe('.delay', () => {
+          it('delays events by the given period', (done) => {
             const Time = mockTimeSource();
 
             const input = Time.diagram(
@@ -573,7 +573,7 @@ describe("@cycle/time", () => {
             Time.run(done);
           });
 
-          it("propagates errors", (done) => {
+          it('propagates errors', (done) => {
             const Time = mockTimeSource();
 
             const stream = compose(xs.throw(new Error('Test!')), Time.delay(60));
@@ -588,8 +588,8 @@ describe("@cycle/time", () => {
           });
         })
 
-        describe(".debounce", () => {
-          it("delays events until the period has passed", (done) => {
+        describe('.debounce', () => {
+          it('delays events until the period has passed', (done) => {
             const Time = mockTimeSource();
 
             const input    = `--1----2-3----|`;
@@ -606,7 +606,7 @@ describe("@cycle/time", () => {
             Time.run(done);
           });
 
-          it("propagates errors", (done) => {
+          it('propagates errors', (done) => {
             const Time = mockTimeSource();
 
             const stream   = Time.diagram('---1-2---3-#');
@@ -621,8 +621,8 @@ describe("@cycle/time", () => {
           });
         });
 
-        describe(".throttle", () => {
-          it("only allows one event per period", (done) => {
+        describe('.throttle', () => {
+          it('only allows one event per period', (done) => {
             const Time = mockTimeSource();
 
             const input    = `--1-2-----3--4-5---6-|`;
@@ -638,7 +638,7 @@ describe("@cycle/time", () => {
             Time.run(done);
           });
 
-          it("propagates errors", (done) => {
+          it('propagates errors', (done) => {
             const Time = mockTimeSource();
 
             const stream   = Time.diagram('---1-2---3-#');

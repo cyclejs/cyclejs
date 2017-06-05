@@ -1,6 +1,6 @@
 require('setimmediate');
 
-function processEvent (args) {
+function processEvent(args: any) {
   const {scheduler, done, currentTime, setTime, timeToRunTo} = args;
   const nextEvent = scheduler.peek();
   const outOfTime = nextEvent && timeToRunTo && nextEvent.time >= timeToRunTo;
@@ -40,7 +40,11 @@ function processEvent (args) {
   setImmediate(processEvent, args);
 }
 
-function runVirtually (scheduler, done, currentTime, setTime, timeToRunTo = null) {
+function runVirtually(scheduler: any,
+                      done: any,
+                      currentTime: () => number,
+                      setTime: any,
+                      timeToRunTo = 0) {
   const args = {scheduler, done, currentTime, setTime, timeToRunTo};
 
   setImmediate(processEvent, args);

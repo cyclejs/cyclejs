@@ -36,9 +36,21 @@ jspm_packages
 # Optional REPL history
 .node_repl_history
 
-dist/
+# Editor-specific
+.idea
+*.sublime-project
+*.sublime-workspace
+.settings
 
-most.js
-rxjs.js
-most.d.ts
-rxjs.d.ts
+# Generated
+/lib/
+/dist/
+/most.js
+/rxjs.js
+/most.d.ts
+/rxjs.d.ts
+
+# Misc
+ignore
+npm-debug.log
+.DS_Store

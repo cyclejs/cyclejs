@@ -1,9 +1,13 @@
-import xs, {Stream} from 'xstream';
+import xs, {Stream, Listener} from 'xstream';
 import {adapt} from '@cycle/run/lib/adapt';
 
-function makeDebounceListener<T> (schedule, currentTime, debounceInterval, listener, state) {
+function makeDebounceListener<T>(schedule: any,
+                                 currentTime: () => number,
+                                 debounceInterval: number,
+                                 listener: any,
+                                 state: any) {
   return {
-    next (value: T) {
+    next(value: T) {
       const scheduledEntry = state.scheduledEntry;
       const timeToSchedule = currentTime() + debounceInterval;
 
@@ -18,41 +22,41 @@ function makeDebounceListener<T> (schedule, currentTime, debounceInterval, liste
       state.scheduledEntry = schedule.next(listener, timeToSchedule, value);
     },
 
-    error (error) {
-      schedule.error(listener, currentTime(), error);
+    error(e: any) {
+      schedule.error(listener, currentTime(), e);
     },
 
-    complete () {
+    complete() {
       schedule.completion(listener, currentTime());
-    }
-  }
+    },
+  };
 }
 
-function makeDebounce (schedule, currentTime) {
-  return function debounce (debounceInterval: number) {
-    return function debounceOperator<T> (stream: Stream<T>): Stream<T> {
+function makeDebounce(schedule: any, currentTime: () => number) {
+  return function debounce(debounceInterval: number) {
+    return function debounceOperator<T>(stream: Stream<T>): Stream<T> {
       const state = {scheduledEntry: null};
 
       const debouncedStream = xs.create<T>({
-        start (listener) {
+        start(listener: Listener<T>) {
           const debounceListener = makeDebounceListener<T>(
             schedule,
             currentTime,
             debounceInterval,
             listener,
-            state
+            state,
           );
 
           xs.fromObservable(stream).addListener(debounceListener);
         },
 
         // TODO - maybe cancel the scheduled event?
-        stop () {}
+        stop() {},
       });
 
       return adapt(debouncedStream);
-    }
-  }
+    };
+  };
 }
 
 export {

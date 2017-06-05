@@ -10,7 +10,8 @@ var packageScopes = [
   'jsonp',
   'most-run',
   'run',
-  'rxjs-run'
+  'rxjs-run',
+  'time'
 ];
 
 var otherScopes = [

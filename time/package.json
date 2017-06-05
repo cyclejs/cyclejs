@@ -2,11 +2,37 @@
   "name": "@cycle/time",
   "version": "0.8.0",
   "description": "A time driver designed to enable awesome testing and dev tooling",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "author": "Nick Johnstone",
   "license": "MIT",
-  "homepage": "https://github.com/cyclejs/time#readme",
+  "homepage": "https://cycle.js.org",
+  "bugs": "https://github.com/cyclejs/cyclejs/issues",
+  "repository": "https://github.com/cyclejs/cyclejs/tree/master/time",
+  "author": "Nick Johnstone",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "types": "lib/index.d.ts",
+  "dependencies": {
+    "@cycle/run": "3.x",
+    "combine-errors": "3.0.x",
+    "raf": "3.3.x",
+    "setimmediate": "1.0.x",
+    "sorted-immutable-list": "1.1.x",
+    "variable-diff": "1.1.x",
+    "xstream": "*"
+  },
+  "devDependencies": {
+    "@cycle/dom": "17.4",
+    "@cycle/rxjs-run": "7.0",
+    "@types/mocha": "2.2.x",
+    "@types/node": "7.0.x",
+    "garnish": "5.2.x",
+    "markdown-doctest": "0.9.x",
+    "most": "1.2.x",
+    "rxjs": "5.1.x",
+    "snabbdom-selector": "1.1.x"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "dist/",
     "most.js",
@@ -14,50 +40,17 @@
     "most.d.ts",
     "rxjs.d.ts"
   ],
-  "publishConfig": {
-    "access": "public"
+  "browserify-shim": {
+    "xstream": "global:xstream"
   },
   "scripts": {
-    "start": "budo -d example example/index.ts:index.js --live -- -p tsify",
-    "test": "mocha 'test/**/*.ts' --compilers ts:ts-node/register && npm run test/docs",
-    "test/auto": "mocha 'test/**/*.ts' --compilers ts:ts-node/register --watch -R min",
-    "test/docs": "npm run compile && markdown-doctest",
-    "compile": "tsc && tsc rxjs.ts most.ts --declaration --lib DOM,ES5,ES6",
-    "prepublish": "npm run compile",
-    "postpublish": "greenkeeper-postpublish"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/cyclejs/time.git"
-  },
-  "bugs": {
-    "url": "https://github.com/cyclejs/time/issues"
-  },
-  "dependencies": {
-    "@cycle/run": "^1.0.0-rc.9",
-    "combine-errors": "^3.0.3",
-    "raf": "^3.3.0",
-    "setimmediate": "^1.0.5",
-    "sorted-immutable-list": "^1.1.0",
-    "variable-diff": "^1.1.0",
-    "xstream": "*"
-  },
-  "devDependencies": {
-    "@cycle/dom": "^15.0.0-rc.2",
-    "@cycle/rxjs-run": "^4.0.0-rc.6",
-    "@types/mocha": "^2.2.37",
-    "@types/node": "^7.0.8",
-    "browserify": "^14.3.0",
-    "budo": "^10.0.2",
-    "garnish": "^5.2.0",
-    "greenkeeper-postpublish": "^1.0.1",
-    "markdown-doctest": "^0.9.1",
-    "mocha": "^3.4.1",
-    "most": "^1.2.2",
-    "rxjs": "^5.1.0",
-    "snabbdom-selector": "^1.1.1",
-    "ts-node": "^3.0.2",
-    "tsify": "^3.0.0",
-    "typescript": "^2.1.5"
+    "start": "../node_modules/.bin/budo -d example example/index.ts:index.js --live -- -p tsify",
+    "test-watch": "../node_modules/.bin/mocha 'test/**/*.ts' --compilers ts:ts-node/register --watch -R min",
+    "test-node": "../node_modules/.bin/mocha 'test/**/*.ts' --compilers ts:ts-node/register",
+    "test": "npm run test-node && npm run test-docs",
+    "test-ci": "npm run test",
+    "test-docs": "markdown-doctest",
+    "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleTime --exclude xstream --outfile dist/cycle-time.js",
+    "uglify": "../node_modules/.bin/uglifyjs dist/cycle-time.js --compress --mangle -o dist/cycle-time.min.js"
   }
 }

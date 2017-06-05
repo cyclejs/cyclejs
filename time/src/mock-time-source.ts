@@ -1,7 +1,4 @@
 import xs, {Stream} from 'xstream';
-import * as assert from 'assert';
-import * as combineErrors from 'combine-errors';
-
 import {makeScheduler} from './scheduler';
 import {makeDelay} from './delay';
 import {makeDebounce} from './debounce';
@@ -14,14 +11,16 @@ import {makeThrottleAnimation} from './throttle-animation';
 import {makeRecord} from './record';
 import {runVirtually} from './run-virtually';
 import {MockTimeSource} from './time-source';
+import * as assert from 'assert';
+const combineErrors = require('combine-errors');
 
-function raiseError (err) {
+function raiseError(err: any) {
   if (err) {
     throw err;
   }
 }
 
-function finish (asserts, done) {
+function finish(asserts: Array<any>, done: any) {
   const pendingAsserts = asserts.filter(assert => assert.state === 'pending');
 
   pendingAsserts.forEach(assert => assert.finish());
@@ -46,27 +45,27 @@ function finish (asserts, done) {
   }
 }
 
-function mockTimeSource ({interval = 20} = {}): any {
+function mockTimeSource({interval = 20} = {}): any {
   let time = 0;
-  let maxTime = null;
-  let asserts = [];
-  let done;
+  let maxTime = 0;
+  const asserts: Array<any> = [];
+  let done: any;
 
   const scheduler = makeScheduler();
 
-  function addAssert (assert) {
+  function addAssert(assert: any) {
     asserts.push(assert);
   }
 
-  function currentTime () {
+  function currentTime() {
     return time;
   }
 
-  function setTime (newTime) {
+  function setTime(newTime: number) {
     time = newTime;
   }
 
-  function setMaxTime (newTime) {
+  function setMaxTime(newTime: number) {
     maxTime = Math.max(newTime, maxTime);
   }
 
@@ -83,27 +82,27 @@ function mockTimeSource ({interval = 20} = {}): any {
     animationFrames: () => timeSource.periodic(16).map(frame),
     throttleAnimation: makeThrottleAnimation(() => timeSource, scheduler.add, currentTime),
 
-    run (doneCallback = raiseError, timeToRunTo = null) {
+    run(doneCallback = raiseError, timeToRunTo = 0) {
       done = doneCallback;
       if (!timeToRunTo) {
         timeToRunTo = maxTime;
       }
-      runVirtually(scheduler, () => finish(asserts, done), currentTime, setTime, timeToRunTo)
+      runVirtually(scheduler, () => finish(asserts, done), currentTime, setTime, timeToRunTo);
     },
 
     _scheduler: scheduler.add,
-    _time: currentTime
-  }
+    _time: currentTime,
+  };
 
   return timeSource;
 }
 
-function frame (i) {
+function frame(i: number) {
   return {
     time: i * 16,
     delta: 16,
-    normalizedDelta: 1
-  }
+    normalizedDelta: 1,
+  };
 }
 
 export {

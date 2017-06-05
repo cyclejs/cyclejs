@@ -1,4 +1,4 @@
-const timeDriver = require('./dist/');
+const timeDriver = require('./lib/');
 const xs = require('xstream').default;
 const dom = require('@cycle/dom');
 const most = require('most');

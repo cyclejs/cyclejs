@@ -1,6 +1,4 @@
 import xs, {Stream} from 'xstream';
-const requestAnimationFrame = require('raf');
-
 import {makeScheduler} from './scheduler';
 import {makeDelay} from './delay';
 import {makeDebounce} from './debounce';
@@ -10,8 +8,9 @@ import {makeAnimationFrames} from './animation-frames';
 import {makeThrottleAnimation} from './throttle-animation';
 import {runVirtually} from './run-virtually';
 import {TimeSource} from './time-source';
+const requestAnimationFrame = require('raf');
 
-function popAll (array) {
+function popAll(array: Array<any>): Array<any> {
   const poppedItems = [];
 
   while (array.length > 0) {
@@ -21,15 +20,18 @@ function popAll (array) {
   return poppedItems;
 }
 
-function runRealtime (scheduler, frameCallbacks, currentTime, setTime) {
+function runRealtime(scheduler: any,
+                     frameCallbacks: any,
+                     currentTime: () => number,
+                     setTime: (t: number) => void) {
   let paused = false;
   const pause = () => paused = true;
-  const resume = (time) => {
+  const resume = (time: number) => {
     setTime(time);
     paused = false;
-  }
+  };
 
-  function processEvent (eventTime) {
+  function processEvent(eventTime: number) {
     if (paused) {
       requestAnimationFrame(processEvent);
       return;
@@ -78,26 +80,25 @@ function runRealtime (scheduler, frameCallbacks, currentTime, setTime) {
   return {pause, resume};
 }
 
-
-function timeDriver (_, streamAdapter): any {
+function timeDriver(sink: any): any {
   let time = 0;
-  let frameCallbacks = [];
+  const frameCallbacks: Array<any> = [];
   const scheduler = makeScheduler();
 
-  function currentTime () {
+  function currentTime(): number {
     return time;
   }
 
-  function setTime (newTime) {
+  function setTime(newTime: number): void {
     time = newTime;
   }
 
-  function addFrameCallback (callback) {
+  function addFrameCallback(callback: any) {
     frameCallbacks.push(callback);
   }
 
   // TODO - cancel requestAnimationFrame on dispose
-  const {pause, resume} = runRealtime(scheduler, frameCallbacks, currentTime, setTime)
+  const {pause, resume} = runRealtime(scheduler, frameCallbacks, currentTime, setTime);
 
   const timeSource = {
     animationFrames: makeAnimationFrames(addFrameCallback, currentTime),
@@ -110,11 +111,11 @@ function timeDriver (_, streamAdapter): any {
     _scheduler: scheduler.add,
     _pause: pause,
     _resume: resume,
-    _runVirtually: function (done, timeToRunTo) {
+    _runVirtually: function (done: any, timeToRunTo: any) {
       // TODO - frameCallbacks?
       runVirtually(scheduler, done, currentTime, setTime, timeToRunTo);
-    }
-  }
+    },
+  };
 
   return timeSource;
 }

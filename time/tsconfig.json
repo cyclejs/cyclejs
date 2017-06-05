@@ -1,16 +1,19 @@
 {
+  "extends": "../tsconfig.common.json",
   "compilerOptions": {
-    "target": "es5",
-    "outDir": "dist/",
-    "module": "commonjs",
-    "declaration": true,
+    "outDir": "lib/",
     "lib": [
-      "DOM",
-      "ES5",
-      "ES6"
+      "dom",
+      "es5",
+      "scripthost",
+      "es2015.collection",
+      "es2015.promise",
+      "es2015.iterable"
     ]
   },
-  "include": [
-    "src/**/*.ts"
+  "files": [
+    "index.ts",
+    "most.ts",
+    "rxjs.ts"
   ]
 }

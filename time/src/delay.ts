@@ -1,45 +1,48 @@
-import xs, {Stream} from 'xstream';
+import xs, {Stream, Listener} from 'xstream';
 import {adapt} from '@cycle/run/lib/adapt';
 
-function makeDelayListener<T> (schedule, currentTime, delayTime, listener) {
+function makeDelayListener<T>(schedule: any,
+                              currentTime: () => number,
+                              delayTime: number,
+                              listener: any) {
   const delayedTime = () => currentTime() + delayTime;
 
   return {
-    next (value: T) {
+    next(value: T) {
       schedule.next(listener, delayedTime(), value);
     },
 
-    error (error: Error) {
+    error(error: Error) {
       schedule.error(listener, delayedTime(), error);
     },
 
-    complete () {
+    complete() {
       schedule.completion(listener, delayedTime());
-    }
-  }
+    },
+  };
 }
 
-function makeDelay (schedule, currentTime) {
-  return function delay (delayTime: number) {
-    return function delayOperator<T> (stream: Stream<T>): Stream<T> {
+function makeDelay(schedule: any, currentTime: () => number) {
+  return function delay(delayTime: number) {
+    return function delayOperator<T>(stream: Stream<T>): Stream<T> {
       const producer = {
-        start (listener) {
+        start(listener: Listener<T>) {
           const delayListener = makeDelayListener<T>(
             schedule,
             currentTime,
             delayTime,
-            listener
+            listener,
           );
 
           xs.fromObservable(stream).addListener(delayListener);
         },
 
-        stop () {}
+        stop() {},
       };
 
       return adapt(xs.create<T>(producer));
-    }
-  }
+    };
+  };
 }
 
 export {

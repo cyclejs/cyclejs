@@ -1,9 +1,13 @@
-import xs, {Stream} from 'xstream';
+import xs, {Stream, Listener} from 'xstream';
 import {adapt} from '@cycle/run/lib/adapt';
 
-function makeThrottleListener<T> (schedule, currentTime, period, listener, state) {
+function makeThrottleListener<T>(schedule: any,
+                                 currentTime: () => number,
+                                 period: number,
+                                 listener: Listener<any>,
+                                 state: any) {
   return {
-    next (value: T) {
+    next(value: T) {
       const lastEventTime = state.lastEventTime;
       const time = currentTime();
 
@@ -19,40 +23,40 @@ function makeThrottleListener<T> (schedule, currentTime, period, listener, state
       state.lastEventTime = time;
     },
 
-    error (error) {
+    error(error: any) {
       schedule.error(listener, currentTime(), error);
     },
 
-    complete () {
+    complete() {
       schedule.completion(listener, currentTime());
-    }
-  }
+    },
+  };
 }
 
-function makeThrottle (schedule, currentTime) {
-  return function throttle (period: number) {
-    return function throttleOperator<T> (stream: Stream<T>): Stream<T> {
+function makeThrottle(schedule: any, currentTime: () => number) {
+  return function throttle(period: number) {
+    return function throttleOperator<T>(stream: Stream<T>): Stream<T> {
       const state = {lastEventTime: -Infinity}; // so that the first event is always scheduled
 
       const throttledStream = xs.create<T>({
-        start (listener) {
+        start(listener) {
           const throttleListener = makeThrottleListener<T>(
             schedule,
             currentTime,
             period,
             listener,
-            state
+            state,
           );
 
-          xs.fromObservable(stream).addListener(throttleListener)
+          xs.fromObservable(stream).addListener(throttleListener);
         },
 
-        stop () {}
+        stop() {},
       });
 
       return adapt(throttledStream);
-    }
-  }
+    };
+  };
 }
 
 export {
