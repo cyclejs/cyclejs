@@ -65,6 +65,6 @@
     "test": "npm run test-node",
     "test-ci": "npm run test",
     "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleHTML --exclude xstream --outfile dist/cycle-html.js",
-    "uglify": "../node_modules/.bin/uglifyjs dist/cycle-html.js --compress --mangle -o dist/cycle-html.min.js"
+    "minify": "node ../.scripts/minify.js dist/cycle-html.js dist/cycle-html.min.js"
   }
 }

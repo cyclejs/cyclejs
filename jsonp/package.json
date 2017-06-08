@@ -25,7 +25,7 @@
     "test": ":",
     "test-ci": "npm run test",
     "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleJSONPDriver --exclude xstream --outfile dist/cycle-jsonp-driver.js",
-    "uglify": "../node_modules/.bin/uglifyjs dist/cycle-jsonp-driver.js -o dist/cycle-jsonp-driver.min.js"
+    "minify": "node ../.scripts/minify.js dist/cycle-jsonp-driver.js dist/cycle-jsonp-driver.min.js"
   },
   "publishConfig": {
     "access": "public"
