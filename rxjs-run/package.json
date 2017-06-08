@@ -52,7 +52,7 @@
     "test": "npm run mocha",
     "test-ci": "npm run test",
     "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone Cycle --exclude rxjs -o dist/cycle.js",
-    "uglify": "../node_modules/.bin/uglifyjs dist/cycle.js -o dist/cycle.min.js"
+    "minify": "node ../.scripts/minify.js dist/cycle.js dist/cycle.min.js"
   },
   "publishConfig": {
     "access": "public"

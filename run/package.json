@@ -48,7 +48,7 @@
     "test": "npm run mocha",
     "test-ci": "npm run test",
     "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone Cycle --exclude xstream -o dist/cycle-run.js",
-    "uglify": "../node_modules/.bin/uglifyjs dist/cycle-run.js -o dist/cycle-run.min.js"
+    "minify": "node ../.scripts/minify.js dist/cycle-run.js dist/cycle-run.min.js"
   },
   "publishConfig": {
     "access": "public"

@@ -80,6 +80,6 @@
     "test-ci": "npm run test-node && npm run test-browser-ci",
     "test-wait": "npm run test-node && npm run test-browser-wait",
     "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleDOM --exclude xstream --outfile dist/cycle-dom.js",
-    "uglify": "../node_modules/.bin/uglifyjs dist/cycle-dom.js --compress --mangle -o dist/cycle-dom.min.js"
+    "minify": "node ../.scripts/minify.js dist/cycle-dom.js dist/cycle-dom.min.js"
   }
 }

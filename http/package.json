@@ -45,7 +45,7 @@
     "test-ci": "npm run test-node && yarn run test-browser-ci",
     "test": "npm run test-node && yarn run test-browser",
     "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleHTTPDriver --exclude xstream --outfile dist/cycle-http-driver.js",
-    "uglify": "../node_modules/.bin/uglifyjs dist/cycle-http-driver.js -o dist/cycle-http-driver.min.js"
+    "minify": "node ../.scripts/minify.js dist/cycle-http-driver.js dist/cycle-http-driver.min.js"
   },
   "homepage": "https://cycle.js.org",
   "bugs": "https://github.com/cyclejs/cyclejs/issues",

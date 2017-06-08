@@ -117,7 +117,7 @@ dist :
 		rm -rf $(ARG)/dist ;\
 		mkdir -p $(ARG)/dist/ ;\
 		make lib $(ARG) ;\
-		cd $(ARG) ; npm run browserify ; npm run uglify ; cd .. ;\
+		cd $(ARG) ; npm run browserify ; npm run minify ; cd .. ;\
 		echo "✓ Built dist for $(ARG)" ;\
 	fi
 

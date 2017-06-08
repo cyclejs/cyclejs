@@ -34,6 +34,6 @@
     "test": "npm run test-node && yarn run test-browser",
     "test-ci": "npm run test",
     "browserify": "../node_modules/.bin/browserify lib/index.js --standalone CycleHistory --outfile dist/cycle-history.js",
-    "uglify": "../node_modules/.bin/uglifyjs dist/cycle-history.js -o dist/cycle-history.min.js"
+    "minify": "node ../.scripts/minify.js dist/cycle-history.js dist/cycle-history.min.js"
   }
 }
