@@ -53,8 +53,7 @@ prettier-all :
 	done < .scripts/RELEASABLE_PACKAGES
 
 commit :
-	.scripts/prettier-staged-files.sh
-	$(BINDIR)/git-cz
+	.scripts/commit.sh
 
 lint :
 	@if [ "$(ARG)" = "" ]; then \
