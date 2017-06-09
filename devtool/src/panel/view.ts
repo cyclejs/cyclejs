@@ -15,7 +15,7 @@ function renderInvalidState() {
       'packages:'),
     ul([
       li([ pre('xstream'), ' v6.1.x or higher' ]),
-      li([ pre('@cycle/xstream-run'), ' v3.1.x or higher' ]),
+      li([ pre('@cycle/run'), ' v3.1.x or higher' ]),
       li([ pre('@cycle/dom'), ' v12.2.x or higher, if you are using it' ]),
       li([ pre('@cycle/http'), ' v10.2.x or higher, if you are using it' ]),
     ]),
