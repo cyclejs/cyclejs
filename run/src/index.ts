@@ -1,3 +1,4 @@
+// tslint:disable-next-line:max-file-line-count
 import xs, {Stream, MemoryStream} from 'xstream';
 import {adapt} from './adapt';
 
