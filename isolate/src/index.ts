@@ -73,6 +73,7 @@ function isolateAllSources<So extends Sources>(
     if (
       outerSources.hasOwnProperty(channel) &&
       outerSource &&
+      scopes[channel] !== null &&
       typeof outerSource.isolateSource === 'function'
     ) {
       innerSources[channel] = outerSource.isolateSource(
@@ -98,6 +99,7 @@ function isolateAllSinks<So extends Sources, Si>(
     if (
       innerSinks.hasOwnProperty(channel) &&
       source &&
+      scopes[channel] !== null &&
       typeof source.isolateSink === 'function'
     ) {
       outerSinks[channel] = source.isolateSink(innerSink, scopes[channel]);
