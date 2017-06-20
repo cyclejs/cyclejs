@@ -9,6 +9,8 @@ import {makeThrottleAnimation} from './throttle-animation';
 import {runVirtually} from './run-virtually';
 import {TimeSource} from './time-source';
 const requestAnimationFrame = require('raf');
+const now = require('performance-now');
+require('setimmediate');
 
 function popAll(array: Array<any>): Array<any> {
   const poppedItems = [];
@@ -33,21 +35,34 @@ function runRealtime(
     paused = false;
   };
 
-  function processEvent(eventTime: number) {
+  function processFrameCallbacks(time: number) {
     if (paused) {
-      requestAnimationFrame(processEvent);
+      requestAnimationFrame(processFrameCallbacks);
       return;
     }
 
-    const time = eventTime;
     setTime(time);
 
     const currentCallbacks = popAll(frameCallbacks);
 
     currentCallbacks.forEach(callback => callback(time));
 
+    requestAnimationFrame(processFrameCallbacks);
+  }
+
+  requestAnimationFrame(processFrameCallbacks);
+
+  function processEvent() {
+    if (paused) {
+      setImmediate(processEvent);
+      return;
+    }
+
+    const time = now();
+    setTime(time);
+
     if (scheduler.isEmpty()) {
-      requestAnimationFrame(processEvent);
+      setImmediate(processEvent);
 
       return;
     }
@@ -74,10 +89,10 @@ function runRealtime(
       nextEventTime = (scheduler.peek() && scheduler.peek().time) || Infinity;
     }
 
-    requestAnimationFrame(processEvent);
+    setImmediate(processEvent);
   }
 
-  requestAnimationFrame(processEvent);
+  setImmediate(processEvent);
 
   return {pause, resume};
 }
