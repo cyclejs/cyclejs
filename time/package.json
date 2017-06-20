@@ -13,6 +13,7 @@
   "dependencies": {
     "@cycle/run": "3.x",
     "combine-errors": "3.0.x",
+    "performance-now": "^2.1.0",
     "raf": "3.3.x",
     "setimmediate": "1.0.x",
     "sorted-immutable-list": "1.1.x",
