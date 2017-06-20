@@ -158,8 +158,10 @@ function newScope(): string {
  * const childSinks = isolate(Child, {DOM: 'foo', '*': 'bar'})(sources);
  * ```
  *
- * If you don't have a wildcard and some channels are unspecified, then
- * `isolate` will generate a random scope.
+ * If a channel's value is null, then that channel's sources and sinks won't be
+ * isolated. If the wildcard is null and some channels are unspecified, those
+ * channels won't be isolated. If you don't have a wildcard and some channels
+ * are unspecified, then `isolate` will generate a random scope.
  *
  * ```js
  * // Uses some arbitrary string as the isolation scope for HTTP and other channels
