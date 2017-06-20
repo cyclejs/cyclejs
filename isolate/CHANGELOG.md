@@ -1,3 +1,21 @@
+<a name="3.0.0"></a>
+# 3.0.0 (2017-06-20)
+
+
+### Features
+
+* **isolate:** support null scope to disable isolation ([2427d76](https://github.com/cyclejs/cyclejs/commit/2427d76))
+
+
+### BREAKING CHANGES
+
+* **isolate:** This is a breaking change only in case you utilized null scopes to perform isolation. Previously
+null scope would enable isolation using null as the isolation name, and now null scope will just
+disable isolation. It would be quite a corner case to rely on null scopes, so this will breaking
+change likely not affect your project, and this new version of isolate is rather safe to upgrade.
+
+
+
 <a name="2.1.0"></a>
 # 2.1.0 (2017-03-08)
 
