@@ -443,7 +443,7 @@ describe('@cycle/time', () => {
             });
           });
 
-          it('displays simultaneous events correcly', done => {
+          it('displays simultaneous events correctly', done => {
             const Time = mockTimeSource();
 
             const input = `---(11)---(22)---(33)---|`;
