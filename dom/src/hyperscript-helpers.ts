@@ -219,6 +219,7 @@ const TAG_NAMES = [
   'tfoot',
   'th',
   'thead',
+  'time',
   'title',
   'tr',
   'u',
@@ -421,6 +422,7 @@ export interface HyperScriptHelpers {
   tfoot: HyperScriptHelperFn;
   th: HyperScriptHelperFn;
   thead: HyperScriptHelperFn;
+  time: HyperScriptHelperFn;
   title: HyperScriptHelperFn;
   tr: HyperScriptHelperFn;
   u: HyperScriptHelperFn;
