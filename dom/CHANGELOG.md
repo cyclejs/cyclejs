@@ -1,3 +1,13 @@
+<a name="17.5.0"></a>
+# 17.5.0 (2017-06-28)
+
+
+### Bug Fixes
+
+* **dom:** add support for "time" hyperscript-helper ([550d83f](https://github.com/cyclejs/cyclejs/commit/550d83f))
+
+
+
 <a name="17.4.0"></a>
 # 17.4.0 (2017-05-29)
 
