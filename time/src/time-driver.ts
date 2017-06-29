@@ -10,7 +10,6 @@ import {runVirtually} from './run-virtually';
 import {TimeSource} from './time-source';
 const requestAnimationFrame = require('raf');
 const now = require('performance-now');
-require('setimmediate');
 
 function popAll(array: Array<any>): Array<any> {
   const poppedItems = [];
@@ -54,7 +53,6 @@ function runRealtime(
 
   function processEvent() {
     if (paused) {
-      setImmediate(processEvent);
       return;
     }
 
@@ -62,8 +60,6 @@ function runRealtime(
     setTime(time);
 
     if (scheduler.isEmpty()) {
-      setImmediate(processEvent);
-
       return;
     }
 
@@ -88,11 +84,9 @@ function runRealtime(
 
       nextEventTime = (scheduler.peek() && scheduler.peek().time) || Infinity;
     }
-
-    setImmediate(processEvent);
   }
 
-  setImmediate(processEvent);
+  setInterval(processEvent, 10);
 
   return {pause, resume};
 }
