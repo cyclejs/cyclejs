@@ -4,6 +4,7 @@ import {adapt} from '@cycle/run/lib/adapt';
 function makePeriodic(schedule: any, currentTime: () => number) {
   return function periodic(period: number): Stream<number> {
     let stopped = false;
+    let lastEmitTime = 0;
 
     function scheduleNextEvent(
       entry: any,
@@ -19,10 +20,12 @@ function makePeriodic(schedule: any, currentTime: () => number) {
 
       _schedule.next(
         entry.stream,
-        _currentTime() + period,
+        lastEmitTime + period,
         value,
         scheduleNextEvent,
       );
+
+      lastEmitTime += period;
     }
 
     const producer = {
@@ -30,7 +33,12 @@ function makePeriodic(schedule: any, currentTime: () => number) {
 
       start(listener: Listener<any>) {
         producer.listener = listener;
-        schedule.next(listener, currentTime() + period, 0, scheduleNextEvent);
+
+        const timeToEmit = currentTime() + period;
+
+        schedule.next(listener, timeToEmit, 0, scheduleNextEvent);
+
+        lastEmitTime = timeToEmit;
       },
 
       stop() {
