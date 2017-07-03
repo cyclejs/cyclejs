@@ -13,7 +13,7 @@ function main(sources) {
     .compose(dropRepeats())
 
   return {
-    // souurce.history emits a history object each time there's a route change
+    // sources.history emits a history object each time there's a route change
     // ideally you will map this into your state or something first before
     // displaying it as a view. then you can do whatever you want...
     // an if-else statement to map to different views entirely
