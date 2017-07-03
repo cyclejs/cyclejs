@@ -54,7 +54,7 @@ function navigation( pathname ) {
     h('span', {
       dataset : { page: 'contacts' },
       class : { 'active': pathname === '/contacts' }
-    }, 'contacts')
+    }, 'Contacts')
   ])
 }
 
