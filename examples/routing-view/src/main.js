@@ -13,11 +13,12 @@ function main(sources) {
     .compose(dropRepeats())
 
   return {
+    // souurce.history emits a history object each time there's a route change
     // ideally you will map this into your state or something first before
-    // displaying it as a view.
-    // here you can get creative and do whatever you want.
+    // displaying it as a view. then you can do whatever you want...
     // an if-else statement to map to different views entirely
-    // or maps to an entire component call directly.
+    // or maps to an entire component call directly
+    // or use your own pattern matching library. etc
     DOM: sources.history.map(view),
 
     // history driver accepts either objects or string to update the url
@@ -26,11 +27,14 @@ function main(sources) {
 }
 
 function view({ pathname, search, hash, state }) {
-  const page = pathname === '/about' ?
-                aboutPageView() :
-                pathname === '/contacts' ?
-                  contactsPageView() :
-                  homePageView();
+  let page = h('h1', '404 not found');
+  if (pathname === '/home') {
+    page = homePageView();
+  } else if (pathname === '/about') {
+    page = aboutPageView();
+  } else if (pathname === '/contacts') {
+    page = contactsPageView();
+  }
 
   return h('div', [
     navigation( pathname ),
