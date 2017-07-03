@@ -8,6 +8,7 @@
     "@cycle/dom": "^17.5.0",
     "@cycle/history": "^6.2.0",
     "@cycle/run": "^3.1.0",
+    "lorem-ipsum": "^1.0.4",
     "xstream": "^10.8.0"
   },
   "devDependencies": {
