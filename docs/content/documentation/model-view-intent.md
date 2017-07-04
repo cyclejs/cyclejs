@@ -252,7 +252,7 @@ Now, `main` is much smaller. But is it doing *one thing*? We still have `changeW
    const vdom$ = view(state$);
 
    return {
-     DOM: view(state$)
+     DOM: vdom$
    };
  }
 
