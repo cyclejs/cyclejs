@@ -164,8 +164,8 @@ function newScope(): string {
  * are unspecified, then `isolate` will generate a random scope.
  *
  * ```js
- * // Uses some arbitrary string as the isolation scope for HTTP and other channels
- * const childSinks = isolate(Child, {DOM: 'foo'})(sources);
+ * // Does not isolate HTTP requests
+ * const childSinks = isolate(Child, {DOM: 'foo', HTTP: null})(sources);
  * ```
  *
  * If the `scope` argument is not provided at all, a new scope will be
@@ -174,6 +174,11 @@ function newScope(): string {
  * referentially transparent). Two calls to `isolate(Foo, bar)` will generate
  * the same component. But, two calls to `isolate(Foo)` will generate two
  * distinct components.
+ *
+ * ```js
+ * // Uses some arbitrary string as the isolation scope for HTTP and other channels
+ * const childSinks = isolate(Child, {DOM: 'foo'})(sources);
+ * ```
  *
  * Note that both `isolateSource()` and `isolateSink()` are static members of
  * `source`. The reason for this is that drivers produce `source` while the
