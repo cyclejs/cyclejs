@@ -13,8 +13,9 @@ interface Destination {
 }
 
 export interface CycleDOMEvent extends Event {
-  propagationHasBeenStopped?: boolean;
-  ownerTarget?: Element;
+  oldStopPropagation(): void;
+  propagationHasBeenStopped: boolean;
+  ownerTarget: Element;
 }
 
 /**
@@ -40,6 +41,11 @@ function indexOf(arr: Array<Destination>, searchId: number): number {
     }
   }
   return -1;
+}
+
+function stopPropagation(this: CycleDOMEvent) {
+  this.oldStopPropagation();
+  this.propagationHasBeenStopped = true;
 }
 
 /**
@@ -167,11 +173,8 @@ export class EventDelegator {
   private patchEvent(event: Event): CycleDOMEvent {
     const pEvent = event as CycleDOMEvent;
     pEvent.propagationHasBeenStopped = false;
-    const oldStopPropagation = pEvent.stopPropagation;
-    pEvent.stopPropagation = function stopPropagation() {
-      oldStopPropagation.call(this);
-      this.propagationHasBeenStopped = true;
-    };
+    pEvent.oldStopPropagation = pEvent.stopPropagation;
+    pEvent.stopPropagation = stopPropagation;
     return pEvent;
   }
 
