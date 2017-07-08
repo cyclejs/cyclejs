@@ -776,6 +776,47 @@ describe('isolation', function() {
     run();
   });
 
+  it('should allow isolatedDOMSource.events() to work without crashing', function(
+    done,
+  ) {
+    function app(sources: {DOM: MainDOMSource}) {
+      return {
+        DOM: xs.of(
+          h3('.top-most', [div({isolate: 'foo'}, [h4('.bar', 'Hello')])]),
+        ),
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+    let dispose: any;
+    const isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'foo');
+
+    isolatedDOMSource.events('click').addListener({
+      next: (ev: Event) => {
+        dispose();
+        done();
+      },
+    });
+
+    // Make assertions
+    isolatedDOMSource.select('div').elements().drop(1).take(1).addListener({
+      next: (elements: Array<Element>) => {
+        assert.strictEqual(elements.length, 1);
+        const correctElement = elements[0] as HTMLElement;
+        assert.notStrictEqual(correctElement, null);
+        assert.notStrictEqual(typeof correctElement, 'undefined');
+        assert.strictEqual(correctElement.tagName, 'DIV');
+        assert.strictEqual(correctElement.textContent, 'Hello');
+        setTimeout(() => {
+          correctElement.click();
+        });
+      },
+    });
+    dispose = run();
+  });
+
   it('should process bubbling events from inner to outer component', function(
     done,
   ) {

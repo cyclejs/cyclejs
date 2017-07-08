@@ -14,6 +14,9 @@ function createMatchesSelector() {
   }
 
   return function match(elem: Element, selector: string): boolean {
+    if (selector.length === 0) {
+      return true;
+    }
     if (vendor) {
       return vendor.call(elem, selector);
     }
