@@ -1,3 +1,18 @@
+<a name="17.6.0"></a>
+# 17.6.0 (2017-07-08)
+
+
+### Bug Fixes
+
+* **dom:** allow using isolated DOMSource.events() ([8de1a78](https://github.com/cyclejs/cyclejs/commit/8de1a78))
+
+
+### Performance Improvements
+
+* **dom:** avoid an allocation in EventDelegator.patchEvent ([0153cea](https://github.com/cyclejs/cyclejs/commit/0153cea))
+
+
+
 <a name="17.5.0"></a>
 # 17.5.0 (2017-06-28)
 
