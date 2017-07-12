@@ -2,86 +2,80 @@ import xs from 'xstream';
 import dropRepeats from 'xstream/extra/dropRepeats';
 import {run} from '@cycle/run';
 import {makeHashHistoryDriver} from '@cycle/history';
-import {h, makeDOMDriver} from '@cycle/dom';
-
+import {div, h1, h3, br, p, nav, span, makeDOMDriver} from '@cycle/dom';
 import placeholderText from 'lorem-ipsum';
 
-function main(sources) {
-  // stream of strings to be passed into the history driver
-  const history$ = sources.DOM.select('nav').events('click')
-    .map(e => e.target.dataset.page)
-    .compose(dropRepeats())
-
-  return {
-    // sources.history emits a history object each time there's a route change
-    // ideally you will map this into your state or something first before
-    // displaying it as a view. then you can do whatever you want...
-    // an if-else statement to map to different views entirely
-    // or maps to an entire component call directly
-    // or use your own pattern matching library. etc
-    DOM: sources.history.debug('history').map(view),
-
-    // history driver accepts either objects or string to update the url
-    history: history$
-  };
-}
-
-function view(history) {
-  const { pathname } = history;
-  let page = h('h1', '404 not found');
-  if (pathname === '/home') {
-    page = homePageView();
-  } else if (pathname === '/about') {
-    page = aboutPageView();
-  } else if (pathname === '/contacts') {
-    page = contactsPageView();
-  }
-
-  return h('div', [
-    navigation( pathname ),
-    page,
-    h('br'),
-    h('h3', 'History object'),
-    h('p', JSON.stringify(history))
-  ]);
-}
-
-function navigation( pathname ) {
-  return h('nav', {}, [
-    h('span', {
-      dataset : { page: 'home' },
-      class : { 'active': pathname === '/home' }
+function navigation(pathname) {
+  return nav([
+    span({
+      dataset: {page: 'home'},
+      class: {'active': pathname === '/home'}
     }, 'Home'),
-    h('span', {
-      dataset : { page: 'about' },
-      class : { 'active': pathname === '/about' }
+    span({
+      dataset: {page: 'about'},
+      class: {'active': pathname === '/about'}
     }, 'About'),
-    h('span', {
-      dataset : { page: 'contacts' },
-      class : { 'active': pathname === '/contacts' }
+    span({
+      dataset: {page: 'contacts'},
+      class: {'active': pathname === '/contacts'}
     }, 'Contacts')
   ])
 }
 
 function homePageView() {
-  return h('div', {}, [
-    h('h1', 'Welcome to History Examples!'),
-    h('p', placeholderText())
+  return div([
+    h1('Welcome to History Examples!'),
+    p(placeholderText())
   ])
 }
 
 function aboutPageView() {
-  return h('div', {}, [
-    h('h1', 'About me'),
-    h('p', placeholderText())
+  return div([
+    h1('About me'),
+    p(placeholderText())
   ])
 }
 
 function contactsPageView() {
-  return h('div', {}, [
-    h('h1', 'Contact me'),
-    h('p', placeholderText())
+  return div([
+    h1('Contact me'),
+    p(placeholderText())
   ])
+}
+
+function view(history$) {
+  return history$.map(history => {
+    const {pathname} = history;
+    let page = h1('404 not found');
+    if (pathname === '/home') {
+      page = homePageView();
+    } else if (pathname === '/about') {
+      page = aboutPageView();
+    } else if (pathname === '/contacts') {
+      page = contactsPageView();
+    }
+
+    return div([
+      navigation(pathname),
+      page,
+      br(),
+      h3('History object'),
+      p(JSON.stringify(history))
+    ]);
+  });
+}
+
+function main(sources) {
+  const history$ = sources.DOM.select('nav').events('click')
+    .map(e => e.target.dataset.page)
+    .compose(dropRepeats())
+
+  const vdom$ = view(sources.history);
+
+  return {
+    DOM: vdom$,
+    history: history$,
+  };
 }
 
 run(main, {
