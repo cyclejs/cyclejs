@@ -19,14 +19,15 @@ function main(sources) {
     // an if-else statement to map to different views entirely
     // or maps to an entire component call directly
     // or use your own pattern matching library. etc
-    DOM: sources.history.map(view),
+    DOM: sources.history.debug('history').map(view),
 
     // history driver accepts either objects or string to update the url
     history: history$
   };
 }
 
-function view({ pathname, search, hash, state }) {
+function view(history) {
+  const { pathname } = history;
   let page = h('h1', '404 not found');
   if (pathname === '/home') {
     page = homePageView();
@@ -41,23 +42,7 @@ function view({ pathname, search, hash, state }) {
     page,
     h('br'),
     h('h3', 'History object'),
-    h('h4', [
-      h('span', 'Pathname: '),
-      h('label', pathname )
-    ]),
-    h('h4', [
-      h('span', 'Search: '),
-      h('label', search )
-    ]),
-    h('h4', [
-      h('span', 'Hash: '),
-      h('label', hash )
-    ]),
-    h('h4', [
-      h('span', 'State: '),
-      h('label', JSON.stringify(state) )
-    ]),
-
+    h('p', JSON.stringify(history))
   ]);
 }
 
