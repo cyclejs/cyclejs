@@ -36,8 +36,8 @@
     "@types/mocha": "2.2.x",
     "@types/node": "7.0.x",
     "@types/sinon": "1.16.x",
-    "creed": "1.1.x",
-    "most": "1.2.x"
+    "creed": "1.2.x",
+    "most": "1.5.x"
   },
   "browserify-shim": {
     "rxjs": "global:Rx"
