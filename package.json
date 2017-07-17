@@ -32,7 +32,6 @@
     "tsify": "3.0.1",
     "tslint": "4.4.2",
     "typescript": "2.2.1",
-    "typings": "2.1.0",
     "validate-commit-msg": "2.11.1"
   },
   "config": {

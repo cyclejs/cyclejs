@@ -6,5 +6,4 @@ npm-debug.log
 
 lib/
 coverage/
-typings/
 dist/
