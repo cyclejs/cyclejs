@@ -1,5 +1,4 @@
 lib/
-typings/
 dist/
 node_modules
 npm-debug.log

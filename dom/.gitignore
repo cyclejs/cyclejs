@@ -6,7 +6,6 @@
 
 # Installed libs
 node_modules/
-typings/
 
 # Generated
 test/browser/page/tests-bundle.js

@@ -2,6 +2,5 @@
 node_modules/
 /dist/
 /lib/
-typings/
 /cyclejs-devtool.zip
 /ignore/
