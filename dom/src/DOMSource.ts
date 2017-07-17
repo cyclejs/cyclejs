@@ -5,7 +5,7 @@ export interface EventsFnOptions {
 }
 
 export interface DOMSource {
-  select<S extends DOMSource>(selector: string): S;
+  select(selector: string): DOMSource;
   elements(): MemoryStream<Document | Element | Array<Element> | string>;
   events(eventType: string, options?: EventsFnOptions): Stream<Event>;
 }

@@ -42,7 +42,7 @@
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/isolate": "2.1",
+    "@cycle/isolate": "3.0",
     "@cycle/rxjs-run": "7.x",
     "@types/mocha": "^2.2.33",
     "@types/node": "^7.0.4",

@@ -7,7 +7,7 @@ import {MainDOMSource} from './MainDOMSource';
 import {VNode} from 'snabbdom/vnode';
 import {toVNode} from 'snabbdom/tovnode';
 import {VNodeWrapper} from './VNodeWrapper';
-import {getElement} from './utils';
+import {getValidNode} from './utils';
 import defaultModules from './modules';
 import {IsolateModule} from './IsolateModule';
 import {EventDelegator} from './EventDelegator';
@@ -51,7 +51,7 @@ function reportSnabbdomError(err: any): void {
 }
 
 function makeDOMDriver(
-  container: string | Element,
+  container: string | Element | DocumentFragment,
   options?: DOMDriverOptions,
 ): Driver<Stream<VNode>, MainDOMSource> {
   if (!options) {
@@ -60,8 +60,8 @@ function makeDOMDriver(
   const modules = options.modules || defaultModules;
   const isolateModule = new IsolateModule();
   const patch = init([isolateModule.createModule()].concat(modules));
-  const rootElement = getElement(container) || document.body;
-  const vnodeWrapper = new VNodeWrapper(rootElement);
+  const rootElement = getValidNode(container) || document.body;
+  const vnodeWrapper = new VNodeWrapper(rootElement as any);
   const delegators = new MapPolyfill<string, EventDelegator>();
   makeDOMDriverInputGuard(modules);
 
@@ -75,7 +75,7 @@ function makeDOMDriver(
       .drop(1)
       .map(unwrapElementFromVNode)
       .compose(dropCompletion) // don't complete this stream
-      .startWith(rootElement);
+      .startWith(rootElement as any);
 
     // Start the snabbdom patching, over time
     const listener = {error: reportSnabbdomError};

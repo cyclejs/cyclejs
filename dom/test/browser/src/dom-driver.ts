@@ -25,9 +25,9 @@ describe('makeDOMDriver', function() {
   });
 
   it('should accept a DocumentFragment as input', function() {
-    const element = document.createDocumentFragment();
+    const docfrag = document.createDocumentFragment();
     assert.doesNotThrow(function() {
-      makeDOMDriver(element as Element);
+      makeDOMDriver(docfrag);
     });
   });
 
