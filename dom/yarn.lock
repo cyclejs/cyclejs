@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@cycle/isolate@2.1":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@cycle/isolate/-/isolate-2.1.0.tgz#8db1c6a068dc1d3fc709d5adbe838083577ad0e0"
+"@cycle/isolate@3.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@cycle/isolate/-/isolate-3.0.0.tgz#668662017469aaa2a48d69eb96979a7b529ca6e5"
 
 "@cycle/run@*", "@cycle/run@3.x":
   version "3.1.0"

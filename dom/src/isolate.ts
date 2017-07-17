@@ -4,14 +4,14 @@ import {SCOPE_PREFIX, isClassOrId} from './utils';
 import {DOMSource} from './DOMSource';
 
 function totalIsolateSource<S extends DOMSource>(source: S, scope: string): S {
-  return source.select<S>(SCOPE_PREFIX + scope);
+  return source.select(SCOPE_PREFIX + scope) as S;
 }
 
 function siblingIsolateSource<S extends DOMSource>(
   source: S,
   scope: string,
 ): S {
-  return source.select<S>(scope);
+  return source.select(scope) as S;
 }
 
 export function isolateSource<S extends DOMSource>(
