@@ -2,14 +2,14 @@
 # yarn lockfile v1
 
 
-"@cycle/dom@17.2":
-  version "17.2.0"
-  resolved "https://registry.yarnpkg.com/@cycle/dom/-/dom-17.2.0.tgz#7eaaa2d472262ae63b153512a898d4c27d3abb59"
+"@cycle/dom@17.6":
+  version "17.6.0"
+  resolved "https://registry.yarnpkg.com/@cycle/dom/-/dom-17.6.0.tgz#4512be5e5cd1ce90fa00e5674a31d0c2957a481d"
   dependencies:
     "@cycle/run" "*"
     es6-map "^0.1.4"
-    snabbdom "0.6.5"
-    snabbdom-selector "1.1.1"
+    snabbdom "0.6.9"
+    snabbdom-selector "1.2.0"
 
 "@cycle/run@*", "@cycle/run@3.x":
   version "3.1.0"
@@ -17,23 +17,23 @@
   dependencies:
     xstream "10.x"
 
-"@cycle/rxjs-run@6.x":
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/@cycle/rxjs-run/-/rxjs-run-6.1.0.tgz#50e1bea07fa1fe18bf16f2537574cbcaacfff4ef"
+"@cycle/rxjs-run@7.x":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@cycle/rxjs-run/-/rxjs-run-7.0.0.tgz#f4c95d9a1b390e3a2e61706284f9e737e7de8aa8"
   dependencies:
     "@cycle/run" "3.x"
 
-"@types/history@^4.5.1":
-  version "4.5.1"
-  resolved "https://registry.yarnpkg.com/@types/history/-/history-4.5.1.tgz#da4a145410466eac20e94b51c8778a7551d1d4db"
+"@types/history@4.6.x":
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/@types/history/-/history-4.6.0.tgz#093d67ed780d889c9543f6dca24ebee0b6b9fc45"
 
 "@types/mocha@^2.2.32":
   version "2.2.40"
   resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-2.2.40.tgz#9811dd800ece544cd84b5b859917bf584a150c4c"
 
-"@types/node@^6.0.46":
-  version "6.0.66"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-6.0.66.tgz#5680b74a6135d33d4c00447e7c3dc691a4601625"
+"@types/node@6.0.x":
+  version "6.0.83"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-6.0.83.tgz#dd022db01ac2c01c1057775e88ccffce96d1d6fe"
 
 adm-zip@~0.4.3:
   version "0.4.7"
@@ -675,7 +675,7 @@ request@2.79.0:
     tunnel-agent "~0.4.1"
     uuid "^3.0.0"
 
-request@^2.51.0:
+request@^2.81.0:
   version "2.81.0"
   resolved "https://registry.yarnpkg.com/request/-/request-2.81.0.tgz#c6928946a0e06c5f8d6f8a9333469ffda46298a0"
   dependencies:
@@ -712,9 +712,9 @@ rimraf@^2.5.4:
   dependencies:
     glob "^7.0.5"
 
-rxjs@5.1.0:
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-5.1.0.tgz#0aa9018b7f440b505fa42bd742b6738be550e720"
+rxjs@5.4.2:
+  version "5.4.2"
+  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-5.4.2.tgz#2a3236fcbf03df57bae06fd6972fd99e5c08fcf7"
   dependencies:
     symbol-observable "^1.0.1"
 
@@ -722,9 +722,9 @@ safe-buffer@^5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.0.1.tgz#d263ca54696cd8a306b5ca6551e92de57918fbe7"
 
-sauce-connect-launcher@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/sauce-connect-launcher/-/sauce-connect-launcher-1.2.0.tgz#6dc26611ef23428abe8b8f49e0044d7c752b8a6c"
+sauce-connect-launcher@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/sauce-connect-launcher/-/sauce-connect-launcher-1.2.2.tgz#7346cc8fbdc443191323439b0733451f5f3521f2"
   dependencies:
     adm-zip "~0.4.3"
     async "^2.1.2"
@@ -732,29 +732,29 @@ sauce-connect-launcher@^1.2.0:
     lodash "^4.16.6"
     rimraf "^2.5.4"
 
-saucie@3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/saucie/-/saucie-3.1.0.tgz#757ea4a740a0e1071877dc5723d03a79ae40c3f4"
+saucie@3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/saucie/-/saucie-3.2.0.tgz#f3cb07acc253daeda65f12f56cdf88063359670e"
   dependencies:
     bluebird "^3.1.1"
     commander "^2.9.0"
-    request "^2.51.0"
-    sauce-connect-launcher "^1.2.0"
-    wd "^1.0.0"
+    request "^2.81.0"
+    sauce-connect-launcher "^1.2.2"
+    wd "^1.2.0"
 
 semver@~5.0.1:
   version "5.0.3"
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.0.3.tgz#77466de589cd5d3c95f138aa78bc569a3cb5d27a"
 
-snabbdom-selector@1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/snabbdom-selector/-/snabbdom-selector-1.1.1.tgz#bde66fc54b34effc2f6a13d4a74de0d3cc771bfd"
+snabbdom-selector@1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/snabbdom-selector/-/snabbdom-selector-1.2.0.tgz#4260a269d9d46f50b9c1f39da628c2af6828dd53"
   dependencies:
     cssauron "^1.4.0"
 
-snabbdom@0.6.5:
-  version "0.6.5"
-  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-0.6.5.tgz#01b0cba8d623eca19e570876630c12c057830066"
+snabbdom@0.6.9:
+  version "0.6.9"
+  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-0.6.9.tgz#65a392f4c82ca7e8ec72aa0d2fa797cf5c73b8d7"
 
 sntp@1.x.x:
   version "1.0.9"
@@ -875,9 +875,9 @@ warning@^3.0.0:
   dependencies:
     loose-envify "^1.0.0"
 
-wd@^1.0.0:
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/wd/-/wd-1.1.3.tgz#4a09c89047abcd1326ab15f384590f18a9de0e0e"
+wd@^1.2.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/wd/-/wd-1.4.0.tgz#85958787abc32f048d4b3927b2ab3c5fc8c9c9fa"
   dependencies:
     archiver "1.3.0"
     async "2.0.1"

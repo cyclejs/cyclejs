@@ -18,13 +18,13 @@
     "history": "4.6.x"
   },
   "devDependencies": {
-    "@cycle/dom": "17.2",
-    "@cycle/rxjs-run": "6.x",
-    "@types/history": "^4.5.1",
+    "@cycle/dom": "17.6",
+    "@cycle/rxjs-run": "7.x",
+    "@types/history": "4.6.x",
     "@types/mocha": "^2.2.32",
-    "@types/node": "^6.0.46",
-    "rxjs": "5.1.0",
-    "saucie": "3.1.0",
+    "@types/node": "6.0.x",
+    "rxjs": "5.4.2",
+    "saucie": "3.2.0",
     "xstream": "10.x"
   },
   "scripts": {
