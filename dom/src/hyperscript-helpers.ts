@@ -1,4 +1,4 @@
-// tslint:disable-next-line:max-file-line-count
+// tslint:disable:max-file-line-count
 import {h} from 'snabbdom/h';
 import {VNode} from 'snabbdom/vnode';
 

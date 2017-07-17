@@ -65,5 +65,5 @@ export class MockedDOMSource implements DOMSource {
 }
 
 export function mockDOMSource(mockConfig: MockConfig): MockedDOMSource {
-  return new MockedDOMSource(mockConfig as MockConfig);
+  return new MockedDOMSource(mockConfig);
 }
