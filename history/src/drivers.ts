@@ -21,11 +21,15 @@ import {
   ReplaceHistoryInput,
 } from './types';
 
+function isHistory(x: BrowserHistoryBuildOptions | History): x is History {
+  return !!(x as any).createHref;
+}
+
 export function makeHistoryDriver(
   options?: BrowserHistoryBuildOptions | History | MemoryHistory,
 ): HistoryDriver {
   let history: any;
-  if (options && options.hasOwnProperty('createHref')) {
+  if (options && isHistory(options)) {
     history = options;
   } else {
     history = createBrowserHistory(options);
