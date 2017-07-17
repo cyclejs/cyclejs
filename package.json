@@ -30,7 +30,7 @@
     "testem": "1.14.3",
     "ts-node": "3.2.0",
     "tsify": "3.0.1",
-    "tslint": "4.4.2",
+    "tslint": "5.5.0",
     "typescript": "2.4.1",
     "validate-commit-msg": "2.11.1"
   },
