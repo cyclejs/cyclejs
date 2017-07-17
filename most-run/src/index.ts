@@ -51,8 +51,8 @@ export function run<So extends Sources, Si extends Sinks>(
   main: (sources: So) => Si,
   drivers: Drivers<So, Si>,
 ): DisposeFunction {
-  const {run} = coreSetup(main, drivers);
-  return run();
+  const program = coreSetup(main, drivers);
+  return program.run();
 }
 
 /**
