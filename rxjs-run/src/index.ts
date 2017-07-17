@@ -1,5 +1,6 @@
 import {Stream} from 'xstream';
 import {Observable} from 'rxjs/Observable';
+// tslint:disable-next-line:no-import-side-effect
 import 'rxjs/add/observable/from';
 import {setAdapt} from '@cycle/run/lib/adapt';
 import {
@@ -51,8 +52,8 @@ export function run<So extends Sources, Si extends Sinks>(
   main: (sources: So) => Si,
   drivers: Drivers<So, Si>,
 ): DisposeFunction {
-  const {run} = coreSetup(main, drivers);
-  return run();
+  const program = coreSetup(main, drivers);
+  return program.run();
 }
 
 /**
