@@ -28,10 +28,10 @@
     "sinon": "1.17.7",
     "tempfile": "1.1.1",
     "testem": "1.14.3",
-    "ts-node": "2.0.0",
+    "ts-node": "3.2.0",
     "tsify": "3.0.1",
     "tslint": "4.4.2",
-    "typescript": "2.2.1",
+    "typescript": "2.4.1",
     "validate-commit-msg": "2.11.1"
   },
   "config": {
