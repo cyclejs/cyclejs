@@ -34,13 +34,13 @@
   version "1.16.36"
   resolved "https://registry.yarnpkg.com/@types/sinon/-/sinon-1.16.36.tgz#74bb6ed7928597c1b3fb1b009005e94dc6eae357"
 
-creed@1.1.x:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/creed/-/creed-1.1.1.tgz#ef6ded37cd1d2f13c8996b47c84e86d8623e64a9"
+creed@1.2.x:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/creed/-/creed-1.2.1.tgz#94e2420c0538e38b701b1dce893d2cda73fe18fd"
 
-most@1.2.x:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/most/-/most-1.2.2.tgz#8f12e434ad6195ed2e1efb3ec217e0cbcf3e1de8"
+most@1.5.x:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/most/-/most-1.5.0.tgz#fae0b44a11859ac8b7abdfd4017136d879d88353"
   dependencies:
     "@most/multicast" "^1.2.5"
     "@most/prelude" "^1.4.0"
