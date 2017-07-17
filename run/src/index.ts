@@ -1,69 +1,30 @@
-// tslint:disable-next-line:max-file-line-count
 import xs, {Stream, MemoryStream} from 'xstream';
 import {adapt} from './adapt';
+import {
+  CycleProgram,
+  DevToolEnabledSource,
+  DisposeFunction,
+  Drivers,
+  SinkProxies,
+  Sources,
+  Sinks,
+  FantasySinks,
+} from './types';
 
-export interface FantasyObserver {
-  next(x: any): void;
-  error(err: any): void;
-  complete(c?: any): void;
-}
-
-export interface FantasySubscription {
-  unsubscribe(): void;
-}
-
-export interface FantasyObservable {
-  subscribe(observer: FantasyObserver): FantasySubscription;
-}
-
-export type DisposeFunction = () => void;
-
-export interface DevToolEnabledSource {
-  _isCycleSource: string;
-}
-
-export interface Driver<Sink, Source> {
-  (stream: Sink, driverName?: string): Source;
-}
-
-export type Drivers<So extends Sources, Si extends Sinks> = {
-  [P in keyof (So & Si)]: Driver<Si[P], So[P]>
-};
-
-export type Sources = {
-  [name: string]: any;
-};
-
-export type Sinks = {
-  [name: string]: any;
-};
-
-export type FantasySinks<Si> = {[S in keyof Si]: FantasyObservable};
-
-/**
- * Sink proxies should be MemoryStreams in order to fix race conditions for
- * drivers that subscribe to sink proxies "later".
- *
- * Recall that there are two steps:
- * 1. Setup (sink proxies -> drivers -> sources -> main -> sink)
- * 2. Execution (also known as replication: sink proxies imitate sinks)
- *
- * If a driver does not synchronously/immediately subscribe to the sink proxy
- * in step (1), but instead does that later, if step (2) feeds a value from the
- * sink to the sink proxy, then when the driver subscribes to the sink proxy,
- * it should receive that value. This is why we need MemoryStreams, not just
- * Streams. Note: Cycle DOM driver is an example of such case, since it waits
- * for 'readystatechange'.
- */
-export type SinkProxies<Si extends Sinks> = {
-  [P in keyof Si]: MemoryStream<any>
-};
-
-export interface CycleProgram<So extends Sources, Si extends Sinks> {
-  sources: So;
-  sinks: Si;
-  run(): DisposeFunction;
-}
+export {
+  FantasyObserver,
+  FantasySubscription,
+  FantasyObservable,
+  DevToolEnabledSource,
+  Sources,
+  Sinks,
+  SinkProxies,
+  FantasySinks,
+  Driver,
+  Drivers,
+  DisposeFunction,
+  CycleProgram,
+} from './types';
 
 function logToConsoleError(err: any) {
   const target = err.stack || err;
@@ -262,14 +223,14 @@ export function setup<So extends Sources, Si extends FantasySinks<Si>>(
     (window as any).Cyclejs = (window as any).Cyclejs || {};
     (window as any).Cyclejs.sinks = sinks;
   }
-  function run(): DisposeFunction {
+  function _run(): DisposeFunction {
     const disposeReplication = replicateMany(sinks, sinkProxies);
     return function dispose() {
       disposeSources(sources);
       disposeReplication();
     };
   }
-  return {sinks, sources, run};
+  return {sinks, sources, run: _run};
 }
 
 /**
@@ -303,14 +264,14 @@ export function run<So extends Sources, Si extends FantasySinks<Si>>(
   main: (sources: So) => Si,
   drivers: Drivers<So, Si>,
 ): DisposeFunction {
-  const {run, sinks} = setup(main, drivers);
+  const program = setup(main, drivers);
   if (
     typeof window !== 'undefined' &&
     window['CyclejsDevTool_startGraphSerializer']
   ) {
-    window['CyclejsDevTool_startGraphSerializer'](sinks);
+    window['CyclejsDevTool_startGraphSerializer'](program.sinks);
   }
-  return run();
+  return program.run();
 }
 
 export default run;
