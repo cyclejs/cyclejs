@@ -11,7 +11,6 @@ import {makeThrottleAnimation} from './throttle-animation';
 import {makeRecord} from './record';
 import {runVirtually} from './run-virtually';
 import {MockTimeSource} from './time-source';
-import * as assert from 'assert';
 const combineErrors = require('combine-errors');
 
 function raiseError(err: any) {

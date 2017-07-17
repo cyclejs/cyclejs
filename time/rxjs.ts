@@ -1,4 +1,5 @@
 import {Observable} from 'rxjs/Observable';
+// tslint:disable-next-line:no-import-side-effect
 import 'rxjs/add/observable/from';
 import {setAdapt} from '@cycle/run/lib/adapt';
 
@@ -34,12 +35,4 @@ function timeDriver(sink: any): TimeSource {
   return timeDriverUntyped(sink);
 }
 
-export {
-  Operator,
-
-  TimeSource,
-  timeDriver,
-
-  MockTimeSource,
-  mockTimeSource
-};
+export {Operator, TimeSource, timeDriver, MockTimeSource, mockTimeSource};
