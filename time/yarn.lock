@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@cycle/dom@17.4":
-  version "17.4.0"
-  resolved "https://registry.yarnpkg.com/@cycle/dom/-/dom-17.4.0.tgz#232e9f21323b34b244000e0fa0a067642ae905d2"
+"@cycle/dom@17.6":
+  version "17.6.0"
+  resolved "https://registry.yarnpkg.com/@cycle/dom/-/dom-17.6.0.tgz#4512be5e5cd1ce90fa00e5674a31d0c2957a481d"
   dependencies:
     "@cycle/run" "*"
     es6-map "^0.1.4"
@@ -1138,9 +1138,9 @@ mkdirp@0.5.x, mkdirp@^0.5.1:
   dependencies:
     minimist "0.0.8"
 
-most@1.2.x:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/most/-/most-1.2.2.tgz#8f12e434ad6195ed2e1efb3ec217e0cbcf3e1de8"
+most@1.5.x:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/most/-/most-1.5.0.tgz#fae0b44a11859ac8b7abdfd4017136d879d88353"
   dependencies:
     "@most/multicast" "^1.2.5"
     "@most/prelude" "^1.4.0"
@@ -1333,9 +1333,9 @@ right-now@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/right-now/-/right-now-1.0.0.tgz#6e89609deebd7dcdaf8daecc9aea39cf585a0918"
 
-rxjs@5.1.x:
-  version "5.1.1"
-  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-5.1.1.tgz#fc48922965bc6c5efbcc0fe46e90a3af64137a7b"
+rxjs@5.4.x:
+  version "5.4.2"
+  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-5.4.2.tgz#2a3236fcbf03df57bae06fd6972fd99e5c08fcf7"
   dependencies:
     symbol-observable "^1.0.1"
 
@@ -1351,13 +1351,7 @@ slash@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/slash/-/slash-1.0.0.tgz#c41f2f6c39fc16d1cd17ad4b5d896114ae470d55"
 
-snabbdom-selector@1.1.x:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/snabbdom-selector/-/snabbdom-selector-1.1.1.tgz#bde66fc54b34effc2f6a13d4a74de0d3cc771bfd"
-  dependencies:
-    cssauron "^1.4.0"
-
-snabbdom-selector@1.2.0:
+snabbdom-selector@1.2.0, snabbdom-selector@1.2.x:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/snabbdom-selector/-/snabbdom-selector-1.2.0.tgz#4260a269d9d46f50b9c1f39da628c2af6828dd53"
   dependencies:

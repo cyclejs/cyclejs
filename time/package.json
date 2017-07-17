@@ -21,15 +21,15 @@
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/dom": "17.4",
+    "@cycle/dom": "17.6",
     "@cycle/rxjs-run": "7.0",
     "@types/mocha": "2.2.x",
     "@types/node": "7.0.x",
     "garnish": "5.2.x",
     "markdown-doctest": "0.9.x",
-    "most": "1.2.x",
-    "rxjs": "5.1.x",
-    "snabbdom-selector": "1.1.x"
+    "most": "1.5.x",
+    "rxjs": "5.4.x",
+    "snabbdom-selector": "1.2.x"
   },
   "publishConfig": {
     "access": "public"
