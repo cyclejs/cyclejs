@@ -644,7 +644,7 @@ request@2.79.0:
     tunnel-agent "~0.4.1"
     uuid "^3.0.0"
 
-request@^2.51.0:
+request@^2.81.0:
   version "2.81.0"
   resolved "https://registry.yarnpkg.com/request/-/request-2.81.0.tgz#c6928946a0e06c5f8d6f8a9333469ffda46298a0"
   dependencies:
@@ -677,9 +677,9 @@ rimraf@^2.5.4:
   dependencies:
     glob "^7.0.5"
 
-rxjs@5.1.0:
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-5.1.0.tgz#0aa9018b7f440b505fa42bd742b6738be550e720"
+rxjs@5.4.2:
+  version "5.4.2"
+  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-5.4.2.tgz#2a3236fcbf03df57bae06fd6972fd99e5c08fcf7"
   dependencies:
     symbol-observable "^1.0.1"
 
@@ -687,9 +687,9 @@ safe-buffer@^5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.0.1.tgz#d263ca54696cd8a306b5ca6551e92de57918fbe7"
 
-sauce-connect-launcher@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/sauce-connect-launcher/-/sauce-connect-launcher-1.2.0.tgz#6dc26611ef23428abe8b8f49e0044d7c752b8a6c"
+sauce-connect-launcher@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/sauce-connect-launcher/-/sauce-connect-launcher-1.2.2.tgz#7346cc8fbdc443191323439b0733451f5f3521f2"
   dependencies:
     adm-zip "~0.4.3"
     async "^2.1.2"
@@ -697,15 +697,15 @@ sauce-connect-launcher@^1.2.0:
     lodash "^4.16.6"
     rimraf "^2.5.4"
 
-saucie@3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/saucie/-/saucie-3.1.0.tgz#757ea4a740a0e1071877dc5723d03a79ae40c3f4"
+saucie@3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/saucie/-/saucie-3.2.0.tgz#f3cb07acc253daeda65f12f56cdf88063359670e"
   dependencies:
     bluebird "^3.1.1"
     commander "^2.9.0"
-    request "^2.51.0"
-    sauce-connect-launcher "^1.2.0"
-    wd "^1.0.0"
+    request "^2.81.0"
+    sauce-connect-launcher "^1.2.2"
+    wd "^1.2.0"
 
 semver@~5.0.1:
   version "5.0.3"
@@ -838,9 +838,9 @@ walkdir@^0.0.11:
   version "0.0.11"
   resolved "https://registry.yarnpkg.com/walkdir/-/walkdir-0.0.11.tgz#a16d025eb931bd03b52f308caed0f40fcebe9532"
 
-wd@^1.0.0:
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/wd/-/wd-1.1.3.tgz#4a09c89047abcd1326ab15f384590f18a9de0e0e"
+wd@^1.2.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/wd/-/wd-1.4.0.tgz#85958787abc32f048d4b3927b2ab3c5fc8c9c9fa"
   dependencies:
     archiver "1.3.0"
     async "2.0.1"
