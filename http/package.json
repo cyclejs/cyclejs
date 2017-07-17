@@ -8,25 +8,24 @@
   "repository": "https://github.com/cyclejs/cyclejs/tree/master/http",
   "dependencies": {
     "@cycle/run": "*",
-    "@types/superagent": "2.0.36",
+    "@types/superagent": "3.5.3",
     "superagent": "3.5.2"
   },
   "peerDependencies": {
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/rxjs-run": "6.x",
-    "@types/body-parser": "0.0.x",
+    "@cycle/rxjs-run": "7.x",
+    "@types/body-parser": "1.16.x",
     "@types/cookie-parser": "1.3.x",
     "@types/express": "4.0.x",
     "@types/mocha": "2.2.x",
     "@types/node": "7.0.x",
-    "@types/sinon": "1.16.x",
-    "body-parser": "1.16.0",
+    "body-parser": "1.17.x",
     "cookie-parser": "1.4.3",
     "express": "4.14.1",
-    "rxjs": "5.1.0",
-    "saucie": "3.1.0",
+    "rxjs": "5.4.2",
+    "saucie": "3.2.0",
     "xstream": "10.x.x"
   },
   "browserify-shim": {

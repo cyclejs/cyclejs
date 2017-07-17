@@ -422,7 +422,7 @@ export function run(uri: string) {
     });
 
     it('should allow null scope to bypass isolation', function(done) {
-      const proxyRequest$ = new Rx.Subject();
+      const proxyRequest$ = new Rx.Subject<any>();
       function main(sources: {HTTP: HTTPSource}) {
         return {
           HTTP: proxyRequest$,
