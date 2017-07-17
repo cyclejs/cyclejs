@@ -16,6 +16,7 @@ help :
 	@echo ""
 	@echo "  make setup\t\t\tyarn install everything"
 	@echo "  make commit\t\t\tgit commit following our format"
+	@echo "  make lint\t\t\tlint all packages"
 	@echo "  make lint <package>\t\tlint just <package> (e.g. 'make lint dom')"
 	@echo "  make lib <package>\t\tcompile just <package> (e.g. 'make lib dom')"
 	@echo "  make lib all\t\t\tcompile all packages"
@@ -57,10 +58,13 @@ commit :
 
 lint :
 	@if [ "$(ARG)" = "" ]; then \
-		echo "Error: please call 'make lint' with an argument, like 'make lint dom'" ;\
+		while read d ; do \
+			echo "Linting $$d ..." ; \
+			make lint $$d ; \
+		done < .scripts/RELEASABLE_PACKAGES; \
 	else \
 		$(TSLINT) --config tslint.json --project $(ARG)/tsconfig.json &&\
-		echo "✓ Passed lint" ;\
+		echo "✓ $(ARG) passed lint\n" ;\
 	fi
 
 lib :
