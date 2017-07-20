@@ -1,3 +1,22 @@
+<a name="14.0.0"></a>
+# 14.0.0 (2017-07-20)
+
+
+### Bug Fixes
+
+* **http:** update to TypeScript v2.4, change HTTPSource interface ([56cdf62](https://github.com/cyclejs/cyclejs/commit/56cdf62))
+
+
+### BREAKING CHANGES
+
+* **http:** If you are a JavaScript user, there are zero breaking changes. If you use TypeScript, the
+HTTPSource's filter() method has a slightly different type signature, upgrade manually and
+carefully.
+
+ISSUES CLOSED: #640
+
+
+
 <a name="13.3.0"></a>
 # 13.3.0 (2017-05-16)
 
