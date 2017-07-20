@@ -1,3 +1,22 @@
+<a name="18.0.0"></a>
+# 18.0.0 (2017-07-20)
+
+
+### Bug Fixes
+
+* **dom:** revert patchEvent optimization, to support IE10+ ([2e78ee0](https://github.com/cyclejs/cyclejs/commit/2e78ee0))
+* **dom:** update to TypeScript v2.4 ([e72283b](https://github.com/cyclejs/cyclejs/commit/e72283b))
+
+
+### BREAKING CHANGES
+
+* **dom:** If you are a JavaScript user, there are no breaking changes. If you are a TypeScript user, this
+version has breaking changes due to TypeScript v2.4 update. Update and recompile carefully.
+
+ISSUES CLOSED: #640
+
+
+
 <a name="17.6.0"></a>
 # 17.6.0 (2017-07-08)
 
