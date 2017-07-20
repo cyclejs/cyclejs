@@ -1,3 +1,18 @@
+<a name="2.0.0"></a>
+# 2.0.0 (2017-07-20)
+
+
+### Bug Fixes
+
+* **html:** depend on cycle/dom v18 API ([e576a52](https://github.com/cyclejs/cyclejs/commit/e576a52))
+
+
+### BREAKING CHANGES
+
+* **html:** This version follows the same breaking changes as cycle/dom v18
+
+
+
 <a name="1.1.0"></a>
 # 1.1.0 (2017-05-30)
 
