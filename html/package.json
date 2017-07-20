@@ -34,7 +34,7 @@
   "types": "lib/index.d.ts",
   "dependencies": {
     "@cycle/run": "*",
-    "@cycle/dom": "17.x",
+    "@cycle/dom": "18.x",
     "snabbdom": "0.6.9",
     "snabbdom-to-html": "3.1.1"
   },

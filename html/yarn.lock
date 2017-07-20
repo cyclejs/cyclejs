@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@cycle/dom@17.x":
-  version "17.4.0"
-  resolved "https://registry.yarnpkg.com/@cycle/dom/-/dom-17.4.0.tgz#232e9f21323b34b244000e0fa0a067642ae905d2"
+"@cycle/dom@18.x":
+  version "18.0.0"
+  resolved "https://registry.yarnpkg.com/@cycle/dom/-/dom-18.0.0.tgz#605a70751f70658f0005504a03a0b6cbb5d1e68d"
   dependencies:
     "@cycle/run" "*"
     es6-map "^0.1.4"
