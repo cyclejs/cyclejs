@@ -1,6 +1,6 @@
 import 'mocha';
 import * as assert from 'assert';
-import { mockHTTPSource } from '../../src/index';
+import { mockHTTPSource, RequestOptions } from '../../src/index';
 import xs from 'xstream';
 
 describe('mockHttpSource', function () {
@@ -33,6 +33,28 @@ describe('mockHttpSource', function () {
     userEvents.select('foo').flatten().take(1).subscribe({
       next: (res: any) => {
         assert.equal(res.text, 'Hello world');
+      },
+      error: (err: any) => done(err),
+      complete: () => done(),
+    });
+  });
+
+  it('supports filtering requests', (done) => {
+    const requests = ['POST', 'GET'].map(method => ({method}));
+    const responses = requests.map(request => ({request}));
+    const response$$ = xs.of(...responses.map(xs.of));
+
+    const userEvents = mockHTTPSource({
+      'foo': response$$
+    });
+
+    const filteredEvents = userEvents.filter(
+      (request) => request.method === 'GET'
+    );
+
+    filteredEvents.select('foo').flatten().take(1).subscribe({
+      next: (res: any) => {
+        assert.equal(res.request.method, 'GET');
       },
       error: (err: any) => done(err),
       complete: () => done(),
