@@ -18,8 +18,8 @@ help :
 	@echo "  make commit\t\t\tgit commit following our format"
 	@echo "  make lint\t\t\tlint all packages"
 	@echo "  make lint <package>\t\tlint just <package> (e.g. 'make lint dom')"
+	@echo "  make lib\t\t\tcompile all packages"
 	@echo "  make lib <package>\t\tcompile just <package> (e.g. 'make lib dom')"
-	@echo "  make lib all\t\t\tcompile all packages"
 	@echo "  make test\t\t\ttest everything"
 	@echo "  make test <package>\t\ttest just <package>"
 	@echo "  make test-ci\t\t\ttest everything for continuous integration"
@@ -68,18 +68,16 @@ lint :
 	fi
 
 lib :
-	@if [ "$(ARG)" = "all" ]; then \
+	@if [ "$(ARG)" = "" ]; then \
 		while read d ; do \
 			echo "Compiling $$d" ; \
 			make lib $$d ; \
 		done < .scripts/RELEASABLE_PACKAGES; \
-	elif [ "$(ARG)" = "" ]; then \
-		echo "Error: please call 'make lib' with an argument, like 'make lib dom' 'make lib all'" ;\
 	else \
 		rm -rf $(ARG)/lib/ ;\
 		mkdir -p $(ARG)/lib ;\
 		$(TSC) --project $(ARG) ;\
-		echo "✓ Compiled TypeScript to lib" ;\
+		echo "✓ Compiled TypeScript to lib\n" ;\
 	fi
 
 # Example: `make docs dom`
