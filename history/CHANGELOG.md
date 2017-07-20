@@ -1,3 +1,13 @@
+<a name="6.3.0"></a>
+# 6.3.0 (2017-07-20)
+
+
+### Bug Fixes
+
+* **history:** update TypeScript to v2.4 ([2c2583e](https://github.com/cyclejs/cyclejs/commit/2c2583e))
+
+
+
 <a name="6.2.0"></a>
 # 6.2.0 (2017-05-16)
 
