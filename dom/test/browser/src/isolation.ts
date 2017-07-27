@@ -626,7 +626,7 @@ describe('isolation', function() {
     function App(sources: {DOM: MainDOMSource}) {
       const triangleElement$ = sources.DOM.select('.triangle').elements();
 
-      const svgTriangle = svg({width: 150, height: 150}, [
+      const svgTriangle = svg({attrs: {width: 150, height: 150}}, [
         svg.polygon({
           attrs: {
             class: 'triangle',
