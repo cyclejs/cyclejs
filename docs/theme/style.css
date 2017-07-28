@@ -176,7 +176,7 @@ a.hero-sponsor-logo { border: none; }
 
 @media (min-width: 768px) {
   .hero {
-    min-height: calc(100vh - 51px);
+    min-height: calc(100vh - 60px);
   }
 }
 
