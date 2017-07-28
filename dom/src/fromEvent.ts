@@ -46,9 +46,17 @@ export function preventDefaultConditional(
         event.preventDefault();
       }
     } else if (typeof preventDefault === 'object') {
-      const matches = Object.keys(preventDefault)
-        .map(k => [k, preventDefault[k]])
-        .reduce((acc, [k, v]) => acc && event[k] === v, true);
+      const matchObject: (m: {}, o: {}) => boolean = (matcher, obj) =>
+        Object.keys(matcher).reduce(
+          (acc: boolean, k: string) =>
+            acc &&
+            (typeof matcher[k] === 'object' && typeof obj[k] === 'object'
+              ? matchObject(matcher[k], obj[k])
+              : matcher[k] === obj[k]),
+          true,
+        );
+
+      const matches = matchObject(preventDefault, event);
 
       if (matches) {
         event.preventDefault();
