@@ -14,6 +14,12 @@ export function isClassOrId(str: string): boolean {
   return str.length > 1 && (str[0] === '.' || str[0] === '#');
 }
 
+export function isDocFrag(
+  el: Element | DocumentFragment,
+): el is DocumentFragment {
+  return el.nodeType === 11;
+}
+
 export const SCOPE_PREFIX = '$$CYCLEDOM$$-';
 
 export function getValidNode(
