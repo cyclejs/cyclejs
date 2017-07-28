@@ -61,7 +61,7 @@ function makeDOMDriver(
   const isolateModule = new IsolateModule();
   const patch = init([isolateModule.createModule()].concat(modules));
   const rootElement = getValidNode(container) || document.body;
-  const vnodeWrapper = new VNodeWrapper(rootElement as any);
+  const vnodeWrapper = new VNodeWrapper(rootElement);
   const delegators = new MapPolyfill<string, EventDelegator>();
   makeDOMDriverInputGuard(modules);
 

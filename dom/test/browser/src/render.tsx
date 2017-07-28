@@ -112,6 +112,41 @@ describe('DOM Rendering', function () {
     }
   });
 
+  it('should render in a DocumentFragment as container', function (done) {
+    function app(sources: {DOM: MainDOMSource}) {
+      return {
+        DOM: xs.of(select('.my-class', [
+          option({attrs: {value: 'foo'}}, 'Foo'),
+          option({attrs: {value: 'bar'}}, 'Bar'),
+          option({attrs: {value: 'baz'}}, 'Baz'),
+        ])),
+      };
+    }
+
+    const docfrag = document.createDocumentFragment();
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(docfrag),
+    });
+
+    let dispose: any;
+    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+      next: (root: Element) => {
+        const selectEl = root.querySelector('.my-class') as HTMLElement;
+        assert.notStrictEqual(selectEl, null);
+        assert.notStrictEqual(typeof selectEl, 'undefined');
+        assert.strictEqual(selectEl.tagName, 'SELECT');
+        const options = selectEl.querySelectorAll('option');
+        assert.strictEqual(options.length, 3);
+        setTimeout(() => {
+          dispose();
+          done();
+        });
+      },
+    });
+    dispose = run();
+  });
+
   it('should convert a simple virtual-dom <select> to DOM element', function (done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
