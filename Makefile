@@ -43,7 +43,7 @@ setup :
 		cd $$d ; yarn install ; cd .. ;\
 		echo "" ;\
 	done < .scripts/RELEASABLE_PACKAGES
-	@make lib all
+	@make lib
 
 prettier-all :
 	@echo "Formatting all source files using prettier"

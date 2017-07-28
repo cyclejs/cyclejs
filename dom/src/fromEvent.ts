@@ -2,7 +2,7 @@ import {Stream, Producer, Listener} from 'xstream';
 
 export type Predicate = (ev: any) => boolean;
 export type PreventDefaultOpt = boolean | Predicate | Comparator;
-export type Comparator = { [key: string]: any };
+export type Comparator = {[key: string]: any};
 
 export function fromEvent(
   element: Element | Document,
@@ -34,7 +34,10 @@ export function fromEvent(
   );
 }
 
-export function preventDefaultConditional(event: any, preventDefault: PreventDefaultOpt): void {
+export function preventDefaultConditional(
+  event: any,
+  preventDefault: PreventDefaultOpt,
+): void {
   if (preventDefault) {
     if (typeof preventDefault === 'boolean') {
       event.preventDefault();
@@ -51,7 +54,9 @@ export function preventDefaultConditional(event: any, preventDefault: PreventDef
         event.preventDefault();
       }
     } else {
-      throw new Error('preventDefault has to be either a boolean, predicate function or object');
+      throw new Error(
+        'preventDefault has to be either a boolean, predicate function or object',
+      );
     }
   }
 }
