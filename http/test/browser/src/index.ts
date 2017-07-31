@@ -122,4 +122,104 @@ describe('HTTP Driver in the browser', function() {
     });
     run();
   });
+
+  it('should not have cross-driver race conditions (#592)', function(done) {
+    this.timeout(5500);
+
+    function child(sources: any, num: any) {
+      const vdom$ = sources.HTTP
+        .select('cat')
+        .mergeAll()
+        .map((res: any) => 'My name is ' + res.text);
+
+      const request$ = num === 1
+        ? Rx.Observable.of({
+            category: 'cat',
+            url: uri + '/hello',
+          })
+        : Rx.Observable.never();
+
+      return {
+        HTTP: request$,
+        DOM: vdom$,
+      };
+    }
+
+    function mainHTTPThenDOM(sources: any) {
+      const sinks$ = Rx.Observable.interval(300).take(6).map(i => {
+        if (i % 2 === 1) {
+          return child(sources, i);
+        } else {
+          return {
+            HTTP: Rx.Observable.empty(),
+            DOM: Rx.Observable.of(''),
+          };
+        }
+      });
+
+      // order of sinks is important
+      return {
+        HTTP: sinks$.switchMap(sinks => sinks.HTTP),
+        DOM: sinks$.switchMap(sinks => sinks.DOM),
+      };
+    }
+
+    function mainDOMThenHTTP(sources: any) {
+      const sinks$ = Rx.Observable.interval(300).take(6).map(i => {
+        if (i % 2 === 1) {
+          return child(sources, i);
+        } else {
+          return {
+            HTTP: Rx.Observable.empty(),
+            DOM: Rx.Observable.of(''),
+          };
+        }
+      });
+
+      // order of sinks is important
+      return {
+        DOM: sinks$.switchMap(sinks => sinks.DOM),
+        HTTP: sinks$.switchMap(sinks => sinks.HTTP),
+      };
+    }
+
+    const expectedDOMSinks = [
+      /* HTTP then DOM: */ '',
+      'My name is Hello World',
+      '',
+      '',
+      /* DOM then HTTP: */ '',
+      'My name is Hello World',
+      '',
+      '',
+    ];
+
+    function domDriver(sink: any) {
+      sink.addListener({
+        next: s => {
+          assert.strictEqual(s, expectedDOMSinks.shift());
+        },
+        error: (err: any) => {},
+      });
+    }
+
+    // HTTP then DOM:
+    Cycle.run(mainHTTPThenDOM, {
+      HTTP: makeHTTPDriver(),
+      DOM: domDriver,
+    });
+    setTimeout(() => {
+      assert.strictEqual(expectedDOMSinks.length, 4);
+
+      // DOM then HTTP:
+      Cycle.run(mainDOMThenHTTP, {
+        HTTP: makeHTTPDriver(),
+        DOM: domDriver,
+      });
+      setTimeout(() => {
+        assert.strictEqual(expectedDOMSinks.length, 0);
+        done();
+      }, 2400);
+    }, 2400);
+  });
 });
