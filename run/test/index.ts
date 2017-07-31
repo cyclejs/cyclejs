@@ -393,7 +393,17 @@ describe('run', function() {
 
     const expected = [10];
     function driver(sink: Stream<number>): Stream<any> {
+      const buffer: Array<number> = [];
+      sink.addListener({
+        next: x => {
+          buffer.push(x);
+        },
+      });
       setTimeout(() => {
+        while (buffer.length > 0) {
+          const x = buffer.shift();
+          assert.strictEqual(x, expected.shift());
+        }
         sink.subscribe({
           next(x) {
             assert.strictEqual(x, expected.shift());
@@ -411,6 +421,137 @@ describe('run', function() {
       assert.strictEqual(expected.length, 0);
       done();
     }, 100);
+  });
+
+  it('should forbid cross-driver synchronous races (#592)', function(done) {
+    this.timeout(4000);
+
+    function child(sources: any, num: number) {
+      const vdom$ = sources.HTTP
+        // .select('cat')
+        // .flatten()
+        .map((res: any) => res.body.name)
+        .map((name: string) => 'My name is ' + name);
+
+      const request$ = num === 1
+        ? xs.of({
+            category: 'cat',
+            url: 'http://jsonplaceholder.typicode.com/users/1',
+          })
+        : xs.never();
+
+      return {
+        HTTP: request$,
+        DOM: vdom$,
+      };
+    }
+
+    function mainHTTPThenDOM(sources: any) {
+      const sinks$ = xs.periodic(100).take(6).map(i => {
+        if (i % 2 === 1) {
+          return child(sources, i);
+        } else {
+          return {
+            HTTP: xs.empty(),
+            DOM: xs.of(''),
+          };
+        }
+      });
+
+      // order of sinks is important to reproduce the bug
+      return {
+        HTTP: sinks$.map(sinks => sinks.HTTP).flatten(),
+        DOM: sinks$.map(sinks => sinks.DOM).flatten(),
+      };
+    }
+
+    function mainDOMThenHTTP(sources: any) {
+      const sinks$ = xs.periodic(100).take(6).map(i => {
+        if (i % 2 === 1) {
+          return child(sources, i);
+        } else {
+          return {
+            HTTP: xs.empty(),
+            DOM: xs.of(''),
+          };
+        }
+      });
+
+      // order of sinks is important to reproduce the bug
+      return {
+        DOM: sinks$.map(sinks => sinks.DOM).flatten(),
+        HTTP: sinks$.map(sinks => sinks.HTTP).flatten(),
+      };
+    }
+
+    let requestsSent = 0;
+    const expectedDOMSinks = [
+      /* HTTP then DOM: */ '',
+      'My name is Louis',
+      '',
+      '',
+      /* DOM then HTTP: */ '',
+      'My name is Louis',
+      '',
+      '',
+    ];
+
+    function domDriver(sink: Stream<string>) {
+      sink.addListener({
+        next: s => {
+          assert.strictEqual(s, expectedDOMSinks.shift());
+        },
+        error: (err: any) => {},
+      });
+    }
+
+    function httpDriver(sink: Stream<any>) {
+      let isBufferOpen = true;
+      const buffer: Array<any> = [];
+      const earlySource = xs.create({
+        start(listener: any) {
+          while (buffer.length > 0) {
+            listener.next(buffer.shift());
+          }
+          isBufferOpen = false;
+        },
+        stop() {},
+      });
+      const source = sink.map(req => ({body: {name: 'Louis'}}));
+      source.addListener({
+        next: x => {
+          if (isBufferOpen) {
+            buffer.push(x);
+          }
+        },
+        error: (err: any) => {},
+      });
+      return xs.merge(earlySource, source).debug(x => {
+        requestsSent += 1;
+      });
+    }
+
+    // HTTP then DOM:
+    const dispose = run(mainHTTPThenDOM, {
+      HTTP: httpDriver,
+      DOM: domDriver,
+    });
+    setTimeout(() => {
+      assert.strictEqual(expectedDOMSinks.length, 4);
+      assert.strictEqual(requestsSent, 1);
+      dispose();
+
+      // DOM then HTTP:
+      run(mainDOMThenHTTP, {
+        HTTP: httpDriver,
+        DOM: domDriver,
+      });
+      setTimeout(() => {
+        assert.strictEqual(expectedDOMSinks.length, 0);
+        assert.strictEqual(requestsSent, 2);
+        done();
+      }, 1000);
+    }, 1000);
   });
 
   it('should report errors from main() in the console', function(done) {
