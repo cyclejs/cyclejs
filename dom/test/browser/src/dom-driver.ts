@@ -199,4 +199,140 @@ describe('DOM Driver', function() {
       }, 50);
     }, 100);
   });
+
+  it('should not have cross-driver race conditions (#592)', function(done) {
+    function child(sources: any, num: number) {
+      const vdom$ = sources.HTTP
+        .map((res: any) => res.body.name)
+        .map((name: string) => div([h3('My name is ' + name)]));
+
+      const request$ = num === 1
+        ? xs.of({
+            category: 'cat',
+            url: 'http://jsonplaceholder.typicode.com/users/1',
+          })
+        : xs.never();
+
+      return {
+        HTTP: request$,
+        DOM: vdom$,
+      };
+    }
+
+    function mainHTTPThenDOM(sources: any) {
+      const sinks$ = xs.periodic(100).take(6).map(i => {
+        if (i % 2 === 1) {
+          return child(sources, i);
+        } else {
+          return {
+            HTTP: xs.empty(),
+            DOM: xs.of(div()),
+          };
+        }
+      });
+
+      // order of sinks is important to reproduce the bug
+      return {
+        HTTP: sinks$.map(sinks => sinks.HTTP).flatten(),
+        DOM: sinks$.map(sinks => sinks.DOM).flatten(),
+      };
+    }
+
+    function mainDOMThenHTTP(sources: any) {
+      const sinks$ = xs.periodic(100).take(6).map(i => {
+        if (i % 2 === 1) {
+          return child(sources, i);
+        } else {
+          return {
+            HTTP: xs.empty(),
+            DOM: xs.of(div()),
+          };
+        }
+      });
+
+      // order of sinks is important to reproduce the bug
+      return {
+        DOM: sinks$.map(sinks => sinks.DOM).flatten(),
+        HTTP: sinks$.map(sinks => sinks.HTTP).flatten(),
+      };
+    }
+
+    let requestsSent = 0;
+    const expectedDOMSinks = [
+      /* HTTP then DOM: */ '',
+      'My name is Louis',
+      '',
+      '',
+      /* DOM then HTTP: */ '',
+      'My name is Louis',
+      '',
+      '',
+    ];
+
+    function httpDriver(sink: Stream<any>) {
+      let isBufferOpen = true;
+      const buffer: Array<any> = [];
+      const earlySource = xs.create({
+        start(listener: any) {
+          while (buffer.length > 0) {
+            listener.next(buffer.shift());
+          }
+          isBufferOpen = false;
+        },
+        stop() {},
+      });
+      const source = sink.map(req => ({body: {name: 'Louis'}}));
+      source.addListener({
+        next: x => {
+          if (isBufferOpen) {
+            buffer.push(x);
+          }
+        },
+        error: (err: any) => {},
+      });
+      return xs.merge(earlySource, source).debug(x => {
+        requestsSent += 1;
+      });
+    }
+
+    // HTTP then DOM:
+    const {sources: sources1, run: run1} = setup(mainHTTPThenDOM, {
+      HTTP: httpDriver,
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+    let dispose: any;
+    sources1.DOM.select(':root').elements().drop(1).take(4).addListener({
+      next: (root1: Element) => {
+        assert.strictEqual(root1.textContent, expectedDOMSinks.shift());
+        if (expectedDOMSinks.length === 4) {
+          assert.strictEqual(requestsSent, 1);
+          dispose();
+
+          // DOM then HTTP:
+          const {sources: sources2, run: run2} = setup(mainDOMThenHTTP, {
+            DOM: makeDOMDriver(createRenderTarget()),
+            HTTP: httpDriver,
+          });
+          sources2.DOM.select(':root').elements().drop(1).take(4).addListener({
+            next: (root2: Element) => {
+              assert.strictEqual(root2.textContent, expectedDOMSinks.shift());
+              if (expectedDOMSinks.length === 0) {
+                assert.strictEqual(requestsSent, 2);
+                dispose();
+                done();
+              }
+            },
+            error: (e2: any) => {
+              done(e2);
+            },
+          });
+          dispose = run2();
+        }
+      },
+      error: (e1: any) => {
+        done(e1);
+      },
+    });
+    dispose = run1();
+  });
 });

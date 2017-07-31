@@ -1,7 +1,7 @@
 import {Driver, FantasyObservable} from '@cycle/run';
 import {init} from 'snabbdom';
 import {Module} from 'snabbdom/modules/module';
-import xs, {Stream} from 'xstream';
+import xs, {Stream, Listener} from 'xstream';
 import {DOMSource} from './DOMSource';
 import {MainDOMSource} from './MainDOMSource';
 import {VNode} from 'snabbdom/vnode';
@@ -68,17 +68,37 @@ function makeDOMDriver(
   function DOMDriver(vnode$: Stream<VNode>, name = 'DOM'): MainDOMSource {
     domDriverInputGuard(vnode$);
     const sanitation$ = xs.create<null>();
+
+    let isBufferOpen = true;
+    const buffer: Array<Element> = [];
+    const tooEarlyRootElement$ = xs.create<Element>({
+      start(lis: Listener<Element>) {
+        lis.next(rootElement as any);
+        while (buffer.length > 0) {
+          lis.next(buffer.shift() as Element);
+        }
+        isBufferOpen = false;
+      },
+      stop() {},
+    });
+
     const rootElement$ = xs
       .merge(vnode$.endWhen(sanitation$), sanitation$)
       .map(vnode => vnodeWrapper.call(vnode))
       .fold(patch, toVNode(rootElement))
       .drop(1)
       .map(unwrapElementFromVNode)
-      .compose(dropCompletion) // don't complete this stream
-      .startWith(rootElement as any);
+      .compose(dropCompletion); // don't complete this stream
 
     // Start the snabbdom patching, over time
-    const listener = {error: reportSnabbdomError};
+    const listener = {
+      next: (el: Element) => {
+        if (isBufferOpen) {
+          buffer.push(el);
+        }
+      },
+      error: reportSnabbdomError,
+    };
     if (document.readyState === 'loading') {
       document.addEventListener('readystatechange', () => {
         if (document.readyState === 'interactive') {
@@ -90,7 +110,7 @@ function makeDOMDriver(
     }
 
     return new MainDOMSource(
-      rootElement$,
+      xs.merge(tooEarlyRootElement$, rootElement$).remember(),
       sanitation$,
       [],
       isolateModule,
