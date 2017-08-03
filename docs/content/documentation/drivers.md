@@ -276,10 +276,92 @@ run(main, {
 
 Notice we have the `peerId` specified when the driver is created in `makeSockDriver(peerId)`. If the `main()` needs to dynamically connect to different peers according to some logic, then we shouldn't use this API anymore. Instead, we need the driver function to take instructions as input, such as "connect to peerId", or "send message to peerId". This is one example of the considerations you should take when designing a driver API.
 
+## Resistance to race conditions
+
+Complex drivers such as the official DOM and HTTP drivers should be able to handle all sorts of corner cases, such as synchronous race conditions or ordering of sinks in the sinks objects. This is because subscriptions ("adding a listener") happen only in drivers, and there are different types of subscription bugs that may surface only in driver code.
+
+These corner cases are very rare, but possible, such as issue [#592](https://github.com/cyclejs/cyclejs/issues/592). Fortunately, with a simple technique in driver code, you can defend your code against these possibly rare bugs. We could have put a **generic solution** for this in Cycle Run, but it would have a small negative effect to all Cycle.js apps, so we decided to put **specific solutions** in each driver where this may occur.
+
+If your driver is similar to the DOM driver, it meets these conditions:
+
+- The *source* depends on the `foo$` which depends on the *sink*
+- `foo$` is hot (multicasted), like most xstream Streams are
+- `foo$` is subscribed with a dummy listener, even if the source is not used in the `main`
+- `foo$` may emit synchronously when subscribed
+
+Those conditions may lead to the following rare race condition:
+
+1. `foo$` is subscribed
+2. `foo$` emits synchronously, but the value is ignored by the dummy listener
+3. The *source* is used by a chain of streams and eventually subscribed
+4. The *source* does not get the value dropped by step 2
+
+To solve this case, you can use a simple buffer array technique. Suppose your driver looks like this:
+
+```js
+function myDriver(sink) {
+  const foo$ = sink.map(doSomeProcessing);
+
+  // Dummy listener to make sure the processing happens
+  foo$.addListener({
+    next: () => {},
+    error: () => {},
+    complete: () => {},
+  })
+
+  const source = foo$.map(prepareTheSource);
+
+  return adapt(source);
+}
+```
+
+Then you can:
+
+- Add a `buffer` array and a boolean `isBufferOpen`
+- Add a stream `tooEarlyFoo$` that consumes the buffer
+- In the dummy listener for `foo$`, push values to the `buffer`
+- Source to depend on both `tooEarlyFoo$` and `foo$`
+
+Such as the following solution:
+
+```diff
+ function myDriver(sink) {
++  let isBufferOpen = true;
++  const buffer = [];
++  const tooEarlyFoo$ = xs.create({
++    start(listener) {
++      while (buffer.length > 0) {
++        listener.next(buffer.shift());
++      }
++      isBufferOpen = false;
++    },
++    stop() {},
++  });
+   const foo$ = sink.map(doSomeProcessing);
+
+   // Dummy listener to make sure the processing happens
+   foo$.addListener({
+-    next: () => {},
++    next: (x) => {
++      if (isBufferOpen) buffer.push(x);
++    },
+     error: () => {},
+     complete: () => {},
+   })
+
+-  const source = foo$.map(prepareTheSource);
++  const source = xs.merge(foo$, tooEarlyFoo$).map(prepareTheSource);
+
+   return adapt(source);
+ }
+```
+
+These additions are enough to make your driver resistant to race conditions in various use cases.
+
 ## Extensibility
 
-Cycle *Core* is a very small framework, and Cycle *DOM*'s Driver is available as an optional plugin for your app. This means it is simple to replace the DOM Driver with any other driver function providing interaction with the user.
+Cycle.js is a very small framework, and Cycle *DOM*'s Driver is available as an optional plugin for your app. This means it is simple to replace the DOM Driver with any other driver function providing interaction with the user.
 
 You can for instance fork the DOM Driver, adapt it to your preferences, and use it in a Cycle.js app. You can create a driver to interface with sockets. Drivers to perform network requests. Drivers meant for Node.js. Drivers that target other UI trees, such as `<canvas>` or even native mobile UI.
 
-As a framework, it cannot be compared to monoliths which have ruled web development in the recent years. Cycle.js itself is after all just a small tool and a convention to create reactive dialogues with the external world using reactive streams.
+As a framework, it cannot be compared to monoliths in web development in the recent years. Cycle.js itself is after all just a small tool and a convention to create reactive dialogues with the external world using reactive streams.
