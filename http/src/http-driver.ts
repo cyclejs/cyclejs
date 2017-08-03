@@ -134,7 +134,7 @@ function softNormalizeRequestInput(reqInput: RequestInput): RequestOptions {
   return reqOptions;
 }
 
-function normalizeRequestInput(reqInput: RequestInput): RequestOptions {
+export function normalizeRequestInput(reqInput: RequestInput): RequestOptions {
   if (typeof reqInput === 'string') {
     return {url: reqInput};
   } else if (typeof reqInput === 'object') {
