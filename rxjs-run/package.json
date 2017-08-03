@@ -1,6 +1,6 @@
 {
   "name": "@cycle/rxjs-run",
-  "version": "7.1.0",
+  "version": "8.0.0-rc.1",
   "description": "The Cycle run() function meant to be used with RxJS v5",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
@@ -30,7 +30,7 @@
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "dependencies": {
-    "@cycle/run": "3.x"
+    "@cycle/run": "4.0.0-rc.1"
   },
   "peerDependencies": {
     "rxjs": "*"
