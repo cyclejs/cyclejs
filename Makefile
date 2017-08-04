@@ -43,7 +43,7 @@ setup :
 		cd $$d ; yarn install ; cd .. ;\
 		echo "" ;\
 	done < .scripts/RELEASABLE_PACKAGES
-	@make lib all
+	@make lib
 
 prettier-all :
 	@echo "Formatting all source files using prettier"
@@ -76,7 +76,8 @@ lib :
 	else \
 		rm -rf $(ARG)/lib/ ;\
 		mkdir -p $(ARG)/lib ;\
-		$(TSC) --project $(ARG) ;\
+		$(TSC) --project $(ARG) --module commonjs --outDir $(ARG)/lib ;\
+		$(TSC) --project $(ARG) --module es6 --outDir $(ARG)/lib/es6 ;\
 		echo "✓ Compiled TypeScript to lib\n" ;\
 	fi
 

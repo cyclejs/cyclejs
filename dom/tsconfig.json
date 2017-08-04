@@ -1,7 +1,6 @@
 {
   "extends": "../tsconfig.common.json",
   "compilerOptions": {
-    "outDir": "lib/",
     "lib": [
       "dom",
       "es5",
