@@ -3,6 +3,7 @@
   "version": "7.1.0",
   "description": "The Cycle run() function to be used with most.js",
   "main": "lib/index.js",
+  "module": "lib/es6/index.js",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "repository": "https://github.com/cyclejs/cyclejs/tree/master/most-run",

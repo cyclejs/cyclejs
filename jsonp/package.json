@@ -3,6 +3,7 @@
   "version": "7.0.0",
   "description": "A Cycle.js Driver for making HTTP requests through JSONP",
   "main": "lib/index.js",
+  "module": "lib/es6/index.js",
   "author": "Andre Staltz",
   "license": "MIT",
   "homepage": "https://cycle.js.org",

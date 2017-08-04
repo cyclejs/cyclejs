@@ -1,7 +1,6 @@
 {
   "extends": "../tsconfig.common.json",
   "compilerOptions": {
-    "outDir": "lib/"
   },
   "files": [
     "src/index.ts"
