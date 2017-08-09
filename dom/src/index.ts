@@ -119,7 +119,7 @@ export {CycleDOMEvent} from './EventDelegator';
  * SVG-specific child elements. Example:
  *
  * ```js
- * svg({width: 150, height: 150}, [
+ * svg({attrs: {width: 150, height: 150}}, [
  *   svg.polygon({
  *     attrs: {
  *       class: 'triangle',

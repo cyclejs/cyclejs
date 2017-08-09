@@ -169,7 +169,7 @@ describe('DOMSource.select()', function() {
     function app(sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(
-          svg({width: 150, height: 150}, [
+          svg({attrs: {width: 150, height: 150}}, [
             svg.polygon({
               attrs: {
                 class: 'triangle',
