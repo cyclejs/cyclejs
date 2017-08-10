@@ -98,7 +98,7 @@ the app on the DOM.
 #### Arguments:
 
 - `container: String|HTMLElement` the DOM selector for the element (or the element itself) to contain the rendering of the VTrees.
-- `options: DOMDriverOptions` an object with two optional properties:
+- `options: DOMDriverOptions` an object with two optional properties: 
   - `modules: array` overrides `@cycle/dom`'s default Snabbdom modules as
     as defined in [`src/modules.ts`](./src/modules.ts).
   - `transposition: boolean` enables/disables transposition of inner streams
@@ -241,14 +241,6 @@ svg({attrs: {width: 150, height: 150}}, [
   </div>
 
 
-  <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-    ga('create', 'UA-43862400-3', 'auto');
-    ga('send', 'pageview');
-  </script>
   <script>
     ((window.gitter = {}).chat = {}).options = {
       room: 'cyclejs/cyclejs'

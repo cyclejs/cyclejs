@@ -121,8 +121,8 @@ channels won't be isolated. If you don't have a wildcard and some channels
 are unspecified, then `isolate` will generate a random scope.
 
 ```js
-// Uses some arbitrary string as the isolation scope for HTTP and other channels
-const childSinks = isolate(Child, {DOM: 'foo'})(sources);
+// Does not isolate HTTP requests
+const childSinks = isolate(Child, {DOM: 'foo', HTTP: null})(sources);
 ```
 
 If the `scope` argument is not provided at all, a new scope will be
@@ -131,6 +131,11 @@ pure** (referentially transparent), **`isolate(component)` is impure** (not
 referentially transparent). Two calls to `isolate(Foo, bar)` will generate
 the same component. But, two calls to `isolate(Foo)` will generate two
 distinct components.
+
+```js
+// Uses some arbitrary string as the isolation scope for HTTP and other channels
+const childSinks = isolate(Child, {DOM: 'foo'})(sources);
+```
 
 Note that both `isolateSource()` and `isolateSink()` are static members of
 `source`. The reason for this is that drivers produce `source` while the
@@ -196,14 +201,6 @@ implement `isolateSource()` and `isolateSink()`.
   </div>
 
 
-  <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-    ga('create', 'UA-43862400-3', 'auto');
-    ga('send', 'pageview');
-  </script>
   <script>
     ((window.gitter = {}).chat = {}).options = {
       room: 'cyclejs/cyclejs'
