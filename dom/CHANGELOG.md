@@ -1,3 +1,22 @@
+<a name="18.1.0"></a>
+# 18.1.0 (2017-08-11)
+
+
+### Bug Fixes
+
+* **dom:** update snabbdom to v0.7.0 ([506bf88](https://github.com/cyclejs/cyclejs/commit/506bf88))
+* **dom:** wrap svg example width and height attrs inside attrs object (#653) ([832f567](https://github.com/cyclejs/cyclejs/commit/832f567))
+
+
+### BREAKING CHANGES
+
+* **dom:** Snabbdom 0.7.0 has some breaking changes, see their release notes:
+https://github.com/snabbdom/snabbdom/releases/tag/v0.7.0
+
+ISSUES CLOSED: #656
+
+
+
 <a name="18.0.0"></a>
 # 18.0.0 (2017-07-20)
 
