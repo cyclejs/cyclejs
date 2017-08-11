@@ -4,6 +4,10 @@ import {Frame} from './animation-frames';
 export type Operator = <T>(stream: Stream<T>) => Stream<T>;
 export type Comparator = (actual: any, expected: any) => void;
 
+export interface ObjectDictionary<T> {
+  [key: string]: T;
+}
+
 export interface TimeSource {
   animationFrames(): Stream<Frame>;
   delay(delayTime: number): Operator;
@@ -14,6 +18,8 @@ export interface TimeSource {
 }
 
 export interface MockTimeSource extends TimeSource {
+  diagram<T>(str: string, values: ObjectDictionary<T> | Array<T>): Stream<T>;
+  diagram(str: string): Stream<number | string>;
   diagram(str: string, values?: Object): Stream<any>;
   record(stream: Stream<any>): Stream<Array<any>>;
   assertEqual(
