@@ -46,17 +46,21 @@ export function preventDefaultConditional(
         event.preventDefault();
       }
     } else if (typeof preventDefault === 'object') {
-      const matchObject: (m: {}, o: {}) => boolean = (matcher, obj) =>
-        Object.keys(matcher).reduce(
-          (acc: boolean, k: string) =>
-            acc &&
-            (typeof matcher[k] === 'object' && typeof obj[k] === 'object'
-              ? matchObject(matcher[k], obj[k])
-              : matcher[k] === obj[k]),
-          true,
-        );
+      const match: (m: any, o: any) => boolean = (matcher, obj) => {
+        const isArray = Array.isArray(matcher);
+        const array = isArray ? matcher : Object.keys(matcher);
+        return array.reduce((acc: boolean, k: string, i: number) => {
+          const idx = isArray ? i : k;
+          const m = matcher[idx];
+          const o = obj[idx];
+          return (acc && (typeof m === 'object' && typeof o === 'object')) ||
+          (Array.isArray(m) && Array.isArray(o))
+            ? match(m, o)
+            : m === o;
+        }, true);
+      };
 
-      const matches = matchObject(preventDefault, event);
+      const matches = match(preventDefault, event);
 
       if (matches) {
         event.preventDefault();
