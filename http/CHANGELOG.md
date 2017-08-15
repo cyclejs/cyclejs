@@ -1,3 +1,13 @@
+<a name="14.2.0"></a>
+# 14.2.0 (2017-08-15)
+
+
+### Bug Fixes
+
+* **http:** use ES6 imports to guarantee presence after tree shaking ([a6e9c74](https://github.com/cyclejs/cyclejs/commit/a6e9c74))
+
+
+
 <a name="14.1.0"></a>
 # 14.1.0 (2017-08-12)
 
