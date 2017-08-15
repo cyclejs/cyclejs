@@ -2,7 +2,7 @@ import xs, {Stream, MemoryStream} from 'xstream';
 import {Driver} from '@cycle/run';
 import {adapt} from '@cycle/run/lib/adapt';
 import {MainHTTPSource} from './MainHTTPSource';
-import superagent = require('superagent');
+import * as superagent from 'superagent';
 import {
   HTTPSource,
   ResponseStream,
