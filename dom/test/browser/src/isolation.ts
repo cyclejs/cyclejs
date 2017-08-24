@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import isolate from '@cycle/isolate';
 import xs, {Stream, MemoryStream} from 'xstream';
+import fromDiagram from 'xstream/extra/fromDiagram';
 import delay from 'xstream/extra/delay';
 import concat from 'xstream/extra/concat';
 import {setup} from '@cycle/run';
@@ -1459,9 +1460,10 @@ describe('isolation', function() {
 
   it('should allow recursive isolation using the same scope', done => {
     function Item(sources: {DOM: MainDOMSource}, count: number) {
-      const childVdom$: Stream<VNode> = count > 0
-        ? isolate(Item, '0')(sources, count - 1).DOM
-        : xs.of<any>(null);
+      const childVdom$: Stream<VNode> =
+        count > 0
+          ? isolate(Item, '0')(sources, count - 1).DOM
+          : xs.of<any>(null);
 
       const highlight$ = sources.DOM
         .select('button')
@@ -1511,6 +1513,66 @@ describe('isolation', function() {
         }, 300);
       },
     });
+    dispose = run();
+  });
+
+  it('should not loose event delegators when components are moved around', function(
+    done,
+  ) {
+    function component(sources: {DOM: MainDOMSource}) {
+      const click$ = sources.DOM
+        .select('.click-me')
+        .events('click')
+        .mapTo('clicked');
+
+      return {
+        DOM: xs.of(button('.click-me', 'click me')),
+        click$,
+      };
+    }
+
+    function app(sources: {DOM: MainDOMSource}) {
+      const comp = isolate(component, 'child')(sources);
+      const position$ = fromDiagram('1-2|');
+      return {
+        DOM: xs.combine(position$, comp.DOM).map(([position, childDom]) => {
+          const children =
+            position === '1'
+              ? [div([childDom]), div()]
+              : [div(), div([childDom])];
+
+          return div(children);
+        }),
+
+        click$: comp.click$,
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+      click$: () => {},
+    });
+
+    const expectedClicks = ['clicked', 'clicked'];
+    let dispose: any;
+    sinks.click$.take(2).addListener({
+      next: function(message: string) {
+        assert.strictEqual(message, expectedClicks.shift());
+      },
+      complete: function() {
+        assert.strictEqual(expectedClicks.length, 0);
+        done();
+        dispose();
+      },
+    });
+
+    sources.DOM.select(':root').elements().drop(1).addListener({
+      next: function(root: Element) {
+        const button = root.querySelector('button.click-me') as HTMLElement;
+        button.click();
+      },
+    });
+
     dispose = run();
   });
 });

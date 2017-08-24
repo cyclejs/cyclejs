@@ -21,6 +21,13 @@ export class IsolateModule {
    */
   private fullScopesBeingUpdated: Array<string>;
 
+  /**
+   * A registry that keeps track of all the nodes that are removed from
+   * the virtual DOM in a single patch. Those nodes are cleaned once snabbdom
+   * has finished patching the DOM.
+   */
+  private vnodesBeingRemoved: Array<VNode>;
+
   constructor() {
     this.elementsByFullScope = new MapPolyfill<string, Element>();
     this.delegatorsByFullScope = new MapPolyfill<
@@ -28,6 +35,7 @@ export class IsolateModule {
       Array<EventDelegator>
     >();
     this.fullScopesBeingUpdated = [];
+    this.vnodesBeingRemoved = [];
   }
 
   private cleanupVNode({data, elm}: VNode) {
@@ -132,15 +140,17 @@ export class IsolateModule {
       },
 
       destroy(vNode: VNode) {
-        self.cleanupVNode(vNode);
+        self.vnodesBeingRemoved.push(vNode);
       },
 
       remove(vNode: VNode, cb: Function) {
-        self.cleanupVNode(vNode);
+        self.vnodesBeingRemoved.push(vNode);
         cb();
       },
 
       post() {
+        self.vnodesBeingRemoved.forEach(self.cleanupVNode.bind(self));
+        self.vnodesBeingRemoved = [];
         self.fullScopesBeingUpdated = [];
       },
     };
