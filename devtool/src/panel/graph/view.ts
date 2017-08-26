@@ -53,7 +53,7 @@ function renderNodeLabel(node: StreamGraphNode, zap: Zap | null, style: string):
 }
 
 function renderSourceOrSinkNode(node: StreamGraphNode, zaps: Array<Zap>) {
-  const index = zaps.map(zap => zap.id).indexOf(node.id);
+  const index = zaps.map(z => z.id).indexOf(node.id);
   const zap = index === -1 ? null : zaps[index];
   const P = 5; // text padding
   const hook = {
@@ -123,7 +123,7 @@ function renderOperatorNode(node: StreamGraphNode) {
 }
 
 function renderCommonNode(node: StreamGraphNode, zaps: Array<Zap>): VNode {
-  const index = zaps.map(zap => zap.id).indexOf(node.id);
+  const index = zaps.map(z => z.id).indexOf(node.id);
   const zap = index === -1 ? null : zaps[index];
 
   return svg.g([
@@ -264,10 +264,10 @@ function renderEdge(vw: dagre.Edge, graph: dagre.graphlib.Graph): VNode | null {
 }
 
 export function renderGraph(graph: dagre.graphlib.Graph, zaps: Array<Zap>, id: string): VNode {
-  const g = typeof graph['graph'] === 'function' ? graph['graph']() : {};
+  const g = typeof graph.graph === 'function' ? graph.graph() : {};
   const attrs = {
-    width: g.width + 2 * DIAGRAM_PADDING_H + 100,
-    height: g.height + 2 * DIAGRAM_PADDING_V,
+    width: (g.width || 0) + 2 * DIAGRAM_PADDING_H + 100,
+    height: (g.height || 0) + 2 * DIAGRAM_PADDING_V,
   };
   return svg({ attrs, key: id }, [
     ...graph.edges().map(edge => renderEdge(edge, graph)),

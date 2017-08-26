@@ -37,11 +37,11 @@ chrome.devtools.panels.create('Cycle.js', '128.png', 'panel.html', function (ext
           panelWindow['postMessage']({__fromCyclejsDevTool: true, data: message.data}, '*');
         } else if (message.type === 'tabLoading'
         && message.tabId === chrome.devtools.inspectedWindow.tabId) {
-          const settings = `
+          const cycleJsDevToolSettings = `
             window.CyclejsDevToolSettings = ${JSON.stringify(sessionSettings)};
           `;
           chrome.devtools.inspectedWindow.reload({
-            injectedScript: `${settings} ${code}`,
+            injectedScript: `${cycleJsDevToolSettings} ${code}`,
           });
         }
       });

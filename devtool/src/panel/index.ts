@@ -66,7 +66,7 @@ export function startPanel(graph$: Stream<string>): void {
   const panelSources = {graph: graph$, DOM: domSource};
   const panelSinks = Panel(panelSources);
 
-  styles.inject();
+  styles['inject']();
   domSinkProxy.imitate(panelSinks.DOM);
   panelSinks.zapSpeed.addListener({
     next(s: ZapSpeed) {

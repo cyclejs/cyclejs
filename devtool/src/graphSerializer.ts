@@ -1,5 +1,5 @@
 /* tslint:disable:max-file-line-count */
-import xs, {Stream, Listener} from 'xstream';
+import xs, {Stream, Listener, InternalProducer as _InternalProducer} from 'xstream';
 import {DevToolEnabledSource} from '@cycle/run';
 import debounce from 'xstream/extra/debounce';
 import * as dagre from 'dagre';
@@ -8,7 +8,9 @@ import {ZapSpeed} from './panel/model';
 import timeSpread from './utils/timeSpread';
 import {SessionSettings} from './launcher';
 
-interface InternalProducer {
+// The InternalProducer types from xstream doesn't include all properties.
+// The Interface can be replaced once this is the case.
+interface InternalProducer extends _InternalProducer<any> {
   type?: string;
 }
 
@@ -393,4 +395,4 @@ const intervalID = setInterval(function() {
     startGraphSerializer(null);
   }
 }, 50);
-/* tslint:enable:max-file-line-count */
+/* tslint:disable:max-file-line-count */
