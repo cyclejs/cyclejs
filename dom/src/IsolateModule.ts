@@ -1,6 +1,6 @@
 import {VNode} from 'snabbdom/vnode';
 import {EventDelegator} from './EventDelegator';
-const MapPolyfill: typeof Map = require('es6-map');
+import * as MapPolyfill from 'es6-map';
 
 export class IsolateModule {
   private elementsByFullScope: Map<string, Element>;

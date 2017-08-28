@@ -11,7 +11,7 @@ import {getValidNode} from './utils';
 import defaultModules from './modules';
 import {IsolateModule} from './IsolateModule';
 import {EventDelegator} from './EventDelegator';
-const MapPolyfill: typeof Map = require('es6-map');
+import * as MapPolyfill from 'es6-map';
 
 function makeDOMDriverInputGuard(modules: any) {
   if (!Array.isArray(modules)) {
