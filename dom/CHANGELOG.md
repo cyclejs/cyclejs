@@ -1,3 +1,14 @@
+<a name="18.2.0"></a>
+# 18.2.0 (2017-08-29)
+
+
+### Bug Fixes
+
+* **dom:** add TypeScript typings for es6-map polyfill ([805aa6d](https://github.com/cyclejs/cyclejs/commit/805aa6d))
+* **dom:** switch from require() to import statements for es6 map polyfill ([f459ada](https://github.com/cyclejs/cyclejs/commit/f459ada))
+
+
+
 <a name="18.1.0"></a>
 # 18.1.0 (2017-08-11)
 
