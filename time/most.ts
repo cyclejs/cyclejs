@@ -5,16 +5,11 @@ import {setAdapt} from '@cycle/run/lib/adapt';
 import {mockTimeSource as mockTimeSourceUntyped} from './src/mock-time-source';
 import {timeDriver as timeDriverUntyped} from './src/time-driver';
 import {Frame} from './src/animation-frames';
-import {Scheduler} from './src/scheduler';
+import {Comparator, OperatorArgs} from './src/types';
 
 setAdapt(stream => most.from(stream as any));
 
 type Operator = <T>(stream: Stream<T>) => Stream<T>;
-export type Comparator = (actual: any, expected: any) => void;
-export type OperatorArgs<T> = {
-  schedule: Scheduler<T>;
-  currentTime(): number;
-};
 
 interface TimeSource {
   animationFrames(): Stream<Frame>;
