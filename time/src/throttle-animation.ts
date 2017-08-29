@@ -37,7 +37,7 @@ function makeThrottleAnimation(
 
           complete() {
             frame$.removeListener(animationListener);
-            schedule.completion(listener, currentTime());
+            schedule.complete(listener, currentTime());
           },
         });
 

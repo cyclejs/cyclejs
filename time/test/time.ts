@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import {mockTimeSource, timeDriver} from '../';
+import {mockTimeSource, timeDriver, TimeSource, Operator} from '../';
 import {mockDOMSource} from '@cycle/dom';
 import xs, {Stream} from 'xstream';
 import {setAdapt} from '@cycle/run/lib/adapt';
@@ -71,6 +71,50 @@ describe('@cycle/time', () => {
     const counter = Counter({DOM});
 
     Time.assertEqual(counter.count$, Time.diagram(expectedCount));
+
+    Time.run(done);
+  });
+
+  it('supports custom operators', done => {
+    const Time = mockTimeSource({interval: 10});
+
+    const input$ = Time.diagram('--1--2--3-------');
+    const expected$ = Time.diagram('---1---2---3----');
+
+    function delayBy(
+      timeSource: TimeSource,
+      delaySelector: (t: any) => number,
+    ): Operator {
+      return function delayByOperator<T>(stream: Stream<T>): Stream<T> {
+        return xs.create<T>({
+          start(listener) {
+            const {schedule, currentTime} = timeSource.createOperator();
+
+            stream.addListener({
+              next(t: T) {
+                const delay = delaySelector(t);
+
+                schedule.next(listener, currentTime() + delay, t);
+              },
+
+              error(err: Error) {
+                schedule.error(listener, currentTime(), err);
+              },
+
+              complete() {
+                schedule.complete(listener, currentTime());
+              },
+            });
+          },
+
+          stop() {},
+        });
+      };
+    }
+
+    const actual$ = input$.compose(delayBy(Time, (i: number) => i * 10));
+
+    Time.assertEqual(actual$, expected$);
 
     Time.run(done);
   });

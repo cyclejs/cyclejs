@@ -43,7 +43,7 @@ function makePeriodic(schedule: any, currentTime: () => number) {
 
       stop() {
         stopped = true;
-        schedule.completion(producer.listener, currentTime());
+        schedule.complete(producer.listener, currentTime());
       },
     };
 

@@ -50,7 +50,7 @@ function makeDiagram(
       }
 
       if (character === '|') {
-        schedule.completion(stream, timeToSchedule);
+        schedule.complete(stream, timeToSchedule);
       } else if (character === '#') {
         schedule.error(stream, timeToSchedule, new Error(`scheduled error`));
       } else {

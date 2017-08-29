@@ -107,6 +107,8 @@ function mockTimeSource({interval = 20} = {}): any {
 
     _scheduler: scheduler.add,
     _time: currentTime,
+
+    createOperator: () => ({schedule: scheduler.add, currentTime}),
   };
 
   return timeSource;

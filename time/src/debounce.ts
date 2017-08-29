@@ -29,7 +29,7 @@ function makeDebounceListener<T>(
     },
 
     complete() {
-      schedule.completion(listener, currentTime());
+      schedule.complete(listener, currentTime());
     },
   };
 }

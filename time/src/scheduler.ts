@@ -1,4 +1,20 @@
+import {Listener} from 'xstream';
 const makeAccumulator = require('sorted-immutable-list').default;
+
+export interface Schedule<T> {
+  shiftNextEntry(): T | undefined;
+  isEmpty(): boolean;
+  peek(): T | undefined;
+  add: Scheduler<T>;
+}
+
+export interface Scheduler<T> {
+  _schedule: any;
+
+  next(listener: Listener<T>, time: number, value: T): void;
+  error(listener: Listener<T>, time: number, error: Error): void;
+  complete(listener: Listener<T>, time: number): void;
+}
 
 const comparator = (a: any) => (b: any) => {
   if (a.time < b.time) {
@@ -23,7 +39,7 @@ const comparator = (a: any) => (b: any) => {
   return 1;
 };
 
-function makeScheduler() {
+function makeScheduler<T>(): Schedule<T> {
   let schedule: Array<any> = [];
 
   function getSchedule() {
@@ -78,7 +94,7 @@ function makeScheduler() {
         });
       },
 
-      completion(stream: any, time: number) {
+      complete(stream: any, time: number) {
         return scheduleEntry({
           type: 'complete',
           stream,
