@@ -6,16 +6,11 @@ import {setAdapt} from '@cycle/run/lib/adapt';
 import {mockTimeSource as mockTimeSourceUntyped} from './src/mock-time-source';
 import {timeDriver as timeDriverUntyped} from './src/time-driver';
 import {Frame} from './src/animation-frames';
-import {Scheduler} from './src/scheduler';
+import {Comparator, OperatorArgs} from './src/types';
 
 setAdapt(stream => Observable.from(stream));
 
 type Operator = <T>(observable: Observable<T>) => Observable<T>;
-export type Comparator = (actual: any, expected: any) => void;
-export type OperatorArgs<T> = {
-  schedule: Scheduler<T>;
-  currentTime(): number;
-};
 
 interface TimeSource {
   createOperator<T>(): OperatorArgs<T>;

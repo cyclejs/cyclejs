@@ -1,13 +1,8 @@
 import {Stream} from 'xstream';
 import {Frame} from './animation-frames';
-import {Scheduler} from './scheduler';
+import {Comparator, OperatorArgs} from './types';
 
 export type Operator = <T>(stream: Stream<T>) => Stream<T>;
-export type Comparator = (actual: any, expected: any) => void;
-export type OperatorArgs<T> = {
-  schedule: Scheduler<T>;
-  currentTime(): number;
-};
 
 export interface TimeSource {
   createOperator<T>(): OperatorArgs<T>;
