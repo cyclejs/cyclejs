@@ -265,6 +265,7 @@ Notice that we are now using `Time.delay` instead of the `xstream` equivalent.  
 
 If you want to see more examples of tests using `@cycle/time`, check out the test directory.
 
+
 ## API
 
 ```js
@@ -362,6 +363,61 @@ const frames$ = Time.animationFrames();
 ```
 
 For more information on `requestAnimationFrame`, see the [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame).
+
+#### `createOperator()`
+
+Used for creating custom time based operators. Used in conjunction with `xs.create`.
+
+Returns an object with a `schedule` object and `currentTime` function.
+
+The `schedule` is used for adding events to the schedule. It has three methods:
+
+* `next` - takes an xstream `listener`, the `time` the event should be dispatched, and the `event` to dispatch
+* `error` - takes an xstream `listener`, the `time` the error should be dispatched, and the `error` to dispatch
+* `complete` - takes an xstream `listener` and the completion `time`
+
+
+The `currentTime` function takes no arguments and returns a number representing the time in milliseconds since the driver started.
+
+Generally you want to schedule relative to `currentTime`. If you schedule an event prior or equal to `currentTime`, it will be executed in the current tick.
+
+Here is an example of a custom operator, `delayBy`, which delays events by a time determined by a selector function.
+
+```js
+function delayBy(timeSource, delaySelector) {
+  return function delayByOperator(stream) {
+    let sourceListener;
+
+    return xs.create({
+      start(listener) {
+        const {schedule, currentTime} = timeSource.createOperator();
+
+        sourceListener = stream.addListener({
+          next(t) {
+            const delay = delaySelector(t);
+
+            schedule.next(listener, currentTime() + delay, t);
+          },
+
+          error(err) {
+            schedule.error(listener, currentTime(), err);
+          },
+
+          complete() {
+            schedule.complete(listener, currentTime());
+          },
+        });
+      },
+
+      stop() {
+        stream.removeListener(sourceListener);
+      }
+    });
+  };
+};
+
+Time.periodic(1000).compose(delayBy(Time, i => i * 100));
+```
 
 ### `mockTimeSource({interval = 20})`
 

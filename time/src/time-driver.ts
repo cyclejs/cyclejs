@@ -135,6 +135,8 @@ function timeDriver(sink: any): any {
       // TODO - frameCallbacks?
       runVirtually(scheduler, done, currentTime, setTime, timeToRunTo);
     },
+
+    createOperator: () => ({schedule: scheduler.add, currentTime}),
   };
 
   return timeSource;

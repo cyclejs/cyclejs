@@ -19,7 +19,7 @@ function makeDelayListener<T>(
     },
 
     complete() {
-      schedule.completion(listener, delayedTime());
+      schedule.complete(listener, delayedTime());
     },
   };
 }
