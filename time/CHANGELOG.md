@@ -1,3 +1,13 @@
+<a name="0.9.1"></a>
+## 0.9.1 (2017-08-30)
+
+
+### Bug Fixes
+
+* **time:** include lib/ in compiled package ([49a653e](https://github.com/cyclejs/cyclejs/commit/49a653e))
+
+
+
 <a name="0.9.0"></a>
 # 0.9.0 (2017-08-30)
 
