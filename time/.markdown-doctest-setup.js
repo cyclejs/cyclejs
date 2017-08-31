@@ -57,9 +57,9 @@ function Counter ({DOM}) {
 module.exports = {
   require: {
     '@cycle/time': {
-      timeDriver: timeDriver.mockTimeSource,
+      timeDriver: timeDriver.mockTimeSourceUntyped,
 
-      mockTimeSource: timeDriver.mockTimeSource
+      mockTimeSource: timeDriver.mockTimeSourceUntyped
     },
     '@cycle/dom': mockedCycleDom,
     'snabbdom-selector': require('snabbdom-selector'),
@@ -83,9 +83,9 @@ module.exports = {
       }
     },
 
-    Time: timeDriver.mockTimeSource(),
+    Time: timeDriver.mockTimeSourceUntyped(),
     timeDriver: timeDriver.timeDriver,
-    mockTimeSource: timeDriver.mockTimeSource,
+    mockTimeSource: timeDriver.mockTimeSourceUntyped,
 
     done: (err) => {
       if (err) {

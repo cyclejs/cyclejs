@@ -1,6 +1,4 @@
 {
-  "name": "@cycle/time",
-  "version": "0.10.1",
   "description": "A time driver designed to enable awesome testing and dev tooling",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
@@ -11,25 +9,12 @@
   "module": "lib/es6/index.js",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
-  "dependencies": {
-    "@cycle/run": "3.x",
-    "combine-errors": "3.0.x",
-    "performance-now": "^2.1.0",
-    "raf": "3.3.x",
-    "setimmediate": "1.0.x",
-    "sorted-immutable-list": "1.1.x",
-    "variable-diff": "1.1.x",
-    "xstream": "*"
-  },
   "devDependencies": {
     "@cycle/dom": "17.6",
     "@types/mocha": "2.2.x",
     "@types/node": "7.0.x",
-    "fs-extra": "^4.0.1",
     "garnish": "5.2.x",
     "markdown-doctest": "0.9.x",
-    "most": "^1.7.0",
-    "rxjs": "^5.4.3",
     "snabbdom-selector": "1.2.x"
   },
   "publishConfig": {
@@ -46,17 +31,14 @@
   "browserify-shim": {
     "xstream": "global:xstream"
   },
-  "react-native": {
-    "variable-diff": false
-  },
   "scripts": {
-    "start": "../node_modules/.bin/budo -d example example/index.ts:index.js --live -- -p tsify",
-    "test-watch": "../node_modules/.bin/mocha 'test/**/*.ts' --compilers ts:ts-node/register --watch -R min",
-    "test-node": "../node_modules/.bin/mocha 'test/**/*.ts' --compilers ts:ts-node/register",
+    "start": "../../node_modules/.bin/budo -d example example/index.ts:index.js --live -- -p tsify",
+    "test-watch": "../../node_modules/.bin/mocha 'test/**/*.ts' --compilers ts:ts-node/register --watch -R min",
+    "test-node": "../../node_modules/.bin/mocha 'test/**/*.ts' --compilers ts:ts-node/register",
     "test": "npm run test-node && npm run test-docs",
     "test-ci": "npm run test",
     "test-docs": "markdown-doctest",
-    "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleTime --exclude xstream --outfile dist/cycle-time.js",
-    "minify": "node ../.scripts/minify.js dist/cycle-time.js dist/cycle-time.min.js"
+    "browserify": "../../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleTime --exclude xstream --outfile dist/cycle-time.js",
+    "uglify": "../../node_modules/.bin/uglifyjs dist/cycle-time.js --compress --mangle -o dist/cycle-time.min.js"
   }
 }

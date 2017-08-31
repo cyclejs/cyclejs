@@ -4,6 +4,8 @@ rxjs-run
 jsonp
 isolate
 time
+time/rxjs
+time/most
 dom
 html
 http

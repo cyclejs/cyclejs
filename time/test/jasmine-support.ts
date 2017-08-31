@@ -1,4 +1,4 @@
-import {mockTimeSource} from '../';
+import {mockTimeSourceUntyped} from '../src/index';
 import {setAdapt} from '@cycle/run/lib/adapt';
 
 describe('jasmine support', () => {
@@ -11,7 +11,7 @@ describe('jasmine support', () => {
       mochaDone();
     };
 
-    const Time = mockTimeSource();
+    const Time = mockTimeSourceUntyped();
 
     Time.assertEqual(Time.diagram('-1-'), Time.diagram('-2-'));
 

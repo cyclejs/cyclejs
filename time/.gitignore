@@ -45,10 +45,9 @@ jspm_packages
 # Generated
 /lib/
 /dist/
-/most.js
-/rxjs.js
-/most.d.ts
-/rxjs.d.ts
+/most/
+/rxjs/
+/src/index.ts
 
 # Misc
 ignore

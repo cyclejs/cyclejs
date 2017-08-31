@@ -1,6 +1,7 @@
 .PHONY: lint docs dom history html http isolate jsonp most-run run rxjs-run
 
-BINDIR=node_modules/.bin
+ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+BINDIR=$(ROOT_DIR)/node_modules/.bin
 TSLINT=$(BINDIR)/tslint
 TSC=$(BINDIR)/tsc
 MOCHA=$(BINDIR)/mocha
@@ -38,9 +39,10 @@ setup :
 	@echo "(root): yarn install"
 	@yarn install
 	@echo ""
-	@while read d ; do \
+	@rootDir=$$(pwd) ; \
+	while read d ; do \
 		echo "$$d: yarn install" ;\
-		cd $$d ; yarn install ; cd .. ;\
+		cd "./$$d" ; yarn install ; cd $$rootDir ;\
 		echo "" ;\
 	done < .scripts/RELEASABLE_PACKAGES
 	@make lib
@@ -74,10 +76,12 @@ lib :
 			make lib $$d ; \
 		done < .scripts/RELEASABLE_PACKAGES; \
 	else \
-		rm -rf $(ARG)/lib/ ;\
-		mkdir -p $(ARG)/lib ;\
-		$(TSC) --project $(ARG) --module commonjs --outDir $(ARG)/lib ;\
-		$(TSC) --project $(ARG) --module es6 --outDir $(ARG)/lib/es6 ;\
+		dir=$(ROOT_DIR)/$(ARG) ;\
+		rm -rf $$dir/lib/ ;\
+		mkdir -p $$dir/lib ;\
+		grep 'prelib' $$dir/package.json >/dev/null && cd $$dir && npm run prelib ;\
+		$(TSC) --project $$dir --module commonjs --outDir $$dir/lib ;\
+		$(TSC) --project $$dir --module es6 --outDir $$dir/lib/es6 ;\
 		echo "✓ Compiled TypeScript to lib\n" ;\
 	fi
 

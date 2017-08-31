@@ -10,7 +10,6 @@ import {makeAnimationFrames} from './animation-frames';
 import {makeThrottleAnimation} from './throttle-animation';
 import {makeRecord} from './record';
 import {runVirtually} from './run-virtually';
-import {MockTimeSource} from './time-source';
 const combineErrors = require('combine-errors');
 
 function raiseError(err: any) {

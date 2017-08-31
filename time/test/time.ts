@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import {mockTimeSource, timeDriver, TimeSource, Operator} from '../';
+import {mockTimeSourceUntyped as mockTimeSource, timeDriverUntyped as timeDriver} from '../src/index';
 import {mockDOMSource} from '@cycle/dom';
 import xs, {Stream} from 'xstream';
 import {setAdapt} from '@cycle/run/lib/adapt';
@@ -86,9 +86,9 @@ describe('@cycle/time', () => {
     const expected$ = Time.diagram('---1---2---3----');
 
     function delayBy(
-      timeSource: TimeSource,
+      timeSource: any /*TimeSource*/,
       delaySelector: (t: any) => number,
-    ): Operator {
+    ): any /*Operator*/ {
       return function delayByOperator<T>(stream: Stream<T>): Stream<T> {
         return xs.create<T>({
           start(listener) {
@@ -137,7 +137,7 @@ describe('@cycle/time', () => {
             const expectedValues = [1, 2, 3];
 
             stream.take(expectedValues.length).subscribe({
-              next(ev) {
+              next(ev: any) {
                 assert.equal(ev, expectedValues.shift());
               },
 
@@ -156,12 +156,12 @@ describe('@cycle/time', () => {
             const expectedValues = [1, 2];
 
             stream.subscribe({
-              next(ev) {
+              next(ev: any) {
                 assert.equal(ev, expectedValues.shift());
               },
 
               complete: () => {},
-              error: error => {
+              error: (error: any) => {
                 assert.equal(expectedValues.length, 0);
                 done();
               },
@@ -182,7 +182,7 @@ describe('@cycle/time', () => {
             const expectedValues = [{foo: 1}, {foo: 2}, {foo: 3}];
 
             stream.take(expectedValues.length).subscribe({
-              next(ev) {
+              next(ev: any) {
                 assert.deepEqual(ev, expectedValues.shift());
               },
 
@@ -212,7 +212,7 @@ describe('@cycle/time', () => {
 
             const input = Time.diagram(`---1---2---3---|`);
 
-            const value = input.map(i => i * 2);
+            const value = input.map((i: number) => i * 2);
 
             const expected = Time.diagram(`---2---4---6---|`);
 
@@ -228,7 +228,7 @@ describe('@cycle/time', () => {
 
             const expected = Time.diagram(`---2---4---5---|`);
 
-            const value = input.map(i => i * 2);
+            const value = input.map((i: number) => i * 2);
 
             const complete = (err: any) => {
               if (err) {
@@ -368,7 +368,7 @@ describe('@cycle/time', () => {
 
               Time.assertEqual(actual$, expected$, comparator);
 
-              Time.run(err => {
+              Time.run((err: any) => {
                 if (!err) {
                   done(new Error('expected test to fail'));
                 } else {
@@ -465,7 +465,7 @@ describe('@cycle/time', () => {
             const Time = mockTimeSource();
 
             const input = Time.diagram('---1---2---3---');
-            const actual = input.map(i => i * 2);
+            const actual = input.map((i: number) => i * 2);
             const expected = Time.diagram('---2---4---6---');
 
             Time.assertEqual(actual, expected);
@@ -477,12 +477,12 @@ describe('@cycle/time', () => {
             const Time = mockTimeSource();
 
             const input = Time.diagram('---1---2---3---');
-            const actual = input.map(i => i * 2);
+            const actual = input.map((i: number) => i * 2);
             const expected = Time.diagram('---2---7---6---');
 
             Time.assertEqual(actual, expected);
 
-            Time.run(err => {
+            Time.run((err: any) => {
               if (!err) {
                 return done(new Error('expected test to fail'));
               }
