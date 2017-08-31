@@ -1,5 +1,6 @@
 import xs, {Stream, Listener} from 'xstream';
 import {adapt} from '@cycle/run/lib/adapt';
+import {OperatorArgs} from './types';
 
 function makeDebounceListener<T>(
   schedule: any,
@@ -34,7 +35,9 @@ function makeDebounceListener<T>(
   };
 }
 
-function makeDebounce(schedule: any, currentTime: () => number) {
+function makeDebounce(createOperator: () => OperatorArgs<any>) {
+  const {schedule, currentTime} = createOperator();
+
   return function debounce(debounceInterval: number) {
     return function debounceOperator<T>(stream: Stream<T>): Stream<T> {
       const state = {scheduledEntry: null};
