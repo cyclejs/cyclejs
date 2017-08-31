@@ -116,12 +116,16 @@ function timeDriver(sink: any): any {
     setTime,
   );
 
+  function createOperator() {
+    return {schedule: scheduler.add, currentTime};
+  }
+
   const timeSource = {
     animationFrames: makeAnimationFrames(addFrameCallback, currentTime),
-    delay: makeDelay(scheduler.add, currentTime),
-    debounce: makeDebounce(scheduler.add, currentTime),
-    periodic: makePeriodic(scheduler.add, currentTime),
-    throttle: makeThrottle(scheduler.add, currentTime),
+    delay: makeDelay(createOperator),
+    debounce: makeDebounce(createOperator),
+    periodic: makePeriodic(createOperator),
+    throttle: makeThrottle(createOperator),
     throttleAnimation: makeThrottleAnimation(
       () => timeSource,
       scheduler.add,
@@ -136,7 +140,7 @@ function timeDriver(sink: any): any {
       runVirtually(scheduler, done, currentTime, setTime, timeToRunTo);
     },
 
-    createOperator: () => ({schedule: scheduler.add, currentTime}),
+    createOperator,
   };
 
   return timeSource;

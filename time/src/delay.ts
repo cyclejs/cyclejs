@@ -1,5 +1,6 @@
 import xs, {Stream, Listener} from 'xstream';
 import {adapt} from '@cycle/run/lib/adapt';
+import {OperatorArgs} from './types';
 
 function makeDelayListener<T>(
   schedule: any,
@@ -24,7 +25,9 @@ function makeDelayListener<T>(
   };
 }
 
-function makeDelay(schedule: any, currentTime: () => number) {
+function makeDelay(createOperator: () => OperatorArgs<any>) {
+  const {schedule, currentTime} = createOperator();
+
   return function delay(delayTime: number) {
     return function delayOperator<T>(stream: Stream<T>): Stream<T> {
       const producer = {

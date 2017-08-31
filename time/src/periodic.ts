@@ -1,7 +1,10 @@
 import xs, {Stream, Listener} from 'xstream';
 import {adapt} from '@cycle/run/lib/adapt';
+import {OperatorArgs} from './types';
 
-function makePeriodic(schedule: any, currentTime: () => number) {
+function makePeriodic(createOperator: () => OperatorArgs<any>) {
+  const {schedule, currentTime} = createOperator();
+
   return function periodic(period: number): Stream<number> {
     let stopped = false;
     let lastEmitTime = 0;
@@ -29,7 +32,7 @@ function makePeriodic(schedule: any, currentTime: () => number) {
     }
 
     const producer = {
-      listener: null as (Listener<any> | null),
+      listener: null as Listener<any> | null,
 
       start(listener: Listener<any>) {
         producer.listener = listener;
@@ -43,7 +46,7 @@ function makePeriodic(schedule: any, currentTime: () => number) {
 
       stop() {
         stopped = true;
-        schedule.complete(producer.listener, currentTime());
+        schedule.complete(producer.listener as Listener<any>, currentTime());
       },
     };
 

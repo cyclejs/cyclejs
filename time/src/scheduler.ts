@@ -8,10 +8,22 @@ export interface Schedule<T> {
   add: Scheduler<T>;
 }
 
+export type PostEventCallback<T> = (
+  event: any,
+  time: number,
+  schedule: Scheduler<T>,
+  currentTime: () => number,
+) => void;
+
 export interface Scheduler<T> {
   _schedule: any;
 
-  next(listener: Listener<T>, time: number, value: T): void;
+  next(
+    listener: Listener<T>,
+    time: number,
+    value: T,
+    callback?: PostEventCallback<T>,
+  ): void;
   error(listener: Listener<T>, time: number, error: Error): void;
   complete(listener: Listener<T>, time: number): void;
 }

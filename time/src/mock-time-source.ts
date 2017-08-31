@@ -68,6 +68,10 @@ function mockTimeSource({interval = 20} = {}): any {
     maxTime = Math.max(newTime, maxTime);
   }
 
+  function createOperator() {
+    return {schedule: scheduler.add, currentTime};
+  }
+
   const timeSource = {
     diagram: makeDiagram(scheduler.add, currentTime, interval, setMaxTime),
     record: makeRecord(scheduler.add, currentTime, interval),
@@ -79,10 +83,10 @@ function mockTimeSource({interval = 20} = {}): any {
       addAssert,
     ),
 
-    delay: makeDelay(scheduler.add, currentTime),
-    debounce: makeDebounce(scheduler.add, currentTime),
-    periodic: makePeriodic(scheduler.add, currentTime),
-    throttle: makeThrottle(scheduler.add, currentTime),
+    delay: makeDelay(createOperator),
+    debounce: makeDebounce(createOperator),
+    periodic: makePeriodic(createOperator),
+    throttle: makeThrottle(createOperator),
 
     animationFrames: () => timeSource.periodic(16).map(frame),
     throttleAnimation: makeThrottleAnimation(
@@ -105,10 +109,10 @@ function mockTimeSource({interval = 20} = {}): any {
       );
     },
 
+    createOperator,
+
     _scheduler: scheduler.add,
     _time: currentTime,
-
-    createOperator: () => ({schedule: scheduler.add, currentTime}),
   };
 
   return timeSource;

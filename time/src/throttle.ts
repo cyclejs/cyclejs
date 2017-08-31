@@ -1,5 +1,6 @@
 import xs, {Stream, Listener} from 'xstream';
 import {adapt} from '@cycle/run/lib/adapt';
+import {OperatorArgs} from './types';
 
 function makeThrottleListener<T>(
   schedule: any,
@@ -35,7 +36,9 @@ function makeThrottleListener<T>(
   };
 }
 
-function makeThrottle(schedule: any, currentTime: () => number) {
+function makeThrottle(createOperator: () => OperatorArgs<any>) {
+  const {schedule, currentTime} = createOperator();
+
   return function throttle(period: number) {
     return function throttleOperator<T>(stream: Stream<T>): Stream<T> {
       const state = {lastEventTime: -Infinity}; // so that the first event is always scheduled

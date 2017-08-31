@@ -37,9 +37,13 @@ describe('@cycle/time', () => {
 
   it('can be used to test Cycle apps', done => {
     function Counter({DOM}: any) {
-      const add$ = DOM.select('.add').events('click').mapTo(+1);
+      const add$ = DOM.select('.add')
+        .events('click')
+        .mapTo(+1);
 
-      const subtract$ = DOM.select('.subtract').events('click').mapTo(-1);
+      const subtract$ = DOM.select('.subtract')
+        .events('click')
+        .mapTo(-1);
 
       const change$ = xs.merge(add$, subtract$);
 
