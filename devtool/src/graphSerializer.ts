@@ -1,12 +1,13 @@
-/* tslint:disable:max-file-line-count */
-import xs, {Stream, Listener, InternalProducer as _InternalProducer} from 'xstream';
-import {DevToolEnabledSource} from '@cycle/run';
-import debounce from 'xstream/extra/debounce';
-import * as dagre from 'dagre';
+import { DevToolEnabledSource } from '@cycle/run';
 import * as CircularJSON from 'circular-json';
-import {ZapSpeed} from './panel/model';
+import * as dagre from 'dagre';
+/* tslint:disable:max-file-line-count */
+import xs, { InternalProducer as _InternalProducer, Listener, Stream } from 'xstream';
+import debounce from 'xstream/extra/debounce';
+import { SessionSettings } from './launcher';
+import styles from './panel/graph/styles';
+import { ZapSpeed } from './panel/model';
 import timeSpread from './utils/timeSpread';
-import {SessionSettings} from './launcher';
 
 // The InternalProducer types from xstream doesn't include all properties.
 // The Interface can be replaced once this is the case.
@@ -14,34 +15,126 @@ interface InternalProducer extends _InternalProducer<any> {
   type?: string;
 }
 
+export enum StreamType {
+  SOURCE = 'source',
+  STREAM = 'stream',
+  SINK = 'sink',
+  OPERATOR = 'operator',
+}
+
+export type ZapClassesMapping = {[key in ZapTypes | 'inactive' | 'persistent']?: string};
+
 export interface StreamGraphNode {
   id: string;
-  type: 'source' | 'stream' | 'sink' | 'operator';
+  type: StreamType;
   label?: string;
-  stream: Stream<any>;
-  width: number;
+  stream?: Stream<any>;
+  width: number; // Set width to 0 to make it dependent on the label width
   height: number;
+  padding?: Spacing;
+  margin?: Spacing;
+  showBackground: boolean;
+  backgroundClasses?: ZapClassesMapping,
+  labelClasses?: ZapClassesMapping,
+  backgroundRadius?: number,
   x?: number;
   y?: number;
 }
 
+export type NodeOptions = Pick<StreamGraphNode,
+  'backgroundRadius' | 'width' | 'height' | 'padding' | 'margin' | 'backgroundClasses' | 'labelClasses' | 'showBackground'>;
+
+export type NodeDynamic = Pick<StreamGraphNode,
+  'id' | 'label' | 'stream' | 'x' | 'y'>;
+
+
 export interface StreamGraphEdge {
   label?: string;
-  points?: Array<{x: number; y: number}>;
+  points?: Array<{ x: number; y: number }>;
 }
+
+export type ZapTypes = 'next' | 'error' | 'complete';
 
 export interface Zap {
   id: string;
-  type: 'next' | 'error' | 'complete';
+  type: ZapTypes;
   value?: any;
 }
 
-type Size = [number, number];
+export interface Spacing {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
 
-const OPERATOR_NODE_SIZE: Size = [23, 10];
-const SOURCE_NODE_SIZE: Size = [23, 23];
-const COMMON_NODE_SIZE: Size = [23, 23];
-const SINK_NODE_SIZE: Size = [40, 30];
+export const NO_SPACING: Spacing = {
+  top: 0,
+  right: 0,
+  bottom: 0,
+  left: 0,
+};
+
+const sourceOrSinkOptions: NodeOptions = {
+  width: 23,
+  height: 23,
+  showBackground: true,
+  backgroundClasses: {
+    inactive: styles.sourceOrSinkNodeStyle,
+    next: styles.nodeZapNextStyle,
+    error: styles.nodeZapErrorStyle,
+    complete: styles.nodeZapCompleteStyle,
+  },
+  padding: {
+    ...NO_SPACING,
+    left: 4,
+    right: 4,
+  },
+  backgroundRadius: 4,
+  labelClasses: {
+    persistent: styles.sourceOrSinkNodeNameStyle
+  }
+};
+export const NODE_TYPE_OPTIONS: {[key in StreamType]: NodeOptions} = {
+  source: sourceOrSinkOptions,
+  operator: {
+    width: 35,
+    height: 24,
+    showBackground: true,
+    padding: {
+      ...NO_SPACING,
+      left: 4,
+      right: 4,
+    },
+    backgroundClasses: {
+      persistent: styles.operatorBackground,
+    },
+    labelClasses: {
+      persistent: styles.operatorNodeStyle
+    }
+  },
+  stream: {
+    width: 23,
+    height: 23,
+    backgroundRadius: 23,
+    showBackground: true,
+    backgroundClasses: {
+      inactive: styles.activeNodeStyle,
+      next: styles.nodeZapNextStyle,
+      error: styles.nodeZapErrorStyle,
+      complete: styles.nodeZapCompleteStyle,
+    }
+  },
+  sink: sourceOrSinkOptions,
+};
+
+function createStreamGraphNode(type: StreamType, dynamic: NodeDynamic): StreamGraphNode {
+  return {
+    type,
+    ...NODE_TYPE_OPTIONS[type],
+    ...dynamic
+  }
+}
 
 function zapSpeedToMilliseconds(zapSpeed: ZapSpeed): number {
   switch (zapSpeed) {
@@ -80,25 +173,26 @@ function makeSureNodeIsRegistered(
   idTable: IdTable,
   stream: Stream<any>,
 ): void {
-  if (!graph.node(idTable.getId(stream))) {
+  const id = idTable.getId(stream);
+  if (!graph.node(id)) {
     let node: StreamGraphNode;
     if (stream['_isCycleSource']) {
-      node = {
-        id: idTable.getId(stream),
-        type: 'source',
-        label: (stream as Stream<any> & DevToolEnabledSource)._isCycleSource,
-        stream: stream,
-        width: SOURCE_NODE_SIZE[0],
-        height: SOURCE_NODE_SIZE[1],
-      };
+      node = createStreamGraphNode(
+        StreamType.SOURCE,
+        {
+          id,
+          label: (stream as Stream<any> & DevToolEnabledSource)._isCycleSource,
+          stream,
+        }
+      );
     } else {
-      node = {
-        id: idTable.getId(stream),
-        type: 'stream',
-        stream: stream,
-        width: COMMON_NODE_SIZE[0],
-        height: COMMON_NODE_SIZE[1],
-      };
+      node = createStreamGraphNode(
+        StreamType.STREAM,
+        {
+          id,
+          stream,
+        }
+      );
     }
     graph.setNode(idTable.getId(stream), node);
   }
@@ -111,13 +205,13 @@ function visitOperator(
 ): void {
   const id = idTable.getId(operator);
   if (!graph.node(id)) {
-    graph.setNode(id, {
-      id,
-      type: 'operator',
-      label: operator.type,
-      width: OPERATOR_NODE_SIZE[0],
-      height: OPERATOR_NODE_SIZE[1],
-    });
+    graph.setNode(id, createStreamGraphNode(
+      StreamType.OPERATOR,
+      {
+        id,
+        label: operator.type,
+      }
+    ));
   }
 }
 
@@ -162,17 +256,17 @@ function traverse(
 function buildGraph(sinks: Object): dagre.graphlib.Graph {
   const idTable = new IdTable();
   const graph = new dagre.graphlib.Graph();
-  graph.setGraph({nodesep: 60, ranksep: 20});
+  graph.setGraph({nodesep: 80, ranksep: 20});
   for (const key in sinks) {
     if (sinks.hasOwnProperty(key)) {
-      const node: StreamGraphNode = {
-        id: idTable.getId(sinks[key]),
-        label: key,
-        type: 'sink',
-        stream: sinks[key],
-        width: SINK_NODE_SIZE[0],
-        height: SINK_NODE_SIZE[1],
-      };
+      const node: StreamGraphNode = createStreamGraphNode(
+        StreamType.SINK,
+        {
+          id: idTable.getId(sinks[key]),
+          label: key,
+          stream: sinks[key],
+        }
+      );
       graph.setNode(idTable.getId(sinks[key]), node);
       traverse(graph, idTable, sinks[key]);
     }
@@ -237,7 +331,8 @@ function setupZapping(
         });
       }
     },
-    stop() {},
+    stop() {
+    },
   });
 
   const actualZaps$ = rawZap$.compose(
@@ -264,7 +359,7 @@ function zapVisit(
     return;
   } else {
     const node: StreamGraphNode = graph.node(nodeId);
-    if (node.type !== 'operator') {
+    if (node.stream !== undefined) {
       registry.register(nodeId, node.stream, depth);
     }
     const successors: Array<string> = graph['successors'](nodeId);
@@ -386,7 +481,7 @@ function startGraphSerializer(appSinks: Object | null) {
 
 window['CyclejsDevTool_startGraphSerializer'] = startGraphSerializer;
 
-const intervalID = setInterval(function() {
+const intervalID = setInterval(function () {
   if (window['Cyclejs'] && window['Cyclejs'].sinks) {
     clearInterval(intervalID);
     startGraphSerializer(window['Cyclejs'].sinks);

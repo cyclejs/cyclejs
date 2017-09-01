@@ -6,7 +6,7 @@ import * as CircularJSON from 'circular-json';
 export interface DiagramState {
   id: string;
   graph: dagre.graphlib.Graph;
-  zaps: Array<Zap>;
+  zapMapping: Record<string, Zap>;
   speed: ZapSpeed;
 }
 
@@ -21,14 +21,18 @@ export default function model(serializedGraph$: Stream<string>,
   const graphAndZap$ = object$
     .map(object => {
       const id: string = object.id || 'graph-0';
-      const zaps: Array<Zap> = object.zaps;
+      const zapMapping: Record<string, Zap> = object.zaps.reduce(
+        (result: Record<string, Zap>, zap: Zap) => {
+        result[zap.id] = zap;
+        return result;
+      }, {});
       object.zaps = null;
       const graph: dagre.graphlib.Graph = dagre.graphlib['json'].read(object);
-      return { graph, zaps, id };
+      return { graph, zapMapping, id };
     });
 
   const diagramState$ = xs.combine(graphAndZap$, speed$.startWith('normal'))
-    .map(([{id, graph, zaps}, speed]) => ({ id, graph, zaps, speed } as DiagramState));
+    .map(([{id, graph, zapMapping}, speed]) => ({ id, graph, zapMapping, speed } as DiagramState));
 
   const invalidState$ = serializedGraph$
     .filter(str => str.length === 0)

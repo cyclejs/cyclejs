@@ -20,6 +20,8 @@ export const RED_LIGHT = '#FFA382';
 export const YELLOW_DARK = '#DDAA02';
 export const YELLOW_LIGHT = '#FFEE6D';
 
+export const BACKGROUND = '#FFF';
+
 // Dimensions
 export const FONT_SIZE_NORMAL = '14px';
 export const FONT_FAMILY = 'Source Sans Pro, sans-serif';

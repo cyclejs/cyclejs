@@ -8,7 +8,8 @@ module.exports = {
     contentScript: ['./src/contentScript.ts'],
     graphSerializer: ['./src/graphSerializer.ts'],
     launcher: ['./src/launcher.ts'],
-    panel: ['./src/panel/index.ts']
+    panel: ['./src/panel/index.ts'],
+    'hot-reload': ['./src/hot-reload.ts'],
   },
   output: {
     path: path.resolve(__dirname, 'dist'),

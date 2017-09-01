@@ -33,13 +33,14 @@ function renderInvalidState() {
 export default function view(diagramState$: Stream<DiagramState | null>): Stream<VNode> {
   return diagramState$
     .map(diagramState => {
+      console.log('DIAGRAM STATE', diagramState);
       if (!diagramState) {
         return renderInvalidState();
       } else {
-        const {graph, zaps, id, speed} = diagramState;
+        const {graph, zapMapping, id, speed} = diagramState;
         return div(`.devTool.${devToolStyle}`, [
           renderSpeedPicker(speed),
-          renderGraph(graph, zaps, id),
+          renderGraph(graph, zapMapping, id),
         ]);
       }
     });

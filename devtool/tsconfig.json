@@ -12,12 +12,7 @@
       "es2015.iterable"
     ]
   },
-  "files": [
-    "src/circular-json.d.ts",
-    "src/background.ts",
-    "src/contentScript.ts",
-    "src/graphSerializer.ts",
-    "src/launcher.ts",
-    "src/panel/index.ts"
+  "include": [
+    "src/**/*.ts"
   ]
 }

@@ -1,16 +1,17 @@
 import styleSheet, {
-  GRAY_DARK,
-  GRAY_LIGHTER,
   BLUE_DARK,
   BLUE_LIGHT,
+  FONT_FAMILY,
+  FONT_SIZE_NORMAL,
+  GRAY_DARK,
+  GRAY_LIGHTER,
   GREEN_DARK,
   GREEN_LIGHT,
   RED_DARK,
   RED_LIGHT,
   YELLOW_DARK,
   YELLOW_LIGHT,
-  FONT_FAMILY,
-  FONT_SIZE_NORMAL,
+  BACKGROUND,
 } from '../styles';
 
 const ZAP_COOL_OFF_DURATION = '0.4s';
@@ -23,6 +24,9 @@ const NODE_ZAP_STROKE_WIDTH = '3px';
 const EDGE_STROKE_WIDTH = '1px';
 
 export default {
+  operatorBackground: styleSheet.registerStyle({
+    fill: BACKGROUND,
+  }),
   sourceOrSinkNodeStyle: styleSheet.registerStyle({
     'fill': GRAY_LIGHTER,
     'stroke': GRAY_DARK,
@@ -37,11 +41,11 @@ export default {
     'fill': GRAY_DARK,
   }),
 
-  sourceOrSinkNodeLabelStyle: styleSheet.registerStyle({
+  zapLabelStyle: styleSheet.registerStyle({
     'font-family': FONT_FAMILY,
     'font-size': FONT_SIZE_NORMAL,
     'fill': GRAY_DARK,
-    'opacity': '0',
+    'opacity': '0.1',
     'transition': `opacity ${ECOD}, fill ${ZCOD}`,
   }),
 
@@ -115,16 +119,17 @@ export default {
     'transition': `opacity ${ECOD}, fill ${ZCOD}`,
   }),
 
-  nodeLabelZapNextStyle: styleSheet.registerStyle({
+  nodeLabelStyle: styleSheet.registerStyle({
     'font-family': FONT_FAMILY,
     'font-size': FONT_SIZE_NORMAL,
+  }),
+
+  nodeLabelZapNextStyle: styleSheet.registerStyle({
     'fill': GREEN_DARK,
     'opacity': '1',
   }),
 
   nodeLabelZapErrorStyle: styleSheet.registerStyle({
-    'font-family': FONT_FAMILY,
-    'font-size': FONT_SIZE_NORMAL,
     'fill': RED_DARK,
     'opacity': '1',
   }),
@@ -133,8 +138,6 @@ export default {
     'font-family': FONT_FAMILY,
     'font-size': FONT_SIZE_NORMAL,
     'fill': BLUE_DARK,
-    'tspan': {
-      'text-shadow': 'white 2px 2px 0, white -2px 2px 0, white -2px -2px 0, white 2px -2px 0',
-    },
+    'text-shadow': 'white 2px 2px 0, white -2px 2px 0, white -2px -2px 0, white 2px -2px 0',
   }),
 };

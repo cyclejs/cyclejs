@@ -8,6 +8,7 @@
   },
   "background": {
     "scripts": [
+      "hot-reload.js",
       "background.js"
     ],
     "persistent": false
