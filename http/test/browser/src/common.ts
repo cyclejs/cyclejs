@@ -160,6 +160,35 @@ export function run(uri: string) {
       run();
     });
 
+    it('should return response metastream when send with type string [#674]', function(
+      done,
+    ) {
+      function main(sources: {HTTP: HTTPSource}) {
+        return {
+          HTTP: Rx.Observable.of({
+            url: uri + '/pet',
+            method: 'POST',
+            send: 'name=Woof&species=Dog',
+          }),
+        };
+      }
+
+      const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
+
+      const response$$ = sources.HTTP.select();
+      response$$.subscribe(function(response$) {
+        assert.strictEqual(response$.request.url, uri + '/pet');
+        assert.strictEqual(response$.request.method, 'POST');
+        assert.strictEqual((response$.request.send as string), 'name=Woof&species=Dog');
+        response$.subscribe(function(response) {
+          assert.strictEqual(response.status, 200);
+          assert.strictEqual(response.text, 'added Woof the Dog');
+          done();
+        });
+      });
+      run();
+    });
+
     it('should have DevTools flag in select() source stream', function(done) {
       function main(sources: {HTTP: HTTPSource}) {
         return {
