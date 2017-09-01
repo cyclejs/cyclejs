@@ -16,7 +16,7 @@ export interface RequestOptions {
   url: string;
   method?: string;
   query?: Object;
-  send?: Object;
+  send?: Object | string;
   headers?: Object;
   accept?: string;
   type?: string;

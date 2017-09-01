@@ -18,7 +18,7 @@
  * the HTTP Source when querying for the response. E.g.
  * `sources.http.select(category)`
  * - `query` *(Object)*: an object with the payload for `GET` or `POST`.
- * - `send` *(Object)*: an object with the payload for `POST`.
+ * - `send` *(Object|String)*: an object or string with the payload for `POST`.
  * - `headers` *(Object)*: object specifying HTTP headers.
  * - `accept` *(String)*: the Accept header.
  * - `type` *(String)*: a short-hand for setting Content-Type.
