@@ -33,7 +33,6 @@ function renderInvalidState() {
 export default function view(diagramState$: Stream<DiagramState | null>): Stream<VNode> {
   return diagramState$
     .map(diagramState => {
-      console.log('DIAGRAM STATE', diagramState);
       if (!diagramState) {
         return renderInvalidState();
       } else {

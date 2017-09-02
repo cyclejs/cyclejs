@@ -41,15 +41,7 @@ export default {
     'fill': GRAY_DARK,
   }),
 
-  zapLabelStyle: styleSheet.registerStyle({
-    'font-family': FONT_FAMILY,
-    'font-size': FONT_SIZE_NORMAL,
-    'fill': GRAY_DARK,
-    'opacity': '0.1',
-    'transition': `opacity ${ECOD}, fill ${ZCOD}`,
-  }),
-
-  activeNodeStyle: styleSheet.registerStyle({
+  inactiveNodeStyle: styleSheet.registerStyle({
     'fill': BLUE_LIGHT,
     'stroke': BLUE_DARK,
     'stroke-width': NODE_STROKE_WIDTH,
@@ -124,12 +116,23 @@ export default {
     'font-size': FONT_SIZE_NORMAL,
   }),
 
-  nodeLabelZapNextStyle: styleSheet.registerStyle({
+  zapLabelStyle: styleSheet.registerStyle({
+    'font-family': FONT_FAMILY,
+    'font-size': FONT_SIZE_NORMAL,
+  }),
+
+  zapLabelInactiveStyle: styleSheet.registerStyle({
+    'fill': GRAY_DARK,
+    'opacity': '0',
+    'transition': `opacity ${ECOD}, fill ${ZCOD}`,
+  }),
+
+  zapLabelNextStyle: styleSheet.registerStyle({
     'fill': GREEN_DARK,
     'opacity': '1',
   }),
 
-  nodeLabelZapErrorStyle: styleSheet.registerStyle({
+  zapLabelErrorStyle: styleSheet.registerStyle({
     'fill': RED_DARK,
     'opacity': '1',
   }),

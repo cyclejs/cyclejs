@@ -4,7 +4,7 @@ import {DOMSource} from '@cycle/dom';
 import intent from './intent';
 import model, {ZapSpeed} from './model';
 import view from './view';
-import styles from './styles';
+import styles, { bodyStyle } from './styles';
 
 interface PanelSources {
   DOM: DOMSource;
@@ -55,6 +55,7 @@ const graphSource = backgroundSourceDriver();
 export function startPanel(graph$: Stream<string>): void {
   const adHocContainer: Element = document.createElement('DIV');
   adHocContainer.id = '#ad-hoc-container';
+  document.body.classList.add(bodyStyle);
   document.body.appendChild(adHocContainer);
   const domDriver = makeDOMDriver(
     document.querySelector('#tools-container') || adHocContainer,

@@ -52,9 +52,10 @@ function renderNodeZapLabel(width: number, height: number, zap: Zap | null): VNo
   const result = svg.text({
     class: {
       'zap-label': true,
-      [styles.zapLabelStyle]: !zap || zap.type === 'complete',
-      [styles.nodeLabelZapNextStyle]: zap && zap.type === 'next',
-      [styles.nodeLabelZapErrorStyle]: zap && zap.type === 'error',
+      [styles.zapLabelStyle]: true,
+      [styles.zapLabelInactiveStyle]: !zap || zap.type === 'complete',
+      [styles.zapLabelNextStyle]: zap && zap.type === 'next',
+      [styles.zapLabelErrorStyle]: zap && zap.type === 'error',
       [styles.nodeLabelStyle]: true,
     },
     attrs: getZapLabelAtrributes(width, height),
@@ -138,7 +139,6 @@ function renderMyNode(node: StreamGraphNode, zapMapping: Record<string, Zap>): V
 
       labelElement.setAttribute('x', String(rectWidth / 2));
       labelElement.setAttribute('y', String(rectHeight / 2 + 1));
-      console.log(label, labelElement.getBoundingClientRect(), labelElement['getBBox']());
 
       if (showBackground) {
         const rectElement = groupElement.querySelector('rect') as Element;
@@ -152,8 +152,6 @@ function renderMyNode(node: StreamGraphNode, zapMapping: Record<string, Zap>): V
       const attrs = getZapLabelAtrributes(rectWidth, rectHeight);
       Object.keys(attrs)
         .forEach(key => zapLabelElement.setAttribute(key, attrs[key]));
-
-      console.log(label, labelElement.getBoundingClientRect(), labelElement['getBBox']());
     }
   };
 

@@ -26,6 +26,10 @@ export const BACKGROUND = '#FFF';
 export const FONT_SIZE_NORMAL = '14px';
 export const FONT_FAMILY = 'Source Sans Pro, sans-serif';
 
+export const bodyStyle = styleSheet.registerStyle({
+  'background': BACKGROUND,
+});
+
 export const devToolStyle = styleSheet.registerStyle({
   'padding-top': '40px',
 });

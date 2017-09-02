@@ -119,7 +119,7 @@ export const NODE_TYPE_OPTIONS: {[key in StreamType]: NodeOptions} = {
     backgroundRadius: 23,
     showBackground: true,
     backgroundClasses: {
-      inactive: styles.activeNodeStyle,
+      inactive: styles.inactiveNodeStyle,
       next: styles.nodeZapNextStyle,
       error: styles.nodeZapErrorStyle,
       complete: styles.nodeZapCompleteStyle,
