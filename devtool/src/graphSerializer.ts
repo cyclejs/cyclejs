@@ -4,10 +4,10 @@ import * as dagre from 'dagre';
 /* tslint:disable:max-file-line-count */
 import xs, { InternalProducer as _InternalProducer, Listener, Stream } from 'xstream';
 import debounce from 'xstream/extra/debounce';
-import { SessionSettings } from './launcher';
 import styles from './panel/graph/styles';
 import { ZapSpeed } from './panel/model';
 import timeSpread from './utils/timeSpread';
+import { sessionSettings, SessionSettings } from './utils/sessionSettings';
 
 // The InternalProducer types from xstream doesn't include all properties.
 // The Interface can be replaced once this is the case.
@@ -459,7 +459,7 @@ function startGraphSerializer(appSinks: Object | null) {
     id: xs.of(`graph-${Math.round(Math.random() * 1000000000)}`),
     DebugSinks: xs.of(appSinks),
     FromPanel: panelMessage$,
-    Settings: xs.of<SessionSettings>(window['CyclejsDevToolSettings']),
+    Settings: xs.of<SessionSettings>(window['CyclejsDevToolSettings'] || sessionSettings),
   };
   const serializerSinks = GraphSerializer(serializerSources);
 

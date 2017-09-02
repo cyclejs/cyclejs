@@ -28,6 +28,7 @@
     "test-ci": ":",
     "lint": "../node_modules/.bin/tslint -c ../tslint.json ./src/*.ts ./src/**/*.ts -p tsconfig.json --type-check",
     "build": "webpack",
+    "watch": "webpack --watch",
     "zip": "zip cyclejs-devtool.zip dist/*",
     "dist": "yarn install && npm run build && npm run zip",
     "docs": ":",

@@ -1,11 +1,7 @@
 import {ZapSpeed} from './panel/model';
+import { sessionSettings } from './utils/sessionSettings';
 
 let code = '';
-
-// Settings that last only while the DevTool is open.
-const sessionSettings: SessionSettings = {
-  zapSpeed: 'normal',
-};
 
 // Create a panel
 // alert('LAUNCHER will create panel')
@@ -54,10 +50,6 @@ chrome.devtools.panels.create('Cycle.js', '128.png', 'panel.html', function (ext
     chrome.devtools.inspectedWindow.eval(settings + loadGraphSerializerCode());
   });
 });
-
-export interface SessionSettings {
-  zapSpeed: ZapSpeed;
-}
 
 function loadGraphSerializerCode() {
   let xhr: XMLHttpRequest;
