@@ -1,3 +1,18 @@
+<a name="0.10.0"></a>
+# 0.10.0 (2017-09-04)
+
+
+### Bug Fixes
+
+* **time:** comparator can return a boolean ([45417b9](https://github.com/cyclejs/cyclejs/commit/45417b9))
+
+
+### Features
+
+* **time:** support creating custom operators with Time.createOperator() ([d218064](https://github.com/cyclejs/cyclejs/commit/d218064))
+
+
+
 <a name="0.9.1"></a>
 ## 0.9.1 (2017-08-30)
 
