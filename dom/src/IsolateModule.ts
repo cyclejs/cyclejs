@@ -149,7 +149,10 @@ export class IsolateModule {
       },
 
       post() {
-        self.vnodesBeingRemoved.forEach(self.cleanupVNode.bind(self));
+        const vnodesBeingRemoved = self.vnodesBeingRemoved;
+        for (let i = vnodesBeingRemoved.length - 1; i >= 0; i--) {
+          self.cleanupVNode(vnodesBeingRemoved[i]);
+        }
         self.vnodesBeingRemoved = [];
         self.fullScopesBeingUpdated = [];
       },
