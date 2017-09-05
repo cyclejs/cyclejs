@@ -1,3 +1,18 @@
+<a name="18.3.0"></a>
+# 18.3.0 (2017-09-05)
+
+
+### Bug Fixes
+
+* **dom:** wait for snabbdom's post hook to clean vnodes (#667) ([dd5712f](https://github.com/cyclejs/cyclejs/commit/dd5712f))
+
+
+### Performance Improvements
+
+* **dom:** use for loop instead of forEach+bind in IsolateModule ([70a4521](https://github.com/cyclejs/cyclejs/commit/70a4521))
+
+
+
 <a name="18.2.0"></a>
 # 18.2.0 (2017-08-29)
 
