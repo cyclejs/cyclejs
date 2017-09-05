@@ -1,3 +1,13 @@
+<a name="14.3.0"></a>
+# 14.3.0 (2017-09-05)
+
+
+### Bug Fixes
+
+* **http:** allow string type of send property ([5ea4bf3](https://github.com/cyclejs/cyclejs/commit/5ea4bf3))
+
+
+
 <a name="14.2.0"></a>
 # 14.2.0 (2017-08-15)
 
