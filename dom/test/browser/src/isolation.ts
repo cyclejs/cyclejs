@@ -1460,10 +1460,9 @@ describe('isolation', function() {
 
   it('should allow recursive isolation using the same scope', done => {
     function Item(sources: {DOM: MainDOMSource}, count: number) {
-      const childVdom$: Stream<VNode> =
-        count > 0
-          ? isolate(Item, '0')(sources, count - 1).DOM
-          : xs.of<any>(null);
+      const childVdom$: Stream<VNode> = count > 0
+        ? isolate(Item, '0')(sources, count - 1).DOM
+        : xs.of<any>(null);
 
       const highlight$ = sources.DOM
         .select('button')
@@ -1516,7 +1515,7 @@ describe('isolation', function() {
     dispose = run();
   });
 
-  it('should not loose event delegators when components are moved around', function(
+  it('should not lose event delegators when components are moved around', function(
     done,
   ) {
     function component(sources: {DOM: MainDOMSource}) {
@@ -1536,10 +1535,9 @@ describe('isolation', function() {
       const position$ = fromDiagram('1-2|');
       return {
         DOM: xs.combine(position$, comp.DOM).map(([position, childDom]) => {
-          const children =
-            position === '1'
-              ? [div([childDom]), div()]
-              : [div(), div([childDom])];
+          const children = position === '1'
+            ? [div([childDom]), div()]
+            : [div(), div([childDom])];
 
           return div(children);
         }),
