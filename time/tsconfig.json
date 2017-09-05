@@ -11,8 +11,9 @@
     ]
   },
   "files": [
-    "index.ts",
-    "most.ts",
-    "rxjs.ts"
+    "src/index.ts"
+  ],
+  "include": [
+    "src/*.ts"
   ]
 }

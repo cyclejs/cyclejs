@@ -88,17 +88,34 @@ import {timeDriver} from '@cycle/time';
 ```
 
 RxJS:
-<!-- skip-example -->
 ```js
 import {timeDriver} from '@cycle/time/rxjs';
 ```
 
 most.js:
-<!-- skip-example -->
 ```js
 import {timeDriver} from '@cycle/time/most';
 ```
 
+You can also import ES2015` sources if you want to use tree shaking or other features only available with the ES2015 module syntax.
+
+xstream:
+<!-- skip-example -->
+```js
+import {timeDriver} from '@cycle/time/es6';
+```
+
+RxJS:
+<!-- skip-example -->
+```js
+import {timeDriver} from '@cycle/time/rxjs-es6';
+```
+
+most.js:
+<!-- skip-example -->
+```js
+import {timeDriver} from '@cycle/time/most-es6';
+```
 Then it needs to be added to the drivers object.
 
 ```js

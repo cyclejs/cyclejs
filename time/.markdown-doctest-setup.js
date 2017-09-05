@@ -1,4 +1,4 @@
-const timeDriver = require('./lib/');
+const timeDriver = require('./xstream');
 const xs = require('xstream').default;
 const dom = require('@cycle/dom');
 const most = require('most');
@@ -72,7 +72,11 @@ module.exports = {
 
   regexRequire: {
     'xstream\/(.*)': function (fullMatch, module) {
-      return require(`xstream/${module}`)
+      return require(`xstream/${module}`);
+    },
+
+    '@cycle\/time\/(.*)': function (fullMatch, module) {
+      return require(`./${module}`);
     }
   },
 

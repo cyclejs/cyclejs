@@ -1,4 +1,4 @@
-import {mockTimeSource} from '../';
+import {mockTimeSource} from '../src/mock-time-source';
 import {setAdapt} from '@cycle/run/lib/adapt';
 
 describe('jasmine support', () => {

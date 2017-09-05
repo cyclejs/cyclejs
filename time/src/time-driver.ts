@@ -7,7 +7,6 @@ import {makeThrottle} from './throttle';
 import {makeAnimationFrames} from './animation-frames';
 import {makeThrottleAnimation} from './throttle-animation';
 import {runVirtually} from './run-virtually';
-import {TimeSource} from './time-source';
 const requestAnimationFrame = require('raf');
 const now = require('performance-now');
 

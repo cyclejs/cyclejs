@@ -43,12 +43,27 @@ jspm_packages
 .settings
 
 # Generated
-/lib/
-/dist/
-/most.js
-/rxjs.js
-/most.d.ts
-/rxjs.d.ts
+lib/
+dist/
+most.ts
+most.js
+most.d.ts
+rxjs.js
+rxjs.ts
+rxjs.d.ts
+xstream.js
+xstream.ts
+xstream.d.ts
+es6.d.ts
+es6.js
+es6.ts
+most-es6.d.ts
+most-es6.js
+most-es6.ts
+rxjs-es6.d.ts
+rxjs-es6.js
+rxjs-es6.ts
+rxjs.es6.ts
 
 # Misc
 ignore

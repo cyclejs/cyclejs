@@ -7,10 +7,10 @@
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
   "repository": "https://github.com/cyclejs/cyclejs/tree/master/time",
   "author": "Nick Johnstone",
-  "main": "lib/index.js",
-  "module": "lib/es6/index.js",
-  "typings": "lib/index.d.ts",
-  "types": "lib/index.d.ts",
+  "main": "xstream.js",
+  "module": "es6.js",
+  "typings": "xstream.d.ts",
+  "types": "xstream.d.ts",
   "dependencies": {
     "@cycle/run": "3.x",
     "combine-errors": "3.0.x",
@@ -38,10 +38,18 @@
   "files": [
     "lib/",
     "dist/",
+    "xstream.js",
+    "xstream.d.ts",
     "most.js",
-    "rxjs.js",
     "most.d.ts",
-    "rxjs.d.ts"
+    "rxjs.js",
+    "rxjs.d.ts",
+    "es6.js",
+    "es6.d.ts",
+    "most-es6.js",
+    "most-es6.d.ts",
+    "rxjs-es6.js",
+    "rxjs-es6.d.ts"
   ],
   "browserify-shim": {
     "xstream": "global:xstream"
@@ -54,6 +62,10 @@
     "test-ci": "npm run test",
     "test-docs": "markdown-doctest",
     "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleTime --exclude xstream --outfile dist/cycle-time.js",
-    "uglify": "../node_modules/.bin/uglifyjs dist/cycle-time.js --compress --mangle -o dist/cycle-time.min.js"
+    "uglify": "../node_modules/.bin/uglifyjs dist/cycle-time.js --compress --mangle -o dist/cycle-time.min.js",
+    "make-entry-points": ".scripts/generate-entry-points.js",
+    "compile-entry-points-es5": "../node_modules/.bin/tsc --lib DOM,es6 --declaration xstream.ts most.ts rxjs.ts ",
+    "compile-entry-points-es6": "../node_modules/.bin/tsc --lib DOM,es6 --declaration --module es2015 --moduleResolution node es6.ts most-es6.ts rxjs-es6.ts",
+    "postlib": "npm run make-entry-points && npm run compile-entry-points-es5 && npm run compile-entry-points-es6"
   }
 }
