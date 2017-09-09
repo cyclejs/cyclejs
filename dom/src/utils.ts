@@ -22,6 +22,16 @@ export function isDocFrag(
 
 export const SCOPE_PREFIX = '$$CYCLEDOM$$-';
 
+export function checkValidContainer(
+  container: Element | DocumentFragment | string,
+): void {
+  if (typeof container !== 'string' && !isValidNode(container)) {
+    throw new Error(
+      'Given container is not a DOM element neither a ' + 'selector string.',
+    );
+  }
+}
+
 export function getValidNode(
   selectors: Element | DocumentFragment | string,
 ): Element | DocumentFragment | null {
@@ -31,10 +41,6 @@ export function getValidNode(
 
   if (typeof selectors === 'string' && domElement === null) {
     throw new Error(`Cannot render into unknown element \`${selectors}\``);
-  } else if (!isValidNode(domElement)) {
-    throw new Error(
-      'Given container is not a DOM element neither a ' + 'selector string.',
-    );
   }
   return domElement;
 }

@@ -7,7 +7,7 @@ import {MainDOMSource} from './MainDOMSource';
 import {VNode} from 'snabbdom/vnode';
 import {toVNode} from 'snabbdom/tovnode';
 import {VNodeWrapper} from './VNodeWrapper';
-import {getValidNode} from './utils';
+import {getValidNode, checkValidContainer} from './utils';
 import defaultModules from './modules';
 import {IsolateModule} from './IsolateModule';
 import {EventDelegator} from './EventDelegator';
@@ -50,6 +50,24 @@ function reportSnabbdomError(err: any): void {
   (console.error || console.log)(err);
 }
 
+const domReady$ = xs.create<null>({
+  start(lis: Listener<null>) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('readystatechange', () => {
+        const state = document.readyState;
+        if (state === 'interactive' || state === 'complete') {
+          lis.next(null);
+          lis.complete();
+        }
+      });
+    } else {
+      lis.next(null);
+      lis.complete();
+    }
+  },
+  stop() {},
+});
+
 function makeDOMDriver(
   container: string | Element | DocumentFragment,
   options?: DOMDriverOptions,
@@ -57,11 +75,11 @@ function makeDOMDriver(
   if (!options) {
     options = {};
   }
+  checkValidContainer(container);
   const modules = options.modules || defaultModules;
   const isolateModule = new IsolateModule();
   const patch = init([isolateModule.createModule()].concat(modules));
-  const rootElement = getValidNode(container) || document.body;
-  const vnodeWrapper = new VNodeWrapper(rootElement);
+  let vnodeWrapper: VNodeWrapper;
   const delegators = new MapPolyfill<string, EventDelegator>();
   makeDOMDriverInputGuard(modules);
 
@@ -69,45 +87,47 @@ function makeDOMDriver(
     domDriverInputGuard(vnode$);
     const sanitation$ = xs.create<null>();
 
-    let isBufferOpen = true;
-    const buffer: Array<Element> = [];
+    const firstRoot$ = domReady$.map(() => {
+      const firstRoot = getValidNode(container) || document.body;
+      vnodeWrapper = new VNodeWrapper(firstRoot);
+      return firstRoot;
+    });
+
+    let tooEarlyWasConsumed = false;
+    let latestRoot: Element | null = null;
     const tooEarlyRootElement$ = xs.create<Element>({
       start(lis: Listener<Element>) {
-        lis.next(rootElement as any);
-        while (buffer.length > 0) {
-          lis.next(buffer.shift() as Element);
+        if (latestRoot) {
+          lis.next(latestRoot);
+          tooEarlyWasConsumed = true;
         }
-        isBufferOpen = false;
       },
       stop() {},
     });
 
-    const rootElement$ = xs
-      .merge(vnode$.endWhen(sanitation$), sanitation$)
-      .map(vnode => vnodeWrapper.call(vnode))
-      .fold(patch, toVNode(rootElement))
-      .drop(1)
-      .map(unwrapElementFromVNode)
-      .compose(dropCompletion); // don't complete this stream
+    const rootElement$ = firstRoot$
+      .map(
+        firstRoot =>
+          xs
+            .merge(vnode$.endWhen(sanitation$), sanitation$)
+            .map(vnode => vnodeWrapper.call(vnode))
+            .fold(patch, toVNode(firstRoot))
+            .drop(1)
+            .map(unwrapElementFromVNode)
+            .startWith(firstRoot as Element)
+            .compose(dropCompletion), // don't complete this stream
+      )
+      .flatten();
 
     // Start the snabbdom patching, over time
-    const listener = {
+    rootElement$.addListener({
       next: (el: Element) => {
-        if (isBufferOpen) {
-          buffer.push(el);
+        if (!tooEarlyWasConsumed) {
+          latestRoot = el;
         }
       },
       error: reportSnabbdomError,
-    };
-    if (document.readyState === 'loading') {
-      document.addEventListener('readystatechange', () => {
-        if (document.readyState === 'interactive') {
-          rootElement$.addListener(listener);
-        }
-      });
-    } else {
-      rootElement$.addListener(listener);
-    }
+    });
 
     return new MainDOMSource(
       xs.merge(tooEarlyRootElement$, rootElement$).remember(),
