@@ -222,4 +222,49 @@ describe('HTTP Driver in the browser', function() {
       }, 2400);
     }, 2400);
   });
+
+  it('should not remember past responses when selecting', function(done) {
+    function main(sources: any) {
+      const test$ = Rx.Observable
+        .of(null)
+        .delay(1000)
+        .mergeMap(() =>
+          sources.HTTP
+            .select('cat')
+            .mergeAll()
+            .map((res: any) => 'I should not show this, ' + res.text),
+        );
+
+      const request$ = Rx.Observable.of({
+        category: 'cat',
+        url: uri + '/hello',
+      });
+
+      return {
+        HTTP: request$,
+        Test: test$,
+      };
+    }
+
+    function testDriver(sink: any) {
+      sink.addListener({
+        next: s => {
+          console.log(s);
+          done('No data should come through the Test sink');
+        },
+        error: (err: any) => {
+          done(err);
+        },
+      });
+    }
+
+    Cycle.run(main, {
+      HTTP: makeHTTPDriver(),
+      Test: testDriver,
+    });
+
+    setTimeout(() => {
+      done();
+    }, 1800);
+  });
 });

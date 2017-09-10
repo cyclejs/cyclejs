@@ -188,6 +188,7 @@ export function makeHTTPDriver(): Driver<Stream<RequestInput>, HTTPSource> {
       xs.merge(tooEarlyResponse$$, response$$),
       name,
       [],
+      buffer,
     );
 
     response$$.addListener({
