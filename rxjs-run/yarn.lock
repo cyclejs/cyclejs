@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@cycle/run@4.0.0-rc.1":
-  version "4.0.0-rc.1"
-  resolved "https://registry.yarnpkg.com/@cycle/run/-/run-4.0.0-rc.1.tgz#61b5c06a0d68e13d150d7dad441360fd7c337c9d"
+"@cycle/run@4.0.0-rc.2":
+  version "4.0.0-rc.2"
+  resolved "https://registry.yarnpkg.com/@cycle/run/-/run-4.0.0-rc.2.tgz#1b57dbe40102543f1d88147df2e8fb3144b21acd"
   dependencies:
     xstream "10.x"
 
