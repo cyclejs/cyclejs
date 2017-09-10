@@ -149,6 +149,18 @@ function replicateMany<So extends Sources, Si extends Sinks>(
   };
 }
 
+function clearBuffers<So extends Sources>(sources: So) {
+  for (const k in sources) {
+    if (
+      sources.hasOwnProperty(k) &&
+      sources[k] &&
+      (sources[k] as any).clearBuffer
+    ) {
+      (sources[k] as any).clearBuffer();
+    }
+  }
+}
+
 function disposeSources<So extends Sources>(sources: So) {
   for (const k in sources) {
     if (
@@ -225,6 +237,7 @@ export function setup<So extends Sources, Si extends FantasySinks<Si>>(
   }
   function _run(): DisposeFunction {
     const disposeReplication = replicateMany(sinks, sinkProxies);
+    clearBuffers(sources);
     return function dispose() {
       disposeSources(sources);
       disposeReplication();

@@ -595,4 +595,83 @@ describe('run', function() {
       done();
     }, 80);
   });
+
+  it('should clear too-early buffers in drivers', function(done) {
+    function main(sources: any) {
+      const test$ = xs
+        .of(null)
+        .compose(delay(1000))
+        .map(() =>
+          sources.HTTP
+            .select('cat') // .flatten()
+            .map((res: any) => 'I should not show this, ' + res.text),
+        )
+        .flatten();
+
+      const request$ = xs.of({
+        category: 'cat',
+        url: 'http://jsonplaceholder.typicode.com/users/1',
+      });
+
+      return {
+        HTTP: request$,
+        Test: test$,
+      };
+    }
+
+    function testDriver(sink: any) {
+      sink.addListener({
+        next: (s: string) => {
+          console.log(s);
+          done('No data should come through the Test sink');
+        },
+        error: (err: any) => {
+          done(err);
+        },
+      });
+    }
+
+    function httpDriver(sink: Stream<any>) {
+      let isBufferOpen = true;
+      const buffer: Array<any> = [];
+      const earlySource = xs.create({
+        start(listener: any) {
+          while (buffer.length > 0) {
+            listener.next(buffer.shift());
+          }
+          isBufferOpen = false;
+        },
+        stop() {},
+      });
+      const source = sink.map(req => ({body: {name: 'Louis'}}));
+      source.addListener({
+        next: x => {
+          if (isBufferOpen) {
+            buffer.push(x);
+          }
+        },
+        error: (err: any) => {},
+      });
+      return {
+        select: function() {
+          return xs.merge(earlySource, source);
+        },
+        clearBuffer: function() {
+          while (buffer.length > 0) {
+            buffer.shift();
+          }
+        },
+      };
+    }
+
+    const dispose = run(main, {
+      HTTP: httpDriver,
+      Test: testDriver,
+    });
+
+    setTimeout(() => {
+      dispose();
+      done();
+    }, 1800);
+  });
 });
