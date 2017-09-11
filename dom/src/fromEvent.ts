@@ -34,6 +34,22 @@ export function fromEvent(
   );
 }
 
+function matchObject(matcher: object, obj: object): boolean {
+  const keys = Object.keys(matcher);
+  const n = keys.length;
+  for (let i = 0; i < n; i++) {
+    const k = keys[i];
+    if (typeof matcher[k] === 'object' && typeof obj[k] === 'object') {
+      if (!matchObject(matcher[k], obj[k])) {
+        return false;
+      }
+    } else if (matcher[k] !== obj[k]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export function preventDefaultConditional(
   event: any,
   preventDefault: PreventDefaultOpt,
@@ -46,19 +62,7 @@ export function preventDefaultConditional(
         event.preventDefault();
       }
     } else if (typeof preventDefault === 'object') {
-      const matchObject: (m: {}, o: {}) => boolean = (matcher, obj) =>
-        Object.keys(matcher).reduce(
-          (acc: boolean, k: string) =>
-            acc &&
-            (typeof matcher[k] === 'object' && typeof obj[k] === 'object'
-              ? matchObject(matcher[k], obj[k])
-              : matcher[k] === obj[k]),
-          true,
-        );
-
-      const matches = matchObject(preventDefault, event);
-
-      if (matches) {
+      if (matchObject(preventDefault, event)) {
         event.preventDefault();
       }
     } else {
