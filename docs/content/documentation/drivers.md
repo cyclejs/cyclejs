@@ -235,7 +235,7 @@ function makeSockDriver(peerId) {
   function sockDriver(outgoing$) {
     outgoing$.addListener({
       next: outgoing => {
-        sock.send(outgoing));
+        sock.send(outgoing);
       },
       error: () => {},
       complete: () => {},
