@@ -124,7 +124,7 @@ describe('HTTP Driver in the browser', function() {
   });
 
   it('should not have cross-driver race conditions (#592)', function(done) {
-    this.timeout(5500);
+    this.timeout(6000);
 
     function child(sources: any, num: any) {
       const vdom$ = sources.HTTP
@@ -219,11 +219,13 @@ describe('HTTP Driver in the browser', function() {
       setTimeout(() => {
         assert.strictEqual(expectedDOMSinks.length, 0);
         done();
-      }, 2400);
-    }, 2400);
+      }, 2500);
+    }, 2500);
   });
 
   it('should not remember past responses when selecting', function(done) {
+    this.timeout(4000);
+
     function main(sources: any) {
       const test$ = Rx.Observable
         .of(null)
@@ -265,6 +267,6 @@ describe('HTTP Driver in the browser', function() {
 
     setTimeout(() => {
       done();
-    }, 1800);
+    }, 2000);
   });
 });
