@@ -360,8 +360,8 @@ These additions are enough to make your driver resistant to race conditions in v
 
 ## Extensibility
 
-Cycle.js is a very small framework, and Cycle *DOM*'s Driver is available as an optional plugin for your app. This means it is simple to replace the DOM Driver with any other driver function providing interaction with the user.
+Cycle.js drivers, such as the DOM Driver, are available as optional plugins for your app. This means it is simple to replace a driver with another one that has the same expected sinks and sources.
 
-You can for instance fork the DOM Driver, adapt it to your preferences, and use it in a Cycle.js app. You can create a driver to interface with sockets. Drivers to perform network requests. Drivers meant for Node.js. Drivers that target other UI trees, such as `<canvas>` or even native mobile UI.
+For instance, you can fork the DOM Driver, adapt it to your preferences, and use it in a Cycle.js app. You can create a driver to interface with sockets. Drivers to perform network requests. Drivers meant for Node.js. Drivers that target other UI trees, such as `<canvas>` or even native mobile UI.
 
-As a framework, it cannot be compared to monoliths in web development in the recent years. Cycle.js itself is after all just a small tool and a convention to create reactive dialogues with the external world using reactive streams.
+As a framework, it cannot be compared to monoliths in web development in the recent years. Cycle.js itself is after all just a small tool and a convention to create reactive dialogues with the external world using streams.
