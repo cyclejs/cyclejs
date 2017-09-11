@@ -1054,7 +1054,7 @@ describe('DOMSource.events()', function() {
     run();
   });
 
-  it('should not prevent default on returning false from predicate', function(
+  it('should not prevent default on returning false from function predicate', function(
     done,
   ) {
     function app(sources: {DOM: DOMSource}) {
@@ -1090,7 +1090,7 @@ describe('DOMSource.events()', function() {
     run();
   });
 
-  it('should not prevent default on returning false from predicate', function(
+  it('should not prevent default on returning false from object predicate', function(
     done,
   ) {
     function app(sources: {DOM: DOMSource}) {
