@@ -943,4 +943,148 @@ describe('DOMSource.events()', function() {
     });
     run();
   });
+
+  it('should allow preventing default event behavior with function', function(
+    done,
+  ) {
+    function app(sources: {DOM: DOMSource}) {
+      return {
+        DOM: xs.of(div('.parent', [button('.button')])),
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    sources.DOM
+      .select('.button')
+      .events('click', {preventDefault: (ev: any) => ev.type === 'click'})
+      .addListener({
+        next: (ev: Event) => {
+          assert.strictEqual(ev.type, 'click');
+          const target = ev.target as HTMLElement;
+          assert.strictEqual(target.tagName, 'BUTTON');
+          assert.strictEqual(target.className, 'button');
+          assert.strictEqual(ev.defaultPrevented, true);
+          done();
+        },
+      });
+
+    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+      next: (root: Element) => {
+        const button = root.querySelector('.button') as HTMLButtonElement;
+        setTimeout(() => button.click());
+      },
+    });
+    run();
+  });
+
+  it('should allow preventing default event behavior with object', function(
+    done,
+  ) {
+    function app(sources: {DOM: DOMSource}) {
+      return {
+        DOM: xs.of(div('.parent', [button('.button')])),
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    sources.DOM
+      .select('.button')
+      .events('click', {preventDefault: {type: 'click'}})
+      .addListener({
+        next: (ev: Event) => {
+          assert.strictEqual(ev.type, 'click');
+          const target = ev.target as HTMLElement;
+          assert.strictEqual(target.tagName, 'BUTTON');
+          assert.strictEqual(target.className, 'button');
+          assert.strictEqual(ev.defaultPrevented, true);
+          done();
+        },
+      });
+
+    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+      next: (root: Element) => {
+        const button = root.querySelector('.button') as HTMLButtonElement;
+        setTimeout(() => button.click());
+      },
+    });
+    run();
+  });
+
+  it('should not prevent default on returning false from predicate', function(
+    done,
+  ) {
+    function app(sources: {DOM: DOMSource}) {
+      return {
+        DOM: xs.of(div('.parent', [button('.button')])),
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    sources.DOM
+      .select('.button')
+      .events('click', {preventDefault: (ev: any) => ev.type !== 'click'})
+      .addListener({
+        next: (ev: Event) => {
+          assert.strictEqual(ev.type, 'click');
+          const target = ev.target as HTMLElement;
+          assert.strictEqual(target.tagName, 'BUTTON');
+          assert.strictEqual(target.className, 'button');
+          assert.strictEqual(ev.defaultPrevented, false);
+          done();
+        },
+      });
+
+    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+      next: (root: Element) => {
+        const button = root.querySelector('.button') as HTMLButtonElement;
+        setTimeout(() => button.click());
+      },
+    });
+    run();
+  });
+
+  it('should not prevent default on returning false from predicate', function(
+    done,
+  ) {
+    function app(sources: {DOM: DOMSource}) {
+      return {
+        DOM: xs.of(div('.parent', [button('.button')])),
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    sources.DOM
+      .select('.button')
+      .events('click', {preventDefault: {type: 'notClick'}})
+      .addListener({
+        next: (ev: Event) => {
+          assert.strictEqual(ev.type, 'click');
+          const target = ev.target as HTMLElement;
+          assert.strictEqual(target.tagName, 'BUTTON');
+          assert.strictEqual(target.className, 'button');
+          assert.strictEqual(ev.defaultPrevented, false);
+          done();
+        },
+      });
+
+    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+      next: (root: Element) => {
+        const button = root.querySelector('.button') as HTMLButtonElement;
+        setTimeout(() => button.click());
+      },
+    });
+    run();
+  });
 });
