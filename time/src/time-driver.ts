@@ -131,6 +131,9 @@ function timeDriver(sink: any): any {
       scheduler.add,
       currentTime,
     ),
+
+    now: () => new Date(),
+
     _time: currentTime,
     _scheduler: scheduler.add,
     _pause: pause,

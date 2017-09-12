@@ -44,11 +44,13 @@ function finish(asserts: Array<any>, done: any) {
   }
 }
 
-function mockTimeSource({interval = 20} = {}): any {
+function mockTimeSource({interval = 20, startTime = new Date()} = {}): any {
   let time = 0;
   let maxTime = 0;
   const asserts: Array<any> = [];
   let done: any;
+
+  const startTimeInMs = startTime.getTime();
 
   const scheduler = makeScheduler();
 
@@ -94,6 +96,8 @@ function mockTimeSource({interval = 20} = {}): any {
       scheduler.add,
       currentTime,
     ),
+
+    now: () => new Date(startTimeInMs + currentTime()),
 
     run(doneCallback = raiseError, timeToRunTo = 0) {
       done = doneCallback;

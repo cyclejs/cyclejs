@@ -128,6 +128,22 @@ describe('@cycle/time', () => {
       before(() => setAdapt(library.adapt));
 
       describe('mockTimeSource', () => {
+        describe('now', () => {
+          it('returns the current time', (done) => {
+            const Time = mockTimeSource({startTime: new Date('2017-09-12T02:18:00.000Z')});
+
+            assert.equal(Time.now().toISOString(), '2017-09-12T02:18:00.000Z');
+
+            Time.diagram('-----1');
+
+            Time.run(() => {
+              assert.equal(Time.now().toISOString(), '2017-09-12T02:18:00.100Z');
+
+              done();
+            });
+          });
+        });
+
         describe('.diagram', () => {
           it('creates streams from ascii diagrams', done => {
             const Time = mockTimeSource();

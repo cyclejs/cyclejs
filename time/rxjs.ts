@@ -20,6 +20,7 @@ interface TimeSource {
   throttle(period: number): Operator;
   periodic(period: number): Observable<number>;
   throttleAnimation: Operator;
+  now(): Date;
 }
 
 interface MockTimeSource extends TimeSource {

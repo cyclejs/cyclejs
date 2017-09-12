@@ -12,6 +12,7 @@ export interface TimeSource {
   throttle(period: number): Operator;
   periodic(period: number): Stream<number>;
   throttleAnimation: Operator;
+  now(): Date;
 }
 
 export interface MockTimeSource extends TimeSource {

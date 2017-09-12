@@ -275,6 +275,15 @@ import {timeDriver, mockTimeSource} from '@cycle/time';
 ### `timeDriver()`
 The time driver returns a `TimeSource` object with the following methods:
 
+#### `now()`
+Returns the current time as a date. Useful for sampling time:
+
+```js
+const click$ = DOM.sources('.button').events('click');
+
+const lastClickTime$ = click$.map(Time.now).remember();
+```
+
 #### `delay(period)`
 An operator that can be used with `.compose` to delay values in a stream. `period` is the number of milliseconds to delay each event by.
 
@@ -419,9 +428,13 @@ function delayBy(timeSource, delaySelector) {
 Time.periodic(1000).compose(delayBy(Time, i => i * 100));
 ```
 
-### `mockTimeSource({interval = 20})`
+### `mockTimeSource({interval = 20, startTime = new Date()})`
 
 Returns a `TimeSource` object, with all of the methods from the `timeDriver` (`debounce`, `delay`, `periodic`, `throttle`), along with `diagram`, `assertEqual` and `run`, which are useful for writing unit tests.
+
+The `interval` argument takes a number that is used to determine how many milliseconds is represented by each character in the marble diagram. The default is 20 milliseconds.
+
+The `startTime` argument takes a Date that is used to determine what the result of `Time.now()` is. It is recommended to set this value if your application's behaviour varies depending on the current time, so that your tests do not fail because of what the time is. `startTime` defaults to `new Date()`.
 
 Instead of all delays and debounces running in real time in your tests, causing unecessary delays, they will be run in "virtual time".
 
