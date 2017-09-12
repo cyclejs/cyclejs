@@ -279,7 +279,7 @@ The time driver returns a `TimeSource` object with the following methods:
 Returns the current time as a date. Useful for sampling time:
 
 ```js
-const click$ = DOM.sources('.button').events('click');
+const click$ = DOM.select('.button').events('click');
 
 const lastClickTime$ = click$.map(Time.now).remember();
 ```
