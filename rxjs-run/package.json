@@ -30,12 +30,12 @@
   "typings": "lib/cjs/index.d.ts",
   "types": "lib/cjs/index.d.ts",
   "dependencies": {
-    "@cycle/run": "3.4",
+    "@cycle/run": "4.0.0-rc.3",
     "xstream": "*",
     "rxjs": "*"
   },
   "devDependencies": {
-    "@cycle/run": "3.4",
+    "@cycle/run": "4.0.0-rc.3",
     "@types/mocha": "2.2.x",
     "@types/node": "7.0.x",
     "@types/sinon": "1.16.x",
