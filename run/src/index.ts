@@ -1,5 +1,6 @@
 import xs, {Stream} from 'xstream';
 import {adapt} from './adapt';
+import microtask from './microtask';
 import {
   CycleProgram,
   DevToolEnabledSource,
@@ -25,6 +26,8 @@ export {
   DisposeFunction,
   CycleProgram,
 } from './types';
+
+const scheduleMicrotask = microtask();
 
 function logToConsoleError(err: any) {
   const target = err.stack || err;
@@ -126,11 +129,13 @@ function replicateMany<So extends Sources, Si extends Sinks>(
   sinkNames.forEach(name => {
     const listener = sinkProxies[name];
     const next = (x: any) => {
-      listener._n(x);
+      scheduleMicrotask(() => listener._n(x));
     };
     const error = (err: any) => {
-      logToConsoleError(err);
-      listener._e(err);
+      scheduleMicrotask(() => {
+        logToConsoleError(err);
+        listener._e(err);
+      });
     };
     buffers[name]._n.forEach(next);
     buffers[name]._e.forEach(error);

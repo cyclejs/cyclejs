@@ -356,35 +356,6 @@ describe('run', function() {
     dispose();
   });
 
-  it('should happen synchronously', function(done) {
-    let sandbox = sinon.sandbox.create();
-    const spy = sandbox.spy();
-    function app(sources: any): any {
-      sources.other.addListener({
-        next: () => {},
-        error: () => {},
-        complete: () => {},
-      });
-      return {
-        other: xs.of(10),
-      };
-    }
-    let mutable = 'correct';
-    function driver(sink: Stream<number>): Stream<string> {
-      return sink.map(x => 'a' + 10).debug(x => {
-        assert.strictEqual(x, 'a10');
-        assert.strictEqual(mutable, 'correct');
-        spy();
-      });
-    }
-    run(app, {other: driver});
-    mutable = 'wrong';
-    setTimeout(() => {
-      sinon.assert.calledOnce(spy);
-      done();
-    }, 20);
-  });
-
   it('should support driver that asynchronously subscribes to sink', function(
     done,
   ) {
@@ -509,27 +480,12 @@ describe('run', function() {
     }
 
     function httpDriver(sink: Stream<any>) {
-      let isBufferOpen = true;
-      const buffer: Array<any> = [];
-      const earlySource = xs.create({
-        start(listener: any) {
-          while (buffer.length > 0) {
-            listener.next(buffer.shift());
-          }
-          isBufferOpen = false;
-        },
-        stop() {},
-      });
       const source = sink.map(req => ({body: {name: 'Louis'}}));
       source.addListener({
-        next: x => {
-          if (isBufferOpen) {
-            buffer.push(x);
-          }
-        },
+        next: x => {},
         error: (err: any) => {},
       });
-      return xs.merge(earlySource, source).debug(x => {
+      return source.debug(x => {
         requestsSent += 1;
       });
     }
