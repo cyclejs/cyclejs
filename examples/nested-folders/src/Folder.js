@@ -1,7 +1,7 @@
 import xs from 'xstream'
 import isolate from '@cycle/isolate'
 import {div, button} from '@cycle/dom'
-import {pick, mix} from 'cycle-onionify'
+import {makeCollection} from 'cycle-onionify'
 
 function generateId() {
   return Number(String(Math.random()).replace(/0\.0*/, ''))
@@ -78,29 +78,19 @@ function view(state$, childrenVDOM$) {
     })
 }
 
-function Children(sources) {
-  const array$ = sources.onion.state$
-
-  const childrenSinks$ = array$.map(array =>
-    array.map((item, index) => isolate(Folder, index)(sources))
-  )
-
-  const childrenReducer$ = childrenSinks$
-    .compose(pick('onion'))
-    .compose(mix(xs.merge))
-
-  const childrenVDOM$ = childrenSinks$
-    .compose(pick('DOM'))
-    .compose(mix(xs.combine))
-
-  return {
-    DOM: childrenVDOM$,
-    onion: childrenReducer$,
-  }
-}
+const Children = makeCollection({
+  item: Folder,
+  itemKey: state => state.id,
+  itemScope: key => key,
+  collectSinks: instances => ({
+    onion: instances.pickMerge('onion'),
+    DOM: instances.pickCombine('DOM')
+  })
+})
 
 export default function Folder(sources) {
   const childrenSinks = isolate(Children, 'children')(sources)
+
   const state$ = sources.onion.state$
   const action$ = intent(sources.DOM)
   const parentReducer$ = model(action$)
