@@ -1,14 +1,20 @@
 {
+  "name": "@cycle/rxjs-time",
+  "version": "0.10.0",
   "description": "A time driver designed to enable awesome testing and dev tooling",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
-  "repository": "https://github.com/cyclejs/cyclejs/tree/master/time",
+  "repository": "https://github.com/cyclejs/cyclejs/tree/master/rxjs-time",
   "author": "Nick Johnstone",
   "main": "lib/index.js",
   "module": "lib/es6/index.js",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
+  "dependencies": {
+    "@cycle/time": "^0.10.0",
+    "rxjs": "*"
+  },
   "devDependencies": {
     "@cycle/dom": "17.6",
     "@types/mocha": "2.2.x",
@@ -22,23 +28,18 @@
   },
   "files": [
     "lib/",
-    "dist/",
-    "most.js",
-    "rxjs.js",
-    "most.d.ts",
-    "rxjs.d.ts"
+    "dist/"
   ],
   "browserify-shim": {
-    "xstream": "global:xstream"
+    "rxjs": "global:rxjs"
   },
   "scripts": {
-    "start": "../../node_modules/.bin/budo -d example example/index.ts:index.js --live -- -p tsify",
     "test-watch": "../../node_modules/.bin/mocha 'test/**/*.ts' --compilers ts:ts-node/register --watch -R min",
     "test-node": "../../node_modules/.bin/mocha 'test/**/*.ts' --compilers ts:ts-node/register",
     "test": "npm run test-node && npm run test-docs",
     "test-ci": "npm run test",
     "test-docs": "markdown-doctest",
-    "browserify": "../../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleTime --exclude xstream --outfile dist/cycle-time.js",
+    "browserify": "../../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleTime --exclude rxjs --outfile dist/cycle-time.js",
     "uglify": "../../node_modules/.bin/uglifyjs dist/cycle-time.js --compress --mangle -o dist/cycle-time.min.js"
   }
 }
