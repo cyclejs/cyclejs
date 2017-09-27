@@ -181,33 +181,6 @@ describe('run', function() {
     dispose();
   });
 
-  it('should happen synchronously', function(done) {
-    let sandbox = sinon.sandbox.create();
-    const spy = sandbox.spy();
-    function app(sources: any): any {
-      sources.other.subscribe();
-      return {
-        other: Rx.Observable.of(10),
-      };
-    }
-    let mutable = 'correct';
-    function driver(xsSink: any): Observable<string> {
-      return Observable.from(xsSink)
-        .map((x: number) => 'a' + 10)
-        .do(x => {
-          assert.strictEqual(x, 'a10');
-          assert.strictEqual(mutable, 'correct');
-          spy();
-        });
-    }
-    run(app, {other: driver});
-    mutable = 'wrong';
-    setTimeout(() => {
-      sinon.assert.calledOnce(spy);
-      done();
-    }, 20);
-  });
-
   it('should report main() errors in the console', function(done) {
     let sandbox = sinon.sandbox.create();
     sandbox.stub(console, 'error');
