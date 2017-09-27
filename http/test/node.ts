@@ -143,4 +143,33 @@ describe('HTTP Driver in Node.js', function() {
 
     run();
   });
+
+  it('should call next() when ok is specified for an error status', function(
+    done,
+  ) {
+    function main(sources: {HTTP: HTTPSource}) {
+      return {
+        HTTP: Rx.Observable.of({
+          url: uri + '/not-found-url',
+          method: 'GET',
+          ok: (res: any) => (res.status === 404),
+        }),
+      };
+    }
+
+    const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
+
+    sources.HTTP.select().mergeAll().subscribe({
+      next: function(r) {
+        assert.ok(r.request);
+        assert.strictEqual(r.status, 404);
+        done();
+      },
+      error: function(err) {
+        done('error() should not be called');
+      },
+    });
+
+    run();
+  });
 });
