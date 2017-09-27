@@ -84,6 +84,9 @@ export function optionsToSuperagent(rawReqOptions: RequestOptions) {
   if (reqOptions.responseType) {
     request = request.responseType(reqOptions.responseType);
   }
+  if (reqOptions.ok) {
+    request = request.ok(reqOptions.ok);
+  }
   return request;
 }
 

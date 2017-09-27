@@ -31,6 +31,7 @@ export interface RequestOptions {
   category?: string;
   lazy?: boolean;
   responseType?: string;
+  ok?: ((res: SuperagentResponse) => boolean);
   _error?: any;
   _namespace?: Array<string>;
 }
