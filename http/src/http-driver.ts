@@ -100,16 +100,24 @@ export function createResponse$(reqInput: RequestInput): Stream<Response> {
           });
         }
         this.request.end((err: any, res: Response) => {
-          if (err) {
+          var out;
+          if (err && ! res) {
             if (err.response) {
               err.response.request = reqOptions;
+              out = err.response;              
+              out.error = err;              
+              delete out.err.response;//throw out cicrular reference
+            }else{
+             //COMMENT ONLY FOR PULL REQUEST: No need to add 'error?: any' to interface.ts
+             // because it is already a property of SuperagentResponse
+              out = {error: err, request:reqOptions};
             }
-            listener.error(err);
           } else {
             res.request = reqOptions;
-            listener.next(res);
-            listener.complete();
-          }
+            out = res;
+          }          
+          listener.next(out);
+          listener.complete();          
         });
       } catch (err) {
         listener.error(err);
