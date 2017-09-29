@@ -1,6 +1,5 @@
 import {VNode} from 'snabbdom/vnode';
 import {EventDelegator} from './EventDelegator';
-import * as MapPolyfill from 'es6-map';
 
 export class IsolateModule {
   private elementsByFullScope: Map<string, Element>;
@@ -29,11 +28,8 @@ export class IsolateModule {
   private vnodesBeingRemoved: Array<VNode>;
 
   constructor() {
-    this.elementsByFullScope = new MapPolyfill<string, Element>();
-    this.delegatorsByFullScope = new MapPolyfill<
-      string,
-      Array<EventDelegator>
-    >();
+    this.elementsByFullScope = new Map<string, Element>();
+    this.delegatorsByFullScope = new Map<string, Array<EventDelegator>>();
     this.fullScopesBeingUpdated = [];
     this.vnodesBeingRemoved = [];
   }
