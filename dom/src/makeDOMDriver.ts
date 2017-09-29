@@ -11,7 +11,7 @@ import {getValidNode} from './utils';
 import defaultModules from './modules';
 import {IsolateModule} from './IsolateModule';
 import {EventDelegator} from './EventDelegator';
-import * as MapPolyfill from 'es6-map';
+import 'es6-map/implement'; // tslint:disable-line
 
 function makeDOMDriverInputGuard(modules: any) {
   if (!Array.isArray(modules)) {
@@ -62,7 +62,7 @@ function makeDOMDriver(
   const patch = init([isolateModule.createModule()].concat(modules));
   const rootElement = getValidNode(container) || document.body;
   const vnodeWrapper = new VNodeWrapper(rootElement);
-  const delegators = new MapPolyfill<string, EventDelegator>();
+  const delegators = new Map<string, EventDelegator>();
   makeDOMDriverInputGuard(modules);
 
   function DOMDriver(vnode$: Stream<VNode>, name = 'DOM'): MainDOMSource {

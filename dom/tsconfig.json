@@ -12,7 +12,6 @@
     ]
   },
   "files": [
-    "es6-map.d.ts",
     "src/index.ts"
   ]
 }
