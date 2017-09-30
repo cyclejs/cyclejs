@@ -10,6 +10,7 @@ export class MainHTTPSource implements HTTPSource {
     private _res$$: Stream<MemoryStream<Response> & ResponseStream>,
     private _name: string,
     private _namespace: Array<string> = [],
+    private _buffer: Array<any> | null = null,
   ) {}
 
   public filter(predicate: (request: RequestOptions) => boolean): HTTPSource {
@@ -30,4 +31,17 @@ export class MainHTTPSource implements HTTPSource {
 
   public isolateSource = isolateSource;
   public isolateSink = isolateSink;
+
+  /**
+   * Used by Cycle Run as a clean up step after replicateMany.
+   */
+  private clearBuffer() {
+    const buf = this._buffer;
+    if (!buf) {
+      return;
+    }
+    while (buf.length > 0) {
+      buf.shift();
+    }
+  }
 }

@@ -122,4 +122,151 @@ describe('HTTP Driver in the browser', function() {
     });
     run();
   });
+
+  it('should not have cross-driver race conditions (#592)', function(done) {
+    this.timeout(6000);
+
+    function child(sources: any, num: any) {
+      const vdom$ = sources.HTTP
+        .select('cat')
+        .mergeAll()
+        .map((res: any) => 'My name is ' + res.text);
+
+      const request$ = num === 1
+        ? Rx.Observable.of({
+            category: 'cat',
+            url: uri + '/hello',
+          })
+        : Rx.Observable.never();
+
+      return {
+        HTTP: request$,
+        DOM: vdom$,
+      };
+    }
+
+    function mainHTTPThenDOM(sources: any) {
+      const sinks$ = Rx.Observable.interval(300).take(6).map(i => {
+        if (i % 2 === 1) {
+          return child(sources, i);
+        } else {
+          return {
+            HTTP: Rx.Observable.empty(),
+            DOM: Rx.Observable.of(''),
+          };
+        }
+      });
+
+      // order of sinks is important
+      return {
+        HTTP: sinks$.switchMap(sinks => sinks.HTTP),
+        DOM: sinks$.switchMap(sinks => sinks.DOM),
+      };
+    }
+
+    function mainDOMThenHTTP(sources: any) {
+      const sinks$ = Rx.Observable.interval(300).take(6).map(i => {
+        if (i % 2 === 1) {
+          return child(sources, i);
+        } else {
+          return {
+            HTTP: Rx.Observable.empty(),
+            DOM: Rx.Observable.of(''),
+          };
+        }
+      });
+
+      // order of sinks is important
+      return {
+        DOM: sinks$.switchMap(sinks => sinks.DOM),
+        HTTP: sinks$.switchMap(sinks => sinks.HTTP),
+      };
+    }
+
+    const expectedDOMSinks = [
+      /* HTTP then DOM: */ '',
+      'My name is Hello World',
+      '',
+      '',
+      /* DOM then HTTP: */ '',
+      'My name is Hello World',
+      '',
+      '',
+    ];
+
+    function domDriver(sink: any) {
+      sink.addListener({
+        next: s => {
+          assert.strictEqual(s, expectedDOMSinks.shift());
+        },
+        error: (err: any) => {},
+      });
+    }
+
+    // HTTP then DOM:
+    Cycle.run(mainHTTPThenDOM, {
+      HTTP: makeHTTPDriver(),
+      DOM: domDriver,
+    });
+    setTimeout(() => {
+      assert.strictEqual(expectedDOMSinks.length, 4);
+
+      // DOM then HTTP:
+      Cycle.run(mainDOMThenHTTP, {
+        HTTP: makeHTTPDriver(),
+        DOM: domDriver,
+      });
+      setTimeout(() => {
+        assert.strictEqual(expectedDOMSinks.length, 0);
+        done();
+      }, 2500);
+    }, 2500);
+  });
+
+  it('should not remember past responses when selecting', function(done) {
+    this.timeout(4000);
+
+    function main(sources: any) {
+      const test$ = Rx.Observable
+        .of(null)
+        .delay(1000)
+        .mergeMap(() =>
+          sources.HTTP
+            .select('cat')
+            .mergeAll()
+            .map((res: any) => 'I should not show this, ' + res.text),
+        );
+
+      const request$ = Rx.Observable.of({
+        category: 'cat',
+        url: uri + '/hello',
+      });
+
+      return {
+        HTTP: request$,
+        Test: test$,
+      };
+    }
+
+    function testDriver(sink: any) {
+      sink.addListener({
+        next: s => {
+          console.log(s);
+          done('No data should come through the Test sink');
+        },
+        error: (err: any) => {
+          done(err);
+        },
+      });
+    }
+
+    Cycle.run(main, {
+      HTTP: makeHTTPDriver(),
+      Test: testDriver,
+    });
+
+    setTimeout(() => {
+      done();
+    }, 2000);
+  });
 });

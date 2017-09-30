@@ -297,7 +297,7 @@ describe('DOM Rendering', function () {
     });
 
     setTimeout(() => {
-      // This samples the element$ after 100ms, and should synchronously get
+      // This samples the element$ after 400ms, and should synchronously get
       // some element into the subscriber.
       assert.strictEqual(secondSubscriberRan, false);
       element$.take(1).addListener({
@@ -315,7 +315,7 @@ describe('DOM Rendering', function () {
         },
       });
       assert.strictEqual(secondSubscriberRan, true);
-    }, 100);
+    }, 400);
     dispose = run();
   });
 

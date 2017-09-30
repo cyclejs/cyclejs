@@ -1,4 +1,4 @@
-import xs, {Stream, MemoryStream} from 'xstream';
+import xs, {Stream, MemoryStream, Listener} from 'xstream';
 import {Driver} from '@cycle/run';
 import {adapt} from '@cycle/run/lib/adapt';
 import {MainHTTPSource} from './MainHTTPSource';
@@ -174,10 +174,32 @@ export function makeHTTPDriver(): Driver<Stream<RequestInput>, HTTPSource> {
     request$: Stream<RequestInput>,
     name: string,
   ): HTTPSource {
+    let isBufferOpen = true;
+    const buffer: Array<ResponseMemoryStream> = [];
+    const tooEarlyResponse$$ = xs.create({
+      start(listener: Listener<ResponseMemoryStream>) {
+        while (buffer.length > 0) {
+          listener.next(buffer.shift() as ResponseMemoryStream);
+        }
+        isBufferOpen = false;
+      },
+      stop() {},
+    });
+
     const response$$ = request$.map(requestInputToResponse$);
-    const httpSource = new MainHTTPSource(response$$, name, []);
+    const httpSource = new MainHTTPSource(
+      xs.merge(tooEarlyResponse$$, response$$),
+      name,
+      [],
+      buffer,
+    );
+
     response$$.addListener({
-      next: () => {},
+      next: req => {
+        if (isBufferOpen) {
+          buffer.push(req);
+        }
+      },
       error: () => {},
       complete: () => {},
     });

@@ -1,4 +1,4 @@
-import xs, {Stream, MemoryStream} from 'xstream';
+import xs, {Stream} from 'xstream';
 import {adapt} from './adapt';
 import {
   CycleProgram,
@@ -41,7 +41,7 @@ function makeSinkProxies<So extends Sources, Si extends Sinks>(
   const sinkProxies: SinkProxies<Si> = {} as SinkProxies<Si>;
   for (const name in drivers) {
     if (drivers.hasOwnProperty(name)) {
-      sinkProxies[name] = xs.createWithMemory<any>();
+      sinkProxies[name] = xs.create<any>();
     }
   }
   return sinkProxies;
@@ -149,6 +149,18 @@ function replicateMany<So extends Sources, Si extends Sinks>(
   };
 }
 
+function clearBuffers<So extends Sources>(sources: So) {
+  for (const k in sources) {
+    if (
+      sources.hasOwnProperty(k) &&
+      sources[k] &&
+      (sources[k] as any).clearBuffer
+    ) {
+      (sources[k] as any).clearBuffer();
+    }
+  }
+}
+
 function disposeSources<So extends Sources>(sources: So) {
   for (const k in sources) {
     if (
@@ -225,6 +237,7 @@ export function setup<So extends Sources, Si extends FantasySinks<Si>>(
   }
   function _run(): DisposeFunction {
     const disposeReplication = replicateMany(sinks, sinkProxies);
+    clearBuffers(sources);
     return function dispose() {
       disposeSources(sources);
       disposeReplication();
