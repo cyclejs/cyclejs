@@ -18,7 +18,6 @@ const eventTypesThatDontBubble = [
   `blur`,
   `canplay`,
   `canplaythrough`,
-  `change`,
   `durationchange`,
   `emptied`,
   `ended`,
