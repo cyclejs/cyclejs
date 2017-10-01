@@ -12,9 +12,16 @@ export class MainHTTPSource implements HTTPSource {
     private _namespace: Array<string> = [],
   ) {}
 
-  public filter(predicate: (request: RequestOptions) => boolean): HTTPSource {
+  public filter(
+    predicate: (request: RequestOptions) => boolean,
+    scope?: string,
+  ): HTTPSource {
     const filteredResponse$$ = this._res$$.filter(r$ => predicate(r$.request));
-    return new MainHTTPSource(filteredResponse$$, this._name, this._namespace);
+    return new MainHTTPSource(
+      filteredResponse$$,
+      this._name,
+      scope === undefined ? this._namespace : this._namespace.concat(scope),
+    );
   }
 
   public select(category?: string): any {

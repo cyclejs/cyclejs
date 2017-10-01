@@ -1,6 +1,15 @@
 import {Stream} from 'xstream';
 import {HTTPSource, RequestOptions, RequestInput} from './interfaces';
 
+function arrayEqual(requestNamespace: any[], sourceNamespace: any[]): boolean {
+  for (let i = 0; i < sourceNamespace.length; i++) {
+    if (requestNamespace[i] !== sourceNamespace[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export function isolateSource(
   httpSource: HTTPSource,
   scope: string | null,
@@ -11,7 +20,11 @@ export function isolateSource(
   return httpSource.filter(
     (request: RequestOptions) =>
       Array.isArray(request._namespace) &&
-      request._namespace.indexOf(scope) !== -1,
+      arrayEqual(
+        request._namespace,
+        (httpSource as any)._namespace.concat(scope),
+      ),
+    scope,
   );
 }
 

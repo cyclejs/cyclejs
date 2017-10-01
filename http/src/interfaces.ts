@@ -48,7 +48,10 @@ export interface Response extends SuperagentResponse {
 }
 
 export interface HTTPSource {
-  filter(predicate: (request: RequestOptions) => boolean): HTTPSource;
+  filter(
+    predicate: (request: RequestOptions) => boolean,
+    scope?: string,
+  ): HTTPSource;
   select(category?: string): Stream<MemoryStream<Response> & ResponseStream>;
   isolateSource(source: HTTPSource, scope: string): HTTPSource;
   isolateSink(sink: Stream<RequestInput>, scope: string): Stream<RequestInput>;

@@ -179,7 +179,10 @@ export function run(uri: string) {
       response$$.subscribe(function(response$) {
         assert.strictEqual(response$.request.url, uri + '/pet');
         assert.strictEqual(response$.request.method, 'POST');
-        assert.strictEqual((response$.request.send as string), 'name=Woof&species=Dog');
+        assert.strictEqual(
+          response$.request.send as string,
+          'name=Woof&species=Dog',
+        );
         response$.subscribe(function(response) {
           assert.strictEqual(response.status, 200);
           assert.strictEqual(response.text, 'added Woof the Dog');
@@ -434,6 +437,54 @@ export function run(uri: string) {
       const scopedHTTPSource = sources.HTTP.isolateSource(sources.HTTP, 'foo');
 
       scopedHTTPSource.select().subscribe(function(response$) {
+        assert.strictEqual(typeof response$.request, 'object');
+        assert.strictEqual(response$.request.url, uri + '/hello');
+        response$.subscribe(function(response) {
+          assert.strictEqual(response.status, 200);
+          assert.strictEqual(response.text, 'Hello World');
+          done();
+        });
+      });
+
+      Rx.Observable
+        .merge(ignoredRequest$, scopedRequest$)
+        .subscribe(proxyRequest$);
+
+      run();
+    });
+
+    it('should hide responses even if using the same scope multiple times', function(
+      done,
+    ) {
+      const proxyRequest$ = new Rx.Subject();
+      function main(sources: {HTTP: HTTPSource}) {
+        return {
+          HTTP: proxyRequest$,
+        };
+      }
+
+      const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
+
+      const ignoredRequest$ = Rx.Observable.of(uri + '/json');
+      const request$ = Rx.Observable.of(uri + '/hello').delay(10);
+      const scopedRequest$ = sources.HTTP
+        .isolateSink(sources.HTTP.isolateSink(request$, 'foo'), 'something')
+        .shareReplay();
+      const twiceScopedHTTPSource = sources.HTTP.isolateSource(
+        sources.HTTP.isolateSource(sources.HTTP, 'foo'),
+        'something',
+      );
+      const twiceWrongScopedHTTPSource = sources.HTTP.isolateSource(
+        sources.HTTP.isolateSource(sources.HTTP, 'foo'),
+        'foo',
+      );
+
+      twiceWrongScopedHTTPSource.select().subscribe(function(response$) {
+        assert(false);
+        done('should not be called');
+      });
+
+      twiceScopedHTTPSource.select().subscribe(function(response$) {
         assert.strictEqual(typeof response$.request, 'object');
         assert.strictEqual(response$.request.url, uri + '/hello');
         response$.subscribe(function(response) {
