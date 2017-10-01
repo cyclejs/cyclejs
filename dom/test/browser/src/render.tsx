@@ -96,8 +96,8 @@ describe('DOM Rendering', function () {
 
       let dispose: any;
       sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-        next: (root: Element) => {
-          const elem = root.querySelector('.my-class') as HTMLElement;
+        next: (root: Element[]) => {
+          const elem = root[0].querySelector('.my-class') as HTMLElement;
           assert.notStrictEqual(elem, null);
           assert.notStrictEqual(typeof elem, 'undefined');
           assert.strictEqual(elem.tagName, 'DIV');
@@ -131,8 +131,8 @@ describe('DOM Rendering', function () {
 
     let dispose: any;
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const selectEl = root.querySelector('.my-class') as HTMLElement;
+      next: (root: Element[]) => {
+        const selectEl = root[0].querySelector('.my-class') as HTMLElement;
         assert.notStrictEqual(selectEl, null);
         assert.notStrictEqual(typeof selectEl, 'undefined');
         assert.strictEqual(selectEl.tagName, 'SELECT');
@@ -164,8 +164,8 @@ describe('DOM Rendering', function () {
 
     let dispose: any;
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const selectEl = root.querySelector('.my-class') as HTMLElement;
+      next: (root: Element[]) => {
+        const selectEl = root[0].querySelector('.my-class') as HTMLElement;
         assert.notStrictEqual(selectEl, null);
         assert.notStrictEqual(typeof selectEl, 'undefined');
         assert.strictEqual(selectEl.tagName, 'SELECT');
@@ -197,8 +197,8 @@ describe('DOM Rendering', function () {
 
     let dispose: any;
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const selectEl = root.querySelector('.my-class') as HTMLSelectElement;
+      next: (root: Element[]) => {
+        const selectEl = root[0].querySelector('.my-class') as HTMLSelectElement;
         assert.notStrictEqual(selectEl, null);
         assert.notStrictEqual(typeof selectEl, 'undefined');
         assert.strictEqual(selectEl.tagName, 'SELECT');
@@ -242,9 +242,9 @@ describe('DOM Rendering', function () {
 
     let dispose: any;
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        assert.strictEqual(root.childNodes.length, 1);
-        const selectEl = root.childNodes[0] as HTMLElement;
+      next: (root: Element[]) => {
+        assert.strictEqual(root[0].childNodes.length, 1);
+        const selectEl = root[0].childNodes[0] as HTMLElement;
         assert.strictEqual(selectEl.tagName, 'SELECT');
         assert.strictEqual(selectEl.childNodes.length, 3);
         const option1 = selectEl.childNodes[0] as HTMLElement;
@@ -286,10 +286,10 @@ describe('DOM Rendering', function () {
     const element$ = sources.DOM.select(':root').elements();
 
     element$.drop(1).take(1).addListener({
-      next: (root: Element) => {
+      next: (root: Element[]) => {
         assert.strictEqual(firstSubscriberRan, false);
         firstSubscriberRan = true;
-        const header = root.querySelector('.value-over-time') as HTMLElement;
+        const header = root[0].querySelector('.value-over-time') as HTMLElement;
         assert.notStrictEqual(header, null);
         assert.notStrictEqual(typeof header, 'undefined');
         assert.strictEqual(header.tagName, 'H2');
@@ -301,10 +301,10 @@ describe('DOM Rendering', function () {
       // some element into the subscriber.
       assert.strictEqual(secondSubscriberRan, false);
       element$.take(1).addListener({
-        next: (root: Element) => {
+        next: (root: Element[]) => {
           assert.strictEqual(secondSubscriberRan, false);
           secondSubscriberRan = true;
-          const header = root.querySelector('.value-over-time') as HTMLElement;
+          const header = root[0].querySelector('.value-over-time') as HTMLElement;
           assert.notStrictEqual(header, null);
           assert.notStrictEqual(typeof header, 'undefined');
           assert.strictEqual(header.tagName, 'H2');
@@ -362,8 +362,8 @@ describe('DOM Rendering', function () {
     let dispose: any;
     // Assert it
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const h4Elem = root.querySelector('h4') as HTMLElement;
+      next: (root: Element[]) => {
+        const h4Elem = root[0].querySelector('h4') as HTMLElement;
         assert.notStrictEqual(h4Elem, null);
         assert.notStrictEqual(typeof h4Elem, 'undefined');
         assert.strictEqual(h4Elem.tagName, 'H4');
@@ -403,8 +403,8 @@ describe('DOM Rendering', function () {
 
       // Make assertions
       sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-        next: (root: Element) => {
-          const embeddedHTML = root.querySelector('p.embedded-text') as HTMLElement;
+        next: (root: Element[]) => {
+          const embeddedHTML = root[0].querySelector('p.embedded-text') as HTMLElement;
           assert.strictEqual(embeddedHTML.namespaceURI, 'http://www.w3.org/1999/xhtml');
           assert.notStrictEqual(embeddedHTML.clientWidth, 0);
           assert.notStrictEqual(embeddedHTML.clientHeight, 0);
@@ -449,10 +449,10 @@ describe('DOM Rendering', function () {
     let dispose: any;
     // Assert it
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const divParent = root.querySelector('div.parent') as HTMLElement;
-        const h4Child = root.querySelector('h4.child3') as HTMLElement;
-        const grandchild = root.querySelector('div.grandchild32') as HTMLElement;
+      next: (root: Element[]) => {
+        const divParent = root[0].querySelector('div.parent') as HTMLElement;
+        const h4Child = root[0].querySelector('h4.child3') as HTMLElement;
+        const grandchild = root[0].querySelector('div.grandchild32') as HTMLElement;
         assert.strictEqual(divParent.childNodes.length, 2);
         assert.strictEqual(h4Child.childNodes.length, 2);
         assert.strictEqual(grandchild.childNodes.length, 1);
@@ -476,8 +476,8 @@ describe('DOM Rendering', function () {
 
     let dispose: any;
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const H4 = root.querySelector('h4') as HTMLElement;
+      next: (root: Element[]) => {
+        const H4 = root[0].querySelector('h4') as HTMLElement;
         assert.strictEqual(H4.textContent, 'Hello world');
         setTimeout(() => {
           dispose();
@@ -501,8 +501,8 @@ describe('DOM Rendering', function () {
 
     let dispose: any;
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const divEl = root.querySelector('.my-class') as HTMLElement;
+      next: (root: Element[]) => {
+        const divEl = root[0].querySelector('.my-class') as HTMLElement;
         assert.strictEqual(divEl.textContent, '0');
         setTimeout(() => {
           dispose();

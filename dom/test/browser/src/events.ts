@@ -82,8 +82,10 @@ describe('DOMSource.events()', function() {
     });
     // Make assertions
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: function(root: Element) {
-        const myElement = root.querySelector('.myelementclass') as HTMLElement;
+      next: function(root: Element[]) {
+        const myElement = root[0].querySelector(
+          '.myelementclass',
+        ) as HTMLElement;
         assert.notStrictEqual(myElement, null);
         assert.notStrictEqual(typeof myElement, 'undefined');
         assert.strictEqual(myElement.tagName, 'H3');
@@ -196,8 +198,10 @@ describe('DOMSource.events()', function() {
     });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const myElement = root.querySelector('.myelementclass') as HTMLElement;
+      next: (root: Element[]) => {
+        const myElement = root[0].querySelector(
+          '.myelementclass',
+        ) as HTMLElement;
         assert.notStrictEqual(myElement, null);
         assert.notStrictEqual(typeof myElement, 'undefined');
         assert.strictEqual(myElement.tagName, 'H3');
@@ -234,8 +238,8 @@ describe('DOMSource.events()', function() {
     });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const myElement = root.querySelector('#myElementId') as HTMLElement;
+      next: (root: Element[]) => {
+        const myElement = root[0].querySelector('#myElementId') as HTMLElement;
         assert.notStrictEqual(myElement, null);
         assert.notStrictEqual(typeof myElement, 'undefined');
         assert.strictEqual(myElement.tagName, 'H3');
@@ -270,8 +274,10 @@ describe('DOMSource.events()', function() {
     });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const myElement = root.querySelector('.myelementclass') as HTMLElement;
+      next: (root: Element[]) => {
+        const myElement = root[0].querySelector(
+          '.myelementclass',
+        ) as HTMLElement;
         assert.notStrictEqual(myElement, null);
         assert.notStrictEqual(typeof myElement, 'undefined');
         assert.strictEqual(myElement.tagName, 'H3');
@@ -313,9 +319,11 @@ describe('DOMSource.events()', function() {
     });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const wrongElement = root.querySelector('.bar') as HTMLElement;
-        const correctElement = root.querySelector('.foo .bar') as HTMLElement;
+      next: (root: Element[]) => {
+        const wrongElement = root[0].querySelector('.bar') as HTMLElement;
+        const correctElement = root[0].querySelector(
+          '.foo .bar',
+        ) as HTMLElement;
         assert.notStrictEqual(wrongElement, null);
         assert.notStrictEqual(correctElement, null);
         assert.notStrictEqual(typeof wrongElement, 'undefined');
@@ -373,9 +381,9 @@ describe('DOMSource.events()', function() {
       });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const firstElem = root.querySelector('.first') as HTMLElement;
-        const secondElem = root.querySelector('.second') as HTMLElement;
+      next: (root: Element[]) => {
+        const firstElem = root[0].querySelector('.first') as HTMLElement;
+        const secondElem = root[0].querySelector('.second') as HTMLElement;
         assert.notStrictEqual(firstElem, null);
         assert.notStrictEqual(typeof firstElem, 'undefined');
         assert.notStrictEqual(secondElem, null);
@@ -416,8 +424,8 @@ describe('DOMSource.events()', function() {
     });
 
     sources.DOM.select(':root').elements().drop(3).take(1).addListener({
-      next: (root: Element) => {
-        const myElement = root.querySelector('.blosh') as HTMLElement;
+      next: (root: Element[]) => {
+        const myElement = root[0].querySelector('.blosh') as HTMLElement;
         assert.notStrictEqual(myElement, null);
         assert.notStrictEqual(typeof myElement, 'undefined');
         assert.strictEqual(myElement.tagName, 'H4');
@@ -468,8 +476,8 @@ describe('DOMSource.events()', function() {
         });
 
       sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-        next: (root: Element) => {
-          const clickable = root.querySelector('.clickable') as HTMLElement;
+        next: (root: Element[]) => {
+          const clickable = root[0].querySelector('.clickable') as HTMLElement;
           setTimeout(() => clickable.click(), 80);
         },
       });
@@ -517,8 +525,8 @@ describe('DOMSource.events()', function() {
         });
 
       sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-        next: (root: Element) => {
-          const clickable = root.querySelector('.clickable') as HTMLElement;
+        next: (root: Element[]) => {
+          const clickable = root[0].querySelector('.clickable') as HTMLElement;
           setTimeout(() => clickable.click(), 80);
         },
       });
@@ -567,8 +575,8 @@ describe('DOMSource.events()', function() {
 
     // Make assertions
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const child = root.querySelector('.child') as HTMLElement;
+      next: (root: Element[]) => {
+        const child = root[0].querySelector('.child') as HTMLElement;
         assert.notStrictEqual(child, null);
         assert.notStrictEqual(typeof child, 'undefined');
         assert.strictEqual(child.tagName, 'SPAN');
@@ -605,8 +613,8 @@ describe('DOMSource.events()', function() {
     });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const form = root.querySelector('.form') as HTMLFormElement;
+      next: (root: Element[]) => {
+        const form = root[0].querySelector('.form') as HTMLFormElement;
         setTimeout(() => form.reset());
       },
     });
@@ -670,8 +678,8 @@ describe('DOMSource.events()', function() {
       });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const clickable = root.querySelector('.clickable') as HTMLElement;
+      next: (root: Element[]) => {
+        const clickable = root[0].querySelector('.clickable') as HTMLElement;
         setTimeout(() => click(clickable));
       },
     });
@@ -710,10 +718,10 @@ describe('DOMSource.events()', function() {
         });
 
       sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-        next: (root: Element) => {
-          const correct = root.querySelector('.correct') as HTMLElement;
-          const wrong = root.querySelector('.wrong') as HTMLElement;
-          const dummy = root.querySelector('.dummy') as HTMLElement;
+        next: (root: Element[]) => {
+          const correct = root[0].querySelector('.correct') as HTMLElement;
+          const wrong = root[0].querySelector('.wrong') as HTMLElement;
+          const dummy = root[0].querySelector('.dummy') as HTMLElement;
           setTimeout(() => wrong.focus(), 50);
           setTimeout(() => dummy.focus(), 100);
           setTimeout(() => correct.focus(), 150);
@@ -753,10 +761,10 @@ describe('DOMSource.events()', function() {
       });
 
       sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-        next: (root: Element) => {
-          const correct = root.querySelector('.correct') as HTMLElement;
-          const wrong = root.querySelector('.wrong') as HTMLElement;
-          const dummy = root.querySelector('.dummy') as HTMLElement;
+        next: (root: Element[]) => {
+          const correct = root[0].querySelector('.correct') as HTMLElement;
+          const wrong = root[0].querySelector('.wrong') as HTMLElement;
+          const dummy = root[0].querySelector('.dummy') as HTMLElement;
           setTimeout(() => wrong.focus(), 50);
           setTimeout(() => dummy.focus(), 100);
           setTimeout(() => correct.focus(), 150);
@@ -801,8 +809,8 @@ describe('DOMSource.events()', function() {
       });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const form = root.querySelector('.form') as HTMLFormElement;
+      next: (root: Element[]) => {
+        const form = root[0].querySelector('.form') as HTMLFormElement;
         setTimeout(() => form.reset());
       },
     });
@@ -897,8 +905,8 @@ describe('DOMSource.events()', function() {
     });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const clickable = root.querySelector('.item') as HTMLElement;
+      next: (root: Element[]) => {
+        const clickable = root[0].querySelector('.item') as HTMLElement;
         setTimeout(() => switchSubject.shamefullySendNext(null));
         setTimeout(() => mouseevent(clickable, 'mousedown'), 100);
         setTimeout(() => mouseevent(clickable, 'mouseup'), 200);
@@ -936,8 +944,8 @@ describe('DOMSource.events()', function() {
       });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const button = root.querySelector('.button') as HTMLButtonElement;
+      next: (root: Element[]) => {
+        const button = root[0].querySelector('.button') as HTMLButtonElement;
         setTimeout(() => button.click());
       },
     });
@@ -972,8 +980,8 @@ describe('DOMSource.events()', function() {
       });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const button = root.querySelector('.button') as HTMLButtonElement;
+      next: (root: Element[]) => {
+        const button = root[0].querySelector('.button') as HTMLButtonElement;
         setTimeout(() => button.click());
       },
     });
@@ -1008,8 +1016,8 @@ describe('DOMSource.events()', function() {
       });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const button = root.querySelector('.button') as HTMLButtonElement;
+      next: (root: Element[]) => {
+        const button = root[0].querySelector('.button') as HTMLButtonElement;
         setTimeout(() => button.click());
       },
     });
@@ -1046,8 +1054,8 @@ describe('DOMSource.events()', function() {
       });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const button = root.querySelector('.button') as HTMLButtonElement;
+      next: (root: Element[]) => {
+        const button = root[0].querySelector('.button') as HTMLButtonElement;
         setTimeout(() => button.click());
       },
     });
@@ -1082,8 +1090,8 @@ describe('DOMSource.events()', function() {
       });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const button = root.querySelector('.button') as HTMLButtonElement;
+      next: (root: Element[]) => {
+        const button = root[0].querySelector('.button') as HTMLButtonElement;
         setTimeout(() => button.click());
       },
     });
@@ -1118,8 +1126,8 @@ describe('DOMSource.events()', function() {
       });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const button = root.querySelector('.button') as HTMLButtonElement;
+      next: (root: Element[]) => {
+        const button = root[0].querySelector('.button') as HTMLButtonElement;
         setTimeout(() => button.click());
       },
     });
@@ -1156,8 +1164,8 @@ describe('DOMSource.events()', function() {
       });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const button = root.querySelector('.button') as HTMLButtonElement;
+      next: (root: Element[]) => {
+        const button = root[0].querySelector('.button') as HTMLButtonElement;
         setTimeout(() => button.click());
       },
     });

@@ -131,8 +131,8 @@ describe('DOM Driver', function() {
     let hasDisposed = false;
     let assertionOngoing = false;
     sources.DOM.select(':root').elements().drop(1).addListener({
-      next: (root: Element) => {
-        const selectEl = root.querySelector('.target') as Element;
+      next: (root: Element[]) => {
+        const selectEl = root[0].querySelector('.target') as Element;
         if (!selectEl && assertionOngoing && hasDisposed) {
           // This synchronous delivery of the empty root element is allowed
           return;

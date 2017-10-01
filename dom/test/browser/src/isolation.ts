@@ -403,7 +403,9 @@ describe('isolation', function() {
   it('should allow using elements() in an isolated main() fn', function(done) {
     function main(sources) {
       const elem$ = sources.DOM.select(':root').elements();
-      const vnode$ = elem$.map(elem => h('div.bar', 'left=' + elem.offsetLeft));
+      const vnode$ = elem$.map(elem =>
+        h('div.bar', 'left=' + elem[0].offsetLeft),
+      );
       return {
         DOM: vnode$,
       };
@@ -414,8 +416,8 @@ describe('isolation', function() {
     });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (rootElement: Element) => {
-        const barElem = rootElement.querySelector('.bar') as Element;
+      next: (root: Element[]) => {
+        const barElem = root[0].querySelector('.bar') as Element;
         assert.notStrictEqual(barElem, null);
         assert.notStrictEqual(typeof barElem, 'undefined');
         assert.strictEqual(barElem.tagName, 'DIV');
@@ -562,9 +564,11 @@ describe('isolation', function() {
     });
 
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const frameFoo = root.querySelector('.foo.frame') as HTMLElement;
-        const monalisaFoo = root.querySelector('.foo.monalisa') as HTMLElement;
+      next: (root: Element[]) => {
+        const frameFoo = root[0].querySelector('.foo.frame') as HTMLElement;
+        const monalisaFoo = root[0].querySelector(
+          '.foo.monalisa',
+        ) as HTMLElement;
         assert.notStrictEqual(frameFoo, null);
         assert.notStrictEqual(monalisaFoo, null);
         assert.notStrictEqual(typeof frameFoo, 'undefined');
@@ -982,8 +986,8 @@ describe('isolation', function() {
 
     let dispose: any;
     sources.DOM.select(':root').elements().drop(2).take(1).addListener({
-      next: (root: Element) => {
-        const parentEl = root.querySelector('.parent') as HTMLElement;
+      next: (root: Element[]) => {
+        const parentEl = root[0].querySelector('.parent') as HTMLElement;
         const foo = parentEl.querySelectorAll('.foo')[1] as HTMLElement;
         assert.notStrictEqual(parentEl, null);
         assert.notStrictEqual(typeof parentEl, 'undefined');
@@ -1039,13 +1043,13 @@ describe('isolation', function() {
 
     let dispose: any;
     sources.DOM.select(':root').elements().drop(1).take(3).addListener({
-      next: (root: any) => {
+      next: (root: Element[]) => {
         setTimeout(() => {
-          const foo = root.querySelector('.foo');
+          const foo = root[0].querySelector('.foo');
           if (!foo) {
             return;
           }
-          foo.click();
+          (foo as any).click();
         }, 0);
       },
     });
@@ -1091,13 +1095,13 @@ describe('isolation', function() {
 
     let dispose: any;
     sources.DOM.select(':root').elements().drop(1).take(4).addListener({
-      next: (root: any) => {
+      next: (root: Element[]) => {
         setTimeout(() => {
-          const foo = root.querySelector('.foo');
+          const foo = root[0].querySelector('.foo');
           if (!foo) {
             return;
           }
-          foo.click();
+          (foo as any).click();
         }, 0);
       },
     });
@@ -1150,13 +1154,13 @@ describe('isolation', function() {
 
     let dispose: any;
     sources.DOM.select(':root').elements().drop(1).take(4).addListener({
-      next: (root: any) => {
+      next: (root: Element[]) => {
         setTimeout(() => {
-          const foo = root.querySelector('.foo');
+          const foo = root[0].querySelector('.foo');
           if (!foo) {
             return;
           }
-          foo.click();
+          (foo as any).click();
         }, 0);
       },
     });
@@ -1200,8 +1204,8 @@ describe('isolation', function() {
       });
 
       sources.DOM.elements().drop(1).take(1).addListener({
-        next: (root: Element) => {
-          const element = root.querySelector('.btn') as HTMLElement;
+        next: (root: Element[]) => {
+          const element = root[0].querySelector('.btn') as HTMLElement;
           assert.notStrictEqual(element, null);
           setTimeout(() => element.click());
         },
@@ -1244,8 +1248,8 @@ describe('isolation', function() {
       });
 
       sources.DOM.elements().drop(1).take(1).addListener({
-        next: (root: Element) => {
-          const element = root.querySelector('.btn') as HTMLElement;
+        next: (root: Element[]) => {
+          const element = root[0].querySelector('.btn') as HTMLElement;
           assert.notStrictEqual(element, null);
           setTimeout(() => element.click());
         },
@@ -1288,8 +1292,8 @@ describe('isolation', function() {
       });
 
       sources.DOM.elements().drop(1).take(1).addListener({
-        next: (root: Element) => {
-          const element = root.querySelector('.btn') as HTMLElement;
+        next: (root: Element[]) => {
+          const element = root[0].querySelector('.btn') as HTMLElement;
           assert.notStrictEqual(element, null);
           setTimeout(() => element.click());
         },
@@ -1332,8 +1336,8 @@ describe('isolation', function() {
       });
 
       sources.DOM.elements().drop(1).take(1).addListener({
-        next: (root: Element) => {
-          const element = root.querySelector('.btn') as HTMLElement;
+        next: (root: Element[]) => {
+          const element = root[0].querySelector('.btn') as HTMLElement;
           assert.notStrictEqual(element, null);
           setTimeout(() => element.click());
         },
@@ -1389,8 +1393,8 @@ describe('isolation', function() {
 
       let dispose: any;
       sources.DOM.elements().drop(1).take(1).addListener({
-        next: (root: Element) => {
-          const components = root.querySelectorAll('.btn');
+        next: (root: Element[]) => {
+          const components = root[0].querySelectorAll('.btn');
           assert.strictEqual(components.length, 2);
           const firstElement = components[0] as HTMLElement;
           const secondElement = components[1] as HTMLElement;
@@ -1401,7 +1405,10 @@ describe('isolation', function() {
             secondElement.click();
           }, 300);
           setTimeout(() => {
-            assert.strictEqual(root.querySelectorAll('.component').length, 0);
+            assert.strictEqual(
+              root[0].querySelectorAll('.component').length,
+              0,
+            );
             dispose();
             done();
           }, 500);
@@ -1436,8 +1443,8 @@ describe('isolation', function() {
 
     let dispose: any;
     sources.DOM.elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const parentEl = root.querySelector('.parent') as Element;
+      next: (root: Element[]) => {
+        const parentEl = root[0].querySelector('.parent') as Element;
         assert.strictEqual(parentEl.childNodes.length, 2);
         assert.strictEqual(parentEl.children[0].tagName, 'H4');
         assert.strictEqual(parentEl.children[0].textContent, 'child');
@@ -1446,8 +1453,8 @@ describe('isolation', function() {
       },
     });
     sources.DOM.elements().drop(2).take(1).addListener({
-      next: (root: Element) => {
-        const parentEl = root.querySelector('.parent') as Element;
+      next: (root: Element[]) => {
+        const parentEl = root[0].querySelector('.parent') as Element;
         assert.strictEqual(parentEl.childNodes.length, 1);
         assert.strictEqual(parentEl.children[0].tagName, 'H2');
         assert.strictEqual(parentEl.children[0].textContent, 'part of parent');
@@ -1492,8 +1499,8 @@ describe('isolation', function() {
 
     let dispose: any;
     sources.DOM.elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const buttons = root.querySelectorAll('.btn');
+      next: (root: Element[]) => {
+        const buttons = root[0].querySelectorAll('.btn');
         assert.strictEqual(buttons.length, 4);
         const firstButton = buttons[0];
         const secondButton = buttons[1];
@@ -1565,8 +1572,8 @@ describe('isolation', function() {
     });
 
     sources.DOM.select(':root').elements().drop(1).addListener({
-      next: function(root: Element) {
-        const button = root.querySelector('button.click-me') as HTMLElement;
+      next: function(root: Element[]) {
+        const button = root[0].querySelector('button.click-me') as HTMLElement;
         button.click();
       },
     });

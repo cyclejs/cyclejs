@@ -7,7 +7,7 @@ import {fromEvent} from './fromEvent';
 export class DocumentDOMSource implements DOMSource {
   constructor(private _name: string) {}
 
-  public select(selector: string): DOMSource {
+  public select(selector: string): DocumentDOMSource {
     // This functionality is still undefined/undecided.
     return this;
   }

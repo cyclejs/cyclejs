@@ -42,10 +42,10 @@ describe('DOMSource.select()', function() {
 
     let dispose: any;
     sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: (root: Element) => {
+      next: (root: Element[]) => {
         const classNameRegex = /top\-most/;
-        assert.strictEqual(root.tagName, 'DIV');
-        const child = root.children[0];
+        assert.strictEqual(root[0].tagName, 'DIV');
+        const child = root[0].children[0];
         const execResult = classNameRegex.exec(child.className);
         assert.notStrictEqual(execResult, null);
         assert.strictEqual((execResult as any)[0], 'top-most');

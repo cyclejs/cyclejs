@@ -7,7 +7,9 @@ export interface EventsFnOptions {
 
 export interface DOMSource {
   select(selector: string): DOMSource;
-  elements(): MemoryStream<Document | Element | Array<Element> | string>;
+  elements(): MemoryStream<
+    Document | HTMLBodyElement | Array<Element> | string
+  >;
   events<K extends keyof HTMLElementEventMap>(
     eventType: K,
     options?: EventsFnOptions,
