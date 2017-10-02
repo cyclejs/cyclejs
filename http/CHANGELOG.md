@@ -1,3 +1,18 @@
+<a name="14.4.0"></a>
+# 14.4.0 (2017-10-02)
+
+
+### Bug Fixes
+
+* **http:** check position of isolation namespace ([e0dea73](https://github.com/cyclejs/cyclejs/commit/e0dea73))
+
+
+### Features
+
+* **http:** implement `ok` field in request objects (#684) ([63e3022](https://github.com/cyclejs/cyclejs/commit/63e3022))
+
+
+
 <a name="14.3.0"></a>
 # 14.3.0 (2017-09-05)
 
