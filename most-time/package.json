@@ -34,12 +34,12 @@
     "most": "global:most"
   },
   "scripts": {
-    "test-watch": "../../node_modules/.bin/mocha 'test/**/*.ts' --compilers ts:ts-node/register --watch -R min",
-    "test-node": "../../node_modules/.bin/mocha 'test/**/*.ts' --compilers ts:ts-node/register",
+    "test-watch": "../node_modules/.bin/mocha 'test/**/*.ts' --compilers ts:ts-node/register --watch -R min",
+    "test-node": "../node_modules/.bin/mocha 'test/**/*.ts' --compilers ts:ts-node/register",
     "test": "npm run test-node && npm run test-docs",
     "test-ci": "npm run test",
     "test-docs": "markdown-doctest",
-    "browserify": "../../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleTime --exclude most --outfile dist/cycle-time.js",
-    "uglify": "../../node_modules/.bin/uglifyjs dist/cycle-time.js --compress --mangle -o dist/cycle-time.min.js"
+    "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleTime --exclude most --outfile dist/cycle-time.js",
+    "uglify": "../node_modules/.bin/uglifyjs dist/cycle-time.js --compress --mangle -o dist/cycle-time.min.js"
   }
 }
