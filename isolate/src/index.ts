@@ -185,6 +185,15 @@ function newScope(): string {
  * application produces `sink`, and it's the driver's responsibility to
  * implement `isolateSource()` and `isolateSink()`.
  *
+ * _Note for Typescript users:_ `isolate` is not currently type-transparent and
+ * will explicitly convert generic type arguments to `any`. To preserve types in
+ * your components, you can use a type assertion:
+ *
+ * ```ts
+ * // if Child is typed `Component<Sources, Sinks>`
+ * const isolatedChild = isolate( Child ) as Component<Sources, Sinks>;
+ * ```
+ *
  * @param {Function} component a function that takes `sources` as input
  * and outputs a collection of `sinks`.
  * @param {String} scope an optional string that is used to isolate each
