@@ -30,7 +30,7 @@
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "dependencies": {
-    "xstream": "10.x"
+    "xstream": "10.x || 11.x"
   },
   "devDependencies": {
     "@types/es6-promise": "0.0.x",
