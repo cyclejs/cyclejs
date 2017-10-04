@@ -1,3 +1,13 @@
+<a name="3.3.0"></a>
+# 3.3.0 (2017-10-04)
+
+
+### Bug Fixes
+
+* **run:** allow xstream v11 (not just v10) as a dependency ([0734dfd](https://github.com/cyclejs/cyclejs/commit/0734dfd))
+
+
+
 <a name="3.2.0"></a>
 # 3.2.0 (2017-08-12)
 
