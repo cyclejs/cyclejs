@@ -1,3 +1,13 @@
+<a name="0.10.1"></a>
+## 0.10.1 (2017-10-05)
+
+
+### Bug Fixes
+
+* **time:** ignore node.js specific modules in React Native ([1db307d](https://github.com/cyclejs/cyclejs/commit/1db307d))
+
+
+
 <a name="0.10.0"></a>
 # 0.10.0 (2017-09-04)
 
