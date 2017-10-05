@@ -46,6 +46,9 @@
   "browserify-shim": {
     "xstream": "global:xstream"
   },
+  "react-native": {
+    "variable-diff": false
+  },
   "scripts": {
     "start": "../node_modules/.bin/budo -d example example/index.ts:index.js --live -- -p tsify",
     "test-watch": "../node_modules/.bin/mocha 'test/**/*.ts' --compilers ts:ts-node/register --watch -R min",
