@@ -81,7 +81,7 @@ describe('DOMSource.events()', function() {
       },
     });
     // Make assertions
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: function(root: Element) {
         const myElement = root.querySelector('.myelementclass') as HTMLElement;
         assert.notStrictEqual(myElement, null);
@@ -195,7 +195,7 @@ describe('DOMSource.events()', function() {
       },
     });
 
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const myElement = root.querySelector('.myelementclass') as HTMLElement;
         assert.notStrictEqual(myElement, null);
@@ -233,7 +233,7 @@ describe('DOMSource.events()', function() {
       },
     });
 
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const myElement = root.querySelector('#myElementId') as HTMLElement;
         assert.notStrictEqual(myElement, null);
@@ -269,7 +269,7 @@ describe('DOMSource.events()', function() {
       },
     });
 
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const myElement = root.querySelector('.myelementclass') as HTMLElement;
         assert.notStrictEqual(myElement, null);
@@ -312,7 +312,7 @@ describe('DOMSource.events()', function() {
       },
     });
 
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const wrongElement = root.querySelector('.bar') as HTMLElement;
         const correctElement = root.querySelector('.foo .bar') as HTMLElement;
@@ -372,7 +372,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const firstElem = root.querySelector('.first') as HTMLElement;
         const secondElem = root.querySelector('.second') as HTMLElement;
@@ -415,7 +415,7 @@ describe('DOMSource.events()', function() {
       },
     });
 
-    sources.DOM.select(':root').elements().drop(3).take(1).addListener({
+    sources.DOM.select(':root').element().drop(3).take(1).addListener({
       next: (root: Element) => {
         const myElement = root.querySelector('.blosh') as HTMLElement;
         assert.notStrictEqual(myElement, null);
@@ -467,7 +467,7 @@ describe('DOMSource.events()', function() {
           },
         });
 
-      sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+      sources.DOM.select(':root').element().drop(1).take(1).addListener({
         next: (root: Element) => {
           const clickable = root.querySelector('.clickable') as HTMLElement;
           setTimeout(() => clickable.click(), 80);
@@ -516,7 +516,7 @@ describe('DOMSource.events()', function() {
           },
         });
 
-      sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+      sources.DOM.select(':root').element().drop(1).take(1).addListener({
         next: (root: Element) => {
           const clickable = root.querySelector('.clickable') as HTMLElement;
           setTimeout(() => clickable.click(), 80);
@@ -566,7 +566,7 @@ describe('DOMSource.events()', function() {
     });
 
     // Make assertions
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const child = root.querySelector('.child') as HTMLElement;
         assert.notStrictEqual(child, null);
@@ -604,7 +604,7 @@ describe('DOMSource.events()', function() {
       },
     });
 
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const form = root.querySelector('.form') as HTMLFormElement;
         setTimeout(() => form.reset());
@@ -669,7 +669,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const clickable = root.querySelector('.clickable') as HTMLElement;
         setTimeout(() => click(clickable));
@@ -709,7 +709,7 @@ describe('DOMSource.events()', function() {
           },
         });
 
-      sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+      sources.DOM.select(':root').element().drop(1).take(1).addListener({
         next: (root: Element) => {
           const correct = root.querySelector('.correct') as HTMLElement;
           const wrong = root.querySelector('.wrong') as HTMLElement;
@@ -752,7 +752,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-      sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+      sources.DOM.select(':root').element().drop(1).take(1).addListener({
         next: (root: Element) => {
           const correct = root.querySelector('.correct') as HTMLElement;
           const wrong = root.querySelector('.wrong') as HTMLElement;
@@ -800,7 +800,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const form = root.querySelector('.form') as HTMLFormElement;
         setTimeout(() => form.reset());
@@ -896,7 +896,7 @@ describe('DOMSource.events()', function() {
       },
     });
 
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const clickable = root.querySelector('.item') as HTMLElement;
         setTimeout(() => switchSubject.shamefullySendNext(null));
@@ -935,7 +935,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const button = root.querySelector('.button') as HTMLButtonElement;
         setTimeout(() => button.click());
@@ -971,7 +971,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const button = root.querySelector('.button') as HTMLButtonElement;
         setTimeout(() => button.click());
@@ -1007,7 +1007,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const button = root.querySelector('.button') as HTMLButtonElement;
         setTimeout(() => button.click());
@@ -1045,7 +1045,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const button = root.querySelector('.button') as HTMLButtonElement;
         setTimeout(() => button.click());
@@ -1081,7 +1081,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const button = root.querySelector('.button') as HTMLButtonElement;
         setTimeout(() => button.click());
@@ -1117,7 +1117,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const button = root.querySelector('.button') as HTMLButtonElement;
         setTimeout(() => button.click());
@@ -1155,7 +1155,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const button = root.querySelector('.button') as HTMLButtonElement;
         setTimeout(() => button.click());

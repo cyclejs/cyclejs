@@ -130,7 +130,7 @@ describe('DOM Driver', function() {
     let dispose: any;
     let hasDisposed = false;
     let assertionOngoing = false;
-    sources.DOM.select(':root').elements().drop(1).addListener({
+    sources.DOM.select(':root').element().drop(1).addListener({
       next: (root: Element) => {
         const selectEl = root.querySelector('.target') as Element;
         if (!selectEl && assertionOngoing && hasDisposed) {
