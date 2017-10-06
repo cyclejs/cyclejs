@@ -7,12 +7,19 @@ import {fromEvent} from './fromEvent';
 export class BodyDOMSource implements DOMSource {
   constructor(private _name: string) {}
 
-  public select(selector: string): DOMSource {
+  public select(selector: string): BodyDOMSource {
     // This functionality is still undefined/undecided.
     return this;
   }
 
-  public elements(): MemoryStream<HTMLBodyElement> {
+  public elements(): MemoryStream<Array<HTMLBodyElement>> {
+    const out: DevToolEnabledSource &
+      MemoryStream<Array<HTMLBodyElement>> = adapt(xs.of([document.body]));
+    out._isCycleSource = this._name;
+    return out;
+  }
+
+  public element(): MemoryStream<HTMLBodyElement> {
     const out: DevToolEnabledSource & MemoryStream<HTMLBodyElement> = adapt(
       xs.of(document.body),
     );

@@ -41,7 +41,7 @@ describe('DOMSource.select()', function() {
     });
 
     let dispose: any;
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const classNameRegex = /top\-most/;
         assert.strictEqual(root.tagName, 'DIV');
@@ -78,6 +78,8 @@ describe('DOMSource.select()', function() {
     assert.strictEqual(typeof selection.select, 'function');
     assert.strictEqual(typeof selection.select('h3'), 'object');
     assert.strictEqual(typeof selection.elements, 'function');
+    assert.strictEqual(typeof selection.element(), 'object');
+    assert.strictEqual(typeof selection.element().subscribe, 'function');
     assert.strictEqual(typeof selection.elements(), 'object');
     assert.strictEqual(typeof selection.elements().subscribe, 'function');
     assert.strictEqual(typeof selection.events, 'function');
@@ -258,6 +260,24 @@ describe('DOMSource.select()', function() {
     simulant.fire(document.body, 'click');
   });
 
+  it('should have DevTools flag in BodyDOMSource element() stream', function(
+    done,
+  ) {
+    function app(sources: {DOM: MainDOMSource}) {
+      return {
+        DOM: xs.of(div('hello world')),
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    const element$ = sources.DOM.select('body').element();
+    assert.strictEqual((element$ as any)._isCycleSource, 'DOM');
+    done();
+  });
+
   it('should have DevTools flag in BodyDOMSource elements() stream', function(
     done,
   ) {
@@ -291,6 +311,24 @@ describe('DOMSource.select()', function() {
 
     const event$ = sources.DOM.select('body').events('click');
     assert.strictEqual((event$ as any)._isCycleSource, 'DOM');
+    done();
+  });
+
+  it('should have DevTools flag in DocumentDOMSource element() stream', function(
+    done,
+  ) {
+    function app(sources: {DOM: MainDOMSource}) {
+      return {
+        DOM: xs.of(div('hello world')),
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    const element$ = sources.DOM.select('document').element();
+    assert.strictEqual((element$ as any)._isCycleSource, 'DOM');
     done();
   });
 
