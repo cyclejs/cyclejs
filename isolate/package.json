@@ -26,10 +26,10 @@
     "dataflow",
     "virtual-dom"
   ],
-  "main": "lib/index.js",
+  "main": "lib/cjs/index.js",
   "module": "lib/es6/index.js",
-  "typings": "lib/index.d.ts",
-  "types": "lib/index.d.ts",
+  "typings": "lib/cjs/index.d.ts",
+  "types": "lib/cjs/index.d.ts",
   "dependencies": {},
   "devDependencies": {
     "@types/mocha": "2.2.x",

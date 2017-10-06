@@ -7,10 +7,10 @@
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
   "repository": "https://github.com/cyclejs/cyclejs/tree/master/time",
   "author": "Nick Johnstone",
-  "main": "lib/index.js",
+  "main": "lib/cjs/index.js",
   "module": "lib/es6/index.js",
-  "typings": "lib/index.d.ts",
-  "types": "lib/index.d.ts",
+  "typings": "lib/cjs/index.d.ts",
+  "types": "lib/cjs/index.d.ts",
   "dependencies": {
     "@cycle/run": "3.x",
     "combine-errors": "3.0.x",
