@@ -22,7 +22,7 @@ import {
   DOMSource,
   MainDOMSource,
   VNode,
-} from '../../../lib';
+} from '../../../lib/cjs/index';
 const {html} = snabbdomJSX;
 
 declare global {

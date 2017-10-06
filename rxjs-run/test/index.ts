@@ -1,7 +1,7 @@
 import 'mocha';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
-import {run, setup} from '../lib';
+import {run, setup} from '../lib/cjs/index';
 import xs, {Stream} from 'xstream';
 import * as Rx from 'rxjs';
 import {Observable} from 'rxjs';

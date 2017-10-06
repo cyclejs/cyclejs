@@ -1,5 +1,5 @@
 import xs from 'xstream';
-import {h3, div} from '../../../../lib/index';
+import {h3, div} from '../../../../lib/cjs/index';
 import isolate from '@cycle/isolate';
 import Ticker from './ticker.js';
 

@@ -25,10 +25,10 @@
     "mvi",
     "virtual-dom"
   ],
-  "main": "lib/index.js",
+  "main": "lib/cjs/index.js",
   "module": "lib/es6/index.js",
-  "typings": "lib/index.d.ts",
-  "types": "lib/index.d.ts",
+  "typings": "lib/cjs/index.d.ts",
+  "types": "lib/cjs/index.d.ts",
   "dependencies": {
     "xstream": "10.x || 11.x"
   },
@@ -49,7 +49,8 @@
     "test": "npm run mocha",
     "test-ci": "npm run test",
     "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone Cycle --exclude xstream -o dist/cycle-run.js",
-    "minify": "node ../.scripts/minify.js dist/cycle-run.js dist/cycle-run.min.js"
+    "minify": "node ../.scripts/minify.js dist/cycle-run.js dist/cycle-run.min.js",
+    "postlib": "cp lib/cjs/adapt.* lib/"
   },
   "publishConfig": {
     "access": "public"

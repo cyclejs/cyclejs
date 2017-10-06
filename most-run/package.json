@@ -2,10 +2,10 @@
   "name": "@cycle/most-run",
   "version": "7.2.0",
   "description": "The Cycle run() function to be used with most.js",
-  "main": "lib/index.js",
+  "main": "lib/cjs/index.js",
   "module": "lib/es6/index.js",
-  "typings": "lib/index.d.ts",
-  "types": "lib/index.d.ts",
+  "typings": "lib/cjs/index.d.ts",
+  "types": "lib/cjs/index.d.ts",
   "repository": "https://github.com/cyclejs/cyclejs/tree/master/most-run",
   "contributors": [
     {

@@ -3,7 +3,7 @@ import * as assert from 'assert';
 import xs, {Stream} from 'xstream';
 import {setup, run} from '@cycle/run';
 import {div, h3, h2, h, VNode} from '@cycle/dom';
-import {makeHTMLDriver, HTMLSource} from '../lib';
+import {makeHTMLDriver, HTMLSource} from '../lib/cjs/index';
 
 describe('HTML Driver', function() {
   it('should output HTML when given a simple vtree stream', function(done) {

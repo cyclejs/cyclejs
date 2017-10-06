@@ -4,7 +4,13 @@ import xs, {Stream, MemoryStream} from 'xstream';
 import delay from 'xstream/extra/delay';
 import flattenSequentially from 'xstream/extra/flattenSequentially';
 import {setup, run} from '@cycle/run';
-import {div, h3, makeDOMDriver, DOMSource, MainDOMSource} from '../../../lib';
+import {
+  div,
+  h3,
+  makeDOMDriver,
+  DOMSource,
+  MainDOMSource,
+} from '../../../lib/cjs/index';
 
 function createRenderTarget(id: string | null = null) {
   const element = document.createElement('div');

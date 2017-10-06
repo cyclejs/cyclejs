@@ -3,7 +3,15 @@ import * as assert from 'assert';
 import * as Rx from 'rxjs';
 import {Observable} from 'rxjs';
 import {setup} from '@cycle/rxjs-run';
-import {h3, h4, h2, div, h, mockDOMSource, MockedDOMSource} from '../../lib';
+import {
+  h3,
+  h4,
+  h2,
+  div,
+  h,
+  mockDOMSource,
+  MockedDOMSource,
+} from '../../lib/cjs/index';
 
 describe('mockDOMSource', function() {
   it('should be in accessible in the API', function() {

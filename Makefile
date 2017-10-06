@@ -76,8 +76,9 @@ lib :
 	else \
 		rm -rf $(ARG)/lib/ ;\
 		mkdir -p $(ARG)/lib ;\
-		$(TSC) --project $(ARG) --module commonjs --outDir $(ARG)/lib ;\
+		$(TSC) --project $(ARG) --module commonjs --outDir $(ARG)/lib/cjs ;\
 		$(TSC) --project $(ARG) --module es6 --outDir $(ARG)/lib/es6 ;\
+		grep 'postlib' $(ARG)/package.json >/dev/null && cd $(ARG) && npm run postlib ;\
 		echo "✓ Compiled TypeScript to lib\n" ;\
 	fi
 

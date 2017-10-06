@@ -16,7 +16,7 @@ import {
   makeDOMDriver,
   MainDOMSource,
   VNode,
-} from '../../../lib';
+} from '../../../lib/cjs/index';
 
 function createRenderTarget(id: string | null = null) {
   const element = document.createElement('div');

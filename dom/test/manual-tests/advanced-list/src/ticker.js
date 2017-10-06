@@ -1,6 +1,6 @@
 import xs from 'xstream';
 import delay from 'xstream/extra/delay';
-import {div, h1, h4, button} from '../../../../lib/index';
+import {div, h1, h4, button} from '../../../../lib/cjs/index';
 
 function intent(DOMSource) {
   const removeClicks$ = DOMSource.select('.remove-btn').events('click');

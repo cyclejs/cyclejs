@@ -4,7 +4,7 @@ import {
   RequestInput,
   Response,
   ResponseStream,
-} from '../../../lib/index';
+} from '../../../lib/cjs/index';
 import {HTTPSource} from '../../../rxjs-typings';
 import * as Rx from 'rxjs';
 import {Observable} from 'rxjs';

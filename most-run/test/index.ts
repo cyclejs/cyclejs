@@ -1,7 +1,7 @@
 import 'mocha';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
-import {run, setup} from '../lib';
+import {run, setup} from '../lib/cjs/index';
 import * as most from 'most';
 import {Stream} from 'most';
 import xs from 'xstream';

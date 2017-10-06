@@ -2,9 +2,9 @@
   "name": "@cycle/http",
   "version": "14.5.0",
   "description": "A Cycle.js Driver for making HTTP requests",
-  "main": "lib/index.js",
+  "main": "lib/cjs/index.js",
   "module": "lib/es6/index.js",
-  "typings": "lib/index.d.ts",
+  "typings": "lib/cjs/index.d.ts",
   "license": "MIT",
   "repository": "https://github.com/cyclejs/cyclejs/tree/master/http",
   "dependencies": {

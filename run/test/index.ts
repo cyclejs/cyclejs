@@ -1,7 +1,7 @@
 import 'mocha';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
-import {run, setup, Sources, Sinks, Driver} from '../lib';
+import {run, setup, Sources, Sinks, Driver} from '../lib/cjs/index';
 import {setAdapt} from '../lib/adapt';
 import xs, {Stream} from 'xstream';
 import concat from 'xstream/extra/concat';
