@@ -1,0 +1,5 @@
+node_modules
+*.log
+/server.js
+/hashes.json
+/public/lib/**
