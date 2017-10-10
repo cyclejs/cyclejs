@@ -106,7 +106,7 @@ describe('HTTP Driver in Node.js', function() {
 
     const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
-    sources.HTTP.select().mergeAll().subscribe(function(r) {
+    sources.HTTP.select().mergeAll().subscribe(function(r: any) {
       assert.ok(r.request);
       assert.strictEqual((r.request as any)._id, 'petRequest');
       done();
@@ -131,10 +131,10 @@ describe('HTTP Driver in Node.js', function() {
     const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
     sources.HTTP.select().mergeAll().subscribe({
-      next: function(r) {
+      next: function(r: any) {
         done('next() should not be called');
       },
-      error: function(err) {
+      error: function(err: any) {
         assert.strictEqual(err.code, 'ECONNREFUSED');
         assert.strictEqual(err.port, 9999);
         done();
@@ -160,12 +160,12 @@ describe('HTTP Driver in Node.js', function() {
     const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
     sources.HTTP.select().mergeAll().subscribe({
-      next: function(r) {
+      next: function(r: any) {
         assert.ok(r.request);
         assert.strictEqual(r.status, 404);
         done();
       },
-      error: function(err) {
+      error: function(err: any) {
         done('error() should not be called');
       },
     });
