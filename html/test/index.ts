@@ -1,5 +1,6 @@
 import 'mocha';
 import * as assert from 'assert';
+import * as sinon from 'sinon';
 import xs, {Stream} from 'xstream';
 import {setup, run} from '@cycle/run';
 import {div, h3, h2, h, VNode} from '@cycle/dom';
@@ -95,9 +96,7 @@ describe('HTML Driver', function() {
     done();
   });
 
-  it('should have DevTools flag in HTMLSource elements() stream', function(
-    done,
-  ) {
+  it('should have DevTools flag in HTMLSource elements() stream', function(done) {
     function app(sources: {html: HTMLSource}): any {
       return {
         html: xs.of(div('.test-element', ['Foobar'])),
@@ -110,9 +109,7 @@ describe('HTML Driver', function() {
     done();
   });
 
-  it('should have DevTools flag in HTMLSource elements() stream', function(
-    done,
-  ) {
+  it('should have DevTools flag in HTMLSource elements() stream', function(done) {
     function app(sources: {html: HTMLSource}): any {
       return {
         html: xs.of(div('.test-element', ['Foobar'])),
@@ -236,5 +233,23 @@ describe('HTML Driver', function() {
     run(app, {
       html: makeHTMLDriver(effect),
     });
+  });
+
+  it('should report errors thrown in snabbdom-to-html', function() {
+    const sandbox = sinon.sandbox.create();
+    sandbox.stub(console, 'error');
+
+    function app() {
+      return {
+        html: xs.of('invalid snabbdom' as any)
+      };
+    }
+
+    run(app, {
+      html: makeHTMLDriver(() => {}),
+    });
+
+    sinon.assert.calledOnce(console.error as any);
+    sandbox.restore();
   });
 });

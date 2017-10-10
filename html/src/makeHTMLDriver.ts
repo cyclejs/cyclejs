@@ -28,7 +28,10 @@ export interface HTMLDriverOptions {
 }
 
 export type EffectCallback = (html: string) => void;
-const noop = () => {};
+
+function reportSnabbdomError(err: any): void {
+  console.error(err);
+}
 
 export function makeHTMLDriver(
   effect: EffectCallback,
@@ -42,9 +45,8 @@ export function makeHTMLDriver(
   function htmlDriver(vnode$: Stream<VNode>, name: string): HTMLSource {
     const html$ = vnode$.map(toHTML);
     html$.addListener({
-      next: effect || noop,
-      error: noop,
-      complete: noop,
+      next: effect,
+      error: reportSnabbdomError,
     });
     return new HTMLSource(html$, name);
   }
