@@ -1,13 +1,13 @@
 # Cycle.js Hello World example
 
-This is the smallest possible cycle.js program. It just echoes anything written
+This is a very small Cycle.js program. It just echoes anything written
 in the text field.
 
 This is good for:
 
-- Learning the basic structure of a cycle.js program
+- Learning the basic structure of a Cycle.js program
 - Starting to think in streams
-- Learning how to read events from and write html to the DOM Driver
+- Learning how to read events from and write HTML to the DOM Driver
 
 ## Usage
 
