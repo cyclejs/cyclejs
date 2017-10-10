@@ -2,7 +2,6 @@ import xs, {Stream} from 'xstream';
 import {ScopeChecker} from './ScopeChecker';
 import {IsolateModule} from './IsolateModule';
 import {getFullScope, getSelectors} from './utils';
-import {matchesSelector} from './matchesSelector';
 import {PreventDefaultOpt, preventDefaultConditional} from './fromEvent';
 declare var requestIdleCallback: any;
 
@@ -137,7 +136,7 @@ export class EventDelegator {
     const n = this.destinations.length;
     for (let i = 0; i < n; i++) {
       const dest = this.destinations[i];
-      if (matchesSelector(ev.target as Element, dest.selector)) {
+      if ((ev.target as Element).matches(dest.selector)) {
         dest.subject._n(ev);
       }
     }
@@ -183,7 +182,7 @@ export class EventDelegator {
       if (!dest.scopeChecker.isDirectlyInScope(el)) {
         continue;
       }
-      if (matchesSelector(el, dest.selector)) {
+      if (el.matches(dest.selector)) {
         this.mutateEventCurrentTarget(ev, el);
         dest.subject._n(ev);
       }

@@ -1,7 +1,6 @@
 import {ScopeChecker} from './ScopeChecker';
 import {getFullScope, getSelectors} from './utils';
 import {IsolateModule} from './IsolateModule';
-import {matchesSelector} from './matchesSelector';
 
 function toElArray(input: any): Array<Element> {
   return Array.prototype.slice.call(input) as Array<Element>;
@@ -28,7 +27,7 @@ export class ElementFinder {
       : rootElement;
 
     const topNodeMatchesSelector =
-      !!fullScope && !!selector && matchesSelector(topNode, selector);
+      !!fullScope && !!selector && topNode.matches(selector);
 
     return toElArray(topNode.querySelectorAll(selector))
       .filter(scopeChecker.isDirectlyInScope, scopeChecker)

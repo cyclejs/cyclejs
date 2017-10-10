@@ -11,7 +11,6 @@ import {getValidNode} from './utils';
 import defaultModules from './modules';
 import {IsolateModule} from './IsolateModule';
 import {EventDelegator} from './EventDelegator';
-import 'es6-map/implement'; // tslint:disable-line
 
 function makeDOMDriverInputGuard(modules: any) {
   if (!Array.isArray(modules)) {

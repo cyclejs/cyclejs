@@ -35,7 +35,6 @@
   "types": "lib/index.d.ts",
   "dependencies": {
     "@cycle/run": "*",
-    "es6-map": "^0.1.4",
     "snabbdom": "0.7.0",
     "snabbdom-selector": "1.2.1"
   },
