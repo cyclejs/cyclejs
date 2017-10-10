@@ -39,7 +39,7 @@ export function run(uri: string) {
         next: () => {
           done('next should not be called');
         },
-        error: err => {
+        error: (err: any) => {
           assert.strictEqual(
             err.message,
             'Observable of requests given to ' +
@@ -70,7 +70,7 @@ export function run(uri: string) {
         next: () => {
           done('next should not be called');
         },
-        error: err => {
+        error: (err: any) => {
           assert.strictEqual(
             err.message,
             'Please provide a `url` property in the request ' + 'options.',
@@ -102,7 +102,7 @@ export function run(uri: string) {
           assert.strictEqual(typeof response$.request, 'object');
           assert.strictEqual(response$.request.url, uri + '/hello');
           assert.strictEqual(typeof response$.switchMap, 'function'); // is RxJS v5
-          response$.subscribe(function(response) {
+          response$.subscribe(function(response: any) {
             assert.strictEqual(response.status, 200);
             assert.strictEqual(response.text, 'Hello World');
             done();
@@ -151,7 +151,7 @@ export function run(uri: string) {
         assert.strictEqual(response$.request.method, 'POST');
         assert.strictEqual((response$.request.send as any).name, 'Woof');
         assert.strictEqual((response$.request.send as any).species, 'Dog');
-        response$.subscribe(function(response) {
+        response$.subscribe(function(response: any) {
           assert.strictEqual(response.status, 200);
           assert.strictEqual(response.text, 'added Woof the Dog');
           done();
@@ -183,7 +183,7 @@ export function run(uri: string) {
           response$.request.send as string,
           'name=Woof&species=Dog',
         );
-        response$.subscribe(function(response) {
+        response$.subscribe(function(response: any) {
           assert.strictEqual(response.status, 200);
           assert.strictEqual(response.text, 'added Woof the Dog');
           done();
@@ -251,7 +251,7 @@ export function run(uri: string) {
         assert.strictEqual(response$.request.method, 'GET');
         assert.strictEqual((response$.request.query as any).foo, 102030);
         assert.strictEqual((response$.request.query as any).bar, 'Pub');
-        response$.subscribe(function(response) {
+        response$.subscribe(function(response: any) {
           assert.strictEqual(response.status, 200);
           assert.strictEqual((response.body as any).foo, '102030');
           assert.strictEqual((response.body as any).bar, 'Pub');
@@ -280,7 +280,7 @@ export function run(uri: string) {
       response$$.subscribe(function(response$) {
         assert.strictEqual(response$.request.url, uri + '/delete');
         assert.strictEqual(response$.request.method, 'DELETE');
-        response$.subscribe(function(response) {
+        response$.subscribe(function(response: any) {
           assert.strictEqual(response.status, 200);
           assert.strictEqual((response.body as any).deleted, true);
           done();
@@ -338,7 +338,7 @@ export function run(uri: string) {
           next: () => {
             done('next should not be called');
           },
-          error: err => {
+          error: (err: any) => {
             assert.strictEqual(err.status, 500);
             assert.strictEqual(err.message, 'Internal Server Error');
             assert.strictEqual(err.response.text, 'boom');
@@ -363,7 +363,7 @@ export function run(uri: string) {
         const str$ = sources.HTTP
           .select()
           .mergeAll()
-          .map(res => res.text as string);
+          .map((res: any) => res.text as string);
 
         // Notice HTTP comes before Test here. This is crucial for this test.
         return {
@@ -439,7 +439,7 @@ export function run(uri: string) {
       scopedHTTPSource.select().subscribe(function(response$) {
         assert.strictEqual(typeof response$.request, 'object');
         assert.strictEqual(response$.request.url, uri + '/hello');
-        response$.subscribe(function(response) {
+        response$.subscribe(function(response: any) {
           assert.strictEqual(response.status, 200);
           assert.strictEqual(response.text, 'Hello World');
           done();
