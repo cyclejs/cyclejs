@@ -3,20 +3,18 @@ import {Stream} from 'xstream';
 declare var window: any;
 
 function getGlobal(): any {
-  let globalObject: any;
+  let globalObj: any;
   if (typeof window !== 'undefined') {
-    globalObject = window;
+    globalObj = window;
   } else if (typeof global !== 'undefined') {
-    globalObject = global;
+    globalObj = global;
   } else {
-    globalObject = this;
+    globalObj = this;
   }
-
-  globalObject.Cyclejs = globalObject.Cyclejs || {};
-  globalObject.Cyclejs.adaptStream =
-    globalObject.Cyclejs.adaptStream || ((x => x) as AdaptStream);
-
-  return globalObject;
+  globalObj.Cyclejs = globalObj.Cyclejs || {};
+  globalObj = globalObj.Cyclejs;
+  globalObj.adaptStream = globalObj.adaptStream || ((x => x) as AdaptStream);
+  return globalObj;
 }
 
 export interface AdaptStream {
@@ -24,9 +22,9 @@ export interface AdaptStream {
 }
 
 export function setAdapt(f: AdaptStream): void {
-  getGlobal().Cyclejs.adaptStream = f;
+  getGlobal().adaptStream = f;
 }
 
 export function adapt(stream: Stream<any>): any {
-  return getGlobal().Cyclejs.adaptStream(stream);
+  return getGlobal().adaptStream(stream);
 }
