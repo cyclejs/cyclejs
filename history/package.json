@@ -16,7 +16,7 @@
   "homepage": "https://cycle.js.org",
   "dependencies": {
     "@cycle/run": "*",
-    "history": "4.6.x"
+    "history": "4.7.x"
   },
   "devDependencies": {
     "@cycle/dom": "17.6",
@@ -26,7 +26,7 @@
     "@types/node": "6.0.x",
     "rxjs": "5.4.2",
     "saucie": "3.2.0",
-    "xstream": "10.x"
+    "xstream": "11.x"
   },
   "scripts": {
     "test-node": "../node_modules/.bin/mocha -r ts-node/register test/node/*.ts",
