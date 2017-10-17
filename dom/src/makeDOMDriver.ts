@@ -1,13 +1,14 @@
 import {Driver, FantasyObservable} from '@cycle/run';
 import {init} from 'snabbdom';
 import {Module} from 'snabbdom/modules/module';
-import xs, {Stream} from 'xstream';
+import xs, {Stream, Listener} from 'xstream';
+import sampleCombine from 'xstream/extra/sampleCombine';
 import {DOMSource} from './DOMSource';
 import {MainDOMSource} from './MainDOMSource';
 import {VNode} from 'snabbdom/vnode';
 import {toVNode} from 'snabbdom/tovnode';
 import {VNodeWrapper} from './VNodeWrapper';
-import {getValidNode} from './utils';
+import {getValidNode, checkValidContainer} from './utils';
 import defaultModules from './modules';
 import {IsolateModule} from './IsolateModule';
 import {EventDelegator} from './EventDelegator';
@@ -50,6 +51,26 @@ function reportSnabbdomError(err: any): void {
   (console.error || console.log)(err);
 }
 
+function makeDOMReady$(): Stream<null> {
+  return xs.create<null>({
+    start(lis: Listener<null>) {
+      if (document.readyState === 'loading') {
+        document.addEventListener('readystatechange', () => {
+          const state = document.readyState;
+          if (state === 'interactive' || state === 'complete') {
+            lis.next(null);
+            lis.complete();
+          }
+        });
+      } else {
+        lis.next(null);
+        lis.complete();
+      }
+    },
+    stop() {},
+  });
+}
+
 function makeDOMDriver(
   container: string | Element | DocumentFragment,
   options?: DOMDriverOptions,
@@ -57,37 +78,72 @@ function makeDOMDriver(
   if (!options) {
     options = {};
   }
+  checkValidContainer(container);
   const modules = options.modules || defaultModules;
+  makeDOMDriverInputGuard(modules);
   const isolateModule = new IsolateModule();
   const patch = init([isolateModule.createModule()].concat(modules));
-  const rootElement = getValidNode(container) || document.body;
-  const vnodeWrapper = new VNodeWrapper(rootElement);
+  const domReady$ = makeDOMReady$();
+  let vnodeWrapper: VNodeWrapper;
   const delegators = new Map<string, EventDelegator>();
-  makeDOMDriverInputGuard(modules);
+  let mutationObserver: MutationObserver;
+  const mutationConfirmed$ = xs.create<null>({
+    start(listener) {
+      mutationObserver = new MutationObserver(() => listener.next(null));
+    },
+    stop() {
+      mutationObserver.disconnect();
+    },
+  });
 
   function DOMDriver(vnode$: Stream<VNode>, name = 'DOM'): MainDOMSource {
     domDriverInputGuard(vnode$);
     const sanitation$ = xs.create<null>();
-    const rootElement$ = xs
-      .merge(vnode$.endWhen(sanitation$), sanitation$)
-      .map(vnode => vnodeWrapper.call(vnode))
-      .fold(patch, toVNode(rootElement))
-      .drop(1)
-      .map(unwrapElementFromVNode)
-      .compose(dropCompletion) // don't complete this stream
-      .startWith(rootElement as any);
+
+    const firstRoot$ = domReady$.map(() => {
+      const firstRoot = getValidNode(container) || document.body;
+      vnodeWrapper = new VNodeWrapper(firstRoot);
+      return firstRoot;
+    });
+
+    // The mutation observer internal to mutationConfirmed$ should
+    // exist before elementAfterPatch$ calls mutationObserver.observe()
+    mutationConfirmed$.addListener({});
+
+    const elementAfterPatch$ = firstRoot$
+      .map(
+        firstRoot =>
+          xs
+            .merge(vnode$.endWhen(sanitation$), sanitation$)
+            .map(vnode => vnodeWrapper.call(vnode))
+            .fold(patch, toVNode(firstRoot))
+            .drop(1)
+            .map(unwrapElementFromVNode)
+            .startWith(firstRoot as any)
+            .map(el => {
+              mutationObserver.observe(el, {
+                childList: true,
+                attributes: true,
+                characterData: true,
+                subtree: true,
+                attributeOldValue: true,
+                characterDataOldValue: true,
+              });
+              return el;
+            })
+            .compose(dropCompletion), // don't complete this stream
+      )
+      .flatten();
+
+    const rootElement$ = mutationConfirmed$
+      .startWith(null)
+      .endWhen(sanitation$)
+      .compose(sampleCombine(elementAfterPatch$))
+      .map(arr => arr[1])
+      .remember();
 
     // Start the snabbdom patching, over time
-    const listener = {error: reportSnabbdomError};
-    if (document.readyState === 'loading') {
-      document.addEventListener('readystatechange', () => {
-        if (document.readyState === 'interactive') {
-          rootElement$.addListener(listener);
-        }
-      });
-    } else {
-      rootElement$.addListener(listener);
-    }
+    rootElement$.addListener({error: reportSnabbdomError});
 
     return new MainDOMSource(
       rootElement$,

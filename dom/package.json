@@ -41,9 +41,9 @@
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/run": "3.4",
+    "@cycle/run": "4.0.0-rc.3",
     "@cycle/isolate": "3.2",
-    "@cycle/rxjs-run": "7.2",
+    "@cycle/rxjs-run": "8.0.0-rc.3",
     "@types/mocha": "^2.2.33",
     "@types/node": "^7.0.4",
     "@types/sinon": "^1.16.32",
