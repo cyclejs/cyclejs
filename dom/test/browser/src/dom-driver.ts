@@ -46,10 +46,23 @@ describe('makeDOMDriver', function() {
     });
   });
 
-  it('should not accept a selector to an unknown element as input', function() {
-    assert.throws(function() {
-      makeDOMDriver('#nonsenseIdToNothing');
-    }, /Cannot render into unknown element/);
+  it('should not accept a selector to an unknown element as input', function(
+    done,
+  ) {
+    const sandbox = sinon.sandbox.create();
+    sandbox.stub(console, 'error');
+    makeDOMDriver('#nonsenseIdToNothing')(xs.never());
+    setTimeout(() => {
+      sinon.assert.calledOnce(console.error as any);
+      sinon.assert.calledWithExactly(
+        console.error as any,
+        sinon.match({
+          message: 'Cannot render into unknown element `#nonsenseIdToNothing`',
+        }),
+      );
+      sandbox.restore();
+      done();
+    }, 100);
   });
 
   it('should not accept a number as input', function() {
