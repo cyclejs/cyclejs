@@ -1,3 +1,39 @@
+<a name="19.0.0"></a>
+# 19.0.0 (2017-10-19)
+
+
+### Bug Fixes
+
+* **dom:** remove "change" from eventTypesThatDontBubble (#690) ([a1600d0](https://github.com/cyclejs/cyclejs/commit/a1600d0))
+
+
+### Features
+
+* **dom:** allow predicate function or object as preventDefault ([e66a534](https://github.com/cyclejs/cyclejs/commit/e66a534))
+* **dom:** DOMSource.elements() always returns arrays ([0501189](https://github.com/cyclejs/cyclejs/commit/0501189))
+* **dom:** overload .event() method using HTMLElementEventMap (#682) ([b9db15c](https://github.com/cyclejs/cyclejs/commit/b9db15c))
+
+
+### BREAKING CHANGES
+
+* **dom:** `select('document').elements()` now always returns
+`Stream<Array<Document>>`
+`select('body').elements()` now always returns
+`Stream<Array<HTMLBodyElement>>`
+`select(everythingElse).elements()` now always returns `Stream<Array<Element>>`
+We also introduced `.element()` (notice in the singular, not plural)
+which will always return a non-array, either `Stream<Document>` or
+`Stream<HTMLBodyElement>` or `Stream<Element>`.
+
+ISSUES CLOSED: #677
+* **dom:** It's probable your app will not break when updating cycle/dom. However,
+if you are using `domSource.events('change')` and unknowingly relying on
+buggy behavior of this library, your app might behave differently. So
+upgrade carefully if you have that use case, otherwise this version is
+very safe to upgrade to, since this bug fix is so tiny.
+
+
+
 <a name="18.3.0"></a>
 # 18.3.0 (2017-09-05)
 
