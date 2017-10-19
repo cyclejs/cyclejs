@@ -28,9 +28,50 @@ export {MainDOMSource} from './MainDOMSource';
  * event types that do not bubble. Read more here
  * https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
  * about the `useCapture` and its purpose.
- * The other option is `preventDefault` that is set to false by default.
- * If set to true, the driver will automatically call `preventDefault()` on
- * every event.
+ *
+ * 
+ * ***`preventDefault`.
+ * 
+ * `preventDefault` is `false` by default, it indicates to the driver if to invoke `preventDefault`.
+ * `preventDefault` can be configured in three ways:
+ * 
+ * - Assign `true` to `preventDefault` to `true` to always invoke preventDefault.
+ * - Assign `(e: Event) => boolean` to `preventDefault` for conditional invocation.
+ * - Assign a nested object that is recursively compared to the `Event` object. 
+ *   `preventDefault` is invoked when all properties are stricyly equal.
+ * 
+ * Here are some examples:
+ * ```typescript
+ * // always prevent default
+ * DOMSource
+ *  .select('input')
+ *  .events(
+ *    'keydown',
+ *    { preventDefault: true }
+ *  );
+ * // prevent default when `ENTER` is pressed
+ * DOMSource
+ *  .select('input')
+ *  .events(
+ *    'keydown',
+ *    { preventDefault: e => e.keyCode === 13 }
+ *  );
+ * // prevent defualt when `ENTER` is pressed AND target.value is 'HELLO'
+ * DOMSource
+ *  .select('input')
+ *  .events(
+ *    'keydown',
+ *    {
+ *      preventDefault: {
+ *        keyCode: 13,
+ *        ownerTarget: {
+ *          value: 'HELLO'
+ *        }
+ *      }
+ *    }
+ *  );
+ * ```
+ *
  *
  * **`DOMSource.elements()`** returns a stream of arrays containing the DOM
  * elements that match the selectors in the DOMSource (e.g. from previous
