@@ -1,3 +1,13 @@
+<a name="6.5.0"></a>
+# 6.5.0 (2017-10-19)
+
+
+### Bug Fixes
+
+* **history:** update history to v4.7.x ([9f22678](https://github.com/cyclejs/cyclejs/commit/9f22678))
+
+
+
 <a name="6.4.0"></a>
 # 6.4.0 (2017-08-12)
 
