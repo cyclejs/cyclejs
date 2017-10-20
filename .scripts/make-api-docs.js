@@ -10,7 +10,7 @@ var argPackage = process.argv[2];
 var dirOfThePackage = __dirname + '/../' + argPackage;
 
 markdox.process(
-  dirOfThePackage + '/lib/index.js', // src
+  dirOfThePackage + '/lib/cjs/index.js', // src
   {
     output: dirOfThePackage + '/generated-api.md',
     template: __dirname + '/api-ref-template.md.ejs',
