@@ -1,5 +1,6 @@
 # API reference
 
+- **[Streams](streams.html)**
 - **[Cycle Run](run.html)**
 - **[Cycle RxJS Run](rxjs-run.html)**
 - **[Cycle Most Run](most-run.html)**
