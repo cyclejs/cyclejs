@@ -21,7 +21,6 @@ var outputStr = template({
     {title: 'Cycle HTTP', link: 'api/http.html'},
     {title: 'Cycle History', link: 'api/history.html'},
     {title: 'Cycle Isolate', link: 'api/isolate.html'},
-    {title: 'Cycle JSONP', link: 'api/jsonp.html'},
   ],
 });
 fs.writeFileSync(htmlFilename, outputStr, 'utf-8');
