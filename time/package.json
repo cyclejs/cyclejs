@@ -56,7 +56,7 @@
     "test": "npm run test-node && npm run test-docs",
     "test-ci": "npm run test",
     "test-docs": "markdown-doctest",
-    "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleTime --exclude xstream --outfile dist/cycle-time.js",
+    "browserify": "../node_modules/.bin/browserify lib/cjs/index.js --global-transform=browserify-shim --standalone CycleTime --exclude xstream --outfile dist/cycle-time.js",
     "minify": "node ../.scripts/minify.js dist/cycle-time.js dist/cycle-time.min.js"
   }
 }

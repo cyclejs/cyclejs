@@ -45,7 +45,7 @@
     "stop-test-support-server": "if ps -p $(cat test-support-server.pid)> /dev/null; then kill -KILL $(cat test-support-server.pid); fi && rm test-support-server.pid",
     "test-ci": "npm run test-node && yarn run test-browser-ci",
     "test": "npm run test-node && yarn run test-browser",
-    "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleHTTPDriver --exclude xstream --outfile dist/cycle-http-driver.js",
+    "browserify": "../node_modules/.bin/browserify lib/cjs/index.js --global-transform=browserify-shim --standalone CycleHTTPDriver --exclude xstream --outfile dist/cycle-http-driver.js",
     "minify": "node ../.scripts/minify.js dist/cycle-http-driver.js dist/cycle-http-driver.min.js"
   },
   "homepage": "https://cycle.js.org",

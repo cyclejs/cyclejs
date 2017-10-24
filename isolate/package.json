@@ -44,7 +44,7 @@
     "mocha": "../node_modules/.bin/mocha test/*.ts --require ts-node/register",
     "test": "npm run mocha",
     "test-ci": "npm run test",
-    "browserify": "../node_modules/.bin/browserify lib/index.js --standalone CycleIsolate --outfile dist/cycle-isolate.js",
+    "browserify": "../node_modules/.bin/browserify lib/cjs/index.js --standalone CycleIsolate --outfile dist/cycle-isolate.js",
     "minify": "node ../.scripts/minify.js dist/cycle-isolate.js dist/cycle-isolate.min.js"
   },
   "publishConfig": {

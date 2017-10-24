@@ -52,7 +52,7 @@
     "mocha": "../node_modules/.bin/mocha test/*.ts --require ts-node/register",
     "test": "npm run mocha",
     "test-ci": "npm run test",
-    "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone Cycle --exclude rxjs -o dist/cycle.js",
+    "browserify": "../node_modules/.bin/browserify lib/cjs/index.js --global-transform=browserify-shim --standalone Cycle --exclude rxjs -o dist/cycle.js",
     "minify": "node ../.scripts/minify.js dist/cycle.js dist/cycle.min.js"
   },
   "publishConfig": {

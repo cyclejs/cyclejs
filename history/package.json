@@ -34,7 +34,7 @@
     "test-browser-wait": "../node_modules/.bin/karma start",
     "test": "npm run test-node && yarn run test-browser",
     "test-ci": "npm run test",
-    "browserify": "../node_modules/.bin/browserify lib/index.js --standalone CycleHistory --outfile dist/cycle-history.js",
+    "browserify": "../node_modules/.bin/browserify lib/cjs/index.js --standalone CycleHistory --outfile dist/cycle-history.js",
     "minify": "node ../.scripts/minify.js dist/cycle-history.js dist/cycle-history.min.js"
   }
 }
