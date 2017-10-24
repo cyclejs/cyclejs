@@ -7,7 +7,6 @@ var packageScopes = [
   'history',
   'http',
   'isolate',
-  'jsonp',
   'most-run',
   'run',
   'rxjs-run',

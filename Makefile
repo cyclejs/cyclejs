@@ -1,4 +1,4 @@
-.PHONY: lint docs dom history html http isolate jsonp most-run run rxjs-run
+.PHONY: lint docs dom history html http isolate most-run run rxjs-run
 
 BINDIR=node_modules/.bin
 TSLINT=$(BINDIR)/tslint
@@ -200,8 +200,6 @@ html :
 http :
 	@:
 isolate :
-	@:
-jsonp :
 	@:
 most-run :
 	@:
