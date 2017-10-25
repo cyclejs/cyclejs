@@ -30,7 +30,7 @@
   "typings": "lib/cjs/index.d.ts",
   "types": "lib/cjs/index.d.ts",
   "dependencies": {
-    "@cycle/run": "3.x",
+    "@cycle/run": "3.4",
     "xstream": "*",
     "rxjs": "*"
   },
