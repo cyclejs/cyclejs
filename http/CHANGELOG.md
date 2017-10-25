@@ -1,3 +1,13 @@
+<a name="14.7.0"></a>
+# 14.7.0 (2017-10-25)
+
+
+### Bug Fixes
+
+* **http:** upgrade superagent to v3.7.0 ([b17ab8d](https://github.com/cyclejs/cyclejs/commit/b17ab8d))
+
+
+
 <a name="14.6.0"></a>
 # 14.6.0 (2017-10-24)
 
