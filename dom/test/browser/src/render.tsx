@@ -315,7 +315,7 @@ describe('DOM Rendering', function () {
         },
       });
       assert.strictEqual(secondSubscriberRan, true);
-    }, 100);
+    }, 400);
     dispose = run();
   });
 
