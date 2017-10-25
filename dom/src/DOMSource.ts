@@ -10,7 +10,7 @@ export interface DOMSource {
   elements(): MemoryStream<
     Array<Document> | Array<HTMLBodyElement> | Array<Element> | string
   >;
-  element(): MemoryStream<Document | HTMLBodyElement | Element>;
+  element(): MemoryStream<Document | HTMLBodyElement | Element | string>;
   events<K extends keyof HTMLElementEventMap>(
     eventType: K,
     options?: EventsFnOptions,
