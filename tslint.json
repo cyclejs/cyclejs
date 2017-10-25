@@ -33,6 +33,7 @@
     "prefer-object-spread": true,
     "switch-final-break": true,
     "prefer-method-signature": true,
+    "space-within-parens": false,
     "arrow-return-shorthand": [
       true,
       "multiline"
@@ -79,10 +80,13 @@
         "variable-declaration": "onespace"
       }
     ],
+    "no-implicit-dependencies": true,
+    "ban-comma-operator": true,
     "whitespace": [
       true,
       "check-branch",
       "check-decl",
+      "check-rest-spread",
       "check-operator",
       "check-separator",
       "check-type"
