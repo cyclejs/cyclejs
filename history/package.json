@@ -29,10 +29,10 @@
     "xstream": "11.x"
   },
   "scripts": {
-    "test-node": "../node_modules/.bin/mocha -r ts-node/register test/node/*.ts",
+    "test-node": "../node_modules/.bin/mocha --require ts-node/register test/node/*.ts --exit",
     "test-browser": "../node_modules/.bin/karma start --single-run",
     "test-browser-wait": "../node_modules/.bin/karma start",
-    "test": "npm run test-node && yarn run test-browser",
+    "test": "npm run test-node && npm run test-browser",
     "test-ci": "npm run test",
     "browserify": "../node_modules/.bin/browserify lib/cjs/index.js --standalone CycleHistory --outfile dist/cycle-history.js",
     "minify": "node ../.scripts/minify.js dist/cycle-history.js dist/cycle-history.min.js"

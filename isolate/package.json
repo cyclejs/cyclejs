@@ -41,7 +41,7 @@
     "node": ">=0.10.0"
   },
   "scripts": {
-    "mocha": "../node_modules/.bin/mocha test/*.ts --require ts-node/register",
+    "mocha": "../node_modules/.bin/mocha test/*.ts --require ts-node/register --exit",
     "test": "npm run mocha",
     "test-ci": "npm run test",
     "browserify": "../node_modules/.bin/browserify lib/cjs/index.js --standalone CycleIsolate --outfile dist/cycle-isolate.js",

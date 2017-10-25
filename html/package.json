@@ -62,7 +62,7 @@
     "xstream": "global:xstream"
   },
   "scripts": {
-    "test-node": "../node_modules/.bin/mocha test/*.ts --require ts-node/register",
+    "test-node": "../node_modules/.bin/mocha test/*.ts --require ts-node/register --exit",
     "test": "npm run test-node",
     "test-ci": "npm run test",
     "browserify": "../node_modules/.bin/browserify lib/cjs/index.js --global-transform=browserify-shim --standalone CycleHTML --exclude xstream --outfile dist/cycle-html.js",

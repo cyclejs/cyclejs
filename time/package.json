@@ -51,8 +51,8 @@
   },
   "scripts": {
     "start": "../node_modules/.bin/budo -d example example/index.ts:index.js --live -- -p tsify",
-    "test-watch": "../node_modules/.bin/mocha 'test/**/*.ts' --compilers ts:ts-node/register --watch -R min",
-    "test-node": "../node_modules/.bin/mocha 'test/**/*.ts' --compilers ts:ts-node/register",
+    "test-watch": "../node_modules/.bin/mocha 'test/**/*.ts' --require ts-node/register --watch -R min",
+    "test-node": "../node_modules/.bin/mocha 'test/**/*.ts' --require ts-node/register --exit",
     "test": "npm run test-node && npm run test-docs",
     "test-ci": "npm run test",
     "test-docs": "markdown-doctest",
