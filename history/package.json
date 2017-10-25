@@ -22,12 +22,12 @@
   "devDependencies": {
     "@cycle/run": "3.4",
     "@cycle/dom": "19.2",
-    "@cycle/rxjs-run": "7.x",
+    "@cycle/rxjs-run": "7.2",
     "@types/history": "4.6.x",
     "@types/mocha": "^2.2.32",
-    "@types/node": "6.0.x",
+    "@types/node": "8.0.x",
     "rxjs": "5.4.2",
-    "saucie": "3.2.0",
+    "saucie": "3.3.0",
     "xstream": "11.x"
   },
   "scripts": {
