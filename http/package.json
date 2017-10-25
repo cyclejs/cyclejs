@@ -14,8 +14,8 @@
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/run": "3.x",
-    "@cycle/rxjs-run": "7.x",
+    "@cycle/run": "3.4",
+    "@cycle/rxjs-run": "7.2",
     "@types/body-parser": "1.16.x",
     "@types/cookie-parser": "1.4.x",
     "@types/express": "4.0.x",
