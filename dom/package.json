@@ -37,22 +37,21 @@
     "@cycle/run": "*",
     "es6-map": "^0.1.4",
     "snabbdom": "0.7.0",
-    "snabbdom-selector": "1.2.1"
-  },
-  "peerDependencies": {
+    "snabbdom-selector": "2.0.1",
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/isolate": "3.0",
-    "@cycle/rxjs-run": "7.x",
+    "@cycle/run": "3.4",
+    "@cycle/isolate": "3.2",
+    "@cycle/rxjs-run": "7.2",
     "@types/mocha": "^2.2.33",
     "@types/node": "^7.0.4",
     "@types/sinon": "^1.16.32",
     "rxjs": "5.4.2",
-    "saucie": "3.2.0",
+    "saucie": "3.3.0",
     "simulant": "^0.2.2",
     "snabbdom-jsx": "^0.3.0",
-    "xstream": "10.8"
+    "xstream": "11.x"
   },
   "engines": {
     "node": ">=0.10.0"
