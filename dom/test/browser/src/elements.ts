@@ -47,16 +47,20 @@ describe('DOMSource.elements()', function() {
     }
 
     let dispose: any;
-    sources.DOM.select('document').element().take(1).addListener({
-      next: root => {
-        assert(root.body !== undefined); //Check type inference
-        assert(isDocument(root));
-        setTimeout(() => {
-          dispose();
-          done();
-        });
-      },
-    });
+    sources.DOM
+      .select('document')
+      .element()
+      .take(1)
+      .addListener({
+        next: root => {
+          assert(root.body !== undefined); //Check type inference
+          assert(isDocument(root));
+          setTimeout(() => {
+            dispose();
+            done();
+          });
+        },
+      });
     dispose = run();
   });
 
@@ -76,16 +80,20 @@ describe('DOMSource.elements()', function() {
     }
 
     let dispose: any;
-    sources.DOM.select('body').element().take(1).addListener({
-      next: root => {
-        assert(root.aLink !== undefined); //Check type inference
-        assert(isBody(root));
-        setTimeout(() => {
-          dispose();
-          done();
-        });
-      },
-    });
+    sources.DOM
+      .select('body')
+      .element()
+      .take(1)
+      .addListener({
+        next: root => {
+          assert(root.aLink !== undefined); //Check type inference
+          assert(isBody(root));
+          setTimeout(() => {
+            dispose();
+            done();
+          });
+        },
+      });
     dispose = run();
   });
 
@@ -103,17 +111,22 @@ describe('DOMSource.elements()', function() {
     });
 
     let dispose: any;
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
-      next: root => {
-        assert(root.forEach !== undefined); //Check type inference
-        assert(Array.isArray(root));
-        assert(root.length === 1);
-        setTimeout(() => {
-          dispose();
-          done();
-        });
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .elements()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: root => {
+          assert(root.forEach !== undefined); //Check type inference
+          assert(Array.isArray(root));
+          assert(root.length === 1);
+          setTimeout(() => {
+            dispose();
+            done();
+          });
+        },
+      });
     dispose = run();
   });
 
@@ -131,16 +144,21 @@ describe('DOMSource.elements()', function() {
     });
 
     let dispose: any;
-    sources.DOM.select('.some').elements().drop(1).take(1).addListener({
-      next: (elems: Element[]) => {
-        assert(Array.isArray(elems));
-        assert(elems.length === 2);
-        setTimeout(() => {
-          dispose();
-          done();
-        });
-      },
-    });
+    sources.DOM
+      .select('.some')
+      .elements()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (elems: Element[]) => {
+          assert(Array.isArray(elems));
+          assert(elems.length === 2);
+          setTimeout(() => {
+            dispose();
+            done();
+          });
+        },
+      });
     dispose = run();
   });
 });

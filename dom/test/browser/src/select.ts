@@ -41,20 +41,25 @@ describe('DOMSource.select()', function() {
     });
 
     let dispose: any;
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const classNameRegex = /top\-most/;
-        assert.strictEqual(root.tagName, 'DIV');
-        const child = root.children[0];
-        const execResult = classNameRegex.exec(child.className);
-        assert.notStrictEqual(execResult, null);
-        assert.strictEqual((execResult as any)[0], 'top-most');
-        setTimeout(() => {
-          dispose();
-          done();
-        });
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const classNameRegex = /top\-most/;
+          assert.strictEqual(root.tagName, 'DIV');
+          const child = root.children[0];
+          const execResult = classNameRegex.exec(child.className);
+          assert.notStrictEqual(execResult, null);
+          assert.strictEqual((execResult as any)[0], 'top-most');
+          setTimeout(() => {
+            dispose();
+            done();
+          });
+        },
+      });
     dispose = run();
   });
 
@@ -222,15 +227,19 @@ describe('DOMSource.select()', function() {
     }
 
     let dispose: any;
-    sources.DOM.select('document').events('click').take(1).addListener({
-      next: (event: Event) => {
-        assert(isDocument(event.target));
-        setTimeout(() => {
-          dispose();
-          done();
-        });
-      },
-    });
+    sources.DOM
+      .select('document')
+      .events('click')
+      .take(1)
+      .addListener({
+        next: (event: Event) => {
+          assert(isDocument(event.target));
+          setTimeout(() => {
+            dispose();
+            done();
+          });
+        },
+      });
     dispose = run();
     simulant.fire(document, 'click');
   });
@@ -247,15 +256,19 @@ describe('DOMSource.select()', function() {
     });
 
     let dispose: any;
-    sources.DOM.select('body').events('click').take(1).addListener({
-      next: (event: Event) => {
-        assert.equal((event.target as HTMLElement).tagName, 'BODY');
-        setTimeout(() => {
-          dispose();
-          done();
-        });
-      },
-    });
+    sources.DOM
+      .select('body')
+      .events('click')
+      .take(1)
+      .addListener({
+        next: (event: Event) => {
+          assert.equal((event.target as HTMLElement).tagName, 'BODY');
+          setTimeout(() => {
+            dispose();
+            done();
+          });
+        },
+      });
     dispose = run();
     simulant.fire(document.body, 'click');
   });

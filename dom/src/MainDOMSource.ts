@@ -165,9 +165,10 @@ export class MainDOMSource implements DOMSource {
       return new BodyDOMSource(this._name);
     }
     const trimmedSelector = selector.trim();
-    const childNamespace = trimmedSelector === `:root`
-      ? this._namespace
-      : this._namespace.concat(trimmedSelector);
+    const childNamespace =
+      trimmedSelector === `:root`
+        ? this._namespace
+        : this._namespace.concat(trimmedSelector);
     return new MainDOMSource(
       this._rootElement$,
       this._sanitation$,

@@ -181,7 +181,10 @@ describe('setup', function() {
     function app(sources: TestSources) {
       return {
         other: concat(
-          sources.other.take(6).map(x => String(x)).startWith('a'),
+          sources.other
+            .take(6)
+            .map(x => String(x))
+            .startWith('a'),
           xs.never(),
         ),
       };
@@ -419,9 +422,12 @@ describe('run', function() {
 
     function main(sources: any): any {
       return {
-        other: sources.other.take(1).startWith('a').map(() => {
-          throw new Error('malfunction');
-        }),
+        other: sources.other
+          .take(1)
+          .startWith('a')
+          .map(() => {
+            throw new Error('malfunction');
+          }),
       };
     }
     function driver(sink: Stream<any>) {

@@ -208,9 +208,10 @@ function isolate<InnerSo, InnerSi>(
 ): Component<OuterSo, OuterSi> {
   checkIsolateArgs(component, scope);
   const randomScope = typeof scope === 'object' ? newScope() : '';
-  const scopes: any = typeof scope === 'string' || typeof scope === 'object'
-    ? scope
-    : scope.toString();
+  const scopes: any =
+    typeof scope === 'string' || typeof scope === 'object'
+      ? scope
+      : scope.toString();
   return function wrappedComponent(
     outerSources: OuterSo,
     ...rest: Array<any>

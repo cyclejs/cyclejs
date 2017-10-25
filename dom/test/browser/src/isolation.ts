@@ -52,20 +52,25 @@ describe('isolateSource', function() {
     const isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'foo');
 
     // Make assertions
-    isolatedDOMSource.select('.bar').elements().drop(1).take(1).addListener({
-      next: (elements: Array<Element>) => {
-        assert.strictEqual(elements.length, 1);
-        const correctElement = elements[0];
-        assert.notStrictEqual(correctElement, null);
-        assert.notStrictEqual(typeof correctElement, 'undefined');
-        assert.strictEqual(correctElement.tagName, 'H4');
-        assert.strictEqual(correctElement.textContent, 'Correct');
-        setTimeout(() => {
-          dispose();
-          done();
-        });
-      },
-    });
+    isolatedDOMSource
+      .select('.bar')
+      .elements()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (elements: Array<Element>) => {
+          assert.strictEqual(elements.length, 1);
+          const correctElement = elements[0];
+          assert.notStrictEqual(correctElement, null);
+          assert.notStrictEqual(typeof correctElement, 'undefined');
+          assert.strictEqual(correctElement.tagName, 'H4');
+          assert.strictEqual(correctElement.textContent, 'Correct');
+          setTimeout(() => {
+            dispose();
+            done();
+          });
+        },
+      });
     dispose = run();
   });
 
@@ -149,14 +154,17 @@ describe('isolateSink', function() {
 
     let dispose: any;
     // Make assertions
-    sinks.DOM.drop(2).take(1).addListener({
-      next: (vtree: VNode) => {
-        assert.strictEqual(vtree.sel, 'span.tab1');
-        assert.strictEqual((vtree.data as any).isolate, '1');
-        dispose();
-        done();
-      },
-    });
+    sinks.DOM
+      .drop(2)
+      .take(1)
+      .addListener({
+        next: (vtree: VNode) => {
+          assert.strictEqual(vtree.sel, 'span.tab1');
+          assert.strictEqual((vtree.data as any).isolate, '1');
+          dispose();
+          done();
+        },
+      });
     dispose = run();
   });
 });
@@ -184,18 +192,23 @@ describe('isolation', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM.select('.bar').elements().drop(1).take(1).addListener({
-      next: (elements: Array<Element>) => {
-        assert.strictEqual(Array.isArray(elements), true);
-        assert.strictEqual(elements.length, 1);
-        const correctElement = elements[0];
-        assert.notStrictEqual(correctElement, null);
-        assert.notStrictEqual(typeof correctElement, 'undefined');
-        assert.strictEqual(correctElement.tagName, 'H2');
-        assert.strictEqual(correctElement.textContent, 'Correct');
-        done();
-      },
-    });
+    sources.DOM
+      .select('.bar')
+      .elements()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (elements: Array<Element>) => {
+          assert.strictEqual(Array.isArray(elements), true);
+          assert.strictEqual(elements.length, 1);
+          const correctElement = elements[0];
+          assert.notStrictEqual(correctElement, null);
+          assert.notStrictEqual(typeof correctElement, 'undefined');
+          assert.strictEqual(correctElement.tagName, 'H2');
+          assert.strictEqual(correctElement.textContent, 'Correct');
+          done();
+        },
+      });
     run();
   });
 
@@ -219,25 +232,30 @@ describe('isolation', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM.select('.bar').elements().drop(1).take(1).addListener({
-      next: (elements: Array<Element>) => {
-        assert.strictEqual(Array.isArray(elements), true);
-        assert.strictEqual(elements.length, 2);
+    sources.DOM
+      .select('.bar')
+      .elements()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (elements: Array<Element>) => {
+          assert.strictEqual(Array.isArray(elements), true);
+          assert.strictEqual(elements.length, 2);
 
-        const notWrongElement = elements[0];
-        assert.notStrictEqual(notWrongElement, null);
-        assert.notStrictEqual(typeof notWrongElement, 'undefined');
-        assert.strictEqual(notWrongElement.tagName, 'H4');
-        assert.strictEqual(notWrongElement.textContent, 'Not wrong');
+          const notWrongElement = elements[0];
+          assert.notStrictEqual(notWrongElement, null);
+          assert.notStrictEqual(typeof notWrongElement, 'undefined');
+          assert.strictEqual(notWrongElement.tagName, 'H4');
+          assert.strictEqual(notWrongElement.textContent, 'Not wrong');
 
-        const correctElement = elements[1];
-        assert.notStrictEqual(correctElement, null);
-        assert.notStrictEqual(typeof correctElement, 'undefined');
-        assert.strictEqual(correctElement.tagName, 'H2');
-        assert.strictEqual(correctElement.textContent, 'Correct');
-        done();
-      },
-    });
+          const correctElement = elements[1];
+          assert.notStrictEqual(correctElement, null);
+          assert.notStrictEqual(typeof correctElement, 'undefined');
+          assert.strictEqual(correctElement.tagName, 'H2');
+          assert.strictEqual(correctElement.textContent, 'Correct');
+          done();
+        },
+      });
     run();
   });
 
@@ -271,34 +289,39 @@ describe('isolation', function() {
     });
 
     // Assert parent has total access to its children
-    sources.DOM.select('.header').elements().drop(1).take(1).addListener({
-      next: (elements: Array<Element>) => {
-        assert.strictEqual(Array.isArray(elements), true);
-        assert.strictEqual(elements.length, 3);
-        assert.strictEqual(elements[0].tagName, 'H4');
-        assert.strictEqual(elements[0].textContent, 'Correct');
-        assert.strictEqual(elements[1].tagName, 'H3');
-        assert.strictEqual(elements[1].textContent, 'Wrong');
-        assert.strictEqual(elements[2].tagName, 'H2');
-        assert.strictEqual(elements[2].textContent, 'Correct');
+    sources.DOM
+      .select('.header')
+      .elements()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (elements: Array<Element>) => {
+          assert.strictEqual(Array.isArray(elements), true);
+          assert.strictEqual(elements.length, 3);
+          assert.strictEqual(elements[0].tagName, 'H4');
+          assert.strictEqual(elements[0].textContent, 'Correct');
+          assert.strictEqual(elements[1].tagName, 'H3');
+          assert.strictEqual(elements[1].textContent, 'Wrong');
+          assert.strictEqual(elements[2].tagName, 'H2');
+          assert.strictEqual(elements[2].textContent, 'Correct');
 
-        // Assert .foo child has no access to .bar child
-        sources.DOM
-          .isolateSource(sources.DOM, '.foo')
-          .select('.header')
-          .elements()
-          .take(1)
-          .addListener({
-            next: (els: Array<Element>) => {
-              assert.strictEqual(Array.isArray(els), true);
-              assert.strictEqual(els.length, 1);
-              assert.strictEqual(els[0].tagName, 'H4');
-              assert.strictEqual(els[0].textContent, 'Correct');
-              done();
-            },
-          });
-      },
-    });
+          // Assert .foo child has no access to .bar child
+          sources.DOM
+            .isolateSource(sources.DOM, '.foo')
+            .select('.header')
+            .elements()
+            .take(1)
+            .addListener({
+              next: (els: Array<Element>) => {
+                assert.strictEqual(Array.isArray(els), true);
+                assert.strictEqual(els.length, 1);
+                assert.strictEqual(els[0].tagName, 'H4');
+                assert.strictEqual(els[0].textContent, 'Correct');
+                done();
+              },
+            });
+        },
+      });
 
     run();
   });
@@ -333,34 +356,39 @@ describe('isolation', function() {
     });
 
     // Assert parent has total access to its children
-    sources.DOM.select('.header').elements().drop(1).take(1).addListener({
-      next: (elements: Array<Element>) => {
-        assert.strictEqual(Array.isArray(elements), true);
-        assert.strictEqual(elements.length, 3);
-        assert.strictEqual(elements[0].tagName, 'H4');
-        assert.strictEqual(elements[0].textContent, 'Correct');
-        assert.strictEqual(elements[1].tagName, 'H3');
-        assert.strictEqual(elements[1].textContent, 'Wrong');
-        assert.strictEqual(elements[2].tagName, 'H2');
-        assert.strictEqual(elements[2].textContent, 'Correct');
+    sources.DOM
+      .select('.header')
+      .elements()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (elements: Array<Element>) => {
+          assert.strictEqual(Array.isArray(elements), true);
+          assert.strictEqual(elements.length, 3);
+          assert.strictEqual(elements[0].tagName, 'H4');
+          assert.strictEqual(elements[0].textContent, 'Correct');
+          assert.strictEqual(elements[1].tagName, 'H3');
+          assert.strictEqual(elements[1].textContent, 'Wrong');
+          assert.strictEqual(elements[2].tagName, 'H2');
+          assert.strictEqual(elements[2].textContent, 'Correct');
 
-        // Assert .foo child has no access to .bar child
-        sources.DOM
-          .isolateSource(sources.DOM, '#foo')
-          .select('.header')
-          .elements()
-          .take(1)
-          .addListener({
-            next: (els: Array<Element>) => {
-              assert.strictEqual(Array.isArray(els), true);
-              assert.strictEqual(els.length, 1);
-              assert.strictEqual(els[0].tagName, 'H4');
-              assert.strictEqual(els[0].textContent, 'Correct');
-              done();
-            },
-          });
-      },
-    });
+          // Assert .foo child has no access to .bar child
+          sources.DOM
+            .isolateSource(sources.DOM, '#foo')
+            .select('.header')
+            .elements()
+            .take(1)
+            .addListener({
+              next: (els: Array<Element>) => {
+                assert.strictEqual(Array.isArray(els), true);
+                assert.strictEqual(els.length, 1);
+                assert.strictEqual(els[0].tagName, 'H4');
+                assert.strictEqual(els[0].textContent, 'Correct');
+                done();
+              },
+            });
+        },
+      });
 
     run();
   });
@@ -385,18 +413,23 @@ describe('isolation', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM.select('.bar').elements().drop(1).take(1).addListener({
-      next: (elements: Array<Element>) => {
-        assert.strictEqual(Array.isArray(elements), true);
-        assert.strictEqual(elements.length, 1);
-        const correctElement = elements[0];
-        assert.notStrictEqual(correctElement, null);
-        assert.notStrictEqual(typeof correctElement, 'undefined');
-        assert.strictEqual(correctElement.tagName, 'H2');
-        assert.strictEqual(correctElement.textContent, 'Correct');
-        done();
-      },
-    });
+    sources.DOM
+      .select('.bar')
+      .elements()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (elements: Array<Element>) => {
+          assert.strictEqual(Array.isArray(elements), true);
+          assert.strictEqual(elements.length, 1);
+          const correctElement = elements[0];
+          assert.notStrictEqual(correctElement, null);
+          assert.notStrictEqual(typeof correctElement, 'undefined');
+          assert.strictEqual(correctElement.tagName, 'H2');
+          assert.strictEqual(correctElement.textContent, 'Correct');
+          done();
+        },
+      });
     run();
   });
 
@@ -415,16 +448,21 @@ describe('isolation', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const barElem = root.querySelector('.bar') as Element;
-        assert.notStrictEqual(barElem, null);
-        assert.notStrictEqual(typeof barElem, 'undefined');
-        assert.strictEqual(barElem.tagName, 'DIV');
-        assert.strictEqual(barElem.textContent, 'left=0');
-        done();
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const barElem = root.querySelector('.bar') as Element;
+          assert.notStrictEqual(barElem, null);
+          assert.notStrictEqual(typeof barElem, 'undefined');
+          assert.strictEqual(barElem.tagName, 'DIV');
+          assert.strictEqual(barElem.textContent, 'left=0');
+          done();
+        },
+      });
     run();
   });
 
@@ -459,18 +497,21 @@ describe('isolation', function() {
       island: sink => {},
     });
 
-    sinks.island.drop(1).take(1).addListener({
-      next: (elements: Array<Element>) => {
-        assert.strictEqual(Array.isArray(elements), true);
-        assert.strictEqual(elements.length, 1);
-        const correctElement = elements[0];
-        assert.notStrictEqual(correctElement, null);
-        assert.notStrictEqual(typeof correctElement, 'undefined');
-        assert.strictEqual(correctElement.tagName, 'H3');
-        assert.strictEqual(correctElement.textContent, 'Correct');
-        done();
-      },
-    });
+    sinks.island
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (elements: Array<Element>) => {
+          assert.strictEqual(Array.isArray(elements), true);
+          assert.strictEqual(elements.length, 1);
+          const correctElement = elements[0];
+          assert.notStrictEqual(correctElement, null);
+          assert.notStrictEqual(typeof correctElement, 'undefined');
+          assert.strictEqual(correctElement.tagName, 'H3');
+          assert.strictEqual(correctElement.textContent, 'Correct');
+          done();
+        },
+      });
     run();
   });
 
@@ -563,23 +604,30 @@ describe('isolation', function() {
       },
     });
 
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const frameFoo = root.querySelector('.foo.frame') as HTMLElement;
-        const monalisaFoo = root.querySelector('.foo.monalisa') as HTMLElement;
-        assert.notStrictEqual(frameFoo, null);
-        assert.notStrictEqual(monalisaFoo, null);
-        assert.notStrictEqual(typeof frameFoo, 'undefined');
-        assert.notStrictEqual(typeof monalisaFoo, 'undefined');
-        assert.strictEqual(frameFoo.tagName, 'H4');
-        assert.strictEqual(monalisaFoo.tagName, 'SPAN');
-        assert.doesNotThrow(() => {
-          setTimeout(() => monalisaFoo.click());
-          setTimeout(() => monalisaFoo.click());
-          setTimeout(() => frameFoo.click(), 0);
-        });
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const frameFoo = root.querySelector('.foo.frame') as HTMLElement;
+          const monalisaFoo = root.querySelector(
+            '.foo.monalisa',
+          ) as HTMLElement;
+          assert.notStrictEqual(frameFoo, null);
+          assert.notStrictEqual(monalisaFoo, null);
+          assert.notStrictEqual(typeof frameFoo, 'undefined');
+          assert.notStrictEqual(typeof monalisaFoo, 'undefined');
+          assert.strictEqual(frameFoo.tagName, 'H4');
+          assert.strictEqual(monalisaFoo.tagName, 'SPAN');
+          assert.doesNotThrow(() => {
+            setTimeout(() => monalisaFoo.click());
+            setTimeout(() => monalisaFoo.click());
+            setTimeout(() => frameFoo.click(), 0);
+          });
+        },
+      });
     dispose = run();
   });
 
@@ -661,16 +709,19 @@ describe('isolation', function() {
     });
 
     // Make assertions
-    sinks.triangleElement.drop(1).take(1).addListener({
-      next: (elements: Array<Element>) => {
-        assert.strictEqual(elements.length, 1);
-        const triangleElement = elements[0];
-        assert.notStrictEqual(triangleElement, null);
-        assert.notStrictEqual(typeof triangleElement, 'undefined');
-        assert.strictEqual(triangleElement.tagName, 'polygon');
-        done();
-      },
-    });
+    sinks.triangleElement
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (elements: Array<Element>) => {
+          assert.strictEqual(elements.length, 1);
+          const triangleElement = elements[0];
+          assert.notStrictEqual(triangleElement, null);
+          assert.notStrictEqual(typeof triangleElement, 'undefined');
+          assert.strictEqual(triangleElement.tagName, 'polygon');
+          done();
+        },
+      });
     run();
   });
 
@@ -765,17 +816,22 @@ describe('isolation', function() {
     const isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'foo');
 
     // Make assertions
-    isolatedDOMSource.select('h4.bar').elements().drop(1).take(1).addListener({
-      next: (elements: Array<Element>) => {
-        assert.strictEqual(elements.length, 1);
-        const correctElement = elements[0];
-        assert.notStrictEqual(correctElement, null);
-        assert.notStrictEqual(typeof correctElement, 'undefined');
-        assert.strictEqual(correctElement.tagName, 'H4');
-        assert.strictEqual(correctElement.textContent, 'Correct');
-        done();
-      },
-    });
+    isolatedDOMSource
+      .select('h4.bar')
+      .elements()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (elements: Array<Element>) => {
+          assert.strictEqual(elements.length, 1);
+          const correctElement = elements[0];
+          assert.notStrictEqual(correctElement, null);
+          assert.notStrictEqual(typeof correctElement, 'undefined');
+          assert.strictEqual(correctElement.tagName, 'H4');
+          assert.strictEqual(correctElement.textContent, 'Correct');
+          done();
+        },
+      });
     run();
   });
 
@@ -804,19 +860,24 @@ describe('isolation', function() {
     });
 
     // Make assertions
-    isolatedDOMSource.select('div').elements().drop(1).take(1).addListener({
-      next: (elements: Array<Element>) => {
-        assert.strictEqual(elements.length, 1);
-        const correctElement = elements[0] as HTMLElement;
-        assert.notStrictEqual(correctElement, null);
-        assert.notStrictEqual(typeof correctElement, 'undefined');
-        assert.strictEqual(correctElement.tagName, 'DIV');
-        assert.strictEqual(correctElement.textContent, 'Hello');
-        setTimeout(() => {
-          correctElement.click();
-        });
-      },
-    });
+    isolatedDOMSource
+      .select('div')
+      .elements()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (elements: Array<Element>) => {
+          assert.strictEqual(elements.length, 1);
+          const correctElement = elements[0] as HTMLElement;
+          assert.notStrictEqual(correctElement, null);
+          assert.notStrictEqual(typeof correctElement, 'undefined');
+          assert.strictEqual(correctElement.tagName, 'DIV');
+          assert.strictEqual(correctElement.textContent, 'Hello');
+          setTimeout(() => {
+            correctElement.click();
+          });
+        },
+      });
     dispose = run();
   });
 
@@ -842,35 +903,46 @@ describe('isolation', function() {
 
     let called = false;
 
-    sources.DOM.select('.top-most').events('click').addListener({
-      next: (ev: Event) => {
-        assert.strictEqual(called, true);
-        dispose();
-        done();
-      },
-    });
+    sources.DOM
+      .select('.top-most')
+      .events('click')
+      .addListener({
+        next: (ev: Event) => {
+          assert.strictEqual(called, true);
+          dispose();
+          done();
+        },
+      });
 
-    isolatedDOMSource.select('h4.bar').events('click').addListener({
-      next: (ev: Event) => {
-        assert.strictEqual(called, false);
-        called = true;
-      },
-    });
+    isolatedDOMSource
+      .select('h4.bar')
+      .events('click')
+      .addListener({
+        next: (ev: Event) => {
+          assert.strictEqual(called, false);
+          called = true;
+        },
+      });
 
     // Make assertions
-    isolatedDOMSource.select('h4.bar').elements().drop(1).take(1).addListener({
-      next: (elements: Array<Element>) => {
-        assert.strictEqual(elements.length, 1);
-        const correctElement = elements[0] as HTMLElement;
-        assert.notStrictEqual(correctElement, null);
-        assert.notStrictEqual(typeof correctElement, 'undefined');
-        assert.strictEqual(correctElement.tagName, 'H4');
-        assert.strictEqual(correctElement.textContent, 'Correct');
-        setTimeout(() => {
-          correctElement.click();
-        });
-      },
-    });
+    isolatedDOMSource
+      .select('h4.bar')
+      .elements()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (elements: Array<Element>) => {
+          assert.strictEqual(elements.length, 1);
+          const correctElement = elements[0] as HTMLElement;
+          assert.notStrictEqual(correctElement, null);
+          assert.notStrictEqual(typeof correctElement, 'undefined');
+          assert.strictEqual(correctElement.tagName, 'H4');
+          assert.strictEqual(correctElement.textContent, 'Correct');
+          setTimeout(() => {
+            correctElement.click();
+          });
+        },
+      });
     dispose = run();
   });
 
@@ -906,32 +978,40 @@ describe('isolation', function() {
 
     let parentEventHandlerCalled = false;
 
-    topDOMSource.select('.bar').events('click').addListener({
-      next: (ev: any) => {
-        parentEventHandlerCalled = true;
-        done('this should not be called');
-      },
-    });
+    topDOMSource
+      .select('.bar')
+      .events('click')
+      .addListener({
+        next: (ev: any) => {
+          parentEventHandlerCalled = true;
+          done('this should not be called');
+        },
+      });
 
     // Make assertions
-    fooDOMSource.select('.bar').elements().drop(1).take(1).addListener({
-      next: (elements: Array<Element>) => {
-        assert.strictEqual(elements.length, 1);
-        const correctElement = elements[0] as HTMLElement;
-        assert.notStrictEqual(correctElement, null);
-        assert.notStrictEqual(typeof correctElement, 'undefined');
-        assert.strictEqual(correctElement.tagName, 'H4');
-        assert.strictEqual(correctElement.textContent, 'Correct');
-        setTimeout(() => {
-          correctElement.click();
+    fooDOMSource
+      .select('.bar')
+      .elements()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (elements: Array<Element>) => {
+          assert.strictEqual(elements.length, 1);
+          const correctElement = elements[0] as HTMLElement;
+          assert.notStrictEqual(correctElement, null);
+          assert.notStrictEqual(typeof correctElement, 'undefined');
+          assert.strictEqual(correctElement.tagName, 'H4');
+          assert.strictEqual(correctElement.textContent, 'Correct');
           setTimeout(() => {
-            assert.strictEqual(parentEventHandlerCalled, false);
-            dispose();
-            done();
-          }, 150);
-        });
-      },
-    });
+            correctElement.click();
+            setTimeout(() => {
+              assert.strictEqual(parentEventHandlerCalled, false);
+              dispose();
+              done();
+            }, 150);
+          });
+        },
+      });
     dispose = run();
   });
 
@@ -983,26 +1063,31 @@ describe('isolation', function() {
     });
 
     let dispose: any;
-    sources.DOM.select(':root').element().drop(2).take(1).addListener({
-      next: (root: Element) => {
-        const parentEl = root.querySelector('.parent') as HTMLElement;
-        const foo = parentEl.querySelectorAll('.foo')[1] as HTMLElement;
-        assert.notStrictEqual(parentEl, null);
-        assert.notStrictEqual(typeof parentEl, 'undefined');
-        assert.notStrictEqual(foo, null);
-        assert.notStrictEqual(typeof foo, 'undefined');
-        assert.strictEqual(parentEl.tagName, 'DIV');
-        setTimeout(() => {
-          assert.strictEqual(errorHappened, false);
-          foo.click();
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(2)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const parentEl = root.querySelector('.parent') as HTMLElement;
+          const foo = parentEl.querySelectorAll('.foo')[1] as HTMLElement;
+          assert.notStrictEqual(parentEl, null);
+          assert.notStrictEqual(typeof parentEl, 'undefined');
+          assert.notStrictEqual(foo, null);
+          assert.notStrictEqual(typeof foo, 'undefined');
+          assert.strictEqual(parentEl.tagName, 'DIV');
           setTimeout(() => {
-            assert.strictEqual(clickDetected, true);
-            dispose();
-            done();
-          }, 50);
-        }, 100);
-      },
-    });
+            assert.strictEqual(errorHappened, false);
+            foo.click();
+            setTimeout(() => {
+              assert.strictEqual(clickDetected, true);
+              dispose();
+              done();
+            }, 50);
+          }, 100);
+        },
+      });
     dispose = run();
   });
 
@@ -1010,11 +1095,14 @@ describe('isolation', function() {
     let clicksCount = 0;
 
     function Child(sources: {DOM: MainDOMSource}) {
-      sources.DOM.select('.foo').events('click').addListener({
-        next: () => {
-          clicksCount++;
-        },
-      });
+      sources.DOM
+        .select('.foo')
+        .events('click')
+        .addListener({
+          next: () => {
+            clicksCount++;
+          },
+        });
       return {
         DOM: xs.of(div('.foo', ['This is foo'])),
       };
@@ -1040,17 +1128,22 @@ describe('isolation', function() {
     });
 
     let dispose: any;
-    sources.DOM.select(':root').element().drop(1).take(3).addListener({
-      next: (root: Element) => {
-        setTimeout(() => {
-          const foo = root.querySelector('.foo');
-          if (!foo) {
-            return;
-          }
-          (foo as any).click();
-        }, 0);
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(3)
+      .addListener({
+        next: (root: Element) => {
+          setTimeout(() => {
+            const foo = root.querySelector('.foo');
+            if (!foo) {
+              return;
+            }
+            (foo as any).click();
+          }, 0);
+        },
+      });
     setTimeout(() => {
       assert.strictEqual(clicksCount, 2);
       dispose();
@@ -1063,11 +1156,14 @@ describe('isolation', function() {
     let clicksCount = 0;
 
     function Child(sources: {DOM: MainDOMSource}) {
-      sources.DOM.select('.foo').events('click').addListener({
-        next: () => {
-          clicksCount++;
-        },
-      });
+      sources.DOM
+        .select('.foo')
+        .events('click')
+        .addListener({
+          next: () => {
+            clicksCount++;
+          },
+        });
       return {
         DOM: xs.of(div('.foo', ['This is foo'])),
       };
@@ -1076,7 +1172,11 @@ describe('isolation', function() {
     function main(sources: {DOM: MainDOMSource}) {
       const child = isolate(Child, 'child')(sources);
       // change parent key, causing it to be recreated
-      const x$ = xs.periodic(120).map(x => x + 1).startWith(0).take(4);
+      const x$ = xs
+        .periodic(120)
+        .map(x => x + 1)
+        .startWith(0)
+        .take(4);
       const innerDOM$ = xs
         .combine(x$, child.DOM)
         .map(([x, childVDOM]) =>
@@ -1092,17 +1192,22 @@ describe('isolation', function() {
     });
 
     let dispose: any;
-    sources.DOM.select(':root').element().drop(1).take(4).addListener({
-      next: (root: Element) => {
-        setTimeout(() => {
-          const foo = root.querySelector('.foo');
-          if (!foo) {
-            return;
-          }
-          (foo as any).click();
-        }, 0);
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(4)
+      .addListener({
+        next: (root: Element) => {
+          setTimeout(() => {
+            const foo = root.querySelector('.foo');
+            if (!foo) {
+              return;
+            }
+            (foo as any).click();
+          }, 0);
+        },
+      });
     setTimeout(() => {
       assert.strictEqual(clicksCount, 4);
       dispose();
@@ -1115,11 +1220,14 @@ describe('isolation', function() {
     let clicksCount = 0;
 
     function Child(sources: {DOM: MainDOMSource}) {
-      sources.DOM.select('.foo').events('click').addListener({
-        next: () => {
-          clicksCount++;
-        },
-      });
+      sources.DOM
+        .select('.foo')
+        .events('click')
+        .addListener({
+          next: () => {
+            clicksCount++;
+          },
+        });
       return {
         DOM: xs.of(div('.foo', ['This is foo'])),
       };
@@ -1128,7 +1236,11 @@ describe('isolation', function() {
     function Parent(sources: {DOM: MainDOMSource}) {
       const child = isolate(Child, 'child')(sources);
       // change parent key, causing it to be recreated
-      const x$ = xs.periodic(120).map(x => x + 1).startWith(0).take(4);
+      const x$ = xs
+        .periodic(120)
+        .map(x => x + 1)
+        .startWith(0)
+        .take(4);
       const innerDOM$ = xs
         .combine(x$, child.DOM)
         .map(([x, childVDOM]) =>
@@ -1151,17 +1263,22 @@ describe('isolation', function() {
     });
 
     let dispose: any;
-    sources.DOM.select(':root').element().drop(1).take(4).addListener({
-      next: (root: Element) => {
-        setTimeout(() => {
-          const foo = root.querySelector('.foo');
-          if (!foo) {
-            return;
-          }
-          (foo as any).click();
-        }, 0);
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(4)
+      .addListener({
+        next: (root: Element) => {
+          setTimeout(() => {
+            const foo = root.querySelector('.foo');
+            if (!foo) {
+              return;
+            }
+            (foo as any).click();
+          }, 0);
+        },
+      });
     setTimeout(() => {
       assert.strictEqual(clicksCount, 4);
       dispose();
@@ -1176,13 +1293,16 @@ describe('isolation', function() {
     done => {
       let dispose: any;
       function Component(sources: {DOM: MainDOMSource}) {
-        sources.DOM.select('.btn').events('click').addListener({
-          next: (ev: Event) => {
-            assert.strictEqual((ev.target as HTMLElement).tagName, 'BUTTON');
-            dispose();
-            done();
-          },
-        });
+        sources.DOM
+          .select('.btn')
+          .events('click')
+          .addListener({
+            next: (ev: Event) => {
+              assert.strictEqual((ev.target as HTMLElement).tagName, 'BUTTON');
+              dispose();
+              done();
+            },
+          });
         return {
           DOM: xs.of(div('.component', {}, [button('.btn', {}, 'Hello')])),
         };
@@ -1201,13 +1321,17 @@ describe('isolation', function() {
         DOM: makeDOMDriver(createRenderTarget()),
       });
 
-      sources.DOM.element().drop(1).take(1).addListener({
-        next: (root: Element) => {
-          const element = root.querySelector('.btn') as HTMLElement;
-          assert.notStrictEqual(element, null);
-          setTimeout(() => element.click());
-        },
-      });
+      sources.DOM
+        .element()
+        .drop(1)
+        .take(1)
+        .addListener({
+          next: (root: Element) => {
+            const element = root.querySelector('.btn') as HTMLElement;
+            assert.notStrictEqual(element, null);
+            setTimeout(() => element.click());
+          },
+        });
 
       dispose = run();
     },
@@ -1220,13 +1344,16 @@ describe('isolation', function() {
     done => {
       let dispose: any;
       function Component(sources: {DOM: MainDOMSource}) {
-        sources.DOM.select('.btn').events('click').addListener({
-          next: (ev: Event) => {
-            assert.strictEqual((ev.target as HTMLElement).tagName, 'BUTTON');
-            dispose();
-            done();
-          },
-        });
+        sources.DOM
+          .select('.btn')
+          .events('click')
+          .addListener({
+            next: (ev: Event) => {
+              assert.strictEqual((ev.target as HTMLElement).tagName, 'BUTTON');
+              dispose();
+              done();
+            },
+          });
         return {
           DOM: xs.of(div('.component', {}, [button('.btn', {}, 'Hello')])),
         };
@@ -1245,13 +1372,17 @@ describe('isolation', function() {
         DOM: makeDOMDriver(createRenderTarget()),
       });
 
-      sources.DOM.element().drop(1).take(1).addListener({
-        next: (root: Element) => {
-          const element = root.querySelector('.btn') as HTMLElement;
-          assert.notStrictEqual(element, null);
-          setTimeout(() => element.click());
-        },
-      });
+      sources.DOM
+        .element()
+        .drop(1)
+        .take(1)
+        .addListener({
+          next: (root: Element) => {
+            const element = root.querySelector('.btn') as HTMLElement;
+            assert.notStrictEqual(element, null);
+            setTimeout(() => element.click());
+          },
+        });
 
       dispose = run();
     },
@@ -1264,13 +1395,16 @@ describe('isolation', function() {
     done => {
       let dispose: any;
       function Component(sources: {DOM: MainDOMSource}) {
-        sources.DOM.select('.btn').events('click').addListener({
-          next: (ev: Event) => {
-            assert.strictEqual((ev.target as HTMLElement).tagName, 'BUTTON');
-            dispose();
-            done();
-          },
-        });
+        sources.DOM
+          .select('.btn')
+          .events('click')
+          .addListener({
+            next: (ev: Event) => {
+              assert.strictEqual((ev.target as HTMLElement).tagName, 'BUTTON');
+              dispose();
+              done();
+            },
+          });
         return {
           DOM: xs.of(div('.component', {}, [button('.btn', {}, 'Hello')])),
         };
@@ -1289,13 +1423,17 @@ describe('isolation', function() {
         DOM: makeDOMDriver(createRenderTarget()),
       });
 
-      sources.DOM.element().drop(1).take(1).addListener({
-        next: (root: Element) => {
-          const element = root.querySelector('.btn') as HTMLElement;
-          assert.notStrictEqual(element, null);
-          setTimeout(() => element.click());
-        },
-      });
+      sources.DOM
+        .element()
+        .drop(1)
+        .take(1)
+        .addListener({
+          next: (root: Element) => {
+            const element = root.querySelector('.btn') as HTMLElement;
+            assert.notStrictEqual(element, null);
+            setTimeout(() => element.click());
+          },
+        });
 
       dispose = run();
     },
@@ -1308,13 +1446,16 @@ describe('isolation', function() {
     done => {
       let dispose: any;
       function Component(sources: {DOM: MainDOMSource}) {
-        sources.DOM.select('.btn').events('click').addListener({
-          next: (ev: Event) => {
-            assert.strictEqual((ev.target as HTMLElement).tagName, 'BUTTON');
-            dispose();
-            done();
-          },
-        });
+        sources.DOM
+          .select('.btn')
+          .events('click')
+          .addListener({
+            next: (ev: Event) => {
+              assert.strictEqual((ev.target as HTMLElement).tagName, 'BUTTON');
+              dispose();
+              done();
+            },
+          });
         return {
           DOM: xs.of(div('.component', {}, [button('.btn', {}, 'Hello')])),
         };
@@ -1333,13 +1474,17 @@ describe('isolation', function() {
         DOM: makeDOMDriver(createRenderTarget()),
       });
 
-      sources.DOM.element().drop(1).take(1).addListener({
-        next: (root: Element) => {
-          const element = root.querySelector('.btn') as HTMLElement;
-          assert.notStrictEqual(element, null);
-          setTimeout(() => element.click());
-        },
-      });
+      sources.DOM
+        .element()
+        .drop(1)
+        .take(1)
+        .addListener({
+          next: (root: Element) => {
+            const element = root.querySelector('.btn') as HTMLElement;
+            assert.notStrictEqual(element, null);
+            setTimeout(() => element.click());
+          },
+        });
 
       dispose = run();
     },
@@ -1352,11 +1497,14 @@ describe('isolation', function() {
       const componentRemove$ = xs.create<any>();
 
       function Component(sources: {DOM: MainDOMSource}) {
-        sources.DOM.select('.btn').events('click').addListener({
-          next: (ev: Event) => {
-            componentRemove$.shamefullySendNext(null);
-          },
-        });
+        sources.DOM
+          .select('.btn')
+          .events('click')
+          .addListener({
+            next: (ev: Event) => {
+              componentRemove$.shamefullySendNext(null);
+            },
+          });
 
         return {
           DOM: xs.of(div('.component', {}, [button('.btn', {}, 'Hello')])),
@@ -1390,32 +1538,39 @@ describe('isolation', function() {
       });
 
       let dispose: any;
-      sources.DOM.element().drop(1).take(1).addListener({
-        next: (root: Element) => {
-          const components = root.querySelectorAll('.btn');
-          assert.strictEqual(components.length, 2);
-          const firstElement = components[0] as HTMLElement;
-          const secondElement = components[1] as HTMLElement;
-          setTimeout(() => {
-            firstElement.click();
-          }, 100);
-          setTimeout(() => {
-            secondElement.click();
-          }, 300);
-          setTimeout(() => {
-            assert.strictEqual(root.querySelectorAll('.component').length, 0);
-            dispose();
-            done();
-          }, 500);
-        },
-      });
+      sources.DOM
+        .element()
+        .drop(1)
+        .take(1)
+        .addListener({
+          next: (root: Element) => {
+            const components = root.querySelectorAll('.btn');
+            assert.strictEqual(components.length, 2);
+            const firstElement = components[0] as HTMLElement;
+            const secondElement = components[1] as HTMLElement;
+            setTimeout(() => {
+              firstElement.click();
+            }, 100);
+            setTimeout(() => {
+              secondElement.click();
+            }, 300);
+            setTimeout(() => {
+              assert.strictEqual(root.querySelectorAll('.component').length, 0);
+              dispose();
+              done();
+            }, 500);
+          },
+        });
       dispose = run();
     },
   );
 
   it('should allow null or undefined isolated child DOM', function(done) {
     function child(sources: {DOM: MainDOMSource}) {
-      const visible$ = xs.periodic(50).take(1).fold((acc, _) => !acc, true);
+      const visible$ = xs
+        .periodic(50)
+        .take(1)
+        .fold((acc, _) => !acc, true);
       const vdom$ = visible$.map(visible => (visible ? h4('child') : null));
       return {
         DOM: vdom$,
@@ -1437,34 +1592,49 @@ describe('isolation', function() {
     });
 
     let dispose: any;
-    sources.DOM.element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const parentEl = root.querySelector('.parent') as Element;
-        assert.strictEqual(parentEl.childNodes.length, 2);
-        assert.strictEqual(parentEl.children[0].tagName, 'H4');
-        assert.strictEqual(parentEl.children[0].textContent, 'child');
-        assert.strictEqual(parentEl.children[1].tagName, 'H2');
-        assert.strictEqual(parentEl.children[1].textContent, 'part of parent');
-      },
-    });
-    sources.DOM.element().drop(2).take(1).addListener({
-      next: (root: Element) => {
-        const parentEl = root.querySelector('.parent') as Element;
-        assert.strictEqual(parentEl.childNodes.length, 1);
-        assert.strictEqual(parentEl.children[0].tagName, 'H2');
-        assert.strictEqual(parentEl.children[0].textContent, 'part of parent');
-        dispose();
-        done();
-      },
-    });
+    sources.DOM
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const parentEl = root.querySelector('.parent') as Element;
+          assert.strictEqual(parentEl.childNodes.length, 2);
+          assert.strictEqual(parentEl.children[0].tagName, 'H4');
+          assert.strictEqual(parentEl.children[0].textContent, 'child');
+          assert.strictEqual(parentEl.children[1].tagName, 'H2');
+          assert.strictEqual(
+            parentEl.children[1].textContent,
+            'part of parent',
+          );
+        },
+      });
+    sources.DOM
+      .element()
+      .drop(2)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const parentEl = root.querySelector('.parent') as Element;
+          assert.strictEqual(parentEl.childNodes.length, 1);
+          assert.strictEqual(parentEl.children[0].tagName, 'H2');
+          assert.strictEqual(
+            parentEl.children[0].textContent,
+            'part of parent',
+          );
+          dispose();
+          done();
+        },
+      });
     dispose = run();
   });
 
   it('should allow recursive isolation using the same scope', done => {
     function Item(sources: {DOM: MainDOMSource}, count: number) {
-      const childVdom$: Stream<VNode> = count > 0
-        ? isolate(Item, '0')(sources, count - 1).DOM
-        : xs.of<any>(null);
+      const childVdom$: Stream<VNode> =
+        count > 0
+          ? isolate(Item, '0')(sources, count - 1).DOM
+          : xs.of<any>(null);
 
       const highlight$ = sources.DOM
         .select('button')
@@ -1493,27 +1663,31 @@ describe('isolation', function() {
     });
 
     let dispose: any;
-    sources.DOM.element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const buttons = root.querySelectorAll('.btn');
-        assert.strictEqual(buttons.length, 4);
-        const firstButton = buttons[0];
-        const secondButton = buttons[1];
-        const thirdButton = buttons[2] as HTMLElement;
-        const forthButton = buttons[3];
-        setTimeout(() => {
-          thirdButton.click();
-        }, 100);
-        setTimeout(() => {
-          assert.notStrictEqual(firstButton.textContent, 'HIGHLIGHTED');
-          assert.notStrictEqual(secondButton.textContent, 'HIGHLIGHTED');
-          assert.strictEqual(thirdButton.textContent, 'HIGHLIGHTED');
-          assert.notStrictEqual(forthButton.textContent, 'HIGHLIGHTED');
-          dispose();
-          done();
-        }, 300);
-      },
-    });
+    sources.DOM
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const buttons = root.querySelectorAll('.btn');
+          assert.strictEqual(buttons.length, 4);
+          const firstButton = buttons[0];
+          const secondButton = buttons[1];
+          const thirdButton = buttons[2] as HTMLElement;
+          const forthButton = buttons[3];
+          setTimeout(() => {
+            thirdButton.click();
+          }, 100);
+          setTimeout(() => {
+            assert.notStrictEqual(firstButton.textContent, 'HIGHLIGHTED');
+            assert.notStrictEqual(secondButton.textContent, 'HIGHLIGHTED');
+            assert.strictEqual(thirdButton.textContent, 'HIGHLIGHTED');
+            assert.notStrictEqual(forthButton.textContent, 'HIGHLIGHTED');
+            dispose();
+            done();
+          }, 300);
+        },
+      });
     dispose = run();
   });
 
@@ -1537,9 +1711,10 @@ describe('isolation', function() {
       const position$ = fromDiagram('1-2|');
       return {
         DOM: xs.combine(position$, comp.DOM).map(([position, childDom]) => {
-          const children = position === '1'
-            ? [div([childDom]), div()]
-            : [div(), div([childDom])];
+          const children =
+            position === '1'
+              ? [div([childDom]), div()]
+              : [div(), div([childDom])];
 
           return div(children);
         }),
@@ -1566,12 +1741,16 @@ describe('isolation', function() {
       },
     });
 
-    sources.DOM.select(':root').element().drop(1).addListener({
-      next: function(root: Element) {
-        const button = root.querySelector('button.click-me') as HTMLElement;
-        button.click();
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .addListener({
+        next: function(root: Element) {
+          const button = root.querySelector('button.click-me') as HTMLElement;
+          button.click();
+        },
+      });
 
     dispose = run();
   });

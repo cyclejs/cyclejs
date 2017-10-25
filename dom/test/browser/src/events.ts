@@ -72,26 +72,36 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
     let dispose: any;
-    sources.DOM.select('.myelementclass').events('click').addListener({
-      next: (ev: Event) => {
-        assert.strictEqual(ev.type, 'click');
-        assert.strictEqual((ev.target as HTMLElement).textContent, 'Foobar');
-        dispose();
-        done();
-      },
-    });
+    sources.DOM
+      .select('.myelementclass')
+      .events('click')
+      .addListener({
+        next: (ev: Event) => {
+          assert.strictEqual(ev.type, 'click');
+          assert.strictEqual((ev.target as HTMLElement).textContent, 'Foobar');
+          dispose();
+          done();
+        },
+      });
     // Make assertions
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: function(root: Element) {
-        const myElement = root.querySelector('.myelementclass') as HTMLElement;
-        assert.notStrictEqual(myElement, null);
-        assert.notStrictEqual(typeof myElement, 'undefined');
-        assert.strictEqual(myElement.tagName, 'H3');
-        assert.doesNotThrow(function() {
-          setTimeout(() => myElement.click());
-        });
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: function(root: Element) {
+          const myElement = root.querySelector(
+            '.myelementclass',
+          ) as HTMLElement;
+          assert.notStrictEqual(myElement, null);
+          assert.notStrictEqual(typeof myElement, 'undefined');
+          assert.strictEqual(myElement.tagName, 'H3');
+          assert.doesNotThrow(function() {
+            setTimeout(() => myElement.click());
+          });
+        },
+      });
     dispose = run();
   });
 
@@ -108,14 +118,17 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
     const dispose = run();
-    sources.DOM.select('.myelementclass').events('click').addListener({
-      next(ev: Event) {
-        assert.strictEqual(ev.type, 'click');
-        assert.strictEqual((ev.target as HTMLElement).textContent, 'Foobar');
-        dispose();
-        done();
-      },
-    });
+    sources.DOM
+      .select('.myelementclass')
+      .events('click')
+      .addListener({
+        next(ev: Event) {
+          assert.strictEqual(ev.type, 'click');
+          assert.strictEqual((ev.target as HTMLElement).textContent, 'Foobar');
+          dispose();
+          done();
+        },
+      });
     // Make assertions
     setTimeout(() => {
       const myElement = document.querySelector(
@@ -149,14 +162,17 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(containerElement),
     });
     const dispose = run();
-    sources.DOM.select('.myelementclass').events('click').addListener({
-      next: (ev: Event) => {
-        assert.strictEqual(ev.type, 'click');
-        assert.strictEqual((ev.target as HTMLElement).textContent, 'Foobar');
-        dispose();
-        done();
-      },
-    });
+    sources.DOM
+      .select('.myelementclass')
+      .events('click')
+      .addListener({
+        next: (ev: Event) => {
+          assert.strictEqual(ev.type, 'click');
+          assert.strictEqual((ev.target as HTMLElement).textContent, 'Foobar');
+          dispose();
+          done();
+        },
+      });
     // Make assertions
     setTimeout(() => {
       const myElement = containerElement.querySelector(
@@ -186,26 +202,36 @@ describe('DOMSource.events()', function() {
 
     let dispose: any;
     // Make assertions
-    sources.DOM.select('#parent-001').events('click').addListener({
-      next: (ev: Event) => {
-        assert.strictEqual(ev.type, 'click');
-        assert.strictEqual((ev.target as HTMLElement).textContent, 'Foobar');
-        dispose();
-        done();
-      },
-    });
+    sources.DOM
+      .select('#parent-001')
+      .events('click')
+      .addListener({
+        next: (ev: Event) => {
+          assert.strictEqual(ev.type, 'click');
+          assert.strictEqual((ev.target as HTMLElement).textContent, 'Foobar');
+          dispose();
+          done();
+        },
+      });
 
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const myElement = root.querySelector('.myelementclass') as HTMLElement;
-        assert.notStrictEqual(myElement, null);
-        assert.notStrictEqual(typeof myElement, 'undefined');
-        assert.strictEqual(myElement.tagName, 'H3');
-        assert.doesNotThrow(function() {
-          setTimeout(() => myElement.click());
-        });
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const myElement = root.querySelector(
+            '.myelementclass',
+          ) as HTMLElement;
+          assert.notStrictEqual(myElement, null);
+          assert.notStrictEqual(typeof myElement, 'undefined');
+          assert.strictEqual(myElement.tagName, 'H3');
+          assert.doesNotThrow(function() {
+            setTimeout(() => myElement.click());
+          });
+        },
+      });
     dispose = run();
   });
 
@@ -224,26 +250,34 @@ describe('DOMSource.events()', function() {
 
     let dispose: any;
     // Make assertions
-    sources.DOM.select('#myElementId').events('click').addListener({
-      next: (ev: Event) => {
-        assert.strictEqual(ev.type, 'click');
-        assert.strictEqual((ev.target as HTMLElement).textContent, 'Foobar');
-        dispose();
-        done();
-      },
-    });
+    sources.DOM
+      .select('#myElementId')
+      .events('click')
+      .addListener({
+        next: (ev: Event) => {
+          assert.strictEqual(ev.type, 'click');
+          assert.strictEqual((ev.target as HTMLElement).textContent, 'Foobar');
+          dispose();
+          done();
+        },
+      });
 
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const myElement = root.querySelector('#myElementId') as HTMLElement;
-        assert.notStrictEqual(myElement, null);
-        assert.notStrictEqual(typeof myElement, 'undefined');
-        assert.strictEqual(myElement.tagName, 'H3');
-        assert.doesNotThrow(function() {
-          setTimeout(() => myElement.click());
-        });
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const myElement = root.querySelector('#myElementId') as HTMLElement;
+          assert.notStrictEqual(myElement, null);
+          assert.notStrictEqual(typeof myElement, 'undefined');
+          assert.strictEqual(myElement.tagName, 'H3');
+          assert.doesNotThrow(function() {
+            setTimeout(() => myElement.click());
+          });
+        },
+      });
     dispose = run();
   });
 
@@ -269,17 +303,24 @@ describe('DOMSource.events()', function() {
       },
     });
 
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const myElement = root.querySelector('.myelementclass') as HTMLElement;
-        assert.notStrictEqual(myElement, null);
-        assert.notStrictEqual(typeof myElement, 'undefined');
-        assert.strictEqual(myElement.tagName, 'H3');
-        assert.doesNotThrow(function() {
-          setTimeout(() => myElement.click());
-        });
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const myElement = root.querySelector(
+            '.myelementclass',
+          ) as HTMLElement;
+          assert.notStrictEqual(myElement, null);
+          assert.notStrictEqual(typeof myElement, 'undefined');
+          assert.strictEqual(myElement.tagName, 'H3');
+          assert.doesNotThrow(function() {
+            setTimeout(() => myElement.click());
+          });
+        },
+      });
     dispose = run();
   });
 
@@ -303,31 +344,40 @@ describe('DOMSource.events()', function() {
 
     let dispose: any;
     // Make assertions
-    sources.DOM.select('.foo').select('.bar').events('click').addListener({
-      next: (ev: Event) => {
-        assert.strictEqual(ev.type, 'click');
-        assert.strictEqual((ev.target as HTMLElement).textContent, 'Correct');
-        dispose();
-        done();
-      },
-    });
+    sources.DOM
+      .select('.foo')
+      .select('.bar')
+      .events('click')
+      .addListener({
+        next: (ev: Event) => {
+          assert.strictEqual(ev.type, 'click');
+          assert.strictEqual((ev.target as HTMLElement).textContent, 'Correct');
+          dispose();
+          done();
+        },
+      });
 
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const wrongElement = root.querySelector('.bar') as HTMLElement;
-        const correctElement = root.querySelector('.foo .bar') as HTMLElement;
-        assert.notStrictEqual(wrongElement, null);
-        assert.notStrictEqual(correctElement, null);
-        assert.notStrictEqual(typeof wrongElement, 'undefined');
-        assert.notStrictEqual(typeof correctElement, 'undefined');
-        assert.strictEqual(wrongElement.tagName, 'H2');
-        assert.strictEqual(correctElement.tagName, 'H4');
-        assert.doesNotThrow(function() {
-          setTimeout(() => wrongElement.click());
-          setTimeout(() => correctElement.click(), 15);
-        });
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const wrongElement = root.querySelector('.bar') as HTMLElement;
+          const correctElement = root.querySelector('.foo .bar') as HTMLElement;
+          assert.notStrictEqual(wrongElement, null);
+          assert.notStrictEqual(correctElement, null);
+          assert.notStrictEqual(typeof wrongElement, 'undefined');
+          assert.notStrictEqual(typeof correctElement, 'undefined');
+          assert.strictEqual(wrongElement.tagName, 'H2');
+          assert.strictEqual(correctElement.tagName, 'H4');
+          assert.doesNotThrow(function() {
+            setTimeout(() => wrongElement.click());
+            setTimeout(() => correctElement.click(), 15);
+          });
+        },
+      });
     dispose = run();
   });
 
@@ -351,12 +401,16 @@ describe('DOMSource.events()', function() {
 
     let dispose: any;
     // Make assertions
-    sources.DOM.select('.clickable').events('click').take(1).addListener({
-      next: (ev: Event) => {
-        assert.strictEqual(ev.type, 'click');
-        assert.strictEqual((ev.target as HTMLElement).textContent, 'First');
-      },
-    });
+    sources.DOM
+      .select('.clickable')
+      .events('click')
+      .take(1)
+      .addListener({
+        next: (ev: Event) => {
+          assert.strictEqual(ev.type, 'click');
+          assert.strictEqual((ev.target as HTMLElement).textContent, 'First');
+        },
+      });
 
     sources.DOM
       .select('.clickable')
@@ -372,20 +426,25 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const firstElem = root.querySelector('.first') as HTMLElement;
-        const secondElem = root.querySelector('.second') as HTMLElement;
-        assert.notStrictEqual(firstElem, null);
-        assert.notStrictEqual(typeof firstElem, 'undefined');
-        assert.notStrictEqual(secondElem, null);
-        assert.notStrictEqual(typeof secondElem, 'undefined');
-        assert.doesNotThrow(function() {
-          setTimeout(() => firstElem.click());
-          setTimeout(() => secondElem.click(), 5);
-        });
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const firstElem = root.querySelector('.first') as HTMLElement;
+          const secondElem = root.querySelector('.second') as HTMLElement;
+          assert.notStrictEqual(firstElem, null);
+          assert.notStrictEqual(typeof firstElem, 'undefined');
+          assert.notStrictEqual(secondElem, null);
+          assert.notStrictEqual(typeof secondElem, 'undefined');
+          assert.doesNotThrow(function() {
+            setTimeout(() => firstElem.click());
+            setTimeout(() => secondElem.click(), 5);
+          });
+        },
+      });
     dispose = run();
   });
 
@@ -406,27 +465,35 @@ describe('DOMSource.events()', function() {
 
     let dispose: any;
     // Make assertions
-    sources.DOM.select('.blosh').events('click').addListener({
-      next: (ev: Event) => {
-        assert.strictEqual(ev.type, 'click');
-        assert.strictEqual((ev.target as HTMLElement).textContent, 'Blosh');
-        dispose();
-        done();
-      },
-    });
+    sources.DOM
+      .select('.blosh')
+      .events('click')
+      .addListener({
+        next: (ev: Event) => {
+          assert.strictEqual(ev.type, 'click');
+          assert.strictEqual((ev.target as HTMLElement).textContent, 'Blosh');
+          dispose();
+          done();
+        },
+      });
 
-    sources.DOM.select(':root').element().drop(3).take(1).addListener({
-      next: (root: Element) => {
-        const myElement = root.querySelector('.blosh') as HTMLElement;
-        assert.notStrictEqual(myElement, null);
-        assert.notStrictEqual(typeof myElement, 'undefined');
-        assert.strictEqual(myElement.tagName, 'H4');
-        assert.strictEqual(myElement.textContent, 'Blosh');
-        assert.doesNotThrow(function() {
-          setTimeout(() => myElement.click());
-        });
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(3)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const myElement = root.querySelector('.blosh') as HTMLElement;
+          assert.notStrictEqual(myElement, null);
+          assert.notStrictEqual(typeof myElement, 'undefined');
+          assert.strictEqual(myElement.tagName, 'H4');
+          assert.strictEqual(myElement.textContent, 'Blosh');
+          assert.doesNotThrow(function() {
+            setTimeout(() => myElement.click());
+          });
+        },
+      });
     dispose = run();
   });
 
@@ -467,12 +534,17 @@ describe('DOMSource.events()', function() {
           },
         });
 
-      sources.DOM.select(':root').element().drop(1).take(1).addListener({
-        next: (root: Element) => {
-          const clickable = root.querySelector('.clickable') as HTMLElement;
-          setTimeout(() => clickable.click(), 80);
-        },
-      });
+      sources.DOM
+        .select(':root')
+        .element()
+        .drop(1)
+        .take(1)
+        .addListener({
+          next: (root: Element) => {
+            const clickable = root.querySelector('.clickable') as HTMLElement;
+            setTimeout(() => clickable.click(), 80);
+          },
+        });
       run();
     }
   });
@@ -516,12 +588,17 @@ describe('DOMSource.events()', function() {
           },
         });
 
-      sources.DOM.select(':root').element().drop(1).take(1).addListener({
-        next: (root: Element) => {
-          const clickable = root.querySelector('.clickable') as HTMLElement;
-          setTimeout(() => clickable.click(), 80);
-        },
-      });
+      sources.DOM
+        .select(':root')
+        .element()
+        .drop(1)
+        .take(1)
+        .addListener({
+          next: (root: Element) => {
+            const clickable = root.querySelector('.clickable') as HTMLElement;
+            setTimeout(() => clickable.click(), 80);
+          },
+        });
       run();
     }
   });
@@ -542,42 +619,50 @@ describe('DOMSource.events()', function() {
     });
 
     let dispose: any;
-    sources.DOM.select('.parent').events('click').addListener({
-      next: (ev: Event) => {
-        assert.strictEqual(ev.type, 'click');
-        const target = ev.target as HTMLElement;
-        assert.strictEqual(target.tagName, 'SPAN');
-        assert.strictEqual(target.className, 'child');
-        assert.strictEqual(target.textContent, 'Hello world');
-        const currentTarget = ev.currentTarget as HTMLElement;
-        const ownerTarget = (ev as any).ownerTarget as HTMLElement;
-        const currentTargetIsParentH2 =
-          currentTarget.tagName === 'H2' &&
-          currentTarget.className === 'parent';
-        const ownerTargetIsParentH2 =
-          ownerTarget.tagName === 'H2' && ownerTarget.className === 'parent';
-        assert.strictEqual(
-          currentTargetIsParentH2 || ownerTargetIsParentH2,
-          true,
-        );
-        dispose();
-        done();
-      },
-    });
+    sources.DOM
+      .select('.parent')
+      .events('click')
+      .addListener({
+        next: (ev: Event) => {
+          assert.strictEqual(ev.type, 'click');
+          const target = ev.target as HTMLElement;
+          assert.strictEqual(target.tagName, 'SPAN');
+          assert.strictEqual(target.className, 'child');
+          assert.strictEqual(target.textContent, 'Hello world');
+          const currentTarget = ev.currentTarget as HTMLElement;
+          const ownerTarget = (ev as any).ownerTarget as HTMLElement;
+          const currentTargetIsParentH2 =
+            currentTarget.tagName === 'H2' &&
+            currentTarget.className === 'parent';
+          const ownerTargetIsParentH2 =
+            ownerTarget.tagName === 'H2' && ownerTarget.className === 'parent';
+          assert.strictEqual(
+            currentTargetIsParentH2 || ownerTargetIsParentH2,
+            true,
+          );
+          dispose();
+          done();
+        },
+      });
 
     // Make assertions
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const child = root.querySelector('.child') as HTMLElement;
-        assert.notStrictEqual(child, null);
-        assert.notStrictEqual(typeof child, 'undefined');
-        assert.strictEqual(child.tagName, 'SPAN');
-        assert.strictEqual(child.className, 'child');
-        assert.doesNotThrow(function() {
-          setTimeout(() => child.click());
-        });
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const child = root.querySelector('.child') as HTMLElement;
+          assert.notStrictEqual(child, null);
+          assert.notStrictEqual(typeof child, 'undefined');
+          assert.strictEqual(child.tagName, 'SPAN');
+          assert.strictEqual(child.className, 'child');
+          assert.doesNotThrow(function() {
+            setTimeout(() => child.click());
+          });
+        },
+      });
     dispose = run();
   });
 
@@ -594,22 +679,30 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM.select('.form').events('reset').addListener({
-      next: (ev: Event) => {
-        assert.strictEqual(ev.type, 'reset');
-        const target = ev.target as HTMLElement;
-        assert.strictEqual(target.tagName, 'FORM');
-        assert.strictEqual(target.className, 'form');
-        done();
-      },
-    });
+    sources.DOM
+      .select('.form')
+      .events('reset')
+      .addListener({
+        next: (ev: Event) => {
+          assert.strictEqual(ev.type, 'reset');
+          const target = ev.target as HTMLElement;
+          assert.strictEqual(target.tagName, 'FORM');
+          assert.strictEqual(target.className, 'form');
+          done();
+        },
+      });
 
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const form = root.querySelector('.form') as HTMLFormElement;
-        setTimeout(() => form.reset());
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const form = root.querySelector('.form') as HTMLFormElement;
+          setTimeout(() => form.reset());
+        },
+      });
     run();
   });
 
@@ -669,12 +762,17 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const clickable = root.querySelector('.clickable') as HTMLElement;
-        setTimeout(() => click(clickable));
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const clickable = root.querySelector('.clickable') as HTMLElement;
+          setTimeout(() => click(clickable));
+        },
+      });
     run();
   });
 
@@ -709,17 +807,22 @@ describe('DOMSource.events()', function() {
           },
         });
 
-      sources.DOM.select(':root').element().drop(1).take(1).addListener({
-        next: (root: Element) => {
-          const correct = root.querySelector('.correct') as HTMLElement;
-          const wrong = root.querySelector('.wrong') as HTMLElement;
-          const dummy = root.querySelector('.dummy') as HTMLElement;
-          setTimeout(() => wrong.focus(), 50);
-          setTimeout(() => dummy.focus(), 100);
-          setTimeout(() => correct.focus(), 150);
-          setTimeout(() => dummy.focus(), 200);
-        },
-      });
+      sources.DOM
+        .select(':root')
+        .element()
+        .drop(1)
+        .take(1)
+        .addListener({
+          next: (root: Element) => {
+            const correct = root.querySelector('.correct') as HTMLElement;
+            const wrong = root.querySelector('.wrong') as HTMLElement;
+            const dummy = root.querySelector('.dummy') as HTMLElement;
+            setTimeout(() => wrong.focus(), 50);
+            setTimeout(() => dummy.focus(), 100);
+            setTimeout(() => correct.focus(), 150);
+            setTimeout(() => dummy.focus(), 200);
+          },
+        });
       run();
     }
   });
@@ -744,25 +847,33 @@ describe('DOMSource.events()', function() {
         DOM: makeDOMDriver(createRenderTarget()),
       });
 
-      sources.DOM.select('.correct').events('blur').addListener({
-        next: (ev: Event) => {
-          assert.strictEqual(ev.type, 'blur');
-          assert.strictEqual((ev.target as HTMLElement).className, 'correct');
-          done();
-        },
-      });
+      sources.DOM
+        .select('.correct')
+        .events('blur')
+        .addListener({
+          next: (ev: Event) => {
+            assert.strictEqual(ev.type, 'blur');
+            assert.strictEqual((ev.target as HTMLElement).className, 'correct');
+            done();
+          },
+        });
 
-      sources.DOM.select(':root').element().drop(1).take(1).addListener({
-        next: (root: Element) => {
-          const correct = root.querySelector('.correct') as HTMLElement;
-          const wrong = root.querySelector('.wrong') as HTMLElement;
-          const dummy = root.querySelector('.dummy') as HTMLElement;
-          setTimeout(() => wrong.focus(), 50);
-          setTimeout(() => dummy.focus(), 100);
-          setTimeout(() => correct.focus(), 150);
-          setTimeout(() => dummy.focus(), 200);
-        },
-      });
+      sources.DOM
+        .select(':root')
+        .element()
+        .drop(1)
+        .take(1)
+        .addListener({
+          next: (root: Element) => {
+            const correct = root.querySelector('.correct') as HTMLElement;
+            const wrong = root.querySelector('.wrong') as HTMLElement;
+            const dummy = root.querySelector('.dummy') as HTMLElement;
+            setTimeout(() => wrong.focus(), 50);
+            setTimeout(() => dummy.focus(), 100);
+            setTimeout(() => correct.focus(), 150);
+            setTimeout(() => dummy.focus(), 200);
+          },
+        });
       run();
     }
   });
@@ -780,11 +891,14 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM.select('.parent').events('reset').addListener({
-      next: (ev: Event) => {
-        done(new Error('Reset event should not bubble to parent'));
-      },
-    });
+    sources.DOM
+      .select('.parent')
+      .events('reset')
+      .addListener({
+        next: (ev: Event) => {
+          done(new Error('Reset event should not bubble to parent'));
+        },
+      });
 
     sources.DOM
       .select('.form')
@@ -800,12 +914,17 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const form = root.querySelector('.form') as HTMLFormElement;
-        setTimeout(() => form.reset());
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const form = root.querySelector('.form') as HTMLFormElement;
+          setTimeout(() => form.reset());
+        },
+      });
     run();
   });
 
@@ -838,11 +957,14 @@ describe('DOMSource.events()', function() {
         .map(down => itemMouseUp$.filter(up => down.target === up.target))
         .flatten();
 
-      switchSubject.map(() => itemMouseClick$).flatten().addListener({
-        next: (ev: any) => {
-          outSubject.shamefullySendNext(ev);
-        },
-      });
+      switchSubject
+        .map(() => itemMouseClick$)
+        .flatten()
+        .addListener({
+          next: (ev: any) => {
+            outSubject.shamefullySendNext(ev);
+          },
+        });
 
       return {
         DOM: xs.of(button('.item', ['stuff'])),
@@ -896,17 +1018,22 @@ describe('DOMSource.events()', function() {
       },
     });
 
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const clickable = root.querySelector('.item') as HTMLElement;
-        setTimeout(() => switchSubject.shamefullySendNext(null));
-        setTimeout(() => mouseevent(clickable, 'mousedown'), 100);
-        setTimeout(() => mouseevent(clickable, 'mouseup'), 200);
-        setTimeout(() => switchSubject.shamefullySendNext(null), 300);
-        setTimeout(() => mouseevent(clickable, 'mousedown'), 400);
-        setTimeout(() => mouseevent(clickable, 'mouseup'), 500);
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const clickable = root.querySelector('.item') as HTMLElement;
+          setTimeout(() => switchSubject.shamefullySendNext(null));
+          setTimeout(() => mouseevent(clickable, 'mousedown'), 100);
+          setTimeout(() => mouseevent(clickable, 'mouseup'), 200);
+          setTimeout(() => switchSubject.shamefullySendNext(null), 300);
+          setTimeout(() => mouseevent(clickable, 'mousedown'), 400);
+          setTimeout(() => mouseevent(clickable, 'mouseup'), 500);
+        },
+      });
     run();
   });
 
@@ -935,12 +1062,17 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const button = root.querySelector('.button') as HTMLButtonElement;
-        setTimeout(() => button.click());
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const button = root.querySelector('.button') as HTMLButtonElement;
+          setTimeout(() => button.click());
+        },
+      });
     run();
   });
 
@@ -971,12 +1103,17 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const button = root.querySelector('.button') as HTMLButtonElement;
-        setTimeout(() => button.click());
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const button = root.querySelector('.button') as HTMLButtonElement;
+          setTimeout(() => button.click());
+        },
+      });
     run();
   });
 
@@ -1007,12 +1144,17 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const button = root.querySelector('.button') as HTMLButtonElement;
-        setTimeout(() => button.click());
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const button = root.querySelector('.button') as HTMLButtonElement;
+          setTimeout(() => button.click());
+        },
+      });
     run();
   });
 
@@ -1045,12 +1187,17 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const button = root.querySelector('.button') as HTMLButtonElement;
-        setTimeout(() => button.click());
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const button = root.querySelector('.button') as HTMLButtonElement;
+          setTimeout(() => button.click());
+        },
+      });
     run();
   });
 
@@ -1081,12 +1228,17 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const button = root.querySelector('.button') as HTMLButtonElement;
-        setTimeout(() => button.click());
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const button = root.querySelector('.button') as HTMLButtonElement;
+          setTimeout(() => button.click());
+        },
+      });
     run();
   });
 
@@ -1117,12 +1269,17 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const button = root.querySelector('.button') as HTMLButtonElement;
-        setTimeout(() => button.click());
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const button = root.querySelector('.button') as HTMLButtonElement;
+          setTimeout(() => button.click());
+        },
+      });
     run();
   });
 
@@ -1155,12 +1312,17 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        const button = root.querySelector('.button') as HTMLButtonElement;
-        setTimeout(() => button.click());
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const button = root.querySelector('.button') as HTMLButtonElement;
+          setTimeout(() => button.click());
+        },
+      });
     run();
   });
 });

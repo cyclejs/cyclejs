@@ -35,23 +35,26 @@ export function run(uri: string) {
 
       const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
-      sources.HTTP.select().mergeAll().subscribe({
-        next: () => {
-          done('next should not be called');
-        },
-        error: (err: any) => {
-          assert.strictEqual(
-            err.message,
-            'Observable of requests given to ' +
-              'HTTP Driver must emit either URL strings or objects with ' +
-              'parameters.',
-          );
-          done();
-        },
-        complete: () => {
-          done('complete should not be called');
-        },
-      });
+      sources.HTTP
+        .select()
+        .mergeAll()
+        .subscribe({
+          next: () => {
+            done('next should not be called');
+          },
+          error: (err: any) => {
+            assert.strictEqual(
+              err.message,
+              'Observable of requests given to ' +
+                'HTTP Driver must emit either URL strings or objects with ' +
+                'parameters.',
+            );
+            done();
+          },
+          complete: () => {
+            done('complete should not be called');
+          },
+        });
       run();
     });
 
@@ -66,21 +69,24 @@ export function run(uri: string) {
 
       const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
-      sources.HTTP.select().mergeAll().subscribe({
-        next: () => {
-          done('next should not be called');
-        },
-        error: (err: any) => {
-          assert.strictEqual(
-            err.message,
-            'Please provide a `url` property in the request ' + 'options.',
-          );
-          done();
-        },
-        complete: () => {
-          done('complete should not be called');
-        },
-      });
+      sources.HTTP
+        .select()
+        .mergeAll()
+        .subscribe({
+          next: () => {
+            done('next should not be called');
+          },
+          error: (err: any) => {
+            assert.strictEqual(
+              err.message,
+              'Please provide a `url` property in the request ' + 'options.',
+            );
+            done();
+          },
+          complete: () => {
+            done('complete should not be called');
+          },
+        });
       run();
     });
 

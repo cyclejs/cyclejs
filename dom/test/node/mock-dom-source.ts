@@ -24,14 +24,17 @@ describe('mockDOMSource', function() {
         click: Observable.of(135),
       },
     });
-    userEvents.select('.foo').events('click').subscribe({
-      next: (ev: any) => {
-        assert.strictEqual(ev, 135);
-        done();
-      },
-      error: (err: any) => done(err),
-      complete: () => {},
-    });
+    userEvents
+      .select('.foo')
+      .events('click')
+      .subscribe({
+        next: (ev: any) => {
+          assert.strictEqual(ev, 135);
+          done();
+        },
+        error: (err: any) => done(err),
+        complete: () => {},
+      });
   });
 
   it('should make multiple user event Observables', function(done) {
@@ -88,11 +91,14 @@ describe('mockDOMSource', function() {
         click: Observable.of(135),
       },
     });
-    userEvents.select('.impossible').events('scroll').subscribe({
-      next: (x: any) => done(x),
-      error: (e: any) => done(e),
-      complete: () => done(),
-    });
+    userEvents
+      .select('.impossible')
+      .events('scroll')
+      .subscribe({
+        next: (x: any) => done(x),
+        error: (e: any) => done(e),
+        complete: () => done(),
+      });
   });
 
   it('should return empty Observable for select().elements and none is defined', function(
@@ -103,11 +109,14 @@ describe('mockDOMSource', function() {
         click: Observable.of(135),
       },
     });
-    userEvents.select('.foo').elements().subscribe({
-      next: (x: any) => done(x),
-      error: (e: any) => done(e),
-      complete: () => done(),
-    });
+    userEvents
+      .select('.foo')
+      .elements()
+      .subscribe({
+        next: (x: any) => done(x),
+        error: (e: any) => done(e),
+        complete: () => done(),
+      });
   });
 
   it('should return defined Observable for select().elements', function(done) {
@@ -116,14 +125,17 @@ describe('mockDOMSource', function() {
         elements: Observable.of(135),
       },
     });
-    mockedDOMSource.select('.foo').elements().subscribe({
-      next: (e: any) => {
-        assert.strictEqual(e, 135);
-        done();
-      },
-      error: (err: any) => done(err),
-      complete: () => {},
-    });
+    mockedDOMSource
+      .select('.foo')
+      .elements()
+      .subscribe({
+        next: (e: any) => {
+          assert.strictEqual(e, 135);
+          done();
+        },
+        error: (err: any) => done(err),
+        complete: () => {},
+      });
   });
 
   it('should have DevTools flag in elements() source stream', function(done) {
@@ -182,7 +194,9 @@ describe('mockDOMSource', function() {
   it('multiple .select()s should not throw when given empty mockedSelectors', () => {
     assert.doesNotThrow(() => {
       const DOM = mockDOMSource({});
-      DOM.select('.something').select('.other').events('click');
+      DOM.select('.something')
+        .select('.other')
+        .events('click');
     });
   });
 

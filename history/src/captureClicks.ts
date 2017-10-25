@@ -9,9 +9,10 @@ import {
   ReplaceHistoryInput,
 } from './types';
 
-const CLICK_EVENT = typeof document !== 'undefined' && document.ontouchstart
-  ? 'touchstart'
-  : 'click';
+const CLICK_EVENT =
+  typeof document !== 'undefined' && document.ontouchstart
+    ? 'touchstart'
+    : 'click';
 
 function which(ev: any) {
   if (typeof window === 'undefined') {

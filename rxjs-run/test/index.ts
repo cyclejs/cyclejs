@@ -93,7 +93,10 @@ describe('setup', function() {
 
     function app(sources: TestSources): TestSinks {
       return {
-        other: sources.other.take(6).map(x => String(x)).startWith('a'),
+        other: sources.other
+          .take(6)
+          .map(x => String(x))
+          .startWith('a'),
       };
     }
     function driver(xsSink: any): Observable<number> {
@@ -189,11 +192,13 @@ describe('run', function() {
     }
     let mutable = 'correct';
     function driver(xsSink: any): Observable<string> {
-      return Observable.from(xsSink).map((x: number) => 'a' + 10).do(x => {
-        assert.strictEqual(x, 'a10');
-        assert.strictEqual(mutable, 'correct');
-        spy();
-      });
+      return Observable.from(xsSink)
+        .map((x: number) => 'a' + 10)
+        .do(x => {
+          assert.strictEqual(x, 'a10');
+          assert.strictEqual(mutable, 'correct');
+          spy();
+        });
     }
     run(app, {other: driver});
     mutable = 'wrong';
@@ -208,9 +213,13 @@ describe('run', function() {
     sandbox.stub(console, 'error');
 
     function main(sources: any): any {
-      const sink = sources.other.take(1).startWith('a').delay(10).map(() => {
-        throw new Error('malfunction');
-      });
+      const sink = sources.other
+        .take(1)
+        .startWith('a')
+        .delay(10)
+        .map(() => {
+          throw new Error('malfunction');
+        });
 
       return {
         other: sink,
