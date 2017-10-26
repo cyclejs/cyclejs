@@ -2,6 +2,10 @@
 # yarn lockfile v1
 
 
+"@cycle/isolate@3.2":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@cycle/isolate/-/isolate-3.2.0.tgz#8ffddb9b05cb9a4fbcf812794c0e5285af341051"
+
 "@cycle/run@3.4", "@cycle/run@3.x":
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/@cycle/run/-/run-3.4.0.tgz#113844add669ace91d245842522f3733ba5bd393"
