@@ -1,3 +1,13 @@
+<a name="7.4.0"></a>
+# 7.4.0 (2017-10-26)
+
+
+### Bug Fixes
+
+* **most-run:** reduce ambiguity in package.json dependencies ([e6077fe](https://github.com/cyclejs/cyclejs/commit/e6077fe))
+
+
+
 <a name="7.3.0"></a>
 # 7.3.0 (2017-10-24)
 
