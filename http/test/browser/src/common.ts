@@ -11,6 +11,7 @@ import {Observable} from 'rxjs';
 import 'rxjs/add/operator/mergeAll';
 import 'rxjs/add/operator/switchMap';
 import * as Cycle from '@cycle/rxjs-run';
+import isolate from '@cycle/isolate';
 
 export function run(uri: string) {
   describe('makeHTTPDriver', function() {
@@ -473,24 +474,24 @@ export function run(uri: string) {
 
       const ignoredRequest$ = Rx.Observable.of(uri + '/json');
       const request$ = Rx.Observable.of(uri + '/hello').delay(10);
-      const scopedRequest$ = sources.HTTP
-        .isolateSink(sources.HTTP.isolateSink(request$, 'foo'), 'something')
+      const fooInsideBarRequest$ = sources.HTTP
+        .isolateSink(sources.HTTP.isolateSink(request$, 'foo'), 'bar')
         .shareReplay();
-      const twiceScopedHTTPSource = sources.HTTP.isolateSource(
-        sources.HTTP.isolateSource(sources.HTTP, 'foo'),
-        'something',
+      const fooInsideBarHTTPSource = sources.HTTP.isolateSource(
+        sources.HTTP.isolateSource(sources.HTTP, 'bar'),
+        'foo',
       );
-      const twiceWrongScopedHTTPSource = sources.HTTP.isolateSource(
+      const fooInsideFooHTTPSource = sources.HTTP.isolateSource(
         sources.HTTP.isolateSource(sources.HTTP, 'foo'),
         'foo',
       );
 
-      twiceWrongScopedHTTPSource.select().subscribe(function(response$) {
+      fooInsideFooHTTPSource.select().subscribe(function(response$) {
         assert(false);
         done('should not be called');
       });
 
-      twiceScopedHTTPSource.select().subscribe(function(response$) {
+      fooInsideBarHTTPSource.select().subscribe(function(response$) {
         assert.strictEqual(typeof response$.request, 'object');
         assert.strictEqual(response$.request.url, uri + '/hello');
         response$.subscribe(function(response) {
@@ -501,10 +502,44 @@ export function run(uri: string) {
       });
 
       Rx.Observable
-        .merge(ignoredRequest$, scopedRequest$)
+        .merge(ignoredRequest$, fooInsideBarRequest$)
         .subscribe(proxyRequest$);
 
       run();
+    });
+
+    it('should emit responses when isolated many scopes deep', function(done) {
+      let dispose: any;
+      function main(sources: {HTTP: HTTPSource}) {
+        sources.HTTP.select('hello').subscribe(function(response$) {
+          assert.strictEqual(typeof response$.request, 'object');
+          assert.strictEqual(response$.request.url, uri + '/hello');
+          response$.subscribe(function(response) {
+            assert.strictEqual(response.status, 200);
+            assert.strictEqual(response.text, 'Hello World');
+            dispose();
+            done();
+          });
+        });
+
+        return {
+          HTTP: Rx.Observable
+            .of({url: uri + '/hello', category: 'hello'})
+            .delay(10),
+        };
+      }
+
+      function wrapper1(sources: {HTTP: HTTPSource}) {
+        return isolate(main, {HTTP: 'wrapper1'})(sources);
+      }
+
+      function wrapper2(sources: {HTTP: HTTPSource}) {
+        return isolate(wrapper1, {HTTP: 'wrapper2'})(sources);
+      }
+
+      const {sources, run} = Cycle.setup(wrapper2, {HTTP: makeHTTPDriver()});
+
+      dispose = run();
     });
 
     it('should allow null scope to bypass isolation', function(done) {
