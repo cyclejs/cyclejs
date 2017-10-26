@@ -132,12 +132,13 @@ describe('HTTP Driver in the browser', function() {
         .mergeAll()
         .map((res: any) => 'My name is ' + res.text);
 
-      const request$ = num === 1
-        ? Rx.Observable.of({
-            category: 'cat',
-            url: uri + '/hello',
-          })
-        : Rx.Observable.never();
+      const request$ =
+        num === 1
+          ? Rx.Observable.of({
+              category: 'cat',
+              url: uri + '/hello',
+            })
+          : Rx.Observable.never();
 
       return {
         HTTP: request$,
@@ -146,16 +147,21 @@ describe('HTTP Driver in the browser', function() {
     }
 
     function mainHTTPThenDOM(sources: any) {
-      const sinks$ = Rx.Observable.interval(300).take(6).map(i => {
-        if (i % 2 === 1) {
-          return child(sources, i);
-        } else {
-          return {
-            HTTP: Rx.Observable.empty(),
-            DOM: Rx.Observable.of(''),
-          };
-        }
-      });
+      const sinks$ = Rx.Observable
+        .interval(300)
+        .take(6)
+        .map(i => {
+          if (i % 2 === 1) {
+            return child(sources, i);
+          } else {
+            return {
+              HTTP: Rx.Observable.empty(),
+              DOM: Rx.Observable.of(''),
+            };
+          }
+        })
+        .publishReplay(1)
+        .refCount();
 
       // order of sinks is important
       return {
@@ -165,16 +171,21 @@ describe('HTTP Driver in the browser', function() {
     }
 
     function mainDOMThenHTTP(sources: any) {
-      const sinks$ = Rx.Observable.interval(300).take(6).map(i => {
-        if (i % 2 === 1) {
-          return child(sources, i);
-        } else {
-          return {
-            HTTP: Rx.Observable.empty(),
-            DOM: Rx.Observable.of(''),
-          };
-        }
-      });
+      const sinks$ = Rx.Observable
+        .interval(300)
+        .take(6)
+        .map(i => {
+          if (i % 2 === 1) {
+            return child(sources, i);
+          } else {
+            return {
+              HTTP: Rx.Observable.empty(),
+              DOM: Rx.Observable.of(''),
+            };
+          }
+        })
+        .publishReplay(1)
+        .refCount();
 
       // order of sinks is important
       return {

@@ -14,8 +14,8 @@
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/run": "3.4",
-    "@cycle/rxjs-run": "7.2",
+    "@cycle/run": "4.0.0-rc.4",
+    "@cycle/rxjs-run": "8.0.0-rc.4",
     "@cycle/isolate": "3.2",
     "@types/body-parser": "1.16.x",
     "@types/cookie-parser": "1.4.x",
@@ -25,9 +25,9 @@
     "body-parser": "1.18.x",
     "cookie-parser": "1.4.3",
     "express": "4.16.2",
-    "rxjs": "5.5.1",
+    "rxjs": "5.5.x",
     "saucie": "3.3.0",
-    "xstream": "11.x.x"
+    "xstream": "11.x"
   },
   "browserify-shim": {
     "xstream": "global:xstream"
