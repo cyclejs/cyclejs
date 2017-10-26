@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@cycle/run@4.0.0-rc.3":
-  version "4.0.0-rc.3"
-  resolved "https://registry.yarnpkg.com/@cycle/run/-/run-4.0.0-rc.3.tgz#e1fe55f6cb7b0247f8ec0e6cd97f48c0c152aeb0"
+"@cycle/run@4.0.0-rc.4":
+  version "4.0.0-rc.4"
+  resolved "https://registry.yarnpkg.com/@cycle/run/-/run-4.0.0-rc.4.tgz#d1d4d393c2d73b8e791f7c640e475cf51c69dfe6"
   dependencies:
     xstream "10.x || 11.x"
 
@@ -20,9 +20,9 @@
   version "1.16.36"
   resolved "https://registry.yarnpkg.com/@types/sinon/-/sinon-1.16.36.tgz#74bb6ed7928597c1b3fb1b009005e94dc6eae357"
 
-rxjs@5.4.x:
-  version "5.4.3"
-  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-5.4.3.tgz#0758cddee6033d68e0fd53676f0f3596ce3d483f"
+rxjs@5.5.x:
+  version "5.5.2"
+  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-5.5.2.tgz#28d403f0071121967f18ad665563255d54236ac3"
   dependencies:
     symbol-observable "^1.0.1"
 
