@@ -1,3 +1,14 @@
+<a name="19.3.0"></a>
+# 19.3.0 (2017-10-26)
+
+
+### Bug Fixes
+
+* **dom:** correct the TypeScript signature of DOMSource.element() ([a201abd](https://github.com/cyclejs/cyclejs/commit/a201abd))
+* **dom:** upgrade snabbdom-selector dependency to 2.0.1 ([7af2b19](https://github.com/cyclejs/cyclejs/commit/7af2b19))
+
+
+
 <a name="19.2.0"></a>
 # 19.2.0 (2017-10-24)
 
