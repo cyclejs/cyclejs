@@ -1,3 +1,13 @@
+<a name="6.8.0"></a>
+# 6.8.0 (2017-10-26)
+
+
+### Bug Fixes
+
+* **history:** reduce ambiguity in package.json dependencies ([923e649](https://github.com/cyclejs/cyclejs/commit/923e649))
+
+
+
 <a name="6.7.0"></a>
 # 6.7.0 (2017-10-24)
 
