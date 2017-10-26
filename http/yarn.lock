@@ -6,17 +6,19 @@
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/@cycle/isolate/-/isolate-3.2.0.tgz#8ffddb9b05cb9a4fbcf812794c0e5285af341051"
 
-"@cycle/run@3.4", "@cycle/run@3.x":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@cycle/run/-/run-3.4.0.tgz#113844add669ace91d245842522f3733ba5bd393"
+"@cycle/run@4.0.0-rc.4":
+  version "4.0.0-rc.4"
+  resolved "https://registry.yarnpkg.com/@cycle/run/-/run-4.0.0-rc.4.tgz#d1d4d393c2d73b8e791f7c640e475cf51c69dfe6"
   dependencies:
     xstream "10.x || 11.x"
 
-"@cycle/rxjs-run@7.2":
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/@cycle/rxjs-run/-/rxjs-run-7.2.0.tgz#e2fab5a1aca9203c521cf5b0fded3cc184933e0e"
+"@cycle/rxjs-run@8.0.0-rc.4":
+  version "8.0.0-rc.4"
+  resolved "https://registry.yarnpkg.com/@cycle/rxjs-run/-/rxjs-run-8.0.0-rc.4.tgz#83269478fffeda79a4d1253ee6c1a9e9da2dfa6b"
   dependencies:
-    "@cycle/run" "3.x"
+    "@cycle/run" "4.0.0-rc.4"
+    rxjs "5.5.x"
+    xstream "11.x"
 
 "@types/body-parser@*", "@types/body-parser@1.16.x":
   version "1.16.6"
@@ -925,9 +927,9 @@ rimraf@^2.5.4:
   dependencies:
     glob "^7.0.5"
 
-rxjs@5.5.1:
-  version "5.5.1"
-  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-5.5.1.tgz#ef980a6ad7438c74e3b0f0d1e6f1493e385997fd"
+rxjs@5.5.x:
+  version "5.5.2"
+  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-5.5.2.tgz#28d403f0071121967f18ad665563255d54236ac3"
   dependencies:
     symbol-observable "^1.0.1"
 
@@ -1167,7 +1169,7 @@ wrappy@1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
 
-"xstream@10.x || 11.x", xstream@11.x.x:
+"xstream@10.x || 11.x", xstream@11.x:
   version "11.0.0"
   resolved "https://registry.yarnpkg.com/xstream/-/xstream-11.0.0.tgz#2018c3c4e573f76b62b9cf96a17a46876ab120e0"
   dependencies:
