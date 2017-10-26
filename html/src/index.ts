@@ -34,7 +34,8 @@ export {HTMLSource} from './HTMLSource';
  * and so forth.
  *
  * `DOMSource.elements()` returns the stream of HTML string rendered from your
- * sink virtual DOM stream.
+ * sink stream of virtual DOM. The alternative method `DOMSource.element()` does
+ * the same (it only exists to be compatible with DOMSource from `@cycle/dom`).
  *
  * @param {Function} effect a callback function that takes a string of rendered
  * HTML as input and should run a side effect, returning nothing.

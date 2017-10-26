@@ -35,22 +35,20 @@
   "types": "lib/cjs/index.d.ts",
   "dependencies": {
     "@cycle/run": "*",
-    "@cycle/dom": "18.x",
-    "snabbdom": "0.6.9",
-    "snabbdom-to-html": "3.1.1"
-  },
-  "peerDependencies": {
+    "@cycle/dom": ">=19.3.0",
+    "snabbdom": "0.7.0",
+    "snabbdom-to-html": "3.3.0",
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/isolate": "2.1.0",
+    "@cycle/run": "3.4",
+    "@cycle/isolate": "3.2.0",
     "@types/mocha": "^2.2.33",
     "@types/node": "^7.0.4",
     "@types/sinon": "^1.16.32",
-    "saucie": "3.1.0",
     "simulant": "^0.2.2",
     "snabbdom-jsx": "^0.3.0",
-    "xstream": "10.x"
+    "xstream": "11.x"
   },
   "engines": {
     "node": ">=0.10.0"
