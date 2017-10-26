@@ -18,7 +18,11 @@ export class HTMLSource implements DOMSource {
     return out;
   }
 
-  public select(selector: string): DOMSource {
+  public element(): MemoryStream<string> {
+    return this.elements();
+  }
+
+  public select(selector: string): HTMLSource {
     return new HTMLSource(xs.empty(), this._name);
   }
 
