@@ -1,3 +1,13 @@
+<a name="14.8.0"></a>
+# 14.8.0 (2017-10-26)
+
+
+### Bug Fixes
+
+* **http:** fix isolation regression ([ac20334](https://github.com/cyclejs/cyclejs/commit/ac20334))
+
+
+
 <a name="14.7.0"></a>
 # 14.7.0 (2017-10-25)
 
