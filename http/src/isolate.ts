@@ -40,7 +40,7 @@ export function isolateSink(
       return {url: req, _namespace: [scope]} as RequestOptions;
     }
     req._namespace = req._namespace || [];
-    req._namespace.push(scope);
+    req._namespace.unshift(scope);
     return req;
   });
 }
