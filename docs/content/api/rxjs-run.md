@@ -1,4 +1,4 @@
-# Run() for RxJS
+# Run() for RxJS - [source](https://github.com/cyclejs/cyclejs/tree/master/rxjs-run)
 
 Cycle.js `run(main, drivers)` function for applications written with RxJS version **5**.
 
