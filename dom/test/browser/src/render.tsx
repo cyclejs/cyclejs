@@ -22,7 +22,7 @@ import {
   DOMSource,
   MainDOMSource,
   VNode,
-} from '../../../lib';
+} from '../../../lib/cjs/index';
 const {html} = snabbdomJSX;
 
 declare global {
@@ -95,7 +95,7 @@ describe('DOM Rendering', function () {
       });
 
       let dispose: any;
-      sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+      sources.DOM.select(':root').element().drop(1).take(1).addListener({
         next: (root: Element) => {
           const elem = root.querySelector('.my-class') as HTMLElement;
           assert.notStrictEqual(elem, null);
@@ -130,7 +130,7 @@ describe('DOM Rendering', function () {
     });
 
     let dispose: any;
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const selectEl = root.querySelector('.my-class') as HTMLElement;
         assert.notStrictEqual(selectEl, null);
@@ -163,7 +163,7 @@ describe('DOM Rendering', function () {
     });
 
     let dispose: any;
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const selectEl = root.querySelector('.my-class') as HTMLElement;
         assert.notStrictEqual(selectEl, null);
@@ -196,7 +196,7 @@ describe('DOM Rendering', function () {
     });
 
     let dispose: any;
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const selectEl = root.querySelector('.my-class') as HTMLSelectElement;
         assert.notStrictEqual(selectEl, null);
@@ -241,7 +241,7 @@ describe('DOM Rendering', function () {
     });
 
     let dispose: any;
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         assert.strictEqual(root.childNodes.length, 1);
         const selectEl = root.childNodes[0] as HTMLElement;
@@ -283,7 +283,7 @@ describe('DOM Rendering', function () {
     let firstSubscriberRan = false;
     let secondSubscriberRan = false;
 
-    const element$ = sources.DOM.select(':root').elements();
+    const element$ = sources.DOM.select(':root').element();
 
     element$.drop(1).take(1).addListener({
       next: (root: Element) => {
@@ -315,7 +315,7 @@ describe('DOM Rendering', function () {
         },
       });
       assert.strictEqual(secondSubscriberRan, true);
-    }, 100);
+    }, 400);
     dispose = run();
   });
 
@@ -334,6 +334,25 @@ describe('DOM Rendering', function () {
     });
 
     const element$ = sources.DOM.select(':root').elements();
+    assert.strictEqual((element$ as any)._isCycleSource, 'DOM');
+    done();
+  });
+
+  it('should have DevTools flag in element source stream', function (done) {
+    function app(sources: {DOM: MainDOMSource}) {
+      return {
+        DOM: xs.merge(
+          xs.of(h2('.value-over-time', 'Hello test')),
+          xs.never(),
+        ),
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    const element$ = sources.DOM.select(':root').element();
     assert.strictEqual((element$ as any)._isCycleSource, 'DOM');
     done();
   });
@@ -361,7 +380,7 @@ describe('DOM Rendering', function () {
 
     let dispose: any;
     // Assert it
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const h4Elem = root.querySelector('h4') as HTMLElement;
         assert.notStrictEqual(h4Elem, null);
@@ -402,7 +421,7 @@ describe('DOM Rendering', function () {
       let dispose: any;
 
       // Make assertions
-      sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+      sources.DOM.select(':root').element().drop(1).take(1).addListener({
         next: (root: Element) => {
           const embeddedHTML = root.querySelector('p.embedded-text') as HTMLElement;
           assert.strictEqual(embeddedHTML.namespaceURI, 'http://www.w3.org/1999/xhtml');
@@ -448,7 +467,7 @@ describe('DOM Rendering', function () {
 
     let dispose: any;
     // Assert it
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const divParent = root.querySelector('div.parent') as HTMLElement;
         const h4Child = root.querySelector('h4.child3') as HTMLElement;
@@ -475,7 +494,7 @@ describe('DOM Rendering', function () {
     });
 
     let dispose: any;
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const H4 = root.querySelector('h4') as HTMLElement;
         assert.strictEqual(H4.textContent, 'Hello world');
@@ -500,7 +519,7 @@ describe('DOM Rendering', function () {
     });
 
     let dispose: any;
-    sources.DOM.select(':root').elements().drop(1).take(1).addListener({
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         const divEl = root.querySelector('.my-class') as HTMLElement;
         assert.strictEqual(divEl.textContent, '0');

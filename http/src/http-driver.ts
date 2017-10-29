@@ -13,9 +13,8 @@ import {
 
 function preprocessReqOptions(reqOptions: RequestOptions): RequestOptions {
   reqOptions.withCredentials = reqOptions.withCredentials || false;
-  reqOptions.redirects = typeof reqOptions.redirects === 'number'
-    ? reqOptions.redirects
-    : 5;
+  reqOptions.redirects =
+    typeof reqOptions.redirects === 'number' ? reqOptions.redirects : 5;
   reqOptions.method = reqOptions.method || `get`;
   return reqOptions;
 }
@@ -28,9 +27,8 @@ export function optionsToSuperagent(rawReqOptions: RequestOptions) {
     );
   }
   const lowerCaseMethod = (reqOptions.method || 'GET').toLowerCase();
-  const sanitizedMethod = lowerCaseMethod === `delete`
-    ? `del`
-    : lowerCaseMethod;
+  const sanitizedMethod =
+    lowerCaseMethod === `delete` ? `del` : lowerCaseMethod;
 
   let request = superagent[sanitizedMethod](reqOptions.url);
   if (typeof request.redirects === `function`) {

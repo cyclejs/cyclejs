@@ -1,6 +1,6 @@
 {
   "name": "@cycle/isolate",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "A utility function to make scoped dataflow components in Cycle.js",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
@@ -26,10 +26,10 @@
     "dataflow",
     "virtual-dom"
   ],
-  "main": "lib/index.js",
+  "main": "lib/cjs/index.js",
   "module": "lib/es6/index.js",
-  "typings": "lib/index.d.ts",
-  "types": "lib/index.d.ts",
+  "typings": "lib/cjs/index.d.ts",
+  "types": "lib/cjs/index.d.ts",
   "dependencies": {},
   "devDependencies": {
     "@types/mocha": "2.2.x",
@@ -41,10 +41,10 @@
     "node": ">=0.10.0"
   },
   "scripts": {
-    "mocha": "../node_modules/.bin/mocha test/*.ts --require ts-node/register",
+    "mocha": "../node_modules/.bin/mocha test/*.ts --require ts-node/register --exit",
     "test": "npm run mocha",
     "test-ci": "npm run test",
-    "browserify": "../node_modules/.bin/browserify lib/index.js --standalone CycleIsolate --outfile dist/cycle-isolate.js",
+    "browserify": "../node_modules/.bin/browserify lib/cjs/index.js --standalone CycleIsolate --outfile dist/cycle-isolate.js",
     "minify": "node ../.scripts/minify.js dist/cycle-isolate.js dist/cycle-isolate.min.js"
   },
   "publishConfig": {

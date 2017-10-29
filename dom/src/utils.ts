@@ -25,9 +25,10 @@ export const SCOPE_PREFIX = '$$CYCLEDOM$$-';
 export function getValidNode(
   selectors: Element | DocumentFragment | string,
 ): Element | DocumentFragment | null {
-  const domElement = typeof selectors === 'string'
-    ? document.querySelector(selectors)
-    : selectors;
+  const domElement =
+    typeof selectors === 'string'
+      ? document.querySelector(selectors)
+      : selectors;
 
   if (typeof selectors === 'string' && domElement === null) {
     throw new Error(`Cannot render into unknown element \`${selectors}\``);

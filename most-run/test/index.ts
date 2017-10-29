@@ -1,7 +1,7 @@
 import 'mocha';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
-import {run, setup} from '../lib';
+import {run, setup} from '../lib/cjs/index';
 import * as most from 'most';
 import {Stream} from 'most';
 import xs from 'xstream';
@@ -68,13 +68,19 @@ describe('setup', function() {
     function app(sources: TestSources): TestSinks {
       return {
         other: most.concat(
-          sources.other.take(6).map(x => String(x)).startWith('a'),
+          sources.other
+            .take(6)
+            .map(x => String(x))
+            .startWith('a'),
           most.never(),
         ),
       };
     }
     function driver(xsSink: any) {
-      return most.from(xsSink).map((x: string) => x.charCodeAt(0)).delay(1);
+      return most
+        .from(xsSink)
+        .map((x: string) => x.charCodeAt(0))
+        .delay(1);
     }
     let {sinks, sources, run} = setup(app, {other: driver});
     let dispose: any;
@@ -116,7 +122,10 @@ describe('setup', function() {
   });
 
   it('should not work after has been disposed', function(done) {
-    let number$ = most.periodic(50, 1).scan((x, y) => x + y, 0).map(i => i + 1);
+    let number$ = most
+      .periodic(50, 1)
+      .scan((x, y) => x + y, 0)
+      .map(i => i + 1);
     function app(sources: any): any {
       return {other: number$};
     }
@@ -194,7 +203,10 @@ describe('run()', function() {
       };
     }
     function driver(xsSink: any) {
-      most.from(xsSink).drain().catch(() => {});
+      most
+        .from(xsSink)
+        .drain()
+        .catch(() => {});
       return most.of('b');
     }
 

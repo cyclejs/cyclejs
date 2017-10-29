@@ -7,10 +7,10 @@
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
   "repository": "https://github.com/cyclejs/cyclejs/tree/master/time",
   "author": "Nick Johnstone",
-  "main": "lib/index.js",
+  "main": "lib/cjs/index.js",
   "module": "lib/es6/index.js",
-  "typings": "lib/index.d.ts",
-  "types": "lib/index.d.ts",
+  "typings": "lib/cjs/index.d.ts",
+  "types": "lib/cjs/index.d.ts",
   "dependencies": {
     "@cycle/run": "3.x",
     "combine-errors": "3.0.x",
@@ -19,7 +19,9 @@
     "setimmediate": "1.0.x",
     "sorted-immutable-list": "1.1.x",
     "variable-diff": "1.1.x",
-    "xstream": "*"
+    "xstream": "*",
+    "most": "*",
+    "rxjs": "*"
   },
   "devDependencies": {
     "@cycle/dom": "17.6",
@@ -51,12 +53,12 @@
   },
   "scripts": {
     "start": "../node_modules/.bin/budo -d example example/index.ts:index.js --live -- -p tsify",
-    "test-watch": "../node_modules/.bin/mocha 'test/**/*.ts' --compilers ts:ts-node/register --watch -R min",
-    "test-node": "../node_modules/.bin/mocha 'test/**/*.ts' --compilers ts:ts-node/register",
+    "test-watch": "../node_modules/.bin/mocha 'test/**/*.ts' --require ts-node/register --watch -R min",
+    "test-node": "../node_modules/.bin/mocha 'test/**/*.ts' --require ts-node/register --exit",
     "test": "npm run test-node && npm run test-docs",
     "test-ci": "npm run test",
     "test-docs": "markdown-doctest",
-    "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleTime --exclude xstream --outfile dist/cycle-time.js",
+    "browserify": "../node_modules/.bin/browserify lib/cjs/index.js --global-transform=browserify-shim --standalone CycleTime --exclude xstream --outfile dist/cycle-time.js",
     "minify": "node ../.scripts/minify.js dist/cycle-time.js dist/cycle-time.min.js"
   }
 }

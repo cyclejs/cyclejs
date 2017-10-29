@@ -28,6 +28,16 @@ export class MockedDOMSource implements DOMSource {
     return out;
   }
 
+  public element(): any {
+    const output$: MemoryStream<Element> = this.elements()
+      .filter((arr: Array<any>) => arr.length > 0)
+      .map((arr: Array<any>) => arr[0])
+      .remember();
+    const out: DevToolEnabledSource & MemoryStream<Element> = adapt(output$);
+    out._isCycleSource = 'MockedDOM';
+    return out;
+  }
+
   public events(eventType: string, options?: EventsFnOptions): any {
     const streamForEventType = this._mockConfig[eventType] as any;
     const out: DevToolEnabledSource & FantasyObservable = adapt(

@@ -1,7 +1,6 @@
 import {VNode, vnode as vnodeFn} from 'snabbdom/vnode';
 import {h} from 'snabbdom/h';
-import {classNameFromVNode} from 'snabbdom-selector/lib/commonjs/classNameFromVNode';
-import {selectorParser} from 'snabbdom-selector/lib/commonjs/selectorParser';
+import {classNameFromVNode, selectorParser} from 'snabbdom-selector';
 import {isDocFrag} from './utils';
 
 export class VNodeWrapper {

@@ -1,6 +1,6 @@
 {
   "name": "@cycle/dom",
-  "version": "18.3.0",
+  "version": "19.3.0",
   "description": "The standard DOM Driver for Cycle.js, based on Snabbdom",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
@@ -29,29 +29,28 @@
     "mvi",
     "virtual-dom"
   ],
-  "main": "lib/index.js",
+  "main": "lib/cjs/index.js",
   "module": "lib/es6/index.js",
-  "typings": "lib/index.d.ts",
-  "types": "lib/index.d.ts",
+  "typings": "lib/cjs/index.d.ts",
+  "types": "lib/cjs/index.d.ts",
   "dependencies": {
     "@cycle/run": "*",
     "snabbdom": "0.7.0",
-    "snabbdom-selector": "1.2.1"
-  },
-  "peerDependencies": {
+    "snabbdom-selector": "2.0.1",
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/isolate": "3.0",
-    "@cycle/rxjs-run": "7.x",
+    "@cycle/run": "3.4",
+    "@cycle/isolate": "3.2",
+    "@cycle/rxjs-run": "7.2",
     "@types/mocha": "^2.2.33",
     "@types/node": "^7.0.4",
     "@types/sinon": "^1.16.32",
     "rxjs": "5.4.2",
-    "saucie": "3.2.0",
+    "saucie": "3.3.0",
     "simulant": "^0.2.2",
     "snabbdom-jsx": "^0.3.0",
-    "xstream": "10.8"
+    "xstream": "11.x"
   },
   "engines": {
     "node": ">=0.10.0"
@@ -63,23 +62,23 @@
     "xstream": "global:xstream"
   },
   "scripts": {
-    "test-node": "../node_modules/.bin/mocha test/node/*.ts --require ts-node/register",
+    "test-node": "../node_modules/.bin/mocha test/node/*.ts --require ts-node/register --exit",
     "pretest-browser": "../node_modules/.bin/tsc -p ./test/browser/ && ../node_modules/.bin/browserify test/browser/lib/index.js -o test/browser/page/tests-bundle.js",
     "test-browser": "../node_modules/.bin/testem ci -l Firefox,Chrome",
     "posttest-browser": "rm test/browser/page/tests-bundle.js",
-    "pretest-browser-ci": "yarn run pretest-browser",
+    "pretest-browser-ci": "npm run pretest-browser",
     "test-browser-ci": "../node_modules/.bin/testem ci",
-    "posttest-browser-ci": "yarn run posttest-browser",
-    "pretest-browser-wait": "yarn run pretest-browser",
+    "posttest-browser-ci": "npm run posttest-browser",
+    "pretest-browser-wait": "npm run pretest-browser",
     "test-browser-wait": "../node_modules/.bin/testem -l Chrome",
-    "posttest-browser-wait": "yarn run posttest-browser",
+    "posttest-browser-wait": "npm run posttest-browser",
     "pretest-browser-perf": "../node_modules/.bin/browserify test/browser/perf/index.js -t babelify -o test/browser/perf/tests-bundle.js",
     "test-browser-perf": "../node_modules/.bin/testem -f test/browser/perf/.testem-perf.json",
     "posttest-browser-perf": "rm test/browser/perf/tests-bundle.js",
     "test": "npm run test-node && npm run test-browser",
     "test-ci": "npm run test-node && npm run test-browser-ci",
     "test-wait": "npm run test-node && npm run test-browser-wait",
-    "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleDOM --exclude xstream --outfile dist/cycle-dom.js",
+    "browserify": "../node_modules/.bin/browserify lib/cjs/index.js --global-transform=browserify-shim --standalone CycleDOM --exclude xstream --outfile dist/cycle-dom.js",
     "minify": "node ../.scripts/minify.js dist/cycle-dom.js dist/cycle-dom.min.js"
   }
 }

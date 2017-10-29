@@ -1,6 +1,6 @@
 {
   "name": "@cycle/rxjs-run",
-  "version": "7.1.0",
+  "version": "7.3.0",
   "description": "The Cycle run() function meant to be used with RxJS v5",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
@@ -25,22 +25,22 @@
     "mvi",
     "virtual-dom"
   ],
-  "main": "lib/index.js",
+  "main": "lib/cjs/index.js",
   "module": "lib/es6/index.js",
-  "typings": "lib/index.d.ts",
-  "types": "lib/index.d.ts",
+  "typings": "lib/cjs/index.d.ts",
+  "types": "lib/cjs/index.d.ts",
   "dependencies": {
-    "@cycle/run": "3.x"
-  },
-  "peerDependencies": {
+    "@cycle/run": "3.4",
+    "xstream": "*",
     "rxjs": "*"
   },
   "devDependencies": {
+    "@cycle/run": "3.4",
     "@types/mocha": "2.2.x",
     "@types/node": "7.0.x",
     "@types/sinon": "1.16.x",
     "rxjs": "5.4.x",
-    "xstream": "10.x"
+    "xstream": "11.x"
   },
   "engines": {
     "node": ">=0.12.0"
@@ -49,10 +49,10 @@
     "rxjs": "global:Rx"
   },
   "scripts": {
-    "mocha": "../node_modules/.bin/mocha test/*.ts --require ts-node/register",
+    "mocha": "../node_modules/.bin/mocha test/*.ts --require ts-node/register --exit",
     "test": "npm run mocha",
     "test-ci": "npm run test",
-    "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone Cycle --exclude rxjs -o dist/cycle.js",
+    "browserify": "../node_modules/.bin/browserify lib/cjs/index.js --global-transform=browserify-shim --standalone Cycle --exclude rxjs -o dist/cycle.js",
     "minify": "node ../.scripts/minify.js dist/cycle.js dist/cycle.min.js"
   },
   "publishConfig": {

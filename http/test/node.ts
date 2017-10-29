@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as Rx from 'rxjs';
 import * as Cycle from '@cycle/rxjs-run';
-import {makeHTTPDriver} from '../lib/index';
+import {makeHTTPDriver} from '../lib/cjs/index';
 import {HTTPSource} from '../rxjs-typings';
 import {run as runCommon} from './browser/src/common';
 import {globalSandbox} from './support/global';
@@ -80,7 +80,10 @@ describe('HTTP Driver in Node.js', function() {
     const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
     globalSandbox.petPOSTResponse = null;
 
-    sources.HTTP.select().mergeAll().subscribe();
+    sources.HTTP
+      .select()
+      .mergeAll()
+      .subscribe();
 
     run();
 
@@ -106,11 +109,14 @@ describe('HTTP Driver in Node.js', function() {
 
     const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
-    sources.HTTP.select().mergeAll().subscribe(function(r) {
-      assert.ok(r.request);
-      assert.strictEqual((r.request as any)._id, 'petRequest');
-      done();
-    });
+    sources.HTTP
+      .select()
+      .mergeAll()
+      .subscribe(function(r: any) {
+        assert.ok(r.request);
+        assert.strictEqual((r.request as any)._id, 'petRequest');
+        done();
+      });
 
     run();
   });
@@ -130,16 +136,19 @@ describe('HTTP Driver in Node.js', function() {
 
     const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
-    sources.HTTP.select().mergeAll().subscribe({
-      next: function(r) {
-        done('next() should not be called');
-      },
-      error: function(err) {
-        assert.strictEqual(err.code, 'ECONNREFUSED');
-        assert.strictEqual(err.port, 9999);
-        done();
-      },
-    });
+    sources.HTTP
+      .select()
+      .mergeAll()
+      .subscribe({
+        next: function(r: any) {
+          done('next() should not be called');
+        },
+        error: function(err: any) {
+          assert.strictEqual(err.code, 'ECONNREFUSED');
+          assert.strictEqual(err.port, 9999);
+          done();
+        },
+      });
 
     run();
   });
@@ -152,23 +161,26 @@ describe('HTTP Driver in Node.js', function() {
         HTTP: Rx.Observable.of({
           url: uri + '/not-found-url',
           method: 'GET',
-          ok: (res: any) => (res.status === 404),
+          ok: (res: any) => res.status === 404,
         }),
       };
     }
 
     const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
-    sources.HTTP.select().mergeAll().subscribe({
-      next: function(r) {
-        assert.ok(r.request);
-        assert.strictEqual(r.status, 404);
-        done();
-      },
-      error: function(err) {
-        done('error() should not be called');
-      },
-    });
+    sources.HTTP
+      .select()
+      .mergeAll()
+      .subscribe({
+        next: function(r: any) {
+          assert.ok(r.request);
+          assert.strictEqual(r.status, 404);
+          done();
+        },
+        error: function(err: any) {
+          done('error() should not be called');
+        },
+      });
 
     run();
   });

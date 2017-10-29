@@ -4,7 +4,13 @@ import xs, {Stream, MemoryStream} from 'xstream';
 import delay from 'xstream/extra/delay';
 import flattenSequentially from 'xstream/extra/flattenSequentially';
 import {setup, run} from '@cycle/run';
-import {div, h3, makeDOMDriver, DOMSource, MainDOMSource} from '../../../lib';
+import {
+  div,
+  h3,
+  makeDOMDriver,
+  DOMSource,
+  MainDOMSource,
+} from '../../../lib/cjs/index';
 
 function createRenderTarget(id: string | null = null) {
   const element = document.createElement('div');
@@ -130,36 +136,40 @@ describe('DOM Driver', function() {
     let dispose: any;
     let hasDisposed = false;
     let assertionOngoing = false;
-    sources.DOM.select(':root').elements().drop(1).addListener({
-      next: (root: Element) => {
-        const selectEl = root.querySelector('.target') as Element;
-        if (!selectEl && assertionOngoing && hasDisposed) {
-          // This synchronous delivery of the empty root element is allowed
-          return;
-        }
-        if (!selectEl && !assertionOngoing && hasDisposed) {
-          done(
-            'DOM Driver should not emit anything asynchronously after dispose()',
-          );
-        }
-        if (selectEl && hasDisposed) {
-          done('DOM Driver should not emit a target element after dispose()');
-        }
-        assertionOngoing = true;
-        assert.notStrictEqual(selectEl, null);
-        assert.notStrictEqual(typeof selectEl, 'undefined');
-        assert.strictEqual(selectEl.tagName, 'H3');
-        assert.notStrictEqual(selectEl.textContent, '3');
-        if (selectEl.textContent === '2') {
-          hasDisposed = true;
-          dispose();
-          setTimeout(() => {
-            done();
-          }, 100);
-        }
-        assertionOngoing = false;
-      },
-    });
+    sources.DOM
+      .select(':root')
+      .element()
+      .drop(1)
+      .addListener({
+        next: (root: Element) => {
+          const selectEl = root.querySelector('.target') as Element;
+          if (!selectEl && assertionOngoing && hasDisposed) {
+            // This synchronous delivery of the empty root element is allowed
+            return;
+          }
+          if (!selectEl && !assertionOngoing && hasDisposed) {
+            done(
+              'DOM Driver should not emit anything asynchronously after dispose()',
+            );
+          }
+          if (selectEl && hasDisposed) {
+            done('DOM Driver should not emit a target element after dispose()');
+          }
+          assertionOngoing = true;
+          assert.notStrictEqual(selectEl, null);
+          assert.notStrictEqual(typeof selectEl, 'undefined');
+          assert.strictEqual(selectEl.tagName, 'H3');
+          assert.notStrictEqual(selectEl.textContent, '3');
+          if (selectEl.textContent === '2') {
+            hasDisposed = true;
+            dispose();
+            setTimeout(() => {
+              done();
+            }, 100);
+          }
+          assertionOngoing = false;
+        },
+      });
     dispose = run();
   });
 

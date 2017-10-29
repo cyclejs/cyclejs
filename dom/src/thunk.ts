@@ -45,13 +45,13 @@ function prepatch(oldVnode: Thunk, thunkVNode: Thunk): void {
   copyToThunk(oldVnode, thunkVNode);
 }
 
-export function thunk(sel: string, fn: Function, args: Array<any>): Thunk
+export function thunk(sel: string, fn: Function, args: Array<any>): Thunk;
 export function thunk(
   sel: string,
   key: any,
   fn: Function,
   args: Array<any>,
-): Thunk
+): Thunk;
 export function thunk(sel: string, key?: any, fn?: any, args?: any): VNode {
   if (args === undefined) {
     args = fn;

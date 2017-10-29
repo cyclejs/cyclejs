@@ -12,11 +12,11 @@ export class ElementFinder {
     public isolateModule: IsolateModule,
   ) {}
 
-  public call(rootElement: Element): Element | Array<Element> {
+  public call(rootElement: Element): Array<Element> {
     const namespace = this.namespace;
     const selector = getSelectors(namespace);
     if (!selector) {
-      return rootElement;
+      return [rootElement];
     }
 
     const fullScope = getFullScope(namespace);

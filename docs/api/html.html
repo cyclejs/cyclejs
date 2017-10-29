@@ -76,7 +76,8 @@ with this driver, or it is an RxJS Observable if you use `@cycle/rxjs-run`,
 and so forth.
 
 `DOMSource.elements()` returns the stream of HTML string rendered from your
-sink virtual DOM stream.
+sink stream of virtual DOM. The alternative method `DOMSource.element()` does
+the same (it only exists to be compatible with DOMSource from `@cycle/dom`).
 
 #### Arguments:
 

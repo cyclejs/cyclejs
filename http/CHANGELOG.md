@@ -1,3 +1,38 @@
+<a name="14.8.0"></a>
+# 14.8.0 (2017-10-26)
+
+
+### Bug Fixes
+
+* **http:** fix isolation regression ([ac20334](https://github.com/cyclejs/cyclejs/commit/ac20334))
+
+
+
+<a name="14.7.0"></a>
+# 14.7.0 (2017-10-25)
+
+
+### Bug Fixes
+
+* **http:** upgrade superagent to v3.7.0 ([b17ab8d](https://github.com/cyclejs/cyclejs/commit/b17ab8d))
+
+
+
+<a name="14.6.0"></a>
+# 14.6.0 (2017-10-24)
+
+
+
+<a name="14.5.0"></a>
+# 14.5.0 (2017-10-10)
+
+
+### Bug Fixes
+
+* **http:** update superagent to v3.6.3 ([c20ecc1](https://github.com/cyclejs/cyclejs/commit/c20ecc1))
+
+
+
 <a name="14.4.0"></a>
 # 14.4.0 (2017-10-02)
 

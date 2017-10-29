@@ -4,13 +4,14 @@ import {
   RequestInput,
   Response,
   ResponseStream,
-} from '../../../lib/index';
+} from '../../../lib/cjs/index';
 import {HTTPSource} from '../../../rxjs-typings';
 import * as Rx from 'rxjs';
 import {Observable} from 'rxjs';
 import 'rxjs/add/operator/mergeAll';
 import 'rxjs/add/operator/switchMap';
 import * as Cycle from '@cycle/rxjs-run';
+import isolate from '@cycle/isolate';
 
 export function run(uri: string) {
   describe('makeHTTPDriver', function() {
@@ -35,23 +36,26 @@ export function run(uri: string) {
 
       const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
-      sources.HTTP.select().mergeAll().subscribe({
-        next: () => {
-          done('next should not be called');
-        },
-        error: err => {
-          assert.strictEqual(
-            err.message,
-            'Observable of requests given to ' +
-              'HTTP Driver must emit either URL strings or objects with ' +
-              'parameters.',
-          );
-          done();
-        },
-        complete: () => {
-          done('complete should not be called');
-        },
-      });
+      sources.HTTP
+        .select()
+        .mergeAll()
+        .subscribe({
+          next: () => {
+            done('next should not be called');
+          },
+          error: (err: any) => {
+            assert.strictEqual(
+              err.message,
+              'Observable of requests given to ' +
+                'HTTP Driver must emit either URL strings or objects with ' +
+                'parameters.',
+            );
+            done();
+          },
+          complete: () => {
+            done('complete should not be called');
+          },
+        });
       run();
     });
 
@@ -66,21 +70,24 @@ export function run(uri: string) {
 
       const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
-      sources.HTTP.select().mergeAll().subscribe({
-        next: () => {
-          done('next should not be called');
-        },
-        error: err => {
-          assert.strictEqual(
-            err.message,
-            'Please provide a `url` property in the request ' + 'options.',
-          );
-          done();
-        },
-        complete: () => {
-          done('complete should not be called');
-        },
-      });
+      sources.HTTP
+        .select()
+        .mergeAll()
+        .subscribe({
+          next: () => {
+            done('next should not be called');
+          },
+          error: (err: any) => {
+            assert.strictEqual(
+              err.message,
+              'Please provide a `url` property in the request ' + 'options.',
+            );
+            done();
+          },
+          complete: () => {
+            done('complete should not be called');
+          },
+        });
       run();
     });
 
@@ -102,7 +109,7 @@ export function run(uri: string) {
           assert.strictEqual(typeof response$.request, 'object');
           assert.strictEqual(response$.request.url, uri + '/hello');
           assert.strictEqual(typeof response$.switchMap, 'function'); // is RxJS v5
-          response$.subscribe(function(response) {
+          response$.subscribe(function(response: any) {
             assert.strictEqual(response.status, 200);
             assert.strictEqual(response.text, 'Hello World');
             done();
@@ -151,7 +158,7 @@ export function run(uri: string) {
         assert.strictEqual(response$.request.method, 'POST');
         assert.strictEqual((response$.request.send as any).name, 'Woof');
         assert.strictEqual((response$.request.send as any).species, 'Dog');
-        response$.subscribe(function(response) {
+        response$.subscribe(function(response: any) {
           assert.strictEqual(response.status, 200);
           assert.strictEqual(response.text, 'added Woof the Dog');
           done();
@@ -183,7 +190,7 @@ export function run(uri: string) {
           response$.request.send as string,
           'name=Woof&species=Dog',
         );
-        response$.subscribe(function(response) {
+        response$.subscribe(function(response: any) {
           assert.strictEqual(response.status, 200);
           assert.strictEqual(response.text, 'added Woof the Dog');
           done();
@@ -251,7 +258,7 @@ export function run(uri: string) {
         assert.strictEqual(response$.request.method, 'GET');
         assert.strictEqual((response$.request.query as any).foo, 102030);
         assert.strictEqual((response$.request.query as any).bar, 'Pub');
-        response$.subscribe(function(response) {
+        response$.subscribe(function(response: any) {
           assert.strictEqual(response.status, 200);
           assert.strictEqual((response.body as any).foo, '102030');
           assert.strictEqual((response.body as any).bar, 'Pub');
@@ -280,7 +287,7 @@ export function run(uri: string) {
       response$$.subscribe(function(response$) {
         assert.strictEqual(response$.request.url, uri + '/delete');
         assert.strictEqual(response$.request.method, 'DELETE');
-        response$.subscribe(function(response) {
+        response$.subscribe(function(response: any) {
           assert.strictEqual(response.status, 200);
           assert.strictEqual((response.body as any).deleted, true);
           done();
@@ -338,7 +345,7 @@ export function run(uri: string) {
           next: () => {
             done('next should not be called');
           },
-          error: err => {
+          error: (err: any) => {
             assert.strictEqual(err.status, 500);
             assert.strictEqual(err.message, 'Internal Server Error');
             assert.strictEqual(err.response.text, 'boom');
@@ -363,7 +370,7 @@ export function run(uri: string) {
         const str$ = sources.HTTP
           .select()
           .mergeAll()
-          .map(res => res.text as string);
+          .map((res: any) => res.text as string);
 
         // Notice HTTP comes before Test here. This is crucial for this test.
         return {
@@ -439,7 +446,7 @@ export function run(uri: string) {
       scopedHTTPSource.select().subscribe(function(response$) {
         assert.strictEqual(typeof response$.request, 'object');
         assert.strictEqual(response$.request.url, uri + '/hello');
-        response$.subscribe(function(response) {
+        response$.subscribe(function(response: any) {
           assert.strictEqual(response.status, 200);
           assert.strictEqual(response.text, 'Hello World');
           done();
@@ -467,24 +474,24 @@ export function run(uri: string) {
 
       const ignoredRequest$ = Rx.Observable.of(uri + '/json');
       const request$ = Rx.Observable.of(uri + '/hello').delay(10);
-      const scopedRequest$ = sources.HTTP
-        .isolateSink(sources.HTTP.isolateSink(request$, 'foo'), 'something')
+      const fooInsideBarRequest$ = sources.HTTP
+        .isolateSink(sources.HTTP.isolateSink(request$, 'foo'), 'bar')
         .shareReplay();
-      const twiceScopedHTTPSource = sources.HTTP.isolateSource(
-        sources.HTTP.isolateSource(sources.HTTP, 'foo'),
-        'something',
+      const fooInsideBarHTTPSource = sources.HTTP.isolateSource(
+        sources.HTTP.isolateSource(sources.HTTP, 'bar'),
+        'foo',
       );
-      const twiceWrongScopedHTTPSource = sources.HTTP.isolateSource(
+      const fooInsideFooHTTPSource = sources.HTTP.isolateSource(
         sources.HTTP.isolateSource(sources.HTTP, 'foo'),
         'foo',
       );
 
-      twiceWrongScopedHTTPSource.select().subscribe(function(response$) {
+      fooInsideFooHTTPSource.select().subscribe(function(response$) {
         assert(false);
         done('should not be called');
       });
 
-      twiceScopedHTTPSource.select().subscribe(function(response$) {
+      fooInsideBarHTTPSource.select().subscribe(function(response$) {
         assert.strictEqual(typeof response$.request, 'object');
         assert.strictEqual(response$.request.url, uri + '/hello');
         response$.subscribe(function(response) {
@@ -495,10 +502,44 @@ export function run(uri: string) {
       });
 
       Rx.Observable
-        .merge(ignoredRequest$, scopedRequest$)
+        .merge(ignoredRequest$, fooInsideBarRequest$)
         .subscribe(proxyRequest$);
 
       run();
+    });
+
+    it('should emit responses when isolated many scopes deep', function(done) {
+      let dispose: any;
+      function main(sources: {HTTP: HTTPSource}) {
+        sources.HTTP.select('hello').subscribe(function(response$) {
+          assert.strictEqual(typeof response$.request, 'object');
+          assert.strictEqual(response$.request.url, uri + '/hello');
+          response$.subscribe(function(response) {
+            assert.strictEqual(response.status, 200);
+            assert.strictEqual(response.text, 'Hello World');
+            dispose();
+            done();
+          });
+        });
+
+        return {
+          HTTP: Rx.Observable
+            .of({url: uri + '/hello', category: 'hello'})
+            .delay(10),
+        };
+      }
+
+      function wrapper1(sources: {HTTP: HTTPSource}) {
+        return isolate(main, {HTTP: 'wrapper1'})(sources);
+      }
+
+      function wrapper2(sources: {HTTP: HTTPSource}) {
+        return isolate(wrapper1, {HTTP: 'wrapper2'})(sources);
+      }
+
+      const {sources, run} = Cycle.setup(wrapper2, {HTTP: makeHTTPDriver()});
+
+      dispose = run();
     });
 
     it('should allow null scope to bypass isolation', function(done) {

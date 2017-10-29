@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as Rx from 'rxjs';
 import * as Cycle from '@cycle/rxjs-run';
-import {makeHTTPDriver} from '../../../lib/index';
+import {makeHTTPDriver} from '../../../lib/cjs/index';
 import {HTTPSource} from '../../../rxjs-typings';
 import {run as runCommon} from './common';
 

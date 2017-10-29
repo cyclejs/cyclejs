@@ -1,6 +1,6 @@
 {
   "name": "@cycle/html",
-  "version": "2.1.0",
+  "version": "2.4.0",
   "description": "A driver for HTML strings based on Snabbdom and the DOM driver",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
@@ -29,28 +29,26 @@
     "mvi",
     "virtual-dom"
   ],
-  "main": "lib/index.js",
+  "main": "lib/cjs/index.js",
   "module": "lib/es6/index.js",
-  "typings": "lib/index.d.ts",
-  "types": "lib/index.d.ts",
+  "typings": "lib/cjs/index.d.ts",
+  "types": "lib/cjs/index.d.ts",
   "dependencies": {
     "@cycle/run": "*",
-    "@cycle/dom": "18.x",
-    "snabbdom": "0.6.9",
-    "snabbdom-to-html": "3.1.1"
-  },
-  "peerDependencies": {
+    "@cycle/dom": ">=19.3.0",
+    "snabbdom": "0.7.0",
+    "snabbdom-to-html": "3.3.0",
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/isolate": "2.1.0",
+    "@cycle/run": "3.4",
+    "@cycle/isolate": "3.2.0",
     "@types/mocha": "^2.2.33",
     "@types/node": "^7.0.4",
     "@types/sinon": "^1.16.32",
-    "saucie": "3.1.0",
     "simulant": "^0.2.2",
     "snabbdom-jsx": "^0.3.0",
-    "xstream": "10.x"
+    "xstream": "11.x"
   },
   "engines": {
     "node": ">=0.10.0"
@@ -62,10 +60,10 @@
     "xstream": "global:xstream"
   },
   "scripts": {
-    "test-node": "../node_modules/.bin/mocha test/*.ts --require ts-node/register",
+    "test-node": "../node_modules/.bin/mocha test/*.ts --require ts-node/register --exit",
     "test": "npm run test-node",
     "test-ci": "npm run test",
-    "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone CycleHTML --exclude xstream --outfile dist/cycle-html.js",
+    "browserify": "../node_modules/.bin/browserify lib/cjs/index.js --global-transform=browserify-shim --standalone CycleHTML --exclude xstream --outfile dist/cycle-html.js",
     "minify": "node ../.scripts/minify.js dist/cycle-html.js dist/cycle-html.min.js"
   }
 }

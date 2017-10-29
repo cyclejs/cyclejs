@@ -1,7 +1,7 @@
 import 'mocha';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
-import {run, setup, Sources, Sinks, Driver} from '../lib';
+import {run, setup, Sources, Sinks, Driver} from '../lib/cjs/index';
 import {setAdapt} from '../lib/adapt';
 import xs, {Stream} from 'xstream';
 import concat from 'xstream/extra/concat';
@@ -181,7 +181,10 @@ describe('setup', function() {
     function app(sources: TestSources) {
       return {
         other: concat(
-          sources.other.take(6).map(x => String(x)).startWith('a'),
+          sources.other
+            .take(6)
+            .map(x => String(x))
+            .startWith('a'),
           xs.never(),
         ),
       };
@@ -419,9 +422,12 @@ describe('run', function() {
 
     function main(sources: any): any {
       return {
-        other: sources.other.take(1).startWith('a').map(() => {
-          throw new Error('malfunction');
-        }),
+        other: sources.other
+          .take(1)
+          .startWith('a')
+          .map(() => {
+            throw new Error('malfunction');
+          }),
       };
     }
     function driver(sink: Stream<any>) {

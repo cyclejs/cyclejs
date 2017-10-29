@@ -11,28 +11,68 @@ export {MainDOMSource} from './MainDOMSource';
  * Snabbdom "VNode" objects. The output of this driver is a "DOMSource": a
  * collection of Observables queried with the methods `select()` and `events()`.
  *
- * `DOMSource.select(selector)` returns a new DOMSource with scope restricted to
- * the element(s) that matches the CSS `selector` given.
+ * **`DOMSource.select(selector)`** returns a new DOMSource with scope
+ * restricted to the element(s) that matches the CSS `selector` given. To select
+ * the page's `document`, use `.select('document')`. To select the container
+ * element for this app, use `.select(':root')`.
  *
- * `DOMSource.events(eventType, options)` returns a stream of events of
+ * **`DOMSource.events(eventType, options)`** returns a stream of events of
  * `eventType` happening on the elements that match the current DOMSource. The
  * event object contains the `ownerTarget` property that behaves exactly like
  * `currentTarget`. The reason for this is that some browsers doesn't allow
  * `currentTarget` property to be mutated, hence a new property is created. The
  * returned stream is an *xstream* Stream if you use `@cycle/xstream-run` to run
  * your app with this driver, or it is an RxJS Observable if you use
- * `@cycle/rxjs-run`, and so forth. The `options` parameter can have the
- * property `useCapture`, which is by default `false`, except it is `true` for
- * event types that do not bubble. Read more here
+ * `@cycle/rxjs-run`, and so forth.
+ *
+ * **options for DOMSource.events**
+ *
+ * The `options` parameter on `DOMSource.events(eventType, options)` is an
+ * (optional) object with two optional fields: `useCapture` and
+ * `preventDefault`.
+ *
+ * `useCapture` is by default `false`, except it is `true` for event types that
+ * do not bubble. Read more here
  * https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
  * about the `useCapture` and its purpose.
- * The other option is `preventDefault` that is set to false by default.
- * If set to true, the driver will automatically call `preventDefault()` on every event.
  *
- * `DOMSource.elements()` returns a stream of the DOM element(s) matched by the
- * selectors in the DOMSource. Also, `DOMSource.select(':root').elements()`
- * returns a stream of DOM element corresponding to the root (or container) of
- * the app on the DOM.
+ * `preventDefault` is by default `false`, and indicates to the driver whether
+ * `event.preventDefault()` should be invoked. This option can be configured in
+ * three ways:
+ *
+ * - `{preventDefault: boolean}` to invoke preventDefault if `true`, and not
+ * invoke otherwise.
+ * - `{preventDefault: (ev: Event) => boolean}` for conditional invocation.
+ * - `{preventDefault: NestedObject}` uses an object to be recursively compared
+ * to the `Event` object. `preventDefault` is invoked when all properties on the
+ * nested object match with the properties on the event object.
+ *
+ * Here are some examples:
+ * ```typescript
+ * // always prevent default
+ * DOMSource.select('input').events('keydown', {
+ *   preventDefault: true
+ * })
+ *
+ * // prevent default only when `ENTER` is pressed
+ * DOMSource.select('input').events('keydown', {
+ *   preventDefault: e => e.keyCode === 13
+ * })
+ *
+ * // prevent defualt when `ENTER` is pressed AND target.value is 'HELLO'
+ * DOMSource.select('input').events('keydown', {
+ *   preventDefault: { keyCode: 13, ownerTarget: { value: 'HELLO' } }
+ * });
+ * ```
+ *
+ * **`DOMSource.elements()`** returns a stream of arrays containing the DOM
+ * elements that match the selectors in the DOMSource (e.g. from previous
+ * `select(x)` calls).
+ *
+ * **`DOMSource.element()`** returns a stream of DOM elements. Notice that this
+ * is the singular version of `.elements()`, so the stream will emit an element,
+ * not an array. If there is no element that matches the selected DOMSource,
+ * then the returned stream will not emit anything.
  *
  * @param {(String|HTMLElement)} container the DOM selector for the element
  * (or the element itself) to contain the rendering of the VTrees.
@@ -40,8 +80,6 @@ export {MainDOMSource} from './MainDOMSource';
  *
  *   - `modules: array` overrides `@cycle/dom`'s default Snabbdom modules as
  *     as defined in [`src/modules.ts`](./src/modules.ts).
- *   - `transposition: boolean` enables/disables transposition of inner streams
- *     in the virtual DOM tree.
  * @return {Function} the DOM driver function. The function expects a stream of
  * VNode as input, and outputs the DOMSource object.
  * @function makeDOMDriver

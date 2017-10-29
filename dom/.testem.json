@@ -27,11 +27,6 @@
       "args": ["-b", "chrome", "-p", "Windows 10", "-v", "49", "--no-connect", "--attach", "-u"],
       "protocol": "browser"
     },
-    "SL_Chrome_50": {
-      "exe": "./node_modules/.bin/saucie",
-      "args": ["-b", "chrome", "-p", "Windows 10", "-v", "50", "--no-connect", "--attach", "-u"],
-      "protocol": "browser"
-    },
     "SL_iphone_8": {
       "exe": "./node_modules/.bin/saucie",
       "args": ["-b", "iphone", "-v", "8.4", "--no-connect", "--attach", "-u"],
@@ -79,7 +74,6 @@
     "SL_Firefox_Current",
     "SL_Safari_Current",
     "SL_MS_Edge",
-    "SL_Chrome_50",
     "SL_Chrome_49",
     "SL_Safari_8",
     "SL_android_4_4",
