@@ -41,13 +41,14 @@
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/run": "4.0.0-rc.3",
+    "@cycle/run": "4.0.0-rc.4",
     "@cycle/isolate": "3.2",
-    "@cycle/rxjs-run": "8.0.0-rc.3",
+    "@cycle/rxjs-run": "8.0.0-rc.4",
     "@types/mocha": "^2.2.33",
     "@types/node": "^7.0.4",
     "@types/sinon": "^1.16.32",
-    "rxjs": "5.4.2",
+    "mutation-observer": "1.0.3",
+    "rxjs": "5.5.x",
     "saucie": "3.3.0",
     "simulant": "^0.2.2",
     "snabbdom-jsx": "^0.3.0",

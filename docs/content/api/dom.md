@@ -12,6 +12,8 @@ These are the browsers we officially support currently. Cycle.js may not work (o
 
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/cyclejs-dom.svg)](https://saucelabs.com/u/cyclejs-dom)
 
+**Note for Internet Explorer 10:** This driver works on IE10 only if you polyfill [MutationObserver](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver) (we recommend `mutation-observer` package from npm) **and** if you don't render the app in a [DocumentFragment](https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment).
+
 # Isolation semantics
 
 Cycle DOM supports isolation between components using the `@cycle/isolate` package. Here is how isolation contexts work in Cycle DOM given a `scope` to `isolate(Component, scope)`:

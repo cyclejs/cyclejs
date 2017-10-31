@@ -28,6 +28,12 @@ function createRenderTarget(id: string | null = null) {
   return element;
 }
 
+// From page/index.html
+declare var isIE10: boolean;
+if (isIE10) {
+  (window as any).MutationObserver = require('mutation-observer');
+}
+
 describe('DOMSource.elements()', function() {
   it('should return a stream of documents when querying "document"', function(
     done,

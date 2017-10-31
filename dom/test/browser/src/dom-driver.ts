@@ -12,6 +12,12 @@ import {
   MainDOMSource,
 } from '../../../lib/cjs/index';
 
+// From page/index.html
+declare var isIE10: boolean;
+if (isIE10) {
+  (window as any).MutationObserver = require('mutation-observer');
+}
+
 function createRenderTarget(id: string | null = null) {
   const element = document.createElement('div');
   element.className = 'cycletest';
@@ -31,6 +37,9 @@ describe('makeDOMDriver', function() {
   });
 
   it('should accept a DocumentFragment as input', function() {
+    if (isIE10) {
+      return;
+    }
     const docfrag = document.createDocumentFragment();
     assert.doesNotThrow(function() {
       makeDOMDriver(docfrag);

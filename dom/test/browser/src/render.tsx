@@ -34,6 +34,12 @@ declare global {
   }
 }
 
+// From page/index.html
+declare var isIE10: boolean;
+if (isIE10) {
+  (window as any).MutationObserver = require('mutation-observer');
+}
+
 function createRenderTarget(id: string | null = null) {
   const element = document.createElement('div');
   element.className = 'cycletest';
@@ -113,6 +119,11 @@ describe('DOM Rendering', function () {
   });
 
   it('should render in a DocumentFragment as container', function (done) {
+    if (isIE10) {
+      done();
+      return;
+    }
+
     function app(sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(select('.my-class', [
