@@ -1,5 +1,5 @@
 'use strict';
-
+//new one
 var packageScopes = [
   'devtool',
   'dom',
