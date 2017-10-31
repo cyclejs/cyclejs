@@ -6,17 +6,19 @@
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/@cycle/isolate/-/isolate-3.2.0.tgz#8ffddb9b05cb9a4fbcf812794c0e5285af341051"
 
-"@cycle/run@4.0.0-rc.3":
-  version "4.0.0-rc.3"
-  resolved "https://registry.yarnpkg.com/@cycle/run/-/run-4.0.0-rc.3.tgz#e1fe55f6cb7b0247f8ec0e6cd97f48c0c152aeb0"
+"@cycle/run@4.0.0-rc.4":
+  version "4.0.0-rc.4"
+  resolved "https://registry.yarnpkg.com/@cycle/run/-/run-4.0.0-rc.4.tgz#d1d4d393c2d73b8e791f7c640e475cf51c69dfe6"
   dependencies:
     xstream "10.x || 11.x"
 
-"@cycle/rxjs-run@8.0.0-rc.3":
-  version "8.0.0-rc.3"
-  resolved "https://registry.yarnpkg.com/@cycle/rxjs-run/-/rxjs-run-8.0.0-rc.3.tgz#aece71a0d7e3980844a3c4e7c8de6e8558eee22b"
+"@cycle/rxjs-run@8.0.0-rc.4":
+  version "8.0.0-rc.4"
+  resolved "https://registry.yarnpkg.com/@cycle/rxjs-run/-/rxjs-run-8.0.0-rc.4.tgz#83269478fffeda79a4d1253ee6c1a9e9da2dfa6b"
   dependencies:
-    "@cycle/run" "4.0.0-rc.3"
+    "@cycle/run" "4.0.0-rc.4"
+    rxjs "5.5.x"
+    xstream "11.x"
 
 "@types/mocha@^2.2.33":
   version "2.2.43"
@@ -594,6 +596,10 @@ ms@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
 
+mutation-observer@1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/mutation-observer/-/mutation-observer-1.0.3.tgz#42e9222b101bca82e5ba9d5a7acf4a14c0f263d0"
+
 normalize-path@^2.0.0:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/normalize-path/-/normalize-path-2.1.1.tgz#1ab28b556e198363a8c1a6f7e6fa20137fe6aed9"
@@ -722,9 +728,9 @@ rimraf@^2.5.4:
   dependencies:
     glob "^7.0.5"
 
-rxjs@5.4.2:
-  version "5.4.2"
-  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-5.4.2.tgz#2a3236fcbf03df57bae06fd6972fd99e5c08fcf7"
+rxjs@5.5.x:
+  version "5.5.2"
+  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-5.5.2.tgz#28d403f0071121967f18ad665563255d54236ac3"
   dependencies:
     symbol-observable "^1.0.1"
 

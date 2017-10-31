@@ -28,6 +28,12 @@ function createRenderTarget(id: string | null = null) {
   return element;
 }
 
+// From page/index.html
+declare var isIE10: boolean;
+if (isIE10) {
+  (window as any).MutationObserver = require('mutation-observer');
+}
+
 describe('DOMSource.select()', function() {
   it('should have Observable `:root` in DOM source', function(done) {
     function app(sources: {DOM: MainDOMSource}) {

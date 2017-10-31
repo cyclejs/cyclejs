@@ -17,6 +17,12 @@ import {
   DOMSource,
 } from '../../../lib/cjs/index';
 
+// From page/index.html
+declare var isIE10: boolean;
+if (isIE10) {
+  (window as any).MutationObserver = require('mutation-observer');
+}
+
 function createRenderTarget(id: string | null = null) {
   const element = document.createElement('div');
   element.className = 'cycletest';
@@ -498,6 +504,11 @@ describe('DOMSource.events()', function() {
   });
 
   it('should catch bubbling events in a DocumentFragment', function(done) {
+    if (isIE10) {
+      done();
+      return;
+    }
+
     const {bubbles: thisBrowserBubblesFragmentEvents} = fragmentSupport;
 
     function app(sources: {DOM: DOMSource}) {
@@ -552,6 +563,11 @@ describe('DOMSource.events()', function() {
   it('should catch non-bubbling events in a DocumentFragment with useCapture', function(
     done,
   ) {
+    if (isIE10) {
+      done();
+      return;
+    }
+
     const {captures: thisBrowserCapturesFragmentEvents} = fragmentSupport;
 
     function app(sources: {DOM: DOMSource}) {

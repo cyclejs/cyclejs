@@ -21,6 +21,12 @@ import {
   thunk,
 } from '../../../lib/cjs/index';
 
+// From page/index.html
+declare var isIE10: boolean;
+if (isIE10) {
+  (window as any).MutationObserver = require('mutation-observer');
+}
+
 function createRenderTarget(id: string | null = null) {
   const element = document.createElement('div');
   element.className = 'cycletest';

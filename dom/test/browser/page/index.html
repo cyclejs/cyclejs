@@ -7,6 +7,14 @@
   </head>
   <body>
     <div id="mocha"></div>
+    <script type="text/javascript">
+      var isIE10 = false;
+      /*@cc_on
+          if (/^10/.test(@_jscript_version)) {
+              isIE10 = true;
+          }
+      @*/
+    </script>
     <script src="mocha.js"></script>
     <script src="/testem.js"></script>
     <script>mocha.setup('bdd');</script>
