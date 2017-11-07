@@ -85,14 +85,19 @@ function captureAnchorClicks(push: (p: string) => void) {
   if (typeof window !== 'undefined') {
     document.addEventListener(CLICK_EVENT, listener, false);
   }
+  return () => document.removeEventListener(CLICK_EVENT, listener);
 }
 
 export function captureClicks(historyDriver: HistoryDriver): HistoryDriver {
   return function historyDriverWithClickCapture(
     sink$: Stream<HistoryInput | string>,
   ) {
-    const internalSink$ = xs.create<HistoryInput | string>();
-    captureAnchorClicks((pathname: string) => {
+    let cleanup: Function | undefined;
+    const internalSink$ = xs.create<HistoryInput | string>({
+      start: () => {},
+      stop: () => typeof cleanup === 'function' && cleanup(),
+    });
+    cleanup = captureAnchorClicks((pathname: string) => {
       internalSink$._n({type: 'push', pathname});
     });
     sink$._add(internalSink$);
