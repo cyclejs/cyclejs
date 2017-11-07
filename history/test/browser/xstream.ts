@@ -8,16 +8,23 @@ import {
   captureClicks,
   makeHistoryDriver,
 } from '../../src';
-import {run, setup} from '@cycle/run';
-import xs, {Stream} from 'xstream';
+import {setup} from '@cycle/run';
+import xs, {Stream, Subscription} from 'xstream';
 
 import {setAdapt} from '@cycle/run/lib/adapt';
 
 let dispose = () => {};
+let sub: Subscription | undefined;
 
 describe('historyDriver - xstream', () => {
   beforeEach(function() {
     setAdapt(x => x);
+  });
+
+  afterEach(function() {
+    if (sub) {
+      sub.unsubscribe();
+    }
     dispose();
   });
 
@@ -42,7 +49,7 @@ describe('historyDriver - xstream', () => {
 
     const {sources, run} = setup(main, {history: makeHistoryDriver()});
 
-    sources.history.drop(1).subscribe({
+    sub = sources.history.drop(1).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -64,7 +71,7 @@ describe('historyDriver - xstream', () => {
 
     const {sources, run} = setup(main, {history: makeHistoryDriver()});
 
-    sources.history.drop(1).subscribe({
+    sub = sources.history.drop(1).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -86,7 +93,7 @@ describe('historyDriver - xstream', () => {
 
     const {sources, run} = setup(main, {history: makeHistoryDriver()});
 
-    sources.history.drop(1).subscribe({
+    sub = sources.history.drop(1).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -125,7 +132,7 @@ describe('historyDriver - xstream', () => {
 
     const expected = ['/test', '/other', '/test', '/other', '/test', '/other'];
 
-    sources.history.drop(1).subscribe({
+    sub = sources.history.drop(1).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {

@@ -1,14 +1,24 @@
 /// <reference path="../../node_modules/@types/mocha/index.d.ts" />
 /// <reference path="../../node_modules/@types/node/index.d.ts" />
 import * as assert from 'assert';
-import xs, {Stream} from 'xstream';
-import {setup, run} from '@cycle/run';
+import xs, {Stream, Subscription} from 'xstream';
+import {setup} from '@cycle/run';
 import {setAdapt} from '@cycle/run/lib/adapt';
 import {makeServerHistoryDriver, Location, HistoryInput} from '../../src';
+
+let dispose = () => {};
+let sub: Subscription | undefined;
 
 describe('serverHistoryDriver - xstream', function() {
   beforeEach(function() {
     setAdapt(x => x);
+  });
+
+  afterEach(function() {
+    if (sub) {
+      sub.unsubscribe();
+    }
+    dispose();
   });
 
   it('should return a stream', function() {
@@ -36,7 +46,7 @@ describe('serverHistoryDriver - xstream', function() {
       history: makeServerHistoryDriver(),
     });
 
-    sources.history.drop(1).subscribe({
+    sub = sources.history.drop(1).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -46,7 +56,7 @@ describe('serverHistoryDriver - xstream', function() {
         done('complete should not be called');
       },
     });
-    run();
+    dispose = run();
   });
 
   it('should create a location from PushHistoryInput', done => {
@@ -60,7 +70,7 @@ describe('serverHistoryDriver - xstream', function() {
       history: makeServerHistoryDriver(),
     });
 
-    sources.history.drop(1).subscribe({
+    sub = sources.history.drop(1).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -70,7 +80,7 @@ describe('serverHistoryDriver - xstream', function() {
         done('complete should not be called');
       },
     });
-    run();
+    dispose = run();
   });
 
   it('should create a location from ReplaceHistoryInput', done => {
@@ -84,7 +94,7 @@ describe('serverHistoryDriver - xstream', function() {
       history: makeServerHistoryDriver(),
     });
 
-    sources.history.drop(1).subscribe({
+    sub = sources.history.drop(1).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -94,7 +104,7 @@ describe('serverHistoryDriver - xstream', function() {
         done('complete should not be called');
       },
     });
-    run();
+    dispose = run();
   });
 
   it('should allow going back a route with type `go`', done => {
@@ -113,7 +123,7 @@ describe('serverHistoryDriver - xstream', function() {
 
     const expected = ['/test', '/other', '/test'];
 
-    sources.history.drop(1).subscribe({
+    sub = sources.history.drop(1).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {
@@ -125,7 +135,7 @@ describe('serverHistoryDriver - xstream', function() {
         done('complete should not be called');
       },
     });
-    run();
+    dispose = run();
   });
 
   it('should allow going back a route with type `goBack`', done => {
@@ -143,7 +153,7 @@ describe('serverHistoryDriver - xstream', function() {
 
     const expected = ['/test', '/other', '/test'];
 
-    sources.history.drop(1).subscribe({
+    sub = sources.history.drop(1).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {
@@ -155,7 +165,7 @@ describe('serverHistoryDriver - xstream', function() {
         done('complete should not be called');
       },
     });
-    run();
+    dispose = run();
   });
 
   it('should allow going forward a route with type `go`', done => {
@@ -176,7 +186,7 @@ describe('serverHistoryDriver - xstream', function() {
 
     const expected = ['/test', '/other', '/test', '/other'];
 
-    sources.history.drop(1).subscribe({
+    sub = sources.history.drop(1).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {
@@ -188,7 +198,7 @@ describe('serverHistoryDriver - xstream', function() {
         done('complete should not be called');
       },
     });
-    run();
+    dispose = run();
   });
 
   it('should allow going forward a route with type `goForward`', done => {
@@ -209,7 +219,7 @@ describe('serverHistoryDriver - xstream', function() {
 
     const expected = ['/test', '/other', '/test', '/other'];
 
-    sources.history.drop(1).subscribe({
+    sub = sources.history.drop(1).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {
@@ -221,6 +231,6 @@ describe('serverHistoryDriver - xstream', function() {
         done('complete should not be called');
       },
     });
-    run();
+    dispose = run();
   });
 });
