@@ -1,4 +1,4 @@
-# Cycle DOM
+# Cycle DOM - [source](https://github.com/cyclejs/cyclejs/tree/master/dom)
 
 A Cycle.js driver to enable interaction with the DOM. The driver is based on [snabbdom](https://github.com/paldepind/snabbdom/) as the Virtual DOM library.
 
