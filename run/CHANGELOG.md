@@ -1,3 +1,30 @@
+<a name="4.0.0"></a>
+# 4.0.0 (2017-11-10)
+
+
+### Bug Fixes
+
+* **run:** changes behavior of sinks to not have memory ([445fe08](https://github.com/cyclejs/cyclejs/commit/445fe08))
+* **run:** schedule sink emissions as microtasks ([9d0fc02](https://github.com/cyclejs/cyclejs/commit/9d0fc02))
+
+
+### BREAKING CHANGES
+
+* **run:** This means Cycle run() function is no longer synchronous, so if for some reason you were depending
+on the synchronicity of run(), you will lose this guarantee. This is breaking change, but rarely
+should this be experienced. With the new microtask scheduling, sinks are emitted to drivers as soon
+as the current event loop scripts are completed, so there will not be noticeable delays in the user
+interface (like setTimeout would incur).
+
+ISSUES CLOSED: #592
+* **run:** This is a breaking change that requires updating your project to use the latest Cycle Run as well as
+the latest Cycle HTTP and Cycle DOM all at the same time, otherwise you may see race conditions
+across drivers.
+
+ISSUES CLOSED: #592
+
+
+
 <a name="3.4.0"></a>
 # 3.4.0 (2017-10-24)
 
