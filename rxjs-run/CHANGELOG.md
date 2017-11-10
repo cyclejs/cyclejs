@@ -1,3 +1,20 @@
+<a name="8.0.0"></a>
+# 8.0.0 (2017-11-10)
+
+
+### Bug Fixes
+
+* **rxjs-run:** depend on run v4 ([4032e40](https://github.com/cyclejs/cyclejs/commit/4032e40))
+
+
+### BREAKING CHANGES
+
+* **rxjs-run:** Like Cycle run() v4, RxJS run() will not anymore execute synchronously once the run() function is
+called, instead it will schedule sink emissions as microtasks that happen as soon as the current
+event loop scripts are completed.
+
+
+
 <a name="7.3.0"></a>
 # 7.3.0 (2017-10-26)
 
