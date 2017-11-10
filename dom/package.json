@@ -1,6 +1,6 @@
 {
   "name": "@cycle/dom",
-  "version": "20.0.0-rc.1",
+  "version": "19.3.0",
   "description": "The standard DOM Driver for Cycle.js, based on Snabbdom",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
@@ -41,9 +41,9 @@
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/run": "4.0.0-rc.4",
+    "@cycle/run": "4.0.0",
     "@cycle/isolate": "3.2",
-    "@cycle/rxjs-run": "8.0.0-rc.4",
+    "@cycle/rxjs-run": "8.0.0",
     "@types/mocha": "^2.2.33",
     "@types/node": "^7.0.4",
     "@types/sinon": "^1.16.32",
