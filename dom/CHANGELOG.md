@@ -1,3 +1,24 @@
+<a name="20.0.0"></a>
+# 20.0.0 (2017-11-10)
+
+
+### Bug Fixes
+
+* **dom:** use MutationObserver to avoid mutation loop ([a349b20](https://github.com/cyclejs/cyclejs/commit/a349b20))
+
+
+### BREAKING CHANGES
+
+* **dom:** Internet Explorer 10 is no longer officially supported, but it can still
+be used with cycle/dom under some circumstances. You should use a
+polyfill for MutationObserver and make sure you are not rendering the
+application in a DocumentFragment as the container node. Only under
+those conditions will cycle/dom should work correctly in IE10.
+
+ISSUES CLOSED: #699
+
+
+
 <a name="19.3.0"></a>
 # 19.3.0 (2017-10-26)
 

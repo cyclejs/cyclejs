@@ -29,7 +29,7 @@
 
   <!-- Content -->
   <script id="markdown" type="text/markdown" src="index.html">
-# Cycle DOM
+# Cycle DOM - [source](https://github.com/cyclejs/cyclejs/tree/master/dom)
 
 A Cycle.js driver to enable interaction with the DOM. The driver is based on [snabbdom](https://github.com/paldepind/snabbdom/) as the Virtual DOM library.
 
@@ -42,6 +42,8 @@ npm install @cycle/dom
 These are the browsers we officially support currently. Cycle.js may not work (or may work partially) in other browsers.
 
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/cyclejs-dom.svg)](https://saucelabs.com/u/cyclejs-dom)
+
+**Note for Internet Explorer 10:** This driver works on IE10 only if you polyfill [MutationObserver](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver) (we recommend `mutation-observer` package from npm) **and** if you don't render the app in a [DocumentFragment](https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment).
 
 # Isolation semantics
 
