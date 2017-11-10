@@ -124,7 +124,7 @@ describe('HTTP Driver in the browser', function() {
   });
 
   it('should not have cross-driver race conditions (#592)', function(done) {
-    this.timeout(6000);
+    this.timeout(10000);
 
     function child(sources: any, num: any) {
       const vdom$ = sources.HTTP
@@ -148,7 +148,7 @@ describe('HTTP Driver in the browser', function() {
 
     function mainHTTPThenDOM(sources: any) {
       const sinks$ = Rx.Observable
-        .interval(300)
+        .interval(500)
         .take(6)
         .map(i => {
           if (i % 2 === 1) {
@@ -172,7 +172,7 @@ describe('HTTP Driver in the browser', function() {
 
     function mainDOMThenHTTP(sources: any) {
       const sinks$ = Rx.Observable
-        .interval(300)
+        .interval(500)
         .take(6)
         .map(i => {
           if (i % 2 === 1) {
@@ -230,8 +230,8 @@ describe('HTTP Driver in the browser', function() {
       setTimeout(() => {
         assert.strictEqual(expectedDOMSinks.length, 0);
         done();
-      }, 2500);
-    }, 2500);
+      }, 4000);
+    }, 4000);
   });
 
   it('should not remember past responses when selecting', function(done) {
