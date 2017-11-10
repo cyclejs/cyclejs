@@ -27,12 +27,11 @@
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
   "homepage": "https://cycle.js.org",
   "dependencies": {
-    "@cycle/run": "3.4",
+    "@cycle/run": "4.x",
     "xstream": "*",
     "most": "*"
   },
   "devDependencies": {
-    "@cycle/run": "3.4",
     "@types/es6-promise": "0.0.x",
     "@types/mocha": "2.2.x",
     "@types/node": "7.0.x",
