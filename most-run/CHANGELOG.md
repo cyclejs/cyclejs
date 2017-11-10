@@ -1,3 +1,18 @@
+<a name="8.0.0"></a>
+# 8.0.0 (2017-11-10)
+
+
+### Bug Fixes
+
+* **most-run:** depend on run v4 ([52a1a62](https://github.com/cyclejs/cyclejs/commit/52a1a62))
+
+
+### BREAKING CHANGES
+
+* **most-run:** cycle/run v4 is a breaking change, so also the new version for most-run must be a breaking change
+
+
+
 <a name="7.4.0"></a>
 # 7.4.0 (2017-10-26)
 
