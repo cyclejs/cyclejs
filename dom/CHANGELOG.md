@@ -1,3 +1,13 @@
+<a name="20.1.0"></a>
+# 20.1.0 (2017-11-11)
+
+
+### Bug Fixes
+
+* **dom:** fix race condition between DOM ready and cycle/run replication ([9fcec3c](https://github.com/cyclejs/cyclejs/commit/9fcec3c))
+
+
+
 <a name="20.0.0"></a>
 # 20.0.0 (2017-11-10)
 
