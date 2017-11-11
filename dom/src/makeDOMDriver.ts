@@ -106,6 +106,14 @@ function makeDOMDriver(
       return firstRoot;
     });
 
+    // We need to subscribe to the sink (i.e. vnode$) synchronously inside this
+    // driver, and not later in the map().flatten() because this sink is in
+    // reality a SinkProxy from @cycle/run, and we don't want to miss the first
+    // emission when the main() is connected to the drivers.
+    // Read more in issue #739.
+    const rememberedVNode$ = vnode$.remember();
+    rememberedVNode$.addListener({});
+
     // The mutation observer internal to mutationConfirmed$ should
     // exist before elementAfterPatch$ calls mutationObserver.observe()
     mutationConfirmed$.addListener({});
@@ -114,7 +122,7 @@ function makeDOMDriver(
       .map(
         firstRoot =>
           xs
-            .merge(vnode$.endWhen(sanitation$), sanitation$)
+            .merge(rememberedVNode$.endWhen(sanitation$), sanitation$)
             .map(vnode => vnodeWrapper.call(vnode))
             .fold(patch, toVNode(firstRoot))
             .drop(1)
