@@ -1,3 +1,13 @@
+<a name="6.9.0"></a>
+# 6.9.0 (2017-11-14)
+
+
+### Bug Fixes
+
+* **history:** fix captureClicks listener cleanup ([5b5ce9b](https://github.com/cyclejs/cyclejs/commit/5b5ce9b))
+
+
+
 <a name="6.8.0"></a>
 # 6.8.0 (2017-10-26)
 
