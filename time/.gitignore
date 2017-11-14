@@ -43,7 +43,8 @@ jspm_packages
 .settings
 
 # Generated
-/lib/
+/lib/cjs/
+/lib/es6/
 /dist/
 /most.js
 /rxjs.js

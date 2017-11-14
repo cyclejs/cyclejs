@@ -9,7 +9,8 @@ node_modules
 
 # Generated
 test/browser/page/tests-bundle.js
-lib/
+lib/cjs/
+lib/es6/
 dist/
 test-support-server.pid
 
