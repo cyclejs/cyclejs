@@ -38,7 +38,8 @@
     "access": "public"
   },
   "files": [
-    "lib/",
+    "lib/cjs/",
+    "lib/es6/",
     "dist/",
     "most.js",
     "rxjs.js",
