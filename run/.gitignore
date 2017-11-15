@@ -8,8 +8,9 @@
 node_modules
 
 # Generated
-lib/cjs/
-lib/es6/
+lib/cjs
+lib/es6
+lib/
 dist/
 
 # Misc
