@@ -11,7 +11,7 @@ import {
 import {createMemoryHistory} from 'history';
 import xs, {Stream} from 'xstream';
 import {setup} from '@cycle/run';
-import {setAdapt} from '@cycle/run/lib/adapt';
+import {setAdapt} from '@cycle/run/lib/cjs/adapt';
 
 describe('makeHistoryDriver', () => {
   it('should be a function', () => {

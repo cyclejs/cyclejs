@@ -3,7 +3,7 @@
 import * as assert from 'assert';
 import xs, {Stream} from 'xstream';
 import {setup, run} from '@cycle/run';
-import {setAdapt} from '@cycle/run/lib/adapt';
+import {setAdapt} from '@cycle/run/lib/cjs/adapt';
 import {makeServerHistoryDriver, Location, HistoryInput} from '../../src';
 
 describe('serverHistoryDriver - xstream', function() {

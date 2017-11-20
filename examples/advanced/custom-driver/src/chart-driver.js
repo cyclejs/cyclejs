@@ -1,6 +1,6 @@
 import Chart from 'chart.js'
 import xs from 'xstream'
-import {adapt} from '@cycle/run/lib/adapt'
+import {adapt} from '@cycle/run/lib/cjs/adapt'
 import fromEvent from 'xstream/extra/fromEvent'
 
 export function makeChartDriver(selector, settings) {

@@ -1,7 +1,7 @@
 import {Stream} from 'xstream';
 import * as most from 'most';
 import {Stream as MostStream} from 'most';
-import {setAdapt} from '@cycle/run/lib/adapt';
+import {setAdapt} from '@cycle/run/lib/cjs/adapt';
 import {
   setup as coreSetup,
   DisposeFunction,

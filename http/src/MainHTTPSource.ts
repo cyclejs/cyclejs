@@ -2,7 +2,7 @@ import {Stream, MemoryStream} from 'xstream';
 import {HTTPSource} from './interfaces';
 import {isolateSource, isolateSink} from './isolate';
 import {DevToolEnabledSource} from '@cycle/run';
-import {adapt} from '@cycle/run/lib/adapt';
+import {adapt} from '@cycle/run/lib/cjs/adapt';
 import {Response, ResponseStream, RequestOptions} from './interfaces';
 
 export class MainHTTPSource implements HTTPSource {

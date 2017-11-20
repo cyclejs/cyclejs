@@ -2,7 +2,7 @@ import xs, {Stream, MemoryStream} from 'xstream';
 import {DevToolEnabledSource, FantasyObservable} from '@cycle/run';
 import {VNode} from 'snabbdom/vnode';
 import {DOMSource, EventsFnOptions} from './DOMSource';
-import {adapt} from '@cycle/run/lib/adapt';
+import {adapt} from '@cycle/run/lib/cjs/adapt';
 
 export type MockConfig = {
   [name: string]: FantasyObservable | MockConfig;
