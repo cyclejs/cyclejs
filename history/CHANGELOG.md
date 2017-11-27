@@ -1,3 +1,13 @@
+<a name="6.10.0"></a>
+# 6.10.0 (2017-11-27)
+
+
+### Bug Fixes
+
+* **history:** add [@types](https://github.com/types)/history as dependency ([d4e572f](https://github.com/cyclejs/cyclejs/commit/d4e572f)), closes [#741](https://github.com/cyclejs/cyclejs/issues/741)
+
+
+
 <a name="6.9.0"></a>
 # 6.9.0 (2017-11-14)
 
