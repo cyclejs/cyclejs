@@ -16,6 +16,7 @@
   "homepage": "https://cycle.js.org",
   "dependencies": {
     "@cycle/run": "*",
+    "@types/history": "4.6.x",
     "history": "4.7.x",
     "xstream": "*"
   },
@@ -23,7 +24,6 @@
     "@cycle/run": "3.4",
     "@cycle/dom": "19.2",
     "@cycle/rxjs-run": "7.2",
-    "@types/history": "4.6.x",
     "@types/mocha": "^2.2.32",
     "@types/node": "8.0.x",
     "rxjs": "5.4.2",
