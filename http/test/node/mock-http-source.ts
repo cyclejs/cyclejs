@@ -5,7 +5,7 @@ import xs from 'xstream';
 import {setup} from '../../../run/src';
 
 describe.only('mockHTTPDriver', function() {
-  it('works', function() {
+  it('works', function(done) {
     function main(sources: any) {
       return {
         HTTP: xs.of('some request'),
@@ -20,5 +20,17 @@ describe.only('mockHTTPDriver', function() {
     const {sinks, run} = setup(main, drivers);
 
     const dispose = run();
+
+    sinks.response$.take(1).addListener({
+      next (ev: any) {
+        assert.equal(ev.text, 'hi')
+        assert.equal(ev.status, 200)
+
+        dispose();
+        done();
+      },
+
+      error: done
+    });
   });
 });

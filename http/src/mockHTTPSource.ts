@@ -66,8 +66,9 @@ function partialResponseToMockResponse(
   let result = {
     request,
 
+    status: partial.status,
     text: partial.text,
-    body: JSON.parse(partial.text), // TODO - this should act as superagent does and use the content parsers based on content type header
+    body: partial.text, // TODO - this should act as superagent does and use the content parsers based on content type header
     files: [],
     header: {},
     type: '',
