@@ -8,6 +8,7 @@ describe.only('mockHTTPDriver', function() {
   it('works', function() {
     function main(sources: any) {
       return {
+        HTTP: xs.of('some request'),
         response$: sources.HTTP.select().flatten(),
       };
     }

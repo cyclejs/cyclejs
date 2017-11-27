@@ -34,7 +34,10 @@ export class MockedHttpSource implements HTTPSource {
     );
   }
 
-  public select(categoryName?: string): any {}
+  public select(categoryName?: string): Stream<ResponseMemoryStream> {
+    // @TODO: we should actually handle categoryName
+    return this._res$$;
+  }
 
   public isolateSource = isolateSource;
   public isolateSink = isolateSink;
@@ -52,15 +55,15 @@ function streamify<T>(value: T | Stream<T>): Stream<T> {
   return xs.of(value);
 }
 
-interface PartialResponse extends Partial<Response> {
+export interface PartialResponse extends Partial<Response> {
   text: string;
 }
 
 function partialResponseToMockResponse(
   request: Request,
   partial: PartialResponse,
-): Response {
-  let result: Response = {
+): PartialResponse {
+  let result = {
     request,
 
     text: partial.text,
