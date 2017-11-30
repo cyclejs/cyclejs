@@ -12,6 +12,7 @@ import 'rxjs/add/operator/mergeAll';
 import 'rxjs/add/operator/switchMap';
 import * as Cycle from '@cycle/rxjs-run';
 import isolate from '@cycle/isolate';
+import {setAdapt} from '../../../../run/lib/adapt'
 
 export function run(uri: string) {
   describe('makeHTTPDriver', function() {
@@ -24,6 +25,10 @@ export function run(uri: string) {
 
   describe('HTTP Driver', function() {
     this.timeout(8000);
+
+    beforeEach(function() {
+      setAdapt(x => Observable.from(x));
+    })
 
     it('should throw when request stream emits neither string nor object', function(
       done,

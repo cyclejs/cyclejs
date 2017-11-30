@@ -149,7 +149,9 @@ function normalizeRequestInput(reqInput: RequestInput): RequestOptions {
 
 export type ResponseMemoryStream = MemoryStream<Response> & ResponseStream;
 
-function requestInputToResponse$(reqInput: RequestInput): ResponseMemoryStream {
+export function requestInputToResponse$(
+  reqInput: RequestInput,
+): ResponseMemoryStream {
   let response$ = createResponse$(reqInput).remember();
   const reqOptions = softNormalizeRequestInput(reqInput);
   if (!reqOptions.lazy) {

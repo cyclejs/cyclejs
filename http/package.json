@@ -11,12 +11,13 @@
     "@cycle/run": "*",
     "@types/superagent": "3.5.6",
     "superagent": "3.7.0",
+    "superagent-mock": "^3.6.0",
     "xstream": "*"
   },
   "devDependencies": {
+    "@cycle/isolate": "3.2",
     "@cycle/run": "4.0.0-rc.4",
     "@cycle/rxjs-run": "8.0.0-rc.4",
-    "@cycle/isolate": "3.2",
     "@types/body-parser": "1.16.x",
     "@types/cookie-parser": "1.4.x",
     "@types/express": "4.0.x",
@@ -33,7 +34,7 @@
     "xstream": "global:xstream"
   },
   "scripts": {
-    "test-node": "../node_modules/.bin/mocha test/node.ts --require ts-node/register --exit",
+    "test-node": "../node_modules/.bin/mocha test/node/*.ts --require ts-node/register --exit",
     "pretest-browser": "../node_modules/.bin/tsc -p ./test/browser/ && npm run start-test-support-server",
     "test-browser": "../node_modules/.bin/testem ci -l Chrome,Firefox",
     "posttest-browser": "npm run stop-test-support-server",

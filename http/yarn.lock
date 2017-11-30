@@ -1050,6 +1050,10 @@ strip-ansi@^3.0.0:
   dependencies:
     ansi-regex "^2.0.0"
 
+superagent-mock@^3.6.0:
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/superagent-mock/-/superagent-mock-3.6.0.tgz#8562b05fc9509fe24dd925b1c444c001ce874e7c"
+
 superagent@3.7.0:
   version "3.7.0"
   resolved "https://registry.yarnpkg.com/superagent/-/superagent-3.7.0.tgz#bd58bfde2cbc5305adb9ccbb6dacba18408629d6"
