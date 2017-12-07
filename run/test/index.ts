@@ -407,12 +407,13 @@ describe('run', function() {
         .map((res: any) => res.body.name)
         .map((name: string) => 'My name is ' + name);
 
-      const request$ = num === 1
-        ? xs.of({
-            category: 'cat',
-            url: 'http://jsonplaceholder.typicode.com/users/1',
-          })
-        : xs.never();
+      const request$ =
+        num === 1
+          ? xs.of({
+              category: 'cat',
+              url: 'http://jsonplaceholder.typicode.com/users/1',
+            })
+          : xs.never();
 
       return {
         HTTP: request$,
@@ -421,16 +422,19 @@ describe('run', function() {
     }
 
     function mainHTTPThenDOM(sources: any) {
-      const sinks$ = xs.periodic(100).take(6).map(i => {
-        if (i % 2 === 1) {
-          return child(sources, i);
-        } else {
-          return {
-            HTTP: xs.empty(),
-            DOM: xs.of(''),
-          };
-        }
-      });
+      const sinks$ = xs
+        .periodic(100)
+        .take(6)
+        .map(i => {
+          if (i % 2 === 1) {
+            return child(sources, i);
+          } else {
+            return {
+              HTTP: xs.empty(),
+              DOM: xs.of(''),
+            };
+          }
+        });
 
       // order of sinks is important to reproduce the bug
       return {
@@ -440,16 +444,19 @@ describe('run', function() {
     }
 
     function mainDOMThenHTTP(sources: any) {
-      const sinks$ = xs.periodic(100).take(6).map(i => {
-        if (i % 2 === 1) {
-          return child(sources, i);
-        } else {
-          return {
-            HTTP: xs.empty(),
-            DOM: xs.of(''),
-          };
-        }
-      });
+      const sinks$ = xs
+        .periodic(100)
+        .take(6)
+        .map(i => {
+          if (i % 2 === 1) {
+            return child(sources, i);
+          } else {
+            return {
+              HTTP: xs.empty(),
+              DOM: xs.of(''),
+            };
+          }
+        });
 
       // order of sinks is important to reproduce the bug
       return {
@@ -514,7 +521,7 @@ describe('run', function() {
   });
 
   it('should report errors from main() in the console', function(done) {
-    let sandbox = sinon.sandbox.create();
+    const sandbox = sinon.sandbox.create();
     sandbox.stub(console, 'error');
 
     function main(sources: any): any {
@@ -539,14 +546,13 @@ describe('run', function() {
     try {
       run(main, {other: driver});
     } catch (e) {
-      assert.strictEqual(e.message, 'malfunction');
       caught = true;
     }
     setTimeout(() => {
       sinon.assert.calledOnce(console.error as any);
       sinon.assert.calledWithExactly(
         console.error as any,
-        sinon.match('malfunction'),
+        sinon.match((err: any) => err.message === 'malfunction'),
       );
 
       // Should be false because the error was already reported in the console.

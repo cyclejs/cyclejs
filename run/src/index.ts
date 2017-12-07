@@ -29,15 +29,6 @@ export {
 
 const scheduleMicrotask = microtask();
 
-function logToConsoleError(err: any) {
-  const target = err.stack || err;
-  if (console && console.error) {
-    console.error(target);
-  } else if (console && console.log) {
-    console.log(target);
-  }
-}
-
 function makeSinkProxies<So extends Sources, Si extends Sinks>(
   drivers: Drivers<So, Si>,
 ): SinkProxies<Si> {
@@ -133,7 +124,7 @@ function replicateMany<So extends Sources, Si extends Sinks>(
     };
     const error = (err: any) => {
       scheduleMicrotask(() => {
-        logToConsoleError(err);
+        (console.error || console.log)(err);
         listener._e(err);
       });
     };
