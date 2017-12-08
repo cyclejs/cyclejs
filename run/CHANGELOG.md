@@ -1,3 +1,13 @@
+<a name="4.1.0"></a>
+# 4.1.0 (2017-12-08)
+
+
+### Bug Fixes
+
+* **run:** make exception reporting less opinionated ([b124fff](https://github.com/cyclejs/cyclejs/commit/b124fff))
+
+
+
 <a name="4.0.0"></a>
 # 4.0.0 (2017-11-10)
 
