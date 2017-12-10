@@ -30,7 +30,9 @@
   "module": "lib/es6/index.js",
   "typings": "lib/cjs/index.d.ts",
   "types": "lib/cjs/index.d.ts",
-  "dependencies": {},
+  "dependencies": {
+    "xstream": "^11.0.0"
+  },
   "devDependencies": {
     "@types/mocha": "2.2.x",
     "@types/node": "7.0.x",

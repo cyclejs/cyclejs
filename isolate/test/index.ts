@@ -1,47 +1,33 @@
 import 'mocha';
 import * as assert from 'assert';
 import * as Rx from 'rxjs';
-import isolate from '../lib/cjs/index';
+import {isolate, defaultIsolation, Scope} from '../lib/cjs/index';
 import * as sinon from 'sinon';
 
 describe('isolate', function() {
-  beforeEach(function() {
-    (isolate as any).reset();
-  });
-
   it('should be a function', function() {
     assert.strictEqual(typeof isolate, 'function');
   });
 
   it('should throw if first argument is not a function', function() {
     assert.throws(() => {
-      isolate('not a function' as any);
+      isolate('not a function' as any, {});
     }, /First argument given to isolate\(\) must be a 'dataflowComponent' function/i);
   });
 
   it('should throw if second argument is null', function() {
     function MyDataflowComponent() {}
     assert.throws(() => {
-      isolate(MyDataflowComponent, null);
-    }, /Second argument given to isolate\(\) must not be null/i);
-  });
-
-  it('should convert the 2nd argument to string if it is not a string', function() {
-    function MyDataflowComponent() {}
-    assert.doesNotThrow(() => {
-      isolate(MyDataflowComponent, 12);
-    });
+      isolate(MyDataflowComponent, null as any);
+    }, /scope is not allowed to be a falsy value/i);
   });
 
   it('should return a function', function() {
     function MyDataflowComponent() {}
-    const scopedMyDataflowComponent = isolate(MyDataflowComponent, `myScope`);
-    assert.strictEqual(typeof scopedMyDataflowComponent, `function`);
-  });
-
-  it('should make a new scope if second argument is undefined', function() {
-    function MyDataflowComponent() {}
-    const scopedMyDataflowComponent = isolate(MyDataflowComponent);
+    const scopedMyDataflowComponent = isolate(
+      MyDataflowComponent,
+      defaultIsolation(`myScope`),
+    );
     assert.strictEqual(typeof scopedMyDataflowComponent, `function`);
   });
 
@@ -54,8 +40,8 @@ describe('isolate', function() {
     }
 
     const scopedComponent = isolate(Component, {
-      first: 'scope1',
-      second: 'scope2',
+      first: defaultIsolation('scope1'),
+      second: defaultIsolation('scope2'),
     });
     let actual1 = '';
     let actual2 = '';
@@ -67,12 +53,12 @@ describe('isolate', function() {
         getSink() {
           return 10;
         },
-        isolateSource(source: any, scope: string) {
-          actual1 = scope;
+        isolateSource(source: any, scope: Scope) {
+          actual1 = scope.payload;
           return source;
         },
-        isolateSink(sink: any, scope: string) {
-          actual2 = scope;
+        isolateSink(sink: any, scope: Scope) {
+          actual2 = scope.payload;
           return sink;
         },
       },
@@ -81,12 +67,12 @@ describe('isolate', function() {
         getSink() {
           return 20;
         },
-        isolateSource(source: any, scope: string) {
-          actual3 = scope;
+        isolateSource(source: any, scope: Scope) {
+          actual3 = scope.payload;
           return source;
         },
-        isolateSink(sink: any, scope: string) {
-          actual4 = scope;
+        isolateSink(sink: any, scope: Scope) {
+          actual4 = scope.payload;
           return sink;
         },
       },
@@ -97,115 +83,6 @@ describe('isolate', function() {
     assert.strictEqual(actual2, 'scope1');
     assert.strictEqual(actual3, 'scope2');
     assert.strictEqual(actual4, 'scope2');
-    assert.strictEqual(sinks.first, 10);
-    assert.strictEqual(sinks.second, 20);
-  });
-
-  it('should not isolate a channel given null scope', function() {
-    function Component(sources: any) {
-      return {
-        first: sources.first.getSink(),
-        second: sources.second.getSink(),
-      };
-    }
-
-    const scopedComponent = isolate(Component, {
-      first: null,
-      second: 'scope2',
-    });
-    let actual1 = '';
-    let actual2 = '';
-    let actual3 = '';
-    let actual4 = '';
-
-    const sources = {
-      first: {
-        getSink() {
-          return 10;
-        },
-        isolateSource(source: any, scope: string) {
-          actual1 = scope;
-          return source;
-        },
-        isolateSink(sink: any, scope: string) {
-          actual2 = scope;
-          return sink;
-        },
-      },
-
-      second: {
-        getSink() {
-          return 20;
-        },
-        isolateSource(source: any, scope: string) {
-          actual3 = scope;
-          return source;
-        },
-        isolateSink(sink: any, scope: string) {
-          actual4 = scope;
-          return sink;
-        },
-      },
-    };
-    const sinks = scopedComponent(sources);
-
-    assert.strictEqual(actual1, '');
-    assert.strictEqual(actual2, '');
-    assert.strictEqual(actual3, 'scope2');
-    assert.strictEqual(actual4, 'scope2');
-    assert.strictEqual(sinks.first, 10);
-    assert.strictEqual(sinks.second, 20);
-  });
-
-  it('should generate a scope if a channel is undefined in scopes-per-channel', function() {
-    function Component(sources: any) {
-      return {
-        first: sources.first.getSink(),
-        second: sources.second.getSink(),
-      };
-    }
-
-    const scopedComponent = isolate(Component, {first: 'scope1'});
-    let actual1 = '';
-    let actual2 = '';
-    let actual3 = '';
-    let actual4 = '';
-
-    const sources = {
-      first: {
-        getSink() {
-          return 10;
-        },
-        isolateSource(source: any, scope: string) {
-          actual1 = scope;
-          return source;
-        },
-        isolateSink(sink: any, scope: string) {
-          actual2 = scope;
-          return sink;
-        },
-      },
-
-      second: {
-        getSink() {
-          return 20;
-        },
-        isolateSource(source: any, scope: string) {
-          actual3 = scope;
-          return source;
-        },
-        isolateSink(sink: any, scope: string) {
-          actual4 = scope;
-          return sink;
-        },
-      },
-    };
-    const sinks = scopedComponent(sources);
-
-    assert.strictEqual(actual1, 'scope1');
-    assert.strictEqual(actual2, 'scope1');
-    assert.strictEqual(actual3, 'cycle1');
-    assert.strictEqual(actual4, 'cycle1');
     assert.strictEqual(sinks.first, 10);
     assert.strictEqual(sinks.second, 20);
   });
@@ -219,8 +96,8 @@ describe('isolate', function() {
     }
 
     const scopedComponent = isolate(Component, {
-      first: 'scope1',
-      '*': 'default',
+      first: defaultIsolation('scope1'),
+      '*': defaultIsolation('default'),
     });
     let actual1 = '';
     let actual2 = '';
@@ -232,12 +109,12 @@ describe('isolate', function() {
         getSink() {
           return 10;
         },
-        isolateSource(source: any, scope: string) {
-          actual1 = scope;
+        isolateSource(source: any, scope: Scope) {
+          actual1 = scope.payload;
           return source;
         },
-        isolateSink(sink: any, scope: string) {
-          actual2 = scope;
+        isolateSink(sink: any, scope: Scope) {
+          actual2 = scope.payload;
           return sink;
         },
       },
@@ -246,12 +123,12 @@ describe('isolate', function() {
         getSink() {
           return 20;
         },
-        isolateSource(source: any, scope: string) {
-          actual3 = scope;
+        isolateSource(source: any, scope: Scope) {
+          actual3 = scope.payload;
           return source;
         },
-        isolateSink(sink: any, scope: string) {
-          actual4 = scope;
+        isolateSink(sink: any, scope: Scope) {
+          actual4 = scope.payload;
           return sink;
         },
       },
@@ -266,7 +143,7 @@ describe('isolate', function() {
     assert.strictEqual(sinks.second, 20);
   });
 
-  it('should not isolate a non-specified channel if wildcard * is null', function() {
+  it('should not isolate a non-specified channel', function() {
     function Component(sources: any) {
       return {
         first: sources.first.getSink(),
@@ -275,8 +152,7 @@ describe('isolate', function() {
     }
 
     const scopedComponent = isolate(Component, {
-      first: 'scope1',
-      '*': null,
+      first: defaultIsolation('scope1'),
     });
     let actual1 = '';
     let actual2 = '';
@@ -288,12 +164,12 @@ describe('isolate', function() {
         getSink() {
           return 10;
         },
-        isolateSource(source: any, scope: string) {
-          actual1 = scope;
+        isolateSource(source: any, scope: Scope) {
+          actual1 = scope.payload;
           return source;
         },
-        isolateSink(sink: any, scope: string) {
-          actual2 = scope;
+        isolateSink(sink: any, scope: Scope) {
+          actual2 = scope.payload;
           return sink;
         },
       },
@@ -302,12 +178,12 @@ describe('isolate', function() {
         getSink() {
           return 20;
         },
-        isolateSource(source: any, scope: string) {
-          actual3 = scope;
+        isolateSource(source: any, scope: Scope) {
+          actual3 = scope.payload;
           return source;
         },
-        isolateSink(sink: any, scope: string) {
-          actual4 = scope;
+        isolateSink(sink: any, scope: Scope) {
+          actual4 = scope.payload;
           return sink;
         },
       },
@@ -318,59 +194,6 @@ describe('isolate', function() {
     assert.strictEqual(actual2, 'scope1');
     assert.strictEqual(actual3, '');
     assert.strictEqual(actual4, '');
-    assert.strictEqual(sinks.first, 10);
-    assert.strictEqual(sinks.second, 20);
-  });
-
-  it('should not convert to string values in scopes-per-channel object', function() {
-    function Component(sources: any) {
-      return {
-        first: sources.first.getSink(),
-        second: sources.second.getSink(),
-      };
-    }
-
-    const scopedComponent = isolate(Component, {first: 123, second: 456});
-    let actual1 = '';
-    let actual2 = '';
-    let actual3 = '';
-    let actual4 = '';
-
-    const sources = {
-      first: {
-        getSink() {
-          return 10;
-        },
-        isolateSource(source: any, scope: string) {
-          actual1 = scope;
-          return source;
-        },
-        isolateSink(sink: any, scope: string) {
-          actual2 = scope;
-          return sink;
-        },
-      },
-
-      second: {
-        getSink() {
-          return 20;
-        },
-        isolateSource(source: any, scope: string) {
-          actual3 = scope;
-          return source;
-        },
-        isolateSink(sink: any, scope: string) {
-          actual4 = scope;
-          return sink;
-        },
-      },
-    };
-    const sinks = scopedComponent(sources);
-
-    assert.strictEqual(actual1, 123);
-    assert.strictEqual(actual2, 123);
-    assert.strictEqual(actual3, 456);
-    assert.strictEqual(actual4, 456);
     assert.strictEqual(sinks.first, 10);
     assert.strictEqual(sinks.second, 20);
   });
@@ -390,7 +213,10 @@ describe('isolate', function() {
           other: Rx.Observable.of([foo, bar]),
         };
       }
-      const scopedMyDataflowComponent = isolate(MyDataflowComponent);
+      const scopedMyDataflowComponent = isolate(
+        MyDataflowComponent,
+        defaultIsolation('foo'),
+      );
       const scopedSinks = scopedMyDataflowComponent(
         {other: driver()},
         `foo`,
@@ -405,8 +231,8 @@ describe('isolate', function() {
 
     it('should call `isolateSource` of drivers', function() {
       function driver() {
-        function isolateSource(source: any, scope: string) {
-          return source.someFunc(scope);
+        function isolateSource(source: any, scope: Scope) {
+          return source.someFunc(scope.payload);
         }
         function someFunc(v: string) {
           const scope = this.scope;
@@ -428,7 +254,10 @@ describe('isolate', function() {
           other: sources.other.someFunc('a'),
         };
       }
-      const scopedMyDataflowComponent = isolate(MyDataflowComponent, `myScope`);
+      const scopedMyDataflowComponent = isolate(
+        MyDataflowComponent,
+        defaultIsolation(`myScope`),
+      );
       const scopedSinks = scopedMyDataflowComponent({other: driver()});
       assert.strictEqual(scopedSinks.other.scope.length, 2);
       assert.strictEqual(scopedSinks.other.scope[0], `myScope`);
@@ -445,7 +274,10 @@ describe('isolate', function() {
       }
       let scopedMyDataflowComponent;
       assert.doesNotThrow(function() {
-        scopedMyDataflowComponent = isolate(MyDataflowComponent, `myScope`);
+        scopedMyDataflowComponent = isolate(
+          MyDataflowComponent,
+          defaultIsolation(`myScope`),
+        );
       });
       const scopedSinks = (scopedMyDataflowComponent as any)({
         other: driver(null),
@@ -456,8 +288,8 @@ describe('isolate', function() {
 
     it('should call `isolateSink` of drivers', function() {
       function driver() {
-        function isolateSink(sink: any, scope: string) {
-          return sink.map((v: string) => `${v} ${scope}`);
+        function isolateSink(sink: any, scope: Scope) {
+          return sink.map((v: string) => `${v} ${scope.payload}`);
         }
         return {
           isolateSink,
@@ -469,7 +301,10 @@ describe('isolate', function() {
           other: ['a'],
         };
       }
-      const scopedMyDataflowComponent = isolate(MyDataflowComponent, `myScope`);
+      const scopedMyDataflowComponent = isolate(
+        MyDataflowComponent,
+        defaultIsolation(`myScope`),
+      );
       const scopedSinks = scopedMyDataflowComponent({other: driver()});
       assert.strictEqual(scopedSinks.other.length, 1);
       assert.strictEqual(scopedSinks.other[0], `a myScope`);
@@ -477,7 +312,10 @@ describe('isolate', function() {
 
     it('should handle undefined cases gracefully', function() {
       const MyDataflowComponent = () => ({});
-      const scopedMyDataflowComponent = isolate(MyDataflowComponent, 'myScope');
+      const scopedMyDataflowComponent = isolate(
+        MyDataflowComponent,
+        defaultIsolation('myScope'),
+      );
       assert.doesNotThrow(() =>
         scopedMyDataflowComponent({noSource: void 0 as any}),
       );
