@@ -59,5 +59,5 @@ export function getFullScope(namespace: Array<String>): string {
 }
 
 export function getSelectors(namespace: Array<String>): string {
-  return namespace.filter(c => c.indexOf(SCOPE_PREFIX) === -1).join(' ');
+  return namespace.filter(c => c.indexOf(SCOPE_PREFIX) === -1).join('');
 }
