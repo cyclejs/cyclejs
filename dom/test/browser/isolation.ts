@@ -1295,6 +1295,64 @@ describe('isolation', function() {
   );
 
   it(
+    'should allow an sibling isolated child to receive events when it is used as ' +
+      'the vTree of an isolated parent component',
+    done => {
+      let dispose: any;
+      function Component(sources: {DOM: MainDOMSource}) {
+        sources.DOM
+          .select('.btn')
+          .events('click')
+          .addListener({
+            next: (ev: Event) => {
+              assert.strictEqual((ev.target as HTMLElement).tagName, 'BUTTON');
+              dispose();
+              done();
+            },
+          });
+        return {
+          DOM: xs.of(
+            div(
+              '.component',
+              {
+                props: {className: 'mydiv'},
+              },
+              [button('.btn', {}, 'Hello')],
+            ),
+          ),
+        };
+      }
+
+      function main(sources: {DOM: MainDOMSource}) {
+        const component = isolate(Component, '.foo')(sources);
+        return {DOM: component.DOM};
+      }
+
+      function app(sources: {DOM: MainDOMSource}) {
+        return isolate(main)(sources);
+      }
+
+      const {sinks, sources, run} = setup(app, {
+        DOM: makeDOMDriver(createRenderTarget()),
+      });
+
+      sources.DOM
+        .element()
+        .drop(1)
+        .take(1)
+        .addListener({
+          next: (root: Element) => {
+            const element = root.querySelector('.btn') as HTMLElement;
+            assert.notStrictEqual(element, null);
+            setTimeout(() => element.click());
+          },
+        });
+
+      dispose = run();
+    },
+  );
+
+  it(
     'should allow an isolated child to receive events when it is used as ' +
       'the vTree of an isolated parent component when scope is explicitly ' +
       'specified on child',
