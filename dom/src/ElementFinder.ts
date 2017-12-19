@@ -1,7 +1,7 @@
 import {ScopeChecker} from './ScopeChecker';
-import {getFullScope, getSelectors} from './utils';
+import {getSelectors} from './utils';
+import {Scope} from './isolate';
 import {IsolateModule} from './IsolateModule';
-import {matchesSelector} from './matchesSelector';
 
 function toElArray(input: any): Array<Element> {
   return Array.prototype.slice.call(input) as Array<Element>;
@@ -9,29 +9,27 @@ function toElArray(input: any): Array<Element> {
 
 export class ElementFinder {
   constructor(
-    public namespace: Array<string>,
-    public isolateModule: IsolateModule
+    public namespace: Array<Scope>,
+    public isolateModule: IsolateModule,
   ) {}
 
-  public call(rootElement: Element): Array<Element> {
+  public call(): Array<Element> {
     const namespace = this.namespace;
     const selector = getSelectors(namespace);
-    if (!selector) {
-      return [rootElement];
+
+    const scopeChecker = new ScopeChecker(namespace, this.isolateModule);
+    const topNode = this.isolateModule.getElement(namespace);
+
+    if (topNode === undefined) {
+      return [];
     }
 
-    const fullScope = getFullScope(namespace);
-    const scopeChecker = new ScopeChecker(fullScope, this.isolateModule);
-
-    const topNode = fullScope
-      ? this.isolateModule.getElement(fullScope) || rootElement
-      : rootElement;
-
-    const topNodeMatchesSelector =
-      !!fullScope && !!selector && matchesSelector(topNode, selector);
+    if (selector === '') {
+      return [topNode];
+    }
 
     return toElArray(topNode.querySelectorAll(selector))
       .filter(scopeChecker.isDirectlyInScope, scopeChecker)
-      .concat(topNodeMatchesSelector ? [topNode] : []);
+      .concat(topNode.matches(selector) ? [topNode] : []);
   }
 }

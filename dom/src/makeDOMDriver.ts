@@ -13,12 +13,11 @@ import {getValidNode, checkValidContainer} from './utils';
 import defaultModules from './modules';
 import {IsolateModule} from './IsolateModule';
 import {EventDelegator} from './EventDelegator';
-import 'es6-map/implement'; // tslint:disable-line
 
 function makeDOMDriverInputGuard(modules: any) {
   if (!Array.isArray(modules)) {
     throw new Error(
-      `Optional modules option must be ` + `an array for snabbdom modules`
+      `Optional modules option must be an array for snabbdom modules`,
     );
   }
 }
@@ -72,6 +71,12 @@ function makeDOMReady$(): Stream<null> {
   });
 }
 
+function addRootScope(vnode: VNode): VNode {
+  vnode.data = vnode.data || {};
+  vnode.data.isolate = [];
+  return vnode;
+}
+
 function makeDOMDriver(
   container: string | Element | DocumentFragment,
   options?: DOMDriverOptions
@@ -86,7 +91,6 @@ function makeDOMDriver(
   const patch = init([isolateModule.createModule()].concat(modules));
   const domReady$ = makeDOMReady$();
   let vnodeWrapper: VNodeWrapper;
-  const delegators = new Map<string, EventDelegator>();
   let mutationObserver: MutationObserver;
   const mutationConfirmed$ = xs.create<null>({
     start(listener) {
@@ -125,6 +129,7 @@ function makeDOMDriver(
           xs
             .merge(rememberedVNode$.endWhen(sanitation$), sanitation$)
             .map(vnode => vnodeWrapper.call(vnode))
+            .startWith(addRootScope(toVNode(firstRoot)))
             .fold(patch, toVNode(firstRoot))
             .drop(1)
             .map(unwrapElementFromVNode)
@@ -153,13 +158,15 @@ function makeDOMDriver(
     // Start the snabbdom patching, over time
     rootElement$.addListener({error: reportSnabbdomError});
 
+    const delegator = new EventDelegator(rootElement$, isolateModule);
+
     return new MainDOMSource(
       rootElement$,
       sanitation$,
       [],
       isolateModule,
-      delegators,
-      name
+      delegator,
+      name,
     );
   }
 
