@@ -40,6 +40,13 @@ export class VNodeWrapper {
     const {tagName, id, className} = this.rootElement as Element;
     const selId = id ? `#${id}` : '';
     const selClass = className ? `.${className.split(` `).join(`.`)}` : '';
-    return h(`${tagName.toLowerCase()}${selId}${selClass}`, {}, children);
+    const vnode = h(
+      `${tagName.toLowerCase()}${selId}${selClass}`,
+      {},
+      children,
+    );
+    vnode.data = vnode.data || {};
+    vnode.data.isolate = vnode.data.isolate || [];
+    return vnode;
   }
 }

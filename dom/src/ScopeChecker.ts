@@ -1,10 +1,15 @@
 import {IsolateModule} from './IsolateModule';
+import {Scope} from './isolate';
+import {isEqualNamespace} from './utils';
 
 export class ScopeChecker {
+  private _namespace: Array<Scope>;
   constructor(
-    private fullScope: string,
-    private isolateModule: IsolateModule
-  ) {}
+    public readonly namespace: Array<Scope>,
+    private isolateModule: IsolateModule,
+  ) {
+    this._namespace = namespace.filter(n => n.type !== 'selector');
+  }
 
   /**
    * Checks whether the given element is *directly* in the scope of this
@@ -13,13 +18,20 @@ export class ScopeChecker {
    * so that the parent selectors don't search inside a child scope.
    */
   public isDirectlyInScope(leaf: Element): boolean {
-    for (let el: Element | null = leaf; el; el = el.parentElement) {
-      const fullScope = this.isolateModule.getFullScope(el);
-      if (fullScope && fullScope !== this.fullScope) {
+    const namespace = this.isolateModule.getNamespace(leaf);
+
+    if (
+      this._namespace.length > namespace.length ||
+      !isEqualNamespace(
+        this._namespace,
+        namespace.slice(0, this._namespace.length),
+      )
+    ) {
+      return false;
+    }
+    for (let i = this._namespace.length; i < namespace.length; i++) {
+      if (namespace[i].type === 'total') {
         return false;
-      }
-      if (fullScope) {
-        return true;
       }
     }
     return true;

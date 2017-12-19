@@ -650,8 +650,9 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM.select('.form')
-      .events('reset')
+    sources.DOM
+      .select('.form')
+      .events('reset', {}, false)
       .addListener({
         next: (ev: Event) => {
           assert.strictEqual(ev.type, 'reset');
@@ -686,20 +687,20 @@ describe('DOMSource.events()', function() {
       const ev = document.createEvent(`MouseEvent`);
       ev.initMouseEvent(
         `click`,
-        false /* bubble */,
-        true /* cancelable */,
+        false, // bubble
+        true, // cancelable
         window,
         0,
         0,
         0,
         0,
-        0 /* coordinates */,
+        0, // coordinates
         false,
         false,
         false,
-        false /* modifier keys */,
-        0 /*left*/,
-        null
+        false, // modifier keys
+        0, //left
+        null,
       );
       el.dispatchEvent(ev);
     }
@@ -708,8 +709,9 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM.select('.clickable')
-      .events('click', {useCapture: true})
+    sources.DOM
+      .select('.clickable')
+      .events('click', {useCapture: true}, false)
       .addListener({
         next: (ev: Event) => {
           assert.strictEqual(ev.type, 'click');
@@ -721,15 +723,8 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM.select('.clickable')
-      .events('click', {useCapture: false})
-      .addListener({
-        next: x => {
-          done(x);
-        },
-      });
-
-    sources.DOM.select(':root')
+    sources.DOM
+      .select(':root')
       .element()
       .drop(1)
       .take(1)
@@ -906,9 +901,13 @@ describe('DOMSource.events()', function() {
     const outSubject = xs.create<any>();
     const switchSubject = xs.create<any>();
 
-    function component(_sources: {DOM: DOMSource}) {
-      const itemMouseDown$ = _sources.DOM.select('.item').events('mousedown');
-      const itemMouseUp$ = _sources.DOM.select('.item').events('mouseup');
+    function component(sources: {DOM: DOMSource}) {
+      const itemMouseDown$ = sources.DOM
+        .select('.item')
+        .events('mousedown', {}, false);
+      const itemMouseUp$ = sources.DOM
+        .select('.item')
+        .events('mouseup', {}, false);
 
       const itemMouseClick$ = itemMouseDown$
         .map(down => itemMouseUp$.filter(up => down.target === up.target))
@@ -937,20 +936,20 @@ describe('DOMSource.events()', function() {
       const ev = document.createEvent('MouseEvent');
       ev.initMouseEvent(
         type,
-        false /* bubble */,
-        true /* cancelable */,
+        false, // bubble
+        true, // cancelable
         window,
         0,
         0,
         0,
         0,
-        0 /* coordinates */,
+        0, // coordinates
         false,
         false,
         false,
-        false /* modifier keys */,
-        0 /*left*/,
-        null
+        false, // modifier keys
+        0, //left
+        null,
       );
 
       // Would rather user this line below but does not work on IE10

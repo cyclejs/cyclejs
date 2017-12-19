@@ -8,7 +8,8 @@ export function fromEvent(
   element: Element | Document,
   eventName: string,
   useCapture = false,
-  preventDefault: PreventDefaultOpt = false
+  preventDefault: PreventDefaultOpt = false,
+  passive = false,
 ): Stream<Event> {
   return Stream.create<Event>({
     element: element,
@@ -24,7 +25,10 @@ export function fromEvent(
           listener.next(event);
         };
       }
-      this.element.addEventListener(eventName, this.next, useCapture);
+      this.element.addEventListener(eventName, this.next, {
+        capture: useCapture,
+        passive,
+      });
     },
     stop: function stop() {
       this.element.removeEventListener(eventName, this.next, useCapture);
