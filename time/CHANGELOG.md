@@ -1,3 +1,13 @@
+<a name="0.11.0"></a>
+# 0.11.0 (2017-12-28)
+
+
+### Bug Fixes
+
+* **time:** reduce ambiguity in package.json dependencies ([8956395](https://github.com/cyclejs/cyclejs/commit/8956395))
+
+
+
 <a name="0.10.1"></a>
 ## 0.10.1 (2017-10-05)
 
