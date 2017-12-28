@@ -1,4 +1,5 @@
-require('setimmediate');
+// tslint:disable-next-line no-import-side-effect
+import 'setimmediate';
 
 function processEvent(args: any) {
   const {scheduler, done, currentTime, setTime, timeToRunTo} = args;

@@ -1,6 +1,6 @@
 import xs, {Stream} from 'xstream';
 import {deepEqual} from 'assert';
-const variableDiff = require('variable-diff');
+import * as variableDiff from 'variable-diff';
 
 function checkEqual(
   completeStore: any,
