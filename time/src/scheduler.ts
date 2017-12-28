@@ -1,5 +1,5 @@
 import {Listener} from 'xstream';
-const makeAccumulator = require('sorted-immutable-list').default;
+import makeAccumulator from 'sorted-immutable-list';
 
 export interface Schedule<T> {
   shiftNextEntry(): T | undefined;
