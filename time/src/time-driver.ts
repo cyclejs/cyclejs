@@ -80,6 +80,12 @@ function runRealtime(
         if (eventToProcess.type === 'complete') {
           eventToProcess.stream.shamefullySendComplete();
         }
+
+        if (eventToProcess.type === 'error') {
+          eventToProcess.stream.shamefullySendError(eventToProcess.error);
+        }
+
+        throw new Error('Unhandled event type: ' + eventToProcess.type);
       }
 
       nextEventTime = (scheduler.peek() && scheduler.peek().time) || Infinity;
