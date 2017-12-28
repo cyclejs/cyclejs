@@ -8,7 +8,7 @@ import {makeAnimationFrames} from './animation-frames';
 import {makeThrottleAnimation} from './throttle-animation';
 import {runVirtually} from './run-virtually';
 import {TimeSource} from './time-source';
-import {requestAnimationFrame} from 'raf';
+import * as requestAnimationFrame from 'raf';
 import * as now from 'performance-now';
 
 function popAll(array: Array<any>): Array<any> {
