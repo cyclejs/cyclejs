@@ -1,3 +1,19 @@
+<a name="0.12.0"></a>
+# 0.12.0 (2017-12-28)
+
+
+### Bug Fixes
+
+* **time:** fix error propagation ([82f313e](https://github.com/cyclejs/cyclejs/commit/82f313e))
+* **time:** fix raf import ([18340cb](https://github.com/cyclejs/cyclejs/commit/18340cb))
+
+
+### Features
+
+* **time:** add dispose function to TimeSource ([e36b4d9](https://github.com/cyclejs/cyclejs/commit/e36b4d9))
+
+
+
 <a name="0.11.0"></a>
 # 0.11.0 (2017-12-28)
 
