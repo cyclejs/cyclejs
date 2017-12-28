@@ -139,6 +139,7 @@ function timeDriver(sink: any): any {
       // TODO - frameCallbacks?
       runVirtually(scheduler, done, currentTime, setTime, timeToRunTo);
     },
+    dispose: pause,
 
     createOperator,
   };
