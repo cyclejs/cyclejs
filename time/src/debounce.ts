@@ -26,11 +26,11 @@ function makeDebounceListener<T>(
     },
 
     error(e: any) {
-      schedule.error(listener, currentTime(), e);
+      listener.error(e);
     },
 
     complete() {
-      schedule.complete(listener, currentTime());
+      listener.complete();
     },
   };
 }
