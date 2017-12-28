@@ -27,11 +27,11 @@ function makeThrottleListener<T>(
     },
 
     error(error: any) {
-      schedule.error(listener, currentTime(), error);
+      listener.error(error);
     },
 
     complete() {
-      schedule.complete(listener, currentTime());
+      listener.complete();
     },
   };
 }

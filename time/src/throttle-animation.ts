@@ -19,7 +19,7 @@ function makeThrottleAnimation(
         const animationListener = {
           next(event: any) {
             if (!emittedLastValue) {
-              schedule.next(listener, currentTime(), lastValue);
+              listener.next(lastValue);
               emittedLastValue = true;
             }
           },
@@ -32,12 +32,12 @@ function makeThrottleAnimation(
           },
 
           error(err: Error) {
-            schedule.error(listener, currentTime(), err);
+            listener.error(err);
           },
 
           complete() {
             frame$.removeListener(animationListener);
-            schedule.complete(listener, currentTime());
+            listener.complete();
           },
         });
 

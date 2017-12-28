@@ -46,7 +46,7 @@ function makePeriodic(createOperator: () => OperatorArgs<any>) {
 
       stop() {
         stopped = true;
-        schedule.complete(producer.listener as Listener<any>, currentTime());
+        (producer.listener as Listener<any>).complete();
       },
     };
 
