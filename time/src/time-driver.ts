@@ -75,17 +75,13 @@ function runRealtime(
 
         if (eventToProcess.type === 'next') {
           eventToProcess.stream.shamefullySendNext(eventToProcess.value);
-        }
-
-        if (eventToProcess.type === 'complete') {
+        } else if (eventToProcess.type === 'complete') {
           eventToProcess.stream.shamefullySendComplete();
-        }
-
-        if (eventToProcess.type === 'error') {
+        } else if (eventToProcess.type === 'error') {
           eventToProcess.stream.shamefullySendError(eventToProcess.error);
+        } else {
+          throw new Error('Unhandled event type: ' + eventToProcess.type);
         }
-
-        throw new Error('Unhandled event type: ' + eventToProcess.type);
       }
 
       nextEventTime = (scheduler.peek() && scheduler.peek().time) || Infinity;
