@@ -30,7 +30,9 @@ function checkEqual(
 
     if (actual.type !== expected.type) {
       failReasons.push(
-        `Expected type ${expected.type} at time ${actual.time} but got ${actual.type}`,
+        `Expected type ${expected.type} at time ${actual.time} but got ${
+          actual.type
+        }`,
       );
     }
 
@@ -41,7 +43,9 @@ function checkEqual(
 
       if (!rightTime) {
         failReasons.push(
-          `Expected stream to complete at ${expected.time} but completed at ${actual.time}`,
+          `Expected stream to complete at ${expected.time} but completed at ${
+            actual.time
+          }`,
         );
       }
     }
@@ -71,7 +75,9 @@ function checkEqual(
 
       if (!rightTime || !rightValue) {
         const errorMessage = [
-          `Expected value at time ${expected.time} but got different value at ${actual.time}\n`,
+          `Expected value at time ${expected.time} but got different value at ${
+            actual.time
+          }\n`,
         ];
 
         if (usingCustomComparator) {
