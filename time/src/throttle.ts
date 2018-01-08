@@ -31,7 +31,7 @@ function makeThrottleListener<T>(
     },
 
     complete() {
-      listener.complete();
+      schedule.complete(listener, currentTime());
     },
   };
 }

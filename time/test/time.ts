@@ -616,6 +616,19 @@ describe('@cycle/time', () => {
 
             Time.run(done);
           });
+
+          context('with a synchronous stream', () => {
+            it('fires an event before completing', done => {
+              const Time = mockTimeSource();
+
+              const stream = library.adapt(xs.from([1, 2, 3]));
+              const expected = Time.diagram('(1|)');
+
+              Time.assertEqual(compose(stream, Time.throttle(60)), expected);
+
+              Time.run(done);
+            });
+          });
         });
 
         describe('.animationFrames', () => {
