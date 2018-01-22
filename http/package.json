@@ -10,12 +10,12 @@
   "dependencies": {
     "@cycle/run": "*",
     "@types/superagent": "3.5.6",
-    "superagent": "3.7.0",
+    "superagent": "3.8.2",
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/run": "4.0.0-rc.4",
-    "@cycle/rxjs-run": "8.0.0-rc.4",
+    "@cycle/run": "4.1.0",
+    "@cycle/rxjs-run": "8.0.0",
     "@cycle/isolate": "3.2",
     "@types/body-parser": "1.16.x",
     "@types/cookie-parser": "1.4.x",
