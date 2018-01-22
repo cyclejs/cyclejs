@@ -35,7 +35,6 @@
   "types": "lib/cjs/index.d.ts",
   "dependencies": {
     "@cycle/run": "*",
-    "es6-map": "^0.1.4",
     "snabbdom": "0.7.0",
     "snabbdom-selector": "2.0.1",
     "xstream": "*"

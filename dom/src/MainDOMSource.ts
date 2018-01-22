@@ -12,7 +12,6 @@ import {totalIsolateSink, siblingIsolateSink, isolateSource} from './isolate';
 import {IsolateModule} from './IsolateModule';
 import {EventDelegator} from './EventDelegator';
 import {getFullScope, isClassOrId} from './utils';
-import {matchesSelector} from './matchesSelector';
 
 const eventTypesThatDontBubble = [
   `blur`,
