@@ -1,3 +1,4 @@
+import './setup';
 import * as assert from 'assert';
 import isolate from '@cycle/isolate';
 import xs, {Stream, MemoryStream} from 'xstream';
@@ -17,11 +18,8 @@ import {
   DOMSource,
 } from '../../src/index';
 
-const isIE10 = (window as any).isIE10 || !(window as any).MutationObserver;
-if (isIE10) {
-  (window as any).MutationObserver = require('mutation-observer');
-  (window as any).isIE10 = true;
-}
+// From page/index.html
+declare var isIE10: boolean;
 
 function createRenderTarget(id: string | null = null) {
   const element = document.createElement('div');
