@@ -132,7 +132,7 @@ We have filled the `main()` function with some code: returns an object `sinks` w
 function main() {
   const sinks = {
     DOM: xs.periodic(1000).map(i =>
-      h1('' + i + ' seconds elapsed')
+      h1(`${i} seconds elapsed`)
     )
   };
   return sinks;
@@ -288,19 +288,19 @@ In the rare occasion you need Cycle.js scripts as standalone JavaScript files, y
         <div role='flatdoc-menu'></div>
 
         <ul>
-  
+
             <li><a href="dialogue.html" class="level-1 out-link">Dialogue abstraction</a></li>
-  
+
             <li><a href="streams.html" class="level-1 out-link">Streams</a></li>
-  
+
             <li><a href="basic-examples.html" class="level-1 out-link">Basic examples</a></li>
-  
+
             <li><a href="model-view-intent.html" class="level-1 out-link">Model-View-Intent</a></li>
-  
+
             <li><a href="components.html" class="level-1 out-link">Components</a></li>
-  
+
             <li><a href="drivers.html" class="level-1 out-link">Drivers</a></li>
-  
+
         </ul>
 
       </div>
