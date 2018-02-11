@@ -1,7 +1,7 @@
 import xs from 'xstream';
 import tween from 'xstream/extra/tween';
 import concat from 'xstream/extra/concat';
-import {run} from '@cycle/xstream-run';
+import {run} from '@cycle/run';
 import {div, button, makeDOMDriver} from '@cycle/dom';
 
 function targetStyle(left, top) {
