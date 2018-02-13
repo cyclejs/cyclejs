@@ -12,8 +12,6 @@
   },
   "files": [
     "index.ts",
-    "most.ts",
-    "rxjs.ts",
     "custom-typings.d.ts"
   ]
 }

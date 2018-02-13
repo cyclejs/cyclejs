@@ -3,10 +3,10 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/from';
 import {setAdapt} from '@cycle/run/lib/adapt';
 
-import {mockTimeSource as mockTimeSourceUntyped} from './src/mock-time-source';
-import {timeDriver as timeDriverUntyped} from './src/time-driver';
-import {Frame} from './src/animation-frames';
-import {Comparator, OperatorArgs} from './src/types';
+import {mockTimeSource as mockTimeSourceUntyped} from './lib/cjs/src/mock-time-source';
+import {timeDriver as timeDriverUntyped} from './lib/cjs/src/time-driver';
+import {Frame} from './lib/cjs/src/animation-frames';
+import {Comparator, OperatorArgs} from './lib/cjs/src/types';
 
 setAdapt(stream => Observable.from(stream));
 
