@@ -1,3 +1,15 @@
+<a name="0.13.0"></a>
+# 0.13.0 (2018-02-16)
+
+
+### Bug Fixes
+
+* **time:** fix event processing ([#771](https://github.com//cyclejs/cyclejs/issues/771)) ([2361c00](https://github.com/cyclejs/cyclejs/commit/2361c00))
+* **time:** fix rxjs and most entrypoints ([c31b60d](https://github.com/cyclejs/cyclejs/commit/c31b60d))
+* **time:** fix throttle immediately completing with sync producer ([3bb2271](https://github.com/cyclejs/cyclejs/commit/3bb2271)), closes [#770](https://github.com/cyclejs/cyclejs/issues/770)
+
+
+
 <a name="0.12.0"></a>
 # 0.12.0 (2017-12-28)
 
