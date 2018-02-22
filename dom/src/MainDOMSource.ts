@@ -115,30 +115,33 @@ export class MainDOMSource implements DOMSource {
     };
   }
 
-  public elements(): MemoryStream<Array<Element>> {
-    let output$: Stream<Array<Element>>;
+  private _elements(): Stream<Array<Element>> {
     if (this._namespace.length === 0) {
-      output$ = this._rootElement$.map(x => [x]);
+      return this._rootElement$.map(x => [x]);
     } else {
       const elementFinder = new ElementFinder(
         this._namespace,
         this._isolateModule,
       );
-      output$ = this._rootElement$.map(el => elementFinder.call(el));
+      return this._rootElement$.map(el => elementFinder.call(el));
     }
+  }
+
+  public elements(): MemoryStream<Array<Element>> {
     const out: DevToolEnabledSource & MemoryStream<Array<Element>> = adapt(
-      output$.remember(),
+      this._elements().remember(),
     );
     out._isCycleSource = this._name;
     return out;
   }
 
   public element(): MemoryStream<Element> {
-    const output$: MemoryStream<Element> = this.elements()
-      .filter(arr => arr.length > 0)
-      .map(arr => arr[0])
-      .remember();
-    const out: DevToolEnabledSource & MemoryStream<Element> = adapt(output$);
+    const out: DevToolEnabledSource & MemoryStream<Element> = adapt(
+      this._elements()
+        .filter(arr => arr.length > 0)
+        .map(arr => arr[0])
+        .remember(),
+    );
     out._isCycleSource = this._name;
     return out;
   }
