@@ -1,3 +1,13 @@
+<a name="20.2.0"></a>
+# 20.2.0 (2018-02-22)
+
+
+### Bug Fixes
+
+* **dom:** fix .elements() support for rxjs and most ([1239822](https://github.com/cyclejs/cyclejs/commit/1239822))
+
+
+
 <a name="20.1.0"></a>
 # 20.1.0 (2017-11-11)
 
