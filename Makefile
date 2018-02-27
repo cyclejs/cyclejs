@@ -5,7 +5,7 @@ TSLINT=$(BINDIR)/tslint
 TSC=$(BINDIR)/tsc
 MOCHA=$(BINDIR)/mocha
 BROWSERIFY=$(BINDIR)/browserify
-BUMP=$(BINDIR)/bump
+BUMP=.scripts/bump.js
 JASE=$(BINDIR)/jase
 TESTEM=$(BINDIR)/testem
 
@@ -175,7 +175,7 @@ release-minor :
 		echo "Error: please call 'make release-minor' with an argument, like 'make release-minor dom'" ;\
 	else \
 		make prebump $(ARG) ;\
-		$(BUMP) $(ARG)/package.json --quiet --minor ;\
+		$(BUMP) $(ARG)/package.json --minor ;\
 		make postbump $(ARG) ;\
 		echo "✓ Released new minor for $(ARG)" ;\
 	fi
@@ -185,7 +185,7 @@ release-major :
 		echo "Error: please call 'make release-major' with an argument, like 'make release-major dom'" ;\
 	else \
 		make prebump $(ARG) ;\
-		$(BUMP) $(ARG)/package.json --quiet --major ;\
+		$(BUMP) $(ARG)/package.json --major ;\
 		make postbump $(ARG) ;\
 		echo "✓ Released new major for $(ARG)" ;\
 	fi
