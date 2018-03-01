@@ -132,7 +132,7 @@ We have filled the `main()` function with some code: returns an object `sinks` w
 function main() {
   const sinks = {
     DOM: xs.periodic(1000).map(i =>
-      h1('' + i + ' seconds elapsed')
+      h1(`${i} seconds elapsed`)
     )
   };
   return sinks;
