@@ -33,7 +33,8 @@ export class VNodeWrapper {
   }
 
   private wrapDocFrag(children: Array<VNode>) {
-    return vnodeFn('', {}, children, undefined, this.rootElement as any);
+    return vnodeFn('', {isolate: []}, children, undefined, this
+      .rootElement as any);
   }
 
   private wrap(children: Array<VNode>) {

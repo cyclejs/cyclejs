@@ -47,10 +47,14 @@ export function getValidNode(
 }
 
 export function getSelectors(namespace: Array<Scope>): string {
-  return namespace
-    .filter(n => n.type === 'selector')
-    .map(n => n.scope)
-    .join(' ');
+  let res = '';
+  for (let i = namespace.length - 1; i >= 0; i--) {
+    if (namespace[i].type !== 'selector') {
+      break;
+    }
+    res = namespace[i].scope + ' ' + res;
+  }
+  return res.trim();
 }
 
 export function isEqualNamespace(
@@ -66,18 +70,6 @@ export function isEqualNamespace(
     }
   }
   return true;
-}
-
-export function getTotalIsolatedScope(namespace: Array<Scope>): Array<Scope> {
-  const result = namespace.slice(0);
-  for (let i = result.length - 1; i >= 0; i--) {
-    if (result[i].type === 'sibling') {
-      result.splice(i, 1);
-    } else {
-      break;
-    }
-  }
-  return result;
 }
 
 export function makeInsert(

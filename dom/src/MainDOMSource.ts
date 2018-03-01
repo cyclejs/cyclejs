@@ -9,7 +9,8 @@ import {VNode} from 'snabbdom/vnode';
 import {ElementFinder} from './ElementFinder';
 import {makeIsolateSink, getScopeObj, Scope, IsolateSink} from './isolate';
 import {IsolateModule} from './IsolateModule';
-import {EventDelegator} from './EventDelegator';
+import {EventDelegator, CycleDOMEvent} from './EventDelegator';
+
 export interface SpecialSelector {
   body: BodyDOMSource;
   document: DocumentDOMSource;
@@ -108,7 +109,7 @@ export class MainDOMSource implements DOMSource {
     eventType: string,
     options: EventsFnOptions = {},
     bubbles?: boolean,
-  ): Stream<Event> {
+  ): Stream<CycleDOMEvent> {
     if (typeof eventType !== `string`) {
       throw new Error(
         `DOM driver's events() expects argument to be a ` +
@@ -122,14 +123,14 @@ export class MainDOMSource implements DOMSource {
       bubbles,
     );
 
-    const out: DevToolEnabledSource & Stream<Event> = adapt(event$);
+    const out: DevToolEnabledSource & Stream<CycleDOMEvent> = adapt(event$);
     out._isCycleSource = this._name;
     return out;
   }
 
   public dispose(): void {
     this._sanitation$.shamefullySendNext(null);
-    this._isolateModule.reset();
+    //this._isolateModule.reset();
   }
 
   // The implementation of these are in the constructor so that their `this`
