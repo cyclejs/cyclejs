@@ -18,7 +18,9 @@ export class ElementFinder {
     const selector = getSelectors(namespace);
 
     const scopeChecker = new ScopeChecker(namespace, this.isolateModule);
-    const topNode = this.isolateModule.getElement(namespace);
+    const topNode = this.isolateModule.getElement(
+      namespace.filter(n => n.type !== 'selector'),
+    );
 
     if (topNode === undefined) {
       return [];

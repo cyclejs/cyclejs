@@ -3,6 +3,7 @@ import {PreventDefaultOpt} from './fromEvent';
 export interface EventsFnOptions {
   useCapture?: boolean;
   passive?: boolean;
+  bubbles?: boolean;
   preventDefault?: PreventDefaultOpt;
 }
 

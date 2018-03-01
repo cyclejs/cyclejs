@@ -2,15 +2,10 @@ import {VNode} from 'snabbdom/vnode';
 import {EventDelegator} from './EventDelegator';
 import {Scope} from './isolate';
 import {isEqualNamespace} from './utils';
-
-export interface NamespaceTree {
-  [name: string]: Element | NamespaceTree;
-}
-
-const elmSymbol = Symbol('namespaceTree');
+import SymbolTree from './SymbolTree';
 
 export class IsolateModule {
-  private namespaceTree: NamespaceTree;
+  private namespaceTree = new SymbolTree<Element, Scope>(x => x.scope);
   private namespaceByElement: Map<Element, Array<Scope>>;
   private eventDelegator: EventDelegator;
 
@@ -22,24 +17,8 @@ export class IsolateModule {
   private vnodesBeingRemoved: Array<VNode>;
 
   constructor() {
-    this.namespaceTree = {};
     this.namespaceByElement = new Map<Element, Array<Scope>>();
     this.vnodesBeingRemoved = [];
-  }
-
-  public getElement(namespace: Array<Scope>): Element | undefined {
-    let curr = this.namespaceTree;
-    for (let i = 0; i < namespace.length; i++) {
-      const n = namespace[i];
-      if (curr === undefined) {
-        return undefined;
-      }
-      if (n.type === 'selector') {
-        continue;
-      }
-      curr = curr[n.scope] as NamespaceTree;
-    }
-    return curr[elmSymbol] as Element;
   }
 
   public setEventDelegator(del: EventDelegator): void {
@@ -47,46 +26,38 @@ export class IsolateModule {
   }
 
   private insertElement(namespace: Array<Scope>, el: Element): void {
-    let curr = this.namespaceTree;
-    for (let i = 0; i < namespace.length; i++) {
-      if (curr[namespace[i].scope] === undefined) {
-        curr[namespace[i].scope] = {};
-      }
-      curr = curr[namespace[i].scope] as NamespaceTree;
-    }
-    curr[elmSymbol] = el;
     this.namespaceByElement.set(el, namespace);
+    this.namespaceTree.set(namespace, el);
   }
 
-  private removeElement(namespace: Array<Scope>): void {
-    let curr = this.namespaceTree;
-    for (let i = 0; i < namespace.length; i++) {
-      curr = curr[namespace[i].scope] as NamespaceTree;
-    }
-    const elm = curr[elmSymbol] as Element;
-    delete curr[elmSymbol];
+  private removeElement(elm: Element): void {
     this.namespaceByElement.delete(elm);
+    this.namespaceTree.delete(this.getNamespace(elm));
   }
 
-  public getNamespace(elm: Element): Array<Scope> {
+  public getElement(namespace: Scope[], max?: number): Element | undefined {
+    return this.namespaceTree.get(namespace, undefined, max);
+  }
+
+  public getRootElement(elm: Element): Element {
+    if (this.namespaceByElement.has(elm)) {
+      return elm;
+    }
+
+    //TODO: Add quick-lru or similar as additional O(1) cache
+
     let curr = elm;
-    while (true) {
-      const namespace = this.namespaceByElement.get(curr);
-      if (namespace !== undefined) {
-        return namespace;
-      }
+    while (!this.namespaceByElement.has(curr)) {
       curr = curr.parentNode as Element;
       if (!curr) {
         throw new Error('No root element found, this should not happen at all');
       }
     }
+    return curr;
   }
 
-  public reset() {
-    this.namespaceTree = {};
-    const root: Element = this.namespaceTree[elmSymbol] as Element;
-    this.namespaceByElement.clear();
-    this.namespaceByElement.set(root, []);
+  public getNamespace(elm: Element): Array<Scope> {
+    return this.namespaceByElement.get(this.getRootElement(elm)) as Scope[];
   }
 
   public createModule() {
@@ -102,18 +73,18 @@ export class IsolateModule {
       },
 
       update(oldVNode: VNode, vNode: VNode) {
-        const {data: oldData = {}} = oldVNode;
+        const {elm: oldElm, data: oldData = {}} = oldVNode;
         const {elm, data = {}} = vNode;
         const oldNamespace: Array<Scope> = (oldData as any).isolate;
         const namespace: Array<Scope> = (data as any).isolate;
 
         if (!isEqualNamespace(oldNamespace, namespace)) {
           if (Array.isArray(oldNamespace)) {
-            self.removeElement(oldNamespace);
+            self.removeElement(oldElm as Element);
           }
-          if (Array.isArray(namespace)) {
-            self.insertElement(namespace, elm as Element);
-          }
+        }
+        if (Array.isArray(namespace)) {
+          self.insertElement(namespace, elm as Element);
         }
       },
 
