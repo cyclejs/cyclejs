@@ -109,16 +109,14 @@ export class EventDelegator {
       next: el => {
         if (this.origin !== el) {
           this.origin = el;
-
+          this.resetEventListeners();
           this.domListenersToAdd.forEach((passive, type) =>
             this.setupDOMListener(type, passive),
           );
           this.domListenersToAdd.clear();
-
-          this.resetEventListeners();
         }
-        this.resetNonBubblingListeners();
 
+        this.resetNonBubblingListeners();
         this.nonBubblingListenersToAdd.forEach(arr => {
           this.setupNonBubblingListener(arr);
         });
@@ -255,7 +253,7 @@ export class EventDelegator {
         complete: () => {},
       });
       this.domListeners.set(eventType, {sub, passive});
-    } else if (!this.domListenersToAdd.has(eventType)) {
+    } else {
       this.domListenersToAdd.set(eventType, passive);
     }
   }
