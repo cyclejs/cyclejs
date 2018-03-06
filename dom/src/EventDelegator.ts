@@ -87,7 +87,7 @@ export class EventDelegator {
 
   private domListeners: Map<string, DOMListener>;
   private nonBubblingListeners: Map<string, Map<Element, NonBubblingListener>>;
-  private domListenersToAdd: [string, boolean][] = [];
+  private domListenersToAdd: Map<string, boolean>;
   private nonBubblingListenersToAdd = new RemovalSet<
     [string, ElementFinder, Destination]
   >();
@@ -100,6 +100,7 @@ export class EventDelegator {
   ) {
     this.isolateModule.setEventDelegator(this);
     this.domListeners = new Map<string, DOMListener>();
+    this.domListenersToAdd = new Map<string, boolean>();
     this.nonBubblingListeners = new Map<
       string,
       Map<Element, NonBubblingListener>
@@ -109,11 +110,10 @@ export class EventDelegator {
         if (this.origin !== el) {
           this.origin = el;
 
-          for (let i = 0; i < this.domListenersToAdd.length; i++) {
-            const [type, passive] = this.domListenersToAdd[i];
-            this.setupDOMListener(type, passive);
-          }
-          this.domListenersToAdd = [];
+          this.domListenersToAdd.forEach((passive, type) =>
+            this.setupDOMListener(type, passive),
+          );
+          this.domListenersToAdd.clear();
 
           this.resetEventListeners();
         }
@@ -255,8 +255,8 @@ export class EventDelegator {
         complete: () => {},
       });
       this.domListeners.set(eventType, {sub, passive});
-    } else {
-      this.domListenersToAdd.push([eventType, passive]);
+    } else if (!this.domListenersToAdd.has(eventType)) {
+      this.domListenersToAdd.set(eventType, passive);
     }
   }
 
