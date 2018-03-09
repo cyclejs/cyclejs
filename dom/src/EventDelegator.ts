@@ -92,7 +92,7 @@ export class EventDelegator {
     [string, ElementFinder, Destination]
   >();
 
-  private virtualNonBubblingListener: Destination[] = [];
+  private virtualNonBubblingListener: Array<Destination> = [];
 
   constructor(
     private rootElement$: Stream<Element>,
@@ -151,11 +151,11 @@ export class EventDelegator {
     return subject;
   }
 
-  public removeElement(element: Element, namespace?: Scope[]): void {
+  public removeElement(element: Element, namespace?: Array<Scope>): void {
     if (namespace !== undefined) {
       this.virtualListeners.delete(namespace);
     }
-    const toRemove: [string, Element][] = [];
+    const toRemove: Array<[string, Element]> = [];
     this.nonBubblingListeners.forEach((map, type) => {
       if (map.has(element)) {
         toRemove.push([type, element]);
@@ -181,7 +181,7 @@ export class EventDelegator {
     eventType: string,
     options: EventsFnOptions,
   ): Destination {
-    const relevantSets: PriorityQueue<Destination>[] = [];
+    const relevantSets: Array<PriorityQueue<Destination>> = [];
     const n = scopeChecker._namespace;
     let max = n.length;
 
@@ -212,7 +212,7 @@ export class EventDelegator {
    */
   private getVirtualListeners(
     eventType: string,
-    namespace: Scope[],
+    namespace: Array<Scope>,
     exact = false,
     max?: number,
   ): PriorityQueue<Destination> {
@@ -447,7 +447,7 @@ export class EventDelegator {
     rootElement: Element,
     event: CycleDOMEvent,
     listeners: PriorityQueue<Destination>,
-    namespace: Scope[],
+    namespace: Array<Scope>,
     index: number,
     useCapture: boolean,
     passive: boolean,
@@ -507,7 +507,7 @@ export class EventDelegator {
     elm: Element,
     rootElement: Element,
     event: CycleDOMEvent,
-    listeners: PriorityQueue<Destination> | Destination[],
+    listeners: PriorityQueue<Destination> | Array<Destination>,
     useCapture: boolean,
     passive: boolean,
   ): void {

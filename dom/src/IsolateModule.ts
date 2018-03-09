@@ -35,7 +35,10 @@ export class IsolateModule {
     this.namespaceTree.delete(this.getNamespace(elm));
   }
 
-  public getElement(namespace: Scope[], max?: number): Element | undefined {
+  public getElement(
+    namespace: Array<Scope>,
+    max?: number,
+  ): Element | undefined {
     return this.namespaceTree.get(namespace, undefined, max);
   }
 
@@ -57,7 +60,9 @@ export class IsolateModule {
   }
 
   public getNamespace(elm: Element): Array<Scope> {
-    return this.namespaceByElement.get(this.getRootElement(elm)) as Scope[];
+    return this.namespaceByElement.get(this.getRootElement(elm)) as Array<
+      Scope
+    >;
   }
 
   public createModule() {

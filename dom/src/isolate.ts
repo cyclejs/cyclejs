@@ -12,7 +12,7 @@ export type Sink = Stream<VNode | null | undefined>;
 export type IsolateSink = (s: Sink, scope: string) => Sink;
 
 export function makeIsolateSink(
-  namespace: Scope[],
+  namespace: Array<Scope>,
 ): (sink: Sink, scope: string) => Sink {
   return (sink, scope) => {
     if (scope === ':root') {

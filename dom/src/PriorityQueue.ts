@@ -1,6 +1,6 @@
 export default class PriorityQueue<T> {
-  private arr: T[] = [];
-  private prios: number[] = [];
+  private arr: Array<T> = [];
+  private prios: Array<number> = [];
 
   public add(t: T, prio: number): void {
     for (let i = 0; i < this.arr.length; i++) {
@@ -14,7 +14,7 @@ export default class PriorityQueue<T> {
     this.prios.push(prio);
   }
 
-  public forEach(f: (t: T, i: number, arr: T[]) => void): void {
+  public forEach(f: (t: T, i: number, arr: Array<T>) => void): void {
     for (let i = 0; i < this.arr.length; i++) {
       f(this.arr[i], i, this.arr);
     }
