@@ -1,5 +1,5 @@
 export default class RemovalSet<T> {
-  private toDelete: T[] = [];
+  private toDelete: Array<T> = [];
   private toDeleteSize = 0;
   private _set = new Set<T>();
 

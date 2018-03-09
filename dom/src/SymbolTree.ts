@@ -9,7 +9,7 @@ export default class SymbolTree<Payload, T> {
 
   constructor(private mapper: (t: T) => string) {}
 
-  public set(path: T[], element: Payload | undefined, max?: number): void {
+  public set(path: Array<T>, element: Payload | undefined, max?: number): void {
     let curr = this.tree;
     const _max = max !== undefined ? max : path.length;
     for (let i = 0; i < _max; i++) {
@@ -25,7 +25,7 @@ export default class SymbolTree<Payload, T> {
   }
 
   public getDefault(
-    path: T[],
+    path: Array<T>,
     mkDefaultElement: () => Payload,
     max?: number,
   ): Payload {
@@ -37,7 +37,7 @@ export default class SymbolTree<Payload, T> {
    * If a default element creator is given, it will insert it at the path
    */
   public get(
-    path: T[],
+    path: Array<T>,
     mkDefaultElement?: () => Payload,
     max?: number,
   ): Payload | undefined {
@@ -62,7 +62,7 @@ export default class SymbolTree<Payload, T> {
     return curr[0];
   }
 
-  public delete(path: T[]): void {
+  public delete(path: Array<T>): void {
     let curr = this.tree;
     for (let i = 0; i < path.length - 1; i++) {
       const child = curr[1][this.mapper(path[i])];
