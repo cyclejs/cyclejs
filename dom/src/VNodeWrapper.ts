@@ -29,7 +29,7 @@ export class VNodeWrapper {
       return vnode;
     }
 
-    return this.wrap([vnode]);
+    return this.wrap(Array.isArray(vnode) ? vnode : [vnode]);
   }
 
   private wrapDocFrag(children: Array<VNode>) {
