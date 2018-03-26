@@ -143,8 +143,8 @@ function makeDOMDriver(
       )
       .flatten();
 
-    const rootElement$ = mutationConfirmed$
-      .startWith(null)
+    const rootElement$ = xs
+      .merge(domReady$, mutationConfirmed$)
       .endWhen(sanitation$)
       .compose(sampleCombine(elementAfterPatch$))
       .map(arr => arr[1])
