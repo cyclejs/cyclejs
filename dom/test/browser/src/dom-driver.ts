@@ -231,4 +231,26 @@ describe('DOM Driver', function() {
       }, 50);
     }, 100);
   });
+
+  it('should not duplicate root element when not having ID property set', function(done) {
+    function app() {
+      return {
+        DOM: xs.of(div('dummy text')),
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    const dispose = run();
+    setTimeout(() => {
+      dispose();
+      setTimeout(() => {
+        const renderTarget = document.querySelector('div') as Element;
+        assert.equal(renderTarget.children.length, 0);
+        done();
+      }, 50);
+    }, 100);
+  });
 });
