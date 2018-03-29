@@ -18,6 +18,7 @@ import {
   select,
   option,
   p,
+  footer,
   makeDOMDriver,
   DOMSource,
   MainDOMSource,
@@ -213,6 +214,31 @@ describe('DOM Rendering', function () {
         assert.notStrictEqual(selectEl, null);
         assert.notStrictEqual(typeof selectEl, 'undefined');
         assert.strictEqual(selectEl.tagName, 'SELECT');
+        setTimeout(() => {
+          dispose();
+          done();
+        });
+      },
+    });
+    dispose = run();
+  });
+
+  it('should not duplicate root element without ID', function (done) {
+    function app(sources: {DOM: MainDOMSource}) {
+      return {
+        DOM: xs.of(footer([h3('.my-class'),h3('.my-class')])),
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver('footer'),
+    });
+    let dispose: any;
+    sources.DOM.select(':root').element().drop(1).take(1).addListener({
+      next: (root: Element) => {
+        assert.strictEqual(root.tagName, 'FOOTER');
+        assert.strictEqual(root.children.length, 2);
+        assert.strictEqual(root.children[0].tagName, 'H3');
         setTimeout(() => {
           dispose();
           done();
