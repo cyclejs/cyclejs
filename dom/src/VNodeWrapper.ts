@@ -13,7 +13,7 @@ export class VNodeWrapper {
     if (vnode === null) {
       return this.wrap([]);
     }
-    const {tagName: selTagName, id: selId} = selectorParser(vnode);
+    const {tagName: selTagName, id: selId = ''} = selectorParser(vnode);
     const vNodeClassName = classNameFromVNode(vnode);
     const vNodeData = vnode.data || {};
     const vNodeDataProps = vNodeData.props || {};

@@ -513,7 +513,7 @@ describe('DOMSource.events()', function() {
 
     function app(sources: {DOM: DOMSource}) {
       return {
-        DOM: xs.of(div([div('.clickable', 'Hello')])),
+        DOM: xs.of(div('#bubpar',[div('.clickable', 'Hello')])),
       };
     }
 
@@ -572,7 +572,7 @@ describe('DOMSource.events()', function() {
 
     function app(sources: {DOM: DOMSource}) {
       return {
-        DOM: xs.of(div([div('.clickable', 'Hello')])),
+        DOM: xs.of(div('#bubpar',[div('.clickable', 'Hello')])),
       };
     }
 
