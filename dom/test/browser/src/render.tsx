@@ -18,7 +18,6 @@ import {
   select,
   option,
   p,
-  footer,
   makeDOMDriver,
   DOMSource,
   MainDOMSource,
@@ -226,7 +225,6 @@ describe('DOM Rendering', function () {
   it('should not duplicate root element without ID', function (done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
-<<<<<<< HEAD
         DOM: xs.of(div([h3('.my-class'),h3('.my-class')])),
       };
     }
@@ -240,19 +238,6 @@ describe('DOM Rendering', function () {
     sources.DOM.select(':root').element().drop(1).take(1).addListener({
       next: (root: Element) => {
         assert.strictEqual(root.tagName, 'DIV');
-=======
-        DOM: xs.of(footer([h3('.my-class'),h3('.my-class')])),
-      };
-    }
-
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver('footer'),
-    });
-    let dispose: any;
-    sources.DOM.select(':root').element().drop(1).take(1).addListener({
-      next: (root: Element) => {
-        assert.strictEqual(root.tagName, 'FOOTER');
->>>>>>> fac0495174abd54d0f9472f09d7acb6ae28175f3
         assert.strictEqual(root.children.length, 2);
         assert.strictEqual(root.children[0].tagName, 'H3');
         setTimeout(() => {
