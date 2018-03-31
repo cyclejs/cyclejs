@@ -2,6 +2,7 @@ import {Driver, FantasyObservable} from '@cycle/run';
 import {init} from 'snabbdom';
 import {Module} from 'snabbdom/modules/module';
 import xs, {Stream, Listener} from 'xstream';
+import concat from 'xstream/extra/concat';
 import sampleCombine from 'xstream/extra/sampleCombine';
 import {DOMSource} from './DOMSource';
 import {MainDOMSource} from './MainDOMSource';
@@ -143,8 +144,7 @@ function makeDOMDriver(
       )
       .flatten();
 
-    const rootElement$ = xs
-      .merge(domReady$, mutationConfirmed$)
+    const rootElement$ = concat(domReady$, mutationConfirmed$)
       .endWhen(sanitation$)
       .compose(sampleCombine(elementAfterPatch$))
       .map(arr => arr[1])
