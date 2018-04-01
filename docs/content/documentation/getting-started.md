@@ -149,13 +149,13 @@ import {makeDOMDriver, div, input, p} from '@cycle/dom';
 
 We used the `div()`, `input()`, `p()` helper functions to create virtual DOM elements for the respective `<div>`, `<input>`, `<p>` DOM elements, but you can also use JSX with Babel. The following only works if you are building with Babel:
 
-(1) Install the npm packages [babel-plugin-transform-react-jsx](http://babeljs.io/docs/plugins/transform-react-jsx/) and [snabbdom-jsx](https://www.npmjs.com/package/snabbdom-jsx).
+(1) Install the npm packages [babel-plugin-transform-react-jsx](http://babeljs.io/docs/plugins/transform-react-jsx/) and [snabbdom-pragma](https://www.npmjs.com/package/snabbdom-pragma).
 
 ```
-npm install --save babel-plugin-transform-react-jsx snabbdom-jsx
+npm install --save babel-plugin-transform-react-jsx snabbdom-pragma
 ```
 
-(2) Specify a pragma for JSX in the `.babelrc` file.
+(2) Specify the pragma for JSX in the `.babelrc` file.
 
 > .babelrc
 
@@ -166,7 +166,7 @@ npm install --save babel-plugin-transform-react-jsx snabbdom-jsx
   ],
   "plugins": [
     "syntax-jsx",
-    ["transform-react-jsx", {"pragma": "html"}]
+    ["transform-react-jsx", {"pragma": "Snabbdom.createElement"}]
   ]
 }
 ```
@@ -179,7 +179,7 @@ npm install --save babel-plugin-transform-react-jsx snabbdom-jsx
 import xs from 'xstream';
 import {run} from '@cycle/xstream-run';
 import {makeDOMDriver} from '@cycle/dom';
-import {html} from 'snabbdom-jsx';
+import Snabbdom from 'snabbdom-pragma';
 ```
 
 (4) Use JSX as return values.
