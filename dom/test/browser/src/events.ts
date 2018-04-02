@@ -513,7 +513,7 @@ describe('DOMSource.events()', function() {
 
     function app(sources: {DOM: DOMSource}) {
       return {
-        DOM: xs.of(div('#bubpar',[div('.clickable', 'Hello')])),
+        DOM: xs.of(div([div('.clickable', 'Hello')])),
       };
     }
 
@@ -538,8 +538,7 @@ describe('DOMSource.events()', function() {
             assert.strictEqual(elem.className, 'clickable');
             assert.strictEqual(elem.textContent, 'Hello');
             const top = elem.parentElement as Node;
-            const renderTarget2 = top.parentNode as Node;
-            const frag = renderTarget2.parentNode as Node;
+            const frag = top.parentNode as Node;
             assert.strictEqual(frag instanceof DocumentFragment, true);
             done();
           },
@@ -572,7 +571,7 @@ describe('DOMSource.events()', function() {
 
     function app(sources: {DOM: DOMSource}) {
       return {
-        DOM: xs.of(div('#bubpar',[div('.clickable', 'Hello')])),
+        DOM: xs.of(div([div('.clickable', 'Hello')])),
       };
     }
 
@@ -597,8 +596,7 @@ describe('DOMSource.events()', function() {
             assert.strictEqual(elem.className, 'clickable');
             assert.strictEqual(elem.textContent, 'Hello');
             const top = elem.parentElement as Node;
-            const renderTarget2 = top.parentNode as Node;
-            const frag = renderTarget2.parentNode as Node;
+            const frag = top.parentNode as Node;
             assert.strictEqual(frag instanceof DocumentFragment, true);
             done();
           },
