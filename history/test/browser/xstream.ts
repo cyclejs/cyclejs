@@ -11,7 +11,7 @@ import {
 import {run, setup} from '@cycle/run';
 import xs, {Stream} from 'xstream';
 
-import {setAdapt} from '@cycle/run/lib/adapt';
+import {setAdapt} from '@cycle/run/lib/cjs/adapt';
 
 let dispose = () => {};
 

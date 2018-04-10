@@ -141,7 +141,7 @@ In some cases it is necessary to output a queryable collection of streams, inste
 
 The DOM Driver, for instance, outputs a queryable collection of streams. The collection is in fact lazy: none of the streams outputted by `select(selector).events(eventType)` existed prior to the call of `events()`. This is because we cannot afford creating streams for *all* possible events on *all* elements on the DOM. Take inspiration from the lazy queryable collection of streams from the DOM Driver whenever the output source contains a large (possibly infinite) amount of streams.
 
-In order to make your driver usable with many stream libraries, you should use the `adapt()` function from `@cycle/run/lib/adapt` to convert the stream to the same library used for `run`. `adapt()` takes an **xstream** stream as input and returns a stream for the library used in `run`.
+In order to make your driver usable with many stream libraries, you should use the `adapt()` function from `@cycle/run/lib/cjs/adapt` to convert the stream to the same library used for `run`. `adapt()` takes an **xstream** stream as input and returns a stream for the library used in `run`.
 
 ```typescript
 adapt(stream: xs.Stream<T>): xs.Stream<T>; // for @cycle/run
@@ -149,10 +149,10 @@ adapt(stream: xs.Stream<T>): Rx.Observable<T>; // for @cycle/rxjs-run
 adapt(stream: xs.Stream<T>): most.Stream<T>; // for @cycle/most-run
 ```
 
-Note that `adapt` is always imported from as `@cycle/run/lib/adapt`, **not** from `@cycle/rxjs-run/lib/adapt` nor `@cycle/most-run/lib/adapt`. Before returning a single-stream source from the driver, make sure to call `adapt`:
+Note that `adapt` is always imported from as `@cycle/run/lib/cjs/adapt`, **not** from `@cycle/rxjs-run/lib/adapt` nor `@cycle/most-run/lib/adapt`. Before returning a single-stream source from the driver, make sure to call `adapt`:
 
 ```js
-import {adapt} from '@cycle/run/lib/adapt';
+import {adapt} from '@cycle/run/lib/cjs/adapt';
 
 function WSDriver(/* no sinks */) {
   const source = xs.create({
@@ -200,7 +200,7 @@ sock.send('Hello world');
 Since both input and output should be streams, it's easy to see `sink` in `sockDriver(sink)` should be an stream of outgoing messages to the peer. And conversely, the source should be an stream of incoming messages. This is a draft of our driver function:
 
 ```javascript
-import {adapt} from '@cycle/run/lib/adapt';
+import {adapt} from '@cycle/run/lib/cjs/adapt';
 
 function sockDriver(outgoing$) {
   outgoing$.addListener({
@@ -227,7 +227,7 @@ function sockDriver(outgoing$) {
 The listener of `outgoing$` performs the `send()` effect, and the returned stream `incoming$` is based on `sock.onReceive` to take data from the external world. However, `sockDriver` is assuming `sock` to be available in the closure. As we saw, `sock` needs to be created with a constructor `new Sock()`. To solve this dependency, we need to create a factory that makes `sockDriver()` functions.
 
 ```javascript
-import {adapt} from '@cycle/run/lib/adapt';
+import {adapt} from '@cycle/run/lib/cjs/adapt';
 
 function makeSockDriver(peerId) {
   let sock = new Sock(peerId);

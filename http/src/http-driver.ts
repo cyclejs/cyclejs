@@ -1,6 +1,6 @@
 import xs, {Stream, MemoryStream} from 'xstream';
 import {Driver} from '@cycle/run';
-import {adapt} from '@cycle/run/lib/adapt';
+import {adapt} from '@cycle/run/lib/cjs/adapt';
 import {MainHTTPSource} from './MainHTTPSource';
 import * as superagent from 'superagent';
 import {

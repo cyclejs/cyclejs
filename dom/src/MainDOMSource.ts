@@ -1,7 +1,7 @@
 import xs from 'xstream';
 import {Stream, MemoryStream} from 'xstream';
 import {DevToolEnabledSource} from '@cycle/run';
-import {adapt} from '@cycle/run/lib/adapt';
+import {adapt} from '@cycle/run/lib/cjs/adapt';
 import {DOMSource, EventsFnOptions} from './DOMSource';
 import {DocumentDOMSource} from './DocumentDOMSource';
 import {BodyDOMSource} from './BodyDOMSource';

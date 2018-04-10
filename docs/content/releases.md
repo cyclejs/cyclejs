@@ -359,13 +359,13 @@ If you have a driver library, you definitely will need to update carefully for C
 - Sources must be converted using `adapt()` before they are returned
 - Must have `"@cycle/run": "*"` in package.json dependencies
 
-**Adapt()** is a new feature in Cycle Unified which replaces adapters. It can be imported with `import {adapt} from '@cycle/run/lib/adapt'` and its type signature is:
+**Adapt()** is a new feature in Cycle Unified which replaces adapters. It can be imported with `import {adapt} from '@cycle/run/lib/cjs/adapt'` and its type signature is:
 
 ```typescript
 function adapt<T>(stream: xs.Stream<any>): T;
 ```
 
-where `T` is a stream/Observable from the library being used in `@cycle/___-run`. For example, if the user is using `@cycle/rxjs-run`, then `adapt()` from `@cycle/run/lib/adapt` will have the type signature:
+where `T` is a stream/Observable from the library being used in `@cycle/___-run`. For example, if the user is using `@cycle/rxjs-run`, then `adapt()` from `@cycle/run/lib/cjs/adapt` will have the type signature:
 
 ```typescript
 function adapt(stream: xs.Stream<any>): Observable<any>;
@@ -377,7 +377,7 @@ Below is a diff of before/after on a simple driver that **returns a stream as th
 
 ```diff
 -import XStreamAdapter from '@cycle/xstream-adapter';
-+import {adapt} from '@cycle/run/lib/adapt';
++import {adapt} from '@cycle/run/lib/cjs/adapt';
 
  function makeMyDriver(options) {
 -  function myDriver(sink$, streamAdapter, name) {
@@ -396,7 +396,7 @@ Below is a diff of before/after on a simple driver that **returns a complex sour
 
 ```diff
 -import XStreamAdapter from '@cycle/xstream-adapter';
-+import {adapt} from '@cycle/run/lib/adapt';
++import {adapt} from '@cycle/run/lib/cjs/adapt';
 
  function makeMyDriver(options) {
 -  function myDriver(sink$, runStreamAdapter, name) {
