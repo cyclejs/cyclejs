@@ -4,6 +4,7 @@
 node_modules
 npm-debug.log
 
-lib/
+lib/cjs/
+lib/es6/
 coverage/
 dist/

@@ -9,7 +9,9 @@ node_modules/
 
 # Generated
 test/browser/page/tests-bundle.js
-lib/
+/lib/cjs/
+/lib/es6/
+/test/browser/lib
 dist/
 
 # Misc
