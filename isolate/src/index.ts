@@ -231,3 +231,9 @@ function isolate<InnerSo, InnerSi>(
 (isolate as any).reset = () => (counter = 0);
 
 export default isolate;
+
+export function toIsolated<InnerSo, InnerSi>(
+  scope: any = newScope(),
+): (c: Component<InnerSo, InnerSi>) => Component<OuterSo, OuterSi> {
+  return component => isolate(component, scope);
+}
