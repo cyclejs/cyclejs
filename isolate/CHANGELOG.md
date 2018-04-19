@@ -1,3 +1,13 @@
+<a name="3.3.0"></a>
+# 3.3.0 (2018-04-19)
+
+
+### Features
+
+* **isolate:** add \`toIsolated\` returning a higher order component ([fe1efb3](https://github.com/cyclejs/cyclejs/commit/fe1efb3))
+
+
+
 <a name="3.2.0"></a>
 # 3.2.0 (2017-10-24)
 
