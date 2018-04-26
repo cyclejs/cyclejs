@@ -147,6 +147,7 @@ const TAG_NAMES = [
   'colgroup',
   'dd',
   'del',
+  'details',
   'dfn',
   'dir',
   'div',
@@ -211,6 +212,7 @@ const TAG_NAMES = [
   'strong',
   'style',
   'sub',
+  'summary',
   'sup',
   'table',
   'tbody',
@@ -350,6 +352,7 @@ export interface HyperScriptHelpers {
   colgroup: HyperScriptHelperFn;
   dd: HyperScriptHelperFn;
   del: HyperScriptHelperFn;
+  details: HyperScriptHelperFn;
   dfn: HyperScriptHelperFn;
   dir: HyperScriptHelperFn;
   div: HyperScriptHelperFn;
@@ -414,6 +417,7 @@ export interface HyperScriptHelpers {
   strong: HyperScriptHelperFn;
   style: HyperScriptHelperFn;
   sub: HyperScriptHelperFn;
+  summary: HyperScriptHelperFn;
   sup: HyperScriptHelperFn;
   table: HyperScriptHelperFn;
   tbody: HyperScriptHelperFn;
