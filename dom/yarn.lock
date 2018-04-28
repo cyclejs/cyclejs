@@ -246,12 +246,6 @@ cryptiles@3.x.x:
   dependencies:
     boom "5.x.x"
 
-cssauron2@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/cssauron2/-/cssauron2-2.0.1.tgz#f279cd3fc6aaf1bbc2477bea6ce92302a2ec2fac"
-  dependencies:
-    through X.X.X
-
 d@1:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/d/-/d-1.0.0.tgz#754bb5bfe55451da69a58b94d45f4c5b0462d58f"
@@ -770,11 +764,11 @@ snabbdom-jsx@^0.3.0:
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/snabbdom-jsx/-/snabbdom-jsx-0.3.2.tgz#25044a03f59362d06d16eab22ed2767a54871596"
 
-snabbdom-selector@2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/snabbdom-selector/-/snabbdom-selector-2.0.1.tgz#50704b4802662198e427f0200dd461eb201d52c5"
+snabbdom-selector@3:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/snabbdom-selector/-/snabbdom-selector-3.0.0.tgz#787011a5e89e8b1fa2fb768d4bb52a84396714ec"
   dependencies:
-    cssauron2 "^2.0.1"
+    tree-selector "^1.1.0"
 
 snabbdom@0.7.0:
   version "0.7.0"
@@ -843,15 +837,15 @@ tar-stream@^1.5.0:
     readable-stream "^2.0.0"
     xtend "^4.0.0"
 
-through@X.X.X:
-  version "2.3.8"
-  resolved "https://registry.yarnpkg.com/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"
-
 tough-cookie@~2.3.0, tough-cookie@~2.3.3:
   version "2.3.3"
   resolved "https://registry.yarnpkg.com/tough-cookie/-/tough-cookie-2.3.3.tgz#0b618a5565b6dea90bf3425d04d55edc475a7561"
   dependencies:
     punycode "^1.4.1"
+
+tree-selector@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/tree-selector/-/tree-selector-1.1.0.tgz#e47bbb7174b3040328d04da6c80fcabf8819b129"
 
 tunnel-agent@^0.6.0:
   version "0.6.0"
