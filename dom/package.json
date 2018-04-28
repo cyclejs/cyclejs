@@ -37,12 +37,12 @@
     "@cycle/run": "*",
     "es6-map": "^0.1.4",
     "snabbdom": "0.7.0",
-    "snabbdom-selector": "2.0.1",
+    "snabbdom-selector": "^3.0.0",
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/run": "4.0.0",
     "@cycle/isolate": "3.2",
+    "@cycle/run": "4.0.0",
     "@cycle/rxjs-run": "8.0.0",
     "@types/mocha": "^2.2.33",
     "@types/node": "^7.0.4",
