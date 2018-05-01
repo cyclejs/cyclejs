@@ -1,3 +1,18 @@
+<a name="20.3.0"></a>
+# 20.3.0 (2018-05-01)
+
+
+### Bug Fixes
+
+* **dom:** update snabbdom-selector ([b345417](https://github.com/cyclejs/cyclejs/commit/b345417))
+
+
+### Features
+
+* **dom:** add support for HTML5 <details> and <summary> tags to HyperscriptHelpers ([cf3cc81](https://github.com/cyclejs/cyclejs/commit/cf3cc81))
+
+
+
 <a name="20.2.0"></a>
 # 20.2.0 (2018-02-22)
 
