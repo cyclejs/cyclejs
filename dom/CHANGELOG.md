@@ -9,7 +9,7 @@
 
 ### Features
 
-* **dom:** add support for HTML5 <details> and <summary> tags to HyperscriptHelpers ([cf3cc81](https://github.com/cyclejs/cyclejs/commit/cf3cc81))
+* **dom:** add support for HTML5 `<details>` and `<summary>` tags to HyperscriptHelpers ([cf3cc81](https://github.com/cyclejs/cyclejs/commit/cf3cc81))
 
 
 
