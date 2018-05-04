@@ -1,3 +1,13 @@
+<a name="20.4.0"></a>
+# 20.4.0 (2018-05-04)
+
+
+### Bug Fixes
+
+* **dom:** postpone sampling of root element until DOM is ready. ([9653d98](https://github.com/cyclejs/cyclejs/commit/9653d98))
+
+
+
 <a name="20.3.0"></a>
 # 20.3.0 (2018-05-01)
 
