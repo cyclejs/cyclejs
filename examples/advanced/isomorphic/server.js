@@ -73,7 +73,6 @@ server.use(function (req, res) {
   run(wrappedAppFn, {
     DOM: makeHTMLDriver(html => res.send(prependHTML5Doctype(html))),
     context: () => context$,
-    PreventDefault: () => {},
   });
 });
 
