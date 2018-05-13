@@ -6,6 +6,7 @@
   "license": "MIT",
   "dependencies": {
     "@cycle/dom": "20.4.0",
+    "@cycle/html": "2.4.0",
     "@cycle/run": "4.1.0",
     "xstream": "11.2",
     "babel-cli": "^6.7.5",
