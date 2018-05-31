@@ -764,7 +764,7 @@ snabbdom-jsx@^0.3.0:
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/snabbdom-jsx/-/snabbdom-jsx-0.3.2.tgz#25044a03f59362d06d16eab22ed2767a54871596"
 
-snabbdom-selector@3:
+snabbdom-selector@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/snabbdom-selector/-/snabbdom-selector-3.0.0.tgz#787011a5e89e8b1fa2fb768d4bb52a84396714ec"
   dependencies:
