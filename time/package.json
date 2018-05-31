@@ -60,6 +60,6 @@
     "test-docs": "markdown-doctest",
     "browserify": "../node_modules/.bin/browserify lib/cjs/index.js --global-transform=browserify-shim --standalone CycleTime --exclude xstream --outfile dist/cycle-time.js",
     "minify": "node ../.scripts/minify.js dist/cycle-time.js dist/cycle-time.min.js",
-    "postlib": "tsc rxjs.ts most.ts --declaration --lib DOM,ES5,ES6"
+    "postlib": "../node_modules/.bin/tsc rxjs.ts most.ts --declaration --lib DOM,ES5,ES6"
   }
 }
