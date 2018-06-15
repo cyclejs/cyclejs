@@ -3,8 +3,8 @@ import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {run, setup} from '../lib/cjs/index';
 import xs, {Stream} from 'xstream';
-import * as Rx from 'rxjs';
-import {Observable} from 'rxjs';
+import {Observable, of, from, range} from 'rxjs';
+import {take, startWith, map, delay, concatMap, tap} from 'rxjs/operators';
 
 describe('setup', function() {
   it('should be a function', function() {
@@ -40,11 +40,11 @@ describe('setup', function() {
 
     function app(sources: MySources): MySinks {
       return {
-        other: sources.other.take(1).startWith('a'),
+        other: sources.other.pipe(take(1), startWith('a')),
       };
     }
     function driver() {
-      return Rx.Observable.of('b');
+      return of('b');
     }
     let {sinks, sources} = setup(app, {other: driver});
     assert.strictEqual(typeof sinks, 'object');
@@ -66,7 +66,7 @@ describe('setup', function() {
 
     function app(sources: MySources): MySinks {
       return {
-        other: sources.other.take(1).startWith('a'),
+        other: sources.other.pipe(take(1), startWith('a')),
       };
     }
     function xsdriver(sink: Stream<string>): Stream<string> {
@@ -93,16 +93,11 @@ describe('setup', function() {
 
     function app(sources: TestSources): TestSinks {
       return {
-        other: sources.other
-          .take(6)
-          .map(x => String(x))
-          .startWith('a'),
+        other: sources.other.pipe(take(6), map(x => String(x)), startWith('a')),
       };
     }
     function driver(xsSink: any): Observable<number> {
-      return Observable.from(xsSink)
-        .map((x: string) => x.charCodeAt(0))
-        .delay(1);
+      return from(xsSink).pipe(map((x: string) => x.charCodeAt(0)), delay(1));
     }
     let {sources, run} = setup(app, {other: driver});
     let dispose: any;
@@ -115,16 +110,14 @@ describe('setup', function() {
   });
 
   it('should not work after has been disposed', function(done) {
-    let number$ = Rx.Observable
-      .range(1, 3)
-      .concatMap(x => Rx.Observable.of(x).delay(150));
+    let number$ = range(1, 3).pipe(concatMap(x => of(x).pipe(delay(150))));
 
     function app(sources: any): any {
       return {other: number$};
     }
 
     let {sources, run} = setup(app, {
-      other: (num$: any) => Observable.from(num$).map((num: any) => 'x' + num),
+      other: (num$: any) => from(num$).pipe(map((num: any) => 'x' + num)),
     });
 
     let dispose: any;
@@ -169,11 +162,11 @@ describe('run', function() {
     const spy = sandbox.spy();
     function app(sources: any): any {
       return {
-        other: sources.other.take(1).startWith('a'),
+        other: sources.other.pipe(take(1), startWith('a')),
       };
     }
     function driver() {
-      return Rx.Observable.of('b').do(spy);
+      return of('b').pipe(tap(spy));
     }
     let dispose = run(app, {other: driver});
     assert.strictEqual(typeof dispose, 'function');
@@ -186,13 +179,14 @@ describe('run', function() {
     sandbox.stub(console, 'error');
 
     function main(sources: any): any {
-      const sink = sources.other
-        .take(1)
-        .startWith('a')
-        .delay(10)
-        .map(() => {
+      const sink = sources.other.pipe(
+        take(1),
+        startWith('a'),
+        delay(10),
+        map(() => {
           throw new Error('malfunction');
-        });
+        }),
+      );
 
       return {
         other: sink,
@@ -200,11 +194,11 @@ describe('run', function() {
     }
 
     function driver(xsSink: any) {
-      Observable.from(xsSink).subscribe({
+      from(xsSink).subscribe({
         next: () => {},
         error: err => {},
       });
-      return Rx.Observable.of('b');
+      return of('b');
     }
 
     let caught = false;
