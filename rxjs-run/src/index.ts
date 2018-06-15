@@ -1,7 +1,5 @@
 import {Stream} from 'xstream';
-import {Observable} from 'rxjs/Observable';
-// tslint:disable-next-line:no-import-side-effect
-import 'rxjs/add/observable/from';
+import {from, Observable} from 'rxjs';
 import {setAdapt} from '@cycle/run/lib/adapt';
 import {
   setup as coreSetup,
@@ -18,7 +16,7 @@ export type Drivers<So extends Sources, Si extends Sinks> = {
 };
 
 setAdapt(function adaptXstreamToRx(stream: Stream<any>): Observable<any> {
-  return Observable.from(stream);
+  return from(stream);
 });
 
 /**
