@@ -6,11 +6,24 @@
     "cz-customizable": "^5.2.0",
     "husky": "^1.0.0-rc.9",
     "lint-staged": "^7.2.0",
-    "prettier": "^1.13.5"
+    "prettier": "^1.13.5",
+    "rxjs": "^5.5.11"
   },
   "scripts": {
+    "commit": "git-cz",
     "cm": "git-cz",
     "format": "prettier --write './**/*.{ts,tsx,js}'"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js}": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "prettier": {
     "singleQuote": true,
