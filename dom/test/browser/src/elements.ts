@@ -16,7 +16,7 @@ import {
   makeDOMDriver,
   MainDOMSource,
   VNode,
-} from '../../../lib/cjs/index';
+} from '../../../src/index';
 
 function createRenderTarget(id: string | null = null) {
   const element = document.createElement('div');
@@ -28,16 +28,13 @@ function createRenderTarget(id: string | null = null) {
   return element;
 }
 
-// From page/index.html
-declare var isIE10: boolean;
+const isIE10 = !(window as any).MutationObserver;
 if (isIE10) {
   (window as any).MutationObserver = require('mutation-observer');
 }
 
 describe('DOMSource.elements()', function() {
-  it('should return a stream of documents when querying "document"', function(
-    done,
-  ) {
+  it('should return a stream of documents when querying "document"', function(done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('.top-most', [p('Foo'), span('Bar')])),
@@ -53,8 +50,7 @@ describe('DOMSource.elements()', function() {
     }
 
     let dispose: any;
-    sources.DOM
-      .select('document')
+    sources.DOM.select('document')
       .element()
       .take(1)
       .addListener({
@@ -86,8 +82,7 @@ describe('DOMSource.elements()', function() {
     }
 
     let dispose: any;
-    sources.DOM
-      .select('body')
+    sources.DOM.select('body')
       .element()
       .take(1)
       .addListener({
@@ -103,9 +98,7 @@ describe('DOMSource.elements()', function() {
     dispose = run();
   });
 
-  it('should return a stream of arrays of elements of size 1 when querying ":root"', function(
-    done,
-  ) {
+  it('should return a stream of arrays of elements of size 1 when querying ":root"', function(done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('.top-most', [p('Foo'), span('Bar')])),
@@ -117,8 +110,7 @@ describe('DOMSource.elements()', function() {
     });
 
     let dispose: any;
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .elements()
       .drop(1)
       .take(1)
@@ -136,9 +128,7 @@ describe('DOMSource.elements()', function() {
     dispose = run();
   });
 
-  it('should return a stream of arrays of elements of size 2 when querying ".some"', function(
-    done,
-  ) {
+  it('should return a stream of arrays of elements of size 2 when querying ".some"', function(done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('.top-most', [div('.some'), div('.some')])),
@@ -150,8 +140,7 @@ describe('DOMSource.elements()', function() {
     });
 
     let dispose: any;
-    sources.DOM
-      .select('.some')
+    sources.DOM.select('.some')
       .elements()
       .drop(1)
       .take(1)

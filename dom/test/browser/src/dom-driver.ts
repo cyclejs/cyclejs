@@ -10,10 +10,9 @@ import {
   makeDOMDriver,
   DOMSource,
   MainDOMSource,
-} from '../../../lib/cjs/index';
+} from '../../../src/index';
 
-// From page/index.html
-declare var isIE10: boolean;
+const isIE10 = !(window as any).MutationObserver;
 if (isIE10) {
   (window as any).MutationObserver = require('mutation-observer');
 }
@@ -55,9 +54,7 @@ describe('makeDOMDriver', function() {
     });
   });
 
-  it('should not accept a selector to an unknown element as input', function(
-    done,
-  ) {
+  it('should not accept a selector to an unknown element as input', function(done) {
     const sandbox = sinon.sandbox.create();
     sandbox.stub(console, 'error');
     makeDOMDriver('#nonsenseIdToNothing')(xs.never());
@@ -158,8 +155,7 @@ describe('DOM Driver', function() {
     let dispose: any;
     let hasDisposed = false;
     let assertionOngoing = false;
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(1)
       .addListener({
