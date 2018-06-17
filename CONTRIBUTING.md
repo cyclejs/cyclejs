@@ -5,14 +5,16 @@ First of all, thank you for contributing. It’s appreciated.
 1. Open a GitHub issue before doing significant amount of work.
 2. Clone the repo. If it was already cloned, then git pull to get the latest from master.
 3. Use a Linux or Mac computer. No Windows, sorry.
-4. Ensure Yarn is [installed](https://yarnpkg.com/lang/en/docs/install/).
-5. Run `make setup` before anything else, and wait.
+4. Ensure pnpm is [installed](https://pnpm.js.org/docs/en/installation.html).
+5. Run `pnpm recursive install` before anything else, and wait.
 6. Write code.
-7. Run `make test dom` (replace `dom` with the package you are testing) to lint and test. Don’t commit before fixing all errors and warnings.
-8. Commit using `make commit` and follow the CLI instructions.
+7. Run `pnpm test --scope @cycle/dom` (replace `dom` with the package you are testing) to lint and test. Don’t commit before fixing all errors and warnings.
+8. Commit using `pnpm run commit` and follow the CLI instructions.
 9. Make a pull request.
 
 # To release new versions
+
+TODO
 
 1. Check that you have npm publishing rights before anything else.
 2. Run `make check-release`.
