@@ -11,7 +11,7 @@ import {
   h,
   mockDOMSource,
   MockedDOMSource,
-} from '../../lib/cjs/index';
+} from '../../src/index';
 
 describe('mockDOMSource', function() {
   it('should be in accessible in the API', function() {
@@ -60,9 +60,7 @@ describe('mockDOMSource', function() {
     });
   });
 
-  it('should make multiple user event Observables on the same selector', function(
-    done,
-  ) {
+  it('should make multiple user event Observables on the same selector', function(done) {
     const userEvents = mockDOMSource({
       '.foo': {
         click: Observable.of(135),
@@ -83,9 +81,7 @@ describe('mockDOMSource', function() {
     });
   });
 
-  it('should return an empty Observable if query does not match', function(
-    done,
-  ) {
+  it('should return an empty Observable if query does not match', function(done) {
     const userEvents = mockDOMSource({
       '.foo': {
         click: Observable.of(135),
@@ -101,9 +97,7 @@ describe('mockDOMSource', function() {
       });
   });
 
-  it('should return empty Observable for select().elements and none is defined', function(
-    done,
-  ) {
+  it('should return empty Observable for select().elements and none is defined', function(done) {
     const userEvents = mockDOMSource({
       '.foo': {
         click: Observable.of(135),
@@ -164,9 +158,7 @@ describe('mockDOMSource', function() {
     done();
   });
 
-  it('should return defined Observable when chaining .select()', function(
-    done,
-  ) {
+  it('should return defined Observable when chaining .select()', function(done) {
     const mockedDOMSource = mockDOMSource({
       '.bar': {
         '.foo': {
@@ -276,9 +268,7 @@ describe('isolation on MockedDOMSource', function() {
     done();
   });
 
-  it('should prevent parent from DOM.selecting() inside the isolation', function(
-    done,
-  ) {
+  it('should prevent parent from DOM.selecting() inside the isolation', function(done) {
     function app(sources: {DOM: MockedDOMSource}): any {
       return {
         DOM: Rx.Observable.of(
@@ -307,8 +297,7 @@ describe('isolation on MockedDOMSource', function() {
         }),
     });
 
-    sources.DOM
-      .select('.bar')
+    sources.DOM.select('.bar')
       .elements()
       .skip(1)
       .take(1)

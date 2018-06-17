@@ -15,10 +15,9 @@ import {
   button,
   makeDOMDriver,
   DOMSource,
-} from '../../../lib/cjs/index';
+} from '../../../src/index';
 
-// From page/index.html
-declare var isIE10: boolean;
+const isIE10 = !(window as any).MutationObserver;
 if (isIE10) {
   (window as any).MutationObserver = require('mutation-observer');
 }
@@ -78,8 +77,7 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
     let dispose: any;
-    sources.DOM
-      .select('.myelementclass')
+    sources.DOM.select('.myelementclass')
       .events('click')
       .addListener({
         next: (ev: Event) => {
@@ -90,8 +88,7 @@ describe('DOMSource.events()', function() {
         },
       });
     // Make assertions
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(1)
       .take(1)
@@ -111,9 +108,7 @@ describe('DOMSource.events()', function() {
     dispose = run();
   });
 
-  it('should setup click detection with events() after run() occurs', function(
-    done,
-  ) {
+  it('should setup click detection with events() after run() occurs', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(h3('.test2.myelementclass', 'Foobar')),
@@ -124,8 +119,7 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
     const dispose = run();
-    sources.DOM
-      .select('.myelementclass')
+    sources.DOM.select('.myelementclass')
       .events('click')
       .addListener({
         next(ev: Event) {
@@ -149,9 +143,7 @@ describe('DOMSource.events()', function() {
     }, 200);
   });
 
-  it('should setup click detection on a ready DOM element (e.g. from server)', function(
-    done,
-  ) {
+  it('should setup click detection on a ready DOM element (e.g. from server)', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.never(),
@@ -168,8 +160,7 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(containerElement),
     });
     const dispose = run();
-    sources.DOM
-      .select('.myelementclass')
+    sources.DOM.select('.myelementclass')
       .events('click')
       .addListener({
         next: (ev: Event) => {
@@ -193,9 +184,7 @@ describe('DOMSource.events()', function() {
     }, 200);
   });
 
-  it('should catch events using id of root element in DOM.select', function(
-    done,
-  ) {
+  it('should catch events using id of root element in DOM.select', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(h3('.myelementclass', 'Foobar')),
@@ -208,8 +197,7 @@ describe('DOMSource.events()', function() {
 
     let dispose: any;
     // Make assertions
-    sources.DOM
-      .select('#parent-001')
+    sources.DOM.select('#parent-001')
       .events('click')
       .addListener({
         next: (ev: Event) => {
@@ -220,8 +208,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(1)
       .take(1)
@@ -241,9 +228,7 @@ describe('DOMSource.events()', function() {
     dispose = run();
   });
 
-  it('should catch events using id of top element in DOM.select', function(
-    done,
-  ) {
+  it('should catch events using id of top element in DOM.select', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(h3('#myElementId', 'Foobar')),
@@ -256,8 +241,7 @@ describe('DOMSource.events()', function() {
 
     let dispose: any;
     // Make assertions
-    sources.DOM
-      .select('#myElementId')
+    sources.DOM.select('#myElementId')
       .events('click')
       .addListener({
         next: (ev: Event) => {
@@ -268,8 +252,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(1)
       .take(1)
@@ -309,8 +292,7 @@ describe('DOMSource.events()', function() {
       },
     });
 
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(1)
       .take(1)
@@ -330,9 +312,7 @@ describe('DOMSource.events()', function() {
     dispose = run();
   });
 
-  it('should catch user events using DOM.select().select().events()', function(
-    done,
-  ) {
+  it('should catch user events using DOM.select().select().events()', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(
@@ -350,8 +330,7 @@ describe('DOMSource.events()', function() {
 
     let dispose: any;
     // Make assertions
-    sources.DOM
-      .select('.foo')
+    sources.DOM.select('.foo')
       .select('.bar')
       .events('click')
       .addListener({
@@ -363,8 +342,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(1)
       .take(1)
@@ -387,9 +365,7 @@ describe('DOMSource.events()', function() {
     dispose = run();
   });
 
-  it('should catch events from many elements using DOM.select().events()', function(
-    done,
-  ) {
+  it('should catch events from many elements using DOM.select().events()', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(
@@ -407,8 +383,7 @@ describe('DOMSource.events()', function() {
 
     let dispose: any;
     // Make assertions
-    sources.DOM
-      .select('.clickable')
+    sources.DOM.select('.clickable')
       .events('click')
       .take(1)
       .addListener({
@@ -418,8 +393,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM
-      .select('.clickable')
+    sources.DOM.select('.clickable')
       .events('click')
       .drop(1)
       .take(1)
@@ -432,8 +406,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(1)
       .take(1)
@@ -471,8 +444,7 @@ describe('DOMSource.events()', function() {
 
     let dispose: any;
     // Make assertions
-    sources.DOM
-      .select('.blosh')
+    sources.DOM.select('.blosh')
       .events('click')
       .addListener({
         next: (ev: Event) => {
@@ -483,8 +455,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(3)
       .take(1)
@@ -527,8 +498,7 @@ describe('DOMSource.events()', function() {
         DOM: makeDOMDriver(renderTarget as Element),
       });
 
-      sources.DOM
-        .select('.clickable')
+      sources.DOM.select('.clickable')
         .events('click', {useCapture: false})
         .addListener({
           next: (ev: Event) => {
@@ -545,8 +515,7 @@ describe('DOMSource.events()', function() {
           },
         });
 
-      sources.DOM
-        .select(':root')
+      sources.DOM.select(':root')
         .element()
         .drop(1)
         .take(1)
@@ -560,9 +529,7 @@ describe('DOMSource.events()', function() {
     }
   });
 
-  it('should catch non-bubbling events in a DocumentFragment with useCapture', function(
-    done,
-  ) {
+  it('should catch non-bubbling events in a DocumentFragment with useCapture', function(done) {
     if (isIE10) {
       done();
       return;
@@ -586,8 +553,7 @@ describe('DOMSource.events()', function() {
         DOM: makeDOMDriver(renderTarget as Element),
       });
 
-      sources.DOM
-        .select('.clickable')
+      sources.DOM.select('.clickable')
         .events('click', {useCapture: true})
         .addListener({
           next: (ev: Event) => {
@@ -604,8 +570,7 @@ describe('DOMSource.events()', function() {
           },
         });
 
-      sources.DOM
-        .select(':root')
+      sources.DOM.select(':root')
         .element()
         .drop(1)
         .take(1)
@@ -619,9 +584,7 @@ describe('DOMSource.events()', function() {
     }
   });
 
-  it('should have currentTarget or ownerTarget pointed to the selected parent', function(
-    done,
-  ) {
+  it('should have currentTarget or ownerTarget pointed to the selected parent', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(
@@ -635,8 +598,7 @@ describe('DOMSource.events()', function() {
     });
 
     let dispose: any;
-    sources.DOM
-      .select('.parent')
+    sources.DOM.select('.parent')
       .events('click')
       .addListener({
         next: (ev: Event) => {
@@ -662,8 +624,7 @@ describe('DOMSource.events()', function() {
       });
 
     // Make assertions
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(1)
       .take(1)
@@ -695,8 +656,7 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM
-      .select('.form')
+    sources.DOM.select('.form')
       .events('reset')
       .addListener({
         next: (ev: Event) => {
@@ -708,8 +668,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(1)
       .take(1)
@@ -755,8 +714,7 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM
-      .select('.clickable')
+    sources.DOM.select('.clickable')
       .events('click', {useCapture: true})
       .addListener({
         next: (ev: Event) => {
@@ -769,8 +727,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM
-      .select('.clickable')
+    sources.DOM.select('.clickable')
       .events('click', {useCapture: false})
       .addListener({
         next: x => {
@@ -778,8 +735,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(1)
       .take(1)
@@ -812,8 +768,7 @@ describe('DOMSource.events()', function() {
         DOM: makeDOMDriver(createRenderTarget()),
       });
 
-      sources.DOM
-        .select('.correct')
+      sources.DOM.select('.correct')
         .events('blur', {useCapture: true})
         .addListener({
           next: (ev: Event) => {
@@ -823,8 +778,7 @@ describe('DOMSource.events()', function() {
           },
         });
 
-      sources.DOM
-        .select(':root')
+      sources.DOM.select(':root')
         .element()
         .drop(1)
         .take(1)
@@ -863,8 +817,7 @@ describe('DOMSource.events()', function() {
         DOM: makeDOMDriver(createRenderTarget()),
       });
 
-      sources.DOM
-        .select('.correct')
+      sources.DOM.select('.correct')
         .events('blur')
         .addListener({
           next: (ev: Event) => {
@@ -874,8 +827,7 @@ describe('DOMSource.events()', function() {
           },
         });
 
-      sources.DOM
-        .select(':root')
+      sources.DOM.select(':root')
         .element()
         .drop(1)
         .take(1)
@@ -907,8 +859,7 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM
-      .select('.parent')
+    sources.DOM.select('.parent')
       .events('reset')
       .addListener({
         next: (ev: Event) => {
@@ -916,8 +867,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM
-      .select('.form')
+    sources.DOM.select('.form')
       .events('reset')
       .compose(delay(200))
       .addListener({
@@ -930,8 +880,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(1)
       .take(1)
@@ -959,9 +908,7 @@ describe('DOMSource.events()', function() {
     done();
   });
 
-  it('should allow restarting of event streams from isolated components', function(
-    done,
-  ) {
+  it('should allow restarting of event streams from isolated components', function(done) {
     const outSubject = xs.create<any>();
     const switchSubject = xs.create<any>();
 
@@ -1034,8 +981,7 @@ describe('DOMSource.events()', function() {
       },
     });
 
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(1)
       .take(1)
@@ -1064,8 +1010,7 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM
-      .select('.button')
+    sources.DOM.select('.button')
       .events('click', {preventDefault: true})
       .addListener({
         next: (ev: Event) => {
@@ -1078,8 +1023,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(1)
       .take(1)
@@ -1092,9 +1036,7 @@ describe('DOMSource.events()', function() {
     run();
   });
 
-  it('should allow preventing default event behavior with function', function(
-    done,
-  ) {
+  it('should allow preventing default event behavior with function', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(div('.parent', [button('.button')])),
@@ -1105,8 +1047,7 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM
-      .select('.button')
+    sources.DOM.select('.button')
       .events('click', {preventDefault: (ev: any) => ev.type === 'click'})
       .addListener({
         next: (ev: Event) => {
@@ -1119,8 +1060,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(1)
       .take(1)
@@ -1133,9 +1073,7 @@ describe('DOMSource.events()', function() {
     run();
   });
 
-  it('should allow preventing default event behavior with object', function(
-    done,
-  ) {
+  it('should allow preventing default event behavior with object', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(div('.parent', [button('.button')])),
@@ -1146,8 +1084,7 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM
-      .select('.button')
+    sources.DOM.select('.button')
       .events('click', {preventDefault: {type: 'click'}})
       .addListener({
         next: (ev: Event) => {
@@ -1160,8 +1097,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(1)
       .take(1)
@@ -1174,9 +1110,7 @@ describe('DOMSource.events()', function() {
     run();
   });
 
-  it('should allow preventing default event behavior with array in object', function(
-    done,
-  ) {
+  it('should allow preventing default event behavior with array in object', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(div('.parent', [button('.button.to-prevent')])),
@@ -1187,8 +1121,7 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM
-      .select('.button')
+    sources.DOM.select('.button')
       .events('click', {
         preventDefault: {target: {classList: ['button', 'to-prevent']}},
       })
@@ -1203,8 +1136,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(1)
       .take(1)
@@ -1217,9 +1149,7 @@ describe('DOMSource.events()', function() {
     run();
   });
 
-  it('should not prevent default on returning false from function predicate', function(
-    done,
-  ) {
+  it('should not prevent default on returning false from function predicate', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(div('.parent', [button('.button')])),
@@ -1230,8 +1160,7 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM
-      .select('.button')
+    sources.DOM.select('.button')
       .events('click', {preventDefault: (ev: any) => ev.type !== 'click'})
       .addListener({
         next: (ev: Event) => {
@@ -1244,8 +1173,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(1)
       .take(1)
@@ -1258,9 +1186,7 @@ describe('DOMSource.events()', function() {
     run();
   });
 
-  it('should not prevent default on returning false from object predicate', function(
-    done,
-  ) {
+  it('should not prevent default on returning false from object predicate', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(div('.parent', [button('.button')])),
@@ -1271,8 +1197,7 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM
-      .select('.button')
+    sources.DOM.select('.button')
       .events('click', {preventDefault: {type: 'notClick'}})
       .addListener({
         next: (ev: Event) => {
@@ -1285,8 +1210,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(1)
       .take(1)
@@ -1299,9 +1223,7 @@ describe('DOMSource.events()', function() {
     run();
   });
 
-  it('should not prevent default on returning false from array-in-object predicate', function(
-    done,
-  ) {
+  it('should not prevent default on returning false from array-in-object predicate', function(done) {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(div('.parent', [button('.button.to-prevent')])),
@@ -1312,8 +1234,7 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM
-      .select('.button')
+    sources.DOM.select('.button')
       .events('click', {
         preventDefault: {target: {classList: ['button', 'missing-class']}},
       })
@@ -1328,8 +1249,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(1)
       .take(1)

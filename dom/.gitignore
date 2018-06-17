@@ -8,9 +8,8 @@
 node_modules/
 
 # Generated
-test/browser/page/tests-bundle.js
+coverage/
 lib/
-dist/
 
 # Misc
 ignore

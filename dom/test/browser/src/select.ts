@@ -16,7 +16,7 @@ import {
   makeDOMDriver,
   MainDOMSource,
   VNode,
-} from '../../../lib/cjs/index';
+} from '../../../src/index';
 
 function createRenderTarget(id: string | null = null) {
   const element = document.createElement('div');
@@ -28,8 +28,7 @@ function createRenderTarget(id: string | null = null) {
   return element;
 }
 
-// From page/index.html
-declare var isIE10: boolean;
+const isIE10 = !(window as any).MutationObserver;
 if (isIE10) {
   (window as any).MutationObserver = require('mutation-observer');
 }
@@ -47,8 +46,7 @@ describe('DOMSource.select()', function() {
     });
 
     let dispose: any;
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(1)
       .take(1)
@@ -69,9 +67,7 @@ describe('DOMSource.select()', function() {
     dispose = run();
   });
 
-  it('should return a DOMSource with elements(), events(), select()', function(
-    done,
-  ) {
+  it('should return a DOMSource with elements(), events(), select()', function(done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(h3('.myelementclass', 'Foobar')),
@@ -113,8 +109,7 @@ describe('DOMSource.select()', function() {
 
     let dispose: any;
     // Make assertions
-    sources.DOM
-      .select('.myelementclass')
+    sources.DOM.select('.myelementclass')
       .elements()
       .drop(1)
       .take(1)
@@ -155,8 +150,7 @@ describe('DOMSource.select()', function() {
 
     let dispose: any;
     // Make assertions
-    sources.DOM
-      .select('.foo')
+    sources.DOM.select('.foo')
       .select('.bar')
       .elements()
       .drop(1)
@@ -199,8 +193,7 @@ describe('DOMSource.select()', function() {
     });
 
     // Make assertions
-    const selection = sources.DOM
-      .select('.triangle')
+    const selection = sources.DOM.select('.triangle')
       .elements()
       .drop(1)
       .take(1)
@@ -233,8 +226,7 @@ describe('DOMSource.select()', function() {
     }
 
     let dispose: any;
-    sources.DOM
-      .select('document')
+    sources.DOM.select('document')
       .events('click')
       .take(1)
       .addListener({
@@ -262,8 +254,7 @@ describe('DOMSource.select()', function() {
     });
 
     let dispose: any;
-    sources.DOM
-      .select('body')
+    sources.DOM.select('body')
       .events('click')
       .take(1)
       .addListener({
@@ -279,9 +270,7 @@ describe('DOMSource.select()', function() {
     simulant.fire(document.body, 'click');
   });
 
-  it('should have DevTools flag in BodyDOMSource element() stream', function(
-    done,
-  ) {
+  it('should have DevTools flag in BodyDOMSource element() stream', function(done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('hello world')),
@@ -297,9 +286,7 @@ describe('DOMSource.select()', function() {
     done();
   });
 
-  it('should have DevTools flag in BodyDOMSource elements() stream', function(
-    done,
-  ) {
+  it('should have DevTools flag in BodyDOMSource elements() stream', function(done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('hello world')),
@@ -315,9 +302,7 @@ describe('DOMSource.select()', function() {
     done();
   });
 
-  it('should have DevTools flag in BodyDOMSource events() stream', function(
-    done,
-  ) {
+  it('should have DevTools flag in BodyDOMSource events() stream', function(done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('hello world')),
@@ -333,9 +318,7 @@ describe('DOMSource.select()', function() {
     done();
   });
 
-  it('should have DevTools flag in DocumentDOMSource element() stream', function(
-    done,
-  ) {
+  it('should have DevTools flag in DocumentDOMSource element() stream', function(done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('hello world')),
@@ -351,9 +334,7 @@ describe('DOMSource.select()', function() {
     done();
   });
 
-  it('should have DevTools flag in DocumentDOMSource elements() stream', function(
-    done,
-  ) {
+  it('should have DevTools flag in DocumentDOMSource elements() stream', function(done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('hello world')),
@@ -369,9 +350,7 @@ describe('DOMSource.select()', function() {
     done();
   });
 
-  it('should have DevTools flag in DocumentDOMSource events() stream', function(
-    done,
-  ) {
+  it('should have DevTools flag in DocumentDOMSource events() stream', function(done) {
     function app(sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('hello world')),

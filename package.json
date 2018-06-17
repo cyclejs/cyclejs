@@ -12,7 +12,8 @@
   "scripts": {
     "commit": "git-cz",
     "cm": "git-cz",
-    "format": "prettier --write './**/*.{ts,tsx,js}'"
+    "format": "prettier --write './**/*.{ts,tsx,js}'",
+    "postinstall": "pnpm recursive build"
   },
   "husky": {
     "hooks": {

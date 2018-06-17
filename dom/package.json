@@ -33,6 +33,19 @@
   "module": "lib/es6/index.js",
   "typings": "lib/cjs/index.d.ts",
   "types": "lib/cjs/index.d.ts",
+  "scripts": {
+    "build": "pnpm run build:cjs && pnpm run build:es6",
+    "build:cjs": "tsc --module commonjs --outDir ./lib/cjs",
+    "build:es6": "tsc --module es6 --outDir ./lib/es6",
+    "test-node": "mocha test/node/*.ts --require ts-node/register --exit",
+    "test-browser": "karma start --single-run",
+    "pretest-browser-perf": "browserify test/browser/perf/index.js -t babelify -o test/browser/perf/tests-bundle.js",
+    "test-browser-perf": "testem -f test/browser/perf/.testem-perf.json",
+    "posttest-browser-perf": "rm test/browser/perf/tests-bundle.js",
+    "test": "pnpm run test-node && pnpm run test-browser",
+    "test-ci": "CI=true pnpm test",
+    "test-watch": "WATCH=true pnpm test"
+  },
   "dependencies": {
     "@cycle/run": "*",
     "es6-map": "^0.1.4",
@@ -46,12 +59,24 @@
     "@cycle/rxjs-run": "8.0.0",
     "@types/mocha": "^2.2.33",
     "@types/node": "^7.0.4",
-    "@types/sinon": "^1.16.32",
+    "@types/sinon": "^1.16.36",
+    "karma": "^2.0.3",
+    "karma-browserstack-launcher": "^1.3.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-cli": "^1.0.1",
+    "karma-coverage": "^1.1.2",
+    "karma-firefox-launcher": "^1.1.0",
+    "karma-mocha": "^1.3.0",
+    "karma-typescript": "^3.0.12",
+    "karma-typescript-es6-transform": "^1.0.4",
+    "mocha": "^5.2.0",
     "mutation-observer": "1.0.3",
     "rxjs": "5.5.x",
-    "saucie": "3.3.0",
     "simulant": "^0.2.2",
-    "snabbdom-jsx": "^0.3.0",
+    "sinon": "^6.0.0",
+    "snabbdom-pragma": "^2.7.0",
+    "ts-node": "^6.1.1",
+    "typescript": "^2.8.4",
     "xstream": "11.x"
   },
   "engines": {
@@ -59,28 +84,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "browserify-shim": {
-    "xstream": "global:xstream"
-  },
-  "scripts": {
-    "test-node": "../node_modules/.bin/mocha test/node/*.ts --require ts-node/register --exit",
-    "pretest-browser": "../node_modules/.bin/tsc -p ./test/browser/ && ../node_modules/.bin/browserify test/browser/lib/index.js -o test/browser/page/tests-bundle.js",
-    "test-browser": "../node_modules/.bin/testem ci -l Firefox,Chrome",
-    "posttest-browser": "rm test/browser/page/tests-bundle.js",
-    "pretest-browser-ci": "npm run pretest-browser",
-    "test-browser-ci": "../node_modules/.bin/testem ci",
-    "posttest-browser-ci": "npm run posttest-browser",
-    "pretest-browser-wait": "npm run pretest-browser",
-    "test-browser-wait": "../node_modules/.bin/testem -l Chrome",
-    "posttest-browser-wait": "npm run posttest-browser",
-    "pretest-browser-perf": "../node_modules/.bin/browserify test/browser/perf/index.js -t babelify -o test/browser/perf/tests-bundle.js",
-    "test-browser-perf": "../node_modules/.bin/testem -f test/browser/perf/.testem-perf.json",
-    "posttest-browser-perf": "rm test/browser/perf/tests-bundle.js",
-    "test": "npm run test-node && npm run test-browser",
-    "test-ci": "npm run test-node && npm run test-browser-ci",
-    "test-wait": "npm run test-node && npm run test-browser-wait",
-    "browserify": "../node_modules/.bin/browserify lib/cjs/index.js --global-transform=browserify-shim --standalone CycleDOM --exclude xstream --outfile dist/cycle-dom.js",
-    "minify": "node ../.scripts/minify.js dist/cycle-dom.js dist/cycle-dom.min.js"
   }
 }
