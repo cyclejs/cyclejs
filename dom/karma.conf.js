@@ -1,7 +1,14 @@
 const ci = !!process.env.CI;
 const watch = !!process.env.WATCH;
+const live = !!process.env.LIVE;
 
-const browsers = ci ? [] : ['Chrome', 'Firefox'];
+const browserstack = require('./browserstack-karma.js');
+
+const browsers = ci
+  ? Object.keys(browserstack)
+  : live
+    ? undefined
+    : ['Chrome', 'Firefox'];
 
 module.exports = function(config) {
   config.set({
@@ -14,6 +21,7 @@ module.exports = function(config) {
       'karma-coverage',
       'karma-chrome-launcher',
       'karma-firefox-launcher',
+      'karma-browserstack-launcher',
       'karma-typescript',
     ],
     // list of files / patterns to exclude
@@ -23,6 +31,11 @@ module.exports = function(config) {
       'test/**/*.ts': ['karma-typescript'],
       'test/**/*.tsx': ['karma-typescript'],
     },
+    browserStack: {
+      startTunnel: false,
+    },
+    browserNoActivityTimeout: 1000000,
+    customLaunchers: browserstack,
     karmaTypescriptConfig: {
       bundlerOptions: {
         transforms: [require('karma-typescript-es6-transform')()],
@@ -33,13 +46,13 @@ module.exports = function(config) {
         values: ['test/browser/src/**/*', 'test/typings.d.ts'],
       },
     },
-    reporters: ['progress', 'coverage', 'karma-typescript'],
+    reporters: ['progress', 'coverage', 'karma-typescript', 'BrowserStack'],
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
     browsers: browsers,
     singleRun: ci || !watch,
-    concurrency: Infinity,
+    concurrency: ci ? 1 : Infinity,
   });
 };

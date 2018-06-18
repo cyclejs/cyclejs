@@ -33,9 +33,10 @@ declare global {
   }
 }
 
-const isIE10 = !(window as any).MutationObserver;
+const isIE10 = (window as any).isIE10 || !(window as any).MutationObserver;
 if (isIE10) {
   (window as any).MutationObserver = require('mutation-observer');
+  (window as any).isIE10 = true;
 }
 
 function createRenderTarget(id: string | null = null) {
