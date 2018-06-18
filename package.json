@@ -27,7 +27,7 @@
     "sinon": "1.17.7",
     "tempfile": "1.1.1",
     "testem": "1.18.4",
-    "ts-node": "3.3.0",
+    "ts-node": "6.1.1",
     "tsify": "3.0.3",
     "tslint": "5.8.0",
     "typescript": "2.5.3",
