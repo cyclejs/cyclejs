@@ -38,13 +38,14 @@
     "build:cjs": "tsc --module commonjs --outDir ./lib/cjs",
     "build:es6": "tsc --module es6 --outDir ./lib/es6",
     "test-node": "mocha test/node/*.ts --require ts-node/register --exit",
-    "test-browser": "karma start --single-run",
+    "test-browser": "karma start",
     "pretest-browser-perf": "browserify test/browser/perf/index.js -t babelify -o test/browser/perf/tests-bundle.js",
     "test-browser-perf": "testem -f test/browser/perf/.testem-perf.json",
     "posttest-browser-perf": "rm test/browser/perf/tests-bundle.js",
     "test": "pnpm run test-node && pnpm run test-browser",
     "test-ci": "CI=true pnpm test",
-    "test-watch": "WATCH=true pnpm test"
+    "test-watch": "WATCH=true pnpm test",
+    "test-live": "LIVE=true karma start --watch"
   },
   "dependencies": {
     "@cycle/run": "*",
@@ -60,7 +61,7 @@
     "@types/mocha": "^2.2.33",
     "@types/node": "^7.0.4",
     "@types/sinon": "^1.16.36",
-    "karma": "^2.0.3",
+    "karma": "^2.0.2",
     "karma-browserstack-launcher": "^1.3.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-cli": "^1.0.1",
