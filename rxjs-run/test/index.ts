@@ -1,4 +1,5 @@
 import 'mocha';
+import 'symbol-observable';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {run, setup} from '../lib/cjs/index';
@@ -46,7 +47,8 @@ describe('setup', function() {
     function driver() {
       return of('b');
     }
-    let {sinks, sources} = setup(app, {other: driver});
+
+    const {sinks, sources} = setup(app, {other: driver});
     assert.strictEqual(typeof sinks, 'object');
     assert.strictEqual(typeof sinks.other.subscribe, 'function');
     assert.strictEqual(typeof sources, 'object');
@@ -69,7 +71,7 @@ describe('setup', function() {
         other: sources.other.pipe(take(1), startWith('a')),
       };
     }
-    function xsdriver(sink: Stream<string>): Stream<string> {
+    function xsdriver(): Stream<string> {
       return xs.of('b');
     }
 
