@@ -22,7 +22,7 @@ import {
   DOMSource,
   MainDOMSource,
   VNode,
-} from '../../../src/index';
+} from '../../src/index';
 
 declare global {
   namespace JSX {
