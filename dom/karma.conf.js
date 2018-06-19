@@ -18,7 +18,6 @@ module.exports = function(config) {
     files: [{pattern: 'src/**/*.ts'}, {pattern: 'test/browser/*'}],
     plugins: [
       'karma-mocha',
-      'karma-coverage',
       'karma-chrome-launcher',
       'karma-firefox-launcher',
       'karma-browserstack-launcher',
@@ -27,7 +26,7 @@ module.exports = function(config) {
     // list of files / patterns to exclude
     exclude: [],
     preprocessors: {
-      'src/**/*.ts': ['karma-typescript', 'coverage'],
+      'src/**/*.ts': ['karma-typescript'],
       'test/**/*.ts': ['karma-typescript'],
       'test/**/*.tsx': ['karma-typescript'],
     },
@@ -37,8 +36,8 @@ module.exports = function(config) {
     browserNoActivityTimeout: 1000000,
     customLaunchers: browserstack,
     karmaTypescriptConfig: {
-      bundlerOptions: {
-        transforms: [require('karma-typescript-es6-transform')()],
+      coverageOptions: {
+        exclude: /test\//,
       },
       tsconfig: './tsconfig.json',
       include: {
@@ -46,7 +45,7 @@ module.exports = function(config) {
         values: ['test/browser/**/*', 'test/typings.d.ts'],
       },
     },
-    reporters: ['progress', 'coverage', 'karma-typescript', 'BrowserStack'],
+    reporters: ['progress', 'karma-typescript', 'BrowserStack'],
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
