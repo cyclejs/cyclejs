@@ -15,7 +15,7 @@ module.exports = function(config) {
     basePath: '.',
     frameworks: ['mocha', 'karma-typescript'],
     // list of files / patterns to load in the browser
-    files: [{pattern: 'src/**/*.ts'}, {pattern: 'test/browser/src/*'}],
+    files: [{pattern: 'src/**/*.ts'}, {pattern: 'test/browser/*'}],
     plugins: [
       'karma-mocha',
       'karma-coverage',
@@ -43,7 +43,7 @@ module.exports = function(config) {
       tsconfig: './tsconfig.json',
       include: {
         mode: 'merge',
-        values: ['test/browser/src/**/*', 'test/typings.d.ts'],
+        values: ['test/browser/**/*', 'test/typings.d.ts'],
       },
     },
     reporters: ['progress', 'coverage', 'karma-typescript', 'BrowserStack'],

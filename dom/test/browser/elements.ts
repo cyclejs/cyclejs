@@ -16,7 +16,7 @@ import {
   makeDOMDriver,
   MainDOMSource,
   VNode,
-} from '../../../src/index';
+} from '../../src/index';
 
 function createRenderTarget(id: string | null = null) {
   const element = document.createElement('div');

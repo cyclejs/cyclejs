@@ -15,7 +15,7 @@ import {
   button,
   makeDOMDriver,
   DOMSource,
-} from '../../../src/index';
+} from '../../src/index';
 
 const isIE10 = (window as any).isIE10 || !(window as any).MutationObserver;
 if (isIE10) {
