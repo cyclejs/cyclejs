@@ -13,7 +13,7 @@ lib/
 
 # Misc
 ignore
-npm-debug.log
+*.log
 ts/*
 !ts/cycle.d.ts
 .DS_Store

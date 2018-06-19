@@ -2,7 +2,7 @@
 *.sublime*
 
 node_modules
-npm-debug.log
+*.log
 
 lib/
 coverage/
