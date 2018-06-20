@@ -1,5 +1,3 @@
-/// <reference path="../../node_modules/@types/mocha/index.d.ts" />
-/// <reference path="../../node_modules/@types/node/index.d.ts" />
 import * as assert from 'assert';
 import {Observable} from 'rxjs';
 import {setup, run} from '@cycle/rxjs-run';
