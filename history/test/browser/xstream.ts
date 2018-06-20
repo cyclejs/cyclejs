@@ -1,5 +1,3 @@
-/// <reference path="../../node_modules/@types/mocha/index.d.ts" />
-/// <reference path="../../node_modules/@types/node/index.d.ts" />
 import * as assert from 'assert';
 
 import {
@@ -18,6 +16,12 @@ let dispose = () => {};
 describe('historyDriver - xstream', () => {
   beforeEach(function() {
     setAdapt(x => x);
+    if (window.history) {
+      window.history.replaceState(undefined, undefined, '/');
+    }
+  });
+
+  afterEach(function() {
     dispose();
   });
 
@@ -99,9 +103,7 @@ describe('historyDriver - xstream', () => {
     dispose = run();
   });
 
-  it('should allow going back/forwards with `go`, `goBack`, `goForward`', function(
-    done,
-  ) {
+  it('should allow going back/forwards with `go`, `goBack`, `goForward`', function(done) {
     function main(sources: {history: Stream<Location>}) {
       return {
         history: xs

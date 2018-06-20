@@ -1,5 +1,3 @@
-/// <reference path="../../node_modules/@types/mocha/index.d.ts" />
-/// <reference path="../../node_modules/@types/node/index.d.ts" />
 import * as assert from 'assert';
 import {Location, makeHistoryDriver, makeServerHistoryDriver} from '../../src';
 import {createMemoryHistory} from 'history';

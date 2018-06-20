@@ -4,10 +4,6 @@
     "lib": [
       "dom",
       "es2015"
-    ],
-    "types": [
-      "mocha",
-      "node"
     ]
   },
   "files": [

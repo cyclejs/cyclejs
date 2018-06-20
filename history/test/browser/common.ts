@@ -1,5 +1,3 @@
-/// <reference path="../../node_modules/@types/mocha/index.d.ts" />
-/// <reference path="../../node_modules/@types/node/index.d.ts" />
 import * as assert from 'assert';
 
 import {
@@ -10,6 +8,7 @@ import {
 } from '../../src';
 import {createMemoryHistory} from 'history';
 import xs, {Stream} from 'xstream';
+import debounce from 'xstream/extra/debounce';
 import {setup} from '@cycle/run';
 import {setAdapt} from '@cycle/run/lib/adapt';
 
@@ -45,10 +44,7 @@ describe('makeHistoryDriver', () => {
   });
 });
 
-// This is skipped because somehow, IN LATEST FIREFOX IN WIN10, state is being
-// carried around between tests. Tests work when run separately, but when run
-// all together, something fails.
-describe.skip('makeHashHistoryDriver', () => {
+describe('makeHashHistoryDriver', () => {
   it('should be a function', () => {
     assert.strictEqual(typeof makeHashHistoryDriver, 'function');
   });
@@ -77,20 +73,24 @@ describe.skip('makeHashHistoryDriver', () => {
 
 describe('captureClicks', () => {
   it('should allow listening to link clicks and change route', function(done) {
+    setAdapt(x => x);
     const historyDriver = makeHistoryDriver();
     const sink = xs.never();
     const history$ = captureClicks(historyDriver)(sink);
 
-    const sub = history$.drop(1).subscribe({
-      next: (location: Location) => {
-        assert.strictEqual(location.pathname, '/test');
-        sub.unsubscribe();
-        sink.shamefullySendComplete();
-        done();
-      },
-      error: err => {},
-      complete: () => {},
-    });
+    const sub = history$
+      .compose(debounce(5))
+      .drop(1)
+      .subscribe({
+        next: (location: Location) => {
+          assert.strictEqual(location.pathname, '/test');
+          sub.unsubscribe();
+          sink.shamefullySendComplete();
+          done();
+        },
+        error: err => {},
+        complete: () => {},
+      });
 
     const a = document.createElement('a');
     a.href = '/test';
@@ -98,12 +98,10 @@ describe('captureClicks', () => {
 
     setTimeout(() => {
       a.click();
-    });
+    }, 10);
   });
 
   it('should remove click listener when disposed of', function(done) {
-    setAdapt(x => x);
-
     function main(sources: {history: Stream<Location>}) {
       return {
         history: xs.never(),

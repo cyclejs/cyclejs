@@ -1,5 +1,3 @@
-/// <reference path="../../node_modules/@types/mocha/index.d.ts" />
-/// <reference path="../../node_modules/@types/node/index.d.ts" />
 import * as assert from 'assert';
 
 import {
@@ -9,16 +7,22 @@ import {
   makeHistoryDriver,
 } from '../../src';
 import {run, setup} from '@cycle/rxjs-run';
+import {setAdapt} from '@cycle/run/lib/adapt';
 
 import {Observable} from 'rxjs';
 import 'rxjs/add/operator/switchMap';
 
 let dispose = () => {};
 
-// This is skipped because somehow state is being carried around between tests.
-// Tests work when run separately, but when run all together, something fails.
-describe.skip('historyDriver - RxJS', () => {
+describe('historyDriver - RxJS', () => {
   beforeEach(function() {
+    setAdapt(x => Observable.from(x));
+    if (window.history) {
+      window.history.replaceState(undefined, undefined, '/');
+    }
+  });
+
+  afterEach(function() {
     dispose();
   });
 
@@ -100,9 +104,7 @@ describe.skip('historyDriver - RxJS', () => {
     dispose = run();
   });
 
-  it('should allow going back/forwards with `go`, `goBack`, `goForward`', function(
-    done,
-  ) {
+  it('should allow going back/forwards with `go`, `goBack`, `goForward`', function(done) {
     function main(sources: {history: Observable<Location>}) {
       return {
         history: Observable.interval(100)
