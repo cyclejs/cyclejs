@@ -27,28 +27,27 @@ describe('makeHistoryDriver', () => {
     assert.strictEqual(typeof makeHistoryDriver(history), 'function');
   });
 
-  it('should start emitting the current location', function(done) {
-    const history$ = makeHistoryDriver()(xs.never());
+  it('should start emitting the current location synchronously', function(
+    done,
+  ) {
+    const sink = xs.never();
+    const history$ = makeHistoryDriver()(sink);
 
     const sub = history$.subscribe({
       next: (location: Location) => {
         assert(location.pathname);
         done();
       },
-      error: err => {},
+      error: done,
       complete: () => {},
     });
 
-    setTimeout(() => {
-      sub.unsubscribe();
-    });
+    sub.unsubscribe();
+    sink.shamefullySendComplete();
   });
 });
 
-// This is skipped because somehow, IN LATEST FIREFOX IN WIN10, state is being
-// carried around between tests. Tests work when run separately, but when run
-// all together, something fails.
-describe.skip('makeHashHistoryDriver', () => {
+describe('makeHashHistoryDriver', () => {
   it('should be a function', () => {
     assert.strictEqual(typeof makeHashHistoryDriver, 'function');
   });
@@ -57,21 +56,23 @@ describe.skip('makeHashHistoryDriver', () => {
     assert.strictEqual(typeof makeHashHistoryDriver(), 'function');
   });
 
-  it('should start emitting the current location', function(done) {
-    const history$ = makeHashHistoryDriver()(xs.never());
+  it('should start emitting the current location synchronously', function(
+    done,
+  ) {
+    const sink = xs.never();
+    const history$ = makeHashHistoryDriver()(sink);
 
     const sub = history$.subscribe({
       next: (location: Location) => {
         assert(location.pathname);
         done();
       },
-      error: err => {},
+      error: done,
       complete: () => {},
     });
 
-    setTimeout(() => {
-      sub.unsubscribe();
-    });
+    sub.unsubscribe();
+    sink.shamefullySendComplete();
   });
 });
 
@@ -88,7 +89,7 @@ describe('captureClicks', () => {
         sink.shamefullySendComplete();
         done();
       },
-      error: err => {},
+      error: done,
       complete: () => {},
     });
 
@@ -115,7 +116,7 @@ describe('captureClicks', () => {
     });
     const sub1 = sources1.history.drop(1).subscribe({
       next: () => done(new Error('should not trigger')),
-      error: err => {},
+      error: done,
       complete: () => {},
     });
     const dispose1 = run1();
@@ -133,7 +134,7 @@ describe('captureClicks', () => {
         dispose2();
         done();
       },
-      error: err => done(err),
+      error: done,
       complete: () => {},
     });
 

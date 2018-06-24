@@ -3,7 +3,7 @@
 import * as assert from 'assert';
 import {Location, makeHistoryDriver, makeServerHistoryDriver} from '../../src';
 import {createMemoryHistory} from 'history';
-import xs from 'xstream';
+import xs, {Subscription} from 'xstream';
 
 describe('makeServerHistoryDriver', () => {
   it('should be a function', () => {
@@ -19,20 +19,22 @@ describe('makeServerHistoryDriver', () => {
     assert.strictEqual(typeof makeHistoryDriver(history), 'function');
   });
 
-  it('should start emitting the current location', function(done) {
-    const history$ = makeServerHistoryDriver()(xs.never());
+  it('should start emitting the current location synchronously', function(
+    done,
+  ) {
+    const sink = xs.never();
+    const history$ = makeServerHistoryDriver()(sink);
 
     const sub = history$.subscribe({
       next: (location: Location) => {
         assert(location.pathname);
         done();
       },
-      error: err => {},
+      error: done,
       complete: () => {},
     });
 
-    setTimeout(() => {
-      sub.unsubscribe();
-    });
+    sub.unsubscribe();
+    sink.shamefullySendComplete();
   });
 });

@@ -8,17 +8,24 @@ import {
   captureClicks,
   makeHistoryDriver,
 } from '../../src';
-import {run, setup} from '@cycle/rxjs-run';
+import {setup} from '@cycle/rxjs-run';
+import {setAdapt} from '@cycle/run/lib/adapt';
 
-import {Observable} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 import 'rxjs/add/operator/switchMap';
 
 let dispose = () => {};
+let sub: Subscription | undefined;
 
-// This is skipped because somehow state is being carried around between tests.
-// Tests work when run separately, but when run all together, something fails.
-describe.skip('historyDriver - RxJS', () => {
+describe('historyDriver - RxJS', () => {
   beforeEach(function() {
+    setAdapt(stream => Observable.from(stream));
+  });
+
+  afterEach(function() {
+    if (sub) {
+      sub.unsubscribe();
+    }
     dispose();
   });
 
@@ -43,7 +50,7 @@ describe.skip('historyDriver - RxJS', () => {
 
     const {sources, run} = setup(main, {history: makeHistoryDriver()});
 
-    sources.history.skip(1).subscribe({
+    sub = sources.history.skip(1).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -65,7 +72,7 @@ describe.skip('historyDriver - RxJS', () => {
 
     const {sources, run} = setup(main, {history: makeHistoryDriver()});
 
-    sources.history.skip(1).subscribe({
+    sub = sources.history.skip(1).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -87,7 +94,7 @@ describe.skip('historyDriver - RxJS', () => {
 
     const {sources, run} = setup(main, {history: makeHistoryDriver()});
 
-    sources.history.skip(1).subscribe({
+    sub = sources.history.skip(1).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -125,7 +132,7 @@ describe.skip('historyDriver - RxJS', () => {
 
     const expected = ['/test', '/other', '/test', '/other', '/test', '/other'];
 
-    sources.history.skip(1).subscribe({
+    sub = sources.history.skip(1).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {
