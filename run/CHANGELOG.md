@@ -1,3 +1,13 @@
+<a name="4.2.0"></a>
+# 4.2.0 (2018-06-25)
+
+
+### Bug Fixes
+
+* **run:** use 'quicktask' dependency, supporting React Native ([2f3ed44](https://github.com/cyclejs/cyclejs/commit/2f3ed44))
+
+
+
 <a name="4.1.0"></a>
 # 4.1.0 (2017-12-08)
 
