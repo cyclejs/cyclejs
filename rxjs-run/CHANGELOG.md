@@ -1,3 +1,18 @@
+<a name="9.0.0"></a>
+# 9.0.0 (2018-06-25)
+
+
+### Bug Fixes
+
+* **rxjs-run:** require rxjs 6 or higher ([ca96d91](https://github.com/cyclejs/cyclejs/commit/ca96d91))
+
+
+### Features
+
+* **rxjs-run:** compitible with RXJS6 ([67edc22](https://github.com/cyclejs/cyclejs/commit/67edc22))
+
+
+
 <a name="8.0.0"></a>
 # 8.0.0 (2017-11-10)
 
