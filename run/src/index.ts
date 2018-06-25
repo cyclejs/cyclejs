@@ -1,6 +1,6 @@
 import xs, {Stream} from 'xstream';
 import {adapt} from './adapt';
-import microtask from './microtask';
+import quicktask from 'quicktask';
 import {
   CycleProgram,
   DevToolEnabledSource,
@@ -27,7 +27,7 @@ export {
   CycleProgram,
 } from './types';
 
-const scheduleMicrotask = microtask();
+const scheduleMicrotask = quicktask();
 
 function makeSinkProxies<So extends Sources, Si extends Sinks>(
   drivers: Drivers<So, Si>,

@@ -30,7 +30,8 @@
   "typings": "lib/cjs/index.d.ts",
   "types": "lib/cjs/index.d.ts",
   "dependencies": {
-    "xstream": "10.x || 11.x"
+    "xstream": "10.x || 11.x",
+    "quicktask": "1.1.0"
   },
   "devDependencies": {
     "@types/es6-promise": "0.0.x",
