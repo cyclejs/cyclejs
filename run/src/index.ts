@@ -1,6 +1,5 @@
 import xs, {Stream} from 'xstream';
 import {adapt} from './adapt';
-import quicktask from 'quicktask';
 import {
   CycleProgram,
   DevToolEnabledSource,
@@ -12,6 +11,14 @@ import {
   FantasySinks,
   Engine,
 } from './types';
+import {
+  adaptSources,
+  callDrivers,
+  makeSinkProxies,
+  disposeSources,
+  isObjectEmpty,
+  replicateMany,
+} from './internals';
 
 export {
   FantasyObserver,
@@ -28,140 +35,6 @@ export {
   CycleProgram,
   Engine,
 } from './types';
-
-const scheduleMicrotask = quicktask();
-
-function makeSinkProxies<So extends Sources, Si extends Sinks>(
-  drivers: Drivers<So, Si>,
-): SinkProxies<Si> {
-  const sinkProxies: SinkProxies<Si> = {} as SinkProxies<Si>;
-  for (const name in drivers) {
-    if (drivers.hasOwnProperty(name)) {
-      sinkProxies[name] = xs.create<any>();
-    }
-  }
-  return sinkProxies;
-}
-
-function callDrivers<So extends Sources, Si extends Sinks>(
-  drivers: Drivers<So, Si>,
-  sinkProxies: SinkProxies<Si>,
-): So {
-  const sources: So = {} as So;
-  for (const name in drivers) {
-    if (drivers.hasOwnProperty(name)) {
-      sources[name as any] = drivers[name](sinkProxies[name], name);
-      if (sources[name as any] && typeof sources[name as any] === 'object') {
-        (sources[name as any] as DevToolEnabledSource)._isCycleSource = name;
-      }
-    }
-  }
-  return sources;
-}
-
-// NOTE: this will mutate `sources`.
-function adaptSources<So extends Sources>(sources: So): So {
-  for (const name in sources) {
-    if (
-      sources.hasOwnProperty(name) &&
-      sources[name] &&
-      typeof sources[name]['shamefullySendNext'] === 'function'
-    ) {
-      sources[name] = adapt((sources[name] as any) as Stream<any>);
-    }
-  }
-  return sources;
-}
-
-/**
- * Notice that we do not replicate 'complete' from real sinks, in
- * SinksReplicators and ReplicationBuffers.
- * Complete is triggered only on disposeReplication. See discussion in #425
- * for details.
- */
-type SinkReplicators<Si extends Sinks> = {
-  [P in keyof Si]: {
-    next(x: any): void;
-    _n?(x: any): void;
-    error(err: any): void;
-    _e?(err: any): void;
-    complete(): void;
-  }
-};
-
-type ReplicationBuffers<Si extends Sinks> = {
-  [P in keyof Si]: {
-    _n: Array<any>;
-    _e: Array<any>;
-  }
-};
-
-function replicateMany<Si extends Sinks>(
-  sinks: Si,
-  sinkProxies: SinkProxies<Si>,
-): DisposeFunction {
-  const sinkNames: Array<keyof Si> = Object.keys(sinks).filter(
-    name => !!sinkProxies[name],
-  );
-
-  let buffers: ReplicationBuffers<Si> = {} as ReplicationBuffers<Si>;
-  const replicators: SinkReplicators<Si> = {} as SinkReplicators<Si>;
-  sinkNames.forEach(name => {
-    buffers[name] = {_n: [], _e: []};
-    replicators[name] = {
-      next: (x: any) => buffers[name]._n.push(x),
-      error: (err: any) => buffers[name]._e.push(err),
-      complete: () => {},
-    };
-  });
-
-  const subscriptions = sinkNames.map(name =>
-    xs.fromObservable(sinks[name] as any).subscribe(replicators[name]),
-  );
-
-  sinkNames.forEach(name => {
-    const listener = sinkProxies[name];
-    const next = (x: any) => {
-      scheduleMicrotask(() => listener._n(x));
-    };
-    const error = (err: any) => {
-      scheduleMicrotask(() => {
-        (console.error || console.log)(err);
-        listener._e(err);
-      });
-    };
-    buffers[name]._n.forEach(next);
-    buffers[name]._e.forEach(error);
-    replicators[name].next = next;
-    replicators[name].error = error;
-    // because sink.subscribe(replicator) had mutated replicator to add
-    // _n, _e, _c, we must also update these:
-    replicators[name]._n = next;
-    replicators[name]._e = error;
-  });
-  buffers = null as any; // free up for GC
-
-  return function disposeReplication() {
-    subscriptions.forEach(s => s.unsubscribe());
-    sinkNames.forEach(name => sinkProxies[name]._c());
-  };
-}
-
-function disposeSources<So extends Sources>(sources: So) {
-  for (const k in sources) {
-    if (
-      sources.hasOwnProperty(k) &&
-      sources[k] &&
-      (sources[k] as any).dispose
-    ) {
-      (sources[k] as any).dispose();
-    }
-  }
-}
-
-function isObjectEmpty(obj: any): boolean {
-  return Object.keys(obj).length === 0;
-}
 
 /**
  * A function that prepares the Cycle application to be executed. Takes a `main`
@@ -331,4 +204,3 @@ export function run<So extends Sources, Si extends FantasySinks<Si>>(
 }
 
 export default run;
-// tslint:disable-next-line:max-file-line-count
