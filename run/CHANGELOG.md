@@ -1,3 +1,13 @@
+<a name="4.3.0"></a>
+# 4.3.0 (2018-06-27)
+
+
+### Features
+
+* **run:** add setupReusable(drivers) ([868eedf](https://github.com/cyclejs/cyclejs/commit/868eedf))
+
+
+
 <a name="4.2.0"></a>
 # 4.2.0 (2018-06-25)
 
