@@ -10,6 +10,7 @@ import {
   Sources,
   Sinks,
   FantasySinks,
+  Engine,
 } from './types';
 
 export {
@@ -25,6 +26,7 @@ export {
   Drivers,
   DisposeFunction,
   CycleProgram,
+  Engine,
 } from './types';
 
 const scheduleMicrotask = quicktask();
@@ -94,7 +96,7 @@ type ReplicationBuffers<Si extends Sinks> = {
   }
 };
 
-function replicateMany<So extends Sources, Si extends Sinks>(
+function replicateMany<Si extends Sinks>(
   sinks: Si,
   sinkProxies: SinkProxies<Si>,
 ): DisposeFunction {
@@ -230,6 +232,64 @@ export function setup<So extends Sources, Si extends FantasySinks<Si>>(
 }
 
 /**
+ * A partially-applied variant of setup() which accepts only the drivers, and
+ * allows many `main` functions to execute and reuse this same set of drivers.
+ *
+ * Takes an object with driver functions as input, and outputs an object which
+ * contains the generated sources (from those drivers) and a `run` function
+ * (which in turn expects sinks as argument). This `run` function can be called
+ * multiple times with different arguments, and it will reuse the drivers that
+ * were passed to `setupReusable`.
+ *
+ * **Example:**
+ * ```js
+ * import {setupReusable} from '@cycle/run';
+ * const {sources, run} = setupReusable(drivers);
+ * // ...
+ * const sinks = main(sources);
+ * const dispose = run(sinks);
+ * // ...
+ * dispose();
+ * ```
+ *
+ * @param {Object} drivers an object where keys are driver names and values
+ * are driver functions.
+ * @return {Object} an object with two properties: `sources` and
+ * `run`. `sources` is the collection of driver sources, `run`
+ * is the function that once called with 'sinks' as argument, will execute the
+ * application, tying together sources with sinks.
+ * @function setupReusable
+ */
+export function setupReusable<So extends Sources, Si extends FantasySinks<Si>>(
+  drivers: Drivers<So, Si>,
+): Engine<So, Si> {
+  if (typeof drivers !== `object` || drivers === null) {
+    throw new Error(
+      `Argument given to setupReusable must be an object ` +
+        `with driver functions as properties.`,
+    );
+  }
+  if (isObjectEmpty(drivers)) {
+    throw new Error(
+      `Argument given to setupReusable must be an object ` +
+        `with at least one driver function declared as a property.`,
+    );
+  }
+
+  const sinkProxies = makeSinkProxies(drivers);
+  const rawSources = callDrivers(drivers, sinkProxies);
+  const sources = adaptSources(rawSources);
+  function _run(sinks: Si): DisposeFunction {
+    const disposeReplication = replicateMany(sinks, sinkProxies);
+    return function dispose() {
+      disposeSources(sources);
+      disposeReplication();
+    };
+  }
+  return {sources, run: _run};
+}
+
+/**
  * Takes a `main` function and circularly connects it to the given collection
  * of driver functions.
  *
@@ -271,3 +331,4 @@ export function run<So extends Sources, Si extends FantasySinks<Si>>(
 }
 
 export default run;
+// tslint:disable-next-line:max-file-line-count

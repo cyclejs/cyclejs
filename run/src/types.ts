@@ -45,3 +45,8 @@ export interface CycleProgram<So extends Sources, Si extends Sinks> {
   sinks: Si;
   run(): DisposeFunction;
 }
+
+export interface Engine<So extends Sources, Si extends Sinks> {
+  sources: So;
+  run(sinks: Si): DisposeFunction;
+}
