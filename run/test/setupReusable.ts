@@ -67,7 +67,7 @@ describe('setupReusable', function() {
     dispose();
   });
 
-  it('should allow reusing drivers for many apps', function() {
+  it('should allow reusing drivers for many apps', function(done) {
     let sandbox = sinon.sandbox.create();
     const spy1 = sandbox.spy();
     const spy2 = sandbox.spy();
@@ -81,23 +81,26 @@ describe('setupReusable', function() {
 
     function app1(sources: NiceSources): NiceSinks {
       return {
-        other: sources.other
-          .startWith('a')
-          .take(1)
-          .debug(spy1),
+        other: sources.other.mapTo('a').debug(spy1),
       };
     }
 
     function app2(sources: NiceSources): NiceSinks {
       return {
-        other: sources.other
-          .startWith('x')
-          .take(1)
-          .debug(spy2),
+        other: sources.other.mapTo('x').debug(spy2),
       };
     }
 
+    let sinkCompleted = 0;
     function driver(sink: Stream<string>) {
+      sink.addListener({
+        complete: () => {
+          sinkCompleted++;
+          done(
+            new Error('complete should not be called before engine is before'),
+          );
+        },
+      });
       return xs.of('b');
     }
 
@@ -113,6 +116,46 @@ describe('setupReusable', function() {
     sinon.assert.calledOnce(spy2);
     sinon.assert.calledWithExactly(spy2, 'x');
     dispose2();
+    assert.strictEqual(sinkCompleted, 0);
+    done();
+  });
+
+  it('should allow disposing the engine, stopping reusability', function(done) {
+    let sandbox = sinon.sandbox.create();
+    const spy = sandbox.spy();
+
+    type NiceSources = {
+      other: Stream<string>;
+    };
+    type NiceSinks = {
+      other: Stream<string>;
+    };
+
+    function app(sources: NiceSources): NiceSinks {
+      return {
+        other: sources.other.mapTo('a').debug(spy),
+      };
+    }
+
+    let sinkCompleted = 0;
+    function driver(sink: Stream<string>) {
+      sink.addListener({
+        complete: () => {
+          sinkCompleted++;
+        },
+      });
+      return xs.of('b');
+    }
+
+    const engine = setupReusable<NiceSources, NiceSinks>({other: driver});
+
+    engine.run(app(engine.sources));
+    sinon.assert.calledOnce(spy);
+    sinon.assert.calledWithExactly(spy, 'a');
+    sandbox.restore();
+    engine.dispose();
+    assert.strictEqual(sinkCompleted, 1);
+    done();
   });
 
   it('should report errors from main() in the console', function(done) {
