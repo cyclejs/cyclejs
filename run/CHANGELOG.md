@@ -1,3 +1,13 @@
+<a name="4.4.0"></a>
+# 4.4.0 (2018-06-28)
+
+
+### Bug Fixes
+
+* **run:** add two kinds of dispose() for setupReusable() ([ca20dc9](https://github.com/cyclejs/cyclejs/commit/ca20dc9))
+
+
+
 <a name="4.3.0"></a>
 # 4.3.0 (2018-06-27)
 

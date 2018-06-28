@@ -93,12 +93,14 @@ were passed to `setupReusable`.
 **Example:**
 ```js
 import {setupReusable} from '@cycle/run';
-const {sources, run} = setupReusable(drivers);
+const {sources, run, dispose} = setupReusable(drivers);
 // ...
 const sinks = main(sources);
-const dispose = run(sinks);
+const disposeRun = run(sinks);
 // ...
-dispose();
+disposeRun();
+// ...
+dispose(); // ends the reusability of drivers
 ```
 
 #### Arguments:
@@ -107,9 +109,12 @@ dispose();
 
 #### Returns:
 
-*(Object)* an object with two properties: `sources` and `run`. `sources` is the collection of driver sources, `run`
-is the function that once called with 'sinks' as argument, will execute the
-application, tying together sources with sinks.
+*(Object)* an object with three properties: `sources`, `run` and `dispose`. `sources` is the collection of driver sources, `run` is the
+function that once called with 'sinks' as argument, will execute the
+application, tying together sources with sinks. `dispose` terminates the
+reusable resources used by the drivers. Note also that `run` returns a
+dispose function which terminates resources that are specific (not reusable)
+to that run.
 
 ## <a id="run"></a> `run(main, drivers)`
 
