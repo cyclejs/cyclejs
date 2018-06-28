@@ -124,8 +124,13 @@ export function replicateMany<Si extends Sinks>(
 
   return function disposeReplication() {
     subscriptions.forEach(s => s.unsubscribe());
-    sinkNames.forEach(name => sinkProxies[name]._c());
   };
+}
+
+export function disposeSinkProxies<Si extends Sinks>(
+  sinkProxies: SinkProxies<Si>,
+) {
+  Object.keys(sinkProxies).forEach(name => sinkProxies[name]._c());
 }
 
 export function disposeSources<So extends Sources>(sources: So) {

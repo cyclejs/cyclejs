@@ -16,6 +16,7 @@ import {
   callDrivers,
   makeSinkProxies,
   disposeSources,
+  disposeSinkProxies,
   isObjectEmpty,
   replicateMany,
 } from './internals';
@@ -86,22 +87,20 @@ export function setup<So extends Sources, Si extends FantasySinks<Si>>(
     );
   }
 
-  const sinkProxies = makeSinkProxies<So, Si>(drivers);
-  const sources = callDrivers<So, Si>(drivers, sinkProxies);
-  const adaptedSources = adaptSources(sources);
-  const sinks = main(adaptedSources);
+  const engine = setupReusable(drivers);
+  const sinks = main(engine.sources);
   if (typeof window !== 'undefined') {
     (window as any).Cyclejs = (window as any).Cyclejs || {};
     (window as any).Cyclejs.sinks = sinks;
   }
   function _run(): DisposeFunction {
-    const disposeReplication = replicateMany(sinks, sinkProxies);
+    const disposeRun = engine.run(sinks);
     return function dispose() {
-      disposeSources(sources);
-      disposeReplication();
+      disposeRun();
+      engine.dispose();
     };
   }
-  return {sinks, sources, run: _run};
+  return {sinks, sources: engine.sources, run: _run};
 }
 
 /**
@@ -117,20 +116,25 @@ export function setup<So extends Sources, Si extends FantasySinks<Si>>(
  * **Example:**
  * ```js
  * import {setupReusable} from '@cycle/run';
- * const {sources, run} = setupReusable(drivers);
+ * const {sources, run, dispose} = setupReusable(drivers);
  * // ...
  * const sinks = main(sources);
- * const dispose = run(sinks);
+ * const disposeRun = run(sinks);
  * // ...
- * dispose();
+ * disposeRun();
+ * // ...
+ * dispose(); // ends the reusability of drivers
  * ```
  *
  * @param {Object} drivers an object where keys are driver names and values
  * are driver functions.
- * @return {Object} an object with two properties: `sources` and
- * `run`. `sources` is the collection of driver sources, `run`
- * is the function that once called with 'sinks' as argument, will execute the
- * application, tying together sources with sinks.
+ * @return {Object} an object with three properties: `sources`, `run` and
+ * `dispose`. `sources` is the collection of driver sources, `run` is the
+ * function that once called with 'sinks' as argument, will execute the
+ * application, tying together sources with sinks. `dispose` terminates the
+ * reusable resources used by the drivers. Note also that `run` returns a
+ * dispose function which terminates resources that are specific (not reusable)
+ * to that run.
  * @function setupReusable
  */
 export function setupReusable<So extends Sources, Si extends FantasySinks<Si>>(
@@ -153,13 +157,13 @@ export function setupReusable<So extends Sources, Si extends FantasySinks<Si>>(
   const rawSources = callDrivers(drivers, sinkProxies);
   const sources = adaptSources(rawSources);
   function _run(sinks: Si): DisposeFunction {
-    const disposeReplication = replicateMany(sinks, sinkProxies);
-    return function dispose() {
-      disposeSources(sources);
-      disposeReplication();
-    };
+    return replicateMany(sinks, sinkProxies);
   }
-  return {sources, run: _run};
+  function disposeEngine() {
+    disposeSources(sources);
+    disposeSinkProxies(sinkProxies);
+  }
+  return {sources, run: _run, dispose: disposeEngine};
 }
 
 /**
