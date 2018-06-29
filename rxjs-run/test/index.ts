@@ -1,5 +1,4 @@
 import 'mocha';
-import 'symbol-observable';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {run, setup} from '../lib/cjs/index';

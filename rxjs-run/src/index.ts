@@ -1,3 +1,5 @@
+// tslint:disable-next-line:no-import-side-effect
+import 'symbol-observable';
 import {Stream} from 'xstream';
 import {from, Observable} from 'rxjs';
 import {setAdapt} from '@cycle/run/lib/adapt';
