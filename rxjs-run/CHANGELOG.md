@@ -1,3 +1,13 @@
+<a name="9.1.0"></a>
+# 9.1.0 (2018-07-01)
+
+
+### Bug Fixes
+
+* **rxjs-run:** always require symbol-observable polyfill ([e1e0095](https://github.com/cyclejs/cyclejs/commit/e1e0095))
+
+
+
 <a name="9.0.0"></a>
 # 9.0.0 (2018-06-25)
 
