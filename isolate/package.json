@@ -30,12 +30,17 @@
   "module": "lib/es6/index.js",
   "typings": "lib/cjs/index.d.ts",
   "types": "lib/cjs/index.d.ts",
-  "dependencies": {},
+  "dependencies": {
+    "xstream": "^11.7.0",
+    "@cycle/run": "^4.4.0"
+  },
   "devDependencies": {
     "@types/mocha": "2.2.x",
     "@types/node": "7.0.x",
     "@types/sinon": "1.16.x",
-    "rxjs": "5.4.2"
+    "rxjs": "^6.2.1",
+    "@cycle/rxjs-run": "^9.1.0",
+    "symbol-observable": "*"
   },
   "engines": {
     "node": ">=0.10.0"
