@@ -1,3 +1,5 @@
+import xs from 'xstream';
+import {adapt} from '@cycle/run/lib/adapt';
 export type Component<So, Si> = (sources: So, ...rest: Array<any>) => Si;
 
 export interface IsolateableSource {
@@ -102,7 +104,12 @@ function isolateAllSinks<So extends Sources, Si>(
       scopes[channel] !== null &&
       typeof source.isolateSink === 'function'
     ) {
-      outerSinks[channel] = source.isolateSink(innerSink, scopes[channel]);
+      outerSinks[channel] = adapt(
+        source.isolateSink(
+          xs.fromObservable(innerSink as any),
+          scopes[channel],
+        ),
+      );
     } else if (innerSinks.hasOwnProperty(channel)) {
       outerSinks[channel] = innerSinks[channel];
     }
