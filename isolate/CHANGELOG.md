@@ -1,3 +1,20 @@
+<a name="3.4.0"></a>
+# 3.4.0 (2018-07-17)
+
+
+### Bug Fixes
+
+* **isolate:** adapt sinks so xstream semantics can be applied ([77ae9d0](https://github.com/cyclejs/cyclejs/commit/77ae9d0))
+
+
+### BREAKING CHANGES
+
+* **isolate:** This update changes the contract such that xstream and @cycle/run are now dependencies.
+
+ISSUES CLOSED: #826
+
+
+
 <a name="3.3.0"></a>
 # 3.3.0 (2018-04-19)
 
