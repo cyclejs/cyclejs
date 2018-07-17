@@ -1,4 +1,3 @@
-import 'symbol-observable';
 import 'mocha';
 import '@cycle/rxjs-run';
 import * as assert from 'assert';
@@ -101,10 +100,14 @@ describe('isolate', function() {
     assert.strictEqual(actual2, 'scope1');
     assert.strictEqual(actual3, 'scope2');
     assert.strictEqual(actual4, 'scope2');
+    let hasFirst = false;
     sinks.first.subscribe((x: any) => {
+      assert.strictEqual(hasFirst, false);
       assert.strictEqual(x, 10);
+      hasFirst = true;
     });
     sinks.second.subscribe((x: any) => {
+      assert.strictEqual(hasFirst, true);
       assert.strictEqual(x, 20);
       done();
     });
@@ -162,10 +165,14 @@ describe('isolate', function() {
     assert.strictEqual(actual2, '');
     assert.strictEqual(actual3, 'scope2');
     assert.strictEqual(actual4, 'scope2');
+    let hasFirst = false;
     sinks.first.subscribe((x: any) => {
+      assert.strictEqual(hasFirst, false);
       assert.strictEqual(x, 10);
+      hasFirst = true;
     });
     sinks.second.subscribe((x: any) => {
+      assert.strictEqual(hasFirst, true);
       assert.strictEqual(x, 20);
       done();
     });
@@ -222,10 +229,14 @@ describe('isolate', function() {
     assert.strictEqual(actual2, 'scope1');
     assert.strictEqual(actual3, 'cycle1');
     assert.strictEqual(actual4, 'cycle1');
+    let hasFirst = false;
     sinks.first.subscribe((x: any) => {
+      assert.strictEqual(hasFirst, false);
       assert.strictEqual(x, 10);
+      hasFirst = true;
     });
     sinks.second.subscribe((x: any) => {
+      assert.strictEqual(hasFirst, true);
       assert.strictEqual(x, 20);
       done();
     });
@@ -285,10 +296,14 @@ describe('isolate', function() {
     assert.strictEqual(actual2, 'scope1');
     assert.strictEqual(actual3, 'default');
     assert.strictEqual(actual4, 'default');
+    let hasFirst = false;
     sinks.first.subscribe((x: any) => {
+      assert.strictEqual(hasFirst, false);
       assert.strictEqual(x, 10);
+      hasFirst = true;
     });
     sinks.second.subscribe((x: any) => {
+      assert.strictEqual(hasFirst, true);
       assert.strictEqual(x, 20);
       done();
     });
@@ -348,10 +363,14 @@ describe('isolate', function() {
     assert.strictEqual(actual2, 'scope1');
     assert.strictEqual(actual3, '');
     assert.strictEqual(actual4, '');
+    let hasFirst = false;
     sinks.first.subscribe((x: any) => {
+      assert.strictEqual(hasFirst, false);
       assert.strictEqual(x, 10);
+      hasFirst = true;
     });
     sinks.second.subscribe((x: any) => {
+      assert.strictEqual(hasFirst, true);
       assert.strictEqual(x, 20);
       done();
     });
@@ -408,10 +427,14 @@ describe('isolate', function() {
     assert.strictEqual(actual2, 123);
     assert.strictEqual(actual3, 456);
     assert.strictEqual(actual4, 456);
+    let hasFirst = false;
     sinks.first.subscribe((x: any) => {
+      assert.strictEqual(hasFirst, false);
       assert.strictEqual(x, 10);
+      hasFirst = true;
     });
     sinks.second.subscribe((x: any) => {
+      assert.strictEqual(hasFirst, true);
       assert.strictEqual(x, 20);
       done();
     });

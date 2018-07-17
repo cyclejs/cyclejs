@@ -39,8 +39,7 @@
     "@types/node": "7.0.x",
     "@types/sinon": "1.16.x",
     "rxjs": "^6.2.1",
-    "@cycle/rxjs-run": "^9.1.0",
-    "symbol-observable": "*"
+    "@cycle/rxjs-run": "^9.1.0"
   },
   "engines": {
     "node": ">=0.10.0"
