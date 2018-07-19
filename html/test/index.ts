@@ -4,7 +4,7 @@ import * as sinon from 'sinon';
 import xs, {Stream} from 'xstream';
 import {setup, run} from '@cycle/run';
 import {div, h3, h2, h, VNode} from '@cycle/dom';
-import {makeHTMLDriver, HTMLSource} from '../lib/cjs/index';
+import {makeHTMLDriver, HTMLSource} from '../src/index';
 
 describe('HTML Driver', function() {
   it('should output HTML when given a simple vtree stream', function(done) {
@@ -235,13 +235,13 @@ describe('HTML Driver', function() {
     });
   });
 
-  it('should report errors thrown in snabbdom-to-html', function() {
-    const sandbox = sinon.sandbox.create();
+  it('should report errors thrown in snabbdom-to-html', function(done) {
+    const sandbox = sinon.createSandbox();
     sandbox.stub(console, 'error');
 
     function app() {
       return {
-        html: xs.of('invalid snabbdom' as any)
+        html: xs.of('invalid snabbdom' as any),
       };
     }
 
@@ -249,7 +249,10 @@ describe('HTML Driver', function() {
       html: makeHTMLDriver(() => {}),
     });
 
-    sinon.assert.calledOnce(console.error as any);
-    sandbox.restore();
+    setTimeout(() => {
+      sinon.assert.calledOnce(console.error as any);
+      sandbox.restore();
+      done();
+    }, 10);
   });
 });
