@@ -43,7 +43,13 @@ export function makeHTMLDriver(
   const modules = options.modules || defaultModules;
   const toHTML = init(modules);
   function htmlDriver(vnode$: Stream<VNode>, name: string): HTMLSource {
-    const html$ = vnode$.map(toHTML);
+    const html$ = vnode$.map(vdom => {
+      if (typeof vdom !== 'object') {
+        throw new Error('Expected virtual dom tree, not ' + typeof vdom);
+      } else {
+        return toHTML(vdom);
+      }
+    });
     html$.addListener({
       next: effect,
       error: reportSnabbdomError,
