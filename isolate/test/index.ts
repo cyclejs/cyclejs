@@ -1,9 +1,11 @@
-import 'mocha';
-import '@cycle/rxjs-run';
+import 'symbol-observable';
 import * as assert from 'assert';
-import {of} from 'rxjs';
-import isolate from '../lib/cjs/index';
+import {of, from} from 'rxjs';
+import isolate from '../src/index';
+import {setAdapt} from '@cycle/run/lib/adapt';
 import * as sinon from 'sinon';
+
+setAdapt(from);
 
 describe('isolate', function() {
   beforeEach(function() {
@@ -506,7 +508,7 @@ describe('isolate', function() {
 
       function MyDataflowComponent(sources: {other: any}) {
         return {
-          other: of(['a']),
+          other: of('a'),
         };
       }
       let scopedMyDataflowComponent;
@@ -517,7 +519,7 @@ describe('isolate', function() {
         other: driver(null),
       });
       scopedSinks.other.subscribe((x: any) =>
-        assert.strictEqual(x, 'a myScope'),
+        assert.strictEqual(x, 'a'),
       );
     });
 
@@ -533,18 +535,19 @@ describe('isolate', function() {
 
       function MyDataflowComponent(sources: {other: any}) {
         return {
-          other: of(['a']),
+          other: of('a'),
         };
       }
       const scopedMyDataflowComponent = isolate(MyDataflowComponent, `myScope`);
       const scopedSinks = scopedMyDataflowComponent({other: driver()});
+      let i = 0;
       scopedSinks.other.subscribe((x: any) => {
         assert.strictEqual(x, 'a myScope');
         done();
       });
     });
 
-    it('should handle undefined cases gracefully', function() {
+  it('should handle undefined cases gracefully', function() {
       const MyDataflowComponent = () => ({});
       const scopedMyDataflowComponent = isolate(MyDataflowComponent, 'myScope');
       assert.doesNotThrow(() =>

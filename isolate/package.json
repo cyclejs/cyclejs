@@ -31,25 +31,26 @@
   "typings": "lib/cjs/index.d.ts",
   "types": "lib/cjs/index.d.ts",
   "dependencies": {
-    "xstream": "^11.7.0",
-    "@cycle/run": "^4.4.0"
+    "@cycle/run": "^4.4.0",
+    "symbol-observable": "^1.2.0",
+    "xstream": "^11.7.0"
   },
   "devDependencies": {
-    "@types/mocha": "2.2.x",
-    "@types/node": "7.0.x",
+    "@cycle/rxjs-run": "^9.1.0",
+    "@types/mocha": "5.2.x",
+    "@types/node": "10.5.x",
     "@types/sinon": "1.16.x",
+    "mocha": "^5.2.0",
     "rxjs": "^6.2.1",
-    "@cycle/rxjs-run": "^9.1.0"
+    "ts-node": "^7.0.0",
+    "typescript": "~2.8.4"
   },
   "engines": {
     "node": ">=0.10.0"
   },
   "scripts": {
-    "mocha": "../node_modules/.bin/mocha test/*.ts --require ts-node/register --exit",
-    "test": "npm run mocha",
-    "test-ci": "npm run test",
-    "browserify": "../node_modules/.bin/browserify lib/cjs/index.js --standalone CycleIsolate --outfile dist/cycle-isolate.js",
-    "minify": "node ../.scripts/minify.js dist/cycle-isolate.js dist/cycle-isolate.min.js"
+    "test": "mocha test/*.ts --require ts-node/register --exit",
+    "test-ci": "npm run test"
   },
   "publishConfig": {
     "access": "public"
