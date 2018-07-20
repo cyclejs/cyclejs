@@ -1,8 +1,8 @@
 import * as assert from 'assert';
 import * as Rx from 'rxjs';
 import * as Cycle from '@cycle/rxjs-run';
-import {makeHTTPDriver} from '../../../lib/cjs/index';
-import {HTTPSource} from '../../../rxjs-typings';
+import {makeHTTPDriver} from '../../src/index';
+import {HTTPSource} from '../../rxjs-typings';
 import {run as runCommon} from './common';
 
 const uri = '//' + window.location.host;
@@ -11,9 +11,7 @@ runCommon(uri);
 (global as any).mocha.globals(['Cyclejs']);
 
 describe('HTTP Driver in the browser', function() {
-  it('should be able to emit progress events on the response stream', function(
-    done,
-  ) {
+  it('should be able to emit progress events on the response stream', function(done) {
     function main(sources: {HTTP: HTTPSource}) {
       return {
         HTTP: Rx.Observable.of({
@@ -52,9 +50,7 @@ describe('HTTP Driver in the browser', function() {
     run();
   });
 
-  it('should return binary response when responseType option is arraybuffer', function(
-    done,
-  ) {
+  it('should return binary response when responseType option is arraybuffer', function(done) {
     function main(sources: {HTTP: HTTPSource}) {
       return {
         HTTP: Rx.Observable.of({
@@ -84,9 +80,7 @@ describe('HTTP Driver in the browser', function() {
     run();
   });
 
-  it('should return binary response when responseType option is blob', function(
-    done,
-  ) {
+  it('should return binary response when responseType option is blob', function(done) {
     function main(sources: {HTTP: HTTPSource}) {
       return {
         HTTP: Rx.Observable.of({
@@ -127,8 +121,7 @@ describe('HTTP Driver in the browser', function() {
     this.timeout(10000);
 
     function child(sources: any, num: any) {
-      const vdom$ = sources.HTTP
-        .select('cat')
+      const vdom$ = sources.HTTP.select('cat')
         .mergeAll()
         .map((res: any) => 'My name is ' + res.text);
 
@@ -147,8 +140,7 @@ describe('HTTP Driver in the browser', function() {
     }
 
     function mainHTTPThenDOM(sources: any) {
-      const sinks$ = Rx.Observable
-        .interval(500)
+      const sinks$ = Rx.Observable.interval(500)
         .take(6)
         .map(i => {
           if (i % 2 === 1) {
@@ -171,8 +163,7 @@ describe('HTTP Driver in the browser', function() {
     }
 
     function mainDOMThenHTTP(sources: any) {
-      const sinks$ = Rx.Observable
-        .interval(500)
+      const sinks$ = Rx.Observable.interval(500)
         .take(6)
         .map(i => {
           if (i % 2 === 1) {
@@ -207,7 +198,7 @@ describe('HTTP Driver in the browser', function() {
 
     function domDriver(sink: any) {
       sink.addListener({
-        next: s => {
+        next: (s: any) => {
           assert.strictEqual(s, expectedDOMSinks.shift());
         },
         error: (err: any) => {},
@@ -238,12 +229,10 @@ describe('HTTP Driver in the browser', function() {
     this.timeout(4000);
 
     function main(sources: any) {
-      const test$ = Rx.Observable
-        .of(null)
+      const test$ = Rx.Observable.of(null)
         .delay(1000)
         .mergeMap(() =>
-          sources.HTTP
-            .select('cat')
+          sources.HTTP.select('cat')
             .mergeAll()
             .map((res: any) => 'I should not show this, ' + res.text),
         );
@@ -261,7 +250,7 @@ describe('HTTP Driver in the browser', function() {
 
     function testDriver(sink: any) {
       sink.addListener({
-        next: s => {
+        next: (s: any) => {
           console.log(s);
           done('No data should come through the Test sink');
         },

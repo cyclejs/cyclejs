@@ -4,11 +4,7 @@ const live = !!process.env.LIVE;
 
 const browserstack = require('./browserstack-karma.js');
 
-const browsers = ci
-  ? Object.keys(browserstack)
-  : live
-    ? undefined
-    : ['Chrome', 'Firefox'];
+const browsers = ci ? Object.keys(browserstack) : live ? undefined : ['Chrome'];
 
 module.exports = {
   basePath: '.',
@@ -27,7 +23,6 @@ module.exports = {
   preprocessors: {
     'src/**/*.ts': ['karma-typescript'],
     'test/**/*.ts': ['karma-typescript'],
-    'test/**/*.tsx': ['karma-typescript'],
   },
   browserStack: {
     startTunnel: false,
@@ -41,7 +36,7 @@ module.exports = {
     tsconfig: './tsconfig.json',
     include: {
       mode: 'merge',
-      values: ['test/browser/**/*', 'test/typings.d.ts'],
+      values: ['test/browser/**/*'],
     },
   },
   reporters: ['dots', 'karma-typescript', 'BrowserStack'],
