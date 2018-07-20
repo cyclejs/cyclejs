@@ -14,9 +14,7 @@ const uri = 'http://localhost:5000';
 runCommon(uri);
 
 describe('HTTP Driver in Node.js', function() {
-  it('should auto-execute HTTP request when without listening to response stream', function(
-    done,
-  ) {
+  it('should auto-execute HTTP request when without listening to response stream', function(done) {
     function main(sources: {HTTP: HTTPSource}) {
       return {
         HTTP: Rx.Observable.of({
@@ -39,9 +37,7 @@ describe('HTTP Driver in Node.js', function() {
     }, 250);
   });
 
-  it('should not auto-execute lazy request without listening to response stream', function(
-    done,
-  ) {
+  it('should not auto-execute lazy request without listening to response stream', function(done) {
     function main(sources: {HTTP: HTTPSource}) {
       return {
         HTTP: Rx.Observable.of({
@@ -63,9 +59,7 @@ describe('HTTP Driver in Node.js', function() {
     }, 250);
   });
 
-  it('should execute lazy HTTP request when listening to response stream', function(
-    done,
-  ) {
+  it('should execute lazy HTTP request when listening to response stream', function(done) {
     function main(sources: {HTTP: HTTPSource}) {
       return {
         HTTP: Rx.Observable.of({
@@ -80,8 +74,7 @@ describe('HTTP Driver in Node.js', function() {
     const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
     globalSandbox.petPOSTResponse = null;
 
-    sources.HTTP
-      .select()
+    sources.HTTP.select()
       .mergeAll()
       .subscribe();
 
@@ -109,8 +102,7 @@ describe('HTTP Driver in Node.js', function() {
 
     const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
-    sources.HTTP
-      .select()
+    sources.HTTP.select()
       .mergeAll()
       .subscribe(function(r: any) {
         assert.ok(r.request);
@@ -121,9 +113,7 @@ describe('HTTP Driver in Node.js', function() {
     run();
   });
 
-  it('should handle errors when sending request to non-existent server', function(
-    done,
-  ) {
+  it('should handle errors when sending request to non-existent server', function(done) {
     function main(sources: {HTTP: HTTPSource}) {
       return {
         HTTP: Rx.Observable.of({
@@ -136,8 +126,7 @@ describe('HTTP Driver in Node.js', function() {
 
     const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
-    sources.HTTP
-      .select()
+    sources.HTTP.select()
       .mergeAll()
       .subscribe({
         next: function(r: any) {
@@ -153,9 +142,7 @@ describe('HTTP Driver in Node.js', function() {
     run();
   });
 
-  it('should call next() when ok is specified for an error status', function(
-    done,
-  ) {
+  it('should call next() when ok is specified for an error status', function(done) {
     function main(sources: {HTTP: HTTPSource}) {
       return {
         HTTP: Rx.Observable.of({
@@ -168,8 +155,7 @@ describe('HTTP Driver in Node.js', function() {
 
     const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
 
-    sources.HTTP
-      .select()
+    sources.HTTP.select()
       .mergeAll()
       .subscribe({
         next: function(r: any) {

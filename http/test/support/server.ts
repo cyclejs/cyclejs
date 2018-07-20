@@ -3,12 +3,10 @@ import bodyParser = require('body-parser');
 import cookieParser = require('cookie-parser');
 import {globalSandbox} from './global';
 
-declare const process: any;
-
 export function startServer() {
   const app = express();
 
-  app.use(function(req, res, next) {
+  app.use(function(req: any, res: any, next: any) {
     res.set('Cache-Control', 'no-cache, no-store');
     next();
   });
@@ -16,7 +14,7 @@ export function startServer() {
   app.use(bodyParser.json());
   app.use(cookieParser());
 
-  app.get('/hello', function(req, res) {
+  app.get('/hello', function(req: any, res: any) {
     setTimeout(function() {
       const contentTypeHeader = req.get('Content-Type');
       if (!contentTypeHeader) {
@@ -32,7 +30,7 @@ export function startServer() {
     }, 150);
   });
 
-  app.post('/pet', function(req, res) {
+  app.post('/pet', function(req: any, res: any) {
     setTimeout(function() {
       const result = 'added ' + req.body.name + ' the ' + req.body.species;
       (globalSandbox as any).petPOSTResponse = result;
@@ -40,31 +38,31 @@ export function startServer() {
     }, 150);
   });
 
-  app.get('/json', function(req, res) {
+  app.get('/json', function(req: any, res: any) {
     setTimeout(function() {
       res.status(200).json({name: 'manny'});
     }, 150);
   });
 
-  app.get('/querystring', function(req, res) {
+  app.get('/querystring', function(req: any, res: any) {
     setTimeout(function() {
       res.send(req.query);
     }, 150);
   });
 
-  app.get('/error', function(req, res) {
+  app.get('/error', function(req: any, res: any) {
     setTimeout(function() {
       res.status(500).send('boom');
     }, 150);
   });
 
-  app.delete('/delete', function(req, res) {
+  app.delete('/delete', function(req: any, res: any) {
     setTimeout(function() {
       res.status(200).json({deleted: true});
     }, 150);
   });
 
-  app.get('/binary', function(req, res) {
+  app.get('/binary', function(req: any, res: any) {
     setTimeout(function() {
       const result = new Buffer([1, 2, 3]);
       res.writeHead(200, {
