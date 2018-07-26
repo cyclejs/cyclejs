@@ -3,15 +3,17 @@ import {mockTimeSource, timeDriver, TimeSource, Operator} from '../';
 import {mockDOMSource} from '@cycle/dom';
 import xs, {Stream} from 'xstream';
 import {setAdapt} from '@cycle/run/lib/adapt';
-import {Observable} from 'rxjs/Rx';
+import * as rx from 'rxjs';
+const {Observable, from} = rx;
+import * as rxOps from 'rxjs/operators';
 import * as most from 'most';
 
 const libraries = [
   {name: 'xstream', adapt: (stream: Stream<any>) => stream, lib: xs},
   {
     name: 'rxjs',
-    adapt: (stream: Stream<any>) => Observable.from(stream),
-    lib: Observable,
+    adapt: (stream: Stream<any>) => from(stream),
+    lib: rx,
   },
   {name: 'most', adapt: (stream: Stream<any>) => most.from(stream), lib: most},
 ];
@@ -21,8 +23,8 @@ function compose(stream: any, f: any) {
     return stream.compose(f);
   }
 
-  if ('let' in stream) {
-    return stream.let(f);
+  if ('pipe' in stream) {
+    return stream.pipe(f);
   }
 
   if ('thru' in stream) {
@@ -30,6 +32,22 @@ function compose(stream: any, f: any) {
   }
 
   throw new Error(`Don't know how to compose`);
+}
+
+function take(stream: any, n: number) {
+  if (stream instanceof Observable) {
+    return stream.pipe(rxOps.take(n));
+  }
+
+  return stream.take(n);
+}
+
+function map(stream: any, f: any) {
+  if (stream instanceof Observable) {
+    return stream.pipe(rxOps.map(f));
+  }
+
+  return stream.map(f);
 }
 
 describe('@cycle/time', () => {
@@ -136,8 +154,8 @@ describe('@cycle/time', () => {
 
             const expectedValues = [1, 2, 3];
 
-            stream.take(expectedValues.length).subscribe({
-              next(ev) {
+            take(stream, expectedValues.length).subscribe({
+              next(ev: number) {
                 assert.equal(ev, expectedValues.shift());
               },
 
@@ -181,8 +199,8 @@ describe('@cycle/time', () => {
 
             const expectedValues = [{foo: 1}, {foo: 2}, {foo: 3}];
 
-            stream.take(expectedValues.length).subscribe({
-              next(ev) {
+            take(stream, expectedValues.length).subscribe({
+              next(ev: number) {
                 assert.deepEqual(ev, expectedValues.shift());
               },
 
@@ -212,7 +230,7 @@ describe('@cycle/time', () => {
 
             const input = Time.diagram(`---1---2---3---|`);
 
-            const value = input.map(i => i * 2);
+            const value = map(input, (i: number) => i * 2);
 
             const expected = Time.diagram(`---2---4---6---|`);
 
@@ -228,7 +246,7 @@ describe('@cycle/time', () => {
 
             const expected = Time.diagram(`---2---4---5---|`);
 
-            const value = input.map(i => i * 2);
+            const value = map(input, (i: number) => i * 2);
 
             const complete = (err: any) => {
               if (err) {
@@ -437,7 +455,7 @@ describe('@cycle/time', () => {
               }
             }
 
-            const actual$ = input$.map(transformation);
+            const actual$ = map(input$, transformation);
 
             const expected$ = Time.diagram(`---X---Y---Z---|`);
 
@@ -465,7 +483,7 @@ describe('@cycle/time', () => {
             const Time = mockTimeSource();
 
             const input = Time.diagram('---1---2---3---');
-            const actual = input.map(i => i * 2);
+            const actual = map(input, (i: number) => i * 2);
             const expected = Time.diagram('---2---4---6---');
 
             Time.assertEqual(actual, expected);
@@ -477,7 +495,7 @@ describe('@cycle/time', () => {
             const Time = mockTimeSource();
 
             const input = Time.diagram('---1---2---3---');
-            const actual = input.map(i => i * 2);
+            const actual = map(input, (i: number) => i * 2);
             const expected = Time.diagram('---2---7---6---');
 
             Time.assertEqual(actual, expected);

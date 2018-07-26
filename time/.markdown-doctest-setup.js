@@ -2,7 +2,7 @@ const timeDriver = require('./lib/cjs/');
 const xs = require('xstream').default;
 const dom = require('@cycle/dom');
 const most = require('most');
-const {Observable} = require('rxjs/Rx');
+const {Observable} = require('rxjs');
 
 const {div, button} = dom;
 
@@ -67,7 +67,8 @@ module.exports = {
 
     '../src/counter': {Counter},
 
-    assert: require('assert')
+    assert: require('assert'),
+    rxjs: require('rxjs')
   },
 
   regexRequire: {
