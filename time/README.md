@@ -62,10 +62,12 @@ By using `@cycle/time` you can have testing just as good, if not better, than th
 
 ### (RxJS and Most) How do I use operators like `.delay` and `.debounce` without `.compose`?
 
-The equivalent to `.compose` in RxJS is `.let`.
+The equivalent to `.compose` in RxJS is `.pipe`.
 
 ```js
-Observable.of('Hello World').let(Time.delay(200));
+import {of} from 'rxjs';
+
+of('Hello World').pipe(Time.delay(200));
 ```
 
 The equivalent to `.compose` in Most is `.thru`.

@@ -1,6 +1,5 @@
-import {Observable} from 'rxjs/Observable';
+import {Observable, from} from 'rxjs';
 // tslint:disable-next-line:no-import-side-effect
-import 'rxjs/add/observable/from';
 import {setAdapt} from '@cycle/run/lib/adapt';
 
 import {mockTimeSource as mockTimeSourceUntyped} from './lib/cjs/src/mock-time-source';
@@ -8,7 +7,7 @@ import {timeDriver as timeDriverUntyped} from './lib/cjs/src/time-driver';
 import {Frame} from './lib/cjs/src/animation-frames';
 import {Comparator, OperatorArgs} from './lib/cjs/src/types';
 
-setAdapt(stream => Observable.from(stream));
+setAdapt(from);
 
 type Operator = <T>(observable: Observable<T>) => Observable<T>;
 

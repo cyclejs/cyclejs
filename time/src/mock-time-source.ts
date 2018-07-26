@@ -1,3 +1,4 @@
+import {adapt} from '@cycle/run/lib/adapt';
 import xs, {Stream} from 'xstream';
 import {makeScheduler} from './scheduler';
 import {makeDelay} from './delay';
@@ -88,7 +89,17 @@ function mockTimeSource({interval = 20} = {}): any {
     periodic: makePeriodic(createOperator),
     throttle: makeThrottle(createOperator),
 
-    animationFrames: () => timeSource.periodic(16).map(frame),
+    animationFrames: () => {
+      const s = timeSource.periodic(16);
+
+      if ('pipe' in s) {
+        // This hack brought to you by the need to import rxjs's operators
+        // and my desire to not force a dependency on rxjs
+        return adapt(xs.fromObservable(s).map(frame));
+      }
+
+      return s.map(frame);
+    },
     throttleAnimation: makeThrottleAnimation(
       () => timeSource,
       scheduler.add,
