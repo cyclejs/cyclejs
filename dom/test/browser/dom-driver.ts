@@ -65,7 +65,7 @@ describe('makeDOMDriver', function() {
         console.error as any,
         sinon.match({
           message: 'Cannot render into unknown element `#nonsenseIdToNothing`',
-        }),
+        })
       );
       sandbox.restore();
       done();
@@ -117,7 +117,7 @@ describe('DOM Driver', function() {
                 throw new Error('error in hook');
               },
             },
-          }),
+          })
         ),
       };
     }
@@ -130,7 +130,7 @@ describe('DOM Driver', function() {
       sinon.assert.calledOnce(console.error as any);
       sinon.assert.calledWithExactly(
         console.error as any,
-        sinon.match({message: 'error in hook'}),
+        sinon.match({message: 'error in hook'})
       );
       sandbox.restore();
       done();
@@ -168,7 +168,7 @@ describe('DOM Driver', function() {
           }
           if (!selectEl && !assertionOngoing && hasDisposed) {
             done(
-              'DOM Driver should not emit anything asynchronously after dispose()',
+              'DOM Driver should not emit anything asynchronously after dispose()'
             );
           }
           if (selectEl && hasDisposed) {

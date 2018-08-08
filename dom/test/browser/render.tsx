@@ -54,7 +54,7 @@ describe('DOM Rendering', function() {
     function main() {
       return {
         DOM: xs.of(
-          div('.my-render-only-container', [h2('Cycle.js framework')]),
+          div('.my-render-only-container', [h2('Cycle.js framework')])
         ),
       };
     }
@@ -65,7 +65,7 @@ describe('DOM Rendering', function() {
 
     setTimeout(() => {
       const myContainer = document.querySelector(
-        '.my-render-only-container',
+        '.my-render-only-container'
       ) as HTMLElement;
       assert.notStrictEqual(myContainer, null);
       assert.notStrictEqual(typeof myContainer, 'undefined');
@@ -87,7 +87,7 @@ describe('DOM Rendering', function() {
         DOM: xs.of(
           div('.my-class', {
             dataset: {foo: 'Foo'},
-          }),
+          })
         ),
       };
     }
@@ -134,7 +134,7 @@ describe('DOM Rendering', function() {
             option({attrs: {value: 'foo'}}, 'Foo'),
             option({attrs: {value: 'bar'}}, 'Bar'),
             option({attrs: {value: 'baz'}}, 'Baz'),
-          ]),
+          ])
         ),
       };
     }
@@ -175,7 +175,7 @@ describe('DOM Rendering', function() {
             option({attrs: {value: 'foo'}}, 'Foo'),
             option({attrs: {value: 'bar'}}, 'Bar'),
             option({attrs: {value: 'baz'}}, 'Baz'),
-          ]),
+          ])
         ),
       };
     }
@@ -212,7 +212,7 @@ describe('DOM Rendering', function() {
             <option value="foo">Foo</option>
             <option value="bar">Bar</option>
             <option value="baz">Baz</option>
-          </select>,
+          </select>
         ),
       };
     }
@@ -249,7 +249,7 @@ describe('DOM Rendering', function() {
             option({attrs: {value: 'foo'}}, 'Foo'),
             option({attrs: {value: 'bar'}}, 'Bar'),
             option({attrs: {value: 'baz'}}, 'Baz'),
-          ]),
+          ])
         ),
       };
     }
@@ -430,7 +430,7 @@ describe('DOM Rendering', function() {
   it('should render embedded HTML within SVG <foreignObject>', function(done) {
     const thisBrowserSupportsForeignObject = (document as any).implementation.hasFeature(
       'www.http://w3.org/TR/SVG11/feature#Extensibility',
-      '1.1',
+      '1.1'
     );
 
     function app(sources: {DOM: MainDOMSource}) {
@@ -440,7 +440,7 @@ describe('DOM Rendering', function() {
             svg.foreignObject({attrs: {width: '100%', height: '100%'}}, [
               p('.embedded-text', 'This is HTML embedded in SVG'),
             ]),
-          ]),
+          ])
         ),
       };
     }
@@ -463,11 +463,11 @@ describe('DOM Rendering', function() {
         .addListener({
           next: (root: Element) => {
             const embeddedHTML = root.querySelector(
-              'p.embedded-text',
+              'p.embedded-text'
             ) as HTMLElement;
             assert.strictEqual(
               embeddedHTML.namespaceURI,
-              'http://www.w3.org/1999/xhtml',
+              'http://www.w3.org/1999/xhtml'
             );
             assert.notStrictEqual(embeddedHTML.clientWidth, 0);
             assert.notStrictEqual(embeddedHTML.clientHeight, 0);
@@ -499,7 +499,7 @@ describe('DOM Rendering', function() {
                 div('.grandchild32', [null, 'Great grandchild 322']),
               ]),
               undefined,
-            ]),
+            ])
           ),
       };
     }
@@ -520,7 +520,7 @@ describe('DOM Rendering', function() {
           const divParent = root.querySelector('div.parent') as HTMLElement;
           const h4Child = root.querySelector('h4.child3') as HTMLElement;
           const grandchild = root.querySelector(
-            'div.grandchild32',
+            'div.grandchild32'
           ) as HTMLElement;
           assert.strictEqual(divParent.childNodes.length, 2);
           assert.strictEqual(h4Child.childNodes.length, 2);

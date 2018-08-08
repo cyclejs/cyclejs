@@ -3,7 +3,7 @@ import {IsolateModule} from './IsolateModule';
 export class ScopeChecker {
   constructor(
     private fullScope: string,
-    private isolateModule: IsolateModule,
+    private isolateModule: IsolateModule
   ) {}
 
   /**

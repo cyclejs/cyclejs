@@ -21,7 +21,7 @@ export interface MockTimeSource extends TimeSource {
   assertEqual(
     actual: Stream<any>,
     expected: Stream<any>,
-    comparator?: Comparator,
+    comparator?: Comparator
   ): void;
   run(cb?: (err?: Error) => void): void;
 }

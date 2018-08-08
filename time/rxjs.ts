@@ -28,7 +28,7 @@ interface MockTimeSource extends TimeSource {
   assertEqual(
     actual: Observable<any>,
     expected: Observable<any>,
-    comparator?: Comparator,
+    comparator?: Comparator
   ): void;
   run(cb?: (err?: Error) => void): void;
 }

@@ -13,6 +13,6 @@ module.exports = function(config) {
       browserStack: {
         name: 'Cycle.js history driver',
       },
-    }),
+    })
   );
 };

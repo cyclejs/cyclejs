@@ -54,7 +54,7 @@ describe('mockDOMSource', function() {
     combineLatest(
       userEvents.select('.foo').events('click'),
       userEvents.select('.bar').events('scroll'),
-      (a: number, b: number) => a * b,
+      (a: number, b: number) => a * b
     ).subscribe({
       next: ev => {
         assert.strictEqual(ev, 270);
@@ -75,7 +75,7 @@ describe('mockDOMSource', function() {
     combineLatest(
       userEvents.select('.foo').events('click'),
       userEvents.select('.foo').events('scroll'),
-      (a: number, b: number) => a * b,
+      (a: number, b: number) => a * b
     ).subscribe({
       next: ev => {
         assert.strictEqual(ev, 405);
@@ -145,7 +145,7 @@ describe('mockDOMSource', function() {
     });
     assert.strictEqual(
       (mockedDOMSource.select('.foo').elements() as any)._isCycleSource,
-      'MockedDOM',
+      'MockedDOM'
     );
     done();
   });
@@ -158,7 +158,7 @@ describe('mockDOMSource', function() {
     });
     assert.strictEqual(
       (userEvents.select('.foo').events('click') as any)._isCycleSource,
-      'MockedDOM',
+      'MockedDOM'
     );
     done();
   });
@@ -203,12 +203,12 @@ describe('mockDOMSource', function() {
     assert.strictEqual(
       typeof (domSource.events('click') as any).pipe,
       'function',
-      'domSource.events(click) should be an Observable instance',
+      'domSource.events(click) should be an Observable instance'
     );
     assert.strictEqual(
       typeof (domSource.elements() as any).pipe,
       'function',
-      'domSource.elements() should be an Observable instance',
+      'domSource.elements() should be an Observable instance'
     );
   });
 });
@@ -221,7 +221,7 @@ describe('isolation on MockedDOMSource', function() {
           h3('.top-most', [
             h2('.bar', 'Wrong'),
             div('.child.___foo', [h4('.bar', 'Correct')]),
-          ]),
+          ])
         ),
       };
     }
@@ -244,7 +244,7 @@ describe('isolation on MockedDOMSource', function() {
     (isolatedDOMSource.select('.bar').elements() as any)
       .pipe(
         skip(1),
-        take(1),
+        take(1)
       )
       .subscribe((elements: number) => {
         assert.strictEqual(elements, 135);
@@ -282,10 +282,10 @@ describe('isolation on MockedDOMSource', function() {
           h3('.top-most', [
             sources.DOM.isolateSink(
               of(div('.foo', [h4('.bar', 'Wrong')])),
-              'ISOLATION',
+              'ISOLATION'
             ),
             h2('.bar', 'Correct'),
-          ]),
+          ])
         ),
       };
     }
@@ -308,7 +308,7 @@ describe('isolation on MockedDOMSource', function() {
       .elements()
       .pipe(
         skip(1),
-        take(1),
+        take(1)
       )
       .subscribe(function(x: any) {
         assert.strictEqual(x, 'Correct');

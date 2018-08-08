@@ -46,7 +46,7 @@ function runVirtually(
   done: any,
   currentTime: () => number,
   setTime: any,
-  timeToRunTo = 0,
+  timeToRunTo = 0
 ) {
   const args = {scheduler, done, currentTime, setTime, timeToRunTo};
 

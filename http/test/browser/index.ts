@@ -72,7 +72,7 @@ describe('HTTP Driver in the browser', function() {
         assert.strictEqual(response.status, 200);
         assert.deepStrictEqual(
           new Uint8Array(response.body),
-          new Uint8Array([1, 2, 3]),
+          new Uint8Array([1, 2, 3])
         );
         done();
       });
@@ -104,7 +104,7 @@ describe('HTTP Driver in the browser', function() {
         fr.onload = ev => {
           assert.deepStrictEqual(
             new Uint8Array(fr.result),
-            new Uint8Array([1, 2, 3]),
+            new Uint8Array([1, 2, 3])
           );
           done();
         };
@@ -234,7 +234,7 @@ describe('HTTP Driver in the browser', function() {
         .mergeMap(() =>
           sources.HTTP.select('cat')
             .mergeAll()
-            .map((res: any) => 'I should not show this, ' + res.text),
+            .map((res: any) => 'I should not show this, ' + res.text)
         );
 
       const request$ = Rx.Observable.of({

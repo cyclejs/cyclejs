@@ -41,7 +41,7 @@ describe('setup', function() {
       return {
         other: sources.other.pipe(
           take(1),
-          startWith('a'),
+          startWith('a')
         ),
       };
     }
@@ -71,7 +71,7 @@ describe('setup', function() {
       return {
         other: sources.other.pipe(
           take(1),
-          startWith('a'),
+          startWith('a')
         ),
       };
     }
@@ -102,14 +102,14 @@ describe('setup', function() {
         other: sources.other.pipe(
           take(6),
           map(x => String(x)),
-          startWith('a'),
+          startWith('a')
         ),
       };
     }
     function driver(xsSink: any): Observable<number> {
       return from(xsSink).pipe(
         map((x: string) => x.charCodeAt(0)),
-        delay(1),
+        delay(1)
       );
     }
     let {sources, run} = setup(app, {other: driver});
@@ -177,7 +177,7 @@ describe('run', function() {
       return {
         other: sources.other.pipe(
           take(1),
-          startWith('a'),
+          startWith('a')
         ),
       };
     }
@@ -201,7 +201,7 @@ describe('run', function() {
         delay(10),
         map(() => {
           throw new Error('malfunction');
-        }),
+        })
       );
 
       return {
@@ -228,7 +228,7 @@ describe('run', function() {
       sinon.assert.calledOnce(console.error as any);
       sinon.assert.calledWithExactly(
         console.error as any,
-        sinon.match((err: any) => err.message === 'malfunction'),
+        sinon.match((err: any) => err.message === 'malfunction')
       );
 
       // Should be false because the error was already reported in the console.

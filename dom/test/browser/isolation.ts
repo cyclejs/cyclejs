@@ -44,7 +44,7 @@ describe('isolateSource', function() {
           h3('.top-most', [
             h2('.bar', 'Wrong'),
             div({isolate: 'foo'}, [h4('.bar', 'Correct')]),
-          ]),
+          ])
         ),
       };
     }
@@ -92,7 +92,7 @@ describe('isolateSource', function() {
     const dispose = run();
     const isolatedDOMSource = sources.DOM.isolateSource(
       sources.DOM,
-      'top-most',
+      'top-most'
     );
     // Make assertions
     assert.strictEqual(typeof isolatedDOMSource.isolateSource, 'function');
@@ -142,7 +142,7 @@ describe('isolateSink', function() {
         xs.of(1).compose(delay(50)),
         xs.of(2).compose(delay(50)),
         xs.of(1).compose(delay(50)),
-        xs.of(2).compose(delay(50)),
+        xs.of(2).compose(delay(50))
       )
         .map(i => (i === 1 ? first$ : second$))
         .flatten();
@@ -176,7 +176,7 @@ describe('isolation', function() {
     function app(sources: {DOM: MainDOMSource}) {
       const child$ = sources.DOM.isolateSink(
         xs.of(div('.foo', [h4('.bar', 'Wrong')])),
-        'ISOLATION',
+        'ISOLATION'
       );
 
       const vdom$ = xs
@@ -215,7 +215,7 @@ describe('isolation', function() {
     function app(sources: {DOM: MainDOMSource}) {
       const child$ = sources.DOM.isolateSink(
         xs.of(div('.foo', [h4('.bar', 'Not wrong')])),
-        ':root',
+        ':root'
       );
 
       const vdom$ = xs
@@ -261,18 +261,18 @@ describe('isolation', function() {
     function app(sources: {DOM: MainDOMSource}) {
       const foo$ = sources.DOM.isolateSink(
         xs.of(div('.container', [h4('.header', 'Correct')])),
-        '.foo',
+        '.foo'
       );
 
       const bar$ = sources.DOM.isolateSink(
         xs.of(div('.container', [h3('.header', 'Wrong')])),
-        '.bar',
+        '.bar'
       );
 
       const vdom$ = xs
         .combine(foo$, bar$)
         .map(([foo, bar]) =>
-          div('.top-most', [foo, bar, h2('.header', 'Correct')]),
+          div('.top-most', [foo, bar, h2('.header', 'Correct')])
         );
 
       return {
@@ -324,18 +324,18 @@ describe('isolation', function() {
     function app(sources: {DOM: MainDOMSource}) {
       const foo$ = sources.DOM.isolateSink(
         xs.of(div('.container', [h4('.header', 'Correct')])),
-        '#foo',
+        '#foo'
       );
 
       const bar$ = sources.DOM.isolateSink(
         xs.of(div('.container', [h3('.header', 'Wrong')])),
-        '#bar',
+        '#bar'
       );
 
       const vdom$ = xs
         .combine(foo$, bar$)
         .map(([foo, bar]) =>
-          div('.top-most', [foo, bar, h2('.header', 'Correct')]),
+          div('.top-most', [foo, bar, h2('.header', 'Correct')])
         );
 
       return {
@@ -387,7 +387,7 @@ describe('isolation', function() {
     function app(sources: {DOM: MainDOMSource}) {
       const child$ = sources.DOM.isolateSink(
         xs.of(thunk('div.foo', () => div('.foo', [h4('.bar', 'Wrong')]), [])),
-        'ISOLATION',
+        'ISOLATION'
       );
 
       const vdom$ = xs
@@ -464,13 +464,13 @@ describe('isolation', function() {
         .elements();
       const islandVDom$ = sources.DOM.isolateSink(
         xs.of(div([h3('.bar', 'Correct')])),
-        'island',
+        'island'
       );
       const child$ = sources.DOM.isolateSink(
         islandVDom$.map(islandVDom =>
-          div('.foo', [islandVDom, h4('.bar', 'Wrong')]),
+          div('.foo', [islandVDom, h4('.bar', 'Wrong')])
         ),
-        'ISOLATION',
+        'ISOLATION'
       );
       const vdom$ = child$.map(child => h3('.top-most', [child]));
 
@@ -507,7 +507,7 @@ describe('isolation', function() {
     function Frame(sources: {DOM: MainDOMSource; content$: Stream<any>}) {
       const click$ = sources.DOM.select('.foo').events('click');
       const vdom$ = sources.content$.map(content =>
-        h4('.foo.frame', {style: {backgroundColor: 'lightblue'}}, [content]),
+        h4('.foo.frame', {style: {backgroundColor: 'lightblue'}}, [content])
       );
       return {
         DOM: vdom$,
@@ -522,7 +522,7 @@ describe('isolation', function() {
       const click$ = islandDOMSource.select('.foo').events('click');
       const islandDOMSink$ = isolateSink(
         xs.of(span('.foo.monalisa', 'Monalisa')),
-        'island',
+        'island'
       );
 
       const frameDOMSource = isolateSource(sources.DOM, 'myFrame');
@@ -598,7 +598,7 @@ describe('isolation', function() {
         next: (root: Element) => {
           const frameFoo = root.querySelector('.foo.frame') as HTMLElement;
           const monalisaFoo = root.querySelector(
-            '.foo.monalisa',
+            '.foo.monalisa'
           ) as HTMLElement;
           assert.notStrictEqual(frameFoo, null);
           assert.notStrictEqual(monalisaFoo, null);
@@ -620,7 +620,7 @@ describe('isolation', function() {
     function app(sources: {DOM: MainDOMSource}) {
       const child$ = sources.DOM.isolateSink(
         xs.of(span('.foo', [h4('.bar', 'Wrong')])),
-        'ISOLATION',
+        'ISOLATION'
       );
 
       return {
@@ -712,7 +712,7 @@ describe('isolation', function() {
     function app(sources: {DOM: MainDOMSource}) {
       const child$ = sources.DOM.isolateSink(
         xs.of(span([h4('.bar', 'Wrong')])),
-        'ISOLATION',
+        'ISOLATION'
       );
 
       return {
@@ -750,7 +750,7 @@ describe('isolation', function() {
     function app(sources: {DOM: MainDOMSource}) {
       const child$ = sources.DOM.isolateSink(
         xs.of(span([div([h4('.foo', 'hello'), h4('.bar', 'world')])])),
-        'ISOLATION',
+        'ISOLATION'
       );
 
       return {
@@ -786,7 +786,7 @@ describe('isolation', function() {
           h3('.top-most', [
             h2('.bar', 'Wrong'),
             div({isolate: 'foo'}, [h4('.bar', 'Correct')]),
-          ]),
+          ])
         ),
       };
     }
@@ -820,7 +820,7 @@ describe('isolation', function() {
     function app(sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(
-          h3('.top-most', [div({isolate: 'foo'}, [h4('.bar', 'Hello')])]),
+          h3('.top-most', [div({isolate: 'foo'}, [h4('.bar', 'Hello')])])
         ),
       };
     }
@@ -867,7 +867,7 @@ describe('isolation', function() {
           h3('.top-most', [
             h2('.bar', 'Wrong'),
             div({isolate: 'foo'}, [h4('.bar', 'Correct')]),
-          ]),
+          ])
         ),
       };
     }
@@ -937,7 +937,7 @@ describe('isolation', function() {
               h2('.bar', 'Wrong'),
               exists ? div({isolate: 'foo'}, [h4('.bar', 'Correct')]) : null,
             ]),
-          ]),
+          ])
         ),
       };
     }
@@ -1022,7 +1022,7 @@ describe('isolation', function() {
         .map(children =>
           xs
             .combine(...children.map(child => child.DOM))
-            .map(childVNodes => div('.parent', childVNodes)),
+            .map(childVNodes => div('.parent', childVNodes))
         )
         .flatten();
       return {
@@ -1148,7 +1148,7 @@ describe('isolation', function() {
       const innerDOM$ = xs
         .combine(x$, child.DOM)
         .map(([x, childVDOM]) =>
-          div(`.parent${x}`, {key: `key${x}`}, [childVDOM, `${x}`]),
+          div(`.parent${x}`, {key: `key${x}`}, [childVDOM, `${x}`])
         );
       return {
         DOM: innerDOM$,
@@ -1210,7 +1210,7 @@ describe('isolation', function() {
       const innerDOM$ = xs
         .combine(x$, child.DOM)
         .map(([x, childVDOM]) =>
-          div(`.parent${x}`, {key: `key${x}`}, [childVDOM, `${x}`]),
+          div(`.parent${x}`, {key: `key${x}`}, [childVDOM, `${x}`])
         );
       return {
         DOM: innerDOM$,
@@ -1297,7 +1297,7 @@ describe('isolation', function() {
         });
 
       dispose = run();
-    },
+    }
   );
 
   it(
@@ -1346,7 +1346,7 @@ describe('isolation', function() {
         });
 
       dispose = run();
-    },
+    }
   );
 
   it(
@@ -1395,7 +1395,7 @@ describe('isolation', function() {
         });
 
       dispose = run();
-    },
+    }
   );
 
   it(
@@ -1444,7 +1444,7 @@ describe('isolation', function() {
         });
 
       dispose = run();
-    },
+    }
   );
 
   it(
@@ -1517,7 +1517,7 @@ describe('isolation', function() {
           },
         });
       dispose = run();
-    },
+    }
   );
 
   it('should allow null or undefined isolated child DOM', function(done) {
@@ -1535,7 +1535,7 @@ describe('isolation', function() {
     function main(sources: {DOM: MainDOMSource}) {
       const childSinks = isolate(child, 'child')(sources);
       const vdom$ = childSinks.DOM.map((childVDom: VNode) =>
-        div('.parent', [childVDom, h2('part of parent')]),
+        div('.parent', [childVDom, h2('part of parent')])
       );
       return {
         DOM: vdom$,
@@ -1559,7 +1559,7 @@ describe('isolation', function() {
           assert.strictEqual(parentEl.children[1].tagName, 'H2');
           assert.strictEqual(
             parentEl.children[1].textContent,
-            'part of parent',
+            'part of parent'
           );
         },
       });
@@ -1573,7 +1573,7 @@ describe('isolation', function() {
           assert.strictEqual(parentEl.children[0].tagName, 'H2');
           assert.strictEqual(
             parentEl.children[0].textContent,
-            'part of parent',
+            'part of parent'
           );
           dispose();
           done();
@@ -1600,7 +1600,7 @@ describe('isolation', function() {
           div([
             button('.btn', highlight ? 'HIGHLIGHTED' : 'click me'),
             childVdom,
-          ]),
+          ])
         );
       return {DOM: vdom$};
     }

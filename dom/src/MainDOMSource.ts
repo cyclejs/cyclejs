@@ -46,7 +46,7 @@ const eventTypesThatDontBubble = [
 
 function determineUseCapture(
   eventType: string,
-  options: EventsFnOptions,
+  options: EventsFnOptions
 ): boolean {
   let result = false;
   if (typeof options.useCapture === 'boolean') {
@@ -60,7 +60,7 @@ function determineUseCapture(
 
 function filterBasedOnIsolation(domSource: MainDOMSource, fullScope: string) {
   return function filterBasedOnIsolationOperator(
-    rootElement$: Stream<Element>,
+    rootElement$: Stream<Element>
   ): Stream<Element> {
     interface State {
       wasIsolated: boolean;
@@ -99,7 +99,7 @@ export class MainDOMSource implements DOMSource {
     private _namespace: Array<string> = [],
     public _isolateModule: IsolateModule,
     public _delegators: Map<string, EventDelegator>,
-    private _name: string,
+    private _name: string
   ) {
     this.isolateSource = isolateSource;
     this.isolateSink = (sink, scope) => {
@@ -121,7 +121,7 @@ export class MainDOMSource implements DOMSource {
     } else {
       const elementFinder = new ElementFinder(
         this._namespace,
-        this._isolateModule,
+        this._isolateModule
       );
       return this._rootElement$.map(el => elementFinder.call(el));
     }
@@ -129,7 +129,7 @@ export class MainDOMSource implements DOMSource {
 
   public elements(): MemoryStream<Array<Element>> {
     const out: DevToolEnabledSource & MemoryStream<Array<Element>> = adapt(
-      this._elements().remember(),
+      this._elements().remember()
     );
     out._isCycleSource = this._name;
     return out;
@@ -140,7 +140,7 @@ export class MainDOMSource implements DOMSource {
       this._elements()
         .filter(arr => arr.length > 0)
         .map(arr => arr[0])
-        .remember(),
+        .remember()
     );
     out._isCycleSource = this._name;
     return out;
@@ -151,14 +151,14 @@ export class MainDOMSource implements DOMSource {
   }
 
   public select<T extends keyof SpecialSelector>(
-    selector: T,
+    selector: T
   ): SpecialSelector[T];
   public select(selector: string): MainDOMSource;
   public select(selector: string): DOMSource {
     if (typeof selector !== 'string') {
       throw new Error(
         `DOM driver's select() expects the argument to be a ` +
-          `string as a CSS selector`,
+          `string as a CSS selector`
       );
     }
     if (selector === 'document') {
@@ -178,18 +178,18 @@ export class MainDOMSource implements DOMSource {
       childNamespace,
       this._isolateModule,
       this._delegators,
-      this._name,
+      this._name
     ) as DOMSource;
   }
 
   public events(
     eventType: string,
-    options: EventsFnOptions = {},
+    options: EventsFnOptions = {}
   ): Stream<Event> {
     if (typeof eventType !== `string`) {
       throw new Error(
         `DOM driver's events() expects argument to be a ` +
-          `string representing the event type to listen for.`,
+          `string representing the event type to listen for.`
       );
     }
     const useCapture: boolean = determineUseCapture(eventType, options);
@@ -206,7 +206,7 @@ export class MainDOMSource implements DOMSource {
     let rootElement$: Stream<Element>;
     if (fullScope) {
       rootElement$ = this._rootElement$.compose(
-        filterBasedOnIsolation(domSource, fullScope),
+        filterBasedOnIsolation(domSource, fullScope)
       );
     } else {
       rootElement$ = this._rootElement$.take(2);
@@ -220,7 +220,7 @@ export class MainDOMSource implements DOMSource {
             rootElement,
             eventType,
             useCapture,
-            options.preventDefault,
+            options.preventDefault
           );
         }
 
@@ -238,7 +238,7 @@ export class MainDOMSource implements DOMSource {
             eventType,
             useCapture,
             domSource._isolateModule,
-            options.preventDefault,
+            options.preventDefault
           );
           delegators.set(key, delegator);
         }

@@ -91,7 +91,7 @@ describe('HTML Driver', function() {
     });
     assert.strictEqual(
       typeof (sources.html.elements() as any).imitate,
-      'function',
+      'function'
     );
     done();
   });
@@ -120,7 +120,7 @@ describe('HTML Driver', function() {
     });
     assert.strictEqual(
       (sources.html.events('click') as any)._isCycleSource,
-      'html',
+      'html'
     );
     done();
   });
@@ -130,11 +130,11 @@ describe('HTML Driver', function() {
       assert.strictEqual(typeof sources.html.select, 'function');
       assert.strictEqual(
         typeof sources.html.select('whatever').elements().imitate,
-        'function',
+        'function'
       );
       assert.strictEqual(
         typeof sources.html.select('whatever').events('click').imitate,
-        'function',
+        'function'
       );
       return {
         html: xs.of(div('.test-element', ['Foobar'])),
@@ -204,7 +204,7 @@ describe('HTML Driver', function() {
           h('.test-element', [
             div([h2('.a', 'a'), h('h4.b', 'b'), h('h1.fooclass')]),
             div([h3('.c', 'c'), h('div', [h('p.d', 'd'), h('h2.barclass')])]),
-          ]),
+          ])
         ),
       };
     }
@@ -225,7 +225,7 @@ describe('HTML Driver', function() {
           '<h2 class="barclass"></h2>' +
           '</div>' +
           '</div>' +
-          '</div>',
+          '</div>'
       );
       done();
     }

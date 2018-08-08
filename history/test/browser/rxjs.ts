@@ -118,7 +118,7 @@ describe('historyDriver - RxJS', () => {
                 {type: 'go', amount: +1},
                 {type: 'goBack'},
                 {type: 'goForward'},
-              ][i],
+              ][i]
           ),
       };
     }

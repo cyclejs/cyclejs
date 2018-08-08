@@ -26,7 +26,7 @@ function isHistory(x: BrowserHistoryBuildOptions | History): x is History {
 }
 
 export function makeHistoryDriver(
-  options?: BrowserHistoryBuildOptions | History | MemoryHistory,
+  options?: BrowserHistoryBuildOptions | History | MemoryHistory
 ): HistoryDriver {
   let history: any;
   if (options && isHistory(options)) {
@@ -41,7 +41,7 @@ export function makeHistoryDriver(
 }
 
 export function makeServerHistoryDriver(
-  options?: MemoryHistoryBuildOptions,
+  options?: MemoryHistoryBuildOptions
 ): HistoryDriver {
   const history = createMemoryHistory(options);
   return function serverHistoryDriver(sink$: Stream<HistoryInput | string>) {
@@ -50,7 +50,7 @@ export function makeServerHistoryDriver(
 }
 
 export function makeHashHistoryDriver(
-  options?: HashHistoryBuildOptions,
+  options?: HashHistoryBuildOptions
 ): HistoryDriver {
   const history = createHashHistory(options);
   return function hashHistoryDriver(sink$: Stream<HistoryInput | string>) {

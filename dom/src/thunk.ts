@@ -50,7 +50,7 @@ export function thunk(
   sel: string,
   key: any,
   fn: Function,
-  args: Array<any>,
+  args: Array<any>
 ): Thunk;
 export function thunk(sel: string, key?: any, fn?: any, args?: any): VNode {
   if (args === undefined) {

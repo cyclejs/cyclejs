@@ -14,47 +14,60 @@ function range(start: number, end: number) {
 }
 
 function fancyColor(timestamp: number, i: number, offset: number): number {
-  return Math.abs(Math.round((timestamp + (offset * 100) + (i * 20)) % 512) - 255);
+  return Math.abs(Math.round((timestamp + offset * 100 + i * 20) % 512) - 255);
 }
 
-function nodes(timestamp: number, speed: number, height: number, nodeCount: number) {
+function nodes(
+  timestamp: number,
+  speed: number,
+  height: number,
+  nodeCount: number
+) {
   const increment = maxWidth / nodeCount;
 
-  return (
-    div('.nodes', range(1, nodeCount).map((i: number) =>
-      div('.node', {
-        key: i,
-        style: {
-          position: `absolute`,
-          color: 'rgb(' +
-            `${fancyColor(timestamp, i, 0)},` +
-            `${fancyColor(timestamp, i, 1)},` +
-            `${fancyColor(timestamp, i, 2)})`,
-          left: (increment * i) + 'px',
-          top: (Math.sin((increment * i) + timestamp / (maxSpeed - speed)) * height + 150).toString() + 'px'
+  return div(
+    '.nodes',
+    range(1, nodeCount).map((i: number) =>
+      div(
+        '.node',
+        {
+          key: i,
+          style: {
+            position: `absolute`,
+            color:
+              'rgb(' +
+              `${fancyColor(timestamp, i, 0)},` +
+              `${fancyColor(timestamp, i, 1)},` +
+              `${fancyColor(timestamp, i, 2)})`,
+            left: increment * i + 'px',
+            top:
+              (
+                Math.sin(increment * i + timestamp / (maxSpeed - speed)) *
+                  height +
+                150
+              ).toString() + 'px',
+          },
         },
-      }, '.'),
-    ))
+        '.'
+      )
+    )
   );
 }
 
 function main(sources: any) {
   const {DOM, Time} = sources;
 
-  const speed$ = DOM
-    .select('.speed')
+  const speed$ = DOM.select('.speed')
     .events('input')
     .map((ev: any) => ev.target.value)
     .startWith(maxSpeed / 2);
 
-  const height$ = DOM
-    .select('.height')
+  const height$ = DOM.select('.height')
     .events('input')
     .map((ev: any) => ev.target.value)
     .startWith(maxHeight / 2);
 
-  const nodeCount$ = DOM
-    .select('.node-count')
+  const nodeCount$ = DOM.select('.node-count')
     .events('input')
     .map((ev: any) => ev.target.value)
     .startWith(45);
@@ -64,17 +77,34 @@ function main(sources: any) {
   return {
     DOM: time$
       .compose(sampleCombine(speed$, height$, nodeCount$))
-      .map(([timestamp, speed, height, nodeCount]: [number, number, number, number]) =>
-        div('.time', [
-          nodes(timestamp, speed, height, nodeCount),
-          'Speed',
-          input('.speed', {props: {type: 'range', min: 1, max: maxSpeed, value: speed}}),
-          'Height',
-          input('.height', {props: {type: 'range', min: 1, max: maxHeight, value: height}}),
-          'Nodes',
-          input('.node-count', {props: {type: 'range', min: 1, max: maxNodeCount, value: nodeCount}}),
-        ])
-      )
+      .map(
+        ([timestamp, speed, height, nodeCount]: [
+          number,
+          number,
+          number,
+          number
+        ]) =>
+          div('.time', [
+            nodes(timestamp, speed, height, nodeCount),
+            'Speed',
+            input('.speed', {
+              props: {type: 'range', min: 1, max: maxSpeed, value: speed},
+            }),
+            'Height',
+            input('.height', {
+              props: {type: 'range', min: 1, max: maxHeight, value: height},
+            }),
+            'Nodes',
+            input('.node-count', {
+              props: {
+                type: 'range',
+                min: 1,
+                max: maxNodeCount,
+                value: nodeCount,
+              },
+            }),
+          ])
+      ),
   };
 }
 

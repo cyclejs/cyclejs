@@ -8,7 +8,7 @@ export function fromEvent(
   element: Element | Document,
   eventName: string,
   useCapture = false,
-  preventDefault: PreventDefaultOpt = false,
+  preventDefault: PreventDefaultOpt = false
 ): Stream<Event> {
   return Stream.create<Event>({
     element: element,
@@ -50,7 +50,7 @@ function matchObject(matcher: object, obj: object): boolean {
 
 export function preventDefaultConditional(
   event: any,
-  preventDefault: PreventDefaultOpt,
+  preventDefault: PreventDefaultOpt
 ): void {
   if (preventDefault) {
     if (typeof preventDefault === 'boolean') {
@@ -65,7 +65,7 @@ export function preventDefaultConditional(
       }
     } else {
       throw new Error(
-        'preventDefault has to be either a boolean, predicate function or object',
+        'preventDefault has to be either a boolean, predicate function or object'
       );
     }
   }

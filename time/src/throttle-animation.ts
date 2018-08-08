@@ -5,7 +5,7 @@ import {adapt} from '@cycle/run/lib/adapt';
 function makeThrottleAnimation(
   timeSource: any,
   schedule: any,
-  currentTime: () => number,
+  currentTime: () => number
 ) {
   return function throttleAnimation<T>(stream: Stream<T>): Stream<T> {
     const source = timeSource();

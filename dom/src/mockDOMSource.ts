@@ -41,7 +41,7 @@ export class MockedDOMSource implements DOMSource {
   public events(eventType: string, options?: EventsFnOptions): any {
     const streamForEventType = this._mockConfig[eventType] as any;
     const out: DevToolEnabledSource & FantasyObservable = adapt(
-      streamForEventType || xs.empty(),
+      streamForEventType || xs.empty()
     );
 
     out._isCycleSource = 'MockedDOM';
@@ -57,7 +57,7 @@ export class MockedDOMSource implements DOMSource {
 
   public isolateSource(
     source: MockedDOMSource,
-    scope: string,
+    scope: string
   ): MockedDOMSource {
     return source.select('.' + SCOPE_PREFIX + scope);
   }
@@ -71,7 +71,7 @@ export class MockedDOMSource implements DOMSource {
           vnode.sel += `.${SCOPE_PREFIX}${scope}`;
           return vnode;
         }
-      }),
+      })
     );
   }
 }

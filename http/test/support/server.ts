@@ -24,7 +24,7 @@ export function startServer() {
           .status(500)
           .send(
             'Expected Content-Type request header to be undefined, but got ' +
-              contentTypeHeader,
+              contentTypeHeader
           );
       }
     }, 150);

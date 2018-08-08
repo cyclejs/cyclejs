@@ -62,7 +62,7 @@ export class EventDelegator {
     public eventType: string,
     public useCapture: boolean,
     public isolateModule: IsolateModule,
-    public preventDefault: PreventDefaultOpt = false,
+    public preventDefault: PreventDefaultOpt = false
   ) {
     if (preventDefault) {
       if (useCapture) {
@@ -90,7 +90,7 @@ export class EventDelegator {
     this.origin.removeEventListener(
       this.eventType,
       this.listener,
-      this.useCapture,
+      this.useCapture
     );
     newOrigin.addEventListener(this.eventType, this.listener, this.useCapture);
     this.origin = newOrigin;
@@ -106,7 +106,7 @@ export class EventDelegator {
     const selector = getSelectors(namespace);
     const scopeChecker = new ScopeChecker(
       getFullScope(namespace),
-      this.isolateModule,
+      this.isolateModule
     );
     const subject = xs.create<Event>({
       start: () => {},
@@ -192,7 +192,7 @@ export class EventDelegator {
 
   private mutateEventCurrentTarget(
     event: CycleDOMEvent,
-    currentTargetElement: Element,
+    currentTargetElement: Element
   ) {
     try {
       Object.defineProperty(event, `currentTarget`, {

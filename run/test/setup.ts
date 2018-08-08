@@ -64,11 +64,11 @@ describe('setup', function() {
     }
 
     const stringDriver: Driver<Stream<string>, Stream<string>> = (
-      sink: Stream<string>,
+      sink: Stream<string>
     ) => xs.of('b');
 
     const numberWriteOnlyDriver: Driver<Stream<number>, void> = (
-      sink: Stream<number>,
+      sink: Stream<number>
     ) => {};
 
     const objectReadOnlyDriver: Driver<void, Stream<object>> = () => xs.of({});
@@ -104,11 +104,11 @@ describe('setup', function() {
     }
 
     const stringDriver: Driver<Stream<string>, Stream<string>> = (
-      sink: Stream<string>,
+      sink: Stream<string>
     ) => xs.of('b');
 
     const numberWriteOnlyDriver: Driver<Stream<number>, void> = (
-      sink: Stream<number>,
+      sink: Stream<number>
     ) => {};
 
     const objectReadOnlyDriver: Driver<void, Stream<object>> = () => xs.of({});
@@ -158,7 +158,7 @@ describe('setup', function() {
             .take(6)
             .map(x => String(x))
             .startWith('a'),
-          xs.never(),
+          xs.never()
         ),
       };
     }

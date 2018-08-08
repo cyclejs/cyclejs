@@ -12,7 +12,7 @@ function makeDiagram(
   schedule: any,
   currentTime: () => number,
   interval: number,
-  setMaxTime: any,
+  setMaxTime: any
 ) {
   return function diagram(diagramString: string, values = {}): Stream<any> {
     const characters = diagramString.split('');

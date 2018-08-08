@@ -71,7 +71,7 @@ describe('setup', function() {
             .take(6)
             .map(x => String(x))
             .startWith('a'),
-          most.never(),
+          most.never()
         ),
       };
     }
@@ -220,7 +220,7 @@ describe('run()', function() {
       sinon.assert.calledOnce(console.error as any);
       sinon.assert.calledWithExactly(
         console.error as any,
-        sinon.match(v => v.message === 'malfunction'),
+        sinon.match(v => v.message === 'malfunction')
       );
 
       // Should be false because the error was already reported in the console.

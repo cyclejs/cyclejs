@@ -23,7 +23,7 @@ export function optionsToSuperagent(rawReqOptions: RequestOptions) {
   const reqOptions = preprocessReqOptions(rawReqOptions);
   if (typeof reqOptions.url !== `string`) {
     throw new Error(
-      `Please provide a \`url\` property in the request options.`,
+      `Please provide a \`url\` property in the request options.`
     );
   }
   const lowerCaseMethod = (reqOptions.method || 'GET').toLowerCase();
@@ -142,7 +142,7 @@ function normalizeRequestInput(reqInput: RequestInput): RequestOptions {
   } else {
     throw new Error(
       `Observable of requests given to HTTP Driver must emit ` +
-        `either URL strings or objects with parameters.`,
+        `either URL strings or objects with parameters.`
     );
   }
 }
@@ -170,7 +170,7 @@ function requestInputToResponse$(reqInput: RequestInput): ResponseMemoryStream {
 export function makeHTTPDriver(): Driver<Stream<RequestInput>, HTTPSource> {
   function httpDriver(
     request$: Stream<RequestInput>,
-    name: string,
+    name: string
   ): HTTPSource {
     const response$$ = request$.map(requestInputToResponse$);
     const httpSource = new MainHTTPSource(response$$, name, []);

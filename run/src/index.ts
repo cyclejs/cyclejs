@@ -67,23 +67,23 @@ export {
  */
 export function setup<So extends Sources, Si extends FantasySinks<Si>>(
   main: (sources: So) => Si,
-  drivers: Drivers<So, Si>,
+  drivers: Drivers<So, Si>
 ): CycleProgram<So, Si> {
   if (typeof main !== `function`) {
     throw new Error(
-      `First argument given to Cycle must be the 'main' ` + `function.`,
+      `First argument given to Cycle must be the 'main' ` + `function.`
     );
   }
   if (typeof drivers !== `object` || drivers === null) {
     throw new Error(
       `Second argument given to Cycle must be an object ` +
-        `with driver functions as properties.`,
+        `with driver functions as properties.`
     );
   }
   if (isObjectEmpty(drivers)) {
     throw new Error(
       `Second argument given to Cycle must be an object ` +
-        `with at least one driver function declared as a property.`,
+        `with at least one driver function declared as a property.`
     );
   }
 
@@ -138,18 +138,18 @@ export function setup<So extends Sources, Si extends FantasySinks<Si>>(
  * @function setupReusable
  */
 export function setupReusable<So extends Sources, Si extends FantasySinks<Si>>(
-  drivers: Drivers<So, Si>,
+  drivers: Drivers<So, Si>
 ): Engine<So, Si> {
   if (typeof drivers !== `object` || drivers === null) {
     throw new Error(
       `Argument given to setupReusable must be an object ` +
-        `with driver functions as properties.`,
+        `with driver functions as properties.`
     );
   }
   if (isObjectEmpty(drivers)) {
     throw new Error(
       `Argument given to setupReusable must be an object ` +
-        `with at least one driver function declared as a property.`,
+        `with at least one driver function declared as a property.`
     );
   }
 
@@ -195,7 +195,7 @@ export function setupReusable<So extends Sources, Si extends FantasySinks<Si>>(
  */
 export function run<So extends Sources, Si extends FantasySinks<Si>>(
   main: (sources: So) => Si,
-  drivers: Drivers<So, Si>,
+  drivers: Drivers<So, Si>
 ): DisposeFunction {
   const program = setup(main, drivers);
   if (

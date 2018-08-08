@@ -106,7 +106,7 @@ describe('@cycle/time', () => {
 
     function delayBy(
       timeSource: TimeSource,
-      delaySelector: (t: any) => number,
+      delaySelector: (t: any) => number
     ): Operator {
       return function delayByOperator<T>(stream: Stream<T>): Stream<T> {
         return xs.create<T>({
@@ -262,7 +262,7 @@ describe('@cycle/time', () => {
                     'Got',
                     '---2---4---6---|',
                   ].every(expectedLine => lines.indexOf(expectedLine) !== -1),
-                  err.message,
+                  err.message
                 );
 
                 done();
@@ -298,7 +298,7 @@ describe('@cycle/time', () => {
                     '---{"a":1}-------{"a":2}---|',
                     'Got',
                     '---1---2---3---|',
-                  ].every(expectedLine => lines.indexOf(expectedLine) !== -1),
+                  ].every(expectedLine => lines.indexOf(expectedLine) !== -1)
                 );
 
                 done();
@@ -431,7 +431,7 @@ describe('@cycle/time', () => {
                     err.message,
                     'to include:',
                     'Something went wrong',
-                  ].join('\n\n'),
+                  ].join('\n\n')
                 );
 
                 done();
@@ -473,7 +473,7 @@ describe('@cycle/time', () => {
                   err.message,
                   'to include:',
                   expectedError,
-                ].join('\n\n'),
+                ].join('\n\n')
               );
 
               done();
@@ -524,8 +524,8 @@ describe('@cycle/time', () => {
 
                 assert(
                   ['Expected', expected, 'Got', input].every(
-                    expectedLine => lines.indexOf(expectedLine) !== -1,
-                  ),
+                    expectedLine => lines.indexOf(expectedLine) !== -1
+                  )
                 );
 
                 done();
@@ -564,7 +564,7 @@ describe('@cycle/time', () => {
 
             const value = compose(
               input,
-              Time.delay(60),
+              Time.delay(60)
             );
 
             Time.assertEqual(value, expected);
@@ -577,7 +577,7 @@ describe('@cycle/time', () => {
 
             const stream = compose(
               xs.throw(new Error('Test!')),
-              Time.delay(60),
+              Time.delay(60)
             );
             const expected = '---#';
 
@@ -596,7 +596,7 @@ describe('@cycle/time', () => {
 
             const stream = compose(
               Time.diagram(input),
-              Time.debounce(60),
+              Time.debounce(60)
             );
             const expectedStream = Time.diagram(expected);
 
@@ -614,9 +614,9 @@ describe('@cycle/time', () => {
             Time.assertEqual(
               compose(
                 stream,
-                Time.debounce(60),
+                Time.debounce(60)
               ),
-              expected,
+              expected
             );
 
             Time.run(done);
@@ -631,7 +631,7 @@ describe('@cycle/time', () => {
             const expected = `--1-------3----5---6-|`;
             const stream = compose(
               Time.diagram(input),
-              Time.throttle(60),
+              Time.throttle(60)
             );
             const expectedStream = Time.diagram(expected);
 
@@ -649,9 +649,9 @@ describe('@cycle/time', () => {
             Time.assertEqual(
               compose(
                 stream,
-                Time.throttle(60),
+                Time.throttle(60)
               ),
-              expected,
+              expected
             );
 
             Time.run(done);
@@ -667,9 +667,9 @@ describe('@cycle/time', () => {
               Time.assertEqual(
                 compose(
                   stream,
-                  Time.throttle(60),
+                  Time.throttle(60)
                 ),
-                expected,
+                expected
               );
 
               Time.run(done);
@@ -703,7 +703,7 @@ describe('@cycle/time', () => {
             const noisy$ = Time.diagram(`-123456----`);
             const actual$ = compose(
               noisy$,
-              Time.throttleAnimation,
+              Time.throttleAnimation
             );
             const expected$ = Time.diagram(`--2-4-6----`);
 
@@ -724,7 +724,7 @@ describe('@cycle/time', () => {
 
             const actual$ = compose(
               input$,
-              Time.record,
+              Time.record
             );
             const expected$ = Time.diagram(`x--y---(z|)`, {
               x: [],
@@ -750,7 +750,7 @@ describe('@cycle/time', () => {
 
             const actual$ = compose(
               input$,
-              Time.record,
+              Time.record
             );
             const expected$ = Time.diagram(`x--(y|)`, {
               x: [],

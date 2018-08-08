@@ -50,7 +50,7 @@ setAdapt(function adaptXstreamToRx(stream: Stream<any>): Observable<any> {
  */
 export function run<So extends Sources, Si extends Sinks>(
   main: (sources: So) => Si,
-  drivers: Drivers<So, Si>,
+  drivers: Drivers<So, Si>
 ): DisposeFunction {
   const program = coreSetup(main, drivers);
   return program.run();
@@ -86,7 +86,7 @@ export function run<So extends Sources, Si extends Sinks>(
  */
 export function setup<So extends Sources, Si extends Sinks>(
   main: (sources: So) => Si,
-  drivers: Drivers<So, Si>,
+  drivers: Drivers<So, Si>
 ): CycleProgram<So, Si> {
   return coreSetup(main, drivers);
 }

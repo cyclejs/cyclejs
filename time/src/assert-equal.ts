@@ -6,7 +6,7 @@ function checkEqual(
   completeStore: any,
   assert: any,
   interval: number,
-  comparator: any,
+  comparator: any
 ) {
   const usingCustomComparator = comparator !== deepEqual;
   const failReasons: Array<any> = [];
@@ -32,7 +32,7 @@ function checkEqual(
       failReasons.push(
         `Expected type ${expected.type} at time ${actual.time} but got ${
           actual.type
-        }`,
+        }`
       );
     }
 
@@ -45,7 +45,7 @@ function checkEqual(
         failReasons.push(
           `Expected stream to complete at ${expected.time} but completed at ${
             actual.time
-          }`,
+          }`
         );
       }
     }
@@ -69,7 +69,7 @@ function checkEqual(
       if (rightValue && !rightTime) {
         failReasons.push(
           `Right value at wrong time, expected at ${expected.time} but ` +
-            `happened at ${actual.time} (${JSON.stringify(actual.value)})`,
+            `happened at ${actual.time} (${JSON.stringify(actual.value)})`
         );
       }
 
@@ -82,7 +82,7 @@ function checkEqual(
 
         if (usingCustomComparator) {
           const message = `Expected ${JSON.stringify(
-            expected.value,
+            expected.value
           )}, got ${JSON.stringify(actual.value)}`;
 
           errorMessage.push(message);
@@ -139,7 +139,7 @@ Failed because:
 ${failReasons.map(reason => ` * ${reason}`).join('\n')}
 
 ${displayUnexpectedErrors(assert.unexpectedErrors)}
-    `),
+    `)
     );
   }
 }
@@ -149,12 +149,12 @@ function makeAssertEqual(
   schedule: any,
   currentTime: () => number,
   interval: number,
-  addAssert: any,
+  addAssert: any
 ) {
   return function assertEqual(
     actual: Stream<any>,
     expected: Stream<any>,
-    comparator = deepEqual,
+    comparator = deepEqual
   ) {
     const completeStore = {};
 
@@ -174,18 +174,19 @@ function makeAssertEqual(
     const actualLog$ = Time.record(actual);
     const expectedLog$ = Time.record(expected);
 
-    xs
-      .combine(xs.fromObservable(actualLog$), xs.fromObservable(expectedLog$))
-      .addListener({
-        next([aLog, bLog]) {
-          completeStore['actual'] = aLog;
-          completeStore['expected'] = bLog;
-        },
+    xs.combine(
+      xs.fromObservable(actualLog$),
+      xs.fromObservable(expectedLog$)
+    ).addListener({
+      next([aLog, bLog]) {
+        completeStore['actual'] = aLog;
+        completeStore['expected'] = bLog;
+      },
 
-        complete() {
-          checkEqual(completeStore, assert, interval, comparator);
-        },
-      });
+      complete() {
+        checkEqual(completeStore, assert, interval, comparator);
+      },
+    });
   };
 }
 
@@ -251,7 +252,7 @@ function diagramString(entries: Array<any>, interval: number): string {
   const diagram = fill(new Array(characterCount), '-');
 
   const chunks = chunkBy(entries, (entry: any) =>
-    Math.max(0, Math.floor(entry.time / interval)),
+    Math.max(0, Math.floor(entry.time / interval))
   );
 
   chunks.forEach((chunk: any) => {

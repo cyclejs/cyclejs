@@ -15,6 +15,6 @@ module.exports = function(config) {
           values: ['test/typings.d.ts'],
         },
       },
-    }),
+    })
   );
 };

@@ -163,7 +163,7 @@ describe('serverHistoryDriver - xstream', function() {
           '/test',
           '/other',
           {type: 'go', amount: -1},
-          {type: 'go', amount: 1},
+          {type: 'go', amount: 1}
         ),
       };
     }
@@ -196,7 +196,7 @@ describe('serverHistoryDriver - xstream', function() {
           '/test',
           '/other',
           {type: 'go', amount: -1},
-          {type: 'goForward'},
+          {type: 'goForward'}
         ),
       };
     }
