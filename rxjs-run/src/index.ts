@@ -18,7 +18,7 @@ export type Drivers<So extends Sources, Si extends Sinks> = {
 };
 
 setAdapt(function adaptXstreamToRx(stream: Stream<any>): Observable<any> {
-  return from(stream);
+  return from(stream as any);
 });
 
 /**

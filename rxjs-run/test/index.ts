@@ -1,7 +1,6 @@
-import 'mocha';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
-import {run, setup} from '../lib/cjs/index';
+import {run, setup} from '../src/index';
 import xs, {Stream} from 'xstream';
 import {Observable, of, from, range} from 'rxjs';
 import {take, startWith, map, delay, concatMap, tap} from 'rxjs/operators';
@@ -40,7 +39,10 @@ describe('setup', function() {
 
     function app(sources: MySources): MySinks {
       return {
-        other: sources.other.pipe(take(1), startWith('a')),
+        other: sources.other.pipe(
+          take(1),
+          startWith('a'),
+        ),
       };
     }
     function driver() {
@@ -67,7 +69,10 @@ describe('setup', function() {
 
     function app(sources: MySources): MySinks {
       return {
-        other: sources.other.pipe(take(1), startWith('a')),
+        other: sources.other.pipe(
+          take(1),
+          startWith('a'),
+        ),
       };
     }
     function xsdriver(): Stream<string> {
@@ -94,11 +99,18 @@ describe('setup', function() {
 
     function app(sources: TestSources): TestSinks {
       return {
-        other: sources.other.pipe(take(6), map(x => String(x)), startWith('a')),
+        other: sources.other.pipe(
+          take(6),
+          map(x => String(x)),
+          startWith('a'),
+        ),
       };
     }
     function driver(xsSink: any): Observable<number> {
-      return from(xsSink).pipe(map((x: string) => x.charCodeAt(0)), delay(1));
+      return from(xsSink).pipe(
+        map((x: string) => x.charCodeAt(0)),
+        delay(1),
+      );
     }
     let {sources, run} = setup(app, {other: driver});
     let dispose: any;
@@ -159,11 +171,14 @@ describe('run', function() {
   });
 
   it('should return a dispose function', function() {
-    let sandbox = sinon.sandbox.create();
+    let sandbox = sinon.createSandbox();
     const spy = sandbox.spy();
     function app(sources: any): any {
       return {
-        other: sources.other.pipe(take(1), startWith('a')),
+        other: sources.other.pipe(
+          take(1),
+          startWith('a'),
+        ),
       };
     }
     function driver() {
@@ -176,7 +191,7 @@ describe('run', function() {
   });
 
   it('should report main() errors in the console', function(done) {
-    let sandbox = sinon.sandbox.create();
+    let sandbox = sinon.createSandbox();
     sandbox.stub(console, 'error');
 
     function main(sources: any): any {

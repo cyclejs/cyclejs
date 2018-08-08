@@ -36,24 +36,22 @@
     "xstream": "*"
   },
   "devDependencies": {
-    "@types/mocha": "2.2.x",
-    "@types/node": "7.0.x",
-    "@types/sinon": "1.16.x",
+    "@types/mocha": "5.2.x",
+    "@types/node": "10.5.x",
+    "@types/sinon": "5.0.x",
+    "mocha": "^5.2.0",
     "rxjs": "6.2.x",
+    "sinon": "^6.1.4",
+    "ts-node": "^7.0.0",
+    "typescript": "~2.8.4",
     "xstream": "11.x"
   },
   "engines": {
     "node": ">=0.12.0"
   },
-  "browserify-shim": {
-    "rxjs": "global:Rx"
-  },
   "scripts": {
-    "mocha": "../node_modules/.bin/mocha test/*.ts --require ts-node/register --exit",
-    "test": "npm run mocha",
-    "test-ci": "npm run test",
-    "browserify": "../node_modules/.bin/browserify lib/cjs/index.js --global-transform=browserify-shim --standalone Cycle --exclude rxjs -o dist/cycle.js",
-    "minify": "node ../.scripts/minify.js dist/cycle.js dist/cycle.min.js"
+    "test": "mocha test/*.ts --require ts-node/register --exit",
+    "test-ci": "npm run test"
   },
   "publishConfig": {
     "access": "public"
