@@ -2,10 +2,10 @@ import {Observable, from} from 'rxjs';
 // tslint:disable-next-line:no-import-side-effect
 import {setAdapt} from '@cycle/run/lib/adapt';
 
-import {mockTimeSource as mockTimeSourceUntyped} from './lib/cjs/src/mock-time-source';
-import {timeDriver as timeDriverUntyped} from './lib/cjs/src/time-driver';
+import {mockTimeSource as mockTimeSourceUntyped} from './src/mock-time-source';
+import {timeDriver as timeDriverUntyped} from './src/time-driver';
 import {Frame} from './lib/cjs/src/animation-frames';
-import {Comparator, OperatorArgs} from './lib/cjs/src/types';
+import {Comparator, OperatorArgs} from './src/types';
 
 setAdapt(from as any);
 

@@ -18,7 +18,7 @@ module.exports = function(config) {
         (acc, curr) =>
           Object.assign({}, acc, {
             [curr]: {
-              target: 'http://localhost:8070' + curr,
+              target: 'http://' + common.hostname + ':8070' + curr,
               changeOrigin: true,
             },
           }),
