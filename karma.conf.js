@@ -4,7 +4,11 @@ const live = !!process.env.LIVE;
 
 const browserstack = require('./browserstack-karma.js');
 
-const browsers = ci ? Object.keys(browserstack) : live ? undefined : ['Chrome'];
+const browsers = ci
+  ? Object.keys(browserstack)
+  : live
+    ? undefined
+    : ['Chrome', 'Firefox'];
 
 module.exports = {
   basePath: '.',
@@ -44,6 +48,6 @@ module.exports = {
   colors: true,
   autoWatch: true,
   browsers: browsers,
-  singleRun: ci,
+  singleRun: !watch && !live,
   concurrency: ci ? 1 : Infinity,
 };

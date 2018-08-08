@@ -10,7 +10,7 @@ import {makeThrottleAnimation} from './throttle-animation';
 import {runVirtually} from './run-virtually';
 import {TimeSource} from './time-source';
 import * as requestAnimationFrame from 'raf';
-import now = require('performance-now');
+import * as now from 'performance-now';
 
 function popAll(array: Array<any>): Array<any> {
   const poppedItems = [];

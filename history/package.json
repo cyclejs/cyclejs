@@ -42,6 +42,9 @@
     "xstream": "11.x"
   },
   "scripts": {
+    "build": "pnpm run build-cjs && pnpm run build-es6",
+    "build-cjs": "tsc --module commonjs --outDir ./lib/cjs",
+    "build-es6": "tsc --module es6 --outDir ./lib/es6",
     "test-node": "mocha --require ts-node/register test/node/*.ts --exit",
     "test-browser": "karma start",
     "test": "pnpm run test-node && pnpm run test-browser",
