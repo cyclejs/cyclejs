@@ -32,17 +32,9 @@ module.exports = {
     browser: 'Mobile Safari',
     browser_version: null,
     device: 'iPhone 7',
+    real_mobile: true,
     os: 'ios',
     os_version: '10.3',
-  },
-  BS_iphone_7: {
-    base: 'BrowserStack',
-    browser: 'Mobile Safari',
-    browser_version: null,
-    device: 'iPhone 5S',
-    os: 'ios',
-    os_version: '7.0',
-    real_mobile: false,
   },
   BS_MS_Edge: {
     base: 'BrowserStack',

@@ -2,6 +2,9 @@ const ci = !!process.env.CI;
 const watch = !!process.env.WATCH;
 const live = !!process.env.LIVE;
 
+const identifier = process.env.BROWSERSTACK_LOCAL_IDENTIFIER;
+const ip = process.env.IP_ADDR;
+
 const browserstack = require('./browserstack-karma.js');
 
 const browsers = ci
@@ -22,6 +25,7 @@ module.exports = {
     'karma-browserstack-launcher',
     'karma-typescript',
   ],
+  hostname: ci ? ip : 'localhost',
   // list of files / patterns to exclude
   exclude: [],
   preprocessors: {
@@ -30,6 +34,8 @@ module.exports = {
   },
   browserStack: {
     startTunnel: false,
+    retryLimit: 1,
+    tunnelIdentifier: identifier,
   },
   browserNoActivityTimeout: 1000000,
   customLaunchers: browserstack,

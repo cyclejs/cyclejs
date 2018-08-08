@@ -8,7 +8,7 @@ First of all, thank you for contributing. It’s appreciated.
 4. Ensure pnpm is [installed](https://pnpm.js.org/docs/en/installation.html).
 5. Run `pnpm recursive install` before anything else, and wait.
 6. Write code.
-7. Run `pnpm recursive test --scope @cycle/dom` (replace `dom` with the package you are testing) to lint and test. Don’t commit before fixing all errors and warnings.
+7. Run `cd dom && pnpm test` (replace `dom` with the package you are testing) to lint and test. Don’t commit before fixing all errors and warnings.
 8. Commit using `pnpm run commit` and follow the CLI instructions.
 9. Make a pull request.
 
