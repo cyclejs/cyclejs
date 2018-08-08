@@ -1,6 +1,5 @@
-import 'mocha';
 import * as assert from 'assert';
-import {setup, Driver} from '../lib/cjs/index';
+import {setup, Driver} from '../src/index';
 import xs, {Stream} from 'xstream';
 import concat from 'xstream/extra/concat';
 import delay from 'xstream/extra/delay';
