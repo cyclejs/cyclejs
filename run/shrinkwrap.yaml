@@ -326,5 +326,5 @@ specifiers:
   quicktask: 1.1.0
   sinon: ^6.1.4
   ts-node: ^7.0.0
-  typescript: ^2.8.4
+  typescript: ~2.8.4
   xstream: 10.x || 11.x

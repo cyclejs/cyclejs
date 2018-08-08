@@ -16,7 +16,7 @@ let dispose = () => {};
 
 describe('historyDriver - RxJS', () => {
   beforeEach(function() {
-    setAdapt(x => Observable.from(x));
+    setAdapt(x => Observable.from(x as any));
     if (window.history) {
       window.history.replaceState(undefined, undefined, '/');
     }
