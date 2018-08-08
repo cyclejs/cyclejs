@@ -1,11 +1,10 @@
 import 'mocha';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
-import {run, setup} from '../lib/cjs/index';
+import {run, setup} from '../src/index';
 import * as most from 'most';
 import {Stream} from 'most';
 import xs from 'xstream';
-// require('creed').shim()
 
 describe('setup', function() {
   it('should be a function', function() {
@@ -172,7 +171,7 @@ describe('run()', function() {
   });
 
   it('should return a dispose function', function() {
-    let sandbox = sinon.sandbox.create();
+    let sandbox = sinon.createSandbox();
     const spy = sandbox.spy();
     function app(sources: any) {
       return {
@@ -190,9 +189,8 @@ describe('run()', function() {
     dispose();
   });
 
-  // Skipped until we make this test not brittle with async timing
   it('should report errors from main() in the console', function(done) {
-    let sandbox = sinon.sandbox.create();
+    let sandbox = sinon.createSandbox();
     sandbox.stub(console, 'error');
 
     function main(sources: any): any {
@@ -222,7 +220,7 @@ describe('run()', function() {
       sinon.assert.calledOnce(console.error as any);
       sinon.assert.calledWithExactly(
         console.error as any,
-        sinon.match('malfunction'),
+        sinon.match(v => v.message === 'malfunction'),
       );
 
       // Should be false because the error was already reported in the console.
