@@ -21,7 +21,7 @@ export class BodyDOMSource implements DOMSource {
 
   public element(): MemoryStream<HTMLBodyElement> {
     const out: DevToolEnabledSource & MemoryStream<HTMLBodyElement> = adapt(
-      xs.of(document.body),
+      xs.of(document.body)
     );
     out._isCycleSource = this._name;
     return out;
@@ -29,7 +29,7 @@ export class BodyDOMSource implements DOMSource {
 
   public events(
     eventType: string,
-    options: EventsFnOptions = {},
+    options: EventsFnOptions = {}
   ): Stream<Event> {
     let stream: Stream<Event>;
 
@@ -37,7 +37,7 @@ export class BodyDOMSource implements DOMSource {
       document.body,
       eventType,
       options.useCapture,
-      options.preventDefault,
+      options.preventDefault
     );
 
     const out: DevToolEnabledSource & Stream<Event> = adapt(stream);

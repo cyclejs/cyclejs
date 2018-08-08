@@ -12,7 +12,7 @@ function arrayEqual(requestNamespace: any[], sourceNamespace: any[]): boolean {
 
 export function isolateSource(
   httpSource: HTTPSource,
-  scope: string | null,
+  scope: string | null
 ): HTTPSource {
   if (scope === null) {
     return httpSource;
@@ -22,15 +22,15 @@ export function isolateSource(
       Array.isArray(request._namespace) &&
       arrayEqual(
         request._namespace,
-        (httpSource as any)._namespace.concat(scope),
+        (httpSource as any)._namespace.concat(scope)
       ),
-    scope,
+    scope
   );
 }
 
 export function isolateSink(
   request$: Stream<RequestInput | string>,
-  scope: string | null,
+  scope: string | null
 ): Stream<RequestInput> {
   if (scope === null) {
     return request$;

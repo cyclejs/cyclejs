@@ -35,7 +35,7 @@ function reportSnabbdomError(err: any): void {
 
 export function makeHTMLDriver(
   effect: EffectCallback,
-  options?: HTMLDriverOptions,
+  options?: HTMLDriverOptions
 ): Driver<Stream<VNode>, HTMLSource> {
   if (!options) {
     options = {};

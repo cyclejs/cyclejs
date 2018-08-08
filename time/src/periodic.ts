@@ -13,7 +13,7 @@ function makePeriodic(createOperator: () => OperatorArgs<any>) {
       entry: any,
       time: number,
       _schedule: any,
-      _currentTime: () => number,
+      _currentTime: () => number
     ) {
       if (stopped) {
         return;
@@ -25,7 +25,7 @@ function makePeriodic(createOperator: () => OperatorArgs<any>) {
         entry.stream,
         lastEmitTime + period,
         value,
-        scheduleNextEvent,
+        scheduleNextEvent
       );
 
       lastEmitTime += period;

@@ -158,7 +158,7 @@ describe('serverHistoryDriver - RxJS', function() {
           '/test',
           '/other',
           {type: 'go', amount: -1},
-          {type: 'go', amount: 1},
+          {type: 'go', amount: 1}
         ),
       };
     }
@@ -191,7 +191,7 @@ describe('serverHistoryDriver - RxJS', function() {
           '/test',
           '/other',
           {type: 'go', amount: -1},
-          {type: 'goForward'},
+          {type: 'goForward'}
         ),
       };
     }

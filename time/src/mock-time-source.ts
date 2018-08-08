@@ -81,7 +81,7 @@ function mockTimeSource({interval = 20} = {}): any {
       scheduler.add,
       currentTime,
       interval,
-      addAssert,
+      addAssert
     ),
 
     delay: makeDelay(createOperator),
@@ -103,7 +103,7 @@ function mockTimeSource({interval = 20} = {}): any {
     throttleAnimation: makeThrottleAnimation(
       () => timeSource,
       scheduler.add,
-      currentTime,
+      currentTime
     ),
 
     run(doneCallback = raiseError, timeToRunTo = 0) {
@@ -116,7 +116,7 @@ function mockTimeSource({interval = 20} = {}): any {
         () => finish(asserts, done),
         currentTime,
         setTime,
-        timeToRunTo,
+        timeToRunTo
       );
     },
 

@@ -18,7 +18,7 @@ import 'es6-map/implement'; // tslint:disable-line
 function makeDOMDriverInputGuard(modules: any) {
   if (!Array.isArray(modules)) {
     throw new Error(
-      `Optional modules option must be ` + `an array for snabbdom modules`,
+      `Optional modules option must be ` + `an array for snabbdom modules`
     );
   }
 }
@@ -31,7 +31,7 @@ function domDriverInputGuard(view$: Stream<VNode>): void {
   ) {
     throw new Error(
       `The DOM driver function expects as input a Stream of ` +
-        `virtual DOM elements`,
+        `virtual DOM elements`
     );
   }
 }
@@ -74,7 +74,7 @@ function makeDOMReady$(): Stream<null> {
 
 function makeDOMDriver(
   container: string | Element | DocumentFragment,
-  options?: DOMDriverOptions,
+  options?: DOMDriverOptions
 ): Driver<Stream<VNode>, MainDOMSource> {
   if (!options) {
     options = {};
@@ -140,7 +140,7 @@ function makeDOMDriver(
               });
               return el;
             })
-            .compose(dropCompletion), // don't complete this stream
+            .compose(dropCompletion) // don't complete this stream
       )
       .flatten();
 
@@ -159,7 +159,7 @@ function makeDOMDriver(
       [],
       isolateModule,
       delegators,
-      name,
+      name
     );
   }
 

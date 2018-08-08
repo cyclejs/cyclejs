@@ -7,35 +7,33 @@ const {Observable} = require('rxjs');
 const {div, button} = dom;
 
 const mockedCycleDom = {
-  makeDOMDriver () {
-    return function driver (sink$) {
+  makeDOMDriver() {
+    return function driver(sink$) {
       return {
-        select () {
+        select() {
           return {
-            events (){
+            events() {
               return xs.empty();
-            }
-          }
-        }
-      }
-    }
+            },
+          };
+        },
+      };
+    };
   },
 
   mockDOMSource: dom.mockDOMSource,
 
   div,
 
-  button
-}
+  button,
+};
 
-function Counter ({DOM}) {
-  const add$ = DOM
-    .select('.add')
+function Counter({DOM}) {
+  const add$ = DOM.select('.add')
     .events('click')
     .mapTo(+1);
 
-  const subtract$ = DOM
-    .select('.subtract')
+  const subtract$ = DOM.select('.subtract')
     .events('click')
     .mapTo(-1);
 
@@ -48,10 +46,10 @@ function Counter ({DOM}) {
       div('.counter', [
         div('.count', count.toString()),
         button('.add', 'Add'),
-        button('.subtract', 'Subtract')
+        button('.subtract', 'Subtract'),
       ])
-    )
-  }
+    ),
+  };
 }
 
 module.exports = {
@@ -59,44 +57,44 @@ module.exports = {
     '@cycle/time': {
       timeDriver: timeDriver.mockTimeSource,
 
-      mockTimeSource: timeDriver.mockTimeSource
+      mockTimeSource: timeDriver.mockTimeSource,
     },
     '@cycle/dom': mockedCycleDom,
     'snabbdom-selector': require('snabbdom-selector'),
-    'xstream': require('xstream'),
+    xstream: require('xstream'),
 
     '../src/counter': {Counter},
 
     assert: require('assert'),
-    rxjs: require('rxjs')
+    rxjs: require('rxjs'),
   },
 
   regexRequire: {
-    'xstream\/(.*)': function (fullMatch, module) {
-      return require(`xstream/${module}`)
-    }
+    'xstream/(.*)': function(fullMatch, module) {
+      return require(`xstream/${module}`);
+    },
   },
 
   globals: {
     document: {
-      querySelector () {
+      querySelector() {
         return [];
-      }
+      },
     },
 
     Time: timeDriver.mockTimeSource(),
     timeDriver: timeDriver.timeDriver,
     mockTimeSource: timeDriver.mockTimeSource,
 
-    done: (err) => {
+    done: err => {
       if (err) {
         throw err;
       }
     },
 
     console: {
-      error () {},
-      log () {}
+      error() {},
+      log() {},
     },
 
     makeDOMDriver: mockedCycleDom.makeDOMDriver,
@@ -114,6 +112,6 @@ module.exports = {
 
       test(done);
     },
-    run: (main, drivers) => {}
+    run: (main, drivers) => {},
   },
-}
+};

@@ -48,9 +48,7 @@ describe('isolate', function() {
     assert.strictEqual(typeof scopedMyDataflowComponent, `function`);
   });
 
-  it('should accept a scopes-per-channel object as the second argument', function(
-    done,
-  ) {
+  it('should accept a scopes-per-channel object as the second argument', function(done) {
     function Component(sources: any) {
       return {
         first: sources.first.getSink(),
@@ -180,9 +178,7 @@ describe('isolate', function() {
     });
   });
 
-  it('should generate a scope if a channel is undefined in scopes-per-channel', function(
-    done,
-  ) {
+  it('should generate a scope if a channel is undefined in scopes-per-channel', function(done) {
     function Component(sources: any) {
       return {
         first: sources.first.getSink(),
@@ -244,9 +240,7 @@ describe('isolate', function() {
     });
   });
 
-  it('should accept a wildcard * in the scopes-per-channel object', function(
-    done,
-  ) {
+  it('should accept a wildcard * in the scopes-per-channel object', function(done) {
     function Component(sources: any) {
       return {
         first: sources.first.getSink(),
@@ -311,9 +305,7 @@ describe('isolate', function() {
     });
   });
 
-  it('should not isolate a non-specified channel if wildcard * is null', function(
-    done,
-  ) {
+  it('should not isolate a non-specified channel if wildcard * is null', function(done) {
     function Component(sources: any) {
       return {
         first: sources.first.getSink(),
@@ -378,9 +370,7 @@ describe('isolate', function() {
     });
   });
 
-  it('should not convert to string values in scopes-per-channel object', function(
-    done,
-  ) {
+  it('should not convert to string values in scopes-per-channel object', function(done) {
     function Component(sources: any) {
       return {
         first: sources.first.getSink(),
@@ -451,7 +441,7 @@ describe('isolate', function() {
       function MyDataflowComponent(
         sources: {other: any},
         foo: string,
-        bar: string,
+        bar: string
       ) {
         return {
           other: of([foo, bar]),
@@ -461,7 +451,7 @@ describe('isolate', function() {
       const scopedSinks = scopedMyDataflowComponent(
         {other: driver()},
         `foo`,
-        `bar`,
+        `bar`
       );
 
       assert.strictEqual(typeof scopedSinks, `object`);
@@ -518,9 +508,7 @@ describe('isolate', function() {
       const scopedSinks = (scopedMyDataflowComponent as any)({
         other: driver(null),
       });
-      scopedSinks.other.subscribe((x: any) =>
-        assert.strictEqual(x, 'a'),
-      );
+      scopedSinks.other.subscribe((x: any) => assert.strictEqual(x, 'a'));
     });
 
     it('should call `isolateSink` of drivers', function(done) {
@@ -547,11 +535,11 @@ describe('isolate', function() {
       });
     });
 
-  it('should handle undefined cases gracefully', function() {
+    it('should handle undefined cases gracefully', function() {
       const MyDataflowComponent = () => ({});
       const scopedMyDataflowComponent = isolate(MyDataflowComponent, 'myScope');
       assert.doesNotThrow(() =>
-        scopedMyDataflowComponent({noSource: void 0 as any}),
+        scopedMyDataflowComponent({noSource: void 0 as any})
       );
     });
   });

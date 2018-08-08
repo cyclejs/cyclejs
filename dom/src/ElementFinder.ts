@@ -10,7 +10,7 @@ function toElArray(input: any): Array<Element> {
 export class ElementFinder {
   constructor(
     public namespace: Array<string>,
-    public isolateModule: IsolateModule,
+    public isolateModule: IsolateModule
   ) {}
 
   public call(rootElement: Element): Array<Element> {

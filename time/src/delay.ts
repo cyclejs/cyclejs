@@ -6,7 +6,7 @@ function makeDelayListener<T>(
   schedule: any,
   currentTime: () => number,
   delayTime: number,
-  listener: any,
+  listener: any
 ) {
   const delayedTime = () => currentTime() + delayTime;
 
@@ -36,7 +36,7 @@ function makeDelay(createOperator: () => OperatorArgs<any>) {
             schedule,
             currentTime,
             delayTime,
-            listener,
+            listener
           );
 
           xs.fromObservable(stream).addListener(delayListener);

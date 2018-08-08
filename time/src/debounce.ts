@@ -7,7 +7,7 @@ function makeDebounceListener<T>(
   currentTime: () => number,
   debounceInterval: number,
   listener: any,
-  state: any,
+  state: any
 ) {
   return {
     next(value: T) {
@@ -49,7 +49,7 @@ function makeDebounce(createOperator: () => OperatorArgs<any>) {
             currentTime,
             debounceInterval,
             listener,
-            state,
+            state
           );
 
           xs.fromObservable(stream).addListener(debounceListener);

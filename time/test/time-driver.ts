@@ -11,8 +11,7 @@ describe('time driver', () => {
 
     const expected = [1, 2, 3];
 
-    xs
-      .of(1, 2, 3)
+    xs.of(1, 2, 3)
       .compose(Time.delay(1))
       .addListener({
         next(n: number) {
@@ -34,8 +33,7 @@ describe('time driver', () => {
   it('propagates errors', done => {
     const Time = timeDriver(xs.empty());
 
-    xs
-      .throw(new Error())
+    xs.throw(new Error())
       .compose(Time.debounce(1))
       .addListener({
         error(err: Error) {

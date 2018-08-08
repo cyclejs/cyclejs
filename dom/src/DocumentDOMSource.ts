@@ -14,7 +14,7 @@ export class DocumentDOMSource implements DOMSource {
 
   public elements(): MemoryStream<Array<Document>> {
     const out: DevToolEnabledSource & MemoryStream<Array<Document>> = adapt(
-      xs.of([document]),
+      xs.of([document])
     );
     out._isCycleSource = this._name;
     return out;
@@ -22,7 +22,7 @@ export class DocumentDOMSource implements DOMSource {
 
   public element(): MemoryStream<Document> {
     const out: DevToolEnabledSource & MemoryStream<Document> = adapt(
-      xs.of(document),
+      xs.of(document)
     );
     out._isCycleSource = this._name;
     return out;
@@ -30,7 +30,7 @@ export class DocumentDOMSource implements DOMSource {
 
   public events(
     eventType: string,
-    options: EventsFnOptions = {},
+    options: EventsFnOptions = {}
   ): Stream<Event> {
     let stream: Stream<Event>;
 
@@ -38,7 +38,7 @@ export class DocumentDOMSource implements DOMSource {
       document,
       eventType,
       options.useCapture,
-      options.preventDefault,
+      options.preventDefault
     );
 
     const out: DevToolEnabledSource & Stream<Event> = adapt(stream);

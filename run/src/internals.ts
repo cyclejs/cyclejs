@@ -13,7 +13,7 @@ import {
 const scheduleMicrotask = quicktask();
 
 export function makeSinkProxies<So extends Sources, Si extends Sinks>(
-  drivers: Drivers<So, Si>,
+  drivers: Drivers<So, Si>
 ): SinkProxies<Si> {
   const sinkProxies: SinkProxies<Si> = {} as SinkProxies<Si>;
   for (const name in drivers) {
@@ -26,7 +26,7 @@ export function makeSinkProxies<So extends Sources, Si extends Sinks>(
 
 export function callDrivers<So extends Sources, Si extends Sinks>(
   drivers: Drivers<So, Si>,
-  sinkProxies: SinkProxies<Si>,
+  sinkProxies: SinkProxies<Si>
 ): So {
   const sources: So = {} as So;
   for (const name in drivers) {
@@ -79,10 +79,10 @@ type ReplicationBuffers<Si extends Sinks> = {
 
 export function replicateMany<Si extends Sinks>(
   sinks: Si,
-  sinkProxies: SinkProxies<Si>,
+  sinkProxies: SinkProxies<Si>
 ): DisposeFunction {
   const sinkNames: Array<keyof Si> = Object.keys(sinks).filter(
-    name => !!sinkProxies[name],
+    name => !!sinkProxies[name]
   );
 
   let buffers: ReplicationBuffers<Si> = {} as ReplicationBuffers<Si>;
@@ -97,7 +97,7 @@ export function replicateMany<Si extends Sinks>(
   });
 
   const subscriptions = sinkNames.map(name =>
-    xs.fromObservable(sinks[name] as any).subscribe(replicators[name]),
+    xs.fromObservable(sinks[name] as any).subscribe(replicators[name])
   );
 
   sinkNames.forEach(name => {
@@ -128,7 +128,7 @@ export function replicateMany<Si extends Sinks>(
 }
 
 export function disposeSinkProxies<Si extends Sinks>(
-  sinkProxies: SinkProxies<Si>,
+  sinkProxies: SinkProxies<Si>
 ) {
   Object.keys(sinkProxies).forEach(name => sinkProxies[name]._c());
 }

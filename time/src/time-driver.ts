@@ -26,7 +26,7 @@ function runRealtime(
   scheduler: any,
   frameCallbacks: any,
   currentTime: () => number,
-  setTime: (t: number) => void,
+  setTime: (t: number) => void
 ) {
   let paused = false;
   const pause = () => (paused = true);
@@ -116,7 +116,7 @@ function timeDriver(sink: any): any {
     scheduler,
     frameCallbacks,
     currentTime,
-    setTime,
+    setTime
   );
 
   function createOperator() {
@@ -132,7 +132,7 @@ function timeDriver(sink: any): any {
     throttleAnimation: makeThrottleAnimation(
       () => timeSource,
       scheduler.add,
-      currentTime,
+      currentTime
     ),
     _time: currentTime,
     _scheduler: scheduler.add,

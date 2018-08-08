@@ -140,7 +140,7 @@ describe('DOMSource.select()', function() {
           h3('.top-most', [
             h2('.bar', 'Wrong'),
             div('.foo', [h4('.bar', 'Correct')]),
-          ]),
+          ])
         ),
       };
     }
@@ -184,7 +184,7 @@ describe('DOMSource.select()', function() {
                 points: '20 0 20 150 150 20',
               },
             }),
-          ]),
+          ])
         ),
       };
     }

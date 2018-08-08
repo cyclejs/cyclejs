@@ -48,14 +48,14 @@ function testFragmentEvents() {
     () => {
       captures = true;
     },
-    true,
+    true
   );
   parent.addEventListener(
     'fragmentBubble',
     () => {
       bubbles = true;
     },
-    false,
+    false
   );
   captureEvent.initCustomEvent('fragmentCapture', false, true, null);
   bubbleEvent.initCustomEvent('fragmentBubble', true, true, null);
@@ -96,7 +96,7 @@ describe('DOMSource.events()', function() {
       .addListener({
         next: function(root: Element) {
           const myElement = root.querySelector(
-            '.myelementclass',
+            '.myelementclass'
           ) as HTMLElement;
           assert.notStrictEqual(myElement, null);
           assert.notStrictEqual(typeof myElement, 'undefined');
@@ -133,7 +133,7 @@ describe('DOMSource.events()', function() {
     // Make assertions
     setTimeout(() => {
       const myElement = document.querySelector(
-        '.test2.myelementclass',
+        '.test2.myelementclass'
       ) as HTMLElement;
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
@@ -174,7 +174,7 @@ describe('DOMSource.events()', function() {
     // Make assertions
     setTimeout(() => {
       const myElement = containerElement.querySelector(
-        '.myelementclass',
+        '.myelementclass'
       ) as HTMLElement;
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
@@ -216,7 +216,7 @@ describe('DOMSource.events()', function() {
       .addListener({
         next: (root: Element) => {
           const myElement = root.querySelector(
-            '.myelementclass',
+            '.myelementclass'
           ) as HTMLElement;
           assert.notStrictEqual(myElement, null);
           assert.notStrictEqual(typeof myElement, 'undefined');
@@ -300,7 +300,7 @@ describe('DOMSource.events()', function() {
       .addListener({
         next: (root: Element) => {
           const myElement = root.querySelector(
-            '.myelementclass',
+            '.myelementclass'
           ) as HTMLElement;
           assert.notStrictEqual(myElement, null);
           assert.notStrictEqual(typeof myElement, 'undefined');
@@ -320,7 +320,7 @@ describe('DOMSource.events()', function() {
           h3('.top-most', [
             h2('.bar', 'Wrong'),
             div('.foo', [h4('.bar', 'Correct')]),
-          ]),
+          ])
         ),
       };
     }
@@ -373,7 +373,7 @@ describe('DOMSource.events()', function() {
           div('.parent', [
             h4('.clickable.first', 'First'),
             h4('.clickable.second', 'Second'),
-          ]),
+          ])
         ),
       };
     }
@@ -434,7 +434,7 @@ describe('DOMSource.events()', function() {
         DOM: concat(
           xs.of(h2('.blesh', 'Blesh')),
           xs.of(h3('.blish', 'Blish')).compose(delay(150)),
-          xs.of(h4('.blosh', 'Blosh')).compose(delay(150)),
+          xs.of(h4('.blosh', 'Blosh')).compose(delay(150))
         ),
       };
     }
@@ -589,7 +589,7 @@ describe('DOMSource.events()', function() {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(
-          div('.top', [h2('.parent', [span('.child', 'Hello world')])]),
+          div('.top', [h2('.parent', [span('.child', 'Hello world')])])
         ),
       };
     }
@@ -617,7 +617,7 @@ describe('DOMSource.events()', function() {
             ownerTarget.tagName === 'H2' && ownerTarget.className === 'parent';
           assert.strictEqual(
             currentTargetIsParentH2 || ownerTargetIsParentH2,
-            true,
+            true
           );
           dispose();
           done();
@@ -648,7 +648,7 @@ describe('DOMSource.events()', function() {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(
-          div('.parent', [form('.form', [input('.field', {type: 'text'})])]),
+          div('.parent', [form('.form', [input('.field', {type: 'text'})])])
         ),
       };
     }
@@ -706,7 +706,7 @@ describe('DOMSource.events()', function() {
         false,
         false /* modifier keys */,
         0 /*left*/,
-        null,
+        null
       );
       el.dispatchEvent(ev);
     }
@@ -757,7 +757,7 @@ describe('DOMSource.events()', function() {
             input('.correct', {type: 'text'}, []),
             input('.wrong', {type: 'text'}, []),
             input('.dummy', {type: 'text'}),
-          ]),
+          ])
         ),
       };
     }
@@ -806,7 +806,7 @@ describe('DOMSource.events()', function() {
             input('.correct', {type: 'text'}, []),
             input('.wrong', {type: 'text'}, []),
             input('.dummy', {type: 'text'}),
-          ]),
+          ])
         ),
       };
     }
@@ -851,7 +851,7 @@ describe('DOMSource.events()', function() {
     function app(sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(
-          div('.parent', [form('.form', [input('.field', {type: 'text'})])]),
+          div('.parent', [form('.form', [input('.field', {type: 'text'})])])
         ),
       };
     }
@@ -958,7 +958,7 @@ describe('DOMSource.events()', function() {
         false,
         false /* modifier keys */,
         0 /*left*/,
-        null,
+        null
       );
 
       // Would rather user this line below but does not work on IE10

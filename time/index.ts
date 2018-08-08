@@ -10,12 +10,4 @@ function timeDriver(sink: any): TimeSource {
   return timeDriverUntyped(sink);
 }
 
-export {
-  Operator,
-
-  TimeSource,
-  timeDriver,
-
-  MockTimeSource,
-  mockTimeSource
-};
+export {Operator, TimeSource, timeDriver, MockTimeSource, mockTimeSource};

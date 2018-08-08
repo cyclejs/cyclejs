@@ -90,7 +90,7 @@ function captureAnchorClicks(push: (p: string) => void) {
 
 export function captureClicks(historyDriver: HistoryDriver): HistoryDriver {
   return function historyDriverWithClickCapture(
-    sink$: Stream<HistoryInput | string>,
+    sink$: Stream<HistoryInput | string>
   ) {
     let cleanup: Function | undefined;
     const internalSink$ = xs.create<HistoryInput | string>({

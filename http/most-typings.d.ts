@@ -11,6 +11,6 @@ export interface HTTPSource {
   isolateSource: (source: HTTPSource, scope: string | null) => HTTPSource;
   isolateSink: (
     sink: Stream<RequestInput | string>,
-    scope: string | null,
+    scope: string | null
   ) => Stream<RequestInput>;
 }

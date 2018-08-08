@@ -45,7 +45,7 @@ export function run(uri: string) {
               err.message,
               'Observable of requests given to ' +
                 'HTTP Driver must emit either URL strings or objects with ' +
-                'parameters.',
+                'parameters.'
             );
             done();
           },
@@ -74,7 +74,7 @@ export function run(uri: string) {
           error: (err: any) => {
             assert.strictEqual(
               err.message,
-              'Please provide a `url` property in the request ' + 'options.',
+              'Please provide a `url` property in the request ' + 'options.'
             );
             done();
           },
@@ -174,7 +174,7 @@ export function run(uri: string) {
         assert.strictEqual(response$.request.method, 'POST');
         assert.strictEqual(
           response$.request.send as string,
-          'name=Woof&species=Dog',
+          'name=Woof&species=Dog'
         );
         response$.subscribe(function(response: any) {
           assert.strictEqual(response.status, 200);
@@ -302,7 +302,7 @@ export function run(uri: string) {
           err => {
             assert.strictEqual(err instanceof TypeError, true);
             done();
-          },
+          }
         );
       run();
     });
@@ -430,7 +430,7 @@ export function run(uri: string) {
       });
 
       Rx.Observable.merge(ignoredRequest$, scopedRequest$).subscribe(
-        proxyRequest$,
+        proxyRequest$
       );
 
       run();
@@ -450,15 +450,15 @@ export function run(uri: string) {
       const request$ = Rx.Observable.of(uri + '/hello').delay(10);
       const fooInsideBarRequest$ = sources.HTTP.isolateSink(
         sources.HTTP.isolateSink(request$, 'foo'),
-        'bar',
+        'bar'
       ).shareReplay();
       const fooInsideBarHTTPSource = sources.HTTP.isolateSource(
         sources.HTTP.isolateSource(sources.HTTP, 'bar'),
-        'foo',
+        'foo'
       );
       const fooInsideFooHTTPSource = sources.HTTP.isolateSource(
         sources.HTTP.isolateSource(sources.HTTP, 'foo'),
-        'foo',
+        'foo'
       );
 
       fooInsideFooHTTPSource.select().subscribe(function(response$) {
@@ -477,7 +477,7 @@ export function run(uri: string) {
       });
 
       Rx.Observable.merge(ignoredRequest$, fooInsideBarRequest$).subscribe(
-        proxyRequest$,
+        proxyRequest$
       );
 
       run();

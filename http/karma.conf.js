@@ -22,11 +22,11 @@ module.exports = function(config) {
               changeOrigin: true,
             },
           }),
-        {},
+        {}
       ),
       browserStack: {
         name: 'Cycle.js HTTP driver',
       },
-    }),
+    })
   );
 };

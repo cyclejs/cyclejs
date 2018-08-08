@@ -9,14 +9,14 @@ function totalIsolateSource<S extends DOMSource>(source: S, scope: string): S {
 
 function siblingIsolateSource<S extends DOMSource>(
   source: S,
-  scope: string,
+  scope: string
 ): S {
   return source.select(scope) as S;
 }
 
 export function isolateSource<S extends DOMSource>(
   source: S,
-  scope: string,
+  scope: string
 ): S {
   if (scope === ':root') {
     return source;
@@ -29,7 +29,7 @@ export function isolateSource<S extends DOMSource>(
 
 export function siblingIsolateSink(
   sink: Stream<VNode | null | undefined>,
-  scope: string,
+  scope: string
 ): Stream<VNode | null | undefined> {
   return sink.map(
     node =>
@@ -39,15 +39,15 @@ export function siblingIsolateSink(
             node.data,
             node.children,
             node.text,
-            node.elm as any,
+            node.elm as any
           )
-        : node,
+        : node
   );
 }
 
 export function totalIsolateSink(
   sink: Stream<VNode | null | undefined>,
-  fullScope: string,
+  fullScope: string
 ): Stream<VNode | null | undefined> {
   return sink.map(node => {
     if (!node) {

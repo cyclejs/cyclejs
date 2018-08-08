@@ -96,7 +96,7 @@ describe('setupReusable', function() {
         complete: () => {
           sinkCompleted++;
           done(
-            new Error('complete should not be called before engine is before'),
+            new Error('complete should not be called before engine is before')
           );
         },
       });
@@ -191,7 +191,7 @@ describe('setupReusable', function() {
       sinon.assert.calledOnce(console.error as any);
       sinon.assert.calledWithExactly(
         console.error as any,
-        sinon.match((err: any) => err.message === 'malfunction'),
+        sinon.match((err: any) => err.message === 'malfunction')
       );
 
       // Should be false because the error was already reported in the console.

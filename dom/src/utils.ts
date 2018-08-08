@@ -15,7 +15,7 @@ export function isClassOrId(str: string): boolean {
 }
 
 export function isDocFrag(
-  el: Element | DocumentFragment,
+  el: Element | DocumentFragment
 ): el is DocumentFragment {
   return el.nodeType === 11;
 }
@@ -23,17 +23,17 @@ export function isDocFrag(
 export const SCOPE_PREFIX = '$$CYCLEDOM$$-';
 
 export function checkValidContainer(
-  container: Element | DocumentFragment | string,
+  container: Element | DocumentFragment | string
 ): void {
   if (typeof container !== 'string' && !isValidNode(container)) {
     throw new Error(
-      'Given container is not a DOM element neither a selector string.',
+      'Given container is not a DOM element neither a selector string.'
     );
   }
 }
 
 export function getValidNode(
-  selectors: Element | DocumentFragment | string,
+  selectors: Element | DocumentFragment | string
 ): Element | DocumentFragment | null {
   const domElement =
     typeof selectors === 'string'

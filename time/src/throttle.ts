@@ -7,7 +7,7 @@ function makeThrottleListener<T>(
   currentTime: () => number,
   period: number,
   listener: Listener<any>,
-  state: any,
+  state: any
 ) {
   return {
     next(value: T) {
@@ -50,7 +50,7 @@ function makeThrottle(createOperator: () => OperatorArgs<any>) {
             currentTime,
             period,
             listener,
-            state,
+            state
           );
 
           xs.fromObservable(stream).addListener(throttleListener);
