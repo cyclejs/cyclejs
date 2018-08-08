@@ -7,7 +7,7 @@ import {timeDriver as timeDriverUntyped} from './lib/cjs/src/time-driver';
 import {Frame} from './lib/cjs/src/animation-frames';
 import {Comparator, OperatorArgs} from './lib/cjs/src/types';
 
-setAdapt(from);
+setAdapt(from as any);
 
 type Operator = <T>(observable: Observable<T>) => Observable<T>;
 

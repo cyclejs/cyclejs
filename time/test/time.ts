@@ -1,5 +1,6 @@
+///<reference path="../custom-typings.d.ts" />
 import * as assert from 'assert';
-import {mockTimeSource, timeDriver, TimeSource, Operator} from '../';
+import {mockTimeSource, timeDriver, TimeSource, Operator} from '../index';
 import {mockDOMSource} from '@cycle/dom';
 import xs, {Stream} from 'xstream';
 import {setAdapt} from '@cycle/run/lib/adapt';
@@ -12,7 +13,7 @@ const libraries = [
   {name: 'xstream', adapt: (stream: Stream<any>) => stream, lib: xs},
   {
     name: 'rxjs',
-    adapt: (stream: Stream<any>) => from(stream),
+    adapt: from as any,
     lib: rx,
   },
   {name: 'most', adapt: (stream: Stream<any>) => most.from(stream), lib: most},
@@ -561,7 +562,10 @@ describe('@cycle/time', () => {
 
             const expected = Time.diagram(`------1---2---3---|`);
 
-            const value = compose(input, Time.delay(60));
+            const value = compose(
+              input,
+              Time.delay(60),
+            );
 
             Time.assertEqual(value, expected);
 
@@ -590,7 +594,10 @@ describe('@cycle/time', () => {
             const input = `--1----2-3----|`;
             const expected = `-----1------3-|`;
 
-            const stream = compose(Time.diagram(input), Time.debounce(60));
+            const stream = compose(
+              Time.diagram(input),
+              Time.debounce(60),
+            );
             const expectedStream = Time.diagram(expected);
 
             Time.assertEqual(stream, expectedStream);
@@ -604,7 +611,13 @@ describe('@cycle/time', () => {
             const stream = Time.diagram('---1-2---3-#');
             const expected = Time.diagram('--------2--#');
 
-            Time.assertEqual(compose(stream, Time.debounce(60)), expected);
+            Time.assertEqual(
+              compose(
+                stream,
+                Time.debounce(60),
+              ),
+              expected,
+            );
 
             Time.run(done);
           });
@@ -616,7 +629,10 @@ describe('@cycle/time', () => {
 
             const input = `--1-2-----3--4-5---6-|`;
             const expected = `--1-------3----5---6-|`;
-            const stream = compose(Time.diagram(input), Time.throttle(60));
+            const stream = compose(
+              Time.diagram(input),
+              Time.throttle(60),
+            );
             const expectedStream = Time.diagram(expected);
 
             Time.assertEqual(stream, expectedStream);
@@ -630,7 +646,13 @@ describe('@cycle/time', () => {
             const stream = Time.diagram('---1-2---3-#');
             const expected = Time.diagram('---1-----3-#');
 
-            Time.assertEqual(compose(stream, Time.throttle(60)), expected);
+            Time.assertEqual(
+              compose(
+                stream,
+                Time.throttle(60),
+              ),
+              expected,
+            );
 
             Time.run(done);
           });
@@ -642,7 +664,13 @@ describe('@cycle/time', () => {
               const stream = library.adapt(xs.from([1, 2, 3]));
               const expected = Time.diagram('(1|)');
 
-              Time.assertEqual(compose(stream, Time.throttle(60)), expected);
+              Time.assertEqual(
+                compose(
+                  stream,
+                  Time.throttle(60),
+                ),
+                expected,
+              );
 
               Time.run(done);
             });
@@ -673,7 +701,10 @@ describe('@cycle/time', () => {
             const Time = mockTimeSource({interval: 8});
 
             const noisy$ = Time.diagram(`-123456----`);
-            const actual$ = compose(noisy$, Time.throttleAnimation);
+            const actual$ = compose(
+              noisy$,
+              Time.throttleAnimation,
+            );
             const expected$ = Time.diagram(`--2-4-6----`);
 
             Time.assertEqual(actual$, expected$);
@@ -691,7 +722,10 @@ describe('@cycle/time', () => {
 
             const input$ = Time.diagram(`---a---|`);
 
-            const actual$ = compose(input$, Time.record);
+            const actual$ = compose(
+              input$,
+              Time.record,
+            );
             const expected$ = Time.diagram(`x--y---(z|)`, {
               x: [],
               y: [expectedNextEntry],
@@ -714,7 +748,10 @@ describe('@cycle/time', () => {
 
             const input$ = Time.diagram(`---#`);
 
-            const actual$ = compose(input$, Time.record);
+            const actual$ = compose(
+              input$,
+              Time.record,
+            );
             const expected$ = Time.diagram(`x--(y|)`, {
               x: [],
               y: [expectedErrorEntry],
