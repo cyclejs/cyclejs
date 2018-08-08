@@ -36,7 +36,7 @@
     "rxjs": "6.2.x",
     "snabbdom-selector": "3.0.x",
     "ts-node": "^7.0.0",
-    "typescript": "^2.8.4"
+    "typescript": "2.8.x"
   },
   "publishConfig": {
     "access": "public"

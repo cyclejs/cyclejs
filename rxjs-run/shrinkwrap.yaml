@@ -349,5 +349,5 @@ specifiers:
   sinon: ^6.1.4
   symbol-observable: ^1.2.0
   ts-node: ^7.0.0
-  typescript: ^2.8.4
+  typescript: ~2.8.4
   xstream: '*'

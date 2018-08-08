@@ -13,9 +13,10 @@
     "commit": "git-cz",
     "cm": "git-cz",
     "format": "prettier --write './**/*.{ts,tsx,js}'",
-    "postinstall": "pnpm run build",
+    "postinstall": "pnpm recursive install --filter @cycle/* && pnpm run build",
     "build": "pnpm recursive run build --filter @cycle/*",
-    "test": "pnpm recursive run test --filter @cycle/*"
+    "test": "pnpm recursive run test --filter @cycle/*",
+    "test-ci": "pnpm recursive run test-ci --filter @cycle/*"
   },
   "husky": {
     "hooks": {
@@ -30,7 +31,7 @@
   },
   "prettier": {
     "singleQuote": true,
-    "trailingComma": "all",
+    "trailingComma": "es5",
     "bracketSpacing": false
   },
   "config": {

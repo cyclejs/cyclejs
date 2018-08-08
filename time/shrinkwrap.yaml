@@ -3515,6 +3515,6 @@ specifiers:
   snabbdom-selector: 3.0.x
   sorted-immutable-list: 1.1.x
   ts-node: ^7.0.0
-  typescript: ^2.8.4
+  typescript: 2.8.x
   variable-diff: 1.1.x
   xstream: '*'

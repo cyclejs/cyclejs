@@ -15,10 +15,13 @@ module.exports = function(config) {
   config.set(
     deepmerge(common, {
       proxies: urls.reduce(
-        (acc, curr) => ({
-          ...acc,
-          [curr]: {target: 'http://localhost:8070' + curr, changeOrigin: true},
-        }),
+        (acc, curr) =>
+          Object.assign({}, acc, {
+            [curr]: {
+              target: 'http://localhost:8070' + curr,
+              changeOrigin: true,
+            },
+          }),
         {},
       ),
       browserStack: {
