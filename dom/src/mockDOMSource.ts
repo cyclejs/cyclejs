@@ -63,14 +63,16 @@ export class MockedDOMSource implements DOMSource {
   }
 
   public isolateSink(sink: any, scope: string): any {
-    return sink.map((vnode: VNode) => {
-      if (vnode.sel && vnode.sel.indexOf(SCOPE_PREFIX + scope) !== -1) {
-        return vnode;
-      } else {
-        vnode.sel += `.${SCOPE_PREFIX}${scope}`;
-        return vnode;
-      }
-    });
+    return adapt(
+      xs.fromObservable(sink).map((vnode: VNode) => {
+        if (vnode.sel && vnode.sel.indexOf(SCOPE_PREFIX + scope) !== -1) {
+          return vnode;
+        } else {
+          vnode.sel += `.${SCOPE_PREFIX}${scope}`;
+          return vnode;
+        }
+      }),
+    );
   }
 }
 

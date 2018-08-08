@@ -56,7 +56,7 @@ describe('makeDOMDriver', function() {
   });
 
   it('should not accept a selector to an unknown element as input', function(done) {
-    const sandbox = sinon.sandbox.create();
+    const sandbox = sinon.createSandbox();
     sandbox.stub(console, 'error');
     makeDOMDriver('#nonsenseIdToNothing')(xs.never());
     setTimeout(() => {
@@ -105,7 +105,7 @@ describe('DOM Driver', function() {
   });
 
   it('should report errors thrown in hooks', function(done) {
-    const sandbox = sinon.sandbox.create();
+    const sandbox = sinon.createSandbox();
     sandbox.stub(console, 'error');
 
     function main(sources: {DOM: DOMSource}) {
