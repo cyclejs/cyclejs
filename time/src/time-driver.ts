@@ -1,3 +1,4 @@
+///<reference path="../custom-typings.d.ts" />
 import xs, {Stream} from 'xstream';
 import {makeScheduler} from './scheduler';
 import {makeDelay} from './delay';
@@ -9,7 +10,7 @@ import {makeThrottleAnimation} from './throttle-animation';
 import {runVirtually} from './run-virtually';
 import {TimeSource} from './time-source';
 import * as requestAnimationFrame from 'raf';
-import * as now from 'performance-now';
+import now = require('performance-now');
 
 function popAll(array: Array<any>): Array<any> {
   const poppedItems = [];

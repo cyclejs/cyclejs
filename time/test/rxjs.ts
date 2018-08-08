@@ -4,7 +4,7 @@ import {setAdapt} from '@cycle/run/lib/adapt';
 import {mockTimeSource} from '../rxjs';
 
 describe('rxjs', () => {
-  before(() => setAdapt(from));
+  before(() => setAdapt(from as any));
 
   it('works with @cycle/time', done => {
     const Time = mockTimeSource();
