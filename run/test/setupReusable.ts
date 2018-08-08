@@ -1,7 +1,6 @@
-import 'mocha';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
-import {setupReusable} from '../lib/cjs/index';
+import {setupReusable} from '../src/index';
 import xs, {Stream} from 'xstream';
 
 describe('setupReusable', function() {
@@ -39,7 +38,7 @@ describe('setupReusable', function() {
   });
 
   it('should return an engine, which we can run and dispose', function() {
-    let sandbox = sinon.sandbox.create();
+    let sandbox = sinon.createSandbox();
     const spy = sandbox.spy();
 
     type NiceSources = {
@@ -68,7 +67,7 @@ describe('setupReusable', function() {
   });
 
   it('should allow reusing drivers for many apps', function(done) {
-    let sandbox = sinon.sandbox.create();
+    let sandbox = sinon.createSandbox();
     const spy1 = sandbox.spy();
     const spy2 = sandbox.spy();
 
@@ -121,7 +120,7 @@ describe('setupReusable', function() {
   });
 
   it('should allow disposing the engine, stopping reusability', function(done) {
-    let sandbox = sinon.sandbox.create();
+    let sandbox = sinon.createSandbox();
     const spy = sandbox.spy();
 
     type NiceSources = {
@@ -159,7 +158,7 @@ describe('setupReusable', function() {
   });
 
   it('should report errors from main() in the console', function(done) {
-    const sandbox = sinon.sandbox.create();
+    const sandbox = sinon.createSandbox();
     sandbox.stub(console, 'error');
 
     function main(sources: any): any {

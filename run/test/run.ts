@@ -1,8 +1,7 @@
-import 'mocha';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
-import {run} from '../lib/cjs/index';
-import {setAdapt} from '../lib/adapt';
+import {run} from '../src/index';
+import {setAdapt} from '../src/adapt';
 import xs, {Stream} from 'xstream';
 
 describe('run', function() {
@@ -29,7 +28,7 @@ describe('run', function() {
   });
 
   it('should return a dispose function', function() {
-    let sandbox = sinon.sandbox.create();
+    let sandbox = sinon.createSandbox();
     const spy = sandbox.spy();
 
     type NiceSources = {
@@ -55,9 +54,7 @@ describe('run', function() {
     dispose();
   });
 
-  it('should support driver that asynchronously subscribes to sink', function(
-    done,
-  ) {
+  it('should support driver that asynchronously subscribes to sink', function(done) {
     function app(sources: any): any {
       return {
         foo: xs.of(10),
@@ -220,7 +217,7 @@ describe('run', function() {
   });
 
   it('should report errors from main() in the console', function(done) {
-    const sandbox = sinon.sandbox.create();
+    const sandbox = sinon.createSandbox();
     sandbox.stub(console, 'error');
 
     function main(sources: any): any {
@@ -269,7 +266,7 @@ describe('run', function() {
       (global as any).window = {};
       window = (global as any).window;
     }
-    let sandbox = sinon.sandbox.create();
+    let sandbox = sinon.createSandbox();
     let spy = sandbox.spy();
     window['CyclejsDevTool_startGraphSerializer'] = spy;
 
