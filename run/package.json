@@ -1,6 +1,6 @@
 {
   "name": "@cycle/run",
-  "version": "4.4.0",
+  "version": "5.1.0-rc.1",
   "description": "The Cycle.js run() function to use with xstream",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
@@ -41,7 +41,7 @@
     "sinon": "^6.1.4",
     "ts-node": "^7.0.0",
     "tslint": "^5.11.0",
-    "typescript": "~2.8.4",
+    "typescript": "3.0.x",
     "xstream": "11.x"
   },
   "engines": {

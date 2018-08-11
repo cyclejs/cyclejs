@@ -1,3 +1,5 @@
+// tslint:disable-next-line
+import 'mocha';
 import * as assert from 'assert';
 import {setup, Driver} from '../src/index';
 import xs, {Stream} from 'xstream';
@@ -27,8 +29,33 @@ describe('setup', function() {
     }, /Second argument given to Cycle must be an object with at least one/i);
   });
 
+  it('should allow to not use all sources in main', function() {
+    function app(so: {first: Stream<string>}) {
+      return {
+        first: xs.of('test'),
+        second: xs.of('string'),
+      };
+    }
+    function app2() {
+      return {second: xs.of('test')};
+    }
+    function driver(sink: Stream<string>) {
+      return xs.of('answer');
+    }
+    const {sinks, sources} = setup(app, {first: driver, second: driver});
+    const {sinks: sinks2, sources: sources2} = setup(app2, {
+      first: driver,
+      second: driver,
+    });
+
+    assert.strictEqual(typeof sinks, 'object');
+    assert.strictEqual(typeof sinks.second.addListener, 'function');
+    assert.strictEqual(typeof sinks2, 'object');
+    assert.strictEqual(typeof sinks2.second.addListener, 'function');
+  });
+
   it('should return sinks object and sources object', function() {
-    function app(ext: any): any {
+    function app(ext: {other: Stream<string>}) {
       return {
         other: ext.other.take(1).startWith('a'),
       };
