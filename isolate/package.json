@@ -32,7 +32,6 @@
   "types": "lib/cjs/index.d.ts",
   "dependencies": {
     "@cycle/run": "^4.4.0",
-    "symbol-observable": "^1.2.0",
     "xstream": "^11.7.0"
   },
   "devDependencies": {
@@ -42,6 +41,7 @@
     "@types/sinon": "1.16.x",
     "mocha": "^5.2.0",
     "rxjs": "^6.2.1",
+    "symbol-observable": "^1.2.0",
     "ts-node": "^7.0.0",
     "typescript": "~2.8.4"
   },

@@ -17,7 +17,7 @@
   "dependencies": {
     "@cycle/run": "*",
     "@types/history": "^4.6.2",
-    "history": "^4.7.2",
+    "history": "4.7.x",
     "xstream": "*"
   },
   "devDependencies": {

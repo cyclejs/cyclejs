@@ -47,7 +47,6 @@
   "dependencies": {
     "@cycle/run": "*",
     "es6-map": "^0.1.5",
-    "rxjs-compat": "^6.2.2",
     "snabbdom": "0.7.1",
     "snabbdom-selector": "^3.0.0",
     "xstream": "*"
@@ -69,6 +68,7 @@
     "mocha": "^5.2.0",
     "mutation-observer": "1.0.3",
     "rxjs": "^6.2.2",
+    "rxjs-compat": "^6.2.2",
     "simulant": "^0.2.2",
     "sinon": "^6.1.4",
     "snabbdom-pragma": "^2.7.0",
