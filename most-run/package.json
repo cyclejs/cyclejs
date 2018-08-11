@@ -28,14 +28,14 @@
   "homepage": "https://cycle.js.org",
   "dependencies": {
     "@cycle/run": "4.x",
-    "xstream": "*"
+    "xstream": "*",
+    "most": "*"
   },
   "devDependencies": {
     "@types/mocha": "^5.2.5",
     "@types/node": "^10.5.7",
     "@types/sinon": "^5.0.1",
     "mocha": "^5.2.0",
-    "most": "1.7.x",
     "sinon": "^6.1.4",
     "ts-node": "^7.0.0",
     "typescript": "~2.8.4",
