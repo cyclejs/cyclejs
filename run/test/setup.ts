@@ -1,3 +1,5 @@
+// tslint:disable-next-line
+import 'mocha';
 import * as assert from 'assert';
 import {setup, Driver} from '../src/index';
 import xs, {Stream} from 'xstream';
@@ -28,7 +30,7 @@ describe('setup', function() {
   });
 
   it('should return sinks object and sources object', function() {
-    function app(ext: any): any {
+    function app(ext: {other: Stream<string>}) {
       return {
         other: ext.other.take(1).startWith('a'),
       };

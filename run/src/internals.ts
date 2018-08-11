@@ -7,15 +7,12 @@ import {
   Drivers,
   SinkProxies,
   Sources,
-  Sinks,
 } from './types';
 
 const scheduleMicrotask = quicktask();
 
-export function makeSinkProxies<So extends Sources, Si extends Sinks>(
-  drivers: Drivers<So, Si>
-): SinkProxies<Si> {
-  const sinkProxies: SinkProxies<Si> = {} as SinkProxies<Si>;
+export function makeSinkProxies<D extends Drivers>(drivers: D): SinkProxies<D> {
+  const sinkProxies: SinkProxies<D> = {} as SinkProxies<D>;
   for (const name in drivers) {
     if (drivers.hasOwnProperty(name)) {
       sinkProxies[name] = xs.create<any>();
@@ -24,11 +21,11 @@ export function makeSinkProxies<So extends Sources, Si extends Sinks>(
   return sinkProxies;
 }
 
-export function callDrivers<So extends Sources, Si extends Sinks>(
-  drivers: Drivers<So, Si>,
-  sinkProxies: SinkProxies<Si>
-): So {
-  const sources: So = {} as So;
+export function callDrivers<D extends Drivers>(
+  drivers: D,
+  sinkProxies: SinkProxies<D>
+): Sources<D> {
+  const sources: Sources<D> = {} as Sources<D>;
   for (const name in drivers) {
     if (drivers.hasOwnProperty(name)) {
       sources[name as any] = drivers[name](sinkProxies[name], name);
@@ -41,12 +38,13 @@ export function callDrivers<So extends Sources, Si extends Sinks>(
 }
 
 // NOTE: this will mutate `sources`.
-export function adaptSources<So extends Sources>(sources: So): So {
+export function adaptSources<So>(sources: So): So {
   for (const name in sources) {
     if (
       sources.hasOwnProperty(name) &&
       sources[name] &&
-      typeof sources[name].shamefullySendNext === 'function'
+      typeof ((sources[name] as any) as Stream<any>).shamefullySendNext ===
+        'function'
     ) {
       sources[name] = adapt((sources[name] as any) as Stream<any>);
     }
@@ -60,7 +58,7 @@ export function adaptSources<So extends Sources>(sources: So): So {
  * Complete is triggered only on disposeReplication. See discussion in #425
  * for details.
  */
-type SinkReplicators<Si extends Sinks> = {
+type SinkReplicators<Si> = {
   [P in keyof Si]: {
     next(x: any): void;
     _n?(x: any): void;
@@ -70,14 +68,14 @@ type SinkReplicators<Si extends Sinks> = {
   }
 };
 
-type ReplicationBuffers<Si extends Sinks> = {
+type ReplicationBuffers<Si> = {
   [P in keyof Si]: {
     _n: Array<any>;
     _e: Array<any>;
   }
 };
 
-export function replicateMany<Si extends Sinks>(
+export function replicateMany<Si extends any>(
   sinks: Si,
   sinkProxies: SinkProxies<Si>
 ): DisposeFunction {
@@ -127,13 +125,11 @@ export function replicateMany<Si extends Sinks>(
   };
 }
 
-export function disposeSinkProxies<Si extends Sinks>(
-  sinkProxies: SinkProxies<Si>
-) {
+export function disposeSinkProxies<Si>(sinkProxies: SinkProxies<Si>) {
   Object.keys(sinkProxies).forEach(name => sinkProxies[name]._c());
 }
 
-export function disposeSources<So extends Sources>(sources: So) {
+export function disposeSources<So>(sources: So) {
   for (const k in sources) {
     if (
       sources.hasOwnProperty(k) &&

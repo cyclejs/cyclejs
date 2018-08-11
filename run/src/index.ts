@@ -1,14 +1,10 @@
-import xs, {Stream} from 'xstream';
-import {adapt} from './adapt';
 import {
   CycleProgram,
-  DevToolEnabledSource,
   DisposeFunction,
   Drivers,
-  SinkProxies,
-  Sources,
   Sinks,
-  FantasySinks,
+  MatchingDrivers,
+  MatchingMain,
   Engine,
 } from './types';
 import {
@@ -29,10 +25,12 @@ export {
   Sources,
   Sinks,
   SinkProxies,
-  FantasySinks,
   Driver,
   Drivers,
   DisposeFunction,
+  MatchingDrivers,
+  MatchingMain,
+  Main,
   CycleProgram,
   Engine,
 } from './types';
@@ -65,10 +63,10 @@ export {
  * is the function that once called will execute the application.
  * @function setup
  */
-export function setup<So extends Sources, Si extends FantasySinks<Si>>(
-  main: (sources: So) => Si,
-  drivers: Drivers<So, Si>
-): CycleProgram<So, Si> {
+export function setup<
+  D extends MatchingDrivers<D, M>,
+  M extends MatchingMain<D, M>
+>(main: M, drivers: D): CycleProgram<D, M> {
   if (typeof main !== `function`) {
     throw new Error(
       `First argument given to Cycle must be the 'main' ` + `function.`
@@ -137,9 +135,7 @@ export function setup<So extends Sources, Si extends FantasySinks<Si>>(
  * to that run.
  * @function setupReusable
  */
-export function setupReusable<So extends Sources, Si extends FantasySinks<Si>>(
-  drivers: Drivers<So, Si>
-): Engine<So, Si> {
+export function setupReusable<D extends Drivers>(drivers: D): Engine<D> {
   if (typeof drivers !== `object` || drivers === null) {
     throw new Error(
       `Argument given to setupReusable must be an object ` +
@@ -156,8 +152,10 @@ export function setupReusable<So extends Sources, Si extends FantasySinks<Si>>(
   const sinkProxies = makeSinkProxies(drivers);
   const rawSources = callDrivers(drivers, sinkProxies);
   const sources = adaptSources(rawSources);
-  function _run(sinks: Si): DisposeFunction {
-    return replicateMany(sinks, sinkProxies);
+  function _run<M extends MatchingMain<D, M>>(
+    sinks: Sinks<M>
+  ): DisposeFunction {
+    return replicateMany(sinks, sinkProxies as any);
   }
   function disposeEngine() {
     disposeSources(sources);
@@ -193,10 +191,10 @@ export function setupReusable<So extends Sources, Si extends FantasySinks<Si>>(
  * Cycle.js program, cleaning up resources used.
  * @function run
  */
-export function run<So extends Sources, Si extends FantasySinks<Si>>(
-  main: (sources: So) => Si,
-  drivers: Drivers<So, Si>
-): DisposeFunction {
+export function run<
+  D extends MatchingDrivers<D, M>,
+  M extends MatchingMain<D, M>
+>(main: M, drivers: D): DisposeFunction {
   const program = setup(main, drivers);
   if (
     typeof window !== 'undefined' &&

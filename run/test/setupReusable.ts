@@ -1,3 +1,5 @@
+// tslint:disable-next-line
+import 'mocha';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {setupReusable} from '../src/index';
@@ -58,7 +60,7 @@ describe('setupReusable', function() {
       return xs.of('b').debug(spy);
     }
 
-    const engine = setupReusable<NiceSources, NiceSinks>({other: driver});
+    const engine = setupReusable({other: driver});
     const sinks = app(engine.sources);
     const dispose = engine.run(sinks);
     assert.strictEqual(typeof dispose, 'function');
@@ -103,7 +105,7 @@ describe('setupReusable', function() {
       return xs.of('b');
     }
 
-    const engine = setupReusable<NiceSources, NiceSinks>({other: driver});
+    const engine = setupReusable({other: driver});
 
     const dispose1 = engine.run(app1(engine.sources));
     sinon.assert.calledOnce(spy1);
@@ -146,7 +148,7 @@ describe('setupReusable', function() {
       return xs.of('b');
     }
 
-    const engine = setupReusable<NiceSources, NiceSinks>({other: driver});
+    const engine = setupReusable({other: driver});
 
     engine.run(app(engine.sources));
     sinon.assert.calledOnce(spy);
