@@ -156,7 +156,7 @@ function makeAssertEqual(
     expected: Stream<any>,
     comparator = deepEqual
   ) {
-    const completeStore = {};
+    const completeStore: any = {};
 
     const Time = timeSource();
 
