@@ -38,6 +38,8 @@
     "build-cjs": "tsc --module commonjs --outDir ./lib/cjs",
     "build-es6": "tsc --module es6 --outDir ./lib/es6",
     "lint": "tslint --project tsconfig.lint.json --config ../tslint.json --fix",
+    "docs": "cd .. && node .scripts/make-api-docs.js dom",
+    "changelog": "cd .. && node .scripts/update-changelogs.js dom",
     "test-node": "mocha test/node/*.ts --require ts-node/register --exit",
     "test-browser": "karma start",
     "test": "pnpm run test-node && pnpm run test-browser",

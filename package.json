@@ -2,12 +2,18 @@
   "private": true,
   "license": "MIT",
   "devDependencies": {
+    "add-stream": "^1.0.0",
     "commitizen": "^2.10.1",
+    "conventional-changelog": "^2.0.1",
     "cz-customizable": "^5.2.0",
+    "ejs": "^2.6.1",
     "husky": "^1.0.0-rc.9",
+    "jase": "1.2.0",
     "lint-staged": "^7.2.0",
+    "markdox": "^0.1.10",
     "prettier": "^1.13.5",
     "rxjs": "^5.5.11",
+    "tempfile": "^2.0.0",
     "tslint": "^5.11.0",
     "typescript": "~2.8.4"
   },
@@ -16,10 +22,19 @@
     "cm": "git-cz",
     "format": "prettier --write './**/*.{ts,tsx,js}'",
     "postinstall": "pnpm recursive install --filter @cycle/* && pnpm run build",
-    "build": "pnpm recursive run build --filter @cycle/*",
-    "lint": "pnpm recursive run lint --filter @cycle/*",
-    "test": "pnpm recursive run test --filter @cycle/*",
-    "test-ci": "pnpm recursive run test-ci --filter @cycle/*"
+    "build": "pnpm recursive exec --filter @cycle/* -- pnpm run build",
+    "docs": "pnpm run docs-index && pnpm run docs-documentation && pnpm run docs-releases && pnpm run docs-api",
+    "docs-index": "node ./docs/.scripts/make-index.js",
+    "docs-documentation": "node ./docs/.scripts/make-documentation.js",
+    "docs-releases": "node ./docs/.scripts/make-releases.js",
+    "docs-api": "node ./docs/.scripts/make-api-index.js && pnpm recursive exec --filter @cycle/* -- pnpm run docs ",
+    "changelog": "pnpm recursive exec --filter @cycle/* -- pnpm run changelog ",
+    "check-release": ".scripts/check-release.js",
+    "release-all": ".scripts/release-whatever-needs-release.sh",
+    "release": "run() { .scripts/release.sh $1 $2; }; run",
+    "lint": "pnpm recursive exec --filter @cycle/* -- pnpm run lint",
+    "test": "pnpm recursive exec --filter @cycle/* -- pnpm test ",
+    "test-ci": "pnpm recursive exec --filter @cycle/* -- pnpm run test-ci"
   },
   "husky": {
     "hooks": {

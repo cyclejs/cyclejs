@@ -1357,6 +1357,14 @@ packages:
     dev: true
     engines:
       node: '>=4'
+    os:
+      - android
+      - darwin
+      - freebsd
+      - linux
+      - openbsd
+      - sunos
+      - win32
     resolution:
       integrity: sha512-lAc4i9QJR0YHSDFdzeBQKfZ1SRDG3hsJNEkrpcZa8QhBfidLAilT60BDEIVUUGqosFp425KOgB3uYqcnQrWafQ==
   /defined/1.0.0:
@@ -1689,6 +1697,8 @@ packages:
     engines:
       node: '>=0.8.0'
     optional: true
+    os:
+      - darwin
     requiresBuild: true
     resolution:
       integrity: sha512-z8H8/diyk76B7q5wg+Ud0+CqzcAF3mBBI/bA5ne5zrRUUIvNkJY//D3BqyH571KuAC4Nr7Rw7CjWX4r0y9DvNg==
@@ -1948,6 +1958,14 @@ packages:
     dev: true
     engines:
       node: '>=4'
+    os:
+      - android
+      - darwin
+      - freebsd
+      - linux
+      - openbsd
+      - sunos
+      - win32
     resolution:
       integrity: sha512-NXXgESC2nNVtU+pqmC9e6R8B1GpKxzsAQhffvh5AL79qKnodd+L7tnEQmTiUAVngqLalPbSqRA7XGIEL5nCd0Q==
   /invariant/2.2.4:
@@ -3563,7 +3581,7 @@ packages:
     resolution:
       integrity: sha1-5a2ryKz0CPY4X8dklWhMiOavaJo=
 registry: 'https://registry.npmjs.org/'
-shrinkwrapMinorVersion: 8
+shrinkwrapMinorVersion: 9
 shrinkwrapVersion: 3
 specifiers:
   '@cycle/dom': '20.4'

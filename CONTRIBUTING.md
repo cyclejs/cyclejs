@@ -14,8 +14,6 @@ First of all, thank you for contributing. It’s appreciated.
 
 # To release new versions
 
-TODO
-
 1. Check that you have npm publishing rights before anything else.
-2. Run `make check-release`.
-3. Run `make release-all`.
+2. Run `pnpm run check-release`.
+3. Run `pnpm run release-all` or `npm run release -- minor dom` (assuming you want to release a new minor version for `dom`)
