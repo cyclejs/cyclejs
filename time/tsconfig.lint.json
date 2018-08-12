@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "files": [
+    "index.ts",
+    "custom-typings.d.ts",
+    "test/jasmine-support.ts",
+    "test/most.ts",
+    "test/rxjs.ts",
+    "test/time-driver.ts",
+    "test/time.ts",
+    "test/xstream.ts"
+  ]
+}

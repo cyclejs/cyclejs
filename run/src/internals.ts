@@ -46,7 +46,7 @@ export function adaptSources<So extends Sources>(sources: So): So {
     if (
       sources.hasOwnProperty(name) &&
       sources[name] &&
-      typeof sources[name]['shamefullySendNext'] === 'function'
+      typeof sources[name].shamefullySendNext === 'function'
     ) {
       sources[name] = adapt((sources[name] as any) as Stream<any>);
     }

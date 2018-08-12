@@ -3,7 +3,7 @@ import isolate from '@cycle/isolate';
 import xs, {Stream, MemoryStream} from 'xstream';
 import delay from 'xstream/extra/delay';
 import concat from 'xstream/extra/concat';
-import {setup, run} from '@cycle/run';
+import {setup, run as cycleRun} from '@cycle/run';
 const Snabbdom = require('snabbdom-pragma');
 import {
   h,
@@ -26,7 +26,7 @@ import {
 
 declare global {
   namespace JSX {
-    interface Element extends VNode {}
+    interface Element extends VNode {} // tslint:disable-line
     interface IntrinsicElements {
       [elemName: string]: any;
     }
@@ -59,7 +59,7 @@ describe('DOM Rendering', function() {
       };
     }
 
-    run(main, {
+    cycleRun(main, {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
@@ -82,7 +82,7 @@ describe('DOM Rendering', function() {
     const thisBrowserSupportsDataset =
       typeof document.createElement('DIV').dataset !== 'undefined';
 
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(
           div('.my-class', {
@@ -110,7 +110,7 @@ describe('DOM Rendering', function() {
             assert.notStrictEqual(elem, null);
             assert.notStrictEqual(typeof elem, 'undefined');
             assert.strictEqual(elem.tagName, 'DIV');
-            assert.strictEqual(elem.dataset['foo'], 'Foo');
+            assert.strictEqual(elem.dataset.foo, 'Foo');
             setTimeout(() => {
               dispose();
               done();
@@ -127,7 +127,7 @@ describe('DOM Rendering', function() {
       return;
     }
 
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(
           select('.my-class', [
@@ -168,7 +168,7 @@ describe('DOM Rendering', function() {
   });
 
   it('should convert a simple virtual-dom <select> to DOM element', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(
           select('.my-class', [
@@ -205,7 +205,7 @@ describe('DOM Rendering', function() {
   });
 
   it('should convert a simple virtual-dom <select> (JSX) to DOM element', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(
           <select className="my-class">
@@ -242,7 +242,7 @@ describe('DOM Rendering', function() {
   });
 
   it('should reuse existing DOM tree under the given root element', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(
           select('.my-class', [
@@ -302,7 +302,7 @@ describe('DOM Rendering', function() {
   });
 
   it('should give elements as a value-over-time', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.merge(xs.of(h2('.value-over-time', 'Hello test')), xs.never()),
       };
@@ -356,7 +356,7 @@ describe('DOM Rendering', function() {
   });
 
   it('should have DevTools flag in elements source stream', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.merge(xs.of(h2('.value-over-time', 'Hello test')), xs.never()),
       };
@@ -372,7 +372,7 @@ describe('DOM Rendering', function() {
   });
 
   it('should have DevTools flag in element source stream', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.merge(xs.of(h2('.value-over-time', 'Hello test')), xs.never()),
       };
@@ -392,8 +392,7 @@ describe('DOM Rendering', function() {
       return h4('Constantly ' + greeting);
     }
 
-    // The Cycle.js app
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs
           .periodic(10)
@@ -402,13 +401,11 @@ describe('DOM Rendering', function() {
       };
     }
 
-    // Run it
     const {sinks, sources, run} = setup(app, {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
     let dispose: any;
-    // Assert it
     sources.DOM.select(':root')
       .element()
       .drop(1)
@@ -433,7 +430,7 @@ describe('DOM Rendering', function() {
       '1.1'
     );
 
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(
           svg({attrs: {width: 150, height: 50}}, [
@@ -448,14 +445,12 @@ describe('DOM Rendering', function() {
     if (!thisBrowserSupportsForeignObject) {
       done();
     } else {
-      // Run it
       const {sinks, sources, run} = setup(app, {
         DOM: makeDOMDriver(createRenderTarget()),
       });
 
       let dispose: any;
 
-      // Make assertions
       sources.DOM.select(':root')
         .element()
         .drop(1)
@@ -483,8 +478,7 @@ describe('DOM Rendering', function() {
   });
 
   it('should filter out null/undefined children', function(done) {
-    // The Cycle.js app
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs
           .periodic(10)
@@ -504,13 +498,11 @@ describe('DOM Rendering', function() {
       };
     }
 
-    // Run it
     const {sinks, sources, run} = setup(app, {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
     let dispose: any;
-    // Assert it
     sources.DOM.select(':root')
       .element()
       .drop(1)
@@ -533,7 +525,7 @@ describe('DOM Rendering', function() {
   });
 
   it('should render correctly even if hyperscript-helper first is empty string', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(h4('', {}, ['Hello world'])),
       };
@@ -562,7 +554,7 @@ describe('DOM Rendering', function() {
   });
 
   it('should render textContent "0" given hyperscript content value number 0', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('.my-class', 0)),
       };

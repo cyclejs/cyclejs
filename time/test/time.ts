@@ -1,4 +1,3 @@
-///<reference path="../custom-typings.d.ts" />
 import * as assert from 'assert';
 import {mockTimeSource, timeDriver, TimeSource, Operator} from '../index';
 import {mockDOMSource} from '@cycle/dom';
@@ -82,7 +81,7 @@ describe('@cycle/time', () => {
 
     const expectedCount = '0--1-2-3---2--3-|';
 
-    const DOM = mockDOMSource({
+    const _DOM = mockDOMSource({
       '.add': {
         click: Time.diagram(addClick),
       },
@@ -91,7 +90,7 @@ describe('@cycle/time', () => {
       },
     });
 
-    const counter = Counter({DOM});
+    const counter = Counter({_DOM});
 
     Time.assertEqual(counter.count$, Time.diagram(expectedCount));
 
@@ -160,7 +159,7 @@ describe('@cycle/time', () => {
                 assert.equal(ev, expectedValues.shift());
               },
 
-              complete: () => done(),
+              complete: done,
               error: done,
             });
 
@@ -205,7 +204,7 @@ describe('@cycle/time', () => {
                 assert.deepEqual(ev, expectedValues.shift());
               },
 
-              complete: () => done(),
+              complete: done,
               error: done,
             });
 

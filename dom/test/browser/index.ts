@@ -1,3 +1,4 @@
+// tslint:disable:no-import-side-effect
 import './dom-driver';
 import './render';
 import './events';

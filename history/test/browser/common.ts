@@ -131,7 +131,7 @@ describe('captureClicks', () => {
         dispose2();
         done();
       },
-      error: err => done(err),
+      error: done,
       complete: () => {},
     });
 

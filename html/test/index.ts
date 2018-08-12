@@ -1,4 +1,3 @@
-import 'mocha';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import xs, {Stream} from 'xstream';
@@ -81,7 +80,7 @@ describe('HTML Driver', function() {
       html: Stream<VNode>;
     };
 
-    function app(sources: MySources): MySinks {
+    function app(_sources: MySources): MySinks {
       return {
         html: xs.of(div('.test-element', ['Foobar'])),
       };
@@ -97,7 +96,7 @@ describe('HTML Driver', function() {
   });
 
   it('should have DevTools flag in HTMLSource elements() stream', function(done) {
-    function app(sources: {html: HTMLSource}): any {
+    function app(_sources: {html: HTMLSource}): any {
       return {
         html: xs.of(div('.test-element', ['Foobar'])),
       };
@@ -110,7 +109,7 @@ describe('HTML Driver', function() {
   });
 
   it('should have DevTools flag in HTMLSource elements() stream', function(done) {
-    function app(sources: {html: HTMLSource}): any {
+    function app(_sources: {html: HTMLSource}): any {
       return {
         html: xs.of(div('.test-element', ['Foobar'])),
       };
@@ -185,7 +184,7 @@ describe('HTML Driver', function() {
       done();
     }
 
-    const {sinks, sources, run} = setup(main, {
+    const {sinks, sources, run: _run} = setup(main, {
       html: makeHTMLDriver(effect, {
         modules: [
           (vnode: VNode, attributes: Map<string, any>) => {
@@ -194,7 +193,7 @@ describe('HTML Driver', function() {
         ],
       }),
     });
-    run();
+    _run();
   });
 
   it('should render a complex and nested HTML', function(done) {

@@ -1,4 +1,3 @@
-import 'mocha';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {run, setup} from '../src/index';
@@ -38,15 +37,15 @@ describe('setup', function() {
       other: Stream<string>;
     };
 
-    function app(sources: MySources): MySinks {
+    function app(_sources: MySources): MySinks {
       return {
-        other: sources.other.take(1).startWith('a'),
+        other: _sources.other.take(1).startWith('a'),
       };
     }
     function driver() {
       return most.of('b');
     }
-    let {sinks, sources} = setup(app, {other: driver});
+    const {sinks, sources} = setup(app, {other: driver});
     assert.strictEqual(typeof sinks, 'object');
     assert.strictEqual(typeof sinks.other.observe, 'function');
     assert.strictEqual(typeof sources, 'object');
@@ -64,12 +63,12 @@ describe('setup', function() {
       other: Stream<string>;
     };
 
-    function app(sources: TestSources): TestSinks {
+    function app(_sources: TestSources): TestSinks {
       return {
         other: most.concat(
-          sources.other
+          _sources.other
             .take(6)
-            .map(x => String(x))
+            .map(String)
             .startWith('a'),
           most.never()
         ),
@@ -81,7 +80,7 @@ describe('setup', function() {
         .map((x: string) => x.charCodeAt(0))
         .delay(1);
     }
-    let {sinks, sources, run} = setup(app, {other: driver});
+    const {sinks, sources, run: _run} = setup(app, {other: driver});
     let dispose: any;
     sources.other
       .observe(x => {
@@ -90,7 +89,7 @@ describe('setup', function() {
         done();
       })
       .catch(done);
-    dispose = run();
+    dispose = _run();
   });
 
   it('should not type check drivers that use xstream', function() {
@@ -102,9 +101,9 @@ describe('setup', function() {
       other: Stream<string>;
     };
 
-    function app(sources: MySources): MySinks {
+    function app(_sources: MySources): MySinks {
       return {
-        other: sources.other.take(1).startWith('a'),
+        other: _sources.other.take(1).startWith('a'),
       };
     }
     function xsdriver(sink: xs<string>): xs<string> {
@@ -121,14 +120,14 @@ describe('setup', function() {
   });
 
   it('should not work after has been disposed', function(done) {
-    let number$ = most
+    const number$ = most
       .periodic(50, 1)
       .scan((x, y) => x + y, 0)
       .map(i => i + 1);
-    function app(sources: any): any {
+    function app(_sources: any): any {
       return {other: number$};
     }
-    let {sinks, sources, run} = setup(app, {
+    const {sinks, sources, run: _run} = setup(app, {
       other: (num$: any) => most.from(num$).map((num: number) => 'x' + num),
     });
     let dispose: any;
@@ -143,7 +142,7 @@ describe('setup', function() {
         }
       })
       .catch(done);
-    dispose = run();
+    dispose = _run();
   });
 });
 
@@ -171,7 +170,7 @@ describe('run()', function() {
   });
 
   it('should return a dispose function', function() {
-    let sandbox = sinon.createSandbox();
+    const sandbox = sinon.createSandbox();
     const spy = sandbox.spy();
     function app(sources: any) {
       return {
@@ -181,7 +180,7 @@ describe('run()', function() {
     function driver() {
       return most.of('b').tap(spy);
     }
-    let dispose = run(app, {other: driver});
+    const dispose = run(app, {other: driver});
     assert.strictEqual(typeof dispose, 'function');
     setTimeout(() => {
       sinon.assert.calledOnce(spy);
@@ -190,7 +189,7 @@ describe('run()', function() {
   });
 
   it('should report errors from main() in the console', function(done) {
-    let sandbox = sinon.createSandbox();
+    const sandbox = sinon.createSandbox();
     sandbox.stub(console, 'error');
 
     function main(sources: any): any {

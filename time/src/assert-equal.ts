@@ -11,12 +11,12 @@ function checkEqual(
   const usingCustomComparator = comparator !== deepEqual;
   const failReasons: Array<any> = [];
 
-  if (completeStore['actual'].length !== completeStore['expected'].length) {
+  if (completeStore.actual.length !== completeStore.expected.length) {
     failReasons.push(`Length of actual and expected differs`);
   }
 
-  completeStore['actual'].forEach((actual: any, index: number) => {
-    const expected = completeStore['expected'][index];
+  completeStore.actual.forEach((actual: any, index: number) => {
+    const expected = completeStore.expected[index];
 
     if (actual === undefined) {
       failReasons.push(`Actual at index ${index} was undefined`);
@@ -128,11 +128,11 @@ function checkEqual(
       strip(`
 Expected
 
-${diagramString(completeStore['expected'], interval)}
+${diagramString(completeStore.expected, interval)}
 
 Got
 
-${diagramString(completeStore['actual'], interval)}
+${diagramString(completeStore.actual, interval)}
 
 Failed because:
 
@@ -179,8 +179,8 @@ function makeAssertEqual(
       xs.fromObservable(expectedLog$)
     ).addListener({
       next([aLog, bLog]) {
-        completeStore['actual'] = aLog;
-        completeStore['expected'] = bLog;
+        completeStore.actual = aLog;
+        completeStore.expected = bLog;
       },
 
       complete() {

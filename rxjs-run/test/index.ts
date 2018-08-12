@@ -37,9 +37,9 @@ describe('setup', function() {
       other: Observable<string>;
     };
 
-    function app(sources: MySources): MySinks {
+    function app(_sources: MySources): MySinks {
       return {
-        other: sources.other.pipe(
+        other: _sources.other.pipe(
           take(1),
           startWith('a')
         ),
@@ -67,9 +67,9 @@ describe('setup', function() {
       other: Observable<string>;
     };
 
-    function app(sources: MySources): MySinks {
+    function app(_sources: MySources): MySinks {
       return {
-        other: sources.other.pipe(
+        other: _sources.other.pipe(
           take(1),
           startWith('a')
         ),
@@ -97,11 +97,11 @@ describe('setup', function() {
       other: Observable<string>;
     };
 
-    function app(sources: TestSources): TestSinks {
+    function app(_sources: TestSources): TestSinks {
       return {
-        other: sources.other.pipe(
+        other: _sources.other.pipe(
           take(6),
-          map(x => String(x)),
+          map(String),
           startWith('a')
         ),
       };
@@ -112,24 +112,24 @@ describe('setup', function() {
         delay(1)
       );
     }
-    let {sources, run} = setup(app, {other: driver});
+    const {sources, run: _run} = setup(app, {other: driver});
     let dispose: any;
     sources.other.subscribe(x => {
       assert.strictEqual(x, 97);
       dispose();
       done();
     });
-    dispose = run();
+    dispose = _run();
   });
 
   it('should not work after has been disposed', function(done) {
-    let number$ = range(1, 3).pipe(concatMap(x => of(x).pipe(delay(150))));
+    const number$ = range(1, 3).pipe(concatMap(x => of(x).pipe(delay(150))));
 
-    function app(sources: any): any {
+    function app(_sources: any): any {
       return {other: number$};
     }
 
-    let {sources, run} = setup(app, {
+    const {sources, run: _run} = setup(app, {
       other: (num$: any) => from(num$).pipe(map((num: any) => 'x' + num)),
     });
 
@@ -143,7 +143,7 @@ describe('setup', function() {
         }, 100);
       }
     });
-    dispose = run();
+    dispose = _run();
   });
 });
 
@@ -171,7 +171,7 @@ describe('run', function() {
   });
 
   it('should return a dispose function', function() {
-    let sandbox = sinon.createSandbox();
+    const sandbox = sinon.createSandbox();
     const spy = sandbox.spy();
     function app(sources: any): any {
       return {
@@ -184,14 +184,14 @@ describe('run', function() {
     function driver() {
       return of('b').pipe(tap(spy));
     }
-    let dispose = run(app, {other: driver});
+    const dispose = run(app, {other: driver});
     assert.strictEqual(typeof dispose, 'function');
     sinon.assert.calledOnce(spy);
     dispose();
   });
 
   it('should report main() errors in the console', function(done) {
-    let sandbox = sinon.createSandbox();
+    const sandbox = sinon.createSandbox();
     sandbox.stub(console, 'error');
 
     function main(sources: any): any {

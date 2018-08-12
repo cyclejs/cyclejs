@@ -1,4 +1,3 @@
-///<reference path="../custom-typings.d.ts" />
 import xs, {Stream} from 'xstream';
 import {makeScheduler} from './scheduler';
 import {makeDelay} from './delay';

@@ -1,12 +1,12 @@
 import * as assert from 'assert';
 import {Observable} from 'rxjs';
-import {setup, run} from '@cycle/rxjs-run';
+import {setup} from '@cycle/rxjs-run';
 import {makeServerHistoryDriver, Location, HistoryInput} from '../../src';
 
 describe('serverHistoryDriver - RxJS', function() {
   it('should return an Rx Observable as source', function() {
-    function main(sources: {history: Observable<Location>}) {
-      assert.strictEqual(typeof sources.history.switchMap, 'function');
+    function main(_sources: {history: Observable<Location>}) {
+      assert.strictEqual(typeof _sources.history.switchMap, 'function');
       return {
         history: Observable.never(),
       };
@@ -19,7 +19,7 @@ describe('serverHistoryDriver - RxJS', function() {
   });
 
   it('should create a location from pathname', done => {
-    function main(sources: {history: Observable<Location>}) {
+    function main(_sources: {history: Observable<Location>}) {
       return {
         history: Observable.of('/test'),
       };
@@ -43,7 +43,7 @@ describe('serverHistoryDriver - RxJS', function() {
   });
 
   it('should create a location from PushHistoryInput', done => {
-    function main(sources: {history: Observable<Location>}) {
+    function main(_sources: {history: Observable<Location>}) {
       return {
         history: Observable.of({type: 'push', pathname: '/test'}),
       };
@@ -67,7 +67,7 @@ describe('serverHistoryDriver - RxJS', function() {
   });
 
   it('should create a location from ReplaceHistoryInput', done => {
-    function main(sources: {history: Observable<Location>}) {
+    function main(_sources: {history: Observable<Location>}) {
       return {
         history: Observable.of({type: 'replace', pathname: '/test'}),
       };
@@ -91,7 +91,7 @@ describe('serverHistoryDriver - RxJS', function() {
   });
 
   it('should allow going back a route with type `go`', done => {
-    function main(sources: {history: Observable<Location>}) {
+    function main(_sources: {history: Observable<Location>}) {
       return {
         history: Observable.of<HistoryInput | string>('/test', '/other', {
           type: 'go',
@@ -122,7 +122,7 @@ describe('serverHistoryDriver - RxJS', function() {
   });
 
   it('should allow going back a route with type `goBack`', done => {
-    function main(sources: {history: Observable<Location>}) {
+    function main(_sources: {history: Observable<Location>}) {
       return {
         history: Observable.of<HistoryInput | string>('/test', '/other', {
           type: 'goBack',
@@ -152,7 +152,7 @@ describe('serverHistoryDriver - RxJS', function() {
   });
 
   it('should allow going forward a route with type `go`', done => {
-    function main(sources: {history: Observable<Location>}) {
+    function main(_sources: {history: Observable<Location>}) {
       return {
         history: Observable.of<HistoryInput | string>(
           '/test',
@@ -185,7 +185,7 @@ describe('serverHistoryDriver - RxJS', function() {
   });
 
   it('should allow going forward a route with type `goForward`', done => {
-    function main(sources: {history: Observable<Location>}) {
+    function main(_sources: {history: Observable<Location>}) {
       return {
         history: Observable.of<HistoryInput | string>(
           '/test',

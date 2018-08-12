@@ -4,7 +4,7 @@ import isolate from '@cycle/isolate';
 import xs, {Stream, MemoryStream} from 'xstream';
 import delay from 'xstream/extra/delay';
 import concat from 'xstream/extra/concat';
-import {setup, run} from '@cycle/run';
+import {setup} from '@cycle/run';
 import {
   svg,
   div,
@@ -36,7 +36,7 @@ if (isIE10) {
 
 describe('DOMSource.select()', function() {
   it('should have Observable `:root` in DOM source', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('.top-most', [p('Foo'), span('Bar')])),
       };
@@ -69,7 +69,7 @@ describe('DOMSource.select()', function() {
   });
 
   it('should return a DOMSource with elements(), events(), select()', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(h3('.myelementclass', 'Foobar')),
       };
@@ -98,7 +98,7 @@ describe('DOMSource.select()', function() {
   });
 
   it('should have an observable of DOM elements', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(h3('.myelementclass', 'Foobar')),
       };
@@ -134,7 +134,7 @@ describe('DOMSource.select()', function() {
   });
 
   it('should not select element outside the given scope', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(
           h3('.top-most', [
@@ -174,7 +174,7 @@ describe('DOMSource.select()', function() {
   });
 
   it('should select svg element', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(
           svg({attrs: {width: 150, height: 150}}, [
@@ -212,7 +212,7 @@ describe('DOMSource.select()', function() {
   });
 
   it('should support selecting the document element', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('hello world')),
       };
@@ -244,7 +244,7 @@ describe('DOMSource.select()', function() {
   });
 
   it('should support selecting the body element', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('hello world')),
       };
@@ -272,7 +272,7 @@ describe('DOMSource.select()', function() {
   });
 
   it('should have DevTools flag in BodyDOMSource element() stream', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('hello world')),
       };
@@ -288,7 +288,7 @@ describe('DOMSource.select()', function() {
   });
 
   it('should have DevTools flag in BodyDOMSource elements() stream', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('hello world')),
       };
@@ -304,7 +304,7 @@ describe('DOMSource.select()', function() {
   });
 
   it('should have DevTools flag in BodyDOMSource events() stream', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('hello world')),
       };
@@ -320,7 +320,7 @@ describe('DOMSource.select()', function() {
   });
 
   it('should have DevTools flag in DocumentDOMSource element() stream', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('hello world')),
       };
@@ -336,7 +336,7 @@ describe('DOMSource.select()', function() {
   });
 
   it('should have DevTools flag in DocumentDOMSource elements() stream', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('hello world')),
       };
@@ -352,7 +352,7 @@ describe('DOMSource.select()', function() {
   });
 
   it('should have DevTools flag in DocumentDOMSource events() stream', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('hello world')),
       };

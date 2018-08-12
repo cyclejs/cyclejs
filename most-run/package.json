@@ -28,8 +28,8 @@
   "homepage": "https://cycle.js.org",
   "dependencies": {
     "@cycle/run": "4.x",
-    "xstream": "*",
-    "most": "*"
+    "most": "*",
+    "xstream": "*"
   },
   "devDependencies": {
     "@types/mocha": "^5.2.5",
@@ -38,6 +38,7 @@
     "mocha": "^5.2.0",
     "sinon": "^6.1.4",
     "ts-node": "^7.0.0",
+    "tslint": "^5.11.0",
     "typescript": "~2.8.4",
     "xstream": "11.x"
   },
@@ -45,6 +46,7 @@
     "build": "pnpm run build-cjs && pnpm run build-es6",
     "build-cjs": "tsc --module commonjs --outDir ./lib/cjs",
     "build-es6": "tsc --module es6 --outDir ./lib/es6",
+    "lint": "tslint --project tsconfig.lint.json --config ../tslint.json --fix",
     "test": "mocha test/*.ts --require ts-node/register --exit",
     "test-ci": "npm run test"
   },

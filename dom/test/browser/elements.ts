@@ -4,7 +4,7 @@ import isolate from '@cycle/isolate';
 import xs, {Stream, MemoryStream} from 'xstream';
 import delay from 'xstream/extra/delay';
 import concat from 'xstream/extra/concat';
-import {setup, run} from '@cycle/run';
+import {setup} from '@cycle/run';
 import {
   svg,
   div,
@@ -36,7 +36,7 @@ if (isIE10) {
 
 describe('DOMSource.elements()', function() {
   it('should return a stream of documents when querying "document"', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('.top-most', [p('Foo'), span('Bar')])),
       };
@@ -68,7 +68,7 @@ describe('DOMSource.elements()', function() {
   });
 
   it('should return a stream of bodies when querying "body"', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('.top-most', [p('Foo'), span('Bar')])),
       };
@@ -100,7 +100,7 @@ describe('DOMSource.elements()', function() {
   });
 
   it('should return a stream of arrays of elements of size 1 when querying ":root"', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('.top-most', [p('Foo'), span('Bar')])),
       };
@@ -130,7 +130,7 @@ describe('DOMSource.elements()', function() {
   });
 
   it('should return a stream of arrays of elements of size 2 when querying ".some"', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('.top-most', [div('.some'), div('.some')])),
       };
@@ -146,7 +146,7 @@ describe('DOMSource.elements()', function() {
       .drop(1)
       .take(1)
       .addListener({
-        next: (elems: Element[]) => {
+        next: (elems: Array<Element>) => {
           assert(Array.isArray(elems));
           assert(elems.length === 2);
           setTimeout(() => {
