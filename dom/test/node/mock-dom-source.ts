@@ -1,3 +1,4 @@
+// tslint:disable-next-line
 import 'symbol-observable';
 import * as assert from 'assert';
 import {Observable, of, from, combineLatest} from 'rxjs';
@@ -37,7 +38,7 @@ describe('mockDOMSource', function() {
           assert.strictEqual(ev, 135);
           done();
         },
-        error: (err: any) => done(err),
+        error: done,
         complete: () => {},
       });
   });
@@ -60,7 +61,7 @@ describe('mockDOMSource', function() {
         assert.strictEqual(ev, 270);
         done();
       },
-      error: err => done(err),
+      error: done,
       complete: () => {},
     });
   });
@@ -81,7 +82,7 @@ describe('mockDOMSource', function() {
         assert.strictEqual(ev, 405);
         done();
       },
-      error: err => done(err),
+      error: done,
       complete: () => {},
     });
   });
@@ -96,9 +97,9 @@ describe('mockDOMSource', function() {
       .select('.impossible')
       .events('scroll')
       .subscribe({
-        next: (x: any) => done(x),
-        error: (e: any) => done(e),
-        complete: () => done(),
+        next: done,
+        error: done,
+        complete: done,
       });
   });
 
@@ -112,9 +113,9 @@ describe('mockDOMSource', function() {
       .select('.foo')
       .elements()
       .subscribe({
-        next: (x: any) => done(x),
-        error: (e: any) => done(e),
-        complete: () => done(),
+        next: done,
+        error: done,
+        complete: done,
       });
   });
 
@@ -132,7 +133,7 @@ describe('mockDOMSource', function() {
           assert.strictEqual(e, 135);
           done();
         },
-        error: (err: any) => done(err),
+        error: done,
         complete: () => {},
       });
   });
@@ -144,7 +145,7 @@ describe('mockDOMSource', function() {
       },
     });
     assert.strictEqual(
-      (mockedDOMSource.select('.foo').elements() as any)._isCycleSource,
+      mockedDOMSource.select('.foo').elements()._isCycleSource,
       'MockedDOM'
     );
     done();
@@ -157,7 +158,7 @@ describe('mockDOMSource', function() {
       },
     });
     assert.strictEqual(
-      (userEvents.select('.foo').events('click') as any)._isCycleSource,
+      userEvents.select('.foo').events('click')._isCycleSource,
       'MockedDOM'
     );
     done();
@@ -183,7 +184,7 @@ describe('mockDOMSource', function() {
           assert.strictEqual(e, 135);
           done();
         },
-        error: (err: any) => done(err),
+        error: done,
         complete: () => {},
       });
   });
@@ -201,12 +202,12 @@ describe('mockDOMSource', function() {
     const DOM = mockDOMSource({});
     const domSource = DOM.select('.something').select('.other');
     assert.strictEqual(
-      typeof (domSource.events('click') as any).pipe,
+      typeof domSource.events('click').pipe,
       'function',
       'domSource.events(click) should be an Observable instance'
     );
     assert.strictEqual(
-      typeof (domSource.elements() as any).pipe,
+      typeof domSource.elements().pipe,
       'function',
       'domSource.elements() should be an Observable instance'
     );
@@ -215,7 +216,7 @@ describe('mockDOMSource', function() {
 
 describe('isolation on MockedDOMSource', function() {
   it('should have the same effect as DOM.select()', function(done) {
-    function app(sources: {DOM: MockedDOMSource}) {
+    function app(_sources: {DOM: MockedDOMSource}) {
       return {
         DOM: of(
           h3('.top-most', [
@@ -241,7 +242,9 @@ describe('isolation on MockedDOMSource', function() {
     const isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'foo');
 
     // Make assertions
-    (isolatedDOMSource.select('.bar').elements() as any)
+    isolatedDOMSource
+      .select('.bar')
+      .elements()
       .pipe(
         skip(1),
         take(1)
@@ -257,7 +260,7 @@ describe('isolation on MockedDOMSource', function() {
   });
 
   it('should have isolateSource and isolateSink', function(done) {
-    function app(sources: {DOM: MockedDOMSource}) {
+    function app(_sources: {DOM: MockedDOMSource}) {
       return {
         DOM: of(h('h3.top-most.___foo')),
       };
@@ -276,11 +279,11 @@ describe('isolation on MockedDOMSource', function() {
   });
 
   it('should prevent parent from DOM.selecting() inside the isolation', function(done) {
-    function app(sources: {DOM: MockedDOMSource}): any {
+    function app(_sources: {DOM: MockedDOMSource}): any {
       return {
         DOM: of(
           h3('.top-most', [
-            sources.DOM.isolateSink(
+            _sources.DOM.isolateSink(
               of(div('.foo', [h4('.bar', 'Wrong')])),
               'ISOLATION'
             ),

@@ -41,8 +41,10 @@
     "@types/sinon": "1.16.x",
     "mocha": "^5.2.0",
     "rxjs": "^6.2.1",
+    "sinon": "^6.1.5",
     "symbol-observable": "^1.2.0",
     "ts-node": "^7.0.0",
+    "tslint": "^5.11.0",
     "typescript": "~2.8.4"
   },
   "engines": {
@@ -52,6 +54,7 @@
     "build": "pnpm run build-cjs && pnpm run build-es6",
     "build-cjs": "tsc --module commonjs --outDir ./lib/cjs",
     "build-es6": "tsc --module es6 --outDir ./lib/es6",
+    "lint": "tslint --project tsconfig.lint.json --config ../tslint.json --fix",
     "test": "mocha test/*.ts --require ts-node/register --exit",
     "test-ci": "npm run test"
   },

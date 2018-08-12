@@ -1,12 +1,11 @@
 import * as assert from 'assert';
-
 import {
   HistoryInput,
   Location,
   captureClicks,
   makeHistoryDriver,
 } from '../../src';
-import {run, setup} from '@cycle/run';
+import {setup} from '@cycle/run';
 import xs, {Stream} from 'xstream';
 
 import {setAdapt} from '@cycle/run/lib/adapt';
@@ -26,8 +25,8 @@ describe('historyDriver - xstream', () => {
   });
 
   it('should return a stream', () => {
-    function main(sources: {history: Stream<Location>}) {
-      assert.strictEqual(typeof sources.history.remember, 'function');
+    function main(_sources: {history: Stream<Location>}) {
+      assert.strictEqual(typeof _sources.history.remember, 'function');
       return {
         history: xs.never(),
       };
@@ -38,7 +37,7 @@ describe('historyDriver - xstream', () => {
   });
 
   it('should create a location from pathname', function(done) {
-    function main(sources: {history: Stream<Location>}) {
+    function main(_sources: {history: Stream<Location>}) {
       return {
         history: xs.of('/test'),
       };
@@ -60,7 +59,7 @@ describe('historyDriver - xstream', () => {
   });
 
   it('should create a location from PushHistoryInput', function(done) {
-    function main(sources: {history: Stream<Location>}) {
+    function main(_sources: {history: Stream<Location>}) {
       return {
         history: xs.of({type: 'push', pathname: '/test'}),
       };
@@ -82,7 +81,7 @@ describe('historyDriver - xstream', () => {
   });
 
   it('should create a location from ReplaceHistoryInput', function(done) {
-    function main(sources: {history: Stream<Location>}) {
+    function main(_sources: {history: Stream<Location>}) {
       return {
         history: xs.of({type: 'replace', pathname: '/test'}),
       };
@@ -104,7 +103,7 @@ describe('historyDriver - xstream', () => {
   });
 
   it('should allow going back/forwards with `go`, `goBack`, `goForward`', function(done) {
-    function main(sources: {history: Stream<Location>}) {
+    function main(_sources: {history: Stream<Location>}) {
       return {
         history: xs
           .periodic(100)

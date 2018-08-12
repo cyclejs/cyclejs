@@ -1,4 +1,4 @@
-import 'symbol-observable';
+import 'symbol-observable'; // tslint:disable-line
 import * as assert from 'assert';
 import {of, from} from 'rxjs';
 import isolate from '../src/index';
@@ -49,10 +49,10 @@ describe('isolate', function() {
   });
 
   it('should accept a scopes-per-channel object as the second argument', function(done) {
-    function Component(sources: any) {
+    function Component(_sources: any) {
       return {
-        first: sources.first.getSink(),
-        second: sources.second.getSink(),
+        first: _sources.first.getSink(),
+        second: _sources.second.getSink(),
       };
     }
 
@@ -114,10 +114,10 @@ describe('isolate', function() {
   });
 
   it('should not isolate a channel given null scope', function(done) {
-    function Component(sources: any) {
+    function Component(_sources: any) {
       return {
-        first: sources.first.getSink(),
-        second: sources.second.getSink(),
+        first: _sources.first.getSink(),
+        second: _sources.second.getSink(),
       };
     }
 
@@ -179,10 +179,10 @@ describe('isolate', function() {
   });
 
   it('should generate a scope if a channel is undefined in scopes-per-channel', function(done) {
-    function Component(sources: any) {
+    function Component(_sources: any) {
       return {
-        first: sources.first.getSink(),
-        second: sources.second.getSink(),
+        first: _sources.first.getSink(),
+        second: _sources.second.getSink(),
       };
     }
 
@@ -241,10 +241,10 @@ describe('isolate', function() {
   });
 
   it('should accept a wildcard * in the scopes-per-channel object', function(done) {
-    function Component(sources: any) {
+    function Component(_sources: any) {
       return {
-        first: sources.first.getSink(),
-        second: sources.second.getSink(),
+        first: _sources.first.getSink(),
+        second: _sources.second.getSink(),
       };
     }
 
@@ -306,10 +306,10 @@ describe('isolate', function() {
   });
 
   it('should not isolate a non-specified channel if wildcard * is null', function(done) {
-    function Component(sources: any) {
+    function Component(_sources: any) {
       return {
-        first: sources.first.getSink(),
-        second: sources.second.getSink(),
+        first: _sources.first.getSink(),
+        second: _sources.second.getSink(),
       };
     }
 
@@ -371,10 +371,10 @@ describe('isolate', function() {
   });
 
   it('should not convert to string values in scopes-per-channel object', function(done) {
-    function Component(sources: any) {
+    function Component(_sources: any) {
       return {
-        first: sources.first.getSink(),
-        second: sources.second.getSink(),
+        first: _sources.first.getSink(),
+        second: _sources.second.getSink(),
       };
     }
 
@@ -528,7 +528,7 @@ describe('isolate', function() {
       }
       const scopedMyDataflowComponent = isolate(MyDataflowComponent, `myScope`);
       const scopedSinks = scopedMyDataflowComponent({other: driver()});
-      let i = 0;
+      const i = 0;
       scopedSinks.other.subscribe((x: any) => {
         assert.strictEqual(x, 'a myScope');
         done();

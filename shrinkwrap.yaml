@@ -5,6 +5,8 @@ devDependencies:
   lint-staged: 7.2.0
   prettier: 1.13.5
   rxjs: 5.5.11
+  tslint: 5.11.0
+  typescript: 2.8.4
 packages:
   /@samverschueren/stream-to-observable/0.3.0:
     dependencies:
@@ -118,6 +120,14 @@ packages:
       node: '>= 4.5.0'
     resolution:
       integrity: sha1-ri1acpR38onWDdf5amMUoi3Wwio=
+  /babel-code-frame/6.26.0:
+    dependencies:
+      chalk: 1.1.3
+      esutils: 2.0.2
+      js-tokens: 3.0.2
+    dev: true
+    resolution:
+      integrity: sha1-Y/1D99weO7fONZR9uP42mj9Yx0s=
   /babel-polyfill/6.23.0:
     dependencies:
       babel-runtime: 6.26.0
@@ -328,6 +338,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-VlfT9F3V0v+jr4yxPc5gg9s62/fIVWsd2Bk2iD435um1NlGMYdVCq+MjcXnhYq2icNOizHr1kK+5TI6H0Hy0ag==
+  /commander/2.17.1:
+    dev: true
+    resolution:
+      integrity: sha512-wPMUt6FnH2yzG95SA6mzjQOEKUU3aLaDEmzs1ti+1E9h+CsrZghRlqEM/EJ4KscsQVG8uNN4uVreUeT8+drlgg==
   /commitizen/2.10.1:
     dependencies:
       cachedir: 1.3.0
@@ -506,6 +520,12 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-920GQ1LN9Docts5hnE7jqUdd4gg=
+  /diff/3.5.0:
+    dev: true
+    engines:
+      node: '>=0.3.1'
+    resolution:
+      integrity: sha512-A46qtFgd+g7pDZinpnwiRJtxbC1hpgf0uzP3iG89scHk0AUC7A1TGxf5OiiOUv/JMZR8GOt8hL900hV0bOy5xA==
   /editor/1.0.0:
     dev: true
     resolution:
@@ -534,12 +554,19 @@ packages:
       node: '>=0.8.0'
     resolution:
       integrity: sha1-G2HAViGQqN/2rjuyzwIAyhMLhtQ=
-  /esprima/4.0.0:
+  /esprima/4.0.1:
     dev: true
     engines:
       node: '>=4'
+    hasBin: true
     resolution:
-      integrity: sha512-oftTcaMu/EGrEIu904mWteKIv8vMuOgGYo7EhVJJN00R/EED9DCua/xxHRdYnKtcECzVg7xOWhflvJMnqcFZjw==
+      integrity: sha512-eGuFFw7Upda+g4p+QHvnW0RyTX/SVeJBDM/gCtMARO0cLuT2HcEKnTPvhjV6aGeqrCB/sbNop0Kszm0jsaWU4A==
+  /esutils/2.0.2:
+    dev: true
+    engines:
+      node: '>=0.10.0'
+    resolution:
+      integrity: sha1-Cr9PHKpbyx96nYrMbepPqqBLrJs=
   /execa/0.9.0:
     dependencies:
       cross-spawn: 5.1.0
@@ -1324,11 +1351,16 @@ packages:
     dev: true
     resolution:
       integrity: sha1-zZ8BqJ0mu4hfEqhmdxXpyGWldU8=
+  /js-tokens/3.0.2:
+    dev: true
+    resolution:
+      integrity: sha1-mGbfOVECEw449/mWvOtlRDIJwls=
   /js-yaml/3.12.0:
     dependencies:
       argparse: 1.0.10
-      esprima: 4.0.0
+      esprima: 4.0.1
     dev: true
+    hasBin: true
     resolution:
       integrity: sha512-PIt2cnwmPfL4hKNwqeiuz4bKfnzHTBv6HyVgjahA6mPLwPDzjDWrplJBMjHUFxku/N3FlmrbyPclad+I+4mJ3A==
   /json-parse-better-errors/1.0.2:
@@ -1929,6 +1961,10 @@ packages:
     dev: true
     resolution:
       integrity: sha1-PBrfhx6pzWyUMbbqK9dKD/BVxME=
+  /path-parse/1.0.6:
+    dev: true
+    resolution:
+      integrity: sha512-GSmOT2EbHrINBf9SR7CDELwlJ8AENk3Qn7OikK4nFYAu3Ote2+JYNVvkpAEQm3/TLNEJFD/xZJjzyxg3KBWOzw==
   /path-type/3.0.0:
     dependencies:
       pify: 3.0.0
@@ -2118,6 +2154,12 @@ packages:
     dev: true
     resolution:
       integrity: sha512-MNcwJ8/K9iJqFDBDyhcxZuDWvf/ai0GcAJWetx2Cvvcz4HLfA8j0KasWR5Z6ChcbjYZ+FaczcXjN2jrCXCjQ4w==
+  /resolve/1.8.1:
+    dependencies:
+      path-parse: 1.0.6
+    dev: true
+    resolution:
+      integrity: sha512-AicPrAC7Qu1JxPCZ9ZgCZlY35QgFnNqc+0LtbRNxnVw4TXvjQ72wnuL9JQcEBgXkI9JM8MsT9kaQoHcpCRJOYA==
   /restore-cursor/1.0.1:
     dependencies:
       exit-hook: 1.1.1
@@ -2206,6 +2248,7 @@ packages:
       integrity: sha1-De4hahyUGrN+nvsXiPavxf9VN/w=
   /semver/5.5.0:
     dev: true
+    hasBin: true
     resolution:
       integrity: sha512-4SJ3dm0WAwWy/NVeioZh5AntkdJoWKxHxcmyP622fOkgHa4z3R0TdBJICINyaSDE6uNwVc8gZr+ZinwZAH4xIA==
   /set-value/0.4.3:
@@ -2544,10 +2587,51 @@ packages:
     dev: true
     resolution:
       integrity: sha512-AVP5Xol3WivEr7hnssHDsaM+lVrVXWUvd1cfXTRkTj80b//6g2wIFEH6hZG0muGZRnHGrfttpdzRk3YlBkWjKw==
+  /tslib/1.9.3:
+    dev: true
+    resolution:
+      integrity: sha512-4krF8scpejhaOgqzBEcGM7yDIEfi0/8+8zDRZhNZZ2kjmHJ4hv3zCbQWxoJGz1iw5U0Jl0nma13xzHXcncMavQ==
+  /tslint/5.11.0:
+    dependencies:
+      babel-code-frame: 6.26.0
+      builtin-modules: 1.1.1
+      chalk: 2.4.1
+      commander: 2.17.1
+      diff: 3.5.0
+      glob: 7.1.2
+      js-yaml: 3.12.0
+      minimatch: 3.0.4
+      resolve: 1.8.1
+      semver: 5.5.0
+      tslib: 1.9.3
+      tsutils: 2.29.0
+    dev: true
+    engines:
+      node: '>=4.8.0'
+    hasBin: true
+    peerDependencies:
+      typescript: '>=2.1.0 || >=2.1.0-dev || >=2.2.0-dev || >=2.3.0-dev || >=2.4.0-dev || >=2.5.0-dev || >=2.6.0-dev || >=2.7.0-dev || >=2.8.0-dev || >=2.9.0-dev'
+    resolution:
+      integrity: sha1-mPMMAurjzecAYgHkwzywi0hYHu0=
+  /tsutils/2.29.0:
+    dependencies:
+      tslib: 1.9.3
+    dev: true
+    peerDependencies:
+      typescript: '>=2.1.0 || >=2.1.0-dev || >=2.2.0-dev || >=2.3.0-dev || >=2.4.0-dev || >=2.5.0-dev || >=2.6.0-dev || >=2.7.0-dev || >=2.8.0-dev || >=2.9.0-dev || >= 3.0.0-dev || >= 3.1.0-dev'
+    resolution:
+      integrity: sha512-g5JVHCIJwzfISaXpXE1qvNalca5Jwob6FjI4AoPlqMusJ6ftFE7IkkFoMhVLRgK+4Kx3gkzb8UZK5t5yTTvEmA==
   /typedarray/0.0.6:
     dev: true
     resolution:
       integrity: sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
+  /typescript/2.8.4:
+    dev: true
+    engines:
+      node: '>=4.2.0'
+    hasBin: true
+    resolution:
+      integrity: sha512-IIU5cN1mR5J3z9jjdESJbnxikTrEz3lzAw/D0Tf45jHpBp55nY31UkUvmVHoffCfKHTqJs3fCLPDxknQTTFegQ==
   /union-value/1.0.0:
     dependencies:
       arr-union: 3.1.0
@@ -2647,3 +2731,5 @@ specifiers:
   lint-staged: ^7.2.0
   prettier: ^1.13.5
   rxjs: ^5.5.11
+  tslint: ^5.11.0
+  typescript: ^2.8.4

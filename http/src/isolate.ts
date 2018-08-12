@@ -1,7 +1,10 @@
 import {Stream} from 'xstream';
 import {HTTPSource, RequestOptions, RequestInput} from './interfaces';
 
-function arrayEqual(requestNamespace: any[], sourceNamespace: any[]): boolean {
+function arrayEqual(
+  requestNamespace: Array<any>,
+  sourceNamespace: Array<any>
+): boolean {
   for (let i = 0; i < sourceNamespace.length; i++) {
     if (requestNamespace[i] !== sourceNamespace[i]) {
       return false;

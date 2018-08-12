@@ -33,7 +33,7 @@ export function startServer() {
   app.post('/pet', function(req: any, res: any) {
     setTimeout(function() {
       const result = 'added ' + req.body.name + ' the ' + req.body.species;
-      (globalSandbox as any).petPOSTResponse = result;
+      globalSandbox.petPOSTResponse = result;
       res.send(result);
     }, 150);
   });

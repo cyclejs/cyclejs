@@ -36,7 +36,7 @@ describe('setup', function() {
     function driver() {
       return xs.of('b');
     }
-    let {sinks, sources} = setup(app, {other: driver});
+    const {sinks, sources} = setup(app, {other: driver});
     assert.strictEqual(typeof sinks, 'object');
     assert.strictEqual(typeof sinks.other.addListener, 'function');
     assert.strictEqual(typeof sources, 'object');
@@ -151,12 +151,12 @@ describe('setup', function() {
       other: Stream<number>;
     };
 
-    function app(sources: TestSources) {
+    function app(_sources: TestSources) {
       return {
         other: concat(
-          sources.other
+          _sources.other
             .take(6)
-            .map(x => String(x))
+            .map(String)
             .startWith('a'),
           xs.never()
         ),
@@ -175,8 +175,8 @@ describe('setup', function() {
         assert.strictEqual(x, 97);
         dispose(); // will trigger this listener's complete
       },
-      error: err => done(err),
-      complete: () => done(),
+      error: done,
+      complete: done,
     });
     dispose = run();
   });
@@ -186,7 +186,7 @@ describe('setup', function() {
       other: Stream<string>;
     };
 
-    function app(sources: MySources) {
+    function app(_sources: MySources) {
       return {other: xs.periodic(100).map(i => i + 1)};
     }
     function driver(num$: Stream<number>): Stream<string> {
@@ -205,8 +205,8 @@ describe('setup', function() {
           dispose(); // will trigger this listener's complete
         }
       },
-      error: err => done(err),
-      complete: () => done(),
+      error: done,
+      complete: done,
     });
     dispose = run();
   });

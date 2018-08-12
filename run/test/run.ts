@@ -28,7 +28,7 @@ describe('run', function() {
   });
 
   it('should return a dispose function', function() {
-    let sandbox = sinon.createSandbox();
+    const sandbox = sinon.createSandbox();
     const spy = sandbox.spy();
 
     type NiceSources = {
@@ -48,7 +48,7 @@ describe('run', function() {
       return xs.of('b').debug(spy);
     }
 
-    let dispose = run(app, {other: driver});
+    const dispose = run(app, {other: driver});
     assert.strictEqual(typeof dispose, 'function');
     sinon.assert.calledOnce(spy);
     dispose();
@@ -266,9 +266,9 @@ describe('run', function() {
       (global as any).window = {};
       window = (global as any).window;
     }
-    let sandbox = sinon.createSandbox();
-    let spy = sandbox.spy();
-    window['CyclejsDevTool_startGraphSerializer'] = spy;
+    const sandbox = sinon.createSandbox();
+    const spy = sandbox.spy();
+    window.CyclejsDevTool_startGraphSerializer = spy;
 
     function app(ext: any): any {
       return {

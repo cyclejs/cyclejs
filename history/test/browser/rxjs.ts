@@ -1,16 +1,15 @@
 import * as assert from 'assert';
-
 import {
   HistoryInput,
   Location,
   captureClicks,
   makeHistoryDriver,
 } from '../../src';
-import {run, setup} from '@cycle/rxjs-run';
+import {setup} from '@cycle/rxjs-run';
 import {setAdapt} from '@cycle/run/lib/adapt';
 
 import {Observable} from 'rxjs';
-import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/operator/switchMap'; // tslint:disable-line
 
 let dispose = () => {};
 
@@ -27,8 +26,8 @@ describe('historyDriver - RxJS', () => {
   });
 
   it('should return a stream', () => {
-    function main(sources: {history: Observable<Location>}) {
-      assert.strictEqual(typeof sources.history.switchMap, 'function');
+    function main(_sources: {history: Observable<Location>}) {
+      assert.strictEqual(typeof _sources.history.switchMap, 'function');
       return {
         history: Observable.never(),
       };
@@ -39,7 +38,7 @@ describe('historyDriver - RxJS', () => {
   });
 
   it('should create a location from pathname', function(done) {
-    function main(sources: {history: Observable<Location>}) {
+    function main(_sources: {history: Observable<Location>}) {
       return {
         history: Observable.of('/test'),
       };
@@ -61,7 +60,7 @@ describe('historyDriver - RxJS', () => {
   });
 
   it('should create a location from PushHistoryInput', function(done) {
-    function main(sources: {history: Observable<Location>}) {
+    function main(_sources: {history: Observable<Location>}) {
       return {
         history: Observable.of({type: 'push', pathname: '/test'}),
       };
@@ -83,7 +82,7 @@ describe('historyDriver - RxJS', () => {
   });
 
   it('should create a location from ReplaceHistoryInput', function(done) {
-    function main(sources: {history: Observable<Location>}) {
+    function main(_sources: {history: Observable<Location>}) {
       return {
         history: Observable.of({type: 'replace', pathname: '/test'}),
       };
@@ -105,7 +104,7 @@ describe('historyDriver - RxJS', () => {
   });
 
   it('should allow going back/forwards with `go`, `goBack`, `goForward`', function(done) {
-    function main(sources: {history: Observable<Location>}) {
+    function main(_sources: {history: Observable<Location>}) {
       return {
         history: Observable.interval(100)
           .take(6)

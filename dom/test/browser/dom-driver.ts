@@ -3,7 +3,7 @@ import * as sinon from 'sinon';
 import xs, {Stream, MemoryStream} from 'xstream';
 import delay from 'xstream/extra/delay';
 import flattenSequentially from 'xstream/extra/flattenSequentially';
-import {setup, run} from '@cycle/run';
+import {setup, run as cycleRun} from '@cycle/run';
 import {
   div,
   h3,
@@ -88,7 +88,7 @@ describe('DOM Driver', function() {
   });
 
   it('should have isolateSource() and isolateSink() in source', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div()),
       };
@@ -122,7 +122,7 @@ describe('DOM Driver', function() {
       };
     }
 
-    run(main, {
+    cycleRun(main, {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
@@ -143,7 +143,7 @@ describe('DOM Driver', function() {
       .map(x => xs.of(x).compose(delay(50)))
       .compose(flattenSequentially);
 
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: num$.map(num => h3('.target', String(num))),
       };

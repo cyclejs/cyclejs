@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "files": [
+    "src/index.ts",
+    "src/adapt.ts",
+    "test/run.ts",
+    "test/setup.ts",
+    "test/setupReusable.ts"
+  ]
+}

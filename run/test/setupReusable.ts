@@ -29,7 +29,7 @@ describe('setupReusable', function() {
     function driver() {
       return xs.of('b');
     }
-    let {sources, run} = setupReusable({other: driver});
+    const {sources, run} = setupReusable({other: driver});
     assert.strictEqual(typeof sources, 'object');
     assert.notStrictEqual(typeof sources.other, 'undefined');
     assert.notStrictEqual(sources.other, null);
@@ -38,7 +38,7 @@ describe('setupReusable', function() {
   });
 
   it('should return an engine, which we can run and dispose', function() {
-    let sandbox = sinon.createSandbox();
+    const sandbox = sinon.createSandbox();
     const spy = sandbox.spy();
 
     type NiceSources = {
@@ -60,14 +60,14 @@ describe('setupReusable', function() {
 
     const engine = setupReusable<NiceSources, NiceSinks>({other: driver});
     const sinks = app(engine.sources);
-    let dispose = engine.run(sinks);
+    const dispose = engine.run(sinks);
     assert.strictEqual(typeof dispose, 'function');
     sinon.assert.calledOnce(spy);
     dispose();
   });
 
   it('should allow reusing drivers for many apps', function(done) {
-    let sandbox = sinon.createSandbox();
+    const sandbox = sinon.createSandbox();
     const spy1 = sandbox.spy();
     const spy2 = sandbox.spy();
 
@@ -120,7 +120,7 @@ describe('setupReusable', function() {
   });
 
   it('should allow disposing the engine, stopping reusability', function(done) {
-    let sandbox = sinon.createSandbox();
+    const sandbox = sinon.createSandbox();
     const spy = sandbox.spy();
 
     type NiceSources = {

@@ -68,7 +68,7 @@ const fragmentSupport = testFragmentEvents();
 
 describe('DOMSource.events()', function() {
   it('should catch a basic click interaction Observable', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(h3('.myelementclass', 'Foobar')),
       };
@@ -88,7 +88,7 @@ describe('DOMSource.events()', function() {
           done();
         },
       });
-    // Make assertions
+
     sources.DOM.select(':root')
       .element()
       .drop(1)
@@ -110,7 +110,7 @@ describe('DOMSource.events()', function() {
   });
 
   it('should setup click detection with events() after run() occurs', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(h3('.test2.myelementclass', 'Foobar')),
       };
@@ -130,7 +130,7 @@ describe('DOMSource.events()', function() {
           done();
         },
       });
-    // Make assertions
+
     setTimeout(() => {
       const myElement = document.querySelector(
         '.test2.myelementclass'
@@ -145,7 +145,7 @@ describe('DOMSource.events()', function() {
   });
 
   it('should setup click detection on a ready DOM element (e.g. from server)', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.never(),
       };
@@ -171,7 +171,7 @@ describe('DOMSource.events()', function() {
           done();
         },
       });
-    // Make assertions
+
     setTimeout(() => {
       const myElement = containerElement.querySelector(
         '.myelementclass'
@@ -186,7 +186,7 @@ describe('DOMSource.events()', function() {
   });
 
   it('should catch events using id of root element in DOM.select', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(h3('.myelementclass', 'Foobar')),
       };
@@ -197,7 +197,6 @@ describe('DOMSource.events()', function() {
     });
 
     let dispose: any;
-    // Make assertions
     sources.DOM.select('#parent-001')
       .events('click')
       .addListener({
@@ -230,7 +229,7 @@ describe('DOMSource.events()', function() {
   });
 
   it('should catch events using id of top element in DOM.select', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(h3('#myElementId', 'Foobar')),
       };
@@ -241,7 +240,6 @@ describe('DOMSource.events()', function() {
     });
 
     let dispose: any;
-    // Make assertions
     sources.DOM.select('#myElementId')
       .events('click')
       .addListener({
@@ -272,7 +270,7 @@ describe('DOMSource.events()', function() {
   });
 
   it('should catch interaction events without prior select()', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(div('.parent', [h3('.myelementclass', 'Foobar')])),
       };
@@ -283,7 +281,6 @@ describe('DOMSource.events()', function() {
     });
 
     let dispose: any;
-    // Make assertions
     sources.DOM.events('click').addListener({
       next: (ev: Event) => {
         assert.strictEqual(ev.type, 'click');
@@ -314,7 +311,7 @@ describe('DOMSource.events()', function() {
   });
 
   it('should catch user events using DOM.select().select().events()', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(
           h3('.top-most', [
@@ -330,7 +327,6 @@ describe('DOMSource.events()', function() {
     });
 
     let dispose: any;
-    // Make assertions
     sources.DOM.select('.foo')
       .select('.bar')
       .events('click')
@@ -367,7 +363,7 @@ describe('DOMSource.events()', function() {
   });
 
   it('should catch events from many elements using DOM.select().events()', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(
           div('.parent', [
@@ -383,7 +379,6 @@ describe('DOMSource.events()', function() {
     });
 
     let dispose: any;
-    // Make assertions
     sources.DOM.select('.clickable')
       .events('click')
       .take(1)
@@ -429,7 +424,7 @@ describe('DOMSource.events()', function() {
   });
 
   it('should catch interaction events from future elements', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: concat(
           xs.of(h2('.blesh', 'Blesh')),
@@ -444,7 +439,6 @@ describe('DOMSource.events()', function() {
     });
 
     let dispose: any;
-    // Make assertions
     sources.DOM.select('.blosh')
       .events('click')
       .addListener({
@@ -483,7 +477,7 @@ describe('DOMSource.events()', function() {
 
     const {bubbles: thisBrowserBubblesFragmentEvents} = fragmentSupport;
 
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(div([div('.clickable', 'Hello')])),
       };
@@ -538,7 +532,7 @@ describe('DOMSource.events()', function() {
 
     const {captures: thisBrowserCapturesFragmentEvents} = fragmentSupport;
 
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(div([div('.clickable', 'Hello')])),
       };
@@ -586,7 +580,7 @@ describe('DOMSource.events()', function() {
   });
 
   it('should have currentTarget or ownerTarget pointed to the selected parent', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(
           div('.top', [h2('.parent', [span('.child', 'Hello world')])])
@@ -624,7 +618,6 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    // Make assertions
     sources.DOM.select(':root')
       .element()
       .drop(1)
@@ -645,7 +638,7 @@ describe('DOMSource.events()', function() {
   });
 
   it('should catch a non-bubbling Form `reset` event', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(
           div('.parent', [form('.form', [input('.field', {type: 'text'})])])
@@ -675,22 +668,22 @@ describe('DOMSource.events()', function() {
       .take(1)
       .addListener({
         next: (root: Element) => {
-          const form = root.querySelector('.form') as HTMLFormElement;
-          setTimeout(() => form.reset());
+          const _form = root.querySelector('.form') as HTMLFormElement;
+          setTimeout(() => _form.reset());
         },
       });
     run();
   });
 
   it('should catch a non-bubbling click event with useCapture', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(div('.parent', [div('.clickable', 'Hello')])),
       };
     }
 
     function click(el: Element): void {
-      const ev = document.createEvent(`MouseEvent`) as MouseEvent;
+      const ev = document.createEvent(`MouseEvent`);
       ev.initMouseEvent(
         `click`,
         false /* bubble */,
@@ -750,7 +743,7 @@ describe('DOMSource.events()', function() {
   });
 
   it('should catch a blur event with useCapture', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(
           div('.parent', [
@@ -799,7 +792,7 @@ describe('DOMSource.events()', function() {
   });
 
   it('should catch a blur event by default (no options)', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(
           div('.parent', [
@@ -848,7 +841,7 @@ describe('DOMSource.events()', function() {
   });
 
   it('should not simulate bubbling for non-bubbling events', done => {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(
           div('.parent', [form('.form', [input('.field', {type: 'text'})])])
@@ -887,15 +880,15 @@ describe('DOMSource.events()', function() {
       .take(1)
       .addListener({
         next: (root: Element) => {
-          const form = root.querySelector('.form') as HTMLFormElement;
-          setTimeout(() => form.reset());
+          const _form = root.querySelector('.form') as HTMLFormElement;
+          setTimeout(() => _form.reset());
         },
       });
     run();
   });
 
   it('should have the DevTools flag in the source stream', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(h3('.myelementclass', 'Foobar')),
       };
@@ -913,9 +906,9 @@ describe('DOMSource.events()', function() {
     const outSubject = xs.create<any>();
     const switchSubject = xs.create<any>();
 
-    function component(sources: {DOM: DOMSource}) {
-      const itemMouseDown$ = sources.DOM.select('.item').events('mousedown');
-      const itemMouseUp$ = sources.DOM.select('.item').events('mouseup');
+    function component(_sources: {DOM: DOMSource}) {
+      const itemMouseDown$ = _sources.DOM.select('.item').events('mousedown');
+      const itemMouseUp$ = _sources.DOM.select('.item').events('mouseup');
 
       const itemMouseClick$ = itemMouseDown$
         .map(down => itemMouseUp$.filter(up => down.target === up.target))
@@ -935,14 +928,13 @@ describe('DOMSource.events()', function() {
       };
     }
 
-    function app(sources: {DOM: DOMSource}) {
-      //return component(sources)
-      return isolate(component)(sources);
+    function app(_sources: {DOM: DOMSource}) {
+      return isolate(component)(_sources);
     }
 
     function mouseevent(el: Element, type: string) {
       // This works on IE10
-      const ev = document.createEvent('MouseEvent') as MouseEvent;
+      const ev = document.createEvent('MouseEvent');
       ev.initMouseEvent(
         type,
         false /* bubble */,
@@ -1001,7 +993,7 @@ describe('DOMSource.events()', function() {
   });
 
   it('should allow preventing default event behavior', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(div('.parent', [button('.button')])),
       };
@@ -1030,15 +1022,15 @@ describe('DOMSource.events()', function() {
       .take(1)
       .addListener({
         next: (root: Element) => {
-          const button = root.querySelector('.button') as HTMLButtonElement;
-          setTimeout(() => button.click());
+          const _button = root.querySelector('.button') as HTMLButtonElement;
+          setTimeout(() => _button.click());
         },
       });
     run();
   });
 
   it('should allow preventing default event behavior with function', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(div('.parent', [button('.button')])),
       };
@@ -1067,15 +1059,15 @@ describe('DOMSource.events()', function() {
       .take(1)
       .addListener({
         next: (root: Element) => {
-          const button = root.querySelector('.button') as HTMLButtonElement;
-          setTimeout(() => button.click());
+          const _button = root.querySelector('.button') as HTMLButtonElement;
+          setTimeout(() => _button.click());
         },
       });
     run();
   });
 
   it('should allow preventing default event behavior with object', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(div('.parent', [button('.button')])),
       };
@@ -1104,15 +1096,15 @@ describe('DOMSource.events()', function() {
       .take(1)
       .addListener({
         next: (root: Element) => {
-          const button = root.querySelector('.button') as HTMLButtonElement;
-          setTimeout(() => button.click());
+          const _button = root.querySelector('.button') as HTMLButtonElement;
+          setTimeout(() => _button.click());
         },
       });
     run();
   });
 
   it('should allow preventing default event behavior with array in object', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(div('.parent', [button('.button.to-prevent')])),
       };
@@ -1143,15 +1135,15 @@ describe('DOMSource.events()', function() {
       .take(1)
       .addListener({
         next: (root: Element) => {
-          const button = root.querySelector('.button') as HTMLButtonElement;
-          setTimeout(() => button.click());
+          const _button = root.querySelector('.button') as HTMLButtonElement;
+          setTimeout(() => _button.click());
         },
       });
     run();
   });
 
   it('should not prevent default on returning false from function predicate', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(div('.parent', [button('.button')])),
       };
@@ -1180,15 +1172,15 @@ describe('DOMSource.events()', function() {
       .take(1)
       .addListener({
         next: (root: Element) => {
-          const button = root.querySelector('.button') as HTMLButtonElement;
-          setTimeout(() => button.click());
+          const _button = root.querySelector('.button') as HTMLButtonElement;
+          setTimeout(() => _button.click());
         },
       });
     run();
   });
 
   it('should not prevent default on returning false from object predicate', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(div('.parent', [button('.button')])),
       };
@@ -1217,15 +1209,15 @@ describe('DOMSource.events()', function() {
       .take(1)
       .addListener({
         next: (root: Element) => {
-          const button = root.querySelector('.button') as HTMLButtonElement;
-          setTimeout(() => button.click());
+          const _button = root.querySelector('.button') as HTMLButtonElement;
+          setTimeout(() => _button.click());
         },
       });
     run();
   });
 
   it('should not prevent default on returning false from array-in-object predicate', function(done) {
-    function app(sources: {DOM: DOMSource}) {
+    function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(div('.parent', [button('.button.to-prevent')])),
       };
@@ -1256,8 +1248,8 @@ describe('DOMSource.events()', function() {
       .take(1)
       .addListener({
         next: (root: Element) => {
-          const button = root.querySelector('.button') as HTMLButtonElement;
-          setTimeout(() => button.click());
+          const _button = root.querySelector('.button') as HTMLButtonElement;
+          setTimeout(() => _button.click());
         },
       });
     run();

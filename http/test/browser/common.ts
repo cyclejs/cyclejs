@@ -8,12 +8,12 @@ import {
 import {HTTPSource} from '../../rxjs-typings';
 import * as Rx from 'rxjs';
 import {Observable} from 'rxjs';
-import 'rxjs/add/operator/mergeAll';
-import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/operator/mergeAll'; // tslint:disable-line
+import 'rxjs/add/operator/switchMap'; // tslint:disable-line
 import * as Cycle from '@cycle/rxjs-run';
 import isolate from '@cycle/isolate';
 
-export function run(uri: string) {
+export function runTests(uri: string) {
   describe('makeHTTPDriver', function() {
     it('should be a driver factory', function() {
       assert.strictEqual(typeof makeHTTPDriver, 'function');
@@ -26,7 +26,7 @@ export function run(uri: string) {
     this.timeout(8000);
 
     it('should throw when request stream emits neither string nor object', function(done) {
-      function main(sources: {HTTP: HTTPSource}) {
+      function main(_sources: {HTTP: HTTPSource}) {
         return {
           HTTP: Rx.Observable.of(123),
         };
@@ -57,7 +57,7 @@ export function run(uri: string) {
     });
 
     it('should throw when given options object without url string', function(done) {
-      function main(sources: {HTTP: HTTPSource}) {
+      function main(_sources: {HTTP: HTTPSource}) {
         return {
           HTTP: Rx.Observable.of({method: 'post'}),
         };
@@ -86,7 +86,7 @@ export function run(uri: string) {
     });
 
     it('should return response metastream when given a simple URL string', function(done) {
-      function main(sources: {HTTP: HTTPSource}) {
+      function main(_sources: {HTTP: HTTPSource}) {
         return {
           HTTP: Rx.Observable.of(uri + '/hello'),
         };
@@ -112,7 +112,7 @@ export function run(uri: string) {
     });
 
     it('should return HTTPSource with isolateSource and isolateSink', function(done) {
-      function main(sources: {HTTP: HTTPSource}) {
+      function main(_sources: {HTTP: HTTPSource}) {
         return {
           HTTP: Rx.Observable.of(uri + '/hello'),
         };
@@ -128,7 +128,7 @@ export function run(uri: string) {
     });
 
     it('should return response metastream when given simple options obj', function(done) {
-      function main(sources: {HTTP: HTTPSource}) {
+      function main(_sources: {HTTP: HTTPSource}) {
         return {
           HTTP: Rx.Observable.of({
             url: uri + '/pet',
@@ -156,7 +156,7 @@ export function run(uri: string) {
     });
 
     it('should return response metastream when send with type string [#674]', function(done) {
-      function main(sources: {HTTP: HTTPSource}) {
+      function main(_sources: {HTTP: HTTPSource}) {
         return {
           HTTP: Rx.Observable.of({
             url: uri + '/pet',
@@ -186,7 +186,7 @@ export function run(uri: string) {
     });
 
     it('should have DevTools flag in select() source stream', function(done) {
-      function main(sources: {HTTP: HTTPSource}) {
+      function main(_sources: {HTTP: HTTPSource}) {
         return {
           HTTP: Rx.Observable.of({
             url: uri + '/pet',
@@ -205,7 +205,7 @@ export function run(uri: string) {
     });
 
     it('should have DevTools flag in response$$ source stream', function(done) {
-      function main(sources: {HTTP: HTTPSource}) {
+      function main(_sources: {HTTP: HTTPSource}) {
         return {
           HTTP: Rx.Observable.of({
             url: uri + '/pet',
@@ -224,7 +224,7 @@ export function run(uri: string) {
     });
 
     it('should return response metastream when given another options obj', function(done) {
-      function main(sources: {HTTP: HTTPSource}) {
+      function main(_sources: {HTTP: HTTPSource}) {
         return {
           HTTP: Rx.Observable.of({
             url: uri + '/querystring',
@@ -244,8 +244,8 @@ export function run(uri: string) {
         assert.strictEqual((response$.request.query as any).bar, 'Pub');
         response$.subscribe(function(response: any) {
           assert.strictEqual(response.status, 200);
-          assert.strictEqual((response.body as any).foo, '102030');
-          assert.strictEqual((response.body as any).bar, 'Pub');
+          assert.strictEqual(response.body.foo, '102030');
+          assert.strictEqual(response.body.bar, 'Pub');
           done();
         });
       });
@@ -253,7 +253,7 @@ export function run(uri: string) {
     });
 
     it('should return response metastream when given yet another options obj', function(done) {
-      function main(sources: {HTTP: HTTPSource}) {
+      function main(_sources: {HTTP: HTTPSource}) {
         return {
           HTTP: Rx.Observable.of({
             url: uri + '/delete',
@@ -271,7 +271,7 @@ export function run(uri: string) {
         assert.strictEqual(response$.request.method, 'DELETE');
         response$.subscribe(function(response: any) {
           assert.strictEqual(response.status, 200);
-          assert.strictEqual((response.body as any).deleted, true);
+          assert.strictEqual(response.body.deleted, true);
           done();
         });
       });
@@ -279,7 +279,7 @@ export function run(uri: string) {
     });
 
     it("should not be possible to change the metastream's request", function(done) {
-      function main(sources: {HTTP: HTTPSource}) {
+      function main(_sources: {HTTP: HTTPSource}) {
         return {
           HTTP: Rx.Observable.of({
             url: uri + '/hello',
@@ -308,7 +308,7 @@ export function run(uri: string) {
     });
 
     it('should send 500 server errors to response$ onError', function(done) {
-      function main(sources: {HTTP: HTTPSource}) {
+      function main(_sources: {HTTP: HTTPSource}) {
         return {
           HTTP: Rx.Observable.of(uri + '/error'),
         };
@@ -339,12 +339,12 @@ export function run(uri: string) {
     });
 
     it('should not be sensitive to ordering of sinks (issue #476)', function(done) {
-      function main(sources: {HTTP: HTTPSource}) {
+      function main(_sources: {HTTP: HTTPSource}) {
         const request$ = Rx.Observable.of({
           url: uri + '/hello',
           method: 'GET',
         });
-        const str$ = sources.HTTP.select()
+        const str$ = _sources.HTTP.select()
           .mergeAll()
           .map((res: any) => res.text as string);
 
@@ -377,7 +377,7 @@ export function run(uri: string) {
 
   describe('isolateSource and isolateSink', function() {
     it('should exist on the HTTPSource', function(done) {
-      function main(sources: {HTTP: HTTPSource}) {
+      function main(_sources: {HTTP: HTTPSource}) {
         return {
           HTTP: new Rx.Subject(),
         };
@@ -390,7 +390,7 @@ export function run(uri: string) {
     });
 
     it('should exist on a scoped HTTPSource', function(done) {
-      function main(sources: {HTTP: HTTPSource}) {
+      function main(_sources: {HTTP: HTTPSource}) {
         return {
           HTTP: new Rx.Subject(),
         };
@@ -406,7 +406,7 @@ export function run(uri: string) {
 
     it('should hide responses from outside the scope', function(done) {
       const proxyRequest$ = new Rx.Subject();
-      function main(sources: {HTTP: HTTPSource}) {
+      function main(_sources: {HTTP: HTTPSource}) {
         return {
           HTTP: proxyRequest$,
         };
@@ -438,7 +438,7 @@ export function run(uri: string) {
 
     it('should hide responses even if using the same scope multiple times', function(done) {
       const proxyRequest$ = new Rx.Subject();
-      function main(sources: {HTTP: HTTPSource}) {
+      function main(_sources: {HTTP: HTTPSource}) {
         return {
           HTTP: proxyRequest$,
         };
@@ -485,8 +485,8 @@ export function run(uri: string) {
 
     it('should emit responses when isolated many scopes deep', function(done) {
       let dispose: any;
-      function main(sources: {HTTP: HTTPSource}) {
-        sources.HTTP.select('hello').subscribe(function(response$) {
+      function main(_sources: {HTTP: HTTPSource}) {
+        _sources.HTTP.select('hello').subscribe(function(response$) {
           assert.strictEqual(typeof response$.request, 'object');
           assert.strictEqual(response$.request.url, uri + '/hello');
           response$.subscribe(function(response) {
@@ -505,12 +505,12 @@ export function run(uri: string) {
         };
       }
 
-      function wrapper1(sources: {HTTP: HTTPSource}) {
-        return isolate(main, {HTTP: 'wrapper1'})(sources);
+      function wrapper1(_sources: {HTTP: HTTPSource}) {
+        return isolate(main, {HTTP: 'wrapper1'})(_sources);
       }
 
-      function wrapper2(sources: {HTTP: HTTPSource}) {
-        return isolate(wrapper1, {HTTP: 'wrapper2'})(sources);
+      function wrapper2(_sources: {HTTP: HTTPSource}) {
+        return isolate(wrapper1, {HTTP: 'wrapper2'})(_sources);
       }
 
       const {sources, run} = Cycle.setup(wrapper2, {HTTP: makeHTTPDriver()});
@@ -520,7 +520,7 @@ export function run(uri: string) {
 
     it('should allow null scope to bypass isolation', function(done) {
       const proxyRequest$ = new Rx.Subject<any>();
-      function main(sources: {HTTP: HTTPSource}) {
+      function main(_sources: {HTTP: HTTPSource}) {
         return {
           HTTP: proxyRequest$,
         };

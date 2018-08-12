@@ -15,7 +15,7 @@ runCommon(uri);
 
 describe('HTTP Driver in Node.js', function() {
   it('should auto-execute HTTP request when without listening to response stream', function(done) {
-    function main(sources: {HTTP: HTTPSource}) {
+    function main(_sources: {HTTP: HTTPSource}) {
       return {
         HTTP: Rx.Observable.of({
           url: uri + '/pet',
@@ -38,7 +38,7 @@ describe('HTTP Driver in Node.js', function() {
   });
 
   it('should not auto-execute lazy request without listening to response stream', function(done) {
-    function main(sources: {HTTP: HTTPSource}) {
+    function main(_sources: {HTTP: HTTPSource}) {
       return {
         HTTP: Rx.Observable.of({
           url: uri + '/pet',
@@ -60,7 +60,7 @@ describe('HTTP Driver in Node.js', function() {
   });
 
   it('should execute lazy HTTP request when listening to response stream', function(done) {
-    function main(sources: {HTTP: HTTPSource}) {
+    function main(_sources: {HTTP: HTTPSource}) {
       return {
         HTTP: Rx.Observable.of({
           url: uri + '/pet',
@@ -89,7 +89,7 @@ describe('HTTP Driver in Node.js', function() {
   });
 
   it('should add request options object to each response', function(done) {
-    function main(sources: {HTTP: HTTPSource}) {
+    function main(_sources: {HTTP: HTTPSource}) {
       return {
         HTTP: Rx.Observable.of({
           url: uri + '/pet',
@@ -106,7 +106,7 @@ describe('HTTP Driver in Node.js', function() {
       .mergeAll()
       .subscribe(function(r: any) {
         assert.ok(r.request);
-        assert.strictEqual((r.request as any)._id, 'petRequest');
+        assert.strictEqual(r.request._id, 'petRequest');
         done();
       });
 
@@ -114,7 +114,7 @@ describe('HTTP Driver in Node.js', function() {
   });
 
   it('should handle errors when sending request to non-existent server', function(done) {
-    function main(sources: {HTTP: HTTPSource}) {
+    function main(_sources: {HTTP: HTTPSource}) {
       return {
         HTTP: Rx.Observable.of({
           url: 'http://localhost:9999', // no server here
@@ -143,7 +143,7 @@ describe('HTTP Driver in Node.js', function() {
   });
 
   it('should call next() when ok is specified for an error status', function(done) {
-    function main(sources: {HTTP: HTTPSource}) {
+    function main(_sources: {HTTP: HTTPSource}) {
       return {
         HTTP: Rx.Observable.of({
           url: uri + '/not-found-url',

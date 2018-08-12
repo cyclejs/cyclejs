@@ -36,6 +36,7 @@
     "rxjs": "6.2.x",
     "snabbdom-selector": "3.0.x",
     "ts-node": "^7.0.0",
+    "tslint": "^5.11.0",
     "typescript": "2.8.x"
   },
   "publishConfig": {
@@ -56,6 +57,7 @@
     "build": "pnpm run build-cjs && pnpm run build-es6",
     "build-cjs": "tsc --module commonjs --outDir ./lib/cjs",
     "build-es6": "tsc --module es6 --outDir ./lib/es6",
+    "lint": "tslint --project tsconfig.lint.json --config ../tslint.json --fix",
     "start": "budo -d example example/index.ts:index.js --live -- -p tsify",
     "test-watch": "mocha 'test/**/*.ts' --require ts-node/register --watch -R min",
     "test-node": "mocha 'test/**/*.ts' --require ts-node/register --exit",

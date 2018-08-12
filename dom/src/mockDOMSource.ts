@@ -14,8 +14,8 @@ export class MockedDOMSource implements DOMSource {
   private _elements: FantasyObservable;
 
   constructor(private _mockConfig: MockConfig) {
-    if (_mockConfig['elements']) {
-      this._elements = _mockConfig['elements'] as FantasyObservable;
+    if (_mockConfig.elements) {
+      this._elements = _mockConfig.elements as FantasyObservable;
     } else {
       this._elements = adapt(xs.empty());
     }

@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import xs, {Stream} from 'xstream';
-import {setup, run} from '@cycle/run';
+import {setup} from '@cycle/run';
 import {setAdapt} from '@cycle/run/lib/adapt';
 import {makeServerHistoryDriver, Location, HistoryInput} from '../../src';
 
@@ -10,8 +10,8 @@ describe('serverHistoryDriver - xstream', function() {
   });
 
   it('should return a stream', function() {
-    function main(sources: {history: Stream<Location>}) {
-      assert.strictEqual(typeof sources.history.remember, 'function');
+    function main(_sources: {history: Stream<Location>}) {
+      assert.strictEqual(typeof _sources.history.remember, 'function');
       return {
         history: xs.never(),
       };
@@ -24,7 +24,7 @@ describe('serverHistoryDriver - xstream', function() {
   });
 
   it('should create a location from pathname', done => {
-    function main(sources: {history: Stream<Location>}) {
+    function main(_sources: {history: Stream<Location>}) {
       return {
         history: xs.of('/test'),
       };
@@ -48,7 +48,7 @@ describe('serverHistoryDriver - xstream', function() {
   });
 
   it('should create a location from PushHistoryInput', done => {
-    function main(sources: {history: Stream<Location>}) {
+    function main(_sources: {history: Stream<Location>}) {
       return {
         history: xs.of({type: 'push', pathname: '/test'}),
       };
@@ -72,7 +72,7 @@ describe('serverHistoryDriver - xstream', function() {
   });
 
   it('should create a location from ReplaceHistoryInput', done => {
-    function main(sources: {history: Stream<Location>}) {
+    function main(_sources: {history: Stream<Location>}) {
       return {
         history: xs.of({type: 'replace', pathname: '/test'}),
       };
@@ -96,7 +96,7 @@ describe('serverHistoryDriver - xstream', function() {
   });
 
   it('should allow going back a route with type `go`', done => {
-    function main(sources: {history: Stream<Location>}) {
+    function main(_sources: {history: Stream<Location>}) {
       return {
         history: xs.of<HistoryInput | string>('/test', '/other', {
           type: 'go',
@@ -127,7 +127,7 @@ describe('serverHistoryDriver - xstream', function() {
   });
 
   it('should allow going back a route with type `goBack`', done => {
-    function main(sources: {history: Stream<Location>}) {
+    function main(_sources: {history: Stream<Location>}) {
       return {
         history: xs.of<HistoryInput | string>('/test', '/other', {
           type: 'goBack',
@@ -157,7 +157,7 @@ describe('serverHistoryDriver - xstream', function() {
   });
 
   it('should allow going forward a route with type `go`', done => {
-    function main(sources: {history: Stream<Location>}) {
+    function main(_sources: {history: Stream<Location>}) {
       return {
         history: xs.of<HistoryInput | string>(
           '/test',
@@ -190,7 +190,7 @@ describe('serverHistoryDriver - xstream', function() {
   });
 
   it('should allow going forward a route with type `goForward`', done => {
-    function main(sources: {history: Stream<Location>}) {
+    function main(_sources: {history: Stream<Location>}) {
       return {
         history: xs.of<HistoryInput | string>(
           '/test',

@@ -38,7 +38,7 @@ function createRenderTarget(id: string | null = null) {
 
 describe('isolateSource', function() {
   it('should have the same effect as DOM.select()', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(
           h3('.top-most', [
@@ -80,7 +80,7 @@ describe('isolateSource', function() {
   });
 
   it('should return source also with isolateSource and isolateSink', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(h('h3.top-most')),
       };
@@ -104,10 +104,10 @@ describe('isolateSource', function() {
 
 describe('isolateSink', function() {
   it('should add an isolate field to the vtree sink', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       const vtree$ = xs.of(h3('.top-most'));
       return {
-        DOM: sources.DOM.isolateSink(vtree$, 'foo'),
+        DOM: _sources.DOM.isolateSink(vtree$, 'foo'),
       };
     }
 
@@ -131,11 +131,11 @@ describe('isolateSink', function() {
   });
 
   it('should not redundantly repeat the scope className', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       const vtree1$ = xs.of(span('.tab1', 'Hi'));
       const vtree2$ = xs.of(span('.tab2', 'Hello'));
-      const first$ = sources.DOM.isolateSink(vtree1$, '1');
-      const second$ = sources.DOM.isolateSink(vtree2$, '2');
+      const first$ = _sources.DOM.isolateSink(vtree1$, '1');
+      const second$ = _sources.DOM.isolateSink(vtree2$, '2');
       const switched$ = concat(
         xs.of(1).compose(delay(50)),
         xs.of(2).compose(delay(50)),
@@ -173,8 +173,8 @@ describe('isolateSink', function() {
 
 describe('isolation', function() {
   it('should prevent parent from DOM.selecting() inside the isolation', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
-      const child$ = sources.DOM.isolateSink(
+    function app(_sources: {DOM: MainDOMSource}) {
+      const child$ = _sources.DOM.isolateSink(
         xs.of(div('.foo', [h4('.bar', 'Wrong')])),
         'ISOLATION'
       );
@@ -212,8 +212,8 @@ describe('isolation', function() {
   });
 
   it('should not occur with scope ":root"', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
-      const child$ = sources.DOM.isolateSink(
+    function app(_sources: {DOM: MainDOMSource}) {
+      const child$ = _sources.DOM.isolateSink(
         xs.of(div('.foo', [h4('.bar', 'Not wrong')])),
         ':root'
       );
@@ -258,13 +258,13 @@ describe('isolation', function() {
   });
 
   it('should apply only between siblings when given scope ".foo"', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
-      const foo$ = sources.DOM.isolateSink(
+    function app(_sources: {DOM: MainDOMSource}) {
+      const foo$ = _sources.DOM.isolateSink(
         xs.of(div('.container', [h4('.header', 'Correct')])),
         '.foo'
       );
 
-      const bar$ = sources.DOM.isolateSink(
+      const bar$ = _sources.DOM.isolateSink(
         xs.of(div('.container', [h3('.header', 'Wrong')])),
         '.bar'
       );
@@ -321,13 +321,13 @@ describe('isolation', function() {
   });
 
   it('should apply only between siblings when given scope "#foo"', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
-      const foo$ = sources.DOM.isolateSink(
+    function app(_sources: {DOM: MainDOMSource}) {
+      const foo$ = _sources.DOM.isolateSink(
         xs.of(div('.container', [h4('.header', 'Correct')])),
         '#foo'
       );
 
-      const bar$ = sources.DOM.isolateSink(
+      const bar$ = _sources.DOM.isolateSink(
         xs.of(div('.container', [h3('.header', 'Wrong')])),
         '#bar'
       );
@@ -384,8 +384,8 @@ describe('isolation', function() {
   });
 
   it('should work with thunks', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
-      const child$ = sources.DOM.isolateSink(
+    function app(_sources: {DOM: MainDOMSource}) {
+      const child$ = _sources.DOM.isolateSink(
         xs.of(thunk('div.foo', () => div('.foo', [h4('.bar', 'Wrong')]), [])),
         'ISOLATION'
       );
@@ -423,13 +423,11 @@ describe('isolation', function() {
   });
 
   it('should allow using elements() in an isolated main() fn', function(done) {
-    function main(sources: {DOM: MainDOMSource}) {
-      const elem$ = sources.DOM.select(':root').elements();
-      const vnode$ = elem$.map(elem => {
-        debugger;
-        debugger;
-        return h('div.bar', 'left=' + (elem[0] as any).offsetLeft);
-      });
+    function main(_sources: {DOM: MainDOMSource}) {
+      const elem$ = _sources.DOM.select(':root').elements();
+      const vnode$ = elem$.map(elem =>
+        h('div.bar', 'left=' + (elem[0] as any).offsetLeft)
+      );
       return {
         DOM: vnode$,
       };
@@ -457,16 +455,16 @@ describe('isolation', function() {
   });
 
   it('should allow parent to DOM.select() in its own isolation island', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
-      const {isolateSource, isolateSink} = sources.DOM;
-      const islandElement$ = isolateSource(sources.DOM, 'island')
+    function app(_sources: {DOM: MainDOMSource}) {
+      const {isolateSource, isolateSink} = _sources.DOM;
+      const islandElement$ = isolateSource(_sources.DOM, 'island')
         .select('.bar')
         .elements();
-      const islandVDom$ = sources.DOM.isolateSink(
+      const islandVDom$ = isolateSink(
         xs.of(div([h3('.bar', 'Correct')])),
         'island'
       );
-      const child$ = sources.DOM.isolateSink(
+      const child$ = isolateSink(
         islandVDom$.map(islandVDom =>
           div('.foo', [islandVDom, h4('.bar', 'Wrong')])
         ),
@@ -504,9 +502,9 @@ describe('isolation', function() {
   });
 
   it('should isolate DOM.select between parent and (wrapper) child', function(done) {
-    function Frame(sources: {DOM: MainDOMSource; content$: Stream<any>}) {
-      const click$ = sources.DOM.select('.foo').events('click');
-      const vdom$ = sources.content$.map(content =>
+    function Frame(_sources: {DOM: MainDOMSource; content$: Stream<any>}) {
+      const click$ = _sources.DOM.select('.foo').events('click');
+      const vdom$ = _sources.content$.map(content =>
         h4('.foo.frame', {style: {backgroundColor: 'lightblue'}}, [content])
       );
       return {
@@ -515,17 +513,17 @@ describe('isolation', function() {
       };
     }
 
-    function Monalisa(sources: {DOM: MainDOMSource}) {
-      const {isolateSource, isolateSink} = sources.DOM;
+    function Monalisa(_sources: {DOM: MainDOMSource}) {
+      const {isolateSource, isolateSink} = _sources.DOM;
 
-      const islandDOMSource = isolateSource(sources.DOM, 'island');
+      const islandDOMSource = isolateSource(_sources.DOM, 'island');
       const click$ = islandDOMSource.select('.foo').events('click');
       const islandDOMSink$ = isolateSink(
         xs.of(span('.foo.monalisa', 'Monalisa')),
         'island'
       );
 
-      const frameDOMSource = isolateSource(sources.DOM, 'myFrame');
+      const frameDOMSource = isolateSource(_sources.DOM, 'myFrame');
       const frame = Frame({DOM: frameDOMSource, content$: islandDOMSink$});
       const outerVTree$ = isolateSink(frame.DOM, 'myFrame');
 
@@ -617,8 +615,8 @@ describe('isolation', function() {
   });
 
   it('should allow a child component to DOM.select() its own root', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
-      const child$ = sources.DOM.isolateSink(
+    function app(_sources: {DOM: MainDOMSource}) {
+      const child$ = _sources.DOM.isolateSink(
         xs.of(span('.foo', [h4('.bar', 'Wrong')])),
         'ISOLATION'
       );
@@ -657,8 +655,8 @@ describe('isolation', function() {
   });
 
   it('should allow DOM.selecting svg elements', function(done) {
-    function App(sources: {DOM: MainDOMSource}) {
-      const triangleElement$ = sources.DOM.select('.triangle').elements();
+    function App(_sources: {DOM: MainDOMSource}) {
+      const triangleElement$ = _sources.DOM.select('.triangle').elements();
 
       const svgTriangle = svg({attrs: {width: 150, height: 150}}, [
         svg.polygon({
@@ -675,9 +673,9 @@ describe('isolation', function() {
       };
     }
 
-    function IsolatedApp(sources: {DOM: MainDOMSource}) {
-      const {isolateSource, isolateSink} = sources.DOM;
-      const isolatedDOMSource = isolateSource(sources.DOM, 'ISOLATION');
+    function IsolatedApp(_sources: {DOM: MainDOMSource}) {
+      const {isolateSource, isolateSink} = _sources.DOM;
+      const isolatedDOMSource = isolateSource(_sources.DOM, 'ISOLATION');
       const app = App({DOM: isolatedDOMSource});
       const isolateDOMSink = isolateSink(app.DOM, 'ISOLATION');
       return {
@@ -709,8 +707,8 @@ describe('isolation', function() {
   });
 
   it('should allow DOM.select()ing its own root without classname or id', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
-      const child$ = sources.DOM.isolateSink(
+    function app(_sources: {DOM: MainDOMSource}) {
+      const child$ = _sources.DOM.isolateSink(
         xs.of(span([h4('.bar', 'Wrong')])),
         'ISOLATION'
       );
@@ -747,8 +745,8 @@ describe('isolation', function() {
   });
 
   it('should allow DOM.select()ing all elements with `*`', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
-      const child$ = sources.DOM.isolateSink(
+    function app(_sources: {DOM: MainDOMSource}) {
+      const child$ = _sources.DOM.isolateSink(
         xs.of(span([div([h4('.foo', 'hello'), h4('.bar', 'world')])])),
         'ISOLATION'
       );
@@ -780,7 +778,7 @@ describe('isolation', function() {
   });
 
   it('should select() isolated element with tag + class', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(
           h3('.top-most', [
@@ -796,7 +794,6 @@ describe('isolation', function() {
     });
     const isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'foo');
 
-    // Make assertions
     isolatedDOMSource
       .select('h4.bar')
       .elements()
@@ -817,7 +814,7 @@ describe('isolation', function() {
   });
 
   it('should allow isolatedDOMSource.events() to work without crashing', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(
           h3('.top-most', [div({isolate: 'foo'}, [h4('.bar', 'Hello')])])
@@ -838,7 +835,6 @@ describe('isolation', function() {
       },
     });
 
-    // Make assertions
     isolatedDOMSource
       .select('div')
       .elements()
@@ -861,7 +857,7 @@ describe('isolation', function() {
   });
 
   it('should process bubbling events from inner to outer component', function(done) {
-    function app(sources: {DOM: MainDOMSource}) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(
           h3('.top-most', [
@@ -900,7 +896,6 @@ describe('isolation', function() {
         },
       });
 
-    // Make assertions
     isolatedDOMSource
       .select('h4.bar')
       .elements()
@@ -923,8 +918,8 @@ describe('isolation', function() {
   });
 
   it('should stop bubbling the event if the currentTarget was removed', function(done) {
-    function main(sources: {DOM: MainDOMSource}) {
-      const childExistence$ = sources.DOM.isolateSource(sources.DOM, 'foo')
+    function main(_sources: {DOM: MainDOMSource}) {
+      const childExistence$ = _sources.DOM.isolateSource(_sources.DOM, 'foo')
         .select('h4.bar')
         .events('click')
         .map(() => false)
@@ -961,7 +956,6 @@ describe('isolation', function() {
         },
       });
 
-    // Make assertions
     fooDOMSource
       .select('.bar')
       .elements()
@@ -992,9 +986,9 @@ describe('isolation', function() {
     let errorHappened = false;
     let clickDetected = false;
 
-    function Child(sources: {DOM: MainDOMSource}) {
+    function Child(_sources: {DOM: MainDOMSource}) {
       return {
-        DOM: sources.DOM.select('.foo')
+        DOM: _sources.DOM.select('.foo')
           .events('click')
           .debug(() => {
             clickDetected = true;
@@ -1009,9 +1003,9 @@ describe('isolation', function() {
       };
     }
 
-    function main(sources: {DOM: MainDOMSource}) {
-      const first = isolate(Child, 'first')(sources);
-      const second = isolate(Child, 'second')(sources);
+    function main(_sources: {DOM: MainDOMSource}) {
+      const first = isolate(Child, 'first')(_sources);
+      const second = isolate(Child, 'second')(_sources);
       const oneChild = [first];
       const twoChildren = [first, second];
       const vnode$ = xs
@@ -1065,8 +1059,8 @@ describe('isolation', function() {
   it('should handle events when child is removed and re-added', done => {
     let clicksCount = 0;
 
-    function Child(sources: {DOM: MainDOMSource}) {
-      sources.DOM.select('.foo')
+    function Child(_sources: {DOM: MainDOMSource}) {
+      _sources.DOM.select('.foo')
         .events('click')
         .addListener({
           next: () => {
@@ -1078,8 +1072,8 @@ describe('isolation', function() {
       };
     }
 
-    function main(sources: {DOM: MainDOMSource}) {
-      const child = isolate(Child)(sources);
+    function main(_sources: {DOM: MainDOMSource}) {
+      const child = isolate(Child)(_sources);
       // make child.DOM be inserted, removed, and inserted again
       const innerDOM$ = xs
         .periodic(120)
@@ -1124,8 +1118,8 @@ describe('isolation', function() {
   it('should handle events when parent is removed and re-added', done => {
     let clicksCount = 0;
 
-    function Child(sources: {DOM: MainDOMSource}) {
-      sources.DOM.select('.foo')
+    function Child(_sources: {DOM: MainDOMSource}) {
+      _sources.DOM.select('.foo')
         .events('click')
         .addListener({
           next: () => {
@@ -1137,8 +1131,8 @@ describe('isolation', function() {
       };
     }
 
-    function main(sources: {DOM: MainDOMSource}) {
-      const child = isolate(Child, 'child')(sources);
+    function main(_sources: {DOM: MainDOMSource}) {
+      const child = isolate(Child, 'child')(_sources);
       // change parent key, causing it to be recreated
       const x$ = xs
         .periodic(120)
@@ -1186,8 +1180,8 @@ describe('isolation', function() {
   it('should handle events when parent is removed and re-added, and has isolation scope', done => {
     let clicksCount = 0;
 
-    function Child(sources: {DOM: MainDOMSource}) {
-      sources.DOM.select('.foo')
+    function Child(_sources: {DOM: MainDOMSource}) {
+      _sources.DOM.select('.foo')
         .events('click')
         .addListener({
           next: () => {
@@ -1199,8 +1193,8 @@ describe('isolation', function() {
       };
     }
 
-    function Parent(sources: {DOM: MainDOMSource}) {
-      const child = isolate(Child, 'child')(sources);
+    function Parent(_sources: {DOM: MainDOMSource}) {
+      const child = isolate(Child, 'child')(_sources);
       // change parent key, causing it to be recreated
       const x$ = xs
         .periodic(120)
@@ -1217,8 +1211,8 @@ describe('isolation', function() {
       };
     }
 
-    function main(sources: {DOM: MainDOMSource}) {
-      const parent = isolate(Parent, 'parent')(sources);
+    function main(_sources: {DOM: MainDOMSource}) {
+      const parent = isolate(Parent, 'parent')(_sources);
       return {
         DOM: parent.DOM,
       };
@@ -1257,8 +1251,8 @@ describe('isolation', function() {
       'the vTree of an isolated parent component',
     done => {
       let dispose: any;
-      function Component(sources: {DOM: MainDOMSource}) {
-        sources.DOM.select('.btn')
+      function Component(_sources: {DOM: MainDOMSource}) {
+        _sources.DOM.select('.btn')
           .events('click')
           .addListener({
             next: (ev: Event) => {
@@ -1272,13 +1266,13 @@ describe('isolation', function() {
         };
       }
 
-      function main(sources: {DOM: MainDOMSource}) {
-        const component = isolate(Component)(sources);
+      function main(_sources: {DOM: MainDOMSource}) {
+        const component = isolate(Component)(_sources);
         return {DOM: component.DOM};
       }
 
-      function app(sources: {DOM: MainDOMSource}) {
-        return isolate(main)(sources);
+      function app(_sources: {DOM: MainDOMSource}) {
+        return isolate(main)(_sources);
       }
 
       const {sinks, sources, run} = setup(app, {
@@ -1306,8 +1300,8 @@ describe('isolation', function() {
       'specified on child',
     done => {
       let dispose: any;
-      function Component(sources: {DOM: MainDOMSource}) {
-        sources.DOM.select('.btn')
+      function Component(_sources: {DOM: MainDOMSource}) {
+        _sources.DOM.select('.btn')
           .events('click')
           .addListener({
             next: (ev: Event) => {
@@ -1321,13 +1315,13 @@ describe('isolation', function() {
         };
       }
 
-      function main(sources: {DOM: MainDOMSource}) {
-        const component = isolate(Component, 'foo')(sources);
+      function main(_sources: {DOM: MainDOMSource}) {
+        const component = isolate(Component, 'foo')(_sources);
         return {DOM: component.DOM};
       }
 
-      function app(sources: {DOM: MainDOMSource}) {
-        return isolate(main)(sources);
+      function app(_sources: {DOM: MainDOMSource}) {
+        return isolate(main)(_sources);
       }
 
       const {sinks, sources, run} = setup(app, {
@@ -1355,8 +1349,8 @@ describe('isolation', function() {
       'specified on parent',
     done => {
       let dispose: any;
-      function Component(sources: {DOM: MainDOMSource}) {
-        sources.DOM.select('.btn')
+      function Component(_sources: {DOM: MainDOMSource}) {
+        _sources.DOM.select('.btn')
           .events('click')
           .addListener({
             next: (ev: Event) => {
@@ -1370,13 +1364,13 @@ describe('isolation', function() {
         };
       }
 
-      function main(sources: {DOM: MainDOMSource}) {
-        const component = isolate(Component)(sources);
+      function main(_sources: {DOM: MainDOMSource}) {
+        const component = isolate(Component)(_sources);
         return {DOM: component.DOM};
       }
 
-      function app(sources: {DOM: MainDOMSource}) {
-        return isolate(main, 'foo')(sources);
+      function app(_sources: {DOM: MainDOMSource}) {
+        return isolate(main, 'foo')(_sources);
       }
 
       const {sinks, sources, run} = setup(app, {
@@ -1404,8 +1398,8 @@ describe('isolation', function() {
       'specified on parent and child',
     done => {
       let dispose: any;
-      function Component(sources: {DOM: MainDOMSource}) {
-        sources.DOM.select('.btn')
+      function Component(_sources: {DOM: MainDOMSource}) {
+        _sources.DOM.select('.btn')
           .events('click')
           .addListener({
             next: (ev: Event) => {
@@ -1419,13 +1413,13 @@ describe('isolation', function() {
         };
       }
 
-      function main(sources: {DOM: MainDOMSource}) {
-        const component = isolate(Component, 'bar')(sources);
+      function main(_sources: {DOM: MainDOMSource}) {
+        const component = isolate(Component, 'bar')(_sources);
         return {DOM: component.DOM};
       }
 
-      function app(sources: {DOM: MainDOMSource}) {
-        return isolate(main, 'foo')(sources);
+      function app(_sources: {DOM: MainDOMSource}) {
+        return isolate(main, 'foo')(_sources);
       }
 
       const {sinks, sources, run} = setup(app, {
@@ -1453,8 +1447,8 @@ describe('isolation', function() {
     done => {
       const componentRemove$ = xs.create<any>();
 
-      function Component(sources: {DOM: MainDOMSource}) {
-        sources.DOM.select('.btn')
+      function Component(_sources: {DOM: MainDOMSource}) {
+        _sources.DOM.select('.btn')
           .events('click')
           .addListener({
             next: (ev: Event) => {
@@ -1467,12 +1461,12 @@ describe('isolation', function() {
         };
       }
 
-      function main(sources: {DOM: MainDOMSource}) {
+      function main(_sources: {DOM: MainDOMSource}) {
         const remove$ = componentRemove$
           .compose(delay(50))
           .fold(acc => acc + 1, 0);
-        const first = isolate(Component, 'first')(sources);
-        const second = isolate(Component, 'second')(sources);
+        const first = isolate(Component, 'first')(_sources);
+        const second = isolate(Component, 'second')(_sources);
         const vdom$ = xs
           .combine(first.DOM, second.DOM, remove$)
           .map(([vdom1, vdom2, r]) => {
@@ -1521,7 +1515,7 @@ describe('isolation', function() {
   );
 
   it('should allow null or undefined isolated child DOM', function(done) {
-    function child(sources: {DOM: MainDOMSource}) {
+    function child(_sources: {DOM: MainDOMSource}) {
       const visible$ = xs
         .periodic(50)
         .take(1)
@@ -1532,8 +1526,8 @@ describe('isolation', function() {
       };
     }
 
-    function main(sources: {DOM: MainDOMSource}) {
-      const childSinks = isolate(child, 'child')(sources);
+    function main(_sources: {DOM: MainDOMSource}) {
+      const childSinks = isolate(child, 'child')(_sources);
       const vdom$ = childSinks.DOM.map((childVDom: VNode) =>
         div('.parent', [childVDom, h2('part of parent')])
       );
@@ -1583,13 +1577,13 @@ describe('isolation', function() {
   });
 
   it('should allow recursive isolation using the same scope', done => {
-    function Item(sources: {DOM: MainDOMSource}, count: number) {
+    function Item(_sources: {DOM: MainDOMSource}, count: number) {
       const childVdom$: Stream<VNode> =
         count > 0
-          ? isolate(Item, '0')(sources, count - 1).DOM
+          ? isolate(Item, '0')(_sources, count - 1).DOM
           : xs.of<any>(null);
 
-      const highlight$ = sources.DOM.select('button')
+      const highlight$ = _sources.DOM.select('button')
         .events('click')
         .mapTo(true)
         .fold((x, _) => !x, false);
@@ -1605,8 +1599,8 @@ describe('isolation', function() {
       return {DOM: vdom$};
     }
 
-    function main(sources: {DOM: MainDOMSource}) {
-      const vdom$ = Item(sources, 3).DOM;
+    function main(_sources: {DOM: MainDOMSource}) {
+      const vdom$ = Item(_sources, 3).DOM;
       return {DOM: vdom$};
     }
 
@@ -1643,8 +1637,8 @@ describe('isolation', function() {
   });
 
   it('should not lose event delegators when components are moved around', function(done) {
-    function component(sources: {DOM: MainDOMSource}) {
-      const click$ = sources.DOM.select('.click-me')
+    function component(_sources: {DOM: MainDOMSource}) {
+      const click$ = _sources.DOM.select('.click-me')
         .events('click')
         .mapTo('clicked');
 
@@ -1654,8 +1648,8 @@ describe('isolation', function() {
       };
     }
 
-    function app(sources: {DOM: MainDOMSource}) {
-      const comp = isolate(component, 'child')(sources);
+    function app(_sources: {DOM: MainDOMSource}) {
+      const comp = isolate(component, 'child')(_sources);
       const position$ = fromDiagram('1-2|');
       return {
         DOM: xs.combine(position$, comp.DOM).map(([position, childDom]) => {
@@ -1694,8 +1688,8 @@ describe('isolation', function() {
       .drop(1)
       .addListener({
         next: function(root: Element) {
-          const button = root.querySelector('button.click-me') as HTMLElement;
-          button.click();
+          const _button = root.querySelector('button.click-me') as HTMLElement;
+          _button.click();
         },
       });
 
