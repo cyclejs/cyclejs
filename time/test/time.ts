@@ -90,7 +90,7 @@ describe('@cycle/time', () => {
       },
     });
 
-    const counter = Counter({_DOM});
+    const counter = Counter({DOM: _DOM});
 
     Time.assertEqual(counter.count$, Time.diagram(expectedCount));
 
@@ -159,7 +159,7 @@ describe('@cycle/time', () => {
                 assert.equal(ev, expectedValues.shift());
               },
 
-              complete: done,
+              complete: () => done(), // tslint:disable-line
               error: done,
             });
 
@@ -204,7 +204,7 @@ describe('@cycle/time', () => {
                 assert.deepEqual(ev, expectedValues.shift());
               },
 
-              complete: done,
+              complete: () => done(), // tslint:disable-line
               error: done,
             });
 

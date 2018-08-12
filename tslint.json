@@ -13,7 +13,6 @@
     "no-empty-interface": true,
     "no-empty": true,
     "no-eval": true,
-    "no-reference": true,
     "no-string-throw": true,
     "no-string-literal": true,
     "no-switch-case-fall-through": true,

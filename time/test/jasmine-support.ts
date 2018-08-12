@@ -7,7 +7,7 @@ describe('jasmine support', () => {
       throw new Error('expected test to fail');
     };
 
-    done.fail = (err: any) => {
+    (done as any).fail = (err: any) => {
       mochaDone();
     };
 
