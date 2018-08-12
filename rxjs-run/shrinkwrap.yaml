@@ -10,7 +10,7 @@ devDependencies:
   sinon: 6.1.4
   ts-node: 7.0.0
   tslint: 5.11.0
-  typescript: 2.8.4
+  typescript: 3.0.1
   xstream: 11.7.0
 packages:
   /@cycle/run/4.4.0:
@@ -487,13 +487,13 @@ packages:
       node: '>=4'
     resolution:
       integrity: sha512-0fr/mIH1dlO+x7TlcMy+bIDqKPsw/70tVyeHW787goQjhmqaZe10uwLujubK9q9Lg6Fiho1KUKDYz0Z7k7g5/g==
-  /typescript/2.8.4:
+  /typescript/3.0.1:
     dev: true
     engines:
       node: '>=4.2.0'
     hasBin: true
     resolution:
-      integrity: sha512-IIU5cN1mR5J3z9jjdESJbnxikTrEz3lzAw/D0Tf45jHpBp55nY31UkUvmVHoffCfKHTqJs3fCLPDxknQTTFegQ==
+      integrity: sha512-zQIMOmC+372pC/CCVLqnQ0zSBiY7HHodU7mpQdjiZddek4GMj31I3dUJ7gAs9o65X7mnRma6OokOkc6f9jjfBg==
   /wrappy/1.0.2:
     dev: true
     resolution:
@@ -523,5 +523,5 @@ specifiers:
   symbol-observable: ^1.2.0
   ts-node: ^7.0.0
   tslint: ^5.11.0
-  typescript: ~2.8.4
+  typescript: 3.0.x
   xstream: '*'
