@@ -200,9 +200,9 @@ export function run<So extends Sources, Si extends FantasySinks<Si>>(
   const program = setup(main, drivers);
   if (
     typeof window !== 'undefined' &&
-    window.CyclejsDevTool_startGraphSerializer
+    (window as any).CyclejsDevTool_startGraphSerializer
   ) {
-    window.CyclejsDevTool_startGraphSerializer(program.sinks);
+    (window as any).CyclejsDevTool_startGraphSerializer(program.sinks);
   }
   return program.run();
 }
