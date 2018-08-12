@@ -58,11 +58,12 @@
     "build-cjs": "tsc --module commonjs --outDir ./lib/cjs",
     "build-es6": "tsc --module es6 --outDir ./lib/es6",
     "lint": "tslint --project tsconfig.lint.json --config ../tslint.json --fix",
+    "changelog": "cd .. && node .scripts/update-changelogs.js time",
     "start": "budo -d example example/index.ts:index.js --live -- -p tsify",
     "test-watch": "mocha 'test/**/*.ts' --require ts-node/register --watch -R min",
     "test-node": "mocha 'test/**/*.ts' --require ts-node/register --exit",
-    "test": "npm run test-node && npm run test-docs",
-    "test-ci": "npm run test",
+    "test": "pnpm run test-node && pnpm run test-docs",
+    "test-ci": "pnpm run test",
     "test-docs": "markdown-doctest",
     "postlib": "tsc rxjs.ts most.ts --declaration --lib DOM,ES5,ES6"
   }

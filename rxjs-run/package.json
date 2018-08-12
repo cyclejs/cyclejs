@@ -55,8 +55,10 @@
     "build-cjs": "tsc --module commonjs --outDir ./lib/cjs",
     "build-es6": "tsc --module es6 --outDir ./lib/es6",
     "lint": "tslint --project tsconfig.lint.json --config ../tslint.json --fix",
+    "docs": "cd .. && node .scripts/make-api-docs.js rxjs-run",
+    "changelog": "cd .. && node .scripts/update-changelogs.js rxjs-run",
     "test": "mocha test/*.ts --require ts-node/register --exit",
-    "test-ci": "npm run test"
+    "test-ci": "pnpm run test"
   },
   "publishConfig": {
     "access": "public"

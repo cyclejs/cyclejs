@@ -18,6 +18,8 @@
     "build-cjs": "tsc --module commonjs --outDir ./lib/cjs",
     "build-es6": "tsc --module es6 --outDir ./lib/es6",
     "lint": "tslint --project tsconfig.lint.json --config ../tslint.json --fix",
+    "docs": "cd .. && node .scripts/make-api-docs.js http",
+    "changelog": "cd .. && node .scripts/update-changelogs.js http",
     "test-node": "mocha test/node.ts --require ts-node/register --exit",
     "test-browser": "pnpm run start-test-support-server && karma start ; pnpm run stop-test-support-server",
     "start-test-support-server": "PORT=8070 ts-node test/support/run-server.ts &",
