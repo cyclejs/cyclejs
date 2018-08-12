@@ -1,3 +1,4 @@
+///<reference path="../custom-typings.d.ts" />
 import {adapt} from '@cycle/run/lib/adapt';
 import xs, {Stream} from 'xstream';
 import {makeScheduler} from './scheduler';
