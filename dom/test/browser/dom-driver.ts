@@ -1,4 +1,4 @@
-import './setup';
+import {isIE10} from './setup';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import xs, {Stream, MemoryStream} from 'xstream';
@@ -12,9 +12,6 @@ import {
   DOMSource,
   MainDOMSource,
 } from '../../src/index';
-
-// From page/index.html
-declare var isIE10: boolean;
 
 function createRenderTarget(id: string | null = null) {
   const element = document.createElement('div');

@@ -1,4 +1,3 @@
-import './setup';
 import * as assert from 'assert';
 import isolate from '@cycle/isolate';
 import xs, {Stream, MemoryStream} from 'xstream';
@@ -33,10 +32,8 @@ function createRenderTarget(id: string | null = null) {
 }
 
 describe('isolateSource', function() {
-  it('should return source also with isolateSource and isolateSink', function(
-    done,
-  ) {
-    function app(sources: {DOM: MainDOMSource}) {
+  it('should return source also with isolateSource and isolateSink', function(done) {
+    function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(h('h3.top-most')),
       };
@@ -476,19 +473,19 @@ describe('isolation', function() {
       };
     }
 
-    function Monalisa(_sources: {DOM: MainDOMSource}) {
+    function Monalisa(_sources: {DOM: MainDOMSource}): any {
       const {isolateSource, isolateSink} = _sources.DOM;
 
-      const islandDOMSource = isolateSource(sources.DOM, '.island');
+      const islandDOMSource = isolateSource(_sources.DOM, '.island');
       const monalisaClick$ = islandDOMSource.select('.foo').events('click');
       const islandDOMSink$ = isolateSink(
         xs.of(span('.foo.monalisa', 'Monalisa')),
-        '.island',
+        '.island'
       );
 
-      const click$ = sources.DOM.select('.foo').events('click');
+      const click$ = _sources.DOM.select('.foo').events('click');
 
-      const frameDOMSource = isolateSource(sources.DOM, 'myFrame');
+      const frameDOMSource = isolateSource(_sources.DOM, 'myFrame');
       const frame = Frame({DOM: frameDOMSource, content$: islandDOMSink$});
       const outerVTree$ = isolateSink(frame.DOM, 'myFrame');
 
@@ -508,17 +505,17 @@ describe('isolation', function() {
     });
     let dispose: any;
 
-    const frameClick$ = sinks.frameClick.map(ev => ({
+    const frameClick$ = sinks.frameClick.map((ev: any) => ({
       type: ev.type,
       tagName: (ev.target as HTMLElement).tagName,
     }));
 
-    const monalisaClick$ = sinks.monalisaClick.map(ev => ({
+    const _monalisaClick$ = sinks.monalisaClick.map((ev: any) => ({
       type: ev.type,
       tagName: (ev.target as HTMLElement).tagName,
     }));
 
-    const grandparentClick$ = sinks.click.map(ev => ({
+    const grandparentClick$ = sinks.click.map((ev: any) => ({
       type: ev.type,
       tagName: (ev.target as HTMLElement).tagName,
     }));
@@ -534,7 +531,7 @@ describe('isolation', function() {
     let totalClickHandlersCalled = 0;
     let frameClicked = false;
     frameClick$.addListener({
-      next: event => {
+      next: (event: any) => {
         assert.strictEqual(frameClicked, false);
         assert.strictEqual(event.type, 'click');
         assert.strictEqual(event.tagName, 'H4');
@@ -545,8 +542,8 @@ describe('isolation', function() {
 
     // Monalisa should receive two clicks
     let monalisaClicked = 0;
-    monalisaClick$.addListener({
-      next: event => {
+    _monalisaClick$.addListener({
+      next: (event: any) => {
         assert.strictEqual(monalisaClicked < 2, true);
         assert.strictEqual(event.type, 'click');
         assert.strictEqual(event.tagName, 'SPAN');
@@ -560,7 +557,7 @@ describe('isolation', function() {
     // total isolated Frame
     let grandparentClicked = false;
     grandparentClick$.addListener({
-      next: event => {
+      next: (event: any) => {
         assert.strictEqual(event.type, 'click');
         assert.strictEqual(event.tagName, 'SPAN');
         assert.strictEqual(grandparentClicked, false);
@@ -773,12 +770,6 @@ describe('isolation', function() {
             h2('.bar', 'Wrong'),
             div({isolate: 'foo'}, [h4('.bar', 'Correct')]),
           ])
-=======
-            div({isolate: [{type: 'total', scope: 'foo'}]}, [
-              h4('.bar', 'Correct'),
-            ]),
-          ]),
->>>>>>> refactor(dom): rewrite DOM driver to fix isolation:dom/test/browser/src/isolation.ts
         ),
       };
     }
@@ -815,7 +806,7 @@ describe('isolation', function() {
             div({isolate: [{type: 'total', scope: 'foo'}]}, [
               h4('.bar', 'Hello'),
             ]),
-          ]),
+          ])
         ),
       };
     }
@@ -863,7 +854,7 @@ describe('isolation', function() {
             div({isolate: [{type: 'sibling', scope: '.foo'}]}, [
               h4('.bar', 'Correct'),
             ]),
-          ]),
+          ])
         ),
       };
     }
@@ -1303,9 +1294,8 @@ describe('isolation', function() {
       'the vTree of an isolated parent component',
     done => {
       let dispose: any;
-      function Component(sources: {DOM: MainDOMSource}) {
-        sources.DOM
-          .select('.btn')
+      function Component(_sources: {DOM: MainDOMSource}) {
+        _sources.DOM.select('.btn')
           .events('click')
           .addListener({
             next: (ev: Event) => {
@@ -1321,27 +1311,26 @@ describe('isolation', function() {
               {
                 props: {className: 'mydiv'},
               },
-              [button('.btn', {}, 'Hello')],
-            ),
+              [button('.btn', {}, 'Hello')]
+            )
           ),
         };
       }
 
-      function main(sources: {DOM: MainDOMSource}) {
-        const component = isolate(Component, '.foo')(sources);
+      function main(_sources: {DOM: MainDOMSource}) {
+        const component = isolate(Component, '.foo')(_sources);
         return {DOM: component.DOM};
       }
 
-      function app(sources: {DOM: MainDOMSource}) {
-        return isolate(main)(sources);
+      function app(_sources: {DOM: MainDOMSource}) {
+        return isolate(main)(_sources);
       }
 
       const {sinks, sources, run} = setup(app, {
         DOM: makeDOMDriver(createRenderTarget()),
       });
 
-      sources.DOM
-        .element()
+      sources.DOM.element()
         .drop(1)
         .take(1)
         .addListener({
@@ -1353,7 +1342,7 @@ describe('isolation', function() {
         });
 
       dispose = run();
-    },
+    }
   );
 
   it(

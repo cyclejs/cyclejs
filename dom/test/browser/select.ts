@@ -1,4 +1,4 @@
-import './setup';
+import './setup'; // tslint:disable-line
 import * as simulant from 'simulant';
 import * as assert from 'assert';
 import isolate from '@cycle/isolate';
