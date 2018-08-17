@@ -1,11 +1,12 @@
+// tslint:disable-next-line
+import 'mocha';
 import 'symbol-observable'; // tslint:disable-line
 import * as assert from 'assert';
-import {of, from} from 'rxjs';
+import {of, from, Observable} from 'rxjs';
 import isolate from '../src/index';
 import {setAdapt} from '@cycle/run/lib/adapt';
-import * as sinon from 'sinon';
 
-setAdapt(from);
+setAdapt(from as any);
 
 describe('isolate', function() {
   beforeEach(function() {
@@ -450,6 +451,108 @@ describe('isolate', function() {
       const scopedMyDataflowComponent = isolate(MyDataflowComponent);
       const scopedSinks = scopedMyDataflowComponent(
         {other: driver()},
+        `foo`,
+        `bar`
+      );
+
+      assert.strictEqual(typeof scopedSinks, `object`);
+      scopedSinks.other.subscribe((x: Array<string>) => {
+        assert.strictEqual(x.join(), `foo,bar`);
+        done();
+      });
+    });
+
+    it('should return correct types when all inputs are typed', function(done) {
+      class MyTestSource {
+        constructor() {}
+
+        public isolateSource(so: MyTestSource, scope: string) {
+          return new MyTestSource();
+        }
+
+        public isolateSink(
+          sink: Observable<Array<string>>,
+          scope: string
+        ): Observable<Array<string>> {
+          return sink;
+        }
+      }
+
+      function MyDataflowComponent(
+        sources: {other: MyTestSource},
+        foo: string,
+        bar: string
+      ) {
+        return {
+          other: of([foo, bar]),
+        };
+      }
+      const scopedMyDataflowComponent = isolate(MyDataflowComponent);
+      const scopedSinks = scopedMyDataflowComponent(
+        {other: new MyTestSource()},
+        `foo`,
+        `bar`
+      );
+
+      assert.strictEqual(typeof scopedSinks, `object`);
+      scopedSinks.other.subscribe((x: Array<string>) => {
+        assert.strictEqual(x.join(), `foo,bar`);
+        done();
+      });
+    });
+
+    it('should return correct types when all inputs are typed', function(done) {
+      class MyTestSource {
+        constructor() {}
+
+        public isolateSource(so: MyTestSource, scope: string) {
+          return new MyTestSource();
+        }
+
+        public isolateSink(
+          sink: Observable<Array<string>>,
+          scope: string
+        ): Observable<Array<number>> {
+          return of([123, 456]);
+        }
+      }
+
+      function MyDataflowComponent(
+        sources: {other: MyTestSource},
+        foo: string,
+        bar: string
+      ) {
+        return {
+          other: of([foo, bar]),
+        };
+      }
+      const scopedMyDataflowComponent = isolate(MyDataflowComponent);
+      const scopedSinks = scopedMyDataflowComponent(
+        {other: new MyTestSource()},
+        `foo`,
+        `bar`
+      );
+
+      assert.strictEqual(typeof scopedSinks, `object`);
+      scopedSinks.other.subscribe((x: Array<number>) => {
+        assert.strictEqual(x.join(), `123,456`);
+        done();
+      });
+    });
+
+    it('should return correct types when all inputs are typed', function(done) {
+      function MyDataflowComponent(
+        sources: {other: Observable<string>},
+        foo: string,
+        bar: string
+      ) {
+        return {
+          other: of([foo, bar]),
+        };
+      }
+      const scopedMyDataflowComponent = isolate(MyDataflowComponent);
+      const scopedSinks = scopedMyDataflowComponent(
+        {other: of<string>('foo')},
         `foo`,
         `bar`
       );

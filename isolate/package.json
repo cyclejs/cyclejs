@@ -41,11 +41,12 @@
     "@types/sinon": "1.16.x",
     "mocha": "^5.2.0",
     "rxjs": "^6.2.1",
+    "rxjs-compat": "^6.2.2",
     "sinon": "^6.1.5",
     "symbol-observable": "^1.2.0",
     "ts-node": "^7.0.0",
     "tslint": "^5.11.0",
-    "typescript": "~2.8.4"
+    "typescript": "3.0.x"
   },
   "engines": {
     "node": ">=0.10.0"

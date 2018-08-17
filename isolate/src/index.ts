@@ -2,17 +2,21 @@ import xs from 'xstream';
 import {adapt} from '@cycle/run/lib/adapt';
 export type Component<So, Si> = (sources: So, ...rest: Array<any>) => Si;
 
-export interface IsolateableSource {
-  isolateSource(
-    source: Partial<IsolateableSource>,
-    scope: any
-  ): Partial<IsolateableSource>;
-  isolateSink<T>(sink: T, scope: any): T;
-}
+export type FirstArg<
+  T extends (r: any, ...args: Array<any>) => any
+> = T extends (r: infer R, ...args: Array<any>) => any ? R : any;
 
-export interface Sources {
-  [name: string]: Partial<IsolateableSource>;
-}
+export type IsolateableSource<A = any, B = any> = {
+  isolateSource(
+    source: IsolateableSource<A, B>,
+    scope: any
+  ): IsolateableSource<A, B>;
+  isolateSink(sink: A, scope: any): B;
+};
+
+export type Sources = {
+  [name: string]: IsolateableSource;
+};
 
 export type WildcardScope = {
   ['*']?: string;
@@ -45,7 +49,7 @@ function normalizeScopes<So>(
   randomScope: string
 ): ScopesPerChannel<So> {
   const perChannel = {} as ScopesPerChannel<So>;
-  Object.keys(sources).forEach((channel: keyof So) => {
+  Object.keys(sources).forEach(channel => {
     if (typeof scopes === 'string') {
       perChannel[channel] = scopes;
       return;
@@ -71,7 +75,7 @@ function isolateAllSources<So extends Sources>(
 ): So {
   const innerSources = {} as So;
   for (const channel in outerSources) {
-    const outerSource = outerSources[channel] as Partial<IsolateableSource>;
+    const outerSource = outerSources[channel] as IsolateableSource;
     if (
       outerSources.hasOwnProperty(channel) &&
       outerSource &&
@@ -96,7 +100,7 @@ function isolateAllSinks<So extends Sources, Si>(
 ): Si {
   const outerSinks = {} as Si;
   for (const channel in innerSinks) {
-    const source = sources[channel] as Partial<IsolateableSource>;
+    const source = sources[channel] as IsolateableSource;
     const innerSink = innerSinks[channel];
     if (
       innerSinks.hasOwnProperty(channel) &&
@@ -128,8 +132,19 @@ function isolateAllSinks<So extends Sources, Si>(
  * in case TypeScript's inference becomes better, then we know how to proceed
  * to provide proper types.
  */
-export type OuterSo = any;
-export type OuterSi = any;
+
+export type OuterSo<ISo> = {
+  [K in keyof ISo]: ISo[K] extends IsolateableSource
+    ? FirstArg<IsolateableSource['isolateSource']>
+    : ISo[K]
+};
+
+export type OuterSi<ISo, ISi> = {
+  [K in keyof ISo & keyof ISi]: ISo[K] extends IsolateableSource
+    ? ReturnType<ISo[K]['isolateSink']>
+    : ISi[K]
+} &
+  {[K in Exclude<keyof ISi, keyof ISo>]: ISi[K]};
 
 let counter = 0;
 function newScope(): string {
@@ -209,7 +224,7 @@ function newScope(): string {
 function isolate<InnerSo, InnerSi>(
   component: Component<InnerSo, InnerSi>,
   scope: any = newScope()
-): Component<OuterSo, OuterSi> {
+): Component<OuterSo<InnerSo>, OuterSi<InnerSo, InnerSi>> {
   checkIsolateArgs(component, scope);
   const randomScope = typeof scope === 'object' ? newScope() : '';
   const scopes: any =
@@ -217,18 +232,21 @@ function isolate<InnerSo, InnerSi>(
       ? scope
       : scope.toString();
   return function wrappedComponent(
-    outerSources: OuterSo,
+    outerSources: OuterSo<InnerSo>,
     ...rest: Array<any>
-  ): OuterSi {
+  ): OuterSi<InnerSo, InnerSi> {
     const scopesPerChannel = normalizeScopes(outerSources, scopes, randomScope);
-    const innerSources = isolateAllSources(outerSources, scopesPerChannel);
+    const innerSources = isolateAllSources(
+      outerSources as any,
+      scopesPerChannel
+    );
     const innerSinks = component(innerSources, ...rest);
     const outerSinks = isolateAllSinks(
-      outerSources,
+      outerSources as any,
       innerSinks,
       scopesPerChannel
     );
-    return outerSinks;
+    return outerSinks as any;
   };
 }
 
@@ -238,6 +256,8 @@ export default isolate;
 
 export function toIsolated<InnerSo, InnerSi>(
   scope: any = newScope()
-): (c: Component<InnerSo, InnerSi>) => Component<OuterSo, OuterSi> {
+): (
+  c: Component<InnerSo, InnerSi>
+) => Component<OuterSo<InnerSo>, OuterSi<InnerSo, InnerSi>> {
   return component => isolate(component, scope);
 }
