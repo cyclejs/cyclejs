@@ -1,5 +1,5 @@
 dependencies:
-  '@cycle/run': 4.4.0
+  '@cycle/run': 5.1.0-rc.0
   xstream: 11.7.0
 devDependencies:
   '@cycle/rxjs-run': 9.2.0
@@ -8,20 +8,31 @@ devDependencies:
   '@types/sinon': 1.16.36
   mocha: 5.2.0
   rxjs: 6.2.2
+  rxjs-compat: 6.2.2
   sinon: 6.1.5
   symbol-observable: 1.2.0
   ts-node: 7.0.0
   tslint: 5.11.0
-  typescript: 2.8.4
+  typescript: 3.1.3
 packages:
   /@cycle/run/4.4.0:
     dependencies:
       quicktask: 1.1.0
       xstream: 11.7.0
+    dev: true
     engines:
       node: '>=0.12.0'
     resolution:
       integrity: sha512-vVxnTqKKlgasE+we9X2z3og8z5KouO2RMiIgHWkVek+NomsdaeZwfvbutqzm3VToEImaz0DE2Iln9AxtCOVjpQ==
+  /@cycle/run/5.1.0-rc.0:
+    dependencies:
+      quicktask: 1.1.0
+      xstream: 11.7.0
+    dev: false
+    engines:
+      node: '>=0.12.0'
+    resolution:
+      integrity: sha512-puuFZHj0/VYMbG8yINa8oEw3eQpaye+u1NWQSU0OpQX6znMSTCTFM4KSC7kcXdr6ZZmzdHXcF1SY9zdWTi2Riw==
   /@cycle/rxjs-run/9.2.0:
     dependencies:
       '@cycle/run': 4.4.0
@@ -369,6 +380,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-AicPrAC7Qu1JxPCZ9ZgCZlY35QgFnNqc+0LtbRNxnVw4TXvjQ72wnuL9JQcEBgXkI9JM8MsT9kaQoHcpCRJOYA==
+  /rxjs-compat/6.2.2:
+    dev: true
+    resolution:
+      integrity: sha512-h113JzEXnqBd6JQ8TYg33oDuM3baZ9WKS49rtbMX0gBW2Kz0z4wDZ0/pCA0T9sRJM1HkZT6mt45gpYOJ2MqWYQ==
   /rxjs/6.2.2:
     dependencies:
       tslib: 1.9.3
@@ -504,13 +519,13 @@ packages:
       node: '>=4'
     resolution:
       integrity: sha512-0fr/mIH1dlO+x7TlcMy+bIDqKPsw/70tVyeHW787goQjhmqaZe10uwLujubK9q9Lg6Fiho1KUKDYz0Z7k7g5/g==
-  /typescript/2.8.4:
+  /typescript/3.1.3:
     dev: true
     engines:
       node: '>=4.2.0'
     hasBin: true
     resolution:
-      integrity: sha512-IIU5cN1mR5J3z9jjdESJbnxikTrEz3lzAw/D0Tf45jHpBp55nY31UkUvmVHoffCfKHTqJs3fCLPDxknQTTFegQ==
+      integrity: sha512-+81MUSyX+BaSo+u2RbozuQk/UWx6hfG0a5gHu4ANEM4sU96XbuIyAB+rWBW1u70c6a5QuZfuYICn3s2UjuHUpA==
   /wrappy/1.0.2:
     dev: true
     resolution:
@@ -530,16 +545,17 @@ registry: 'https://registry.npmjs.org/'
 shrinkwrapMinorVersion: 9
 shrinkwrapVersion: 3
 specifiers:
-  '@cycle/run': ^4.4.0
+  '@cycle/run': ^5.1.0-rc.0
   '@cycle/rxjs-run': ^9.1.0
   '@types/mocha': 5.2.x
   '@types/node': 10.5.x
   '@types/sinon': 1.16.x
   mocha: ^5.2.0
   rxjs: ^6.2.1
+  rxjs-compat: ^6.2.2
   sinon: ^6.1.5
   symbol-observable: ^1.2.0
   ts-node: ^7.0.0
   tslint: ^5.11.0
-  typescript: ~2.8.4
+  typescript: ^3.1.3
   xstream: ^11.7.0
