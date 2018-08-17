@@ -3,7 +3,7 @@
 # This script runs a yarn command for every registered package
 # in the file `RELEASABLE_PACKAGES`.
 #
-# E.g.: calling this script will the command line args "run test"
+# E.g.: calling this script with the command line args "run test"
 # will execute `yarn run test` for each package.
 
 exitstatus=0
