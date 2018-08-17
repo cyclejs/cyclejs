@@ -1,5 +1,4 @@
-// From page/index.html
-declare var isIE10: boolean;
+export const isIE10 = !!(window as any).MutationObserver;
 
 if (isIE10) {
   (window as any).MutationObserver = require('mutation-observer');
@@ -13,12 +12,12 @@ if (!Element.prototype.matches) {
     (Element as any).prototype.oMatchesSelector ||
     Element.prototype.webkitMatchesSelector ||
     function(s) {
-      var matches = (this.document || this.ownerDocument).querySelectorAll(s),
-        i = matches.length;
+      const matches = (this.document || this.ownerDocument).querySelectorAll(s);
+      let i = matches.length;
       while (--i >= 0 && matches.item(i) !== this) {}
       return i > -1;
     };
 }
 
-import 'es6-map/implement';
-import 'es6-set/implement';
+import 'es6-map/implement'; // tslint:disable-line
+import 'es6-set/implement'; // tslint:disable-line

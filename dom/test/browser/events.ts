@@ -1,4 +1,4 @@
-import './setup';
+import {isIE10} from './setup';
 import * as assert from 'assert';
 import isolate from '@cycle/isolate';
 import xs, {Stream, MemoryStream} from 'xstream';
@@ -17,9 +17,6 @@ import {
   makeDOMDriver,
   DOMSource,
 } from '../../src/index';
-
-// From page/index.html
-declare var isIE10: boolean;
 
 function createRenderTarget(id: string | null = null) {
   const element = document.createElement('div');
@@ -648,8 +645,7 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM
-      .select('.form')
+    sources.DOM.select('.form')
       .events('reset', {}, false)
       .addListener({
         next: (ev: Event) => {
@@ -698,7 +694,7 @@ describe('DOMSource.events()', function() {
         false,
         false, // modifier keys
         0, //left
-        null,
+        null
       );
       el.dispatchEvent(ev);
     }
@@ -707,8 +703,7 @@ describe('DOMSource.events()', function() {
       DOM: makeDOMDriver(createRenderTarget()),
     });
 
-    sources.DOM
-      .select('.clickable')
+    sources.DOM.select('.clickable')
       .events('click', {useCapture: true}, false)
       .addListener({
         next: (ev: Event) => {
@@ -721,8 +716,7 @@ describe('DOMSource.events()', function() {
         },
       });
 
-    sources.DOM
-      .select(':root')
+    sources.DOM.select(':root')
       .element()
       .drop(1)
       .take(1)
@@ -899,13 +893,17 @@ describe('DOMSource.events()', function() {
     const outSubject = xs.create<any>();
     const switchSubject = xs.create<any>();
 
-    function component(sources: {DOM: DOMSource}) {
-      const itemMouseDown$ = sources.DOM
-        .select('.item')
-        .events('mousedown', {}, false);
-      const itemMouseUp$ = sources.DOM
-        .select('.item')
-        .events('mouseup', {}, false);
+    function component(_sources: {DOM: DOMSource}) {
+      const itemMouseDown$ = _sources.DOM.select('.item').events(
+        'mousedown',
+        {},
+        false
+      );
+      const itemMouseUp$ = _sources.DOM.select('.item').events(
+        'mouseup',
+        {},
+        false
+      );
 
       const itemMouseClick$ = itemMouseDown$
         .map(down => itemMouseUp$.filter(up => down.target === up.target))
@@ -947,7 +945,7 @@ describe('DOMSource.events()', function() {
         false,
         false, // modifier keys
         0, //left
-        null,
+        null
       );
 
       // Would rather user this line below but does not work on IE10

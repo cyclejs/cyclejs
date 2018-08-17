@@ -1,3 +1,4 @@
+import {isIE10} from './setup';
 import * as assert from 'assert';
 import isolate from '@cycle/isolate';
 import xs, {Stream, MemoryStream} from 'xstream';
@@ -31,12 +32,6 @@ declare global {
       [elemName: string]: any;
     }
   }
-}
-
-const isIE10 = (window as any).isIE10 || !(window as any).MutationObserver;
-if (isIE10) {
-  (window as any).MutationObserver = require('mutation-observer');
-  (window as any).isIE10 = true;
 }
 
 function createRenderTarget(id: string | null = null) {
