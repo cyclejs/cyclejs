@@ -34,7 +34,7 @@ module.exports = {
   },
   browserStack: {
     startTunnel: false,
-    retryLimit: 1,
+    retryLimit: 3,
     tunnelIdentifier: identifier,
   },
   browserNoActivityTimeout: 1000000,
