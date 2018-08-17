@@ -34,7 +34,7 @@
     "release": "run() { .scripts/release.sh $1 $2; }; run",
     "lint": "pnpm recursive exec --filter @cycle/* -- pnpm run lint",
     "test": "pnpm recursive exec --filter @cycle/* -- pnpm test ",
-    "test-ci": "pnpm recursive exec --filter @cycle/* -- pnpm run test-ci"
+    "test-ci": "pnpm recursive exec --workspace-concurrency 1 --filter @cycle/* -- pnpm run test-ci"
   },
   "husky": {
     "hooks": {
