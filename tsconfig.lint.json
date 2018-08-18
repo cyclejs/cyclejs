@@ -14,9 +14,5 @@
     "indentSize": 2,
     "tabSize": 2
   },
-  "exclude": [
-    "node_modules/",
-    "lib/",
-    "coverage/"
-  ]
+  "exclude": ["node_modules/", "lib/", "coverage/"]
 }
