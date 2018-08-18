@@ -32,17 +32,20 @@ export class IsolateModule {
 
   private removeElement(elm: Element): void {
     this.namespaceByElement.delete(elm);
-    this.namespaceTree.delete(this.getNamespace(elm));
+    const namespace = this.getNamespace(elm);
+    if (namespace) {
+      this.namespaceTree.delete(namespace);
+    }
   }
 
   public getElement(
     namespace: Array<Scope>,
-    max?: number,
+    max?: number
   ): Element | undefined {
     return this.namespaceTree.get(namespace, undefined, max);
   }
 
-  public getRootElement(elm: Element): Element {
+  public getRootElement(elm: Element): Element | undefined {
     if (this.namespaceByElement.has(elm)) {
       return elm;
     }
@@ -53,16 +56,20 @@ export class IsolateModule {
     while (!this.namespaceByElement.has(curr)) {
       curr = curr.parentNode as Element;
       if (!curr) {
+        return undefined;
+      } else if (curr.tagName === 'HTML') {
         throw new Error('No root element found, this should not happen at all');
       }
     }
     return curr;
   }
 
-  public getNamespace(elm: Element): Array<Scope> {
-    return this.namespaceByElement.get(this.getRootElement(elm)) as Array<
-      Scope
-    >;
+  public getNamespace(elm: Element): Array<Scope> | undefined {
+    const rootElement = this.getRootElement(elm);
+    if (!rootElement) {
+      return undefined;
+    }
+    return this.namespaceByElement.get(rootElement) as Array<Scope>;
   }
 
   public createModule() {

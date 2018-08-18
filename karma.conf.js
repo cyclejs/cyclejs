@@ -17,7 +17,7 @@ module.exports = {
   basePath: '.',
   frameworks: ['mocha', 'karma-typescript'],
   // list of files / patterns to load in the browser
-  files: [{pattern: 'src/**/*.ts'}, {pattern: 'test/browser/*'}],
+  files: [{pattern: 'src/**/*.ts'}, {pattern: 'test/browser/**/*'}],
   plugins: [
     'karma-mocha',
     'karma-chrome-launcher',

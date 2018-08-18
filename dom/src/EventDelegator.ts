@@ -96,7 +96,7 @@ export class EventDelegator {
 
   constructor(
     private rootElement$: Stream<Element>,
-    public isolateModule: IsolateModule,
+    public isolateModule: IsolateModule
   ) {
     this.isolateModule.setEventDelegator(this);
     this.domListeners = new Map<string, DOMListener>();
@@ -111,7 +111,7 @@ export class EventDelegator {
           this.origin = el;
           this.resetEventListeners();
           this.domListenersToAdd.forEach((passive, type) =>
-            this.setupDOMListener(type, passive),
+            this.setupDOMListener(type, passive)
           );
           this.domListenersToAdd.clear();
         }
@@ -128,7 +128,7 @@ export class EventDelegator {
     eventType: string,
     namespace: Array<Scope>,
     options: EventsFnOptions,
-    bubbles?: boolean,
+    bubbles?: boolean
   ): Stream<Event> {
     const subject = xs.never();
     const scopeChecker = new ScopeChecker(namespace, this.isolateModule);
@@ -162,10 +162,10 @@ export class EventDelegator {
       }
     });
     for (let i = 0; i < toRemove.length; i++) {
-      const map = this.nonBubblingListeners.get(toRemove[i][0]) as Map<
-        Element,
-        NonBubblingListener
-      >;
+      const map = this.nonBubblingListeners.get(toRemove[i][0]);
+      if (!map) {
+        continue;
+      }
       map.delete(toRemove[i][1]);
       if (map.size === 0) {
         this.nonBubblingListeners.delete(toRemove[i][0]);
@@ -179,7 +179,7 @@ export class EventDelegator {
     subject: Stream<Event>,
     scopeChecker: ScopeChecker,
     eventType: string,
-    options: EventsFnOptions,
+    options: EventsFnOptions
   ): Destination {
     const relevantSets: Array<PriorityQueue<Destination>> = [];
     const n = scopeChecker._namespace;
@@ -214,7 +214,7 @@ export class EventDelegator {
     eventType: string,
     namespace: Array<Scope>,
     exact = false,
-    max?: number,
+    max?: number
   ): PriorityQueue<Destination> {
     let _max = max !== undefined ? max : namespace.length;
     if (!exact) {
@@ -230,7 +230,7 @@ export class EventDelegator {
     const map = this.virtualListeners.getDefault(
       namespace,
       () => new Map<string, PriorityQueue<Destination>>(),
-      _max,
+      _max
     );
 
     if (!map.has(eventType)) {
@@ -246,7 +246,7 @@ export class EventDelegator {
         eventType,
         false,
         false,
-        passive,
+        passive
       ).subscribe({
         next: event => this.onEvent(eventType, event, passive),
         error: () => {},
@@ -259,7 +259,7 @@ export class EventDelegator {
   }
 
   private setupNonBubblingListener(
-    input: [string, ElementFinder, Destination],
+    input: [string, ElementFinder, Destination]
   ): void {
     const [eventType, elementFinder, destination] = input;
     if (!this.origin) {
@@ -276,7 +276,7 @@ export class EventDelegator {
         eventType,
         false,
         false,
-        destination.passive,
+        destination.passive
       ).subscribe({
         next: ev => this.onEvent(eventType, ev, !!destination.passive, false),
         error: () => {},
@@ -285,13 +285,13 @@ export class EventDelegator {
       if (!this.nonBubblingListeners.has(eventType)) {
         this.nonBubblingListeners.set(
           eventType,
-          new Map<Element, NonBubblingListener>(),
+          new Map<Element, NonBubblingListener>()
         );
       }
-      const map = this.nonBubblingListeners.get(eventType) as Map<
-        Element,
-        NonBubblingListener
-      >;
+      const map = this.nonBubblingListeners.get(eventType);
+      if (!map) {
+        return;
+      }
       map.set(element, {sub, destination});
     } else {
       this.nonBubblingListenersToAdd.add(input);
@@ -322,7 +322,7 @@ export class EventDelegator {
           }
           const elementFinder = new ElementFinder(
             destination.scopeChecker.namespace,
-            this.isolateModule,
+            this.isolateModule
           );
           const newElm = elementFinder.call()[0];
           const newSub = fromEvent(
@@ -330,7 +330,7 @@ export class EventDelegator {
             type,
             false,
             false,
-            destination.passive,
+            destination.passive
           ).subscribe({
             next: event =>
               this.onEvent(type, event, !!destination.passive, false),
@@ -350,12 +350,12 @@ export class EventDelegator {
     eventType: string,
     elm: Element,
     useCapture: boolean,
-    passive: boolean,
+    passive: boolean
   ): void {
-    const map = this.nonBubblingListeners.get(eventType) as Map<
-      Element,
-      NonBubblingListener
-    >;
+    const map = this.nonBubblingListeners.get(eventType);
+    if (!map) {
+      return;
+    }
     const listener = map.get(elm);
     if (
       listener &&
@@ -370,17 +370,20 @@ export class EventDelegator {
     eventType: string,
     event: Event,
     passive: boolean,
-    bubbles = true,
+    bubbles = true
   ): void {
     const cycleEvent = this.patchEvent(event);
     const rootElement = this.isolateModule.getRootElement(
-      event.target as Element,
+      event.target as Element
     );
 
     if (bubbles) {
       const namespace = this.isolateModule.getNamespace(
-        event.target as Element,
+        event.target as Element
       );
+      if (!namespace) {
+        return;
+      }
       const listeners = this.getVirtualListeners(eventType, namespace);
       this.bubble(
         eventType,
@@ -391,7 +394,7 @@ export class EventDelegator {
         namespace,
         namespace.length - 1,
         true,
-        passive,
+        passive
       );
 
       this.bubble(
@@ -403,14 +406,14 @@ export class EventDelegator {
         namespace,
         namespace.length - 1,
         false,
-        passive,
+        passive
       );
     } else {
       this.putNonBubblingListener(
         eventType,
         event.target as Element,
         true,
-        passive,
+        passive
       );
       this.doBubbleStep(
         eventType,
@@ -419,14 +422,14 @@ export class EventDelegator {
         cycleEvent,
         this.virtualNonBubblingListener,
         true,
-        passive,
+        passive
       );
 
       this.putNonBubblingListener(
         eventType,
         event.target as Element,
         false,
-        passive,
+        passive
       );
       this.doBubbleStep(
         eventType,
@@ -435,7 +438,7 @@ export class EventDelegator {
         cycleEvent,
         this.virtualNonBubblingListener,
         false,
-        passive,
+        passive
       );
       event.stopPropagation(); //fix reset event (spec'ed as non-bubbling, but bubbles in reality
     }
@@ -444,13 +447,13 @@ export class EventDelegator {
   private bubble(
     eventType: string,
     elm: Element,
-    rootElement: Element,
+    rootElement: Element | undefined,
     event: CycleDOMEvent,
     listeners: PriorityQueue<Destination>,
     namespace: Array<Scope>,
     index: number,
     useCapture: boolean,
-    passive: boolean,
+    passive: boolean
   ): void {
     if (!useCapture && !event.propagationHasBeenStopped) {
       this.doBubbleStep(
@@ -460,7 +463,7 @@ export class EventDelegator {
         event,
         listeners,
         useCapture,
-        passive,
+        passive
       );
     }
 
@@ -485,7 +488,7 @@ export class EventDelegator {
         namespace,
         newIndex,
         useCapture,
-        passive,
+        passive
       );
     }
 
@@ -497,7 +500,7 @@ export class EventDelegator {
         event,
         listeners,
         useCapture,
-        passive,
+        passive
       );
     }
   }
@@ -505,12 +508,15 @@ export class EventDelegator {
   private doBubbleStep(
     eventType: string,
     elm: Element,
-    rootElement: Element,
+    rootElement: Element | undefined,
     event: CycleDOMEvent,
     listeners: PriorityQueue<Destination> | Array<Destination>,
     useCapture: boolean,
-    passive: boolean,
+    passive: boolean
   ): void {
+    if (!rootElement) {
+      return;
+    }
     this.mutateEventCurrentTarget(event, elm);
     listeners.forEach(dest => {
       if (dest.passive === passive && dest.useCapture === useCapture) {
@@ -523,7 +529,7 @@ export class EventDelegator {
         ) {
           preventDefaultConditional(
             event,
-            dest.preventDefault as PreventDefaultOpt,
+            dest.preventDefault as PreventDefaultOpt
           );
           dest.subject.shamefullySendNext(event);
         }
