@@ -10,6 +10,7 @@ var packageScopes = [
   'most-run',
   'run',
   'rxjs-run',
+  'state',
   'time',
 ];
 
