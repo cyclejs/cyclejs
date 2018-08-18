@@ -58,7 +58,7 @@
     "build-cjs": "tsc --module commonjs --outDir ./lib/cjs",
     "build-es6": "tsc --module es6 --outDir ./lib/es6",
     "docs": ":",
-    "lint": "tslint --project tsconfig.lint.json --config ../tslint.json --fix",
+    "lint": "tslint --project tsconfig.lint.json --config ../tslint.json",
     "changelog": "cd .. && node .scripts/update-changelogs.js time",
     "start": "budo -d example example/index.ts:index.js --live -- -p tsify",
     "test-watch": "mocha 'test/**/*.ts' --require ts-node/register --watch -R min",

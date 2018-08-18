@@ -1,4 +1,4 @@
-export const isIE10 = !!(window as any).MutationObserver;
+export const isIE10 = !(window as any).MutationObserver;
 
 if (isIE10) {
   (window as any).MutationObserver = require('mutation-observer');

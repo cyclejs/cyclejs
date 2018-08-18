@@ -768,7 +768,9 @@ describe('isolation', function() {
         DOM: xs.of(
           h3('.top-most', [
             h2('.bar', 'Wrong'),
-            div({isolate: 'foo'}, [h4('.bar', 'Correct')]),
+            div({isolate: [{type: 'total', scope: 'foo'}]}, [
+              h4('.bar', 'Correct'),
+            ]),
           ])
         ),
       };

@@ -29,7 +29,7 @@ function createRenderTarget(id: string | null = null) {
 }
 
 describe('DOMSource.elements()', function() {
-  it('should return a stream of documents when querying "document"', function(done) {
+  it('should return a stream of documents when querying "document"', done => {
     function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('.top-most', [p('Foo'), span('Bar')])),
@@ -61,7 +61,7 @@ describe('DOMSource.elements()', function() {
     dispose = run();
   });
 
-  it('should return a stream of bodies when querying "body"', function(done) {
+  it('should return a stream of bodies when querying "body"', done => {
     function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('.top-most', [p('Foo'), span('Bar')])),
@@ -93,7 +93,7 @@ describe('DOMSource.elements()', function() {
     dispose = run();
   });
 
-  it('should return a stream of arrays of elements of size 1 when querying ":root"', function(done) {
+  it('should return a stream of arrays of elements of size 1 when querying ":root"', done => {
     function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('.top-most', [p('Foo'), span('Bar')])),
@@ -123,7 +123,7 @@ describe('DOMSource.elements()', function() {
     dispose = run();
   });
 
-  it('should return a stream of arrays of elements of size 2 when querying ".some"', function(done) {
+  it('should return a stream of arrays of elements of size 2 when querying ".some"', done => {
     function app(_sources: {DOM: MainDOMSource}) {
       return {
         DOM: xs.of(div('.top-most', [div('.some'), div('.some')])),

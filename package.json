@@ -42,11 +42,16 @@
     }
   },
   "lint-staged": {
-    "*.{ts,tsx,js}": [
+    "*.{ts,tsx}": [
       "prettier --write",
-      "tslint --fix --project tsconfig.lint.json",
+      "tslint --project tsconfig.lint.json",
+      "git add"
+    ],
+    "*.js": [
+      "prettier --write",
       "git add"
     ]
+
   },
   "prettier": {
     "singleQuote": true,
