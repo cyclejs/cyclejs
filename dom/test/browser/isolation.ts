@@ -1748,4 +1748,89 @@ describe('isolation', function() {
 
     dispose = run();
   });
+
+  it('should not break isolation if animated elements are removed', done => {
+    let eventProcessed = false;
+    function Child(_sources: {DOM: MainDOMSource}): any {
+      const remove$ = _sources.DOM.select('.click')
+        .events('click')
+        .mapTo(false);
+
+      _sources.DOM.select('.click')
+        .events('click')
+        .addListener({
+          next: (ev: any) => {
+            assert.strictEqual(ev.target.textContent, 'remove');
+            assert.strictEqual(eventProcessed, false);
+            eventProcessed = true;
+          },
+        });
+
+      const style = {
+        transition: 'transform 0.5s',
+        // remove handler broke isolation in earier versions
+        remove: {
+          transform: 'translateY(100%)',
+        },
+      };
+
+      return {
+        DOM: xs.of(button('.click', {style}, 'remove')),
+        remove: remove$,
+      };
+    }
+
+    function main(_sources: {DOM: MainDOMSource}): any {
+      const childSinks = isolate(Child)(_sources);
+
+      const showChild$ = _sources.DOM.select('.click')
+        .events('click')
+        .mapTo(true);
+
+      showChild$.addListener({
+        next: ev => assert(false),
+      });
+
+      const state$ = xs.merge(showChild$, childSinks.remove).startWith(true);
+
+      return {
+        DOM: xs
+          .combine(state$, childSinks.DOM)
+          .map(([show, child]) =>
+            div([button('.click', 'show'), show ? child : null])
+          ),
+      };
+    }
+
+    const {sinks, sources, run} = setup(main, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    let dispose: any;
+
+    sources.DOM.select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: function(root: Element) {
+          const _button = root.querySelector(
+            'button.click:nth-child(2)'
+          ) as HTMLElement;
+          assert.strictEqual(_button.textContent, 'remove');
+          setTimeout(() => {
+            //does not work with sync click
+            _button.click();
+          });
+          setTimeout(() => {
+            assert.strictEqual(eventProcessed, true);
+            assert.strictEqual(root.querySelectorAll('button').length, 1);
+            dispose();
+            done();
+          }, 600);
+        },
+      });
+
+    dispose = run();
+  });
 });
