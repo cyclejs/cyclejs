@@ -18,6 +18,7 @@ devDependencies:
   karma-mocha: 1.3.0
   karma-typescript: 3.0.13
   mocha: 5.2.0
+  most: 1.7.3
   mutation-observer: 1.0.3
   rxjs: 6.2.2
   rxjs-compat: 6.2.2
@@ -59,6 +60,18 @@ packages:
       node: '>=0.12.0'
     resolution:
       integrity: sha512-r6mJSTVkM9YIZTw3L+D52E0zW71R0hzfhnlnDROxFRbiQD48la8o7juCswwsRpu0YiCYmF5DqzKcHzc6OGaJtw==
+  /@most/multicast/1.3.0:
+    dependencies:
+      '@most/prelude': 1.7.2
+    dev: true
+    peerDependencies:
+      most: ^1.0.1
+    resolution:
+      integrity: sha512-DWH8AShgp5bXn+auGzf5tzPxvpmEvQJd0CNsApOci1LDF4eAEcnw4HQOr2Jaa+L92NbDYFKBSXxll+i7r1ikvw==
+  /@most/prelude/1.7.2:
+    dev: true
+    resolution:
+      integrity: sha512-GM5ec7+xpkuXiCMyzhyENgH/xZ8t0nAMDBY0QOsVVD6TrZYjJKUnW1eaI18HHX8W+COWMwWR9c0zoPiBp9+tUg==
   /@sinonjs/commons/1.0.2:
     dependencies:
       type-detect: 4.0.8
@@ -2310,6 +2323,14 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-2IUgKDhc3J7Uug+FxMXuqIyYzH7gJjXECKe/w43IGgQHTSj3InJi+yAA7T24L9bQMRKiUEHxEX37G5JpVUGLcQ==
+  /most/1.7.3:
+    dependencies:
+      '@most/multicast': 1.3.0
+      '@most/prelude': 1.7.2
+      symbol-observable: 1.2.0
+    dev: true
+    resolution:
+      integrity: sha512-mk68SM/ptK8WSo3l03raXcWy02Hl7jbzxVozMuvyYxohn4yteh2THhl3+XABF5cunWE8eXHAsLbv+RCJI5y+jg==
   /ms/2.0.0:
     dev: true
     resolution:
@@ -3741,6 +3762,7 @@ specifiers:
   karma-mocha: ^1.3.0
   karma-typescript: ^3.0.13
   mocha: ^5.2.0
+  most: 1.7.3
   mutation-observer: 1.0.3
   rxjs: ^6.2.2
   rxjs-compat: ^6.2.2
