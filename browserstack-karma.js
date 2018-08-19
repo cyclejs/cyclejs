@@ -27,6 +27,22 @@ module.exports = {
     os: 'Windows',
     os_version: '10',
   },
+  BS_Android_8: {
+    base: 'BrowserStack',
+    browser: 'Android',
+    device: 'Google Pixel 2',
+    os: 'Android',
+    os_version: '8.0',
+    real_mobile: true,
+  },
+  BS_Android_4_4: {
+    base: 'BrowserStack',
+    browser: 'ucbrowser',
+    device: 'Google Nexus 5',
+    os: 'Android',
+    os_version: '4.4',
+    real_mobile: true,
+  },
   BS_iphone_10: {
     base: 'BrowserStack',
     browser: 'Mobile Safari',
