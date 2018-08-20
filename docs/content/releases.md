@@ -1,3 +1,11 @@
+# Synthetic DOM events
+
+This applies to `@cycle/dom` version `21.0.0`.
+
+The DOM driver now simulates event bubbling by itself, and does not use the native browser event bubbling mechanism any more to simplify the isolation and remove several race conditions. This should have no effect on normal usage of the driver.
+
+Also, the semantics of the isolation changed slightly. Before, `isolate(Component, '.foo')(sources).DOM.select('.bar')` was the same as `sources.DOM.select('.foo').select('.bar')`. With the new driver this is not the case any more as sibling isolation is now a proper isolation type and does not use css classes to find its contents any more. The new semantics are most likely the semantics you would have expected anyways.
+
 # Flexible isolation
 
 This applies to the following versions and above:

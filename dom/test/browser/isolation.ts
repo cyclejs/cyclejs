@@ -1749,7 +1749,7 @@ describe('isolation', function() {
     dispose = run();
   });
 
-  it('should not break isolation if animated elements are removed', done => {
+  it.skip('should not break isolation if animated elements are removed', done => {
     let eventProcessed = false;
     function Child(_sources: {DOM: MainDOMSource}): any {
       const remove$ = _sources.DOM.select('.click')
