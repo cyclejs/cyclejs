@@ -1,3 +1,9 @@
+## 14.10.0 (2018-08-21)
+
+* fix(http): update superagent to 3.8.3 ([fe3c5ce](https://github.com/cyclejs/cyclejs/commit/fe3c5ce))
+
+
+
 <a name="14.9.0"></a>
 # 14.9.0 (2018-01-23)
 
