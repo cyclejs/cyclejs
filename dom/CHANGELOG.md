@@ -1,3 +1,31 @@
+## 21.4.0 (2018-08-21)
+
+* docs(dom): more release notes on the new driver ([b83f8d7](https://github.com/cyclejs/cyclejs/commit/b83f8d7))
+* fix(dom): add polyfills for IE10 and Safari 8 ([4fae7e4](https://github.com/cyclejs/cyclejs/commit/4fae7e4))
+* fix(dom): document the breaking changes in the new dom driver ([5937168](https://github.com/cyclejs/cyclejs/commit/5937168))
+* fix(dom): EventDelegator shouldnt register duplicate event listeners ([3e2e1cc](https://github.com/cyclejs/cyclejs/commit/3e2e1cc))
+* fix(dom): fix rxjs and most typings ([c19ffea](https://github.com/cyclejs/cyclejs/commit/c19ffea)), closes [#775](https://github.com/cyclejs/cyclejs/issues/775)
+* test(dom): add Android to browserstack tests ([af6d6e6](https://github.com/cyclejs/cyclejs/commit/af6d6e6))
+* test(dom): add test for #747 ([0982d67](https://github.com/cyclejs/cyclejs/commit/0982d67)), closes [#747](https://github.com/cyclejs/cyclejs/issues/747)
+* test(dom): add test for sibling isolation with className prop ([4a46cd4](https://github.com/cyclejs/cyclejs/commit/4a46cd4))
+* test(dom): fix dom tests ([160cc89](https://github.com/cyclejs/cyclejs/commit/160cc89))
+* test(dom): remove old and unused tests ([b169d64](https://github.com/cyclejs/cyclejs/commit/b169d64))
+* refactor(dom): abort bubbling if elements are not in the DOM any more ([244f239](https://github.com/cyclejs/cyclejs/commit/244f239))
+* refactor(dom): add remote BrowserStack tests ([9c44022](https://github.com/cyclejs/cyclejs/commit/9c44022)), closes [#803](https://github.com/cyclejs/cyclejs/issues/803)
+* refactor(dom): fix remapping of coverage reports ([a261457](https://github.com/cyclejs/cyclejs/commit/a261457))
+* refactor(dom): improve bubbling algorithm ([0a33539](https://github.com/cyclejs/cyclejs/commit/0a33539))
+* refactor(dom): improve handling of domListenersToAdd ([4afb985](https://github.com/cyclejs/cyclejs/commit/4afb985))
+* refactor(dom): move DOM tests to karma ([88d226d](https://github.com/cyclejs/cyclejs/commit/88d226d))
+* refactor(dom): rewrite DOM driver to fix isolation ([34a5e6d](https://github.com/cyclejs/cyclejs/commit/34a5e6d))
+* refactor(dom): use Array<T> not T[], for consistency ([d7edf9e](https://github.com/cyclejs/cyclejs/commit/d7edf9e))
+
+
+### BREAKING CHANGE
+
+* The dom driver now uses syntetic event bubbling and the isolation semantics changed slightly, see
+https://cycle.js.org/releases.html for more information
+
+
 <a name="20.4.0"></a>
 # 20.4.0 (2018-05-04)
 
