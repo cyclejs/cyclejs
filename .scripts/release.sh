@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 M=$1
 PKG=$2
 
@@ -23,7 +24,7 @@ fi
 pnpm run docs
 pnpm recursive exec --filter "@cycle/$PKG" -- pnpm run changelog
 git add -A
-git commit -m "release($PKG): $(shell cat $PKG/package.json | $(pnpm bin)/jase version)"
+git commit -m "release($PKG): $(cat $PKG/package.json | $(pnpm bin)/jase version)"
 git push origin master
 pnpm recursive exec --filter "@cycle/$PKG" -- pnpm publish
 echo "✓ Released new minor for $PKG"
