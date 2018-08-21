@@ -1,4 +1,5 @@
 module.exports = {
+  // Latest mainstream
   BS_Chrome_Current: {
     base: 'BrowserStack',
     browser: 'chrome',
@@ -20,13 +21,6 @@ module.exports = {
     os: 'OS X',
     os_version: 'High Sierra',
   },
-  BS_Chrome_49: {
-    base: 'BrowserStack',
-    browser: 'chrome',
-    browser_version: '49',
-    os: 'Windows',
-    os_version: '10',
-  },
   BS_Android_8: {
     base: 'BrowserStack',
     browser: 'Android',
@@ -35,9 +29,34 @@ module.exports = {
     os_version: '8.0',
     real_mobile: true,
   },
+
+  // Older mainstream
+  BS_Chrome_49: {
+    base: 'BrowserStack',
+    browser: 'chrome',
+    browser_version: '49',
+    os: 'Windows',
+    os_version: '10',
+  },
+  BS_Firefox_52: {
+    base: 'BrowserStack',
+    browser: 'firefox',
+    browser_version: '52',
+    os: 'Windows',
+    os_version: '10',
+  },
+  BS_Safari_9: {
+    base: 'BrowserStack',
+    browser: 'safari',
+    browser_version: '9.1',
+    os: 'OS X',
+    os_version: 'El Capitan',
+  },
+
+  // Misc
   BS_Android_4_4: {
     base: 'BrowserStack',
-    browser: 'ucbrowser',
+    device_browser: 'ucbrowser',
     device: 'Google Nexus 5',
     os: 'Android',
     os_version: '4.4',
