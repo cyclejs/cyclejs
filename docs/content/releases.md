@@ -6,6 +6,9 @@ The DOM driver now simulates event bubbling by itself, and does not use the nati
 
 Also, the semantics of the isolation changed slightly. Before, `isolate(Component, '.foo')(sources).DOM.select('.bar')` was the same as `sources.DOM.select('.foo').select('.bar')`. With the new driver this is not the case any more as sibling isolation is now a proper isolation type and does not use css classes to find its contents any more. The new semantics are most likely the semantics you would have expected anyways.
 
+For more details on how the new DOM Driver works, read [Jan van Brügge's article](https://dev.to/supermanitu/inside-a-framework---how-the-cyclejs-dom-driver-works-3deb).
+
+Issues closed with this release: [#758](https://github.com/cyclejs/cyclejs/issues/758), [#587](https://github.com/cyclejs/cyclejs/issues/587), [#700](https://github.com/cyclejs/cyclejs/issues/700), [#243](https://github.com/cyclejs/cyclejs/issues/243), [#545](https://github.com/cyclejs/cyclejs/issues/545), [#775](https://github.com/cyclejs/cyclejs/issues/775).
 # Flexible isolation
 
 This applies to the following versions and above:
