@@ -30,12 +30,9 @@ export class IsolateModule {
     this.namespaceTree.set(namespace, el);
   }
 
-  private removeElement(elm: Element): void {
+  private removeElement(namespace: Array<Scope>, elm: Element): void {
     this.namespaceByElement.delete(elm);
-    const namespace = this.getNamespace(elm);
-    if (namespace) {
-      this.namespaceTree.delete(namespace);
-    }
+    this.namespaceTree.delete(namespace);
   }
 
   public getElement(
@@ -92,7 +89,7 @@ export class IsolateModule {
 
         if (!isEqualNamespace(oldNamespace, namespace)) {
           if (Array.isArray(oldNamespace)) {
-            self.removeElement(oldElm as Element);
+            self.removeElement(oldNamespace, oldElm as Element);
           }
         }
         if (Array.isArray(namespace)) {
@@ -101,11 +98,15 @@ export class IsolateModule {
       },
 
       destroy(vNode: VNode) {
-        self.vnodesBeingRemoved.push(vNode);
+        if (self.vnodesBeingRemoved.indexOf(vNode) === -1) {
+          self.vnodesBeingRemoved.push(vNode);
+        }
       },
 
       remove(vNode: VNode, cb: Function) {
-        self.vnodesBeingRemoved.push(vNode);
+        if (self.vnodesBeingRemoved.indexOf(vNode) === -1) {
+          self.vnodesBeingRemoved.push(vNode);
+        }
         cb();
       },
 
@@ -113,12 +114,10 @@ export class IsolateModule {
         const vnodesBeingRemoved = self.vnodesBeingRemoved;
         for (let i = vnodesBeingRemoved.length - 1; i >= 0; i--) {
           const vnode = vnodesBeingRemoved[i];
-          const namespace =
-            vnode.data !== undefined
-              ? (vnode.data as any).isolation
-              : undefined;
+          const namespace: Array<Scope> | undefined =
+            vnode.data !== undefined ? (vnode.data as any).isolate : undefined;
           if (namespace !== undefined) {
-            self.removeElement(namespace);
+            self.removeElement(namespace, vnode.elm as Element);
           }
           self.eventDelegator.removeElement(vnode.elm as Element, namespace);
         }
