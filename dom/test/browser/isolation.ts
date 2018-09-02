@@ -1749,7 +1749,7 @@ describe('isolation', function() {
     dispose = run();
   });
 
-  it.skip('should not break isolation if animated elements are removed', done => {
+  it('should not break isolation if animated elements are removed', done => {
     let eventProcessed = false;
     function Child(_sources: {DOM: MainDOMSource}): any {
       const remove$ = _sources.DOM.select('.click')
@@ -1818,10 +1818,7 @@ describe('isolation', function() {
             'button.click:nth-child(2)'
           ) as HTMLElement;
           assert.strictEqual(_button.textContent, 'remove');
-          setTimeout(() => {
-            //does not work with sync click
-            _button.click();
-          });
+          _button.click();
           setTimeout(() => {
             assert.strictEqual(eventProcessed, true);
             assert.strictEqual(root.querySelectorAll('button').length, 1);
