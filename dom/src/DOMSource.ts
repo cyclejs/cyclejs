@@ -16,7 +16,7 @@ export interface DOMSource {
   events<K extends keyof HTMLElementEventMap>(
     eventType: K,
     options?: EventsFnOptions,
-    bubbles?: boolean,
+    bubbles?: boolean
   ): Stream<HTMLElementEventMap[K]>;
   events(eventType: string, options?: EventsFnOptions): Stream<Event>;
 }

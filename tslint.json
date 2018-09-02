@@ -23,7 +23,6 @@
     "no-invalid-template-strings": true,
     "no-internal-module": true,
     "no-sparse-arrays": true,
-    "no-unnecessary-type-assertion": true,
     "encoding": true,
     "use-isnan": true,
     "prefer-object-spread": true,

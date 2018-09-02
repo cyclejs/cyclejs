@@ -20,7 +20,7 @@
   "scripts": {
     "commit": "git-cz",
     "cm": "git-cz",
-    "format": "prettier --write './**/*.{ts,tsx,js}'",
+    "format": "prettier --write './*/{src,test}/**/*.{ts,tsx,js}'",
     "postinstall": "pnpm recursive install --filter @cycle/* && pnpm run build",
     "build": "pnpm recursive exec --filter @cycle/* -- pnpm run build",
     "docs": "pnpm run docs-index && pnpm run docs-documentation && pnpm run docs-releases && pnpm run docs-api",
