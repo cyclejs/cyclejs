@@ -9,7 +9,7 @@ export function fromEvent(
   eventName: string,
   useCapture = false,
   preventDefault: PreventDefaultOpt = false,
-  passive = false,
+  passive = false
 ): Stream<Event> {
   return Stream.create<Event>({
     element: element,

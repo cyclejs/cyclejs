@@ -1249,4 +1249,52 @@ describe('DOMSource.events()', function() {
       });
     run();
   });
+
+  it('should not throw when clicking on elements (#713)', function(done) {
+    function app(_sources: {DOM: DOMSource}) {
+      const selectedIndex$ = _sources.DOM.select(`[index]`)
+        .events('click')
+        .map(ev => parseInt((ev.currentTarget as any).getAttribute('index')))
+        .startWith(0);
+
+      const selectedDOM$ = xs.of(div(['Selected']));
+
+      return {
+        DOM: xs
+          .combine(selectedIndex$, selectedDOM$)
+          .map(([selectedIndex, selectedDOM]) => {
+            const list = ['One', 'Two', 'Three'];
+            return div(
+              list.map((item, index) => {
+                const isSelected = index === selectedIndex;
+                return div(
+                  {
+                    attrs: {index},
+                  },
+                  [isSelected ? selectedDOM : item]
+                );
+              })
+            );
+          }),
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    sources.DOM.select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const _buttons = root.querySelectorAll('[index]');
+          for (let i = _buttons.length - 1; i >= 0; i--) {
+            setTimeout(() => (_buttons[i] as HTMLButtonElement).click());
+          }
+        },
+      });
+    run();
+  });
 });
