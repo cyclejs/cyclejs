@@ -1,3 +1,11 @@
+## 21.1.0 (2018-09-04)
+
+* fix(dom): update snabbdom ([4ae8f80](https://github.com/cyclejs/cyclejs/commit/4ae8f80)), closes [#747](https://github.com/cyclejs/cyclejs/issues/747)
+* docs(dom): document browser support for v21 ([2412938](https://github.com/cyclejs/cyclejs/commit/2412938))
+* test(dom): test against older browsers ([60788d1](https://github.com/cyclejs/cyclejs/commit/60788d1))
+
+
+
 ## 21.4.0 (2018-08-21)
 
 * docs(dom): more release notes on the new driver ([b83f8d7](https://github.com/cyclejs/cyclejs/commit/b83f8d7))
