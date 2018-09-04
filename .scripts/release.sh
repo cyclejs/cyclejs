@@ -2,11 +2,7 @@
 M=$1
 PKG=$2
 
-if [ -z $M ]; then
-  echo "Please run \"pnpm run release -- M PKG\" where M=minor|major, PKG=package"
-  exit 1
-fi
-if [ -z $PKG ]; then
+if [[ -z $M ]] || [[ -z $PKG ]] || [[ $M != "minor" && $M != "major" ]]; then
   echo "Please run \"pnpm run release -- M PKG\" where M=minor|major, PKG=package"
   exit 1
 fi
