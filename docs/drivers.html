@@ -53,7 +53,7 @@ Let's study what drivers do by analyzing the most common one: the DOM Driver.
 
 The DOM Driver is the most important and most common driver in Cycle.js. When building interactive web apps, it is probably the most important tool in Cycle.js. In fact, while Cycle *Run* function is only about 200 lines of code, Cycle *DOM* is at least 4 times larger.
 
-It's main purpose is to be a proxy to the user using the browser. Conceptually we would like to work assuming the existence of a `human()` function, as this diagram reminds us:
+Its main purpose is to be a proxy to the user using the browser. Conceptually we would like to work assuming the existence of a `human()` function, as this diagram reminds us:
 
 ![Human computer diagram](img/human-computer-diagram.svg)
 
@@ -125,7 +125,7 @@ Most drivers, like the DOM Driver, take *sinks* (to describe a *write*) and retu
 
 For instance, the one-liner `log` driver we just saw above is a write-only driver. Notice how it is a function that does not return any stream, it simply consumes the sink `msg$` it receives.
 
-Other drivers only create source streams that emit events to the `main()`, but don't take in any `sink` from `main()`. An example of such would be a read-only Web Socket driver, drafted below:
+Other drivers only create source streams that emit events to the `main()`, but don't take in any `sink` from `main()`. An example of such would be a read-only WebSocket driver, drafted below:
 
 ```javascript
 function WSDriver(/* no sinks */) {
