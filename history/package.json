@@ -52,6 +52,7 @@
     "test-browser": "karma start",
     "test": "pnpm run test-node && pnpm run test-browser",
     "test-ci": "CI=true pnpm test",
-    "test-live": "LIVE=true pnpm test"
+    "test-live": "LIVE=true pnpm test",
+    "prepublishOnly": "pnpm run build && pnpm run test"
   }
 }

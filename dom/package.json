@@ -45,7 +45,8 @@
     "test": "pnpm run test-node && pnpm run test-browser",
     "test-ci": "CI=true pnpm test",
     "test-watch": "WATCH=true pnpm test",
-    "test-live": "LIVE=true karma start --watch"
+    "test-live": "LIVE=true karma start --watch",
+    "prepublishOnly": "pnpm run build && pnpm run test"
   },
   "dependencies": {
     "@cycle/run": "*",

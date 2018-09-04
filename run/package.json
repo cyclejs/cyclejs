@@ -56,7 +56,8 @@
     "changelog": "cd .. && node .scripts/update-changelogs.js run",
     "test": "mocha test/*.ts --require ts-node/register --exit",
     "test-ci": "pnpm run test",
-    "postbuild": "cp lib/cjs/adapt.* lib/"
+    "postbuild": "cp lib/cjs/adapt.* lib/",
+    "prepublishOnly": "pnpm run build && pnpm run test"
   },
   "publishConfig": {
     "access": "public"

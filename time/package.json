@@ -66,6 +66,7 @@
     "test": "pnpm run test-node && pnpm run test-docs",
     "test-ci": "pnpm run test",
     "test-docs": "markdown-doctest",
-    "postlib": "tsc rxjs.ts most.ts --declaration --lib DOM,ES5,ES6"
+    "postbuild": "tsc rxjs.ts most.ts --declaration --lib DOM,ES5,ES6",
+    "prepublishOnly": "pnpm run build && pnpm run test"
   }
 }
