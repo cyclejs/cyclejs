@@ -1,5 +1,6 @@
-import {Stream, MemoryStream} from 'xstream';
+import {MemoryStream, Stream} from 'xstream';
 import {PreventDefaultOpt} from './fromEvent';
+
 export interface EventsFnOptions {
   useCapture?: boolean;
   passive?: boolean;
@@ -16,7 +17,7 @@ export interface DOMSource {
   events<K extends keyof HTMLElementEventMap>(
     eventType: K,
     options?: EventsFnOptions,
-    bubbles?: boolean,
+    bubbles?: boolean
   ): Stream<HTMLElementEventMap[K]>;
   events(eventType: string, options?: EventsFnOptions): Stream<Event>;
 }

@@ -63,7 +63,7 @@ export function thunk(sel: string, key?: any, fn?: any, args?: any): VNode {
     hook: {init: init, prepatch: prepatch},
     fn: fn,
     args: args,
-  });
+  } as VNodeData);
 }
 
 export default thunk;

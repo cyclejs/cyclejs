@@ -9,7 +9,7 @@ import {VNode} from 'snabbdom/vnode';
 import {ElementFinder} from './ElementFinder';
 import {makeIsolateSink, getScopeObj, Scope, IsolateSink} from './isolate';
 import {IsolateModule} from './IsolateModule';
-import {EventDelegator, CycleDOMEvent} from './EventDelegator';
+import {EventDelegator} from './EventDelegator';
 
 export interface SpecialSelector {
   body: BodyDOMSource;
@@ -23,7 +23,7 @@ export class MainDOMSource implements DOMSource {
     private _namespace: Array<Scope> = [],
     public _isolateModule: IsolateModule,
     private _eventDelegator: EventDelegator,
-    private _name: string,
+    private _name: string
   ) {
     this.isolateSource = (source, scope) =>
       new MainDOMSource(
@@ -32,7 +32,7 @@ export class MainDOMSource implements DOMSource {
         source._namespace.concat(getScopeObj(scope)),
         source._isolateModule,
         source._eventDelegator,
-        source._name,
+        source._name
       );
     this.isolateSink = makeIsolateSink(this._namespace);
   }
@@ -101,15 +101,20 @@ export class MainDOMSource implements DOMSource {
       namespace,
       this._isolateModule,
       this._eventDelegator,
-      this._name,
+      this._name
     ) as DOMSource;
   }
 
+  public events<K extends keyof HTMLElementEventMap>(
+    eventType: K,
+    options?: EventsFnOptions,
+    bubbles?: boolean
+  ): Stream<HTMLElementEventMap[K]>;
   public events(
     eventType: string,
     options: EventsFnOptions = {},
-    bubbles?: boolean,
-  ): Stream<CycleDOMEvent> {
+    bubbles?: boolean
+  ): Stream<Event> {
     if (typeof eventType !== `string`) {
       throw new Error(
         `DOM driver's events() expects argument to be a ` +
@@ -120,10 +125,10 @@ export class MainDOMSource implements DOMSource {
       eventType,
       this._namespace,
       options,
-      bubbles,
+      bubbles
     );
 
-    const out: DevToolEnabledSource & Stream<CycleDOMEvent> = adapt(event$);
+    const out: DevToolEnabledSource & Stream<Event> = adapt(event$);
     out._isCycleSource = this._name;
     return out;
   }

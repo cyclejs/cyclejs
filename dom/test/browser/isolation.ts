@@ -499,9 +499,9 @@ describe('isolation', function() {
 
     const {sources, sinks, run} = setup(Monalisa, {
       DOM: makeDOMDriver(createRenderTarget()),
-      frameClick: sink => {},
-      monalisaClick: sink => {},
-      click: sink => {},
+      frameClick: () => {},
+      monalisaClick: () => {},
+      click: () => {},
     });
     let dispose: any;
 

@@ -38,7 +38,11 @@ export class MockedDOMSource implements DOMSource {
     return out;
   }
 
-  public events(eventType: string, options?: EventsFnOptions): any {
+  public events(
+    eventType: string,
+    options?: EventsFnOptions,
+    bubbles?: boolean
+  ): any {
     const streamForEventType = this._mockConfig[eventType] as any;
     const out: DevToolEnabledSource & FantasyObservable = adapt(
       streamForEventType || xs.empty()
@@ -64,7 +68,7 @@ export class MockedDOMSource implements DOMSource {
 
   public isolateSink(sink: any, scope: string): any {
     return adapt(
-      xs.fromObservable(sink).map((vnode: VNode) => {
+      xs.fromObservable<any>(sink).map((vnode: VNode) => {
         if (vnode.sel && vnode.sel.indexOf(SCOPE_PREFIX + scope) !== -1) {
           return vnode;
         } else {

@@ -16,6 +16,7 @@ import {
   button,
   makeDOMDriver,
   DOMSource,
+  MainDOMSource,
 } from '../../src/index';
 
 function createRenderTarget(id: string | null = null) {
