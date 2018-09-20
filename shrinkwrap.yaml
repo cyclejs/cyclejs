@@ -12,7 +12,7 @@ devDependencies:
   rxjs: 5.5.11
   tempfile: 2.0.0
   tslint: 5.11.0
-  typescript: 2.8.4
+  typescript: 3.0.1
 packages:
   /@samverschueren/stream-to-observable/0.3.0:
     dependencies:
@@ -3470,13 +3470,13 @@ packages:
     dev: true
     resolution:
       integrity: sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
-  /typescript/2.8.4:
+  /typescript/3.0.1:
     dev: true
     engines:
       node: '>=4.2.0'
     hasBin: true
     resolution:
-      integrity: sha512-IIU5cN1mR5J3z9jjdESJbnxikTrEz3lzAw/D0Tf45jHpBp55nY31UkUvmVHoffCfKHTqJs3fCLPDxknQTTFegQ==
+      integrity: sha512-zQIMOmC+372pC/CCVLqnQ0zSBiY7HHodU7mpQdjiZddek4GMj31I3dUJ7gAs9o65X7mnRma6OokOkc6f9jjfBg==
   /uc.micro/1.0.5:
     dev: true
     resolution:
@@ -3664,4 +3664,4 @@ specifiers:
   rxjs: ^5.5.11
   tempfile: ^2.0.0
   tslint: ^5.11.0
-  typescript: ~2.8.4
+  typescript: 3.0.x

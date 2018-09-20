@@ -2,20 +2,55 @@
 import 'symbol-observable';
 import {Stream} from 'xstream';
 import {from, Observable} from 'rxjs';
-import {setAdapt} from '@cycle/run/lib/adapt';
+import {setAdapt} from '../../run/src/adapt';
 import {
   setup as coreSetup,
   DisposeFunction,
-  Driver,
-  FantasyObservable,
-  Sources,
-  Sinks,
-  CycleProgram,
-} from '@cycle/run';
+  Drivers,
+  Main,
+} from '../../run/src/index';
 
-export type Drivers<So extends Sources, Si extends Sinks> = {
-  [P in keyof (So & Si)]: Driver<FantasyObservable, any>
+export type MainOutputs<M extends Main> = {
+  [k in string & keyof ReturnType<M>]: ReturnType<M>[k] & Observable<any>
 };
+
+export type DriverInputs<M extends Main> = {
+  [k in string & keyof ReturnType<M>]: ReturnType<M>[k] extends Observable<
+    infer T
+  >
+    ? Stream<T>
+    : never
+};
+
+export type DriverOutputs<D extends Drivers> = {
+  [k in keyof D]: ReturnType<D[k]>
+};
+
+export type MainInputs<D extends Drivers> = {
+  [k in keyof D]: ReturnType<D[k]> extends Stream<infer T>
+    ? Observable<T>
+    : ReturnType<D[k]>
+};
+
+export type MatchingMain<D extends Drivers, M extends Main> = Main & {
+  (so?: Partial<MainInputs<D>>): MainOutputs<M>;
+};
+
+export type MatchingDrivers<D extends Drivers, M extends Main> = Drivers &
+  {
+    [k in string & keyof MainOutputs<M>]:
+      | ((si?: DriverInputs<M>[k]) => DriverOutputs<D>[k])
+      | ((si: DriverInputs<M>[k]) => DriverOutputs<D>[k])
+  };
+
+export interface CycleProgram<
+  D extends MatchingDrivers<D, M>,
+  M extends MatchingMain<D, M>
+> {
+  sources: MainInputs<D>;
+  sinks: MainOutputs<M>;
+  run(): DisposeFunction;
+}
 
 setAdapt(function adaptXstreamToRx(stream: Stream<any>): Observable<any> {
   return from(stream as any);
@@ -48,11 +83,11 @@ setAdapt(function adaptXstreamToRx(stream: Stream<any>): Observable<any> {
  * Cycle.js program, cleaning up resources used.
  * @function run
  */
-export function run<So extends Sources, Si extends Sinks>(
-  main: (sources: So) => Si,
-  drivers: Drivers<So, Si>
-): DisposeFunction {
-  const program = coreSetup(main, drivers);
+export function run<
+  D extends MatchingDrivers<D, M>,
+  M extends MatchingMain<D, M>
+>(main: M, drivers: D): DisposeFunction {
+  const program = coreSetup(main, drivers as any);
   return program.run();
 }
 
@@ -84,11 +119,11 @@ export function run<So extends Sources, Si extends Sinks>(
  * is the function that once called will execute the application.
  * @function setup
  */
-export function setup<So extends Sources, Si extends Sinks>(
-  main: (sources: So) => Si,
-  drivers: Drivers<So, Si>
-): CycleProgram<So, Si> {
-  return coreSetup(main, drivers);
+export function setup<
+  D extends MatchingDrivers<D, M>,
+  M extends MatchingMain<D, M>
+>(main: M, drivers: D): CycleProgram<D, M> {
+  return coreSetup(main, drivers as any) as any;
 }
 
 export default run;
