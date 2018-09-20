@@ -7,7 +7,7 @@ import SymbolTree from './SymbolTree';
 export class IsolateModule {
   private namespaceTree = new SymbolTree<Element, Scope>(x => x.scope);
   private namespaceByElement: Map<Element, Array<Scope>>;
-  private eventDelegator: EventDelegator;
+  private eventDelegator: EventDelegator | undefined;
 
   /**
    * A registry that keeps track of all the nodes that are removed from
@@ -120,7 +120,10 @@ export class IsolateModule {
           if (namespace !== undefined) {
             self.removeElement(namespace);
           }
-          self.eventDelegator.removeElement(vnode.elm as Element, namespace);
+          (self.eventDelegator as EventDelegator).removeElement(
+            vnode.elm as Element,
+            namespace
+          );
         }
         self.vnodesBeingRemoved = [];
       },

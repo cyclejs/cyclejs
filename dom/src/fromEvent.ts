@@ -9,29 +9,28 @@ export function fromEvent(
   eventName: string,
   useCapture = false,
   preventDefault: PreventDefaultOpt = false,
-  passive = false,
+  passive = false
 ): Stream<Event> {
+  let next: ((e: Event) => void) | null = null;
   return Stream.create<Event>({
-    element: element,
-    next: null,
     start: function start(listener: Listener<Event>) {
       if (preventDefault) {
-        this.next = function next(event: Event) {
+        next = function _next(event: Event) {
           preventDefaultConditional(event, preventDefault);
           listener.next(event);
         };
       } else {
-        this.next = function next(event: Event) {
+        next = function _next(event: Event) {
           listener.next(event);
         };
       }
-      this.element.addEventListener(eventName, this.next, {
+      element.addEventListener(eventName, next, {
         capture: useCapture,
         passive,
       });
     },
     stop: function stop() {
-      this.element.removeEventListener(eventName, this.next, useCapture);
+      element.removeEventListener(eventName, next as any, useCapture);
     },
   } as Producer<Event>);
 }
@@ -59,7 +58,7 @@ export function preventDefaultConditional(
   if (preventDefault) {
     if (typeof preventDefault === 'boolean') {
       event.preventDefault();
-    } else if (typeof preventDefault === 'function') {
+    } else if (isPredicate(preventDefault)) {
       if (preventDefault(event)) {
         event.preventDefault();
       }
@@ -73,4 +72,8 @@ export function preventDefaultConditional(
       );
     }
   }
+}
+
+function isPredicate(fn: any): fn is Predicate {
+  return typeof fn === 'function';
 }

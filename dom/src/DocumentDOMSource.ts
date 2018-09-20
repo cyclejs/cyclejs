@@ -1,7 +1,7 @@
 import xs, {Stream, MemoryStream} from 'xstream';
 import {adapt} from '@cycle/run/lib/adapt';
 import {DevToolEnabledSource} from '@cycle/run';
-import {DOMSource, EventsFnOptions} from './DOMSource';
+import {EventsFnOptions, DOMSource} from './DOMSource';
 import {fromEvent} from './fromEvent';
 
 export class DocumentDOMSource implements DOMSource {
@@ -28,9 +28,15 @@ export class DocumentDOMSource implements DOMSource {
     return out;
   }
 
+  public events<K extends keyof DocumentEventMap>(
+    eventType: K,
+    options?: EventsFnOptions,
+    bubbles?: boolean
+  ): Stream<DocumentEventMap[K]>;
   public events(
     eventType: string,
-    options: EventsFnOptions = {}
+    options: EventsFnOptions = {},
+    bubbles?: boolean
   ): Stream<Event> {
     let stream: Stream<Event>;
 

@@ -83,7 +83,7 @@ export class EventDelegator {
     Map<string, PriorityQueue<Destination>>,
     Scope
   >(x => x.scope);
-  private origin: Element;
+  private origin: Element | undefined;
 
   private domListeners: Map<string, DOMListener>;
   private nonBubblingListeners: Map<string, Map<Element, NonBubblingListener>>;

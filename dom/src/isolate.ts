@@ -8,11 +8,11 @@ export interface Scope {
   scope: string; //Could be anything serializable
 }
 
-export type Sink = Stream<VNode | null | undefined>;
+export type Sink = Stream<VNode>;
 export type IsolateSink = (s: Sink, scope: string) => Sink;
 
 export function makeIsolateSink(
-  namespace: Array<Scope>,
+  namespace: Array<Scope>
 ): (sink: Sink, scope: string) => Sink {
   return (sink, scope) => {
     if (scope === ':root') {
@@ -40,7 +40,7 @@ export function makeIsolateSink(
           newNode.key !== undefined
             ? newNode.key
             : JSON.stringify(newNode.data.isolate),
-      };
+      } as VNode;
     });
   };
 }
