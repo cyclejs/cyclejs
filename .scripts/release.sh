@@ -23,4 +23,4 @@ git add -A
 git commit -m "release($PKG): $(cat $PKG/package.json | $(pnpm bin)/jase version)"
 git push origin master
 pnpm recursive exec --filter "@cycle/$PKG" -- pnpm publish
-echo "✓ Released new minor for $PKG"
+echo "✓ Released new $M for $PKG"
