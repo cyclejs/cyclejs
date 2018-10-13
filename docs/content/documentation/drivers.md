@@ -197,7 +197,7 @@ sock.send('Hello world');
 
 **How do we build a driver for `Sock`?** We start by identifying the effects. The *write* effect is `sock.send(msg)` and the *read* effect is the listener for received messages. Our `sockDriver(sink)` should take `sink` as instructions to perform the `send(msg)` calls. The output from `sockDriver()` should be `source`, containing all received messages.
 
-Since both input and output should be streams, it's easy to see `sink` in `sockDriver(sink)` should be an stream of outgoing messages to the peer. And conversely, the source should be an stream of incoming messages. This is a draft of our driver function:
+Since both input and output should be streams, it's easy to see `sink` in `sockDriver(sink)` should be an stream of outgoing messages to the peer. And conversely, the source should be a stream of incoming messages. This is a draft of our driver function:
 
 ```javascript
 import {adapt} from '@cycle/run/lib/adapt';
