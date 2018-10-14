@@ -190,7 +190,7 @@ For testing components that use `@cycle/dom` we will also want `mockDOMSource` a
 ```js
 import {mockDOMSource} from '@cycle/dom';
 import {select} from 'snabbdom-selector'
-
+import {mockTimeSource} from '@cycle/time';
 import {Counter} from '../src/counter';
 
 describe('Counter', () => {
