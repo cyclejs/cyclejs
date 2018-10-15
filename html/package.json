@@ -34,9 +34,9 @@
   "typings": "lib/cjs/index.d.ts",
   "types": "lib/cjs/index.d.ts",
   "dependencies": {
-    "@cycle/dom": ">=20.4.0",
+    "@cycle/dom": "^22.0.0-rc.0",
     "@cycle/run": "^5.1.0-rc.1",
-    "snabbdom": "0.7.1",
+    "snabbdom": "0.7.2",
     "snabbdom-to-html": "5.1.1",
     "xstream": "*"
   },
