@@ -1,6 +1,6 @@
 dependencies:
   '@cycle/run': 5.1.0-rc.1
-  rxjs: 6.0.0
+  rxjs: 6.3.3
   symbol-observable: 1.2.0
   xstream: 11.7.0
 devDependencies:
@@ -385,7 +385,7 @@ packages:
     dev: true
     resolution:
       integrity: sha512-AicPrAC7Qu1JxPCZ9ZgCZlY35QgFnNqc+0LtbRNxnVw4TXvjQ72wnuL9JQcEBgXkI9JM8MsT9kaQoHcpCRJOYA==
-  /rxjs/6.2.2:
+  /rxjs/6.3.3:
     dependencies:
       tslib: 1.9.3
     dev: false
@@ -559,7 +559,7 @@ specifiers:
   '@types/node': 10.11.x
   '@types/sinon': 5.0.x
   mocha: ^5.2.0
-  rxjs: ^6.0.0
+  rxjs: ~6.3.3
   sinon: ^6.3.5
   symbol-observable: ^1.2.0
   ts-node: ^7.0.1
