@@ -1,27 +1,28 @@
 import * as assert from 'assert';
-import {Observable} from 'rxjs';
+import {Observable, of, never} from 'rxjs';
+import {skip} from 'rxjs/operators';
 import {setup} from '@cycle/rxjs-run';
 import {makeServerHistoryDriver, Location, HistoryInput} from '../../src';
 
 describe('serverHistoryDriver - RxJS', function() {
   it('should return an Rx Observable as source', function() {
     function main(_sources: {history: Observable<Location>}) {
-      assert.strictEqual(typeof _sources.history.switchMap, 'function');
+      assert.strictEqual(typeof _sources.history.pipe, 'function');
       return {
-        history: Observable.never(),
+        history: never(),
       };
     }
 
     const {sources, run} = setup(main, {
       history: makeServerHistoryDriver(),
     });
-    assert.strictEqual(typeof sources.history.switchMap, 'function');
+    assert.strictEqual(typeof sources.history.pipe, 'function');
   });
 
   it('should create a location from pathname', done => {
     function main(_sources: {history: Observable<Location>}) {
       return {
-        history: Observable.of('/test'),
+        history: of('/test'),
       };
     }
 
@@ -29,7 +30,7 @@ describe('serverHistoryDriver - RxJS', function() {
       history: makeServerHistoryDriver(),
     });
 
-    sources.history.skip(1).subscribe({
+    sources.history.pipe(skip(1)).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -45,7 +46,7 @@ describe('serverHistoryDriver - RxJS', function() {
   it('should create a location from PushHistoryInput', done => {
     function main(_sources: {history: Observable<Location>}) {
       return {
-        history: Observable.of({type: 'push', pathname: '/test'}),
+        history: of({type: 'push', pathname: '/test'}),
       };
     }
 
@@ -53,7 +54,7 @@ describe('serverHistoryDriver - RxJS', function() {
       history: makeServerHistoryDriver(),
     });
 
-    sources.history.skip(1).subscribe({
+    sources.history.pipe(skip(1)).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -69,7 +70,7 @@ describe('serverHistoryDriver - RxJS', function() {
   it('should create a location from ReplaceHistoryInput', done => {
     function main(_sources: {history: Observable<Location>}) {
       return {
-        history: Observable.of({type: 'replace', pathname: '/test'}),
+        history: of({type: 'replace', pathname: '/test'}),
       };
     }
 
@@ -77,7 +78,7 @@ describe('serverHistoryDriver - RxJS', function() {
       history: makeServerHistoryDriver(),
     });
 
-    sources.history.skip(1).subscribe({
+    sources.history.pipe(skip(1)).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -93,7 +94,7 @@ describe('serverHistoryDriver - RxJS', function() {
   it('should allow going back a route with type `go`', done => {
     function main(_sources: {history: Observable<Location>}) {
       return {
-        history: Observable.of<HistoryInput | string>('/test', '/other', {
+        history: of<HistoryInput | string>('/test', '/other', {
           type: 'go',
           amount: -1,
         }),
@@ -106,7 +107,7 @@ describe('serverHistoryDriver - RxJS', function() {
 
     const expected = ['/test', '/other', '/test'];
 
-    sources.history.skip(1).subscribe({
+    sources.history.pipe(skip(1)).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {
@@ -124,7 +125,7 @@ describe('serverHistoryDriver - RxJS', function() {
   it('should allow going back a route with type `goBack`', done => {
     function main(_sources: {history: Observable<Location>}) {
       return {
-        history: Observable.of<HistoryInput | string>('/test', '/other', {
+        history: of<HistoryInput | string>('/test', '/other', {
           type: 'goBack',
         }),
       };
@@ -136,7 +137,7 @@ describe('serverHistoryDriver - RxJS', function() {
 
     const expected = ['/test', '/other', '/test'];
 
-    sources.history.skip(1).subscribe({
+    sources.history.pipe(skip(1)).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {
@@ -154,7 +155,7 @@ describe('serverHistoryDriver - RxJS', function() {
   it('should allow going forward a route with type `go`', done => {
     function main(_sources: {history: Observable<Location>}) {
       return {
-        history: Observable.of<HistoryInput | string>(
+        history: of<HistoryInput | string>(
           '/test',
           '/other',
           {type: 'go', amount: -1},
@@ -169,7 +170,7 @@ describe('serverHistoryDriver - RxJS', function() {
 
     const expected = ['/test', '/other', '/test', '/other'];
 
-    sources.history.skip(1).subscribe({
+    sources.history.pipe(skip(1)).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {
@@ -187,7 +188,7 @@ describe('serverHistoryDriver - RxJS', function() {
   it('should allow going forward a route with type `goForward`', done => {
     function main(_sources: {history: Observable<Location>}) {
       return {
-        history: Observable.of<HistoryInput | string>(
+        history: of<HistoryInput | string>(
           '/test',
           '/other',
           {type: 'go', amount: -1},
@@ -202,7 +203,7 @@ describe('serverHistoryDriver - RxJS', function() {
 
     const expected = ['/test', '/other', '/test', '/other'];
 
-    sources.history.skip(1).subscribe({
+    sources.history.pipe(skip(1)).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {

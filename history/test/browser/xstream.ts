@@ -16,7 +16,7 @@ describe('historyDriver - xstream', () => {
   beforeEach(function() {
     setAdapt(x => x);
     if (window.history) {
-      window.history.replaceState(undefined, undefined, '/');
+      window.history.replaceState(undefined, '', '/');
     }
   });
 
