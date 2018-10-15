@@ -1,8 +1,17 @@
 import * as assert from 'assert';
-import * as Rx from 'rxjs';
-import * as Cycle from '@cycle/rxjs-run';
-import {makeHTTPDriver} from '../../src/index';
-import {HTTPSource} from '../../rxjs-typings';
+import {Observable, of, never, interval, empty} from 'rxjs';
+import {
+  map,
+  mergeMap,
+  switchMap,
+  publishReplay,
+  refCount,
+  take,
+  delay,
+  mergeAll,
+} from 'rxjs/operators';
+import {setup, run as globalRun} from '@cycle/rxjs-run';
+import {HTTPSource, makeHTTPDriver} from '../../src/rxjs';
 import {runTests as runCommon} from './common';
 
 const uri = '//' + window.location.host;
@@ -14,7 +23,7 @@ describe('HTTP Driver in the browser', function() {
   it('should be able to emit progress events on the response stream', function(done) {
     function main(_sources: {HTTP: HTTPSource}) {
       return {
-        HTTP: Rx.Observable.of({
+        HTTP: of({
           url: uri + '/querystring',
           method: 'GET',
           progress: true,
@@ -22,7 +31,7 @@ describe('HTTP Driver in the browser', function() {
         }),
       };
     }
-    const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
+    const {sources, run} = setup(main, {HTTP: makeHTTPDriver()});
     const response$$ = sources.HTTP.select();
 
     response$$.subscribe({
@@ -34,7 +43,7 @@ describe('HTTP Driver in the browser', function() {
         let progressEventHappened = false;
         response$.subscribe(function(response) {
           if (response.type === 'progress') {
-            assert.strictEqual(typeof (response as any).total, 'number');
+            assert.strictEqual(typeof response.total, 'number');
             progressEventHappened = true;
           } else {
             assert.strictEqual(progressEventHappened, true);
@@ -53,7 +62,7 @@ describe('HTTP Driver in the browser', function() {
   it('should return binary response when responseType option is arraybuffer', function(done) {
     function main(_sources: {HTTP: HTTPSource}) {
       return {
-        HTTP: Rx.Observable.of({
+        HTTP: of({
           url: uri + '/binary',
           method: 'GET',
           responseType: 'arraybuffer',
@@ -61,7 +70,7 @@ describe('HTTP Driver in the browser', function() {
       };
     }
 
-    const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
+    const {sources, run} = setup(main, {HTTP: makeHTTPDriver()});
 
     const response$$ = sources.HTTP.select();
     response$$.subscribe(function(response$) {
@@ -83,7 +92,7 @@ describe('HTTP Driver in the browser', function() {
   it('should return binary response when responseType option is blob', function(done) {
     function main(_sources: {HTTP: HTTPSource}) {
       return {
-        HTTP: Rx.Observable.of({
+        HTTP: of({
           url: uri + '/binary',
           method: 'GET',
           responseType: 'blob',
@@ -91,7 +100,7 @@ describe('HTTP Driver in the browser', function() {
       };
     }
 
-    const {sources, run} = Cycle.setup(main, {HTTP: makeHTTPDriver()});
+    const {sources, run} = setup(main, {HTTP: makeHTTPDriver()});
 
     const response$$ = sources.HTTP.select();
     response$$.subscribe(function(response$) {
@@ -103,7 +112,7 @@ describe('HTTP Driver in the browser', function() {
         const fr = new FileReader();
         fr.onload = ev => {
           assert.deepStrictEqual(
-            new Uint8Array(fr.result),
+            new Uint8Array(fr.result as ArrayBuffer),
             new Uint8Array([1, 2, 3])
           );
           done();
@@ -121,17 +130,18 @@ describe('HTTP Driver in the browser', function() {
     this.timeout(10000);
 
     function child(_sources: any, num: any) {
-      const vdom$ = _sources.HTTP.select('cat')
-        .mergeAll()
-        .map((res: any) => 'My name is ' + res.text);
+      const vdom$ = _sources.HTTP.select('cat').pipe(
+        mergeAll(),
+        map((res: any) => 'My name is ' + res.text)
+      );
 
       const request$ =
         num === 1
-          ? Rx.Observable.of({
+          ? of({
               category: 'cat',
               url: uri + '/hello',
             })
-          : Rx.Observable.never();
+          : never();
 
       return {
         HTTP: request$,
@@ -140,48 +150,50 @@ describe('HTTP Driver in the browser', function() {
     }
 
     function mainHTTPThenDOM(_sources: any) {
-      const sinks$ = Rx.Observable.interval(500)
-        .take(6)
-        .map(i => {
+      const sinks$ = interval(500).pipe(
+        take(6),
+        map(i => {
           if (i % 2 === 1) {
             return child(_sources, i);
           } else {
             return {
-              HTTP: Rx.Observable.empty(),
-              DOM: Rx.Observable.of(''),
+              HTTP: empty(),
+              DOM: of(''),
             };
           }
-        })
-        .publishReplay(1)
-        .refCount();
+        }),
+        publishReplay(1),
+        refCount()
+      );
 
       // order of sinks is important
       return {
-        HTTP: sinks$.switchMap(sinks => sinks.HTTP),
-        DOM: sinks$.switchMap(sinks => sinks.DOM),
+        HTTP: sinks$.pipe(switchMap(sinks => sinks.HTTP)),
+        DOM: sinks$.pipe(switchMap(sinks => sinks.DOM)),
       };
     }
 
     function mainDOMThenHTTP(_sources: any) {
-      const sinks$ = Rx.Observable.interval(500)
-        .take(6)
-        .map(i => {
+      const sinks$ = interval(500).pipe(
+        take(6),
+        map(i => {
           if (i % 2 === 1) {
             return child(_sources, i);
           } else {
             return {
-              HTTP: Rx.Observable.empty(),
-              DOM: Rx.Observable.of(''),
+              HTTP: empty(),
+              DOM: of(''),
             };
           }
-        })
-        .publishReplay(1)
-        .refCount();
+        }),
+        publishReplay(1),
+        refCount()
+      );
 
       // order of sinks is important
       return {
-        DOM: sinks$.switchMap(sinks => sinks.DOM),
-        HTTP: sinks$.switchMap(sinks => sinks.HTTP),
+        DOM: sinks$.pipe(switchMap(sinks => sinks.DOM)),
+        HTTP: sinks$.pipe(switchMap(sinks => sinks.HTTP)),
       };
     }
 
@@ -206,7 +218,7 @@ describe('HTTP Driver in the browser', function() {
     }
 
     // HTTP then DOM:
-    Cycle.run(mainHTTPThenDOM, {
+    globalRun(mainHTTPThenDOM, {
       HTTP: makeHTTPDriver(),
       DOM: domDriver,
     });
@@ -214,7 +226,7 @@ describe('HTTP Driver in the browser', function() {
       assert.strictEqual(expectedDOMSinks.length, 4);
 
       // DOM then HTTP:
-      Cycle.run(mainDOMThenHTTP, {
+      globalRun(mainDOMThenHTTP, {
         HTTP: makeHTTPDriver(),
         DOM: domDriver,
       });
@@ -229,15 +241,17 @@ describe('HTTP Driver in the browser', function() {
     this.timeout(4000);
 
     function main(_sources: any) {
-      const test$ = Rx.Observable.of(null)
-        .delay(1000)
-        .mergeMap(() =>
-          _sources.HTTP.select('cat')
-            .mergeAll()
-            .map((res: any) => 'I should not show this, ' + res.text)
-        );
+      const test$ = of(null).pipe(
+        delay(1000),
+        mergeMap(() =>
+          _sources.HTTP.select('cat').pipe(
+            mergeAll(),
+            map((res: any) => 'I should not show this, ' + res.text)
+          )
+        )
+      );
 
-      const request$ = Rx.Observable.of({
+      const request$ = of({
         category: 'cat',
         url: uri + '/hello',
       });
@@ -260,7 +274,7 @@ describe('HTTP Driver in the browser', function() {
       });
     }
 
-    Cycle.run(main, {
+    globalRun(main, {
       HTTP: makeHTTPDriver(),
       Test: testDriver,
     });
