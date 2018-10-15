@@ -8,16 +8,16 @@ import {
 import {setup} from '@cycle/rxjs-run';
 import {setAdapt} from '@cycle/run/lib/adapt';
 
-import {Observable} from 'rxjs';
-import 'rxjs/add/operator/switchMap'; // tslint:disable-line
+import {Observable, from, of, interval, never} from 'rxjs';
+import {map, take, skip} from 'rxjs/operators';
 
 let dispose = () => {};
 
 describe('historyDriver - RxJS', () => {
   beforeEach(function() {
-    setAdapt(x => Observable.from(x as any));
+    setAdapt(x => from(x as any));
     if (window.history) {
-      window.history.replaceState(undefined, undefined, '/');
+      window.history.replaceState(undefined, '', '/');
     }
   });
 
@@ -27,26 +27,26 @@ describe('historyDriver - RxJS', () => {
 
   it('should return a stream', () => {
     function main(_sources: {history: Observable<Location>}) {
-      assert.strictEqual(typeof _sources.history.switchMap, 'function');
+      assert.strictEqual(typeof _sources.history.pipe, 'function');
       return {
-        history: Observable.never(),
+        history: never(),
       };
     }
 
     const {sources, run} = setup(main, {history: makeHistoryDriver()});
-    assert.strictEqual(typeof sources.history.switchMap, 'function');
+    assert.strictEqual(typeof sources.history.pipe, 'function');
   });
 
   it('should create a location from pathname', function(done) {
     function main(_sources: {history: Observable<Location>}) {
       return {
-        history: Observable.of('/test'),
+        history: of('/test'),
       };
     }
 
     const {sources, run} = setup(main, {history: makeHistoryDriver()});
 
-    sources.history.skip(1).subscribe({
+    sources.history.pipe(skip(1)).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -62,13 +62,13 @@ describe('historyDriver - RxJS', () => {
   it('should create a location from PushHistoryInput', function(done) {
     function main(_sources: {history: Observable<Location>}) {
       return {
-        history: Observable.of({type: 'push', pathname: '/test'}),
+        history: of({type: 'push', pathname: '/test'}),
       };
     }
 
     const {sources, run} = setup(main, {history: makeHistoryDriver()});
 
-    sources.history.skip(1).subscribe({
+    sources.history.pipe(skip(1)).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -84,13 +84,13 @@ describe('historyDriver - RxJS', () => {
   it('should create a location from ReplaceHistoryInput', function(done) {
     function main(_sources: {history: Observable<Location>}) {
       return {
-        history: Observable.of({type: 'replace', pathname: '/test'}),
+        history: of({type: 'replace', pathname: '/test'}),
       };
     }
 
     const {sources, run} = setup(main, {history: makeHistoryDriver()});
 
-    sources.history.skip(1).subscribe({
+    sources.history.pipe(skip(1)).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
@@ -106,9 +106,9 @@ describe('historyDriver - RxJS', () => {
   it('should allow going back/forwards with `go`, `goBack`, `goForward`', function(done) {
     function main(_sources: {history: Observable<Location>}) {
       return {
-        history: Observable.interval(100)
-          .take(6)
-          .map(
+        history: interval(100).pipe(
+          take(6),
+          map(
             i =>
               [
                 '/test',
@@ -118,7 +118,8 @@ describe('historyDriver - RxJS', () => {
                 {type: 'goBack'},
                 {type: 'goForward'},
               ][i]
-          ),
+          )
+        ),
       };
     }
 
@@ -126,7 +127,7 @@ describe('historyDriver - RxJS', () => {
 
     const expected = ['/test', '/other', '/test', '/other', '/test', '/other'];
 
-    sources.history.skip(1).subscribe({
+    sources.history.pipe(skip(1)).subscribe({
       next(location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {
