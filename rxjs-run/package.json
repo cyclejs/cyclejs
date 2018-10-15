@@ -31,7 +31,7 @@
   "types": "lib/cjs/index.d.ts",
   "dependencies": {
     "@cycle/run": "^5.1.0-rc.0",
-    "rxjs": "^6.0.0",
+    "rxjs": "~6.3.3",
     "symbol-observable": "^1.2.0",
     "xstream": "*"
   },
