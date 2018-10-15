@@ -22,7 +22,7 @@
     "cm": "git-cz",
     "format": "prettier --write './**/*.{ts,tsx,js}'",
     "postinstall": "pnpm recursive install --filter @cycle/* && pnpm run build",
-    "build": "pnpm recursive exec --filter @cycle/* -- pnpm run build",
+    "build": "pnpm recursive run build --workspace-concurrency 1 --filter @cycle/*",
     "docs": "pnpm run docs-index && pnpm run docs-documentation && pnpm run docs-releases && pnpm run docs-api",
     "docs-index": "node ./docs/.scripts/make-index.js",
     "docs-documentation": "node ./docs/.scripts/make-documentation.js",
