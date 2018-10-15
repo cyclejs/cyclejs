@@ -1,4 +1,5 @@
-import {Stream} from 'xstream';
+import xs, {Stream} from 'xstream';
+import {adapt} from '@cycle/run/lib/adapt';
 import {HTTPSource, RequestOptions, RequestInput} from './interfaces';
 
 function arrayEqual(
@@ -38,12 +39,14 @@ export function isolateSink(
   if (scope === null) {
     return request$;
   }
-  return request$.map((req: RequestInput | string) => {
-    if (typeof req === 'string') {
-      return {url: req, _namespace: [scope]} as RequestOptions;
-    }
-    req._namespace = req._namespace || [];
-    req._namespace.unshift(scope);
-    return req;
-  });
+  return adapt(
+    xs.fromObservable(request$).map((req: RequestInput | string) => {
+      if (typeof req === 'string') {
+        return {url: req, _namespace: [scope]} as RequestOptions;
+      }
+      req._namespace = req._namespace || [];
+      req._namespace.unshift(scope);
+      return req;
+    })
+  );
 }
