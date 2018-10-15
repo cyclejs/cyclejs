@@ -12,7 +12,7 @@
   "typings": "lib/cjs/index.d.ts",
   "types": "lib/cjs/index.d.ts",
   "dependencies": {
-    "@cycle/run": "4.x",
+    "@cycle/run": "^5.1.0-rc.1",
     "combine-errors": "3.0.x",
     "most": "*",
     "performance-now": "^2.1.0",
@@ -24,20 +24,20 @@
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/dom": "20.4",
-    "@cycle/rxjs-run": "9.2",
+    "@cycle/dom": "^22.0.0-rc.0",
+    "@cycle/rxjs-run": "^10.0.0-rc.1",
     "@types/mocha": "5.2.x",
-    "@types/node": "10.5.x",
-    "budo": "^11.3.2",
+    "@types/node": "10.11.x",
+    "budo": "^11.5.0",
     "garnish": "5.2.x",
     "markdown-doctest": "0.9.x",
     "mocha": "^5.2.0",
     "most": "1.7.x",
-    "rxjs": "6.2.x",
-    "snabbdom-selector": "3.0.x",
-    "ts-node": "^7.0.0",
+    "rxjs": "6.3.x",
+    "snabbdom-selector": "4.0.x",
+    "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
-    "typescript": "2.8.x"
+    "typescript": "3.1.x"
   },
   "publishConfig": {
     "access": "public"
@@ -66,7 +66,7 @@
     "test": "pnpm run test-node && pnpm run test-docs",
     "test-ci": "pnpm run test",
     "test-docs": "markdown-doctest",
-    "postbuild": "tsc rxjs.ts most.ts --declaration --lib DOM,ES5,ES6",
+    "postbuild": "tsc rxjs.ts most.ts --declaration --lib DOM,ES5,ES6 && rm src/*.d.ts && rm src/*.js",
     "prepublishOnly": "pnpm run build && pnpm run test"
   }
 }
