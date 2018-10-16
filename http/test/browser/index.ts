@@ -126,7 +126,7 @@ describe('HTTP Driver in the browser', function() {
     run();
   });
 
-  it('should not have cross-driver race conditions (#592)', function(done) {
+  it('should not have cross-driver race conditions, A (#592)', function(done) {
     this.timeout(10000);
 
     function child(_sources: any, num: any) {
@@ -150,7 +150,7 @@ describe('HTTP Driver in the browser', function() {
     }
 
     function mainHTTPThenDOM(_sources: any) {
-      const sinks$ = interval(500).pipe(
+      const sinks$ = interval(1000).pipe(
         take(6),
         map(i => {
           if (i % 2 === 1) {
@@ -173,8 +173,58 @@ describe('HTTP Driver in the browser', function() {
       };
     }
 
+    const expectedDOMSinks = [
+      /* HTTP then DOM: */ '',
+      'My name is Hello World',
+      '',
+      '',
+    ];
+
+    function domDriver(sink: any) {
+      sink.addListener({
+        next: (s: any) => {
+          assert.strictEqual(s, expectedDOMSinks.shift());
+        },
+        error: (err: any) => {},
+      });
+    }
+
+    // HTTP then DOM:
+    globalRun(mainHTTPThenDOM, {
+      HTTP: makeHTTPDriver(),
+      DOM: domDriver,
+    });
+    setTimeout(() => {
+      assert.strictEqual(expectedDOMSinks.length, 0);
+      done();
+    }, 8500);
+  });
+
+  it('should not have cross-driver race conditions, B (#592)', function(done) {
+    this.timeout(10000);
+
+    function child(_sources: any, num: any) {
+      const vdom$ = _sources.HTTP.select('cat').pipe(
+        mergeAll(),
+        map((res: any) => 'My name is ' + res.text)
+      );
+
+      const request$ =
+        num === 1
+          ? of({
+              category: 'cat',
+              url: uri + '/hello',
+            })
+          : never();
+
+      return {
+        HTTP: request$,
+        DOM: vdom$,
+      };
+    }
+
     function mainDOMThenHTTP(_sources: any) {
-      const sinks$ = interval(500).pipe(
+      const sinks$ = interval(1000).pipe(
         take(6),
         map(i => {
           if (i % 2 === 1) {
@@ -198,10 +248,6 @@ describe('HTTP Driver in the browser', function() {
     }
 
     const expectedDOMSinks = [
-      /* HTTP then DOM: */ '',
-      'My name is Hello World',
-      '',
-      '',
       /* DOM then HTTP: */ '',
       'My name is Hello World',
       '',
@@ -218,23 +264,14 @@ describe('HTTP Driver in the browser', function() {
     }
 
     // HTTP then DOM:
-    globalRun(mainHTTPThenDOM, {
+    globalRun(mainDOMThenHTTP, {
       HTTP: makeHTTPDriver(),
       DOM: domDriver,
     });
     setTimeout(() => {
-      assert.strictEqual(expectedDOMSinks.length, 4);
-
-      // DOM then HTTP:
-      globalRun(mainDOMThenHTTP, {
-        HTTP: makeHTTPDriver(),
-        DOM: domDriver,
-      });
-      setTimeout(() => {
-        assert.strictEqual(expectedDOMSinks.length, 0);
-        done();
-      }, 4000);
-    }, 4000);
+      assert.strictEqual(expectedDOMSinks.length, 0);
+      done();
+    }, 8500);
   });
 
   it('should not remember past responses when selecting', function(done) {
