@@ -1,3 +1,24 @@
+## 22.0.0 (2018-10-17)
+
+* fix(dom): support Typescript 3.1 ([8174c25](https://github.com/cyclejs/cyclejs/commit/8174c25))
+
+
+### BREAKING CHANGE
+
+* If you use JavaScript, there are no breaking changes. If you use
+TypeScript, then you may have to change some imports, only if you are
+using RxJS or Most.js. If you are using RxJS: change
+`import {makeDOMDriver} from '@cycle/dom'` to
+`import {makeDOMDriver} from '@cycle/dom/lib/cjs/rxjs'` and change
+`import {DOMSource} from '@cycle/dom/rxjs-typings'` to
+`import {DOMSource} from '@cycle/dom/lib/cjs/rxjs'`. If you are
+using Most.js: change
+`import {makeDOMDriver} from '@cycle/dom'` to
+`import {makeDOMDriver} from '@cycle/dom/lib/cjs/most'` and change
+`import {DOMSource} from '@cycle/dom/most-typings'` to
+`import {DOMSource} from '@cycle/dom/lib/cjs/most'`.
+
+
 ## 21.1.0 (2018-09-04)
 
 * fix(dom): update snabbdom ([4ae8f80](https://github.com/cyclejs/cyclejs/commit/4ae8f80)), closes [#747](https://github.com/cyclejs/cyclejs/issues/747)
