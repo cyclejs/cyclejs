@@ -1,3 +1,16 @@
+## 8.1.0 (2018-10-17)
+
+* fix(most-run): support TypeScript 3.1 ([b60fa96](https://github.com/cyclejs/cyclejs/commit/b60fa96))
+* refactor(most-run): move most-run tooling to pnpm ([80578f0](https://github.com/cyclejs/cyclejs/commit/80578f0))
+
+
+### BREAKING CHANGE
+
+* If you use JavaScript, there are no breaking changes. If you use
+TypeScript, this package may not work anymore with versions of TS below
+3.1.
+
+
 <a name="8.0.0"></a>
 # 8.0.0 (2017-11-10)
 
