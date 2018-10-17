@@ -1,3 +1,16 @@
+## 4.1.0 (2018-10-17)
+
+* fix(isolate): support TypeScript 3.1 ([3e847bb](https://github.com/cyclejs/cyclejs/commit/3e847bb))
+* refactor(isolate): move isolate tooling to pnpm ([6aea3e7](https://github.com/cyclejs/cyclejs/commit/6aea3e7))
+
+
+### BREAKING CHANGE
+
+* If you use JavaScript, there are no breaking changes. If you use
+TypeScript, this package may not work anymore with versions of TS below
+3.1.
+
+
 ## 4.0.0 (2018-09-26)
 
 

@@ -1,5 +1,5 @@
 dependencies:
-  '@cycle/run': 5.1.0-rc.0
+  '@cycle/run': 5.1.0
   xstream: 11.7.0
 devDependencies:
   '@cycle/rxjs-run': 9.2.0
@@ -24,7 +24,7 @@ packages:
       node: '>=0.12.0'
     resolution:
       integrity: sha512-vVxnTqKKlgasE+we9X2z3og8z5KouO2RMiIgHWkVek+NomsdaeZwfvbutqzm3VToEImaz0DE2Iln9AxtCOVjpQ==
-  /@cycle/run/5.1.0-rc.0:
+  /@cycle/run/5.1.0:
     dependencies:
       quicktask: 1.1.0
       xstream: 11.7.0
@@ -32,7 +32,7 @@ packages:
     engines:
       node: '>=0.12.0'
     resolution:
-      integrity: sha512-puuFZHj0/VYMbG8yINa8oEw3eQpaye+u1NWQSU0OpQX6znMSTCTFM4KSC7kcXdr6ZZmzdHXcF1SY9zdWTi2Riw==
+      integrity: sha512-zBjLl91JbGJt4TVqWnYXKvqgxDDZldjQeF71s6wOiY/Nt0RffaUACg5QkwNoHGLkFalBMp3Kmt+TNNONeA2N9w==
   /@cycle/rxjs-run/9.2.0:
     dependencies:
       '@cycle/run': 4.4.0
@@ -545,7 +545,7 @@ registry: 'https://registry.npmjs.org/'
 shrinkwrapMinorVersion: 9
 shrinkwrapVersion: 3
 specifiers:
-  '@cycle/run': ^5.1.0-rc.0
+  '@cycle/run': ^5.1.0
   '@cycle/rxjs-run': ^9.1.0
   '@types/mocha': 5.2.x
   '@types/node': 10.5.x
