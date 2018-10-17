@@ -1,6 +1,6 @@
 {
   "name": "@cycle/run",
-  "version": "5.1.0-rc.1",
+  "version": "5.1.0",
   "description": "The Cycle.js run() function to use with xstream",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
