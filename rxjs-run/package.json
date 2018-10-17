@@ -1,6 +1,6 @@
 {
   "name": "@cycle/rxjs-run",
-  "version": "10.0.0-rc.1",
+  "version": "10.1.0",
   "description": "The Cycle run() function meant to be used with RxJS v5",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
@@ -30,7 +30,7 @@
   "typings": "lib/cjs/index.d.ts",
   "types": "lib/cjs/index.d.ts",
   "dependencies": {
-    "@cycle/run": "^5.1.0-rc.0",
+    "@cycle/run": "^5.1.0",
     "rxjs": "~6.3.3",
     "symbol-observable": "^1.2.0",
     "xstream": "*"

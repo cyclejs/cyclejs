@@ -1,3 +1,16 @@
+## 10.1.0 (2018-10-17)
+
+* fix(rxjs-run): support TypeScript 3.1 ([8ff936f](https://github.com/cyclejs/cyclejs/commit/8ff936f))
+* fix(rxjs-run): update RxJS to 6.3.x ([8ce36f1](https://github.com/cyclejs/cyclejs/commit/8ce36f1))
+
+
+### BREAKING CHANGE
+
+* If you use JavaScript, there are no breaking changes. If you use
+TypeScript, this package may not work anymore with versions of TS below
+3.1.
+
+
 ## 9.3.0 (2018-09-04)
 
 * refactor(rxjs-run): move rxjs-run tooling to pnpm ([38ad9d6](https://github.com/cyclejs/cyclejs/commit/38ad9d6))
