@@ -27,13 +27,13 @@
   "typings": "lib/cjs/index.d.ts",
   "types": "lib/cjs/index.d.ts",
   "dependencies": {
-    "@cycle/isolate": "^4.1.0-rc.0",
-    "@cycle/run": "^5.1.0-rc.1",
+    "@cycle/isolate": "^4.1.0",
+    "@cycle/run": "^5.1.0",
     "quicktask": "1.1.0",
     "xstream": ">=11"
   },
   "devDependencies": {
-    "@cycle/rxjs-run": "^10.0.0-rc.1",
+    "@cycle/rxjs-run": "^10.0.0",
     "@types/mocha": "5.2.x",
     "@types/node": "10.11.x",
     "@types/sinon": "5.0.x",
