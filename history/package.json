@@ -1,6 +1,6 @@
 {
   "name": "@cycle/history",
-  "version": "6.10.0",
+  "version": "7.0.0",
   "description": "The standard history driver for Cycle.js",
   "main": "lib/cjs/index.js",
   "module": "lib/es6/index.js",
@@ -15,13 +15,13 @@
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
   "homepage": "https://cycle.js.org",
   "dependencies": {
-    "@cycle/run": "^5.1.0-rc.1",
+    "@cycle/run": "^5.1.0",
     "@types/history": "^4.7.1",
     "history": "4.7.x",
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/rxjs-run": "^10.0.0-rc.1",
+    "@cycle/rxjs-run": "^10.0.0",
     "@types/mocha": "^5.2.5",
     "@types/node": "^10.11.7",
     "@types/sinon": "^5.0.5",
