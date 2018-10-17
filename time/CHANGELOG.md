@@ -1,3 +1,17 @@
+## 0.16.0 (2018-10-17)
+
+* fix(time): support TypeScript 3.1 ([0c61222](https://github.com/cyclejs/cyclejs/commit/0c61222))
+* fix(time): update cycle/run to v4 ([fe3175c](https://github.com/cyclejs/cyclejs/commit/fe3175c))
+* test(time): fix time tests ([f365dec](https://github.com/cyclejs/cyclejs/commit/f365dec))
+
+
+### BREAKING CHANGE
+
+* If you use JavaScript, there are no breaking changes. If you use
+TypeScript, this package may not work anymore with versions of TS below
+3.1.
+
+
 <a name="0.15.0"></a>
 # 0.15.0 (2018-07-30)
 
