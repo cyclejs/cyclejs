@@ -1,13 +1,13 @@
 dependencies:
-  '@cycle/run': 5.1.0-rc.1
+  '@cycle/run': 5.1.0
   '@types/superagent': 3.8.4
   most: 1.7.3
   rxjs: 6.3.3
   superagent: 3.8.3
   xstream: 11.7.0
 devDependencies:
-  '@cycle/isolate': 4.1.0-rc.0
-  '@cycle/rxjs-run': 10.0.0-rc.1
+  '@cycle/isolate': 4.1.0
+  '@cycle/rxjs-run': 10.1.0
   '@types/body-parser': 1.17.0
   '@types/cookie-parser': 1.4.1
   '@types/express': 4.16.0
@@ -29,26 +29,26 @@ devDependencies:
   tslint: 5.11.0
   typescript: 3.1.3
 packages:
-  /@cycle/isolate/4.1.0-rc.0:
+  /@cycle/isolate/4.1.0:
     dependencies:
-      '@cycle/run': 5.1.0-rc.1
+      '@cycle/run': 5.1.0
       xstream: 11.7.0
     dev: true
     engines:
       node: '>=0.10.0'
     resolution:
-      integrity: sha512-LY8ryWLc02RVCDQf/3IhImnQ6fSZL1NGZYEVES0VwFR281Nw+wBJZ8p1vayTNAv1saxqJ7HkFwJnC9zUmvGUJQ==
-  /@cycle/run/5.1.0-rc.1:
+      integrity: sha512-nnuBqXZdak4fGeYWQFoXC4zmmTFYhIfArTKCpU5XmIgF4aqD0cQg02QBobczn86EJO7SpIuWUh7l8FF5IL4pNw==
+  /@cycle/run/5.1.0:
     dependencies:
       quicktask: 1.1.0
       xstream: 11.7.0
     engines:
       node: '>=0.12.0'
     resolution:
-      integrity: sha512-nw9DME0w/V35Z9gi+44TR4+6w5KIlv5rC42IBNlIkEfJ4WWmEJoLUn+Kmdqd5SFbo+8rxX2+rylwwB7+n4cjIQ==
-  /@cycle/rxjs-run/10.0.0-rc.1:
+      integrity: sha512-zBjLl91JbGJt4TVqWnYXKvqgxDDZldjQeF71s6wOiY/Nt0RffaUACg5QkwNoHGLkFalBMp3Kmt+TNNONeA2N9w==
+  /@cycle/rxjs-run/10.1.0:
     dependencies:
-      '@cycle/run': 5.1.0-rc.1
+      '@cycle/run': 5.1.0
       rxjs: 6.3.3
       symbol-observable: 1.2.0
       xstream: 11.7.0
@@ -56,7 +56,7 @@ packages:
     engines:
       node: '>=0.12.0'
     resolution:
-      integrity: sha512-tpMYMuTOIQ1N2fvQT1UHYOg8GyiBmNJJGQFtBmRy3EDq17C4qh4iKRZYSG1QWKwbowXg1eje0uHSZL0bh21esw==
+      integrity: sha512-6FtqF8dN6pTHB9Y4/2J95bDPQ9/ocBo2e0EJiKAiU153667Sgig29fRK/1nMVEDQdA2c3n5lRvXSqquc0Iv/Tw==
   /@most/multicast/1.3.0:
     dependencies:
       '@most/prelude': 1.7.2
@@ -3790,9 +3790,9 @@ registry: 'https://registry.npmjs.org/'
 shrinkwrapMinorVersion: 9
 shrinkwrapVersion: 3
 specifiers:
-  '@cycle/isolate': ^4.1.0-rc.0
-  '@cycle/run': ^5.1.0-rc.1
-  '@cycle/rxjs-run': ^10.0.0-rc.1
+  '@cycle/isolate': ^4.1.0
+  '@cycle/run': ^5.1.0
+  '@cycle/rxjs-run': ^10.0.0
   '@types/body-parser': 1.17.x
   '@types/cookie-parser': 1.4.x
   '@types/express': 4.16.x

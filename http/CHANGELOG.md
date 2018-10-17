@@ -1,3 +1,25 @@
+## 15.0.0 (2018-10-17)
+
+* chore(http): split a test in two, reduce CI flakiness ([c231235](https://github.com/cyclejs/cyclejs/commit/c231235))
+* fix(http): support Typescript 3.1 ([d51f882](https://github.com/cyclejs/cyclejs/commit/d51f882))
+
+
+### BREAKING CHANGE
+
+* If you use JavaScript, there are no breaking changes. If you use
+TypeScript, then you may have to change some imports, only if you are
+using RxJS or Most.js. If you are using RxJS: change
+`import {makeHTTPDriver} from '@cycle/http'` to
+`import {makeHTTPDriver} from '@cycle/http/lib/cjs/rxjs'` and change
+`import {HTTPSource} from '@cycle/http/rxjs-typings'` to
+`import {HTTPSource} from '@cycle/http/lib/cjs/rxjs'`. If you are
+using Most.js: change
+`import {makeHTTPDriver} from '@cycle/http'` to
+`import {makeHTTPDriver} from '@cycle/http/lib/cjs/most'` and change
+`import {HTTPSource} from '@cycle/http/most-typings'` to
+`import {HTTPSource} from '@cycle/http/lib/cjs/most'`.
+
+
 ## 14.10.0 (2018-08-21)
 
 * fix(http): update superagent to 3.8.3 ([fe3c5ce](https://github.com/cyclejs/cyclejs/commit/fe3c5ce))

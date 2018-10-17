@@ -1,6 +1,6 @@
 {
   "name": "@cycle/http",
-  "version": "14.10.0",
+  "version": "15.0.0",
   "description": "A Cycle.js Driver for making HTTP requests",
   "main": "lib/cjs/index.js",
   "module": "lib/es6/index.js",
@@ -8,7 +8,7 @@
   "license": "MIT",
   "repository": "https://github.com/cyclejs/cyclejs/tree/master/http",
   "dependencies": {
-    "@cycle/run": "^5.1.0-rc.1",
+    "@cycle/run": "^5.1.0",
     "@types/superagent": "3.8.4",
     "most": "^1.7.3",
     "rxjs": "^6.3.3",
@@ -31,8 +31,8 @@
     "prepublishOnly": "pnpm run build && pnpm run test"
   },
   "devDependencies": {
-    "@cycle/isolate": "^4.1.0-rc.0",
-    "@cycle/rxjs-run": "^10.0.0-rc.1",
+    "@cycle/isolate": "^4.1.0",
+    "@cycle/rxjs-run": "^10.0.0",
     "@types/body-parser": "1.17.x",
     "@types/cookie-parser": "1.4.x",
     "@types/express": "4.16.x",
