@@ -1,3 +1,16 @@
+## 7.0.0 (2018-10-17)
+
+* fix(history): support TypeScript 3.1 ([4be72b2](https://github.com/cyclejs/cyclejs/commit/4be72b2))
+* refactor(history): move history tests to browserstack, run skipped tests ([8a1d5f6](https://github.com/cyclejs/cyclejs/commit/8a1d5f6))
+
+
+### BREAKING CHANGE
+
+* If you use JavaScript, there are no breaking changes. If you use
+TypeScript, this package may not work anymore with versions of TS below
+3.1.
+
+
 <a name="6.10.0"></a>
 # 6.10.0 (2017-11-27)
 
