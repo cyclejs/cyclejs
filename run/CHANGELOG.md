@@ -1,3 +1,16 @@
+## 5.1.0 (2018-10-17)
+
+* fix(run): support TypeScript 3.1 ([a90cd63](https://github.com/cyclejs/cyclejs/commit/a90cd63)), closes [#815](https://github.com/cyclejs/cyclejs/issues/815)
+* refactor(run): move run tooling to pnpm ([0b2eebd](https://github.com/cyclejs/cyclejs/commit/0b2eebd))
+
+
+### BREAKING CHANGE
+
+* If you use JavaScript, there are no breaking changes. If you use
+TypeScript, this package may not work anymore with versions of TS below
+3.1.
+
+
 ## 5.0.0 (2018-09-26)
 
 * fix(run): support TypeScript 3.0 ([21245dc](https://github.com/cyclejs/cyclejs/commit/21245dc)), closes [#815](https://github.com/cyclejs/cyclejs/issues/815)
