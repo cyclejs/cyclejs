@@ -1,3 +1,20 @@
+## 3.0.0 (2018-10-17)
+
+* fix(html): error handling for makeHtmlDriver method (#714) ([fd02418](https://github.com/cyclejs/cyclejs/commit/fd02418)), closes [#714](https://github.com/cyclejs/cyclejs/issues/714) [#710](https://github.com/cyclejs/cyclejs/issues/710)
+* fix(html): update cycle/dom to 21, update snabbdom ([d7a5f8e](https://github.com/cyclejs/cyclejs/commit/d7a5f8e))
+* fix(html): update dependencies, move to pnpm ([11f3068](https://github.com/cyclejs/cyclejs/commit/11f3068))
+* fix(html): upgrade Typescript to 3.1 ([a4f1212](https://github.com/cyclejs/cyclejs/commit/a4f1212))
+
+
+### BREAKING CHANGE
+
+* If you use JavaScript, there are no breaking changes. If you use
+TypeScript, this package may not work anymore with versions of TS below
+3.1.
+* Snabbdom got updated to version 0.7.0 and html inside `text` is now
+properly escaped. See https://github.com/snabbdom/snabbdom-to-html/releases for detailed information
+
+
 <a name="2.4.0"></a>
 # 2.4.0 (2017-10-26)
 
