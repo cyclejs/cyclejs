@@ -1,5 +1,6 @@
 <!doctype html>
 <html>
+
 <head>
   <meta charset='utf-8'>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -228,7 +229,7 @@ sock.send('Hello world');
 
 **How do we build a driver for `Sock`?** We start by identifying the effects. The *write* effect is `sock.send(msg)` and the *read* effect is the listener for received messages. Our `sockDriver(sink)` should take `sink` as instructions to perform the `send(msg)` calls. The output from `sockDriver()` should be `source`, containing all received messages.
 
-Since both input and output should be streams, it's easy to see `sink` in `sockDriver(sink)` should be an stream of outgoing messages to the peer. And conversely, the source should be an stream of incoming messages. This is a draft of our driver function:
+Since both input and output should be streams, it's easy to see `sink` in `sockDriver(sink)` should be an stream of outgoing messages to the peer. And conversely, the source should be a stream of incoming messages. This is a draft of our driver function:
 
 ```javascript
 import {adapt} from '@cycle/run/lib/adapt';
@@ -320,7 +321,7 @@ As a framework, it cannot be compared to monoliths which have ruled web developm
   <!-- Initializer -->
   <script>
     Flatdoc.run({
-      fetcher: function(callback) {
+      fetcher: function (callback) {
         callback(null, document.getElementById('markdown').innerHTML);
       },
       highlight: function (code, value) {
@@ -330,13 +331,14 @@ As a framework, it cannot be compared to monoliths which have ruled web developm
   </script>
 
 </head>
+
 <body role='flatdoc' class="no-literate">
 
-
+  
 
   <div class='header'>
     <div class='left'>
-      <h1><a href="/"><img class="logo" src="img/cyclejs_logo.svg" >Cycle.js</a></h1>
+      <h1><a href="/"><img class="logo" src="img/cyclejs_logo.svg">Cycle.js</a></h1>
       <ul>
         <li><a href='getting-started.html'>Guide</a></li>
         <li><a href='api/index.html'>API</a></li>
@@ -347,38 +349,39 @@ As a framework, it cannot be compared to monoliths which have ruled web developm
     </div>
     <div class='right'>
       <!-- GitHub buttons: see https://ghbtns.com -->
-      <iframe src="https://ghbtns.com/github-btn.html?user=cyclejs&amp;repo=cyclejs&amp;type=watch&amp;count=true" allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
+      <iframe src="https://ghbtns.com/github-btn.html?user=cyclejs&amp;repo=cyclejs&amp;type=watch&amp;count=true"
+        allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
     </div>
   </div>
 
   <div class='content-root'>
     <div class='menubar'>
       <div class='menu section'>
-
+        
         <ul>
-  
-            <li><a href="getting-started.html" class="level-1 out-link">Getting started</a></li>
-  
-            <li><a href="dialogue.html" class="level-1 out-link">Dialogue abstraction</a></li>
-  
-            <li><a href="streams.html" class="level-1 out-link">Streams</a></li>
-  
-            <li><a href="basic-examples.html" class="level-1 out-link">Basic examples</a></li>
-  
-            <li><a href="model-view-intent.html" class="level-1 out-link">Model-View-Intent</a></li>
-  
-            <li><a href="components.html" class="level-1 out-link">Components</a></li>
-  
+          
+          <li><a href="getting-started.html" class="level-1 out-link">Getting started</a></li>
+          
+          <li><a href="dialogue.html" class="level-1 out-link">Dialogue abstraction</a></li>
+          
+          <li><a href="streams.html" class="level-1 out-link">Streams</a></li>
+          
+          <li><a href="basic-examples.html" class="level-1 out-link">Basic examples</a></li>
+          
+          <li><a href="model-view-intent.html" class="level-1 out-link">Model-View-Intent</a></li>
+          
+          <li><a href="components.html" class="level-1 out-link">Components</a></li>
+          
         </ul>
-
+        
         <div role='flatdoc-menu'></div>
-
+        
       </div>
     </div>
     <div role='flatdoc-content' class='content'></div>
-
+    
   </div>
-
+  
 
   <script>
     ((window.gitter = {}).chat = {}).options = {
@@ -389,4 +392,5 @@ As a framework, it cannot be compared to monoliths which have ruled web developm
   <script src='//cdn.jsdelivr.net/docsearch.js/2/docsearch.min.js'></script>
   <script src='docsearch.js'></script>
 </body>
+
 </html>
