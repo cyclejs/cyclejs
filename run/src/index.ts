@@ -33,6 +33,8 @@ export {
   Main,
   CycleProgram,
   Engine,
+  WidenStream,
+  GetValidInputs,
 } from './types';
 
 /**
