@@ -2,7 +2,7 @@ import {Stream} from 'xstream';
 
 declare var window: any;
 
-function getGlobal(): any {
+function getGlobal(this: any): any {
   let globalObj: any;
   if (typeof window !== 'undefined') {
     globalObj = window;

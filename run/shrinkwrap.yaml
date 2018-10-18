@@ -3,32 +3,44 @@ dependencies:
   xstream: 11.7.0
 devDependencies:
   '@types/mocha': 5.2.5
-  '@types/node': 10.5.7
+  '@types/node': 10.12.11
   '@types/sinon': 5.0.1
   mocha: 5.2.0
-  sinon: 6.1.4
-  ts-node: 7.0.0
+  sinon: 7.1.1
+  ts-node: 7.0.1
   tslint: 5.11.0
-  typescript: 3.0.1
+  typescript: 3.2.1
 packages:
-  /@sinonjs/formatio/2.0.0:
+  /@sinonjs/commons/1.3.0:
     dependencies:
-      samsam: 1.3.0
+      type-detect: 4.0.8
     dev: true
     resolution:
-      integrity: sha512-ls6CAMA6/5gG+O/IdsBcblvnd8qcO/l1TYoNeAzp3wcISOxlPXQEus0mLcdwazEkWjaBdaJ3TaxmNgCLWwvWzg==
-  /@sinonjs/samsam/2.0.0:
+      integrity: sha512-j4ZwhaHmwsCb4DlDOIWnI5YyKDNMoNThsmwEpfHx6a1EpsGZ9qYLxP++LMlmBRjtGptGHFsGItJ768snllFWpA==
+  /@sinonjs/formatio/3.0.0:
+    dependencies:
+      '@sinonjs/samsam': 2.1.0
     dev: true
     resolution:
-      integrity: sha512-D7VxhADdZbDJ0HjUTMnSQ5xIGb4H2yWpg8k9Sf1T08zfFiQYlaxM8LZydpR4FQ2E6LZJX8IlabNZ5io4vdChwg==
+      integrity: sha512-vdjoYLDptCgvtJs57ULshak3iJe4NW3sJ3g36xVDGff5AE8P30S6A093EIEPjdi2noGhfuNOEkbxt3J3awFW1w==
+  /@sinonjs/samsam/2.1.0:
+    dependencies:
+      array-from: 2.1.1
+    dev: true
+    resolution:
+      integrity: sha512-5x2kFgJYupaF1ns/RmharQ90lQkd2ELS8A9X0ymkAAdemYHGtI2KiUHG8nX2WU0T1qgnOU5YMqnBM2V7NUanNw==
+  /@sinonjs/samsam/2.1.3:
+    dev: true
+    resolution:
+      integrity: sha512-8zNeBkSKhU9a5cRNbpCKau2WWPfan+Q2zDlcXvXyhn9EsMqgYs4qzo0XHNVlXC6ABQL8fT6nV+zzo5RTHJzyXw==
   /@types/mocha/5.2.5:
     dev: true
     resolution:
       integrity: sha512-lAVp+Kj54ui/vLUFxsJTMtWvZraZxum3w3Nwkble2dNuV5VnPA+Mi2oGX9XYJAaIvZi3tn3cbjS/qcJXRb6Bww==
-  /@types/node/10.5.7:
+  /@types/node/10.12.11:
     dev: true
     resolution:
-      integrity: sha512-VkKcfuitP+Nc/TaTFH0B8qNmn+6NbI6crLkQonbedViVz7O2w8QV/GERPlkJ4bg42VGHiEWa31CoTOPs1q6z1w==
+      integrity: sha512-3iIOhNiPGTdcUNVCv9e5G7GotfvJJe2pc9w2UgDXlUwnxSZ3RgcUocIU+xYm+rTU54jIKih998QE4dMOyMN1NQ==
   /@types/sinon/5.0.1:
     dev: true
     resolution:
@@ -59,6 +71,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==
+  /array-from/2.1.1:
+    dev: true
+    resolution:
+      integrity: sha1-z+nYwmYoudxa7MYqn12PHzUsEZU=
   /arrify/1.0.1:
     dev: true
     engines:
@@ -240,22 +256,26 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-PIt2cnwmPfL4hKNwqeiuz4bKfnzHTBv6HyVgjahA6mPLwPDzjDWrplJBMjHUFxku/N3FlmrbyPclad+I+4mJ3A==
-  /just-extend/1.1.27:
+  /just-extend/3.0.0:
     dev: true
     resolution:
-      integrity: sha512-mJVp13Ix6gFo3SBAy9U/kL+oeZqzlYYYLQBwXVBlVzIsZwBqGREnOro24oC/8s8aox+rJhtZ2DiQof++IrkA+g==
+      integrity: sha512-Fu3T6pKBuxjWT/p4DkqGHFRsysc8OauWr4ZRTY9dIx07Y9O0RkoR5jcv28aeD1vuAwhm3nLkDurwLXoALp4DpQ==
   /lodash.get/4.4.2:
     dev: true
     resolution:
       integrity: sha1-LRd/ZS+jHpObRDjVNBSZ36OCXpk=
-  /lolex/2.7.1:
+  /lolex/2.7.5:
     dev: true
     resolution:
-      integrity: sha512-Oo2Si3RMKV3+lV5MsSWplDQFoTClz/24S0MMHYcgGWWmFXr6TMlqcqk/l1GtH+d5wLBwNRiqGnwDRMirtFalJw==
-  /make-error/1.3.4:
+      integrity: sha512-l9x0+1offnKKIzYVjyXU2SiwhXDLekRzKyhnbyldPHvC7BvLPVpdNUNR2KeMAiCN2D/kLNttZgQD5WjSxuBx3Q==
+  /lolex/3.0.0:
     dev: true
     resolution:
-      integrity: sha512-0Dab5btKVPhibSalc9QGXb559ED7G7iLjFXBaj9Wq8O3vorueR5K5jaE3hkG6ZQINyhA/JgG6Qk4qdFQjsYV6g==
+      integrity: sha512-hcnW80h3j2lbUfFdMArd5UPA/vxZJ+G8vobd+wg3nVEQA0EigStbYcrG030FJxL6xiDDPEkoMatV9xIh5OecQQ==
+  /make-error/1.3.5:
+    dev: true
+    resolution:
+      integrity: sha512-c3sIjNUow0+8swNwVpqoH4YCShKNFkMaw6oH1mNS2haDZQqkeZFlHS3dhoeEbKKmJB4vXpJucU6oH75aDYeE9g==
   /minimatch/3.0.4:
     dependencies:
       brace-expansion: 1.1.11
@@ -266,10 +286,12 @@ packages:
     dev: true
     resolution:
       integrity: sha1-hX/Kv8M5fSYluCKCYuhqp6ARsF0=
+      tarball: 'http://registry.npmjs.org/minimist/-/minimist-0.0.8.tgz'
   /minimist/1.2.0:
     dev: true
     resolution:
       integrity: sha1-o1AIsg9BOD7sH7kU9M1d95omQoQ=
+      tarball: 'http://registry.npmjs.org/minimist/-/minimist-1.2.0.tgz'
   /mkdirp/0.5.1:
     dependencies:
       minimist: 0.0.8
@@ -277,6 +299,7 @@ packages:
     hasBin: true
     resolution:
       integrity: sha1-MAV0OOrGz3+MR2fzhkjWaX11yQM=
+      tarball: 'http://registry.npmjs.org/mkdirp/-/mkdirp-0.5.1.tgz'
   /mocha/5.2.0:
     dependencies:
       browser-stdout: 1.3.1
@@ -300,16 +323,16 @@ packages:
     dev: true
     resolution:
       integrity: sha1-VgiurfwAvmwpAd9fmGF4jeDVl8g=
-  /nise/1.4.2:
+  /nise/1.4.6:
     dependencies:
-      '@sinonjs/formatio': 2.0.0
-      just-extend: 1.1.27
-      lolex: 2.7.1
+      '@sinonjs/formatio': 3.0.0
+      just-extend: 3.0.0
+      lolex: 2.7.5
       path-to-regexp: 1.7.0
       text-encoding: 0.6.4
     dev: true
     resolution:
-      integrity: sha512-BxH/DxoQYYdhKgVAfqVy4pzXRZELHOIewzoesxpjYvpU+7YOalQhGNPf7wAx8pLrTNPrHRDlLOkAl8UI0ZpXjw==
+      integrity: sha512-1GedetLKzmqmgwabuMSqPsT7oumdR77SBpDfNNJhADRIeA3LN/2RVqR4fFqwvzhAqcTef6PPCzQwITE/YQ8S8A==
   /once/1.4.0:
     dependencies:
       wrappy: 1.0.2
@@ -342,35 +365,32 @@ packages:
     dev: true
     resolution:
       integrity: sha512-AicPrAC7Qu1JxPCZ9ZgCZlY35QgFnNqc+0LtbRNxnVw4TXvjQ72wnuL9JQcEBgXkI9JM8MsT9kaQoHcpCRJOYA==
-  /samsam/1.3.0:
-    dev: true
-    resolution:
-      integrity: sha512-1HwIYD/8UlOtFS3QO3w7ey+SdSDFE4HRNLZoZRYVQefrOY3l17epswImeB1ijgJFQJodIaHcwkp3r/myBjFVbg==
   /semver/5.5.0:
     dev: true
     hasBin: true
     resolution:
       integrity: sha512-4SJ3dm0WAwWy/NVeioZh5AntkdJoWKxHxcmyP622fOkgHa4z3R0TdBJICINyaSDE6uNwVc8gZr+ZinwZAH4xIA==
-  /sinon/6.1.4:
+  /sinon/7.1.1:
     dependencies:
-      '@sinonjs/formatio': 2.0.0
-      '@sinonjs/samsam': 2.0.0
+      '@sinonjs/commons': 1.3.0
+      '@sinonjs/formatio': 3.0.0
+      '@sinonjs/samsam': 2.1.3
       diff: 3.5.0
       lodash.get: 4.4.2
-      lolex: 2.7.1
-      nise: 1.4.2
-      supports-color: 5.4.0
+      lolex: 3.0.0
+      nise: 1.4.6
+      supports-color: 5.5.0
       type-detect: 4.0.8
     dev: true
     resolution:
-      integrity: sha512-NFEts+4D4jp2sBjL94fQpZk5o73kzn/g58+I9Dp15i9vsnT4Lk1UEyUf2jACODWLG6Pz/llF0sArYUw47Aarmg==
-  /source-map-support/0.5.6:
+      integrity: sha512-iYagtjLVt1vN3zZY7D8oH7dkjNJEjLjyuzy8daX5+3bbQl8gaohrheB9VfH1O3L6LKuue5WTJvFluHiuZ9y3nQ==
+  /source-map-support/0.5.9:
     dependencies:
       buffer-from: 1.1.1
       source-map: 0.6.1
     dev: true
     resolution:
-      integrity: sha512-N4KXEz7jcKqPf2b2vZF11lQIz9W5ZMuUcIOGj243lduidkf2fjkVKJS9vNxVWn3u/uxX38AcE8U9nnH9FPcq+g==
+      integrity: sha512-gR6Rw4MvUlYy83vP0vxoVNzM6t8MUXqNuRsuBmBHQDu1Fh6X015FrLdgoDKcNdkwGubozq0P4N0Q37UyFVr1EA==
   /source-map/0.6.1:
     dev: true
     engines:
@@ -403,6 +423,14 @@ packages:
       node: '>=4'
     resolution:
       integrity: sha512-zjaXglF5nnWpsq470jSv6P9DwPvgLkuapYmfDm3JWOm0vkNTVF2tI4UrN2r6jH1qM/uc/WtxYY1hYoA2dOKj5w==
+  /supports-color/5.5.0:
+    dependencies:
+      has-flag: 3.0.0
+    dev: true
+    engines:
+      node: '>=4'
+    resolution:
+      integrity: sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==
   /symbol-observable/1.2.0:
     dev: false
     engines:
@@ -410,25 +438,27 @@ packages:
     resolution:
       integrity: sha512-e900nM8RRtGhlV36KGEU9k65K3mPb1WV70OdjfxlG2EAuM1noi/E/BaW/uMhL7bPEssK8QV57vN3esixjUvcXQ==
   /text-encoding/0.6.4:
+    deprecated: no longer maintained
     dev: true
     resolution:
       integrity: sha1-45mpgiV6J22uQou5KEXLcb3CbRk=
-  /ts-node/7.0.0:
+      tarball: 'http://registry.npmjs.org/text-encoding/-/text-encoding-0.6.4.tgz'
+  /ts-node/7.0.1:
     dependencies:
       arrify: 1.0.1
       buffer-from: 1.1.1
       diff: 3.5.0
-      make-error: 1.3.4
+      make-error: 1.3.5
       minimist: 1.2.0
       mkdirp: 0.5.1
-      source-map-support: 0.5.6
+      source-map-support: 0.5.9
       yn: 2.0.0
     dev: true
     engines:
       node: '>=4.2.0'
     hasBin: true
     resolution:
-      integrity: sha512-klJsfswHP0FuOLsvBZ/zzCfUvakOSSxds78mVeK7I+qP76YWtxf16hEZsp3U+b0kIo82R5UatGFeblYMqabb2Q==
+      integrity: sha512-BVwVbPJRspzNh2yfslyT1PSbl5uIk03EZlb493RKHN4qej/D06n1cEhjlOJG69oFsE7OT8XjpTUcYf6pKTLMhw==
   /tslib/1.9.3:
     dev: true
     resolution:
@@ -469,13 +499,13 @@ packages:
       node: '>=4'
     resolution:
       integrity: sha512-0fr/mIH1dlO+x7TlcMy+bIDqKPsw/70tVyeHW787goQjhmqaZe10uwLujubK9q9Lg6Fiho1KUKDYz0Z7k7g5/g==
-  /typescript/3.0.1:
+  /typescript/3.2.1:
     dev: true
     engines:
       node: '>=4.2.0'
     hasBin: true
     resolution:
-      integrity: sha512-zQIMOmC+372pC/CCVLqnQ0zSBiY7HHodU7mpQdjiZddek4GMj31I3dUJ7gAs9o65X7mnRma6OokOkc6f9jjfBg==
+      integrity: sha512-jw7P2z/h6aPT4AENXDGjcfHTu5CSqzsbZc6YlUIebTyBAq8XaKp78x7VcSh30xwSCcsu5irZkYZUSFP1MrAMbg==
   /wrappy/1.0.2:
     dev: true
     resolution:
@@ -497,12 +527,12 @@ shrinkwrapMinorVersion: 9
 shrinkwrapVersion: 3
 specifiers:
   '@types/mocha': 5.2.x
-  '@types/node': 10.5.x
+  '@types/node': 10.12.x
   '@types/sinon': 5.0.x
   mocha: ^5.2.0
   quicktask: 1.1.0
-  sinon: ^6.1.4
-  ts-node: ^7.0.0
+  sinon: ^7.1.1
+  ts-node: ^7.0.1
   tslint: ^5.11.0
-  typescript: 3.0.x
+  typescript: 3.2.x
   xstream: 10.x || 11.x

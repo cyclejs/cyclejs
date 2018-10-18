@@ -1,6 +1,6 @@
 {
   "name": "@cycle/run",
-  "version": "5.1.0",
+  "version": "5.2.0-rc.4",
   "description": "The Cycle.js run() function to use with xstream",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
@@ -35,13 +35,13 @@
   },
   "devDependencies": {
     "@types/mocha": "5.2.x",
-    "@types/node": "10.5.x",
+    "@types/node": "10.12.x",
     "@types/sinon": "5.0.x",
     "mocha": "^5.2.0",
-    "sinon": "^6.1.4",
-    "ts-node": "^7.0.0",
+    "sinon": "^7.1.1",
+    "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
-    "typescript": "3.0.x",
+    "typescript": "3.2.x",
     "xstream": "11.x"
   },
   "engines": {

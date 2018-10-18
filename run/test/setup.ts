@@ -29,6 +29,18 @@ describe('setup', function() {
     }, /Second argument given to Cycle must be an object with at least one/i);
   });
 
+  it('should allow to have a driver that takes a union as input', function() {
+    function app(so: {drv: Stream<string>}) {
+      return {
+        drv: xs.of('foo'),
+      };
+    }
+
+    const {sinks, sources} = setup(app, {
+      drv: (s: Stream<string | number>) => xs.of('foo'),
+    });
+  });
+
   it('should allow to not use all sources in main', function() {
     function app(so: {first: Stream<string>}) {
       return {
