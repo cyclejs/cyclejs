@@ -1,6 +1,6 @@
 // tslint:disable:max-file-line-count
 import {h} from 'snabbdom/h';
-import {VNode} from 'snabbdom/vnode';
+import {VNode, VNodeData} from 'snabbdom/vnode';
 
 function isValidString(param: any): boolean {
   return typeof param === 'string' && param.length > 0;
@@ -241,8 +241,20 @@ TAG_NAMES.forEach(n => {
 });
 export default (exported as any) as HyperScriptHelpers;
 
+export type Children = Array<VNode | string | null>;
+export type Properties = any; //VNodeData // does not work yet, because of https://github.com/snabbdom/snabbdom/pull/325
 export interface HyperScriptHelperFn {
-  (selector?: any, properties?: any, children?: any): VNode;
+  (): VNode;
+  (textOrSelector: string): VNode;
+  (children: Children): VNode;
+  (properties: Properties): VNode;
+  (selector: string, children: Children): VNode;
+  (selector: string, text: string): VNode;
+  (selector: string, properties: Properties): VNode;
+  (properties: Properties, children: Children): VNode;
+  (properties: Properties, text: string): VNode;
+  (selector: string, properties: Properties, text: string): VNode;
+  (selector: string, properties: Properties, children: Children): VNode;
 }
 
 export interface SVGHelperFn extends HyperScriptHelperFn {
