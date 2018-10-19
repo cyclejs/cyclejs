@@ -16,7 +16,6 @@
     "no-string-throw": true,
     "no-string-literal": true,
     "no-switch-case-fall-through": true,
-    "unified-signatures": true,
     "no-import-side-effect": true,
     "no-unnecessary-callback-wrapper": true,
     "no-invalid-template-strings": true,
