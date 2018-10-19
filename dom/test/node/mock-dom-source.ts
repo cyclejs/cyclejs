@@ -2,7 +2,7 @@
 import 'symbol-observable';
 import * as assert from 'assert';
 import {Observable, of, from, combineLatest} from 'rxjs';
-import {take, skip} from 'rxjs/operators';
+import {take, skip, map} from 'rxjs/operators';
 import {setup} from '@cycle/rxjs-run';
 import {setAdapt} from '@cycle/run/lib/adapt';
 import {
@@ -280,16 +280,14 @@ describe('isolation on MockedDOMSource', function() {
 
   it('should prevent parent from DOM.selecting() inside the isolation', function(done) {
     function app(_sources: {DOM: MockedDOMSource}): any {
+      const child$ = _sources.DOM.isolateSink(
+        of(div('.foo', [h4('.bar', 'Wrong')])),
+        'ISOLATION'
+      );
       return {
-        DOM: of(
-          h3('.top-most', [
-            _sources.DOM.isolateSink(
-              of(div('.foo', [h4('.bar', 'Wrong')])),
-              'ISOLATION'
-            ),
-            h2('.bar', 'Correct'),
-          ])
-        ),
+        DOM: map((child: any) =>
+          h3('.top-most', [child, h2('.bar', 'Correct')])
+        )(child$),
       };
     }
 
