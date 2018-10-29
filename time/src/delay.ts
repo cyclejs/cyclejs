@@ -29,7 +29,8 @@ function makeDelay(createOperator: () => OperatorArgs<any>) {
   const {schedule, currentTime} = createOperator();
 
   return function delay(delayTime: number) {
-    return function delayOperator<T>(stream: Stream<T>): Stream<T> {
+    return function delayOperator<T>(inputStream: Stream<T>): Stream<T> {
+      const stream = xs.fromObservable(inputStream);
       const producer = {
         start(listener: Listener<T>) {
           const delayListener = makeDelayListener<T>(
@@ -39,10 +40,12 @@ function makeDelay(createOperator: () => OperatorArgs<any>) {
             listener
           );
 
-          xs.fromObservable(stream).addListener(delayListener);
+          stream.addListener(delayListener);
         },
 
-        stop() {},
+        stop() {
+          stream.shamefullySendComplete();
+        },
       };
 
       return adapt(xs.create<T>(producer));

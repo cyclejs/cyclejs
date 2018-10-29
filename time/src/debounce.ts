@@ -26,10 +26,16 @@ function makeDebounceListener<T>(
     },
 
     error(e: any) {
+      if (state.scheduledEntry) {
+        state.scheduledEntry.cancelled = true;
+      }
       listener.error(e);
     },
 
     complete() {
+      if (state.scheduledEntry) {
+        state.scheduledEntry.cancelled = true;
+      }
       listener.complete();
     },
   };
@@ -39,8 +45,9 @@ function makeDebounce(createOperator: () => OperatorArgs<any>) {
   const {schedule, currentTime} = createOperator();
 
   return function debounce(debounceInterval: number) {
-    return function debounceOperator<T>(stream: Stream<T>): Stream<T> {
+    return function debounceOperator<T>(inputStream: Stream<T>): Stream<T> {
       const state = {scheduledEntry: null};
+      const stream = xs.fromObservable(inputStream);
 
       const debouncedStream = xs.create<T>({
         start(listener: Listener<T>) {
@@ -52,11 +59,12 @@ function makeDebounce(createOperator: () => OperatorArgs<any>) {
             state
           );
 
-          xs.fromObservable(stream).addListener(debounceListener);
+          stream.addListener(debounceListener);
         },
 
-        // TODO - maybe cancel the scheduled event?
-        stop() {},
+        stop() {
+          stream.shamefullySendComplete();
+        },
       });
 
       return adapt(debouncedStream);
