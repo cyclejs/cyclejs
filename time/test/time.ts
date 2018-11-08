@@ -52,7 +52,7 @@ function map(stream: any, f: any) {
 
 function testUnsubscription(Time: TimeSource, operator: any, done: Mocha.Done) {
   const PERIOD = 20;
-  const taps: Array<number> = []; // tslint:disable-line
+  const taps: Array<number> = [];
   const custom = adapt(
     xs.create({
       start: listener => {
