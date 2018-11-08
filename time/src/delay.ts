@@ -31,9 +31,11 @@ function makeDelay(createOperator: () => OperatorArgs<any>) {
   return function delay(delayTime: number) {
     return function delayOperator<T>(inputStream: Stream<T>): Stream<T> {
       const stream = xs.fromObservable(inputStream);
+      let delayListener: any = null;
+
       const producer = {
         start(listener: Listener<T>) {
-          const delayListener = makeDelayListener<T>(
+          delayListener = makeDelayListener<T>(
             schedule,
             currentTime,
             delayTime,
@@ -44,7 +46,9 @@ function makeDelay(createOperator: () => OperatorArgs<any>) {
         },
 
         stop() {
-          stream.shamefullySendComplete();
+          if (delayListener) {
+            stream.removeListener(delayListener);
+          }
         },
       };
 

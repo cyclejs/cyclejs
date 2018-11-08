@@ -43,10 +43,11 @@ function makeThrottle(createOperator: () => OperatorArgs<any>) {
     return function throttleOperator<T>(inputStream: Stream<T>): Stream<T> {
       const state = {lastEventTime: -Infinity}; // so that the first event is always scheduled
       const stream = xs.fromObservable(inputStream);
+      let throttleListener: any = null;
 
       const throttledStream = xs.create<T>({
         start(listener) {
-          const throttleListener = makeThrottleListener<T>(
+          throttleListener = makeThrottleListener<T>(
             schedule,
             currentTime,
             period,
@@ -58,7 +59,9 @@ function makeThrottle(createOperator: () => OperatorArgs<any>) {
         },
 
         stop() {
-          stream.shamefullySendComplete();
+          if (throttleListener) {
+            stream.removeListener(throttleListener);
+          }
         },
       });
 

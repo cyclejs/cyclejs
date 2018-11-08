@@ -48,10 +48,11 @@ function makeDebounce(createOperator: () => OperatorArgs<any>) {
     return function debounceOperator<T>(inputStream: Stream<T>): Stream<T> {
       const state = {scheduledEntry: null};
       const stream = xs.fromObservable(inputStream);
+      let debounceListener: any = null;
 
       const debouncedStream = xs.create<T>({
         start(listener: Listener<T>) {
-          const debounceListener = makeDebounceListener<T>(
+          debounceListener = makeDebounceListener<T>(
             schedule,
             currentTime,
             debounceInterval,
@@ -63,7 +64,9 @@ function makeDebounce(createOperator: () => OperatorArgs<any>) {
         },
 
         stop() {
-          stream.shamefullySendComplete();
+          if (debounceListener) {
+            stream.removeListener(debounceListener);
+          }
         },
       });
 
