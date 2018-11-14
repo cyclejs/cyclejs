@@ -7,8 +7,10 @@ function makeThrottleAnimation(
   schedule: any,
   currentTime: () => number
 ) {
-  return function throttleAnimation<T>(stream: Stream<T>): Stream<T> {
+  return function throttleAnimation<T>(inputStream: Stream<T>): Stream<T> {
     const source = timeSource();
+    const stream = xs.fromObservable(inputStream);
+    let animationListener: any = null;
 
     const throttledStream = xs.create<T>({
       start(listener) {
@@ -16,7 +18,7 @@ function makeThrottleAnimation(
         let emittedLastValue = true;
         const frame$ = xs.fromObservable(source.animationFrames());
 
-        const animationListener = {
+        const frameListener = {
           next(event: any) {
             if (!emittedLastValue) {
               listener.next(lastValue);
@@ -25,7 +27,7 @@ function makeThrottleAnimation(
           },
         };
 
-        xs.fromObservable(stream).addListener({
+        animationListener = {
           next(event: T) {
             lastValue = event;
             emittedLastValue = false;
@@ -36,15 +38,20 @@ function makeThrottleAnimation(
           },
 
           complete() {
-            frame$.removeListener(animationListener);
+            frame$.removeListener(frameListener);
             listener.complete();
           },
-        });
+        };
 
-        frame$.addListener(animationListener);
+        stream.addListener(animationListener);
+        frame$.addListener(frameListener);
       },
 
-      stop() {},
+      stop() {
+        if (animationListener) {
+          stream.removeListener(animationListener);
+        }
+      },
     });
 
     return adapt(throttledStream);

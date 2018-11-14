@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import {mockTimeSource, timeDriver, TimeSource, Operator} from '../index';
 import {mockDOMSource} from '@cycle/dom';
 import xs, {Stream} from 'xstream';
-import {setAdapt} from '@cycle/run/lib/adapt';
+import {setAdapt, adapt} from '@cycle/run/lib/adapt';
 import * as rx from 'rxjs';
 const {Observable, from} = rx;
 import * as rxOps from 'rxjs/operators';
@@ -48,6 +48,41 @@ function map(stream: any, f: any) {
   }
 
   return stream.map(f);
+}
+
+function testUnsubscription(Time: TimeSource, operator: any, done: Mocha.Done) {
+  const PERIOD = 20;
+  const taps: Array<number> = [];
+  const custom = adapt(
+    xs.create({
+      start: listener => {
+        listener.next(0);
+        setTimeout(() => listener.next(1), 1 * PERIOD);
+        setTimeout(() => listener.next(2), 2 * PERIOD);
+        setTimeout(() => {
+          listener.next(3);
+          listener.complete();
+        }, 3 * PERIOD);
+      },
+      stop: () => {
+        assert.deepEqual(taps, [0]);
+        Time.dispose();
+        done();
+      },
+    })
+  );
+
+  const tapped = map(custom, (x: number) => {
+    taps.push(x);
+    return x;
+  });
+
+  const composed = compose(
+    tapped,
+    operator
+  );
+
+  take(composed, 1).subscribe({});
 }
 
 describe('@cycle/time', () => {
@@ -584,6 +619,11 @@ describe('@cycle/time', () => {
 
             Time.run(done);
           });
+
+          it('unsubscribes', done => {
+            const Time = timeDriver(xs.empty());
+            testUnsubscription(Time, Time.delay(0), done);
+          });
         });
 
         describe('.debounce', () => {
@@ -619,6 +659,11 @@ describe('@cycle/time', () => {
             );
 
             Time.run(done);
+          });
+
+          it('unsubscribes', done => {
+            const Time = timeDriver(xs.empty());
+            testUnsubscription(Time, Time.debounce(0), done);
           });
         });
 
@@ -674,6 +719,11 @@ describe('@cycle/time', () => {
               Time.run(done);
             });
           });
+
+          it('unsubscribes', done => {
+            const Time = timeDriver(xs.empty());
+            testUnsubscription(Time, Time.throttle(0), done);
+          });
         });
 
         describe('.animationFrames', () => {
@@ -709,6 +759,11 @@ describe('@cycle/time', () => {
             Time.assertEqual(actual$, expected$);
 
             Time.run(done);
+          });
+
+          it('unsubscribes', done => {
+            const Time = timeDriver(xs.empty());
+            testUnsubscription(Time, Time.throttleAnimation, done);
           });
         });
 
