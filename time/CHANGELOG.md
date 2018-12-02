@@ -1,3 +1,9 @@
+## 0.18.0 (2018-12-02)
+
+* fix(time): unsubscribes Time operators on complete (#858) ([71dc4df](https://github.com/cyclejs/cyclejs/commit/71dc4df)), closes [#858](https://github.com/cyclejs/cyclejs/issues/858) [#848](https://github.com/cyclejs/cyclejs/issues/848)
+
+
+
 ## 0.16.0 (2018-10-17)
 
 * fix(time): support TypeScript 3.1 ([0c61222](https://github.com/cyclejs/cyclejs/commit/0c61222))
