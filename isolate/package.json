@@ -31,22 +31,21 @@
   "typings": "lib/cjs/index.d.ts",
   "types": "lib/cjs/index.d.ts",
   "dependencies": {
-    "@cycle/run": "^5.1.0",
+    "@cycle/run": "^5.2.0-rc.4",
     "xstream": "^11.7.0"
   },
   "devDependencies": {
-    "@cycle/rxjs-run": "^9.1.0",
+    "@cycle/rxjs-run": "^10.2.0-rc.7",
     "@types/mocha": "5.2.x",
-    "@types/node": "10.5.x",
-    "@types/sinon": "1.16.x",
+    "@types/node": "10.12.x",
+    "@types/sinon": "5.0.x",
     "mocha": "^5.2.0",
-    "rxjs": "^6.2.1",
-    "rxjs-compat": "^6.2.2",
-    "sinon": "^6.1.5",
+    "rxjs": "^6.3.3",
+    "sinon": "^7.1.1",
     "symbol-observable": "^1.2.0",
-    "ts-node": "^7.0.0",
+    "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
-    "typescript": "^3.1.3"
+    "typescript": "^3.2.1"
   },
   "engines": {
     "node": ">=0.10.0"
