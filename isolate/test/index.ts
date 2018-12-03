@@ -569,7 +569,7 @@ describe('isolate', function() {
         function isolateSource(source: any, scope: string) {
           return source.someFunc(scope);
         }
-        function someFunc(v: string) {
+        function someFunc(this: any, v: string) {
           const scope = this.scope;
           return {
             scope: scope.concat(v),
