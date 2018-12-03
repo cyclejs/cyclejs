@@ -2,20 +2,28 @@ import * as assert from 'assert';
 import {Observable, of, never} from 'rxjs';
 import {skip} from 'rxjs/operators';
 import {setup} from '@cycle/rxjs-run';
-import {makeServerHistoryDriver, Location, HistoryInput} from '../../src';
+import {
+  makeServerHistoryDriver,
+  Location,
+  HistoryInput,
+  PushHistoryInput,
+  ReplaceHistoryInput,
+} from '../../src';
 
 describe('serverHistoryDriver - RxJS', function() {
   it('should return an Rx Observable as source', function() {
     function main(_sources: {history: Observable<Location>}) {
       assert.strictEqual(typeof _sources.history.pipe, 'function');
       return {
-        history: never(),
+        history: never() as Observable<string>,
       };
     }
 
-    const {sources, run} = setup(main, {
+    const drivers = {
       history: makeServerHistoryDriver(),
-    });
+    };
+
+    const {sources, run} = setup(main, drivers);
     assert.strictEqual(typeof sources.history.pipe, 'function');
   });
 
@@ -46,7 +54,7 @@ describe('serverHistoryDriver - RxJS', function() {
   it('should create a location from PushHistoryInput', done => {
     function main(_sources: {history: Observable<Location>}) {
       return {
-        history: of({type: 'push', pathname: '/test'}),
+        history: of<PushHistoryInput>({type: 'push', pathname: '/test'}),
       };
     }
 
@@ -70,7 +78,7 @@ describe('serverHistoryDriver - RxJS', function() {
   it('should create a location from ReplaceHistoryInput', done => {
     function main(_sources: {history: Observable<Location>}) {
       return {
-        history: of({type: 'replace', pathname: '/test'}),
+        history: of<ReplaceHistoryInput>({type: 'replace', pathname: '/test'}),
       };
     }
 
