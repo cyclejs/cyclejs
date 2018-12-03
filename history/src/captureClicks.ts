@@ -83,17 +83,16 @@ function makeClickListener(push: (p: string) => void) {
 function captureAnchorClicks(push: (p: string) => void) {
   const listener = makeClickListener(push);
   if (typeof window !== 'undefined') {
-    document.addEventListener(CLICK_EVENT, listener, false);
+    document.addEventListener(CLICK_EVENT, listener as EventListener, false);
   }
-  return () => document.removeEventListener(CLICK_EVENT, listener);
+  return () =>
+    document.removeEventListener(CLICK_EVENT, listener as EventListener);
 }
 
 export function captureClicks(historyDriver: HistoryDriver): HistoryDriver {
-  return function historyDriverWithClickCapture(
-    sink$: Stream<HistoryInput | string>
-  ) {
+  return function historyDriverWithClickCapture(sink$: Stream<HistoryInput>) {
     let cleanup: Function | undefined;
-    const internalSink$ = xs.create<HistoryInput | string>({
+    const internalSink$ = xs.create<HistoryInput>({
       start: () => {},
       stop: () => typeof cleanup === 'function' && cleanup(),
     });

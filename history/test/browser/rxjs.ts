@@ -1,6 +1,8 @@
 import * as assert from 'assert';
 import {
   HistoryInput,
+  PushHistoryInput,
+  ReplaceHistoryInput,
   Location,
   captureClicks,
   makeHistoryDriver,
@@ -29,7 +31,7 @@ describe('historyDriver - RxJS', () => {
     function main(_sources: {history: Observable<Location>}) {
       assert.strictEqual(typeof _sources.history.pipe, 'function');
       return {
-        history: never(),
+        history: never() as Observable<string>,
       };
     }
 
@@ -62,7 +64,7 @@ describe('historyDriver - RxJS', () => {
   it('should create a location from PushHistoryInput', function(done) {
     function main(_sources: {history: Observable<Location>}) {
       return {
-        history: of({type: 'push', pathname: '/test'}),
+        history: of<PushHistoryInput>({type: 'push', pathname: '/test'}),
       };
     }
 
@@ -84,7 +86,7 @@ describe('historyDriver - RxJS', () => {
   it('should create a location from ReplaceHistoryInput', function(done) {
     function main(_sources: {history: Observable<Location>}) {
       return {
-        history: of({type: 'replace', pathname: '/test'}),
+        history: of<ReplaceHistoryInput>({type: 'replace', pathname: '/test'}),
       };
     }
 
