@@ -135,7 +135,7 @@ describe('withState', function() {
 
     function Child(sources: Sources): Sinks {
       return {
-        state: xs.of(() => ({foo: 'Hello'})),
+        state: xs.of<Reducer<State>>(() => ({foo: 'Hello'})),
       };
     }
 

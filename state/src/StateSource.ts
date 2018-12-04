@@ -35,7 +35,10 @@ function makeGetter<T, R>(scope: Scope<T, R>): Getter<T, R> {
 
 function makeSetter<T, R>(scope: Scope<T, R>): Setter<T, R> {
   if (typeof scope === 'string' || typeof scope === 'number') {
-    return function lensSet(state: T, childState: R): T {
+    return function lensSet(
+      state: T | undefined,
+      childState: R | undefined
+    ): T {
       if (Array.isArray(state)) {
         return updateArrayEntry(state, scope, childState) as any;
       } else if (typeof state === 'undefined') {
