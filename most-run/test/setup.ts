@@ -100,10 +100,10 @@ describe('setup', function() {
         ),
       };
     }
-    function driver(xsSink: any) {
+    function driver(xsSink: xsStream<string>) {
       return most
         .from(xsSink)
-        .map((x: string) => x.charCodeAt(0))
+        .map(x => x.charCodeAt(0))
         .delay(1);
     }
     const {sources, run} = setup(app, {other: driver});
@@ -150,11 +150,11 @@ describe('setup', function() {
       .periodic(50, 1)
       .scan((x, y) => x + y, 0)
       .map(i => i + 1);
-    function app(_sources: any): any {
+    function app(_sources: any) {
       return {other: number$};
     }
     const {sources, run} = setup(app, {
-      other: (num$: any) => most.from(num$).map((num: number) => 'x' + num),
+      other: (num$: xsStream<number>) => most.from(num$).map(num => 'x' + num),
     });
     let dispose: any;
     sources.other
