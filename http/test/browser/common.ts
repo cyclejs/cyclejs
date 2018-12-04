@@ -1,5 +1,10 @@
 import * as assert from 'assert';
-import {RequestInput, Response, ResponseStream} from '../../src/index';
+import {
+  RequestInput,
+  Response,
+  ResponseStream,
+  RequestOptions,
+} from '../../src/index';
 import {Stream} from 'xstream';
 import {HTTPSource, makeHTTPDriver} from '../../src/rxjs';
 import {Observable, of, merge, Subject} from 'rxjs';
@@ -376,7 +381,7 @@ export function runTests(uri: string) {
     it('should exist on the HTTPSource', function(done) {
       function main(_sources: {HTTP: HTTPSource}) {
         return {
-          HTTP: new Subject(),
+          HTTP: new Subject<RequestOptions>(),
         };
       }
       const {sources, run} = setup(main, {HTTP: makeHTTPDriver()});
@@ -389,7 +394,7 @@ export function runTests(uri: string) {
     it('should exist on a scoped HTTPSource', function(done) {
       function main(_sources: {HTTP: HTTPSource}) {
         return {
-          HTTP: new Subject(),
+          HTTP: new Subject<RequestOptions>(),
         };
       }
       const {sources, run} = setup(main, {HTTP: makeHTTPDriver()});
@@ -402,7 +407,7 @@ export function runTests(uri: string) {
     });
 
     it('should hide responses from outside the scope', function(done) {
-      const proxyRequest$ = new Subject();
+      const proxyRequest$ = new Subject<RequestOptions>();
       function main(_sources: {HTTP: HTTPSource}) {
         return {
           HTTP: proxyRequest$,
@@ -426,13 +431,13 @@ export function runTests(uri: string) {
         });
       });
 
-      merge(ignoredRequest$, scopedRequest$).subscribe(proxyRequest$);
+      merge(ignoredRequest$, scopedRequest$).subscribe(proxyRequest$ as any);
 
       run();
     });
 
     it('should hide responses even if using the same scope multiple times', function(done) {
-      const proxyRequest$ = new Subject();
+      const proxyRequest$ = new Subject<RequestOptions>();
       function main(_sources: {HTTP: HTTPSource}) {
         return {
           HTTP: proxyRequest$,
@@ -471,7 +476,9 @@ export function runTests(uri: string) {
         });
       });
 
-      merge(ignoredRequest$, fooInsideBarRequest$).subscribe(proxyRequest$);
+      merge(ignoredRequest$, fooInsideBarRequest$).subscribe(
+        proxyRequest$ as any
+      );
 
       run();
     });

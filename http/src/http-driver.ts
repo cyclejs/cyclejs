@@ -89,18 +89,19 @@ export function optionsToSuperagent(rawReqOptions: RequestOptions) {
 }
 
 export function createResponse$(reqInput: RequestInput): Stream<Response> {
+  let request: any;
   return xs.create<Response>({
     start: function startResponseStream(listener) {
       try {
         const reqOptions = normalizeRequestInput(reqInput);
-        this.request = optionsToSuperagent(reqOptions);
+        request = optionsToSuperagent(reqOptions);
         if (reqOptions.progress) {
-          this.request = this.request.on('progress', (res: Response) => {
+          request = request.on('progress', (res: Response) => {
             res.request = reqOptions;
             listener.next(res);
           });
         }
-        this.request.end((err: any, res: Response) => {
+        request.end((err: any, res: Response) => {
           if (err) {
             if (err.response) {
               err.response.request = reqOptions;
@@ -117,8 +118,9 @@ export function createResponse$(reqInput: RequestInput): Stream<Response> {
       }
     },
     stop: function stopResponseStream() {
-      if (this.request && this.request.abort) {
-        this.request.abort();
+      if (request && request.abort) {
+        request.abort();
+        request = null;
       }
     },
   });
@@ -170,7 +172,7 @@ function requestInputToResponse$(reqInput: RequestInput): ResponseMemoryStream {
 export function makeHTTPDriver(): Driver<Stream<RequestInput>, HTTPSource> {
   function httpDriver(
     request$: Stream<RequestInput>,
-    name: string
+    name: string = 'HTTP'
   ): HTTPSource {
     const response$$ = request$.map(requestInputToResponse$);
     const httpSource = new MainHTTPSource(response$$, name, []);
