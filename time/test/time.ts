@@ -90,11 +90,11 @@ describe('@cycle/time', () => {
 
   it('can be used to test Cycle apps', done => {
     function Counter({DOM}: any) {
-      const add$ = DOM.select('.add')
+      const add$: Stream<number> = DOM.select('.add')
         .events('click')
         .mapTo(+1);
 
-      const subtract$ = DOM.select('.subtract')
+      const subtract$: Stream<number> = DOM.select('.subtract')
         .events('click')
         .mapTo(-1);
 
@@ -145,7 +145,7 @@ describe('@cycle/time', () => {
       return function delayByOperator<T>(stream: Stream<T>): Stream<T> {
         return xs.create<T>({
           start(listener) {
-            const {schedule, currentTime} = timeSource.createOperator();
+            const {schedule, currentTime} = timeSource.createOperator<T>();
 
             stream.addListener({
               next(t: T) {
