@@ -1,22 +1,22 @@
 import {EventsFnOptions} from './DOMSource';
-import {makeDOMDriver as make, VNode} from './index';
+import {makeDOMDriver as make, VNode, DOMDriverOptions} from './index';
 import {Stream} from 'most';
-import xs from 'xstream';
+import {Stream as xsStream} from 'xstream';
 import {Driver} from '@cycle/run';
 
 export interface DOMSource {
   select(selector: string): DOMSource;
-  elements(): Stream<Element | Array<Element>>;
+  elements(): Stream<Array<Element>>;
+  element(): Stream<Element>;
   events<K extends keyof HTMLElementEventMap>(
     eventType: K,
     options?: EventsFnOptions,
     bubbles?: boolean
   ): Stream<HTMLElementEventMap[K]>;
-  events(
-    eventType: string,
-    options?: EventsFnOptions,
-    bubbles?: boolean
-  ): Stream<Event>;
+  events(eventType: string, options?: EventsFnOptions): Stream<Event>;
 }
 
-export const makeDOMDriver: () => Driver<xs<VNode>, DOMSource> = make as any;
+export const makeDOMDriver: (
+  sel: string | Element | DocumentFragment,
+  opts?: DOMDriverOptions
+) => Driver<xsStream<VNode>, DOMSource> = make as any;
