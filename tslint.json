@@ -18,7 +18,6 @@
     "no-switch-case-fall-through": true,
     "unified-signatures": true,
     "no-import-side-effect": true,
-    "no-non-null-assertion": true,
     "no-unnecessary-callback-wrapper": true,
     "no-invalid-template-strings": true,
     "no-internal-module": true,
