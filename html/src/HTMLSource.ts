@@ -1,9 +1,9 @@
 import xs, {Stream, MemoryStream} from 'xstream';
 import {adapt} from '@cycle/run/lib/adapt';
 import {DevToolEnabledSource} from '@cycle/run';
-import {DOMSource, EventsFnOptions} from '@cycle/dom';
+import {EventsFnOptions} from '@cycle/dom';
 
-export class HTMLSource implements DOMSource {
+export class HTMLSource {
   private _html$: Stream<string>;
   private _empty$: Stream<any>;
 
