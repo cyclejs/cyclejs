@@ -34,8 +34,8 @@
   "typings": "lib/cjs/index.d.ts",
   "types": "lib/cjs/index.d.ts",
   "dependencies": {
-    "@cycle/dom": "^22.0.0",
-    "@cycle/run": "^5.1.0",
+    "@cycle/dom": "^22.1.0-rc.0",
+    "@cycle/run": "^5.2.0-rc.4",
     "snabbdom": "0.7.2",
     "snabbdom-to-html": "5.1.1",
     "xstream": "*"
@@ -43,15 +43,15 @@
   "devDependencies": {
     "@cycle/isolate": "^4.1.0",
     "@types/mocha": "^5.2.5",
-    "@types/node": "^10.11.7",
-    "@types/sinon": "^5.0.5",
+    "@types/node": "^10.12.11",
+    "@types/sinon": "^5.0.7",
     "mocha": "^5.2.0",
     "simulant": "^0.2.2",
-    "sinon": "^6.3.5",
-    "snabbdom-pragma": "^2.7.0",
+    "sinon": "^7.1.1",
+    "snabbdom-pragma": "^2.8.0",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
-    "typescript": "3.1.x",
+    "typescript": "3.2.x",
     "xstream": "11.x"
   },
   "engines": {
