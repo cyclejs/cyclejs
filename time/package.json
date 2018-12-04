@@ -12,7 +12,7 @@
   "typings": "lib/cjs/index.d.ts",
   "types": "lib/cjs/index.d.ts",
   "dependencies": {
-    "@cycle/run": "^5.1.0",
+    "@cycle/run": "^5.2.0-rc.4",
     "combine-errors": "3.0.x",
     "most": "*",
     "performance-now": "^2.1.0",
@@ -24,20 +24,20 @@
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/dom": "^22.0.0",
-    "@cycle/rxjs-run": "^10.0.0",
+    "@cycle/dom": "^22.1.0-rc.0",
+    "@cycle/rxjs-run": "^10.2.0-rc.7",
     "@types/mocha": "5.2.x",
-    "@types/node": "10.11.x",
+    "@types/node": "10.12.x",
     "budo": "^11.5.0",
     "garnish": "5.2.x",
     "markdown-doctest": "0.9.x",
     "mocha": "^5.2.0",
     "most": "1.7.x",
     "rxjs": "6.3.x",
-    "snabbdom-selector": "4.0.x",
+    "snabbdom-selector": "4.1.x",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
-    "typescript": "3.1.x"
+    "typescript": "3.2.x"
   },
   "publishConfig": {
     "access": "public"

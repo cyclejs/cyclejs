@@ -96,7 +96,7 @@ function mockTimeSource({interval = 20} = {}): any {
       if ('pipe' in s) {
         // This hack brought to you by the need to import rxjs's operators
         // and my desire to not force a dependency on rxjs
-        return adapt(xs.fromObservable(s).map(frame));
+        return adapt(xs.fromObservable<number>(s).map(frame));
       }
 
       return s.map(frame);
