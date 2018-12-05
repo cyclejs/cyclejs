@@ -1,3 +1,10 @@
+## 22.1.0 (2018-12-05)
+
+* fix(dom): fix rxjs and most typings of makeDOMDriver (#862) ([f661cf5](https://github.com/cyclejs/cyclejs/commit/f661cf5)), closes [#862](https://github.com/cyclejs/cyclejs/issues/862) [#860](https://github.com/cyclejs/cyclejs/issues/860)
+* chore(dom): remove zombie transposition use in tests ([aff1c9d](https://github.com/cyclejs/cyclejs/commit/aff1c9d))
+
+
+
 ## 22.0.0 (2018-10-17)
 
 * fix(dom): support Typescript 3.1 ([8174c25](https://github.com/cyclejs/cyclejs/commit/8174c25))
