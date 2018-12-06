@@ -59,7 +59,7 @@ export function getSelectors(namespace: Array<Scope>): string {
 
 export function isEqualNamespace(
   a: Array<Scope> | undefined,
-  b: Array<Scope> | undefined,
+  b: Array<Scope> | undefined
 ): boolean {
   if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) {
     return false;
@@ -73,11 +73,11 @@ export function isEqualNamespace(
 }
 
 export function makeInsert(
-  map: Map<string, Map<Element, any>>,
+  map: Map<string, Map<Element, any>>
 ): (type: string, elm: Element, value: any) => void {
   return (type, elm, value) => {
     if (map.has(type)) {
-      const innerMap = map.get(type) as Map<Element, any>;
+      const innerMap = map.get(type)!;
       innerMap.set(elm, value);
     } else {
       const innerMap = new Map<Element, any>();

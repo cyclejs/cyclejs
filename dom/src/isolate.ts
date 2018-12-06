@@ -8,12 +8,14 @@ export interface Scope {
   scope: string; //Could be anything serializable
 }
 
-export type Sink = Stream<VNode>;
-export type IsolateSink = (s: Sink, scope: string) => Sink;
+export type IsolateSink<T extends VNode> = (
+  s: Stream<T>,
+  scope: string
+) => Stream<T>;
 
-export function makeIsolateSink(
+export function makeIsolateSink<T extends VNode>(
   namespace: Array<Scope>
-): (sink: Sink, scope: string) => Sink {
+): IsolateSink<T> {
   return (sink, scope) => {
     if (scope === ':root') {
       return sink;
@@ -25,7 +27,7 @@ export function makeIsolateSink(
       }
       const scopeObj = getScopeObj(scope);
       const newNode = {
-        ...node,
+        ...(node as any),
         data: {
           ...node.data,
           isolate:
@@ -40,7 +42,7 @@ export function makeIsolateSink(
           newNode.key !== undefined
             ? newNode.key
             : JSON.stringify(newNode.data.isolate),
-      } as VNode;
+      } as T;
     });
   };
 }
