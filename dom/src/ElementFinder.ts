@@ -10,7 +10,7 @@ function toElArray(input: any): Array<Element> {
 export class ElementFinder {
   constructor(
     public namespace: Array<Scope>,
-    public isolateModule: IsolateModule,
+    public isolateModule: IsolateModule
   ) {}
 
   public call(): Array<Element> {
@@ -19,7 +19,7 @@ export class ElementFinder {
 
     const scopeChecker = new ScopeChecker(namespace, this.isolateModule);
     const topNode = this.isolateModule.getElement(
-      namespace.filter(n => n.type !== 'selector'),
+      namespace.filter(n => n.type !== 'selector')
     );
 
     if (topNode === undefined) {

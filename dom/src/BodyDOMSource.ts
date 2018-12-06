@@ -4,7 +4,7 @@ import {DevToolEnabledSource} from '@cycle/run';
 import {EventsFnOptions, DOMSource} from './DOMSource';
 import {fromEvent} from './fromEvent';
 
-export class BodyDOMSource implements DOMSource {
+export class BodyDOMSource {
   constructor(private _name: string) {}
 
   public select(selector: string): BodyDOMSource {

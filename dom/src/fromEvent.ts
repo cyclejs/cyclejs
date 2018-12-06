@@ -31,6 +31,7 @@ export function fromEvent(
     },
     stop: function stop() {
       element.removeEventListener(eventName, next as any, useCapture);
+      next = null;
     },
   } as Producer<Event>);
 }
