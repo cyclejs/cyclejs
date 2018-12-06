@@ -3,15 +3,15 @@ const watch = !!process.env.WATCH;
 const live = !!process.env.LIVE;
 
 const identifier = process.env.BROWSERSTACK_LOCAL_IDENTIFIER;
-const ip = process.env.IP_ADDR;
+const ip = 'bs-local.com';
 
 const browserstack = require('./browserstack-karma.js');
 
 const browsers = ci
   ? Object.keys(browserstack)
   : live
-    ? undefined
-    : ['Chrome', 'Firefox'];
+  ? undefined
+  : ['Chrome', 'Firefox'];
 
 module.exports = {
   basePath: '.',
