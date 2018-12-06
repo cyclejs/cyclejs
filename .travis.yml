@@ -3,7 +3,6 @@ language: node_js
 node_js:
   - '6.10.1'
 script:
-  - export IP_ADDR=$(ip addr | grep eth -A 4 | grep 'inet ' | awk '{ print $2 }' | sed 's/\/..//')
   - pnpm run build && pnpm run lint && pnpm recursive exec --workspace-concurrency 1 --filter @cycle/* -- ../.scripts/retry.sh pnpm run test-ci
 before_install:
   - curl -L https://unpkg.com/@pnpm/self-installer | node
