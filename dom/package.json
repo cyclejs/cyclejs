@@ -1,6 +1,6 @@
 {
   "name": "@cycle/dom",
-  "version": "22.0.0",
+  "version": "22.1.0",
   "description": "The standard DOM Driver for Cycle.js, based on Snabbdom",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
