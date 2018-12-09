@@ -43,10 +43,10 @@
     "test-node": "mocha test/node/*.ts --require ts-node/register --exit",
     "test-browser": "karma start",
     "test": "pnpm run test-node && pnpm run test-browser",
-    "test-ci": "CI=true pnpm test",
+    "test-ci": "CI=true ../.scripts/retry.sh pnpm test",
     "test-watch": "WATCH=true pnpm test",
     "test-live": "LIVE=true karma start --watch",
-    "prepublishOnly": "pnpm run build && pnpm run test"
+    "prepublishOnly": "pnpm run build && pnpm test"
   },
   "dependencies": {
     "@cycle/run": "^5.2.0",

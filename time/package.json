@@ -64,9 +64,9 @@
     "test-watch": "mocha 'test/**/*.ts' --require ts-node/register --watch -R min",
     "test-node": "mocha 'test/**/*.ts' --require ts-node/register --exit",
     "test": "pnpm run test-node && pnpm run test-docs",
-    "test-ci": "pnpm run test",
+    "test-ci": "../.scripts/retry.sh pnpm test",
     "test-docs": "markdown-doctest",
     "postbuild": "tsc rxjs.ts most.ts --declaration --lib DOM,ES5,ES6 && rm src/*.d.ts && rm src/*.js",
-    "prepublishOnly": "pnpm run build && pnpm run test"
+    "prepublishOnly": "pnpm run build && pnpm test"
   }
 }

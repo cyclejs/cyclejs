@@ -57,8 +57,8 @@
     "docs": "cd .. && node .scripts/make-api-docs.js rxjs-run",
     "changelog": "cd .. && node .scripts/update-changelogs.js rxjs-run",
     "test": "mocha test/*.ts --require ts-node/register --exit",
-    "test-ci": "pnpm run test",
-    "prepublishOnly": "pnpm run build && pnpm run test"
+    "test-ci": "../.scripts/retry.sh pnpm test",
+    "prepublishOnly": "pnpm run build && pnpm test"
   },
   "publishConfig": {
     "access": "public"

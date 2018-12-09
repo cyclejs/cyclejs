@@ -21,20 +21,20 @@
     "commit": "git-cz",
     "cm": "git-cz",
     "format": "prettier --write './*/{src,test}/**/*.{ts,tsx,js}'",
-    "postinstall": "pnpm recursive install --filter @cycle/* && pnpm run build",
-    "build": "pnpm recursive run build --workspace-concurrency 1 --filter @cycle/*",
+    "postinstall": "pnpm recursive install && pnpm run build",
+    "build": "pnpm recursive run build",
     "docs": "pnpm run docs-index && pnpm run docs-documentation && pnpm run docs-releases && pnpm run docs-api",
     "docs-index": "node ./docs/.scripts/make-index.js",
     "docs-documentation": "node ./docs/.scripts/make-documentation.js",
     "docs-releases": "node ./docs/.scripts/make-releases.js",
-    "docs-api": "node ./docs/.scripts/make-api-index.js && pnpm recursive exec --filter @cycle/* -- pnpm run docs ",
-    "changelog": "pnpm recursive exec --filter @cycle/* -- pnpm run changelog ",
+    "docs-api": "node ./docs/.scripts/make-api-index.js && pnpm recursive run docs",
+    "changelog": "pnpm recursive run changelog ",
     "check-release": ".scripts/check-release.js",
     "release-all": ".scripts/release-whatever-needs-release.sh",
     "release": "run() { .scripts/release.sh $1 $2; }; run",
-    "lint": "pnpm recursive exec --filter @cycle/* -- pnpm run lint",
-    "test": "pnpm recursive exec --filter @cycle/* -- pnpm test ",
-    "test-ci": "pnpm recursive exec --workspace-concurrency 1 --filter @cycle/* -- pnpm run test-ci"
+    "lint": "pnpm recursive run lint",
+    "test": "pnpm recursive test ",
+    "test-ci": "pnpm recursive run test-ci"
   },
   "husky": {
     "hooks": {

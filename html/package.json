@@ -69,7 +69,7 @@
     "changelog": "cd .. && node .scripts/update-changelogs.js html",
     "test-node": "mocha test/*.ts --require ts-node/register --exit",
     "test": "pnpm run test-node",
-    "test-ci": "pnpm run test",
-    "prepublishOnly": "pnpm run build && pnpm run test"
+    "test-ci": "../.scripts/retry.sh pnpm test",
+    "prepublishOnly": "pnpm run build && pnpm test"
   }
 }
