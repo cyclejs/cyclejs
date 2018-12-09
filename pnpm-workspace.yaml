@@ -1,0 +1,5 @@
+packages:
+  - '*/**'
+  - '!devtool/**'
+  - '!docs/**'
+  - '!examples/**'
