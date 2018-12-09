@@ -21,7 +21,6 @@
     "commit": "git-cz",
     "cm": "git-cz",
     "format": "prettier --write './*/{src,test}/**/*.{ts,tsx,js}'",
-    "postinstall": "pnpm recursive install && pnpm run build",
     "build": "pnpm recursive run build",
     "docs": "pnpm run docs-index && pnpm run docs-documentation && pnpm run docs-releases && pnpm run docs-api",
     "docs-index": "node ./docs/.scripts/make-index.js",

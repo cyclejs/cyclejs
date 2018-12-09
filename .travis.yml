@@ -5,9 +5,9 @@ node_js:
 script:
   - pnpm run build && pnpm run lint && pnpm recursive run test-ci
 before_install:
-  - npm i -g pnpm@2.21.0
+  - curl -L https://unpkg.com/@pnpm/self-installer | PNPM_VERSION=2.21.1 node
 install:
-  - pnpm recursive install
+  - pnpm install && pnpm recursive install
 cache:
   directories:
     - /home/travis/.pnpm-store
