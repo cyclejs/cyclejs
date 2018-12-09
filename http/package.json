@@ -68,7 +68,7 @@
     "start-test-support-server": "PORT=8070 ts-node test/support/run-server.ts &",
     "stop-test-support-server": "kill $(ps aux | grep cyclejs | grep support | grep server | grep -v grep | awk '{ print $2 }') || true",
     "test": "pnpm run test-node && pnpm run test-browser",
-    "test-ci": "CI=true pnpm test",
-    "prepublishOnly": "pnpm run build && pnpm run test"
+    "test-ci": "CI=true ../.scripts/retry.sh pnpm test",
+    "prepublishOnly": "pnpm run build && pnpm test"
   }
 }

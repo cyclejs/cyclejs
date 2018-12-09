@@ -3,11 +3,11 @@ language: node_js
 node_js:
   - '6.10.1'
 script:
-  - pnpm run build && pnpm run lint && pnpm recursive exec --workspace-concurrency 1 --filter @cycle/* -- ../.scripts/retry.sh pnpm run test-ci
+  - pnpm run build && pnpm run lint && pnpm recursive run test-ci
 before_install:
-  - curl -L https://unpkg.com/@pnpm/self-installer | node
+  - npm i -g pnpm@2.21.0
 install:
-  - pnpm recursive install --filter '@cycle/*'
+  - pnpm recursive install
 cache:
   directories:
     - /home/travis/.pnpm-store

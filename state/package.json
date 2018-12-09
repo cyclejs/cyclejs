@@ -52,7 +52,8 @@
     "docs": "cd .. && node .scripts/make-api-docs.js state",
     "changelog": "cd .. && node .scripts/update-changelogs.js state",
     "test": "mocha test/*.ts --require ts-node/register --exit",
-    "test-ci": "pnpm run test"
+    "test-ci": "../.scripts/retry.sh pnpm test",
+    "prepublishOnly": "pnpm run build && pnpm test"
   },
   "publishConfig": {
     "access": "public"
