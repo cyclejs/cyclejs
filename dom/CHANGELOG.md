@@ -1,3 +1,9 @@
+## 22.2.0 (2018-12-10)
+
+* fix(dom): support TypeScript's strict mode ([90645d6](https://github.com/cyclejs/cyclejs/commit/90645d6))
+
+
+
 ## 22.1.0 (2018-12-05)
 
 * fix(dom): fix rxjs and most typings of makeDOMDriver (#862) ([f661cf5](https://github.com/cyclejs/cyclejs/commit/f661cf5)), closes [#862](https://github.com/cyclejs/cyclejs/issues/862) [#860](https://github.com/cyclejs/cyclejs/issues/860)

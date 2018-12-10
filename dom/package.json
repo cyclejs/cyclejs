@@ -1,6 +1,6 @@
 {
   "name": "@cycle/dom",
-  "version": "22.2.0-rc.0",
+  "version": "22.2.0",
   "description": "The standard DOM Driver for Cycle.js, based on Snabbdom",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
@@ -49,14 +49,14 @@
     "prepublishOnly": "pnpm run build && pnpm run test"
   },
   "dependencies": {
-    "@cycle/run": "^5.2.0-rc.4",
+    "@cycle/run": "^5.2.0",
     "snabbdom": "^0.7.2",
     "snabbdom-selector": "^4.1.0",
     "xstream": "*"
   },
   "devDependencies": {
     "@cycle/isolate": "^4.1.0",
-    "@cycle/rxjs-run": "^10.2.0-rc.7",
+    "@cycle/rxjs-run": "^10.2.0",
     "@types/mocha": "^5.2.5",
     "@types/node": "^10.12.11",
     "@types/sinon": "^5.0.7",
