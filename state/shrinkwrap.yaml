@@ -1,10 +1,10 @@
 dependencies:
-  '@cycle/isolate': 4.1.0
-  '@cycle/run': 5.2.0-rc.4
+  '@cycle/isolate': 4.2.0
+  '@cycle/run': 5.2.0
   quicktask: 1.1.0
   xstream: 11.7.0
 devDependencies:
-  '@cycle/rxjs-run': 10.2.0-rc.7
+  '@cycle/rxjs-run': 10.2.0
   '@types/mocha': 5.2.5
   '@types/node': 10.12.12
   '@types/sinon': 5.0.5
@@ -15,35 +15,26 @@ devDependencies:
   tslint: 5.11.0
   typescript: 3.2.1
 packages:
-  /@cycle/isolate/4.1.0:
+  /@cycle/isolate/4.2.0:
     dependencies:
-      '@cycle/run': 5.1.0
+      '@cycle/run': 5.2.0
       xstream: 11.7.0
     dev: false
     engines:
       node: '>=0.10.0'
     resolution:
-      integrity: sha512-nnuBqXZdak4fGeYWQFoXC4zmmTFYhIfArTKCpU5XmIgF4aqD0cQg02QBobczn86EJO7SpIuWUh7l8FF5IL4pNw==
-  /@cycle/run/5.1.0:
-    dependencies:
-      quicktask: 1.1.0
-      xstream: 11.7.0
-    dev: false
-    engines:
-      node: '>=0.12.0'
-    resolution:
-      integrity: sha512-zBjLl91JbGJt4TVqWnYXKvqgxDDZldjQeF71s6wOiY/Nt0RffaUACg5QkwNoHGLkFalBMp3Kmt+TNNONeA2N9w==
-  /@cycle/run/5.2.0-rc.4:
+      integrity: sha512-I11AOSaKIIuh5Ww08BRO9pZiqi5HxtQUM2eFMOAkwDyjlLfuzqvZKSg61NWJfl/RPAgcMwgDo1tbExSr3nI+NA==
+  /@cycle/run/5.2.0:
     dependencies:
       quicktask: 1.1.0
       xstream: 11.7.0
     engines:
       node: '>=0.12.0'
     resolution:
-      integrity: sha512-EtIPp9gdvzhKwGRzfaxn/SvaktJKcUxcM7vIP7s1va1G0X8gSMmbsi86WgMwGYF4NkgTZrlBZnGWsuys2JrPEQ==
-  /@cycle/rxjs-run/10.2.0-rc.7:
+      integrity: sha512-FTXtJ13I8MkBo7BGBH6S41/vt/Z/s23ZjyhmyTrFGCFxBH5rtIJGcuVPwbSVRlpjFq7G2Vjxd585u+0kANhNvA==
+  /@cycle/rxjs-run/10.2.0:
     dependencies:
-      '@cycle/run': 5.2.0-rc.4
+      '@cycle/run': 5.2.0
       rxjs: 6.3.3
       symbol-observable: 1.2.0
       xstream: 11.7.0
@@ -51,7 +42,7 @@ packages:
     engines:
       node: '>=0.12.0'
     resolution:
-      integrity: sha512-o600eqZpxJTHvhWkUW2hmjSjTTvRZgwRoJs/FURwntKkIpiWJQdQuYFZrPue3lOuvh7serjPrf2X01Auz75y3w==
+      integrity: sha512-7+j4/Q61MxLvwSNhUnSuFeKgOJvfglwN1amipvt+k7bOP1lDQ3FfqD9eNeS2kBZLct1um+OVlxjROVCi2zwXOg==
   /@most/multicast/1.3.0:
     dependencies:
       '@most/prelude': 1.7.2
@@ -494,9 +485,9 @@ registry: 'https://registry.npmjs.org/'
 shrinkwrapMinorVersion: 9
 shrinkwrapVersion: 3
 specifiers:
-  '@cycle/isolate': ^4.1.0
-  '@cycle/run': ^5.2.0-rc.4
-  '@cycle/rxjs-run': ^10.2.0-rc.7
+  '@cycle/isolate': ^4.2.0
+  '@cycle/run': ^5.2.0
+  '@cycle/rxjs-run': ^10.2.0
   '@types/mocha': 5.2.x
   '@types/node': 10.12.x
   '@types/sinon': 5.0.x
