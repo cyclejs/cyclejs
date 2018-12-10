@@ -1,11 +1,11 @@
 dependencies:
-  '@cycle/dom': 22.1.0-rc.0
-  '@cycle/run': 5.2.0-rc.4
+  '@cycle/dom': 22.2.0
+  '@cycle/run': 5.2.0
   snabbdom: 0.7.2
   snabbdom-to-html: 5.1.1
   xstream: 11.7.0
 devDependencies:
-  '@cycle/isolate': 4.1.0
+  '@cycle/isolate': 4.2.0
   '@types/mocha': 5.2.5
   '@types/node': 10.12.11
   '@types/sinon': 5.0.7
@@ -17,9 +17,9 @@ devDependencies:
   tslint: 5.11.0
   typescript: 3.2.1
 packages:
-  /@cycle/dom/22.1.0-rc.0:
+  /@cycle/dom/22.2.0:
     dependencies:
-      '@cycle/run': 5.2.0-rc.4
+      '@cycle/run': 5.2.0
       snabbdom: 0.7.2
       snabbdom-selector: 4.1.0
       xstream: 11.7.0
@@ -27,34 +27,24 @@ packages:
     engines:
       node: '>=0.10.0'
     resolution:
-      integrity: sha512-iMrZ2IJXfzZmESvPtdC7DSTM8xg7dEY8pvI7wpi/C2p4QWyYitOiGd67f3tE+r6zy0Bmd7RRyQm5WzwsrqZHXw==
-  /@cycle/isolate/4.1.0:
+      integrity: sha512-V1lUTDiX+ZtJ+UCUe5i539zi1Y7wPcT4sxngrJGVZdKEEp8EGIis4ZVEfyN7FglGhSEQVz3CW7y+meTQ0QumBw==
+  /@cycle/isolate/4.2.0:
     dependencies:
-      '@cycle/run': 5.1.0
+      '@cycle/run': 5.2.0
       xstream: 11.7.0
     dev: true
     engines:
       node: '>=0.10.0'
     resolution:
-      integrity: sha512-nnuBqXZdak4fGeYWQFoXC4zmmTFYhIfArTKCpU5XmIgF4aqD0cQg02QBobczn86EJO7SpIuWUh7l8FF5IL4pNw==
-  /@cycle/run/5.1.0:
+      integrity: sha512-I11AOSaKIIuh5Ww08BRO9pZiqi5HxtQUM2eFMOAkwDyjlLfuzqvZKSg61NWJfl/RPAgcMwgDo1tbExSr3nI+NA==
+  /@cycle/run/5.2.0:
     dependencies:
       quicktask: 1.1.0
       xstream: 11.7.0
-    dev: true
     engines:
       node: '>=0.12.0'
     resolution:
-      integrity: sha512-zBjLl91JbGJt4TVqWnYXKvqgxDDZldjQeF71s6wOiY/Nt0RffaUACg5QkwNoHGLkFalBMp3Kmt+TNNONeA2N9w==
-  /@cycle/run/5.2.0-rc.4:
-    dependencies:
-      quicktask: 1.1.0
-      xstream: 11.7.0
-    dev: false
-    engines:
-      node: '>=0.12.0'
-    resolution:
-      integrity: sha512-EtIPp9gdvzhKwGRzfaxn/SvaktJKcUxcM7vIP7s1va1G0X8gSMmbsi86WgMwGYF4NkgTZrlBZnGWsuys2JrPEQ==
+      integrity: sha512-FTXtJ13I8MkBo7BGBH6S41/vt/Z/s23ZjyhmyTrFGCFxBH5rtIJGcuVPwbSVRlpjFq7G2Vjxd585u+0kANhNvA==
   /@sinonjs/commons/1.3.0:
     dependencies:
       type-detect: 4.0.8
@@ -657,9 +647,9 @@ registry: 'https://registry.npmjs.org/'
 shrinkwrapMinorVersion: 9
 shrinkwrapVersion: 3
 specifiers:
-  '@cycle/dom': ^22.1.0-rc.0
-  '@cycle/isolate': ^4.1.0
-  '@cycle/run': ^5.2.0-rc.4
+  '@cycle/dom': ^22.2.0
+  '@cycle/isolate': ^4.2.0
+  '@cycle/run': ^5.2.0
   '@types/mocha': ^5.2.5
   '@types/node': ^10.12.11
   '@types/sinon': ^5.0.7

@@ -1,6 +1,6 @@
 {
   "name": "@cycle/html",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "A driver for HTML strings based on Snabbdom and the DOM driver",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
@@ -34,14 +34,14 @@
   "typings": "lib/cjs/index.d.ts",
   "types": "lib/cjs/index.d.ts",
   "dependencies": {
-    "@cycle/dom": "^22.1.0-rc.0",
-    "@cycle/run": "^5.2.0-rc.4",
+    "@cycle/dom": "^22.2.0",
+    "@cycle/run": "^5.2.0",
     "snabbdom": "0.7.2",
     "snabbdom-to-html": "5.1.1",
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/isolate": "^4.1.0",
+    "@cycle/isolate": "^4.2.0",
     "@types/mocha": "^5.2.5",
     "@types/node": "^10.12.11",
     "@types/sinon": "^5.0.7",
