@@ -1,38 +1,38 @@
 {
   "name": "@cycle/http",
-  "version": "15.0.0",
+  "version": "15.1.0",
   "description": "A Cycle.js Driver for making HTTP requests",
   "main": "lib/cjs/index.js",
   "module": "lib/es6/index.js",
   "typings": "lib/cjs/index.d.ts",
   "license": "MIT",
   "repository": "https://github.com/cyclejs/cyclejs/tree/master/http",
+  "homepage": "https://cycle.js.org",
+  "bugs": "https://github.com/cyclejs/cyclejs/issues",
+  "contributors": [
+    {
+      "name": "Andre Staltz",
+      "email": "andre@staltz.com"
+    },
+    {
+      "name": "Tylor Steinberger",
+      "email": "tlsteinberger167@gmail.com"
+    }
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
-    "@cycle/run": "^5.2.0-rc.4",
+    "@cycle/run": "^5.2.0",
     "@types/superagent": "3.8.4",
     "most": "^1.7.3",
     "rxjs": "^6.3.3",
     "superagent": "^3.8.3",
     "xstream": "*"
   },
-  "scripts": {
-    "build": "pnpm run build-cjs && pnpm run build-es6",
-    "build-cjs": "tsc --module commonjs --outDir ./lib/cjs",
-    "build-es6": "tsc --module es6 --outDir ./lib/es6",
-    "lint": "tslint --project tsconfig.lint.json --config ../tslint.json",
-    "docs": "cd .. && node .scripts/make-api-docs.js http",
-    "changelog": "cd .. && node .scripts/update-changelogs.js http",
-    "test-node": "mocha test/node.ts --require ts-node/register --exit",
-    "test-browser": "pnpm run start-test-support-server && karma start && pnpm run stop-test-support-server",
-    "start-test-support-server": "PORT=8070 ts-node test/support/run-server.ts &",
-    "stop-test-support-server": "kill $(ps aux | grep cyclejs | grep support | grep server | grep -v grep | awk '{ print $2 }') || true",
-    "test": "pnpm run test-browser",
-    "test-ci": "CI=true pnpm test",
-    "prepublishOnly": "pnpm run build && pnpm run test"
-  },
   "devDependencies": {
-    "@cycle/isolate": "^4.1.0",
-    "@cycle/rxjs-run": "^10.2.0-rc.7",
+    "@cycle/isolate": "^4.2.0",
+    "@cycle/rxjs-run": "^10.2.0",
     "@types/body-parser": "1.17.x",
     "@types/cookie-parser": "1.4.x",
     "@types/express": "4.16.x",
@@ -55,19 +55,19 @@
     "typescript": "3.2.x",
     "xstream": "11.x"
   },
-  "homepage": "https://cycle.js.org",
-  "bugs": "https://github.com/cyclejs/cyclejs/issues",
-  "contributors": [
-    {
-      "name": "Andre Staltz",
-      "email": "andre@staltz.com"
-    },
-    {
-      "name": "Tylor Steinberger",
-      "email": "tlsteinberger167@gmail.com"
-    }
-  ],
-  "publishConfig": {
-    "access": "public"
+  "scripts": {
+    "build": "pnpm run build-cjs && pnpm run build-es6",
+    "build-cjs": "tsc --module commonjs --outDir ./lib/cjs",
+    "build-es6": "tsc --module es6 --outDir ./lib/es6",
+    "lint": "tslint --project tsconfig.lint.json --config ../tslint.json",
+    "docs": "cd .. && node .scripts/make-api-docs.js http",
+    "changelog": "cd .. && node .scripts/update-changelogs.js http",
+    "test-node": "mocha test/node.ts --require ts-node/register --exit",
+    "test-browser": "pnpm run start-test-support-server && karma start && pnpm run stop-test-support-server",
+    "start-test-support-server": "PORT=8070 ts-node test/support/run-server.ts &",
+    "stop-test-support-server": "kill $(ps aux | grep cyclejs | grep support | grep server | grep -v grep | awk '{ print $2 }') || true",
+    "test": "pnpm run test-browser",
+    "test-ci": "CI=true pnpm test",
+    "prepublishOnly": "pnpm run build && pnpm run test"
   }
 }

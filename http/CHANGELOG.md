@@ -1,3 +1,9 @@
+## 15.1.0 (2018-12-10)
+
+* fix(http): support TypeScript's strict mode ([a6e370e](https://github.com/cyclejs/cyclejs/commit/a6e370e))
+
+
+
 ## 15.0.0 (2018-10-17)
 
 * chore(http): split a test in two, reduce CI flakiness ([c231235](https://github.com/cyclejs/cyclejs/commit/c231235))
