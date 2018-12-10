@@ -1,3 +1,9 @@
+## 22.3.0 (2018-12-10)
+
+* fix(dom): add better typings for the hyperscript helpers ([e211037](https://github.com/cyclejs/cyclejs/commit/e211037))
+
+
+
 ## 22.2.0 (2018-12-10)
 
 * fix(dom): support TypeScript's strict mode ([90645d6](https://github.com/cyclejs/cyclejs/commit/90645d6))
