@@ -1,3 +1,9 @@
+## 7.1.0 (2018-12-10)
+
+* fix(history): support TypeScript's strict mode ([1c25cab](https://github.com/cyclejs/cyclejs/commit/1c25cab))
+
+
+
 ## 7.0.0 (2018-10-17)
 
 * fix(history): support TypeScript 3.1 ([4be72b2](https://github.com/cyclejs/cyclejs/commit/4be72b2))

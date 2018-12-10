@@ -4,7 +4,7 @@ dependencies:
   history: 4.7.2
   xstream: 11.7.0
 devDependencies:
-  '@cycle/rxjs-run': 10.2.0-rc.7
+  '@cycle/rxjs-run': 10.2.0
   '@types/mocha': 5.2.5
   '@types/node': 10.12.11
   '@types/sinon': 5.0.7
@@ -22,7 +22,7 @@ devDependencies:
   tslint: 5.11.0
   typescript: 3.2.1
 packages:
-  /@cycle/run/5.2.0-rc.4:
+  /@cycle/run/5.2.0:
     dependencies:
       quicktask: 1.1.0
       xstream: 11.7.0
@@ -30,10 +30,10 @@ packages:
     engines:
       node: '>=0.12.0'
     resolution:
-      integrity: sha512-EtIPp9gdvzhKwGRzfaxn/SvaktJKcUxcM7vIP7s1va1G0X8gSMmbsi86WgMwGYF4NkgTZrlBZnGWsuys2JrPEQ==
-  /@cycle/rxjs-run/10.2.0-rc.7:
+      integrity: sha512-FTXtJ13I8MkBo7BGBH6S41/vt/Z/s23ZjyhmyTrFGCFxBH5rtIJGcuVPwbSVRlpjFq7G2Vjxd585u+0kANhNvA==
+  /@cycle/rxjs-run/10.2.0:
     dependencies:
-      '@cycle/run': 5.2.0-rc.4
+      '@cycle/run': 5.2.0
       rxjs: 6.3.3
       symbol-observable: 1.2.0
       xstream: 11.7.0
@@ -41,7 +41,7 @@ packages:
     engines:
       node: '>=0.12.0'
     resolution:
-      integrity: sha512-o600eqZpxJTHvhWkUW2hmjSjTTvRZgwRoJs/FURwntKkIpiWJQdQuYFZrPue3lOuvh7serjPrf2X01Auz75y3w==
+      integrity: sha512-7+j4/Q61MxLvwSNhUnSuFeKgOJvfglwN1amipvt+k7bOP1lDQ3FfqD9eNeS2kBZLct1um+OVlxjROVCi2zwXOg==
   /@sinonjs/commons/1.3.0:
     dependencies:
       type-detect: 4.0.8
@@ -1170,7 +1170,6 @@ packages:
       node: '>=0.4.x'
     resolution:
       integrity: sha1-nr23Y1rQmccNzEwqH1AEKI6L2SQ=
-      tarball: 'http://registry.npmjs.org/events/-/events-1.1.1.tgz'
   /evp_bytestokey/1.0.3:
     dependencies:
       md5.js: 1.3.5
@@ -2765,7 +2764,6 @@ packages:
     dev: true
     resolution:
       integrity: sha512-tQtKA9WIAhBF3+VLAseyMqZeBjW0AHJoxOtYqSUZNJxauErmLbVm2FW1y+J/YA9dUrAC39ITejlZWhVIwawkKw==
-      tarball: 'http://registry.npmjs.org/readable-stream/-/readable-stream-2.3.6.tgz'
   /readdirp/2.2.1:
     dependencies:
       graceful-fs: 4.1.15
@@ -3195,7 +3193,6 @@ packages:
     dev: true
     resolution:
       integrity: sha512-n/ShnvDi6FHbbVfviro+WojiFzv+s8MPMHBczVePfUpDJLwoLT0ht1l4YwBCbi8pJAveEEdnkHyPyTP/mzRfwg==
-      tarball: 'http://registry.npmjs.org/string_decoder/-/string_decoder-1.1.1.tgz'
   /strip-ansi/3.0.1:
     dependencies:
       ansi-regex: 2.1.1
@@ -3631,7 +3628,7 @@ shrinkwrapMinorVersion: 9
 shrinkwrapVersion: 3
 specifiers:
   '@cycle/run': 'link:../run'
-  '@cycle/rxjs-run': ^10.2.0-rc.7
+  '@cycle/rxjs-run': ^10.2.0
   '@types/history': ^4.7.2
   '@types/mocha': ^5.2.5
   '@types/node': ^10.12.11
