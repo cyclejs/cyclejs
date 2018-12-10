@@ -1,3 +1,9 @@
+## 5.2.0 (2018-12-10)
+
+* fix(run): support TypeScript's strict mode ([7412f56](https://github.com/cyclejs/cyclejs/commit/7412f56))
+
+
+
 ## 5.1.0 (2018-10-17)
 
 * fix(run): support TypeScript 3.1 ([a90cd63](https://github.com/cyclejs/cyclejs/commit/a90cd63)), closes [#815](https://github.com/cyclejs/cyclejs/issues/815)
