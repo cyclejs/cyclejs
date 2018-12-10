@@ -1,5 +1,5 @@
 dependencies:
-  '@cycle/run': 5.2.0-rc.4
+  '@cycle/run': 5.2.0
   most: 1.7.3
   xstream: 11.7.0
 devDependencies:
@@ -12,7 +12,7 @@ devDependencies:
   tslint: 5.11.0
   typescript: 3.2.1
 packages:
-  /@cycle/run/5.2.0-rc.4:
+  /@cycle/run/5.2.0:
     dependencies:
       quicktask: 1.1.0
       xstream: 11.7.0
@@ -20,7 +20,7 @@ packages:
     engines:
       node: '>=0.12.0'
     resolution:
-      integrity: sha512-EtIPp9gdvzhKwGRzfaxn/SvaktJKcUxcM7vIP7s1va1G0X8gSMmbsi86WgMwGYF4NkgTZrlBZnGWsuys2JrPEQ==
+      integrity: sha512-FTXtJ13I8MkBo7BGBH6S41/vt/Z/s23ZjyhmyTrFGCFxBH5rtIJGcuVPwbSVRlpjFq7G2Vjxd585u+0kANhNvA==
   /@most/multicast/1.3.0:
     dependencies:
       '@most/prelude': 1.7.2
@@ -570,7 +570,7 @@ registry: 'https://registry.npmjs.org/'
 shrinkwrapMinorVersion: 9
 shrinkwrapVersion: 3
 specifiers:
-  '@cycle/run': ^5.2.0-rc.4
+  '@cycle/run': ^5.2.0
   '@types/mocha': ^5.2.5
   '@types/node': ^10.12.12
   '@types/sinon': ^5.0.7

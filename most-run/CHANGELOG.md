@@ -1,3 +1,9 @@
+## 8.2.0 (2018-12-10)
+
+* fix(most-run): support TypeScript's strict mode ([98b256b](https://github.com/cyclejs/cyclejs/commit/98b256b))
+
+
+
 ## 8.1.0 (2018-10-17)
 
 * fix(most-run): support TypeScript 3.1 ([b60fa96](https://github.com/cyclejs/cyclejs/commit/b60fa96))

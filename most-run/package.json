@@ -1,6 +1,6 @@
 {
   "name": "@cycle/most-run",
-  "version": "8.1.0",
+  "version": "8.2.0",
   "description": "The Cycle run() function to be used with most.js",
   "main": "lib/cjs/index.js",
   "module": "lib/es6/index.js",
@@ -27,7 +27,7 @@
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
   "homepage": "https://cycle.js.org",
   "dependencies": {
-    "@cycle/run": "^5.2.0-rc.4",
+    "@cycle/run": "^5.2.0",
     "most": "*",
     "xstream": "*"
   },
