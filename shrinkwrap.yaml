@@ -140,7 +140,7 @@ importers:
       xstream: '*'
   html:
     dependencies:
-      '@cycle/dom': 22.2.0
+      '@cycle/dom': 22.3.0
       '@cycle/run': 5.2.0
       snabbdom: 0.7.2
       snabbdom-to-html: 5.1.1
@@ -202,6 +202,7 @@ importers:
       karma-mocha: 1.3.0
       karma-typescript: /karma-typescript/3.0.13/karma@3.1.3+typescript@3.2.2
       mocha: 5.2.0
+      symbol-observable: 1.2.0
       ts-node: 7.0.1
       tslint: /tslint/5.11.0/typescript@3.2.2
       typescript: 3.2.2
@@ -230,6 +231,7 @@ importers:
       most: ^1.7.3
       rxjs: ^6.3.3
       superagent: ^3.8.3
+      symbol-observable: ^1.2.0
       ts-node: ^7.0.1
       tslint: ^5.11.0
       typescript: 3.2.x
@@ -387,7 +389,7 @@ importers:
       variable-diff: 1.1.0
       xstream: 11.7.0
     devDependencies:
-      '@cycle/dom': 22.2.0
+      '@cycle/dom': 22.3.0
       '@cycle/rxjs-run': 10.2.0
       '@types/mocha': 5.2.5
       '@types/node': 10.12.12
@@ -423,7 +425,7 @@ importers:
       variable-diff: 1.1.x
       xstream: '*'
 packages:
-  /@cycle/dom/22.2.0:
+  /@cycle/dom/22.3.0:
     dependencies:
       '@cycle/run': 5.2.0
       snabbdom: 0.7.2
@@ -432,7 +434,7 @@ packages:
     engines:
       node: '>=0.10.0'
     resolution:
-      integrity: sha512-V1lUTDiX+ZtJ+UCUe5i539zi1Y7wPcT4sxngrJGVZdKEEp8EGIis4ZVEfyN7FglGhSEQVz3CW7y+meTQ0QumBw==
+      integrity: sha512-7VMGsiQsHp8cHD+o3HcuOrvHkTlS7TY1aNyLoEJD0p5cWmxzaiotapFH+6rDpNq4FzuiIeZLR5SPHVNEt9pBQA==
   /@cycle/isolate/4.2.0:
     dependencies:
       '@cycle/run': 5.2.0
@@ -499,12 +501,6 @@ packages:
       node: '>=6'
     resolution:
       integrity: sha512-MI4Xx6LHs4Webyvi6EbspgyAb4D2Q2VtnCQ1blOJcoLS6mVa8lNN2rkIy1CVxfTUpoyIbCTkXES1rLXztFD1lg==
-  /@sinonjs/commons/1.0.2:
-    dependencies:
-      type-detect: 4.0.8
-    dev: true
-    resolution:
-      integrity: sha512-WR3dlgqJP4QNrLC4iXN/5/2WaLQQ0VijOOkmflqFGVJ6wLEpbSjo7c0ZeGIdtY8Crk7xBBp87sM6+Mkerz7alw==
   /@sinonjs/commons/1.3.0:
     dependencies:
       type-detect: 4.0.8
@@ -513,18 +509,18 @@ packages:
       integrity: sha512-j4ZwhaHmwsCb4DlDOIWnI5YyKDNMoNThsmwEpfHx6a1EpsGZ9qYLxP++LMlmBRjtGptGHFsGItJ768snllFWpA==
   /@sinonjs/formatio/3.1.0:
     dependencies:
-      '@sinonjs/samsam': 3.0.1
+      '@sinonjs/samsam': 3.0.2
     dev: true
     resolution:
       integrity: sha512-ZAR2bPHOl4Xg6eklUGpsdiIJ4+J1SNag1DHHrG/73Uz/nVwXqjgUtRPLoS+aVyieN9cSbc0E4LsU984tWcDyNg==
-  /@sinonjs/samsam/3.0.1:
+  /@sinonjs/samsam/3.0.2:
     dependencies:
-      '@sinonjs/commons': 1.0.2
+      '@sinonjs/commons': 1.3.0
       array-from: 2.1.1
       lodash.get: 4.4.2
     dev: true
     resolution:
-      integrity: sha512-pSgyLnrBNtKHosNULXd+wEk6edqlBs2qfGHagS14t+zOhDkE5Yto5HbsZwQRmRoCBNg13osPHb/4uwvLOJBkug==
+      integrity: sha512-m08g4CS3J6lwRQk1pj1EO+KEVWbrbXsmi9Pw0ySmrIbcVxVaedoFgLvFsV8wHLwh01EpROVz3KvVcD1Jmks9FQ==
   /@types/body-parser/1.17.0:
     dependencies:
       '@types/connect': 3.4.32
@@ -6996,7 +6992,7 @@ packages:
     dependencies:
       '@sinonjs/commons': 1.3.0
       '@sinonjs/formatio': 3.1.0
-      '@sinonjs/samsam': 3.0.1
+      '@sinonjs/samsam': 3.0.2
       diff: 3.5.0
       lolex: 3.0.0
       nise: 1.4.7
