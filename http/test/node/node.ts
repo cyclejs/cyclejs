@@ -3,10 +3,10 @@ import * as assert from 'assert';
 import {Observable, of} from 'rxjs';
 import {mergeAll} from 'rxjs/operators';
 import {setup} from '@cycle/rxjs-run';
-import {HTTPSource, makeHTTPDriver} from '../src/rxjs';
-import {runTests} from './browser/common';
-import {globalSandbox} from './support/global';
-import {startServer} from './support/server';
+import {HTTPSource, makeHTTPDriver} from '../../src/rxjs';
+import {runTests} from '../browser/common';
+import {globalSandbox} from '../support/global';
+import {startServer} from '../support/server';
 
 declare const process: any;
 process.env.PORT = 5000;

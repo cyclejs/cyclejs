@@ -13,6 +13,8 @@
   "files": [
     "src/index.ts",
     "src/rxjs.ts",
-    "src/most.ts"
+    "src/most.ts",
+    "src/superagent-mock.d.ts",
+    "src/mockHTTPDriver.ts"
   ]
 }
