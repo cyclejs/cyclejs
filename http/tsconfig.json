@@ -8,13 +8,13 @@
       "es2015.collection",
       "es2015.promise",
       "es2015.iterable"
-    ]
+    ],
+    "typeRoots": ["./node_modules/@types", "./typings"]
   },
   "files": [
     "src/index.ts",
     "src/rxjs.ts",
     "src/most.ts",
-    "src/superagent-mock.d.ts",
     "src/mockHTTPDriver.ts"
   ]
 }
