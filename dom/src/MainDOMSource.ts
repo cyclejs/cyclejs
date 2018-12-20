@@ -16,7 +16,7 @@ export interface SpecialSelector {
   document: DocumentDOMSource;
 }
 
-export class MainDOMSource implements DOMSource {
+export class MainDOMSource {
   constructor(
     private _rootElement$: Stream<Element>,
     private _sanitation$: Stream<null>,
@@ -34,7 +34,7 @@ export class MainDOMSource implements DOMSource {
         source._eventDelegator,
         source._name
       );
-    this.isolateSink = makeIsolateSink(this._namespace);
+    this.isolateSink = makeIsolateSink(this._namespace) as any;
   }
 
   private _elements(): Stream<Array<Element>> {
@@ -144,5 +144,5 @@ export class MainDOMSource implements DOMSource {
   // not get bitten by a missing `this` reference.
 
   public isolateSource: (source: MainDOMSource, scope: string) => MainDOMSource;
-  public isolateSink: IsolateSink;
+  public isolateSink: IsolateSink<any>;
 }

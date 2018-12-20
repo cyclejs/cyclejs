@@ -3,6 +3,7 @@ import 'mocha';
 import * as assert from 'assert';
 import {setup} from '../src/index';
 import xs, {Stream} from 'xstream';
+import xsDelay from 'xstream/extra/delay';
 import {Observable, of, from, range} from 'rxjs';
 import {take, startWith, map, delay, concatMap, tap} from 'rxjs/operators';
 
@@ -32,12 +33,12 @@ describe('setup', function() {
   it('should allow to not use all sources in main', function() {
     function app(so: {first: Observable<string>}) {
       return {
-        first: xs.of('test'),
-        second: xs.of('string'),
+        first: of('test'),
+        second: of('string'),
       };
     }
     function app2() {
-      return {second: xs.of('test')};
+      return {second: of('test')};
     }
     function driver(sink: Stream<string>) {
       return xs.of('answer');
@@ -49,9 +50,9 @@ describe('setup', function() {
     });
 
     assert.strictEqual(typeof sinks, 'object');
-    assert.strictEqual(typeof sinks.second.addListener, 'function');
+    assert.strictEqual(typeof sinks.second.pipe, 'function');
     assert.strictEqual(typeof sinks2, 'object');
-    assert.strictEqual(typeof sinks2.second.addListener, 'function');
+    assert.strictEqual(typeof sinks2.second.pipe, 'function');
   });
 
   it('should return sinks object and sources object', function() {
@@ -72,7 +73,7 @@ describe('setup', function() {
       };
     }
     function driver() {
-      return of('b');
+      return xs.of('b');
     }
 
     const {sinks, sources} = setup(app, {other: driver});
@@ -132,11 +133,8 @@ describe('setup', function() {
         ),
       };
     }
-    function driver(xsSink: any): Observable<number> {
-      return from(xsSink).pipe(
-        map((x: string) => x.charCodeAt(0)),
-        delay(1)
-      );
+    function driver(xsSink: Stream<string>): Stream<number> {
+      return xsSink.map(x => x.charCodeAt(0)).compose(xsDelay(1));
     }
     const {sources, run} = setup(app, {other: driver});
     let dispose: any;
@@ -151,12 +149,12 @@ describe('setup', function() {
   it('should not work after has been disposed', function(done) {
     const number$ = range(1, 3).pipe(concatMap(x => of(x).pipe(delay(150))));
 
-    function app(_sources: any): any {
+    function app(_sources: {other: Observable<string>}) {
       return {other: number$};
     }
 
     const {sources, run} = setup(app, {
-      other: (num$: any) => from(num$).pipe(map((num: any) => 'x' + num)),
+      other: (num$: Stream<number>) => num$.map(num => 'x' + num),
     });
 
     let dispose: any;

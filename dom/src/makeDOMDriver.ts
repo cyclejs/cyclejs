@@ -17,7 +17,7 @@ import {EventDelegator} from './EventDelegator';
 function makeDOMDriverInputGuard(modules: any) {
   if (!Array.isArray(modules)) {
     throw new Error(
-      `Optional modules option must be an array for snabbdom modules`,
+      `Optional modules option must be an array for snabbdom modules`
     );
   }
 }
@@ -166,7 +166,7 @@ function makeDOMDriver(
       [],
       isolateModule,
       delegator,
-      name,
+      name
     );
   }
 

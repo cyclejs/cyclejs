@@ -2,50 +2,54 @@ import {Stream} from 'xstream';
 import * as most from 'most';
 import {Stream as MostStream} from 'most';
 import {setAdapt} from '@cycle/run/lib/adapt';
-import {setup as coreSetup, DisposeFunction, Drivers, Main} from '@cycle/run';
+import {
+  setup as coreSetup,
+  DisposeFunction,
+  Drivers,
+  Main,
+  Sources,
+  Sinks,
+  GetValidInputs,
+  WidenStream,
+} from '@cycle/run';
 
-export type MainOutputs<M extends Main> = ReturnType<M>;
-
-export type DriverInputs<M extends Main> = {
-  [k in string & keyof ReturnType<M>]: ReturnType<M>[k] extends MostStream<
-    infer T
-  >
-    ? Stream<T>
-    : never
-};
-
-export type DriverOutputs<D extends Drivers> = {
-  [k in keyof D]: ReturnType<D[k]>
-};
-
-export type MainInputs<D extends Drivers> = {
-  [k in keyof D]: ReturnType<D[k]> extends Stream<infer T>
-    ? MostStream<T>
-    : ReturnType<D[k]>
-};
+export type ToMostStream<S> = S extends Stream<infer T> ? MostStream<T> : S;
+export type ToMostStreams<S> = {[k in keyof S]: ToMostStream<S[k]>};
 
 export type MatchingMain<D extends Drivers, M extends Main> =
   | Main & {
-      (so: MainInputs<D>): MainOutputs<M>;
+      (so: ToMostStreams<Sources<D>>): Sinks<M>;
     }
   | Main & {
-      (): MainOutputs<M>;
+      (): Sinks<M>;
     };
+
+// We return S and not never, because isolation currently cannot type the return stream
+// resulting in the value being typed any.
+export type ToStream<S> = S extends MostStream<infer T> ? Stream<T> : S;
 
 export type MatchingDrivers<D extends Drivers, M extends Main> = Drivers &
   {
-    [k in string & keyof MainOutputs<M>]:
-      | ((si?: DriverInputs<M>[k]) => DriverOutputs<D>[k])
-      | ((si: DriverInputs<M>[k]) => DriverOutputs<D>[k])
+    [k in string & keyof Sinks<M>]:
+      | (() => Sources<D>[k])
+      | ((
+          si: Stream<WidenStream<ToStream<Sinks<M>[k]>, GetValidInputs<D[k]>>>
+        ) => Sources<D>[k])
   };
 
 export interface CycleProgram<
   D extends MatchingDrivers<D, M>,
   M extends MatchingMain<D, M>
 > {
-  sources: MainInputs<D>;
-  sinks: MainOutputs<M>;
+  sources: ToMostStreams<Sources<D>>;
+  sinks: Sinks<M>;
   run(): DisposeFunction;
+}
+
+export interface Engine<D extends Drivers> {
+  sources: Sources<D>;
+  run<M extends MatchingMain<D, M>>(sinks: Sinks<M>): DisposeFunction;
+  dispose(): void;
 }
 
 setAdapt(function adaptXstreamToMost(stream: Stream<any>): MostStream<any> {

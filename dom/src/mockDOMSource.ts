@@ -5,24 +5,24 @@ import {DOMSource, EventsFnOptions} from './DOMSource';
 import {adapt} from '@cycle/run/lib/adapt';
 
 export type MockConfig = {
-  [name: string]: FantasyObservable | MockConfig;
+  [name: string]: FantasyObservable<any> | MockConfig;
 };
 
 const SCOPE_PREFIX = '___';
 
-export class MockedDOMSource implements DOMSource {
-  private _elements: FantasyObservable;
+export class MockedDOMSource {
+  private _elements: FantasyObservable<any>;
 
   constructor(private _mockConfig: MockConfig) {
     if (_mockConfig.elements) {
-      this._elements = _mockConfig.elements as FantasyObservable;
+      this._elements = _mockConfig.elements as FantasyObservable<any>;
     } else {
       this._elements = adapt(xs.empty());
     }
   }
 
   public elements(): any {
-    const out: Partial<DevToolEnabledSource> & FantasyObservable = this
+    const out: Partial<DevToolEnabledSource> & FantasyObservable<any> = this
       ._elements;
     out._isCycleSource = 'MockedDOM';
     return out;
@@ -44,7 +44,7 @@ export class MockedDOMSource implements DOMSource {
     bubbles?: boolean
   ): any {
     const streamForEventType = this._mockConfig[eventType] as any;
-    const out: DevToolEnabledSource & FantasyObservable = adapt(
+    const out: DevToolEnabledSource & FantasyObservable<any> = adapt(
       streamForEventType || xs.empty()
     );
 

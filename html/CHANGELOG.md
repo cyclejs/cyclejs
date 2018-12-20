@@ -1,3 +1,9 @@
+## 3.1.0 (2018-12-10)
+
+* fix(html): support TypeScript's strict mode ([4a4119e](https://github.com/cyclejs/cyclejs/commit/4a4119e))
+
+
+
 ## 3.0.0 (2018-10-17)
 
 * fix(html): error handling for makeHtmlDriver method (#714) ([fd02418](https://github.com/cyclejs/cyclejs/commit/fd02418)), closes [#714](https://github.com/cyclejs/cyclejs/issues/714) [#710](https://github.com/cyclejs/cyclejs/issues/710)

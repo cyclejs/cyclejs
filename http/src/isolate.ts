@@ -40,7 +40,7 @@ export function isolateSink(
     return request$;
   }
   return adapt(
-    xs.fromObservable(request$).map((req: RequestInput | string) => {
+    xs.fromObservable<RequestInput | string>(request$).map(req => {
       if (typeof req === 'string') {
         return {url: req, _namespace: [scope]} as RequestOptions;
       }

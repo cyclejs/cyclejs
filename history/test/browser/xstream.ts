@@ -1,6 +1,8 @@
 import * as assert from 'assert';
 import {
   HistoryInput,
+  PushHistoryInput,
+  ReplaceHistoryInput,
   Location,
   captureClicks,
   makeHistoryDriver,
@@ -61,7 +63,7 @@ describe('historyDriver - xstream', () => {
   it('should create a location from PushHistoryInput', function(done) {
     function main(_sources: {history: Stream<Location>}) {
       return {
-        history: xs.of({type: 'push', pathname: '/test'}),
+        history: xs.of<PushHistoryInput>({type: 'push', pathname: '/test'}),
       };
     }
 
@@ -83,7 +85,10 @@ describe('historyDriver - xstream', () => {
   it('should create a location from ReplaceHistoryInput', function(done) {
     function main(_sources: {history: Stream<Location>}) {
       return {
-        history: xs.of({type: 'replace', pathname: '/test'}),
+        history: xs.of<ReplaceHistoryInput>({
+          type: 'replace',
+          pathname: '/test',
+        }),
       };
     }
 

@@ -44,7 +44,7 @@ export class VNodeWrapper {
     const vnode = h(
       `${tagName.toLowerCase()}${selId}${selClass}`,
       {},
-      children,
+      children
     );
     vnode.data = vnode.data || {};
     vnode.data.isolate = vnode.data.isolate || [];

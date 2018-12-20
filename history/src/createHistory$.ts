@@ -2,9 +2,11 @@ import xs, {Stream, MemoryStream, Listener} from 'xstream';
 import {Location, History, UnregisterCallback} from 'history';
 import {HistoryInput} from './types';
 
+type Narrow<S> = S extends string ? never : S;
+
 export function createHistory$(
   history: History,
-  sink$: Stream<HistoryInput | string>
+  sink$: Stream<HistoryInput>
 ): MemoryStream<Location> {
   const history$ = xs.createWithMemory<Location>().startWith(history.location);
   const call = makeCallOnHistory(history);
@@ -20,7 +22,7 @@ export function createHistory$(
 }
 
 function makeCallOnHistory(history: History) {
-  return function call(input: HistoryInput): void {
+  return function call(input: Narrow<HistoryInput>): void {
     if (input.type === 'push') {
       history.push(input.pathname, input.state);
     }
@@ -44,11 +46,11 @@ function makeCallOnHistory(history: History) {
 }
 
 function createObserver(
-  call: (input: HistoryInput) => void,
+  call: (input: Narrow<HistoryInput>) => void,
   unlisten: UnregisterCallback
-): Listener<HistoryInput | string> {
+): Listener<HistoryInput> {
   return {
-    next(input: HistoryInput | string) {
+    next(input: HistoryInput) {
       if (typeof input === 'string') {
         call({type: 'push', pathname: input});
       } else {

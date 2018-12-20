@@ -1,4 +1,4 @@
-import xs from 'xstream';
+import xs, {Stream} from 'xstream';
 import {adapt} from '@cycle/run/lib/adapt';
 export type Component<So, Si> = (sources: So, ...rest: Array<any>) => Si;
 
@@ -85,7 +85,7 @@ function isolateAllSources<So extends Sources>(
       innerSources[channel] = outerSource.isolateSource(
         outerSource,
         scopes[channel]
-      );
+      ) as any;
     } else if (outerSources.hasOwnProperty(channel)) {
       innerSources[channel] = outerSources[channel];
     }

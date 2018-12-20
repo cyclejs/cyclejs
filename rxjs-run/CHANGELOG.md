@@ -1,3 +1,9 @@
+## 10.2.0 (2018-12-10)
+
+* fix(rxjs-run): support TypeScript's strict mode ([e4fe427](https://github.com/cyclejs/cyclejs/commit/e4fe427))
+
+
+
 ## 10.1.0 (2018-10-17)
 
 * fix(rxjs-run): support TypeScript 3.1 ([8ff936f](https://github.com/cyclejs/cyclejs/commit/8ff936f))

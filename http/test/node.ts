@@ -1,3 +1,4 @@
+import 'symbol-observable'; //tslint:disable-line
 import * as assert from 'assert';
 import {Observable, of} from 'rxjs';
 import {mergeAll} from 'rxjs/operators';

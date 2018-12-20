@@ -2,7 +2,13 @@ import * as assert from 'assert';
 import xs, {Stream} from 'xstream';
 import {setup} from '@cycle/run';
 import {setAdapt} from '@cycle/run/lib/adapt';
-import {makeServerHistoryDriver, Location, HistoryInput} from '../../src';
+import {
+  makeServerHistoryDriver,
+  Location,
+  HistoryInput,
+  PushHistoryInput,
+  ReplaceHistoryInput,
+} from '../../src';
 
 describe('serverHistoryDriver - xstream', function() {
   beforeEach(function() {
@@ -50,7 +56,7 @@ describe('serverHistoryDriver - xstream', function() {
   it('should create a location from PushHistoryInput', done => {
     function main(_sources: {history: Stream<Location>}) {
       return {
-        history: xs.of({type: 'push', pathname: '/test'}),
+        history: xs.of<PushHistoryInput>({type: 'push', pathname: '/test'}),
       };
     }
 
@@ -74,7 +80,10 @@ describe('serverHistoryDriver - xstream', function() {
   it('should create a location from ReplaceHistoryInput', done => {
     function main(_sources: {history: Stream<Location>}) {
       return {
-        history: xs.of({type: 'replace', pathname: '/test'}),
+        history: xs.of<ReplaceHistoryInput>({
+          type: 'replace',
+          pathname: '/test',
+        }),
       };
     }
 

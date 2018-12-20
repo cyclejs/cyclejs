@@ -28,7 +28,7 @@ export function callDrivers<D extends Drivers>(
   const sources: Sources<D> = {} as Sources<D>;
   for (const name in drivers) {
     if (drivers.hasOwnProperty(name)) {
-      sources[name as any] = drivers[name](sinkProxies[name], name);
+      sources[name as any] = (drivers[name] as any)(sinkProxies[name], name);
       if (sources[name as any] && typeof sources[name as any] === 'object') {
         (sources[name as any] as DevToolEnabledSource)._isCycleSource = name;
       }

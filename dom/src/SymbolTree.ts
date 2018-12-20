@@ -27,7 +27,7 @@ export default class SymbolTree<Payload, T> {
   public getDefault(
     path: Array<T>,
     mkDefaultElement: () => Payload,
-    max?: number,
+    max?: number
   ): Payload {
     return this.get(path, mkDefaultElement, max) as Payload;
   }
@@ -39,7 +39,7 @@ export default class SymbolTree<Payload, T> {
   public get(
     path: Array<T>,
     mkDefaultElement?: () => Payload,
-    max?: number,
+    max?: number
   ): Payload | undefined {
     let curr = this.tree;
     const _max = max !== undefined ? max : path.length;

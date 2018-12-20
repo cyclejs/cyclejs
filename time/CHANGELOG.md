@@ -1,3 +1,9 @@
+## 0.19.0 (2018-12-10)
+
+* fix(time): support TypeScript's strict mode ([d4c7d6b](https://github.com/cyclejs/cyclejs/commit/d4c7d6b))
+
+
+
 ## 0.18.0 (2018-12-02)
 
 * fix(time): unsubscribes Time operators on complete (#858) ([71dc4df](https://github.com/cyclejs/cyclejs/commit/71dc4df)), closes [#858](https://github.com/cyclejs/cyclejs/issues/858) [#848](https://github.com/cyclejs/cyclejs/issues/848)
