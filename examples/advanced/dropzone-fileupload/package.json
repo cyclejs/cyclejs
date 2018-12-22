@@ -1,0 +1,29 @@
+{
+  "name": "dropzone-fileupload",
+  "version": "0.0.0",
+  "description": "file upload example",
+  "main": "dist/main.js",
+  "author": "Robin Schulemann <rschulemann@gmail.com> (github.com/JuniperChicago)",
+  "license": "MIT",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prebrowserify": "mkdirp dist",
+    "browserify": "browserify src/main.ts -p [ tsify --noImplicitAny ] > dist/main.js",
+    "start": "pnpm install && pnpm run browserify && echo 'OPEN index.html IN YOUR BROWSER'",
+    "server": "mkdirp uploads && node server/server"
+  },
+  "dependencies": {
+    "@cycle/dom": "^22.3.0",
+    "@cycle/http": "^15.1.0",
+    "@cycle/run": "^5.2.0",
+    "xstream": "^11.7.0"
+  },
+  "devDependencies": {
+    "browserify": "^16.2.3",
+    "express": "^4.16.4",
+    "mkdirp": "^0.5.1",
+    "multer": "^1.4.1",
+    "tsify": "^4.0.1",
+    "typescript": "^3.2.2"
+  }
+}
