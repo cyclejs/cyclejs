@@ -1,14 +1,15 @@
 {
-  "name": "dropzone-fileupload",
+  "name": "example",
   "version": "0.0.0",
-  "description": "file upload example",
+  "private": true,
+  "description": "file drag, drop, and upload example",
   "main": "dist/main.js",
   "author": "Robin Schulemann <rschulemann@gmail.com> (github.com/JuniperChicago)",
   "license": "MIT",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prebrowserify": "mkdirp dist",
-    "browserify": "browserify src/main.ts -p [ tsify --noImplicitAny ] > dist/main.js",
+    "browserify": "browserify src/main.js -t babelify --outfile dist/main.js",
     "start": "pnpm install && pnpm run browserify && echo 'OPEN index.html IN YOUR BROWSER'",
     "server": "mkdirp uploads && node server/server"
   },
@@ -16,13 +17,18 @@
     "@cycle/dom": "^22.3.0",
     "@cycle/http": "^15.1.0",
     "@cycle/run": "^5.2.0",
+    "@cycle/state": "^1.1.0",
     "xstream": "^11.7.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.2.3",
+    "babelify": "^10.0.0",
     "browserify": "^16.2.3",
     "express": "^4.16.4",
     "mkdirp": "^0.5.1",
     "multer": "^1.4.1",
+    "prettier": "^1.15.3",
     "tsify": "^4.0.1",
     "typescript": "^3.2.2"
   }
