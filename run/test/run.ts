@@ -135,7 +135,7 @@ describe('run', function() {
       // order of sinks is important to reproduce the bug
       return {
         HTTP: sinks$.map(sinks => sinks.HTTP).flatten(),
-        DOM: sinks$.map(sinks => sinks.DOM).flatten(),
+        DOM: sinks$.map(sinks => sinks.DOM as Stream<string>).flatten(),
       };
     }
 
@@ -156,7 +156,7 @@ describe('run', function() {
 
       // order of sinks is important to reproduce the bug
       return {
-        DOM: sinks$.map(sinks => sinks.DOM).flatten(),
+        DOM: sinks$.map(sinks => sinks.DOM as Stream<string>).flatten(),
         HTTP: sinks$.map(sinks => sinks.HTTP).flatten(),
       };
     }
