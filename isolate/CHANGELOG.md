@@ -1,3 +1,19 @@
+## 5.0.0 (2019-02-03)
+
+* fix(isolate): use TypeScript unknown to force casting types ([ff698ce](https://github.com/cyclejs/cyclejs/commit/ff698ce))
+
+
+### BREAKING CHANGE
+
+* If you use JavaScript, there are no breaking changes. If you use
+TypeScript, then from now onwards isolate() returns sink types that are
+never type "any", but instead returns "unknown". Often it may infer the
+correct type, but when it cannot infer the type, it will return
+"unknown" which means you are forced to type cast it to the correct
+type. This is better than "any", because "any" is like JavaScript and
+gives little type safety.
+
+
 ## 4.2.0 (2018-12-10)
 
 * fix(isolate): support TypeScript's strict mode ([c8aee41](https://github.com/cyclejs/cyclejs/commit/c8aee41))
