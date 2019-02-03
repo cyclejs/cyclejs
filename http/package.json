@@ -31,7 +31,7 @@
     "xstream": "*"
   },
   "devDependencies": {
-    "@cycle/isolate": "^4.2.0",
+    "@cycle/isolate": "^5.0.0",
     "@cycle/rxjs-run": "^10.2.0",
     "@types/body-parser": "1.17.x",
     "@types/cookie-parser": "1.4.x",
