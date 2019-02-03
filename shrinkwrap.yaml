@@ -146,9 +146,9 @@ importers:
       snabbdom-to-html: 5.1.1
       xstream: 11.10.0
     devDependencies:
-      '@cycle/isolate': 4.2.0
+      '@cycle/isolate': 5.0.0
       '@types/mocha': 5.2.5
-      '@types/node': 10.12.18
+      '@types/node': 10.12.21
       '@types/sinon': 5.0.7
       mocha: 5.2.0
       simulant: 0.2.2
@@ -159,7 +159,7 @@ importers:
       typescript: 3.2.4
     specifiers:
       '@cycle/dom': ^22.2.0
-      '@cycle/isolate': ^4.2.0
+      '@cycle/isolate': ^5.0.0
       '@cycle/run': ^5.2.0
       '@types/mocha': ^5.2.5
       '@types/node': ^10.12.11
@@ -428,7 +428,7 @@ packages:
   /@cycle/dom/22.3.0:
     dependencies:
       '@cycle/run': 5.2.0
-      snabbdom: 0.7.3
+      snabbdom: 0.7.2
       snabbdom-selector: 4.1.0
       xstream: 11.10.0
     engines:
@@ -7099,7 +7099,6 @@ packages:
     resolution:
       integrity: sha512-rz/Q8nh2RiY9echnpQdIQpGsvqPyjfEcFZ636tlggw59WlcsRrWfctYIVlGHZxUzcX025lw69oTCqceGdeXoGg==
   /snabbdom/0.7.2:
-    dev: false
     resolution:
       integrity: sha512-rDY283fYUB/3z2tjXsRRccsbVJqmGLtP+iI1tfa1DDHo2xZ49cq1leq9JmYyvZQhESuYJRY/is6WYhP2UuiRVg==
   /snabbdom/0.7.3:
