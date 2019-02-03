@@ -142,7 +142,7 @@ describe('withState', function() {
     function Parent(sources: ParentSources): ParentSinks {
       const childSinks = isolate(Child, {state: 'child'})(sources);
       return {
-        state: childSinks.state,
+        state: childSinks.state as Stream<Reducer<Parent>>,
       };
     }
   });
@@ -450,7 +450,7 @@ describe('withState', function() {
 
     function main(sources: {state: StateSource<any>}) {
       const childSinks = isolate(child, 'child')(sources);
-      const childReducer$ = childSinks.state;
+      const childReducer$ = childSinks.state as Stream<Reducer<any>>;
 
       const reducer$ = childReducer$;
 

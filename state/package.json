@@ -27,7 +27,7 @@
   "typings": "lib/cjs/index.d.ts",
   "types": "lib/cjs/index.d.ts",
   "dependencies": {
-    "@cycle/isolate": "^4.2.0",
+    "@cycle/isolate": "^5.0.0",
     "@cycle/run": "^5.2.0",
     "quicktask": "1.1.0",
     "xstream": ">=11"
