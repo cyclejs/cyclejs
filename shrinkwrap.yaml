@@ -183,7 +183,7 @@ importers:
       superagent: 3.8.3
       xstream: 11.10.0
     devDependencies:
-      '@cycle/isolate': 4.2.0
+      '@cycle/isolate': 5.0.0
       '@cycle/rxjs-run': 10.2.0
       '@types/body-parser': 1.17.0
       '@types/cookie-parser': 1.4.1
@@ -207,7 +207,7 @@ importers:
       tslint: /tslint/5.12.1/typescript@3.2.4
       typescript: 3.2.4
     specifiers:
-      '@cycle/isolate': ^4.2.0
+      '@cycle/isolate': ^5.0.0
       '@cycle/run': ^5.2.0
       '@cycle/rxjs-run': ^10.2.0
       '@types/body-parser': 1.17.x
@@ -448,7 +448,6 @@ packages:
     dependencies:
       '@cycle/run': 5.2.0
       xstream: 11.10.0
-    dev: false
     engines:
       node: '>=0.10.0'
     resolution:
