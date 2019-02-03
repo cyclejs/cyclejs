@@ -440,7 +440,7 @@ describe('isolate', function() {
       }
 
       function MyDataflowComponent(
-        sources: {other: any},
+        sources: {other: unknown},
         foo: string,
         bar: string
       ) {
@@ -456,8 +456,8 @@ describe('isolate', function() {
       );
 
       assert.strictEqual(typeof scopedSinks, `object`);
-      scopedSinks.other.subscribe((x: Array<string>) => {
-        assert.strictEqual(x.join(), `foo,bar`);
+      scopedSinks.other.subscribe(strings => {
+        assert.strictEqual(strings.join(), `foo,bar`);
         done();
       });
     });
@@ -492,11 +492,11 @@ describe('isolate', function() {
         {other: new MyTestSource()},
         `foo`,
         `bar`
-      );
+      ) as {other: Observable<Array<string>>};
 
       assert.strictEqual(typeof scopedSinks, `object`);
-      scopedSinks.other.subscribe((x: Array<string>) => {
-        assert.strictEqual(x.join(), `foo,bar`);
+      scopedSinks.other.subscribe(strings => {
+        assert.strictEqual(strings.join(), `foo,bar`);
         done();
       });
     });
@@ -531,11 +531,11 @@ describe('isolate', function() {
         {other: new MyTestSource()},
         `foo`,
         `bar`
-      );
+      ) as {other: Observable<Array<number>>};
 
       assert.strictEqual(typeof scopedSinks, `object`);
-      scopedSinks.other.subscribe((x: Array<number>) => {
-        assert.strictEqual(x.join(), `123,456`);
+      scopedSinks.other.subscribe(nums => {
+        assert.strictEqual(nums.join(), `123,456`);
         done();
       });
     });
@@ -624,7 +624,7 @@ describe('isolate', function() {
         };
       }
 
-      function MyDataflowComponent(sources: {other: any}) {
+      function MyDataflowComponent(sources: {other: unknown}) {
         return {
           other: of('a'),
         };
@@ -632,7 +632,7 @@ describe('isolate', function() {
       const scopedMyDataflowComponent = isolate(MyDataflowComponent, `myScope`);
       const scopedSinks = scopedMyDataflowComponent({other: driver()});
       const i = 0;
-      scopedSinks.other.subscribe((x: any) => {
+      scopedSinks.other.subscribe(x => {
         assert.strictEqual(x, 'a myScope');
         done();
       });
