@@ -346,14 +346,14 @@ importers:
       xstream: '*'
   state:
     dependencies:
-      '@cycle/isolate': 4.2.0
+      '@cycle/isolate': 5.0.0
       '@cycle/run': 5.2.0
       quicktask: 1.1.0
       xstream: 11.10.0
     devDependencies:
       '@cycle/rxjs-run': 10.2.0
       '@types/mocha': 5.2.5
-      '@types/node': 10.12.18
+      '@types/node': 10.12.21
       '@types/sinon': 5.0.7
       mocha: 5.2.0
       most: /most/1.7.3/most@1.7.3
@@ -362,7 +362,7 @@ importers:
       tslint: /tslint/5.12.1/typescript@3.2.4
       typescript: 3.2.4
     specifiers:
-      '@cycle/isolate': ^4.2.0
+      '@cycle/isolate': ^5.0.0
       '@cycle/run': ^5.2.0
       '@cycle/rxjs-run': ^10.2.0
       '@types/mocha': 5.2.x
@@ -439,10 +439,20 @@ packages:
     dependencies:
       '@cycle/run': 5.2.0
       xstream: 11.10.0
+    dev: true
     engines:
       node: '>=0.10.0'
     resolution:
       integrity: sha512-I11AOSaKIIuh5Ww08BRO9pZiqi5HxtQUM2eFMOAkwDyjlLfuzqvZKSg61NWJfl/RPAgcMwgDo1tbExSr3nI+NA==
+  /@cycle/isolate/5.0.0:
+    dependencies:
+      '@cycle/run': 5.2.0
+      xstream: 11.10.0
+    dev: false
+    engines:
+      node: '>=0.10.0'
+    resolution:
+      integrity: sha512-9MS+Z7AjRzYljOc+AqSQUQBmQw0473rqv6op0dyhumILydcGirTmR6hrilJ/IYcYjeDEYaVfftYuIu15kU/Qcg==
   /@cycle/run/5.2.0:
     dependencies:
       quicktask: 1.1.0
@@ -574,6 +584,10 @@ packages:
   /@types/node/10.12.18:
     resolution:
       integrity: sha512-fh+pAqt4xRzPfqA6eh3Z2y6fyZavRIumvjhaCL753+TVkGKGhpPeyrJG2JftD0T9q4GF00KjefsQ+PQNDdWQaQ==
+  /@types/node/10.12.21:
+    dev: true
+    resolution:
+      integrity: sha512-CBgLNk4o3XMnqMc0rhb6lc77IwShMEglz05deDcn2lQxyXEZivfwgYJu7SMha9V5XcrP6qZuevTHV/QrN2vjKQ==
   /@types/range-parser/1.2.3:
     dev: true
     resolution:
