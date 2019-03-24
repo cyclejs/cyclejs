@@ -12,6 +12,7 @@ import {
   GetValidInputs,
   WidenStream,
 } from '@cycle/run';
+import { create } from '@most/create'
 
 export type ToMostStream<S> = S extends Stream<infer T> ? MostStream<T> : S;
 export type ToMostStreams<S> = {[k in keyof S]: ToMostStream<S[k]>};
@@ -53,7 +54,20 @@ export interface Engine<D extends Drivers> {
 }
 
 setAdapt(function adaptXstreamToMost(stream: Stream<any>): MostStream<any> {
-  return most.from(stream as any);
+  return create((add, end, error) => {
+    const listener = {
+      next: (value: any) => {
+        add(value)
+      },
+      error: (err: Error) => {
+        error(err)
+      },
+      complete: () => {
+        end()
+      },
+    }
+    stream.subscribe(listener)
+  })
 });
 
 /**

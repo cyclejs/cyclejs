@@ -4,6 +4,9 @@ import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {run, setup} from '../src/index';
 import * as most from 'most';
+import { now, tap, startWith, runEffects } from '@most/core'
+import { newDefaultScheduler } from '@most/scheduler'
+import { create } from '@most/create'
 
 describe('run()', function() {
   it('should be a function', function() {
@@ -87,5 +90,42 @@ describe('run()', function() {
 
       done();
     }, 100);
+  });
+  it('create supports mostjs core', function (done) {
+    const sandbox = sinon.createSandbox();
+    const spy = sandbox.spy();
+    const asdf$ = create((add) => { setTimeout(add, 100, 'event 1') }) as any
+
+    const spying = tap(spy, asdf$)
+    runEffects(spying, newDefaultScheduler())
+
+    setTimeout(() => {
+      sinon.assert.calledOnce(spy);
+      done()
+    }, 150);
+  });
+  it('mostjs core can be used in cyclejs', function () {
+    const sandbox = sinon.createSandbox();
+    const spy = sandbox.spy();
+    const mainSpy = sandbox.spy()
+    function app(sources: any) {
+      const other$ = sources.other
+      const spy$ = tap(mainSpy, other$)
+      const sink$ = startWith('a', spy$)
+      return {
+        other: sink$,
+      };
+    }
+    function driver() {
+      const now$ = now('b')
+      tap(spy, now$);
+      return now$
+    }
+    const dispose = run(app, { other: driver });
+    setTimeout(() => {
+      sinon.assert.calledOnce(spy);
+      sinon.assert.calledWith(mainSpy, 'b')
+    });
+    dispose();
   });
 });
