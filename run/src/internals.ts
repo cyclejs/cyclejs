@@ -1,6 +1,6 @@
 import xs, {Stream} from 'xstream';
 import quicktask from 'quicktask';
-import {adapt} from './adapt';
+import {adapt, unadapt} from './adapt';
 import {
   DevToolEnabledSource,
   DisposeFunction,
@@ -94,9 +94,9 @@ export function replicateMany<Si extends any>(
     };
   });
 
-  const subscriptions = sinkNames.map(name =>
-    xs.fromObservable(sinks[name] as any).subscribe(replicators[name])
-  );
+  const subscriptions = sinkNames.map(name => {
+    return unadapt(sinks[name]).subscribe(replicators[name])
+  });
 
   sinkNames.forEach(name => {
     const listener = sinkProxies[name];

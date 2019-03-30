@@ -7,8 +7,7 @@
   "typings": "lib/cjs/index.d.ts",
   "types": "lib/cjs/index.d.ts",
   "repository": "https://github.com/cyclejs/cyclejs/tree/master/most-run",
-  "contributors": [
-    {
+  "contributors": [{
       "name": "Andre Staltz",
       "email": "andre@staltz.com"
     },
@@ -28,10 +27,14 @@
   "homepage": "https://cycle.js.org",
   "dependencies": {
     "@cycle/run": "^5.2.0",
+    "@most/create": "github:janat08/create#master",
     "most": "*",
+    "most-to-xstream": "^0.1.5",
     "xstream": "*"
   },
   "devDependencies": {
+    "@most/core": "^1.3.4",
+    "@most/scheduler": "^1.2.2",
     "@types/mocha": "^5.2.5",
     "@types/node": "^10.12.12",
     "@types/sinon": "^5.0.7",

@@ -1,7 +1,7 @@
-import {Stream} from 'xstream';
+import xs, {Stream} from 'xstream';
 import * as most from 'most';
 import {Stream as MostStream} from 'most';
-import {setAdapt} from '@cycle/run/lib/adapt';
+import {setAdapt, setUnadapt} from '@cycle/run/lib/adapt';
 import {
   setup as coreSetup,
   DisposeFunction,
@@ -12,6 +12,8 @@ import {
   GetValidInputs,
   WidenStream,
 } from '@cycle/run';
+import { create } from '@most/create'
+import { toXstream } from 'most-to-xstream'
 
 export type ToMostStream<S> = S extends Stream<infer T> ? MostStream<T> : S;
 export type ToMostStreams<S> = {[k in keyof S]: ToMostStream<S[k]>};
@@ -53,8 +55,28 @@ export interface Engine<D extends Drivers> {
 }
 
 setAdapt(function adaptXstreamToMost(stream: Stream<any>): MostStream<any> {
-  return most.from(stream as any);
+  return create((add, end, error) => {
+    const listener = {
+      next: (value: any) => {
+        add(value)
+      },
+      error: (err: Error) => {
+        error(err)
+      },
+      complete: () => {
+        end()
+      },
+    }
+    stream.subscribe(listener)
+  })
 });
+
+setUnadapt(function unadapstXstreamToMost(stream: MostStream<any> & any): Stream<any> {
+  if (!(stream instanceof most.Stream)) {
+    return toXstream(stream)
+  }
+  return xs.fromObservable(stream)
+})
 
 /**
  * Takes a `main` function and circularly connects it to the given collection
