@@ -1,7 +1,8 @@
 import xs, {Stream} from 'xstream';
 import * as most from 'most';
 import {Stream as MostStream} from 'most';
-import {setAdapt, setUnadapt} from '@cycle/run/lib/adapt';
+// import { setAdapt, setUnadapt } from '@cycle/run/lib/adapt';
+import { setAdapt, setUnadapt } from '../../run/src/adapt';
 import {
   setup as coreSetup,
   DisposeFunction,
