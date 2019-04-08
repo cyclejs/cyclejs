@@ -14,8 +14,5 @@
     "indentSize": 2,
     "tabSize": 2
   },
-  "files": [
-    "src/index.ts",
-    "src/adapt.ts"
-  ]
+  "files": ["src/index.ts", "src/adapt.ts"]
 }

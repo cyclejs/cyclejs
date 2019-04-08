@@ -2,7 +2,17 @@ import xs, {Stream} from 'xstream';
 import * as most from 'most';
 import {Stream as MostStream} from 'most';
 // import { setAdapt, setUnadapt } from '@cycle/run/lib/adapt';
-import { setAdapt, setUnadapt } from '../../run/src/adapt';
+import {setAdapt, setUnadapt} from '../../run/src/adapt';
+// import {
+//   setup as coreSetup,
+//   DisposeFunction,
+//   Drivers,
+//   Main,
+//   Sources,
+//   Sinks,
+//   GetValidInputs,
+//   WidenStream,
+// } from '@cycle/run';
 import {
   setup as coreSetup,
   DisposeFunction,
@@ -12,9 +22,9 @@ import {
   Sinks,
   GetValidInputs,
   WidenStream,
-} from '@cycle/run';
-import { create } from '@most/create'
-import { toXstream } from 'most-to-xstream'
+} from '../../run/src/index';
+import {create} from '@most/create';
+import {toXstream} from 'most-to-xstream';
 
 export type ToMostStream<S> = S extends Stream<infer T> ? MostStream<T> : S;
 export type ToMostStreams<S> = {[k in keyof S]: ToMostStream<S[k]>};
@@ -59,25 +69,27 @@ setAdapt(function adaptXstreamToMost(stream: Stream<any>): MostStream<any> {
   return create((add, end, error) => {
     const listener = {
       next: (value: any) => {
-        add(value)
+        add(value);
       },
       error: (err: Error) => {
-        error(err)
+        error(err);
       },
       complete: () => {
-        end()
+        end();
       },
-    }
-    stream.subscribe(listener)
-  })
+    };
+    stream.subscribe(listener);
+  });
 });
 
-setUnadapt(function unadapstXstreamToMost(stream: MostStream<any> & any): Stream<any> {
+setUnadapt(function unadapstXstreamToMost(
+  stream: MostStream<any> & any
+): Stream<any> {
   if (!(stream instanceof most.Stream)) {
-    return toXstream(stream)
+    return toXstream(stream);
   }
-  return xs.fromObservable(stream)
-})
+  return xs.fromObservable(stream);
+});
 
 /**
  * Takes a `main` function and circularly connects it to the given collection

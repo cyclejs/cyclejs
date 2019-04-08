@@ -95,7 +95,7 @@ export function replicateMany<Si extends any>(
   });
 
   const subscriptions = sinkNames.map(name => {
-    return unadapt(sinks[name]).subscribe(replicators[name])
+    return unadapt(sinks[name]).subscribe(replicators[name]);
   });
 
   sinkNames.forEach(name => {
