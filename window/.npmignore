@@ -1,0 +1,5 @@
+ignore/
+.idea/
+coverage/
+*.sublime-project
+*.sublime-workspace
