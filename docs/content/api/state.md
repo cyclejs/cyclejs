@@ -413,7 +413,7 @@ export interface Sources {
 
 export interface Sinks {
   DOM: Stream<VNode>;
-  state: Stream<Reducer>;
+  state: Stream<Reducer<State>>;
 }
 
 function MyComponent(sources: Sources): Sinks {
