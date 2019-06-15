@@ -108,7 +108,9 @@ export function coreSetup<
     const [dispose, dispose$] = createAdapter();
     const [mostStreams, observables] = observableSinks(sinks);
     //@ts-ignore
-    const sinks$ = most.mergeArray(Object.values(mostStreams));
+    const getValues = (v: any): any =>
+      Object.values(v) || Object.keys(v).map(k => v[k]);
+    const sinks$ = most.mergeArray(getValues(mostStreams));
     const disposeRun = engine.run(observables);
 
     const disposeEngine$ = most.tap(() => {
