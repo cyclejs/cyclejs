@@ -109,7 +109,7 @@ export function coreSetup<
     const [mostStreams, observables] = observableSinks(sinks);
     //@ts-ignore
     const getValues = (v: any): any =>
-      Object.values(v) || Object.keys(v).map(k => v[k]);
+      (Object.values && Object.values(v)) || Object.keys(v).map(k => v[k]);
     const sinks$ = most.mergeArray(getValues(mostStreams));
     const disposeRun = engine.run(observables);
 
