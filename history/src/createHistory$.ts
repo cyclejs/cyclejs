@@ -24,7 +24,7 @@ export function createHistory$(
 function makeCallOnHistory(history: History) {
   return function call(input: Narrow<HistoryInput>): void {
     if (input.type === 'push') {
-      history.push(input.pathname, input.state);
+      history.push({...input});
     }
 
     if (input.type === 'replace') {

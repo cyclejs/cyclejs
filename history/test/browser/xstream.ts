@@ -82,6 +82,28 @@ describe('historyDriver - xstream', () => {
     dispose = run();
   });
 
+  it('should allow changing search with PushHistoryInput', function(done) {
+    function main(_sources: {history: Stream<Location>}) {
+      return {
+        history: xs.of<PushHistoryInput>({type: 'push', search: '?a=b'}),
+      };
+    }
+
+    const {sources, run} = setup(main, {history: makeHistoryDriver()});
+
+    sources.history.drop(1).subscribe({
+      next(location: Location) {
+        assert.strictEqual(location.search, '?a=b');
+        done();
+      },
+      error: done,
+      complete: () => {
+        done('complete should not be called');
+      },
+    });
+    dispose = run();
+  });
+
   it('should create a location from ReplaceHistoryInput', function(done) {
     function main(_sources: {history: Stream<Location>}) {
       return {

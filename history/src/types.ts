@@ -2,6 +2,9 @@ import {Stream, MemoryStream} from 'xstream';
 import {Driver} from '@cycle/run';
 import {Location} from 'history';
 export type Pathname = string;
+export type Search = string;
+export type Hash = string;
+export type LocationKey = string;
 
 export type HistoryDriver = Driver<
   Stream<HistoryInput>,
@@ -10,8 +13,11 @@ export type HistoryDriver = Driver<
 
 export type PushHistoryInput = {
   type: 'push';
-  pathname: Pathname;
+  pathname?: Pathname;
+  search?: Search;
   state?: any;
+  hash?: Hash;
+  key?: LocationKey;
 };
 
 export type ReplaceHistoryInput = {

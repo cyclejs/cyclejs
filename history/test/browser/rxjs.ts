@@ -83,6 +83,28 @@ describe('historyDriver - RxJS', () => {
     dispose = run();
   });
 
+  it('should allow changing search with PushHistoryInput', function(done) {
+    function main(_sources: {history: Observable<Location>}) {
+      return {
+        history: of<PushHistoryInput>({type: 'push', search: '?a=b'}),
+      };
+    }
+
+    const {sources, run} = setup(main, {history: makeHistoryDriver()});
+
+    sources.history.pipe(skip(1)).subscribe({
+      next(location: Location) {
+        assert.strictEqual(location.search, '?a=b');
+        done();
+      },
+      error: done,
+      complete: () => {
+        done('complete should not be called');
+      },
+    });
+    dispose = run();
+  });
+
   it('should create a location from ReplaceHistoryInput', function(done) {
     function main(_sources: {history: Observable<Location>}) {
       return {
