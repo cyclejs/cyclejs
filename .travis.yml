@@ -5,7 +5,7 @@ node_js:
 script:
   - pnpm run build && pnpm run lint && pnpm recursive run test-ci
 before_install:
-  - curl -L https://unpkg.com/@pnpm/self-installer | PNPM_VERSION=2.21.1 node
+  - curl -L https://unpkg.com/@pnpm/self-installer | PNPM_VERSION=3.5.3 node
 install:
   - pnpm install && pnpm recursive install
 cache:
