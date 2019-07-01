@@ -1,3 +1,9 @@
+## 7.2.0 (2019-07-01)
+
+* feat(history): complete support for history.push API (#890) ([efff1ce](https://github.com/cyclejs/cyclejs/commit/efff1ce)), closes [#890](https://github.com/cyclejs/cyclejs/issues/890)
+
+
+
 ## 7.1.0 (2018-12-10)
 
 * fix(history): support TypeScript's strict mode ([1c25cab](https://github.com/cyclejs/cyclejs/commit/1c25cab))
