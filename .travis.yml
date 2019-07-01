@@ -1,7 +1,7 @@
 sudo: false
 language: node_js
 node_js:
-  - '6.10.1'
+  - '10.16.0'
 script:
   - pnpm run build && pnpm run lint && pnpm recursive run test-ci
 before_install:
