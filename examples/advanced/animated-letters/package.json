@@ -5,19 +5,19 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/dom": "15.0.0-rc.2",
-    "@cycle/isolate": "2.0.0-rc.1",
-    "@cycle/run": "1.0.0-rc.8",
-    "@cycle/time": "^0.8.0",
-    "lodash": "4.2.x",
-    "xstream": "10.2"
+    "@cycle/dom": "22.3.0",
+    "@cycle/isolate": "5.0.0",
+    "@cycle/run": "5.2.0",
+    "@cycle/time": "^0.19.0",
+    "lodash": "4.17.x",
+    "xstream": "11.11"
   },
   "devDependencies": {
     "babel-plugin-transform-object-rest-spread": "^6.6.5",
     "babel-preset-es2015": "^6.3.13",
     "babel-register": "^6.4.3",
     "babelify": "^7.2.0",
-    "browserify": "11.0.1",
+    "browserify": "16.2.x",
     "mkdirp": "0.5.x"
   },
   "scripts": {
