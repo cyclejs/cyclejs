@@ -5,15 +5,15 @@
     "add-stream": "^1.0.0",
     "commitizen": "^3.0.5",
     "conventional-changelog": "^3.0.5",
-    "cz-customizable": "^5.3.0",
+    "cz-customizable": "~6.2.0",
     "ejs": "^2.6.1",
-    "husky": "^1.2.0",
+    "husky": "~2.7.0",
     "jase": "1.2.0",
     "lint-staged": "^8.1.0",
     "markdox": "^0.1.10",
     "prettier": "^1.15.3",
     "rxjs": "^6.3.3",
-    "tempfile": "^2.0.0",
+    "tempfile": "~3.0.0",
     "tslint": "^5.11.0",
     "typescript": "3.2.x"
   },
@@ -34,6 +34,9 @@
     "lint": "pnpm recursive run lint",
     "test": "pnpm recursive test ",
     "test-ci": "pnpm recursive run test-ci"
+  },
+  "engines": {
+    "node": ">=8"
   },
   "husky": {
     "hooks": {
