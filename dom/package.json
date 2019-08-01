@@ -50,7 +50,7 @@
   },
   "dependencies": {
     "@cycle/run": "^5.2.0",
-    "snabbdom": "^0.7.2",
+    "snabbdom": "^0.7.3",
     "snabbdom-selector": "^4.1.0",
     "xstream": "*"
   },
@@ -60,6 +60,7 @@
     "@types/mocha": "^5.2.5",
     "@types/node": "^10.12.11",
     "@types/sinon": "^5.0.7",
+    "typescript": "=3.2.4",
     "deepmerge": "^2.2.1",
     "es6-map": "^0.1.5",
     "es6-set": "^0.1.5",
@@ -79,7 +80,6 @@
     "symbol-observable": "^1.2.0",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
-    "typescript": "^3.1.6",
     "xstream": "11.x"
   },
   "engines": {

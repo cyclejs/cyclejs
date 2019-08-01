@@ -267,32 +267,34 @@ export class EventDelegator {
       return;
     }
 
-    const element = elementFinder.call()[0];
-    if (element) {
-      this.nonBubblingListenersToAdd.delete(input);
+    const elements = elementFinder.call();
+    if (elements.length) {
+      elements.forEach(element => {
+        this.nonBubblingListenersToAdd.delete(input);
 
-      const sub = fromEvent(
-        element,
-        eventType,
-        false,
-        false,
-        destination.passive
-      ).subscribe({
-        next: ev => this.onEvent(eventType, ev, !!destination.passive, false),
-        error: () => {},
-        complete: () => {},
-      });
-      if (!this.nonBubblingListeners.has(eventType)) {
-        this.nonBubblingListeners.set(
+        const sub = fromEvent(
+          element,
           eventType,
-          new Map<Element, NonBubblingListener>()
-        );
-      }
-      const map = this.nonBubblingListeners.get(eventType);
-      if (!map) {
-        return;
-      }
-      map.set(element, {sub, destination});
+          false,
+          false,
+          destination.passive
+        ).subscribe({
+          next: ev => this.onEvent(eventType, ev, !!destination.passive, false),
+          error: () => {},
+          complete: () => {},
+        });
+        if (!this.nonBubblingListeners.has(eventType)) {
+          this.nonBubblingListeners.set(
+            eventType,
+            new Map<Element, NonBubblingListener>()
+          );
+        }
+        const map = this.nonBubblingListeners.get(eventType);
+        if (!map) {
+          return;
+        }
+        map.set(element, {sub, destination});
+      });
     } else {
       this.nonBubblingListenersToAdd.add(input);
     }
@@ -324,20 +326,22 @@ export class EventDelegator {
             destination.scopeChecker.namespace,
             this.isolateModule
           );
-          const newElm = elementFinder.call()[0];
-          const newSub = fromEvent(
-            newElm,
-            type,
-            false,
-            false,
-            destination.passive
-          ).subscribe({
-            next: event =>
-              this.onEvent(type, event, !!destination.passive, false),
-            error: () => {},
-            complete: () => {},
+          const newElms = elementFinder.call();
+          newElms.forEach(newElm => {
+            const newSub = fromEvent(
+              newElm,
+              type,
+              false,
+              false,
+              destination.passive
+            ).subscribe({
+              next: event =>
+                this.onEvent(type, event, !!destination.passive, false),
+              error: () => {},
+              complete: () => {},
+            });
+            insert(type, newElm, {sub: newSub, destination});
           });
-          insert(type, newElm, {sub: newSub, destination});
         } else {
           insert(type, elm, value);
         }
