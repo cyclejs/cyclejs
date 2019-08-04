@@ -29,7 +29,7 @@ importers:
       rxjs: ^6.3.3
       tempfile: ~3.0.0
       tslint: ^5.11.0
-      typescript: 3.2.x
+      typescript: =3.2.4
   dom:
     dependencies:
       '@cycle/run': 'link:../run'
@@ -61,7 +61,7 @@ importers:
       symbol-observable: 1.2.0
       ts-node: 7.0.1
       tslint: 5.18.0_typescript@3.2.4
-      typescript: 3.5.2
+      typescript: 3.2.4
     specifiers:
       '@cycle/isolate': ^5.0.0
       '@cycle/run': ^5.2.0
@@ -90,7 +90,7 @@ importers:
       symbol-observable: ^1.2.0
       ts-node: ^7.0.1
       tslint: ^5.11.0
-      typescript: ^3.1.6
+      typescript: =3.2.4
       xstream: '*'
   history:
     dependencies:
@@ -251,7 +251,7 @@ importers:
       symbol-observable: 1.2.0
       ts-node: 7.0.1
       tslint: 5.18.0_typescript@3.2.4
-      typescript: 3.5.2
+      typescript: 3.2.4
     specifiers:
       '@cycle/run': ^5.2.0
       '@cycle/rxjs-run': ^10.2.0
@@ -264,7 +264,7 @@ importers:
       symbol-observable: ^1.2.0
       ts-node: ^7.0.1
       tslint: ^5.11.0
-      typescript: ^3.2.1
+      typescript: =3.2.4
       xstream: ^11.7.0
   most-run:
     dependencies:
@@ -290,7 +290,7 @@ importers:
       sinon: ^7.1.1
       ts-node: ^7.0.1
       tslint: ^5.11.0
-      typescript: 3.2.x
+      typescript: =3.2.4
       xstream: '*'
   run:
     dependencies:
@@ -330,7 +330,7 @@ importers:
       sinon: 7.3.2
       ts-node: 7.0.1
       tslint: 5.18.0_typescript@3.2.4
-      typescript: 3.5.2
+      typescript: 3.5.3
     specifiers:
       '@cycle/run': ^5.2.0
       '@types/mocha': 5.2.x
@@ -342,7 +342,7 @@ importers:
       symbol-observable: ^1.2.0
       ts-node: ^7.0.1
       tslint: ^5.11.0
-      typescript: ^3.2.1
+      typescript: ^3.2.4
       xstream: '*'
   state:
     dependencies:
@@ -7764,6 +7764,13 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-7KxJovlYhTX5RaRbUdkAXN1KUZ8PwWlTzQdHV6xNqvuFOs7+WBo10TQUqT19Q/Jz2hk5v9TQDIhyLhhJY4p5AA==
+  /typescript/3.5.3:
+    dev: true
+    engines:
+      node: '>=4.2.0'
+    hasBin: true
+    resolution:
+      integrity: sha512-ACzBtm/PhXBDId6a6sDJfroT2pOWt/oOnk4/dElG5G33ZL776N3Y6/6bKZJBFpd+b05F3Ct9qDjMeJmRWtE2/g==
   /uc.micro/1.0.6:
     dev: true
     resolution:

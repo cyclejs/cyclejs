@@ -6,12 +6,15 @@
     "no-angle-bracket-type-assertion": true,
     "no-arg": true,
     "member-access": true,
-    "array-type": [true, "generic"],
+    "array-type": [
+      true,
+      "generic"
+    ],
     "no-bitwise": true,
     "no-debugger": true,
     "prefer-const": true,
     "no-empty-interface": true,
-    "no-empty": true,
+    "no-empty": false,
     "no-eval": true,
     "no-string-throw": true,
     "no-string-literal": true,
@@ -27,24 +30,32 @@
     "prefer-object-spread": true,
     "switch-final-break": true,
     "prefer-method-signature": true,
-    "arrow-return-shorthand": [true, "multiline"],
+    "arrow-return-shorthand": [
+      true,
+      "multiline"
+    ],
     "no-duplicate-variable": true,
     "no-duplicate-switch-case": true,
-    "no-inferrable-types": [true, "ignore-params"],
+    "no-inferrable-types": [
+      true,
+      "ignore-params"
+    ],
     "no-var-keyword": true,
-    "variable-name": [true,
+    "variable-name": [
+      true,
       "ban-keywords",
       "check-format",
       "allow-leading-underscore",
       "allow-pascal-case"
     ],
-    "no-empty": false,
     "no-shadowed-variable": true,
     "no-unused-expression": true,
     "triple-equals": true,
-    "no-use-before-declare": true,
     "jsdoc-format": true,
-    "no-implicit-dependencies": [true, "dev"],
+    "no-implicit-dependencies": [
+      true,
+      "dev"
+    ],
     "ban-comma-operator": true
   }
 }

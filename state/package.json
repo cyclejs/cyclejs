@@ -48,7 +48,7 @@
     "build": "pnpm run build-cjs && pnpm run build-es6",
     "build-cjs": "tsc --module commonjs --outDir ./lib/cjs",
     "build-es6": "tsc --module es6 --outDir ./lib/es6",
-    "lint": "tslint --project tsconfig.lint.json --config ../tslint.json --fix",
+    "lint": "tslint --project tsconfig.lint.json --config ../tslint.json",
     "docs": "cd .. && node .scripts/make-api-docs.js state",
     "changelog": "cd .. && node .scripts/update-changelogs.js state",
     "test": "mocha test/*.ts --require ts-node/register --exit",
