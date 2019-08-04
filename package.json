@@ -15,7 +15,7 @@
     "rxjs": "^6.3.3",
     "tempfile": "~3.0.0",
     "tslint": "^5.11.0",
-    "typescript": "3.2.x"
+    "typescript": "=3.2.4"
   },
   "scripts": {
     "commit": "git-cz",
