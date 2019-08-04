@@ -106,7 +106,7 @@ export class EventDelegator {
       Map<Element, NonBubblingListener>
     >();
     rootElement$.addListener({
-      next: el => {
+      next: (el: Element) => {
         if (this.origin !== el) {
           this.origin = el;
           this.resetEventListeners();
@@ -116,7 +116,6 @@ export class EventDelegator {
           this.domListenersToAdd.clear();
         }
 
-        this.resetNonBubblingListeners();
         this.nonBubblingListenersToAdd.forEach(arr => {
           this.setupNonBubblingListener(arr);
         });
@@ -159,6 +158,12 @@ export class EventDelegator {
     this.nonBubblingListeners.forEach((map, type) => {
       if (map.has(element)) {
         toRemove.push([type, element]);
+        const subs = (element as any).subs;
+        if (subs) {
+          Object.keys(subs).forEach((key: any) => {
+            subs[key].unsubscribe();
+          });
+        }
       }
     });
     for (let i = 0; i < toRemove.length; i++) {
@@ -248,7 +253,7 @@ export class EventDelegator {
         false,
         passive
       ).subscribe({
-        next: event => this.onEvent(eventType, event, passive),
+        next: (event: Event) => this.onEvent(eventType, event, passive),
         error: () => {},
         complete: () => {},
       });
@@ -267,32 +272,50 @@ export class EventDelegator {
       return;
     }
 
-    const element = elementFinder.call()[0];
-    if (element) {
-      this.nonBubblingListenersToAdd.delete(input);
+    const elements = elementFinder.call();
+    if (elements.length) {
+      let count = 0;
+      const self = this;
+      elements.forEach((element: Element) => {
+        const subs = (element as any).subs;
+        if (!subs || !subs[eventType]) {
+          count = count + 1;
 
-      const sub = fromEvent(
-        element,
-        eventType,
-        false,
-        false,
-        destination.passive
-      ).subscribe({
-        next: ev => this.onEvent(eventType, ev, !!destination.passive, false),
-        error: () => {},
-        complete: () => {},
+          const sub = fromEvent(
+            element,
+            eventType,
+            false,
+            false,
+            destination.passive
+          ).subscribe({
+            next: (ev: Event) =>
+              self.onEvent(eventType, ev, !!destination.passive, false),
+            error: () => {},
+            complete: () => {
+              count = count - 1;
+              if (count === 0) {
+                self.nonBubblingListenersToAdd.delete(input);
+              }
+            },
+          });
+          if (!self.nonBubblingListeners.has(eventType)) {
+            self.nonBubblingListeners.set(
+              eventType,
+              new Map<Element, NonBubblingListener>()
+            );
+          }
+          const map = self.nonBubblingListeners.get(eventType);
+          if (!map) {
+            return;
+          }
+          map.set(element, {sub, destination});
+
+          (element as any).subs = {
+            ...subs,
+            [eventType]: sub,
+          };
+        }
       });
-      if (!this.nonBubblingListeners.has(eventType)) {
-        this.nonBubblingListeners.set(
-          eventType,
-          new Map<Element, NonBubblingListener>()
-        );
-      }
-      const map = this.nonBubblingListeners.get(eventType);
-      if (!map) {
-        return;
-      }
-      map.set(element, {sub, destination});
     } else {
       this.nonBubblingListenersToAdd.add(input);
     }
@@ -307,43 +330,6 @@ export class EventDelegator {
       this.setupDOMListener(type, passive);
       curr = iter.next();
     }
-  }
-
-  private resetNonBubblingListeners(): void {
-    const newMap = new Map<string, Map<Element, NonBubblingListener>>();
-    const insert = makeInsert(newMap);
-
-    this.nonBubblingListeners.forEach((map, type) => {
-      map.forEach((value, elm) => {
-        if (!document.body.contains(elm)) {
-          const {sub, destination} = value;
-          if (sub) {
-            sub.unsubscribe();
-          }
-          const elementFinder = new ElementFinder(
-            destination.scopeChecker.namespace,
-            this.isolateModule
-          );
-          const newElm = elementFinder.call()[0];
-          const newSub = fromEvent(
-            newElm,
-            type,
-            false,
-            false,
-            destination.passive
-          ).subscribe({
-            next: event =>
-              this.onEvent(type, event, !!destination.passive, false),
-            error: () => {},
-            complete: () => {},
-          });
-          insert(type, newElm, {sub: newSub, destination});
-        } else {
-          insert(type, elm, value);
-        }
-      });
-      this.nonBubblingListeners = newMap;
-    });
   }
 
   private putNonBubblingListener(
@@ -531,6 +517,7 @@ export class EventDelegator {
             event,
             dest.preventDefault as PreventDefaultOpt
           );
+
           dest.subject.shamefullySendNext(event);
         }
       }
