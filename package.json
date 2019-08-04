@@ -15,7 +15,8 @@
     "rxjs": "^6.3.3",
     "tempfile": "~3.0.0",
     "tslint": "^5.11.0",
-    "typescript": "3.2.x"
+    "typescript": "3.2.x",
+    "assert": "2.0.0"
   },
   "scripts": {
     "commit": "git-cz",
@@ -66,5 +67,8 @@
     "cz-customizable": {
       "config": "./.cz-config.js"
     }
+  },
+  "dependencies": {
+    "@types/mocha": "^5.2.7"
   }
 }
