@@ -37,7 +37,7 @@
     "@types/mocha": "5.2.x",
     "@types/node": "10.12.x",
     "@types/sinon": "5.0.x",
-    "mocha": "^5.2.0",
+    "mocha": "~6.2.0",
     "sinon": "^7.1.1",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",

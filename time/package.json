@@ -31,7 +31,7 @@
     "budo": "^11.5.0",
     "garnish": "5.2.x",
     "markdown-doctest": "0.9.x",
-    "mocha": "^5.2.0",
+    "mocha": "~6.2.0",
     "most": "1.7.x",
     "rxjs": "6.3.x",
     "snabbdom-selector": "4.1.x",
