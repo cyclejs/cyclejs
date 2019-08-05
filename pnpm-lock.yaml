@@ -34,7 +34,7 @@ importers:
     dependencies:
       '@cycle/run': 'link:../run'
       snabbdom: 0.7.3
-      snabbdom-selector: 4.1.0
+      snabbdom-selector: 4.2.0_snabbdom@0.7.3
       xstream: 11.11.0
     devDependencies:
       '@cycle/isolate': 'link:../isolate'
@@ -56,7 +56,7 @@ importers:
       mutation-observer: 1.0.3
       rxjs: 6.5.2
       simulant: 0.2.2
-      sinon: 7.4.0
+      sinon: 7.3.2
       snabbdom-pragma: 2.8.0
       symbol-observable: 1.2.0
       ts-node: 7.0.1
@@ -86,7 +86,7 @@ importers:
       sinon: ^7.1.1
       snabbdom: ^0.7.2
       snabbdom-pragma: ^2.8.0
-      snabbdom-selector: ^4.1.0
+      snabbdom-selector: ^4.2.0
       symbol-observable: ^1.2.0
       ts-node: ^7.0.1
       tslint: ^5.11.0
@@ -112,7 +112,7 @@ importers:
       karma-typescript: 4.1.1_karma@4.2.0+typescript@3.2.4
       mocha: 6.2.0
       rxjs: 6.3.3
-      sinon: 7.4.0
+      sinon: 7.3.2
       ts-node: 7.0.1
       tslint: 5.18.0_typescript@3.2.4
       typescript: 3.2.4
@@ -152,7 +152,7 @@ importers:
       '@types/sinon': 5.0.7
       mocha: 6.2.0
       simulant: 0.2.2
-      sinon: 7.4.0
+      sinon: 7.3.2
       snabbdom-pragma: 2.8.0
       ts-node: 7.0.1
       tslint: 5.18.0_typescript@3.2.4
@@ -247,7 +247,7 @@ importers:
       '@types/sinon': 5.0.7
       mocha: 6.2.0
       rxjs: 6.5.2
-      sinon: 7.4.0
+      sinon: 7.3.2
       symbol-observable: 1.2.0
       ts-node: 7.0.1
       tslint: 5.18.0_typescript@3.2.4
@@ -276,7 +276,7 @@ importers:
       '@types/node': 10.14.14
       '@types/sinon': 5.0.7
       mocha: 6.2.0
-      sinon: 7.4.0
+      sinon: 7.3.2
       ts-node: 7.0.1
       tslint: 5.18.0_typescript@3.2.4
       typescript: 3.2.4
@@ -301,7 +301,7 @@ importers:
       '@types/node': 10.12.30
       '@types/sinon': 5.0.7
       mocha: 6.2.0
-      sinon: 7.4.0
+      sinon: 7.3.2
       ts-node: 7.0.1
       tslint: 5.18.0_typescript@3.2.4
       typescript: 3.2.4
@@ -327,7 +327,7 @@ importers:
       '@types/node': 10.12.30
       '@types/sinon': 5.0.7
       mocha: 6.2.0
-      sinon: 7.4.0
+      sinon: 7.3.2
       ts-node: 7.0.1
       tslint: 5.18.0_typescript@3.2.4
       typescript: 3.2.4
@@ -6902,7 +6902,7 @@ packages:
     dev: true
     resolution:
       integrity: sha1-8bzlJxK2p6DaON392n6DsgsdoB4=
-  /sinon/7.4.0:
+  /sinon/7.3.2:
     dependencies:
       '@sinonjs/commons': 1.4.0
       '@sinonjs/formatio': 3.2.1
@@ -6913,7 +6913,7 @@ packages:
       supports-color: 5.5.0
     dev: true
     resolution:
-      integrity: sha512-Els0KRgijhuHz9qEyzUFmZtpS1kuj6CMwyKdyWyPW1dnYGOcwqdqFp95u7fcLJbuga/SrVYGxaqCY3JPWMOJAQ==
+      integrity: sha512-thErC1z64BeyGiPvF8aoSg0LEnptSaWE7YhdWWbWXgelOyThent7uKOnnEh9zBxDbKixtr5dEko+ws1sZMuFMA==
   /slash/1.0.0:
     dev: true
     engines:
@@ -6941,8 +6941,18 @@ packages:
   /snabbdom-selector/4.1.0:
     dependencies:
       tree-selector: 2.1.0
+    dev: true
     resolution:
       integrity: sha512-NDWOVSUR6yPlxH2F9XRwnF59UObLnItfSXcIw6+azkyrEDqT2c8pZ85UHvjijsgdve3g19qsC0/69tB5eZqTvA==
+  /snabbdom-selector/4.2.0_snabbdom@0.7.3:
+    dependencies:
+      snabbdom: 0.7.3
+      tree-selector: 2.1.0
+    dev: false
+    peerDependencies:
+      snabbdom: '*'
+    resolution:
+      integrity: sha512-hNIg1xDMxssUeMC/4r3OGxXhm8pbyJ0KIG0pXrA3J5ZQK+FkPa+WA9DYw4ROMLq5/LrfurMNMvy3IMm+0CzcnA==
   /snabbdom-to-html/5.1.1:
     dependencies:
       lodash.escape: 4.0.1

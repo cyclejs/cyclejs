@@ -51,7 +51,7 @@
   "dependencies": {
     "@cycle/run": "^5.2.0",
     "snabbdom": "^0.7.2",
-    "snabbdom-selector": "^4.1.0",
+    "snabbdom-selector": "^4.2.0",
     "xstream": "*"
   },
   "devDependencies": {
