@@ -115,7 +115,7 @@ importers:
       sinon: 7.3.2
       ts-node: 7.0.1
       tslint: 5.18.0_typescript@3.2.4
-      typescript: 3.5.2
+      typescript: 3.2.4
     specifiers:
       '@cycle/run': ^5.2.0
       '@cycle/rxjs-run': ^10.2.0
@@ -136,7 +136,7 @@ importers:
       sinon: ^7.1.1
       ts-node: ^7.0.1
       tslint: ^5.11.0
-      typescript: ^3.2.1
+      typescript: =3.2.4
       xstream: '*'
   html:
     dependencies:
@@ -172,7 +172,7 @@ importers:
       snabbdom-to-html: 5.1.1
       ts-node: ^7.0.1
       tslint: ^5.11.0
-      typescript: 3.2.x
+      typescript: =3.2.4
       xstream: '*'
   http:
     dependencies:
@@ -234,7 +234,7 @@ importers:
       symbol-observable: ^1.2.0
       ts-node: ^7.0.1
       tslint: ^5.11.0
-      typescript: 3.2.x
+      typescript: =3.2.4
       xstream: '*'
   isolate:
     dependencies:
@@ -314,7 +314,7 @@ importers:
       sinon: ^7.1.1
       ts-node: ^7.0.1
       tslint: ^5.11.0
-      typescript: 3.2.x
+      typescript: =3.2.4
       xstream: 10.x || 11.x
   rxjs-run:
     dependencies:
@@ -330,7 +330,7 @@ importers:
       sinon: 7.3.2
       ts-node: 7.0.1
       tslint: 5.18.0_typescript@3.2.4
-      typescript: 3.5.3
+      typescript: 3.2.4
     specifiers:
       '@cycle/run': ^5.2.0
       '@types/mocha': 5.2.x
@@ -342,7 +342,7 @@ importers:
       symbol-observable: ^1.2.0
       ts-node: ^7.0.1
       tslint: ^5.11.0
-      typescript: ^3.2.4
+      typescript: =3.2.4
       xstream: '*'
   state:
     dependencies:
@@ -374,7 +374,7 @@ importers:
       rxjs: 6.3.3
       ts-node: ^7.0.1
       tslint: ^5.11.0
-      typescript: 3.2.x
+      typescript: =3.2.4
       xstream: '>=11'
   time:
     dependencies:
@@ -421,7 +421,7 @@ importers:
       sorted-immutable-list: 1.1.x
       ts-node: ^7.0.1
       tslint: ^5.11.0
-      typescript: 3.2.x
+      typescript: =3.2.4
       variable-diff: 1.1.x
       xstream: '*'
 lockfileVersion: 5.1
@@ -7920,20 +7920,6 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-0RNDbSdEokBeEAkgNbxJ+BLwSManFy9TeXz8uW+48j/xhEXv1ePME60olyzw2XzUqUBNAYFeJadIqAgNqIACwg==
-  /typescript/3.5.2:
-    dev: true
-    engines:
-      node: '>=4.2.0'
-    hasBin: true
-    resolution:
-      integrity: sha512-7KxJovlYhTX5RaRbUdkAXN1KUZ8PwWlTzQdHV6xNqvuFOs7+WBo10TQUqT19Q/Jz2hk5v9TQDIhyLhhJY4p5AA==
-  /typescript/3.5.3:
-    dev: true
-    engines:
-      node: '>=4.2.0'
-    hasBin: true
-    resolution:
-      integrity: sha512-ACzBtm/PhXBDId6a6sDJfroT2pOWt/oOnk4/dElG5G33ZL776N3Y6/6bKZJBFpd+b05F3Ct9qDjMeJmRWtE2/g==
   /uc.micro/1.0.6:
     dev: true
     resolution:
