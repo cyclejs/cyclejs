@@ -14,12 +14,3 @@ cache:
 branches:
   only:
     - master
-addons:
-  browserstack:
-    username: 'cyclebot@nada.email'
-    access_key:
-      secure: 'elm+YRK6UYu3MIluSaucd8JWfkif/SVdw0Dp1exoVUA7NL2vF65V6IOOpVC715lfTnoHbbyTFbqwGpll06QJqYa5sumZScF4yg37tRtvEMhEnynAoxKsnhMyMNKefXlLEOavRaUZRs22LyFwEh4JwWt4PrCeBcueNKSdgFnJPTk='
-env:
-  global:
-    - secure: 'QbMjL6r0DGAj5WwtLvfyNxJvu4z0WujIWwd0d3aygjXfCQ4jJ6zC2WKEjwh5l5FbjacXJuyJVLC28de+FnPmlWPrI/Pnp1hlxAChCagpd9jZwuCk/6Hd62mTQeWcSz7zdv60MOOGdWfbfLqjgdGy0D7AwsJ/mmfhEROlqQjA5+M='
-    - secure: 'VaXjMocfxI4BQBCwDFpEvahhfLxpWoADPA2rmpCsC0mo6EWdy2MW03Td6bQ0B/dQdJ5EDHJcUyuOVhmbimTr6uYDiAAZVn32bZA6m2wPprUt0ZAImNKW/T2Ehe7+GniFmZP9P7slFCX7ZX12UdodfS4PopAKD1HcshBwEphxxIU='

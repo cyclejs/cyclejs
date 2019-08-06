@@ -2,7 +2,6 @@ const ci = !!process.env.CI;
 const watch = !!process.env.WATCH;
 const live = !!process.env.LIVE;
 
-const identifier = process.env.BROWSERSTACK_LOCAL_IDENTIFIER;
 const ip = 'bs-local.com';
 
 const browserstack = require('./browserstack-karma.js');
@@ -33,9 +32,7 @@ module.exports = {
     'test/**/*.ts': ['karma-typescript'],
   },
   browserStack: {
-    startTunnel: false,
     retryLimit: 3,
-    tunnelIdentifier: identifier,
   },
   browserNoActivityTimeout: 1000000,
   customLaunchers: browserstack,
