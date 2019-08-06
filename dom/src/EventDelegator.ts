@@ -271,6 +271,22 @@ export class EventDelegator {
     if (element) {
       this.nonBubblingListenersToAdd.delete(input);
 
+      if (!this.nonBubblingListeners.has(eventType)) {
+        this.nonBubblingListeners.set(
+          eventType,
+          new Map<Element, NonBubblingListener>()
+        );
+      }
+      const map = this.nonBubblingListeners.get(eventType);
+      if (!map) {
+        return;
+      }
+      if (map.has(element)) {
+        const record = map.get(element);
+        if (record && record.sub) {
+          record.sub.unsubscribe();
+        }
+      }
       const sub = fromEvent(
         element,
         eventType,
@@ -282,16 +298,6 @@ export class EventDelegator {
         error: () => {},
         complete: () => {},
       });
-      if (!this.nonBubblingListeners.has(eventType)) {
-        this.nonBubblingListeners.set(
-          eventType,
-          new Map<Element, NonBubblingListener>()
-        );
-      }
-      const map = this.nonBubblingListeners.get(eventType);
-      if (!map) {
-        return;
-      }
       map.set(element, {sub, destination});
     } else {
       this.nonBubblingListenersToAdd.add(input);
