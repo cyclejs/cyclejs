@@ -1,6 +1,6 @@
 {
   "name": "@cycle/time",
-  "version": "0.19.0",
+  "version": "0.20.0",
   "description": "A time driver designed to enable awesome testing and dev tooling",
   "license": "MIT",
   "homepage": "https://cycle.js.org",

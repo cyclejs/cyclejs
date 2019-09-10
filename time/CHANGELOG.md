@@ -1,3 +1,8 @@
+## 0.20.0 (2019-09-10)
+
+
+
+
 ## 0.19.0 (2018-12-10)
 
 * fix(time): support TypeScript's strict mode ([d4c7d6b](https://github.com/cyclejs/cyclejs/commit/d4c7d6b))
