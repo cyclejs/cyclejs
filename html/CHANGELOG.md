@@ -1,3 +1,9 @@
+## 3.2.0 (2019-09-10)
+
+* chore(html): use isolate v5 in tests ([4ed925f](https://github.com/cyclejs/cyclejs/commit/4ed925f))
+
+
+
 ## 3.1.0 (2018-12-10)
 
 * fix(html): support TypeScript's strict mode ([4a4119e](https://github.com/cyclejs/cyclejs/commit/4a4119e))

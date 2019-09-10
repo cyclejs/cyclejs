@@ -1,6 +1,6 @@
 {
   "name": "@cycle/html",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "A driver for HTML strings based on Snabbdom and the DOM driver",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
