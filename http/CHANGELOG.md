@@ -1,3 +1,10 @@
+## 15.2.0 (2019-09-10)
+
+* chore(http): run http node tests in CI again ([cfd046f](https://github.com/cyclejs/cyclejs/commit/cfd046f)), closes [#865](https://github.com/cyclejs/cyclejs/issues/865)
+* chore(http): use isolate v5 in tests ([b11ce9e](https://github.com/cyclejs/cyclejs/commit/b11ce9e))
+
+
+
 ## 15.1.0 (2018-12-10)
 
 * fix(http): support TypeScript's strict mode ([a6e370e](https://github.com/cyclejs/cyclejs/commit/a6e370e))
