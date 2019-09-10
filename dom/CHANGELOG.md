@@ -1,3 +1,11 @@
+## 22.4.0 (2019-09-10)
+
+* fix(dom): update snabbdom-selector and tidy up pnpm configs ([1607a94](https://github.com/cyclejs/cyclejs/commit/1607a94)), closes [#901](https://github.com/cyclejs/cyclejs/issues/901)
+* chore(dom): tweak test so that TypeScript compiles ([fb3ac3a](https://github.com/cyclejs/cyclejs/commit/fb3ac3a)), closes [#871](https://github.com/cyclejs/cyclejs/issues/871)
+* chore(dom): use isolate v5 in tests ([990755f](https://github.com/cyclejs/cyclejs/commit/990755f))
+
+
+
 ## 22.3.0 (2018-12-10)
 
 * fix(dom): add better typings for the hyperscript helpers ([e211037](https://github.com/cyclejs/cyclejs/commit/e211037))
