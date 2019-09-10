@@ -1,3 +1,8 @@
+## 5.1.0 (2019-09-10)
+
+
+
+
 ## 5.0.0 (2019-02-03)
 
 * fix(isolate): use TypeScript unknown to force casting types ([ff698ce](https://github.com/cyclejs/cyclejs/commit/ff698ce))
