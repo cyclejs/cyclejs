@@ -6,6 +6,15 @@ const ip = 'bs-local.com';
 
 const browserstack = require('./browserstack-karma.js');
 
+if (!process.env.TRAVIS_BUILD_NUMBER) {
+  const time = new Date()
+    .toISOString()
+    .replace(/T/, ' ')
+    .replace(/\..+/, '');
+
+  process.env.TRAVIS_BUILD_NUMBER = 'local(' + time + ')';
+}
+
 const browsers = ci
   ? Object.keys(browserstack)
   : live
@@ -33,6 +42,7 @@ module.exports = {
   },
   browserStack: {
     retryLimit: 3,
+    build: process.env.TRAVIS_BUILD_NUMBER,
   },
   browserNoActivityTimeout: 1000000,
   customLaunchers: browserstack,
