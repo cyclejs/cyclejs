@@ -1,3 +1,4 @@
+import './setup'; // tslint:disable-line
 import * as assert from 'assert';
 import {Observable, of, never, interval, empty} from 'rxjs';
 import {
