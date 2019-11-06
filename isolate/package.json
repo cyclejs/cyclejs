@@ -1,6 +1,6 @@
 {
   "name": "@cycle/isolate",
-  "version": "5.1.0",
+  "version": "5.2.0",
   "description": "A utility function to make scoped dataflow components in Cycle.js",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
