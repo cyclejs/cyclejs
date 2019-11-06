@@ -1,3 +1,8 @@
+## 1.4.0 (2019-11-06)
+
+
+
+
 ## 1.3.0 (2019-09-10)
 
 * docs(state): fix TypeScript example of Reducer  ([243cd25](https://github.com/cyclejs/cyclejs/commit/243cd25)), closes [#885](https://github.com/cyclejs/cyclejs/issues/885)

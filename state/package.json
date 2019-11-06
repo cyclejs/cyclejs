@@ -1,6 +1,6 @@
 {
   "name": "@cycle/state",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Wraps your Cycle.js main function with reducer-driven state management",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
