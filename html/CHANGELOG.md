@@ -1,3 +1,8 @@
+## 3.3.0 (2019-11-06)
+
+
+
+
 ## 3.2.0 (2019-09-10)
 
 * chore(html): use isolate v5 in tests ([4ed925f](https://github.com/cyclejs/cyclejs/commit/4ed925f))
