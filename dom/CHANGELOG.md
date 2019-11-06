@@ -1,3 +1,8 @@
+## 22.5.0 (2019-11-06)
+
+
+
+
 ## 22.4.0 (2019-09-10)
 
 * fix(dom): update snabbdom-selector and tidy up pnpm configs ([1607a94](https://github.com/cyclejs/cyclejs/commit/1607a94)), closes [#901](https://github.com/cyclejs/cyclejs/issues/901)
