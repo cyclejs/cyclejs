@@ -1,3 +1,8 @@
+## 5.4.0 (2019-11-06)
+
+
+
+
 ## 5.3.0 (2019-09-10)
 
 * chore(run): tweak some tests so that TypeScript compiles ([c2c2cbd](https://github.com/cyclejs/cyclejs/commit/c2c2cbd)), closes [#871](https://github.com/cyclejs/cyclejs/issues/871)
