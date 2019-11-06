@@ -1,3 +1,8 @@
+## 15.3.0 (2019-11-06)
+
+
+
+
 ## 15.2.0 (2019-09-10)
 
 * chore(http): run http node tests in CI again ([cfd046f](https://github.com/cyclejs/cyclejs/commit/cfd046f)), closes [#865](https://github.com/cyclejs/cyclejs/issues/865)
