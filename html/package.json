@@ -57,6 +57,10 @@
   "engines": {
     "node": ">=0.10.0"
   },
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/cyclejs"
+  },
   "publishConfig": {
     "access": "public"
   },

@@ -42,6 +42,10 @@
     "typescript": "=3.2.4",
     "xstream": "11.x"
   },
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/cyclejs"
+  },
   "scripts": {
     "build": "pnpm run build-cjs && pnpm run build-es6",
     "build-cjs": "tsc --module commonjs --outDir ./lib/cjs",
