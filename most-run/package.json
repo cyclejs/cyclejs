@@ -1,6 +1,6 @@
 {
   "name": "@cycle/most-run",
-  "version": "8.3.0",
+  "version": "8.4.0",
   "description": "The Cycle run() function to be used with most.js",
   "main": "lib/cjs/index.js",
   "module": "lib/es6/index.js",
