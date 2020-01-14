@@ -5,7 +5,7 @@ import {HTMLSource} from './HTMLSource';
 const init: Init = require('snabbdom-to-html/init');
 const modulesForHTML: ModulesForHTML = require('snabbdom-to-html/modules');
 
-type Init = (modules: Array<Module>) => ((vnode: VNode) => string);
+type Init = (modules: Array<Module>) => (vnode: VNode) => string;
 
 interface ModulesForHTML {
   attributes: Module;
@@ -25,21 +25,19 @@ const defaultModules = [
 
 export interface HTMLDriverOptions {
   modules?: Array<Module>;
+  reportSnabbdomError?(err: any): void;
 }
 
 export type EffectCallback = (html: string) => void;
 
-function reportSnabbdomError(err: any): void {
+function defaultReportSnabbdomError(err: any): void {
   console.error(err);
 }
 
 export function makeHTMLDriver(
   effect: EffectCallback,
-  options?: HTMLDriverOptions
+  options: HTMLDriverOptions = {}
 ): Driver<Stream<VNode>, HTMLSource> {
-  if (!options) {
-    options = {};
-  }
   const modules = options.modules || defaultModules;
   const toHTML = init(modules);
   function htmlDriver(vnode$: Stream<VNode>, name: string): HTMLSource {
@@ -52,7 +50,7 @@ export function makeHTMLDriver(
     });
     html$.addListener({
       next: effect,
-      error: reportSnabbdomError,
+      error: options.reportSnabbdomError || defaultReportSnabbdomError,
     });
     return new HTMLSource(html$, name);
   }
