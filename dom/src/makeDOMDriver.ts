@@ -37,6 +37,7 @@ function domDriverInputGuard(view$: Stream<VNode>): void {
 
 export interface DOMDriverOptions {
   modules?: Array<Module>;
+  reportSnabbdomError?(err: any): void;
 }
 
 function dropCompletion<T>(input: Stream<T>): Stream<T> {
@@ -47,7 +48,7 @@ function unwrapElementFromVNode(vnode: VNode): Element {
   return vnode.elm as Element;
 }
 
-function reportSnabbdomError(err: any): void {
+function defaultReportSnabbdomError(err: any): void {
   (console.error || console.log)(err);
 }
 
@@ -79,11 +80,8 @@ function addRootScope(vnode: VNode): VNode {
 
 function makeDOMDriver(
   container: string | Element | DocumentFragment,
-  options?: DOMDriverOptions
+  options: DOMDriverOptions = {}
 ): Driver<Stream<VNode>, MainDOMSource> {
-  if (!options) {
-    options = {};
-  }
   checkValidContainer(container);
   const modules = options.modules || defaultModules;
   makeDOMDriverInputGuard(modules);
@@ -156,7 +154,9 @@ function makeDOMDriver(
       .remember();
 
     // Start the snabbdom patching, over time
-    rootElement$.addListener({error: reportSnabbdomError});
+    rootElement$.addListener({
+      error: options.reportSnabbdomError || defaultReportSnabbdomError,
+    });
 
     const delegator = new EventDelegator(rootElement$, isolateModule);
 
