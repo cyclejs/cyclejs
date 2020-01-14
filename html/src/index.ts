@@ -39,9 +39,10 @@ export {HTMLSource} from './HTMLSource';
  *
  * @param {Function} effect a callback function that takes a string of rendered
  * HTML as input and should run a side effect, returning nothing.
- * @param {HTMLDriverOptions} options an object with one optional property:
- * `transposition: boolean` enables/disables transposition of inner streams in
- * the virtual DOM tree.
+ * @param {HTMLDriverOptions} options an object with two optional properties:
+ * - `transposition: boolean` enables/disables transposition of inner streams in
+ *   the virtual DOM tree.
+ * - `reportSnabbdomError: (err: any) => void` overrides the default error reporter function.
  * @return {Function} the HTML driver function. The function expects a stream of
  * VNode as input, and outputs the DOMSource object.
  * @function makeHTMLDriver
