@@ -80,6 +80,7 @@ export {MainDOMSource} from './MainDOMSource';
  *
  *   - `modules: array` overrides `@cycle/dom`'s default Snabbdom modules as
  *     as defined in [`src/modules.ts`](./src/modules.ts).
+ *   - `reportSnabbdomError: (err: any) => void` overrides the default error reporter function.
  * @return {Function} the DOM driver function. The function expects a stream of
  * VNode as input, and outputs the DOMSource object.
  * @function makeDOMDriver
