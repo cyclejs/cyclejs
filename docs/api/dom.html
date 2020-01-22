@@ -152,6 +152,7 @@ then the returned stream will not emit anything.
 - `options: DOMDriverOptions` an object with two optional properties: 
   - `modules: array` overrides `@cycle/dom`'s default Snabbdom modules as
     as defined in [`src/modules.ts`](./src/modules.ts).
+  - `reportSnabbdomError: (err: any) => void` overrides the default error reporter function.
 
 #### Returns:
 

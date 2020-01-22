@@ -83,8 +83,9 @@ the same (it only exists to be compatible with DOMSource from `@cycle/dom`).
 #### Arguments:
 
 - `effect: Function` a callback function that takes a string of rendered HTML as input and should run a side effect, returning nothing.
-- `options: HTMLDriverOptions` an object with one optional property: `transposition: boolean` enables/disables transposition of inner streams in
-the virtual DOM tree.
+- `options: HTMLDriverOptions` an object with two optional properties: - `transposition: boolean` enables/disables transposition of inner streams in
+  the virtual DOM tree.
+- `reportSnabbdomError: (err: any) => void` overrides the default error reporter function.
 
 #### Returns:
 
