@@ -59,7 +59,7 @@ In case you are not dealing with a DOM-interfacing web application, you can omit
 
 ## Coding
 
-We recommend the use of a bundling tool such as [browserify](http://browserify.org/) or [webpack](http://webpack.github.io/), in combination with ES6 (a.k.a. ES2015) through a transpiler (e.g. [Babel](http://babeljs.io/) or [TypeScript](http://typescriptlang.org/)). Most of the code examples in this documentation assume some basic familiarity with ES6.
+We recommend the use of a bundling tool such as [browserify](http://browserify.org/) or [webpack](http://webpack.github.io/), in combination with ES6 (a.k.a. ES2015) through a transpiler (e.g. [Babel](http://babeljs.io/), [esm](https://github.com/standard-things/esm), or [TypeScript](http://typescriptlang.org/)). Most of the code examples in this documentation assume some basic familiarity with ES6.
 
 ### Import libraries
 
