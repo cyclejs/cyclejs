@@ -36,7 +36,7 @@ function domDriverInputGuard(view$: Stream<VNode>): void {
 }
 
 export interface DOMDriverOptions {
-  modules?: Array<Module>;
+  modules?: Array<Partial<Module>>;
   reportSnabbdomError?(err: any): void;
 }
 
