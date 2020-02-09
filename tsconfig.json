@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "removeComments": false,
+    "sourceMap": true,
+    "declaration": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "target": "es6",
+  }
+}

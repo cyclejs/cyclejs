@@ -6,6 +6,9 @@
 .settings
 .vscode
 
+# Typescript build
+build/
+
 # Installed libs
 node_modules
 

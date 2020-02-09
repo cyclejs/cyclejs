@@ -1,0 +1,38 @@
+{
+  "name": "@cycle/http",
+  "version": "15.3.0",
+  "description": "A Cycle.js Driver for making HTTP requests",
+  "main": "build/bundle.cjs.js",
+  "module": "build/bundle.esm.js",
+  "typings": "build/index.d.ts",
+  "license": "MIT",
+  "repository": "https://github.com/cyclejs/cyclejs/tree/master/http",
+  "homepage": "https://cycle.js.org",
+  "bugs": "https://github.com/cyclejs/cyclejs/issues",
+  "contributors": [
+    {
+      "name": "Andre Staltz",
+      "email": "andre@staltz.com"
+    },
+    {
+      "name": "Jan van Brügge",
+      "email": "supermanitu@gmail.com"
+    }
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "rollup": "^1.31.0",
+    "typescript": "^3.7.5"
+  },
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/cyclejs"
+  },
+  "scripts": {
+    "build": "tsc --build tsconfig.build.json && pnpm run build:cjs && pnpm run build:esm",
+    "build:cjs": "rollup build/index.js --format cjs --file build/bundle.cjs.js",
+    "build:esm": "rollup build/index.js --format esm --file build/bundle.esm.js"
+  }
+}

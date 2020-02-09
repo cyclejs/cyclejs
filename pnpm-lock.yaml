@@ -1,0 +1,41 @@
+importers:
+  http:
+    devDependencies:
+      rollup: 1.31.0
+      typescript: 3.7.5
+    specifiers:
+      rollup: ^1.31.0
+      typescript: ^3.7.5
+lockfileVersion: 5.1
+packages:
+  /@types/estree/0.0.42:
+    dev: true
+    resolution:
+      integrity: sha512-K1DPVvnBCPxzD+G51/cxVIoc2X8uUVl1zpJeE6iKcgHMj4+tbat5Xu4TjV7v2QSDbIeAfLi2hIk+u2+s0MlpUQ==
+  /@types/node/13.7.0:
+    dev: true
+    resolution:
+      integrity: sha512-GnZbirvmqZUzMgkFn70c74OQpTTUcCzlhQliTzYjQMqg+hVKcDnxdL19Ne3UdYzdMA/+W3eb646FWn/ZaT1NfQ==
+  /acorn/7.1.0:
+    dev: true
+    engines:
+      node: '>=0.4.0'
+    hasBin: true
+    resolution:
+      integrity: sha512-kL5CuoXA/dgxlBbVrflsflzQ3PAas7RYZB52NOm/6839iVYJgKMJ3cQJD+t2i5+qFa8h3MDpEOJiS64E8JLnSQ==
+  /rollup/1.31.0:
+    dependencies:
+      '@types/estree': 0.0.42
+      '@types/node': 13.7.0
+      acorn: 7.1.0
+    dev: true
+    hasBin: true
+    resolution:
+      integrity: sha512-9C6ovSyNeEwvuRuUUmsTpJcXac1AwSL1a3x+O5lpmQKZqi5mmrjauLeqIjvREC+yNRR8fPdzByojDng+af3nVw==
+  /typescript/3.7.5:
+    dev: true
+    engines:
+      node: '>=4.2.0'
+    hasBin: true
+    resolution:
+      integrity: sha512-/P5lkRXkWHNAbcJIiHPfRoKqyd7bsyCma1hZNUGfn20qm64T6ZBlrzprymeu918H+mB/0rIg2gGK/BXkhhYgBw==
