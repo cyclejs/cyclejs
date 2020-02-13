@@ -1,13 +1,22 @@
 importers:
   http:
+    dependencies:
+      '@cycle/callbags': 1.1.1
+      minireq: 1.0.0
     devDependencies:
       rollup: 1.31.0
       typescript: 3.7.5
     specifiers:
+      '@cycle/callbags': 1.1.1
+      minireq: ^1.0.0
       rollup: ^1.31.0
       typescript: ^3.7.5
 lockfileVersion: 5.1
 packages:
+  /@cycle/callbags/1.1.1:
+    dev: false
+    resolution:
+      integrity: sha512-qG/AmPxTttXI088vmFYaW+tZ/8b+T1DRA4e9s81KGnkXhECoCfk4K0WFAqALqANDCn0qci2paG1IkRSctk++lA==
   /@types/estree/0.0.42:
     dev: true
     resolution:
@@ -23,6 +32,10 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-kL5CuoXA/dgxlBbVrflsflzQ3PAas7RYZB52NOm/6839iVYJgKMJ3cQJD+t2i5+qFa8h3MDpEOJiS64E8JLnSQ==
+  /minireq/1.0.0:
+    dev: false
+    resolution:
+      integrity: sha512-Xxd7ejxt47oFfPtzkEHvRBbzoPk4/UCh1bV0gLpYosObYATRWBZS1DcB/6gQ/5z/0ymr6tw8E0TBiI5n8Z5FqA==
   /rollup/1.31.0:
     dependencies:
       '@types/estree': 0.0.42

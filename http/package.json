@@ -26,6 +26,10 @@
     "rollup": "^1.31.0",
     "typescript": "^3.7.5"
   },
+  "dependencies": {
+    "@cycle/callbags": "^1.1.1",
+    "minireq": "^1.0.0"
+  },
   "funding": {
     "type": "opencollective",
     "url": "https://opencollective.com/cyclejs"
