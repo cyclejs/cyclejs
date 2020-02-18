@@ -1,4 +1,7 @@
 {
   "private": true,
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "prettier": "^1.19.1"
+  }
 }

@@ -1,6 +1,9 @@
 importers:
   .:
-    specifiers: {}
+    devDependencies:
+      prettier: 1.19.1
+    specifiers:
+      prettier: ^1.19.1
   http:
     dependencies:
       '@cycle/callbags': 2.0.0-rc.2
@@ -38,6 +41,13 @@ packages:
     dev: false
     resolution:
       integrity: sha512-wQPvF8FiVHdSkIHccVr01OWsYVhgNwslEVC/kc9ghtycMQFCU7Ki63gbwUXSQl2MZFdYoK+/52ovtKVVWS+JDg==
+  /prettier/1.19.1:
+    dev: true
+    engines:
+      node: '>=4'
+    hasBin: true
+    resolution:
+      integrity: sha512-s7PoyDv/II1ObgQunCbB9PdLmUcBZcnWOcxDh7O0N/UwDEsHyqkW+Qh28jW+mVuCdx7gLB0BotYI1Y6uI9iyew==
   /rollup/1.31.0:
     dependencies:
       '@types/estree': 0.0.42
