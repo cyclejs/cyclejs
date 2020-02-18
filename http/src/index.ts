@@ -1,63 +1,42 @@
 import {
   Source,
+  Callbag,
   makeSubject,
   pipe,
   filter,
   flatten,
   subscribe,
-  fromPromise,
-  START,
-  DATA,
-  END,
-  ALL
+  fromPromise
 } from "@cycle/callbags";
 import {
   RequestOptions,
   METHOD,
-  ResponseType,
   Result,
-  makeRequest
+  makeRequest,
+  RequestFn
 } from "minireq";
 
-type Subscription = void;
+import { IdGenerator, Driver, Subscription } from "./run";
 
-export type Talkback = (type: ALL, payload?: any) => void;
-export type Callbag<T> = {
-  (t: START, d: Talkback): void;
-  (t: DATA, d: T): void;
-  (t: END, d?: any): void;
-  (t: ALL, d?: any): void;
-};
-
-export type Request = RequestOpts & {
-  id: number;
-};
-export type RequestOpts = RequestOptions<METHOD, ResponseType>;
-
+export type Request = Omit<RequestOptions, "method">;
 export type ResponseStream = Source<Result<any>> & { id: number };
 
-interface Driver {
-  consumeSink(sink: Source<Request>): Subscription;
-  produceSource(): Source<ResponseStream>;
-}
-
-type IdGenerator = () => number;
+export type SinkRequest = RequestOptions & {
+  id: number;
+};
 
 function makeHttpApi(
   source: Source<ResponseStream>,
   gen: IdGenerator
-): [HttpApi, Source<Request>] {
-  const sinkSubject = makeSubject<Result<any>>();
+): [HttpApi, Source<SinkRequest>] {
+  const sinkSubject = makeSubject<SinkRequest>();
 
   const api = new HttpApi(sinkSubject, source, gen);
 
   return [api, sinkSubject];
 }
 
-function mkOpts(
-  method: METHOD,
-  optsOrUrl: string | Omit<RequestOpts, "method">
-): RequestOpts {
+function mkOpts(method: METHOD, optsOrUrl: string | Request): RequestOptions {
   if (typeof optsOrUrl === "string") {
     return { method, url: optsOrUrl };
   } else {
@@ -67,32 +46,32 @@ function mkOpts(
 
 class HttpApi {
   constructor(
-    private sinkSubject: Callbag<Request>,
+    private sinkSubject: Callbag<SinkRequest>,
     private source: Source<ResponseStream>,
     private gen: IdGenerator
   ) {}
 
-  public get<T>(optsOrUrl: string | Omit<RequestOpts, "method">): Source<T> {
+  public get<T>(optsOrUrl: string | Request): Source<T> {
     return this.request(mkOpts("GET", optsOrUrl));
   }
 
-  public post<T>(optsOrUrl: string | Omit<RequestOpts, "method">): Source<T> {
+  public post<T>(optsOrUrl: string | Request): Source<T> {
     return this.request(mkOpts("POST", optsOrUrl));
   }
 
-  public put<T>(optsOrUrl: string | Omit<RequestOpts, "method">): Source<T> {
+  public put<T>(optsOrUrl: string | Request): Source<T> {
     return this.request(mkOpts("PUT", optsOrUrl));
   }
 
-  public delete<T>(optsOrUrl: string | Omit<RequestOpts, "method">): Source<T> {
+  public delete<T>(optsOrUrl: string | Request): Source<T> {
     return this.request(mkOpts("DELETE", optsOrUrl));
   }
 
-  public patch<T>(optsOrUrl: string | Omit<RequestOpts, "method">): Source<T> {
+  public patch<T>(optsOrUrl: string | Request): Source<T> {
     return this.request(mkOpts("PATCH", optsOrUrl));
   }
 
-  public request<T>(options: RequestOpts): Source<T> {
+  public request<T>(options: RequestOptions): Source<T> {
     const id = this.gen();
 
     this.sinkSubject(1, {
@@ -103,17 +82,17 @@ class HttpApi {
     return pipe(
       this.source,
       filter(res$ => res$.id === id),
-      flatten()
+      flatten
     );
   }
 }
 
-class HttpDriver implements Driver {
+class HttpDriver implements Driver<ResponseStream, SinkRequest> {
   private subject = makeSubject<ResponseStream>();
 
-  constructor(private request: (options: RequestOpts) => Result<any>) {}
+  constructor(private request: RequestFn) {}
 
-  public consumeSink(sink: Source<Request>): Subscription {
+  public consumeSink(sink: Source<SinkRequest>): Subscription {
     /* const subscription = */ pipe(
       sink,
       subscribe({
@@ -136,8 +115,6 @@ class HttpDriver implements Driver {
   }
 }
 
-export function makeHttpPlugin(
-  request: (options: RequestOpts) => Result<any> = makeRequest()
-) {
+export function makeHttpPlugin(request: RequestFn = makeRequest()) {
   return [new HttpDriver(request), makeHttpApi];
 }

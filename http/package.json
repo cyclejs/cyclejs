@@ -23,12 +23,12 @@
     "access": "public"
   },
   "devDependencies": {
-    "rollup": "^1.31.0",
+    "rollup": "^1.31.1",
     "typescript": "^3.7.5"
   },
   "dependencies": {
-    "@cycle/callbags": "^1.1.1",
-    "minireq": "^1.0.0"
+    "@cycle/callbags": "^2.0.0-rc.2",
+    "minireq": "^1.1.0"
   },
   "funding": {
     "type": "opencollective",
@@ -36,7 +36,7 @@
   },
   "scripts": {
     "build": "tsc --build tsconfig.build.json && pnpm run build:cjs && pnpm run build:esm",
-    "build:cjs": "rollup build/index.js --format cjs --file build/bundle.cjs.js",
-    "build:esm": "rollup build/index.js --format esm --file build/bundle.esm.js"
+    "build:cjs": "BUNDLE_FORMAT=cjs rollup -c ../rollup.config.ts",
+    "build:esm": "BUNDLE_FORMAT=esm rollup -c ../rollup.config.ts"
   }
 }
