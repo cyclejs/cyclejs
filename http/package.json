@@ -22,10 +22,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "devDependencies": {
-    "rollup": "^1.31.1",
-    "typescript": "^3.7.5"
-  },
   "dependencies": {
     "@cycle/callbags": "^2.0.0-rc.2",
     "minireq": "^1.1.0"

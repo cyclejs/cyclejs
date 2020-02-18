@@ -2,20 +2,19 @@ importers:
   .:
     devDependencies:
       prettier: 1.19.1
+      rollup: 1.31.1
+      typescript: 3.7.5
     specifiers:
       prettier: ^1.19.1
+      rollup: ^1.31.1
+      typescript: ^3.7.5
   http:
     dependencies:
       '@cycle/callbags': 2.0.0-rc.2
       minireq: 1.1.0
-    devDependencies:
-      rollup: 1.31.0
-      typescript: 3.7.5
     specifiers:
       '@cycle/callbags': ^2.0.0-rc.2
       minireq: ^1.1.0
-      rollup: ^1.31.1
-      typescript: ^3.7.5
 lockfileVersion: 5.1
 packages:
   /@cycle/callbags/2.0.0-rc.2:
@@ -26,10 +25,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-K1DPVvnBCPxzD+G51/cxVIoc2X8uUVl1zpJeE6iKcgHMj4+tbat5Xu4TjV7v2QSDbIeAfLi2hIk+u2+s0MlpUQ==
-  /@types/node/13.7.0:
+  /@types/node/13.7.1:
     dev: true
     resolution:
-      integrity: sha512-GnZbirvmqZUzMgkFn70c74OQpTTUcCzlhQliTzYjQMqg+hVKcDnxdL19Ne3UdYzdMA/+W3eb646FWn/ZaT1NfQ==
+      integrity: sha512-Zq8gcQGmn4txQEJeiXo/KiLpon8TzAl0kmKH4zdWctPj05nWwp1ClMdAVEloqrQKfaC48PNLdgN/aVaLqUrluA==
   /acorn/7.1.0:
     dev: true
     engines:
@@ -48,15 +47,15 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-s7PoyDv/II1ObgQunCbB9PdLmUcBZcnWOcxDh7O0N/UwDEsHyqkW+Qh28jW+mVuCdx7gLB0BotYI1Y6uI9iyew==
-  /rollup/1.31.0:
+  /rollup/1.31.1:
     dependencies:
       '@types/estree': 0.0.42
-      '@types/node': 13.7.0
+      '@types/node': 13.7.1
       acorn: 7.1.0
     dev: true
     hasBin: true
     resolution:
-      integrity: sha512-9C6ovSyNeEwvuRuUUmsTpJcXac1AwSL1a3x+O5lpmQKZqi5mmrjauLeqIjvREC+yNRR8fPdzByojDng+af3nVw==
+      integrity: sha512-2JREN1YdrS/kpPzEd33ZjtuNbOuBC3ePfuZBdKEybvqcEcszW1ckyVqzcEiEe0nE8sqHK+pbJg+PsAgRJ8+1dg==
   /typescript/3.7.5:
     dev: true
     engines:
