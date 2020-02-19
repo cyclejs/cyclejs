@@ -6,7 +6,13 @@ import {
   filter,
   makeSubject
 } from '@cycle/callbags';
-import { RequestOptions, METHOD } from 'minireq';
+import {
+  RequestOptions,
+  METHOD,
+  ResponseType,
+  ResultMapping,
+  Response as RawResponse
+} from 'minireq';
 import { IdGenerator } from './run';
 
 import { SinkRequest, ResponseStream, Request } from './types';
@@ -22,6 +28,10 @@ export function makeHttpApi(
   return [api, sinkSubject];
 }
 
+type Response<T, Type extends ResponseType> = RawResponse<
+  ResultMapping<T>[Type]
+>;
+
 export class HttpApi {
   constructor(
     private sinkSubject: Callbag<SinkRequest>,
@@ -29,27 +39,37 @@ export class HttpApi {
     private gen: IdGenerator
   ) {}
 
-  public get<T>(optsOrUrl: string | Request): Source<T> {
+  public get<T, Type extends ResponseType = 'text'>(
+    optsOrUrl: string | Request<T, Type>
+  ): Source<Response<T, Type>> {
     return this.request(mkOpts('GET', optsOrUrl));
   }
 
-  public post<T>(optsOrUrl: string | Request): Source<T> {
+  public post<T, Type extends ResponseType = 'text'>(
+    optsOrUrl: string | Request<T, Type>
+  ): Source<Response<T, Type>> {
     return this.request(mkOpts('POST', optsOrUrl));
   }
 
-  public put<T>(optsOrUrl: string | Request): Source<T> {
+  public put<T, Type extends ResponseType = 'text'>(
+    optsOrUrl: string | Request<T, Type>
+  ): Source<Response<T, Type>> {
     return this.request(mkOpts('PUT', optsOrUrl));
   }
 
-  public delete<T>(optsOrUrl: string | Request): Source<T> {
+  public delete<T, Type extends ResponseType = 'text'>(
+    optsOrUrl: string | Request<T, Type>
+  ): Source<Response<T, Type>> {
     return this.request(mkOpts('DELETE', optsOrUrl));
   }
 
-  public patch<T>(optsOrUrl: string | Request): Source<T> {
+  public patch<T, Type extends ResponseType = 'text'>(
+    optsOrUrl: string | Request<T, Type>
+  ): Source<Response<T, Type>> {
     return this.request(mkOpts('PATCH', optsOrUrl));
   }
 
-  public request<T>(options: RequestOptions): Source<T> {
+  public request<T>(options: RequestOptions): Source<RawResponse<T>> {
     const id = this.gen();
 
     this.sinkSubject(1, {
@@ -65,7 +85,10 @@ export class HttpApi {
   }
 }
 
-function mkOpts(method: METHOD, optsOrUrl: string | Request): RequestOptions {
+function mkOpts(
+  method: METHOD,
+  optsOrUrl: string | Request<any, ResponseType>
+): RequestOptions {
   if (typeof optsOrUrl === 'string') {
     return { method, url: optsOrUrl };
   } else {
