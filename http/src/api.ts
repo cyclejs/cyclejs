@@ -1,6 +1,6 @@
 import {
   Callbag,
-  Source,
+  Producer,
   pipe,
   flatten,
   filter,
@@ -18,9 +18,9 @@ import { IdGenerator } from './run';
 import { SinkRequest, ResponseStream, Request } from './types';
 
 export function makeHttpApi(
-  source: Source<ResponseStream>,
+  source: Producer<ResponseStream>,
   gen: IdGenerator
-): [HttpApi, Source<SinkRequest>] {
+): [HttpApi, Producer<SinkRequest>] {
   const sinkSubject = makeSubject<SinkRequest>();
 
   const api = new HttpApi(sinkSubject, source, gen);
@@ -35,41 +35,41 @@ type Response<T, Type extends ResponseType> = RawResponse<
 export class HttpApi {
   constructor(
     private sinkSubject: Callbag<SinkRequest>,
-    private source: Source<ResponseStream>,
+    private source: Producer<ResponseStream>,
     private gen: IdGenerator
   ) {}
 
   public get<T, Type extends ResponseType = 'text'>(
     optsOrUrl: string | Request<T, Type>
-  ): Source<Response<T, Type>> {
+  ): Producer<Response<T, Type>> {
     return this.request(mkOpts('GET', optsOrUrl));
   }
 
   public post<T, Type extends ResponseType = 'text'>(
     optsOrUrl: string | Request<T, Type>
-  ): Source<Response<T, Type>> {
+  ): Producer<Response<T, Type>> {
     return this.request(mkOpts('POST', optsOrUrl));
   }
 
   public put<T, Type extends ResponseType = 'text'>(
     optsOrUrl: string | Request<T, Type>
-  ): Source<Response<T, Type>> {
+  ): Producer<Response<T, Type>> {
     return this.request(mkOpts('PUT', optsOrUrl));
   }
 
   public delete<T, Type extends ResponseType = 'text'>(
     optsOrUrl: string | Request<T, Type>
-  ): Source<Response<T, Type>> {
+  ): Producer<Response<T, Type>> {
     return this.request(mkOpts('DELETE', optsOrUrl));
   }
 
   public patch<T, Type extends ResponseType = 'text'>(
     optsOrUrl: string | Request<T, Type>
-  ): Source<Response<T, Type>> {
+  ): Producer<Response<T, Type>> {
     return this.request(mkOpts('PATCH', optsOrUrl));
   }
 
-  public request<T>(options: RequestOptions): Source<RawResponse<T>> {
+  public request<T>(options: RequestOptions): Producer<RawResponse<T>> {
     const id = this.gen();
 
     this.sinkSubject(1, {

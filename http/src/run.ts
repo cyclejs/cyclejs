@@ -1,12 +1,10 @@
 // This is all the stuff that should probably be part of @cycle/run
 
-import { Source } from '@cycle/callbags';
+import { Producer, Dispose } from '@cycle/callbags';
 
-export type Subscription = void;
-
-export interface Driver<So, Si> {
-  consumeSink(sink: Source<Si>): Subscription;
-  produceSource(): Source<So>;
+export interface Driver<Source, Sink> {
+  consumeSink(sink: Producer<Sink>): Dispose;
+  provideSource(): Producer<Source>;
 }
 
 export type IdGenerator = () => number;

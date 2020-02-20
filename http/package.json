@@ -23,7 +23,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@cycle/callbags": "^2.0.0-rc.2",
+    "@cycle/callbags": "^2.0.0-rc.4",
     "minireq": "^1.1.0"
   },
   "funding": {

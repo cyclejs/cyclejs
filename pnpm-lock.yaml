@@ -10,17 +10,17 @@ importers:
       typescript: ^3.7.5
   http:
     dependencies:
-      '@cycle/callbags': 2.0.0-rc.2
+      '@cycle/callbags': 2.0.0-rc.4
       minireq: 1.1.0
     specifiers:
-      '@cycle/callbags': ^2.0.0-rc.2
+      '@cycle/callbags': ^2.0.0-rc.4
       minireq: ^1.1.0
 lockfileVersion: 5.1
 packages:
-  /@cycle/callbags/2.0.0-rc.2:
+  /@cycle/callbags/2.0.0-rc.4:
     dev: false
     resolution:
-      integrity: sha512-OKbQKXhSkCx8GH/xxpLVb3c4ETaAomLqbT8G1otxjHpV0JKiewasENM7LaaSOFYjvKauCdhditdu7zTTVaGQWA==
+      integrity: sha512-Vlxkj6JNHhnwbyHjWpd1/NyNtxE0VBNyvOjcMf//WAjb4GvmAe/vi3cw0Ruda5QdQ2wTMpjWPSKh6Wf1c3hOxA==
   /@types/estree/0.0.42:
     dev: true
     resolution:

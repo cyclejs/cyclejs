@@ -1,12 +1,13 @@
 import {
-  Source,
+  Producer,
   makeSubject,
   pipe,
   subscribe,
-  fromPromise
+  fromPromise,
+  Dispose
 } from '@cycle/callbags';
 import { RequestFn } from 'minireq';
-import { Driver, Subscription } from './run';
+import { Driver } from './run';
 
 import { ResponseStream, SinkRequest } from './types';
 
@@ -15,25 +16,23 @@ export class HttpDriver implements Driver<ResponseStream, SinkRequest> {
 
   constructor(private request: RequestFn) {}
 
-  public consumeSink(sink: Source<SinkRequest>): Subscription {
-    /* const subscription = */ pipe(
+  public consumeSink(sink: Producer<SinkRequest>): Dispose {
+    const dispose = pipe(
       sink,
-      subscribe({
-        next: opts => {
-          // TODO: Cleanup and aborting of requests
-          const { promise } = this.request(opts);
-          const res$: any = fromPromise(promise);
-          res$.id = opts.id;
+      subscribe(opts => {
+        // TODO: Cleanup and aborting of requests
+        const { promise } = this.request(opts);
+        const res$: any = fromPromise(promise);
+        res$.id = opts.id;
 
-          this.subject(1, res$);
-
-          // return subscription;
-        }
+        this.subject(1, res$);
       })
     );
+
+    return dispose;
   }
 
-  public produceSource(): Source<ResponseStream> {
+  public provideSource(): Producer<ResponseStream> {
     return this.subject;
   }
 }
