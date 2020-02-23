@@ -1,5 +1,5 @@
 import {
-  Callbag,
+  Subject,
   Producer,
   pipe,
   flatten,
@@ -34,7 +34,7 @@ type Response<T, Type extends ResponseType> = RawResponse<
 
 export class HttpApi {
   constructor(
-    private sinkSubject: Callbag<SinkRequest>,
+    private sinkSubject: Subject<SinkRequest>,
     private source: Producer<ResponseStream>,
     private gen: IdGenerator
   ) {}
