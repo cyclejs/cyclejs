@@ -1,6 +1,8 @@
 packages:
-  - '.'
-  - '*/**'
-  - '!devtool/**'
-  - '!docs/**'
-  - '!examples/**'
+  - dom
+  - history
+  - html
+  - http
+  - isolate
+  - run
+  - state

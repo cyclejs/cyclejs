@@ -1,2 +1,0 @@
-- [**Read the docs here**](https://cycle.js.org/api/run.html)
-- [**Edit the docs here**](https://github.com/cyclejs/cyclejs/blob/master/docs/content/api/run.md)
