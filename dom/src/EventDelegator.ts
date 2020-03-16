@@ -1,18 +1,18 @@
 import xs, {Stream, Subscription} from 'xstream';
 import {ScopeChecker} from './ScopeChecker';
 import {IsolateModule} from './IsolateModule';
-import {getSelectors, makeInsert} from './utils';
+import {getSelectors, isEqualNamespace} from './utils';
 import {ElementFinder} from './ElementFinder';
 import {EventsFnOptions} from './DOMSource';
 import {Scope} from './isolate';
 import SymbolTree from './SymbolTree';
-import RemovalSet from './RemovalSet';
 import PriorityQueue from './PriorityQueue';
 import {
   fromEvent,
   preventDefaultConditional,
   PreventDefaultOpt,
 } from './fromEvent';
+
 declare var requestIdleCallback: any;
 
 interface Destination {
@@ -69,6 +69,8 @@ interface NonBubblingListener {
   destination: Destination;
 }
 
+type NonBubblingMeta = [Stream<Event>, string, ElementFinder, Destination]
+
 /**
  * Manages "Event delegation", by connecting an origin with multiple
  * destinations.
@@ -88,9 +90,7 @@ export class EventDelegator {
   private domListeners: Map<string, DOMListener>;
   private nonBubblingListeners: Map<string, Map<Element, NonBubblingListener>>;
   private domListenersToAdd: Map<string, boolean>;
-  private nonBubblingListenersToAdd = new RemovalSet<
-    [string, ElementFinder, Destination]
-  >();
+  private nonBubblingListenersToAdd = new Set<NonBubblingMeta>();
 
   private virtualNonBubblingListener: Array<Destination> = [];
 
@@ -106,7 +106,7 @@ export class EventDelegator {
       Map<Element, NonBubblingListener>
     >();
     rootElement$.addListener({
-      next: el => {
+      next: (el: Element) => {
         if (this.origin !== el) {
           this.origin = el;
           this.resetEventListeners();
@@ -116,7 +116,6 @@ export class EventDelegator {
           this.domListenersToAdd.clear();
         }
 
-        this.resetNonBubblingListeners();
         this.nonBubblingListenersToAdd.forEach(arr => {
           this.setupNonBubblingListener(arr);
         });
@@ -131,24 +130,78 @@ export class EventDelegator {
     bubbles?: boolean
   ): Stream<Event> {
     const subject = xs.never();
-    const scopeChecker = new ScopeChecker(namespace, this.isolateModule);
+    let dest;
 
-    const dest = this.insertListener(subject, scopeChecker, eventType, options);
+    const scopeChecker = new ScopeChecker(namespace, this.isolateModule);
 
     const shouldBubble =
       bubbles === undefined
         ? eventTypesThatDontBubble.indexOf(eventType) === -1
         : bubbles;
+
     if (shouldBubble) {
       if (!this.domListeners.has(eventType)) {
         this.setupDOMListener(eventType, !!options.passive);
       }
-    } else {
-      const finder = new ElementFinder(namespace, this.isolateModule);
-      this.setupNonBubblingListener([eventType, finder, dest]);
-    }
 
-    return subject;
+      dest = this.insertListener(subject, scopeChecker, eventType, options);
+      return subject;
+    } else {
+      const setArray: Array<NonBubblingMeta> = [];
+      this.nonBubblingListenersToAdd.forEach(v => setArray.push(v));
+      let found = undefined, index = 0;
+      const length = setArray.length;
+      const tester = (x: NonBubblingMeta) => {
+        const [_sub, et, ef, _] = x;
+        return eventType === et && isEqualNamespace(ef.namespace, namespace);
+      }
+
+      while (!found && index < length) {
+        const item = setArray[index]
+        found = tester(item) ? item : found;
+        index++;
+      }
+
+      let input: NonBubblingMeta = found as NonBubblingMeta;
+
+      let nonBubbleSubject: Stream<Event>;
+      if (!input) {
+        const finder = new ElementFinder(namespace, this.isolateModule);
+        dest = this.insertListener(subject, scopeChecker, eventType, options);
+        input = [subject, eventType, finder, dest];
+        nonBubbleSubject = subject;
+      } else {
+        const [sub] = input;
+        nonBubbleSubject = sub;
+      }
+
+      const self = this;
+
+      let subscription: any = null;
+      return xs.create({
+        start: listener => {
+          self.nonBubblingListenersToAdd.add(input);
+          self.setupNonBubblingListener(input);
+          subscription = nonBubbleSubject.subscribe(listener);
+        },
+        stop: () => {
+          const [_s, et, ef, _d] = input;
+          const elements = ef.call();
+      
+          elements.forEach(function(element: any) {
+            const subs = element.subs;
+            if (subs && subs[et]) {
+              subs[et].unsubscribe();
+              delete subs[et];
+            }
+          });
+      
+          self.nonBubblingListenersToAdd.delete(input as any);
+      
+          subscription.unsubscribe();
+        }
+      });
+    }
   }
 
   public removeElement(element: Element, namespace?: Array<Scope>): void {
@@ -159,6 +212,12 @@ export class EventDelegator {
     this.nonBubblingListeners.forEach((map, type) => {
       if (map.has(element)) {
         toRemove.push([type, element]);
+        const subs = (element as any).subs;
+        if (subs) {
+          Object.keys(subs).forEach((key: any) => {
+            subs[key].unsubscribe();
+          });
+        }
       }
     });
     for (let i = 0; i < toRemove.length; i++) {
@@ -248,7 +307,7 @@ export class EventDelegator {
         false,
         passive
       ).subscribe({
-        next: event => this.onEvent(eventType, event, passive),
+        next: (event: Event) => this.onEvent(eventType, event, passive),
         error: () => {},
         complete: () => {},
       });
@@ -259,42 +318,49 @@ export class EventDelegator {
   }
 
   private setupNonBubblingListener(
-    input: [string, ElementFinder, Destination]
+    input: NonBubblingMeta
   ): void {
-    const [eventType, elementFinder, destination] = input;
+    const [_, eventType, elementFinder, destination] = input;
     if (!this.origin) {
-      this.nonBubblingListenersToAdd.add(input);
       return;
     }
 
-    const element = elementFinder.call()[0];
-    if (element) {
-      this.nonBubblingListenersToAdd.delete(input);
+    const elements = elementFinder.call();
+    if (elements.length) {
+      const self = this;
+      elements.forEach((element: Element) => {
+        const subs = (element as any).subs;
+        if (!subs || !subs[eventType]) {
+          const sub = fromEvent(
+            element,
+            eventType,
+            false,
+            false,
+            destination.passive
+          ).subscribe({
+            next: (ev: Event) =>
+              self.onEvent(eventType, ev, !!destination.passive, false),
+            error: () => {},
+            complete: () => {},
+          });
+          if (!self.nonBubblingListeners.has(eventType)) {
+            self.nonBubblingListeners.set(
+              eventType,
+              new Map<Element, NonBubblingListener>()
+            );
+          }
+          const map = self.nonBubblingListeners.get(eventType);
+          if (!map) {
+            return;
+          }
+          map.set(element, {sub, destination});
 
-      const sub = fromEvent(
-        element,
-        eventType,
-        false,
-        false,
-        destination.passive
-      ).subscribe({
-        next: ev => this.onEvent(eventType, ev, !!destination.passive, false),
-        error: () => {},
-        complete: () => {},
+          (element as any).subs = {
+            ...subs,
+            [eventType]: sub,
+          };
+        }
       });
-      if (!this.nonBubblingListeners.has(eventType)) {
-        this.nonBubblingListeners.set(
-          eventType,
-          new Map<Element, NonBubblingListener>()
-        );
-      }
-      const map = this.nonBubblingListeners.get(eventType);
-      if (!map) {
-        return;
-      }
-      map.set(element, {sub, destination});
-    } else {
-      this.nonBubblingListenersToAdd.add(input);
     }
   }
 
@@ -307,43 +373,6 @@ export class EventDelegator {
       this.setupDOMListener(type, passive);
       curr = iter.next();
     }
-  }
-
-  private resetNonBubblingListeners(): void {
-    const newMap = new Map<string, Map<Element, NonBubblingListener>>();
-    const insert = makeInsert(newMap);
-
-    this.nonBubblingListeners.forEach((map, type) => {
-      map.forEach((value, elm) => {
-        if (!document.body.contains(elm)) {
-          const {sub, destination} = value;
-          if (sub) {
-            sub.unsubscribe();
-          }
-          const elementFinder = new ElementFinder(
-            destination.scopeChecker.namespace,
-            this.isolateModule
-          );
-          const newElm = elementFinder.call()[0];
-          const newSub = fromEvent(
-            newElm,
-            type,
-            false,
-            false,
-            destination.passive
-          ).subscribe({
-            next: event =>
-              this.onEvent(type, event, !!destination.passive, false),
-            error: () => {},
-            complete: () => {},
-          });
-          insert(type, newElm, {sub: newSub, destination});
-        } else {
-          insert(type, elm, value);
-        }
-      });
-      this.nonBubblingListeners = newMap;
-    });
   }
 
   private putNonBubblingListener(
@@ -531,6 +560,7 @@ export class EventDelegator {
             event,
             dest.preventDefault as PreventDefaultOpt
           );
+
           dest.subject.shamefullySendNext(event);
         }
       }

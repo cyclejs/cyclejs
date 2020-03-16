@@ -7,6 +7,7 @@ import concat from 'xstream/extra/concat';
 import {setup} from '@cycle/run';
 import {
   div,
+  textarea,
   input,
   span,
   h2,
@@ -530,7 +531,7 @@ describe('DOMSource.events()', function() {
 
     function app(_sources: {DOM: DOMSource}) {
       return {
-        DOM: xs.of(div([div('.clickable', 'Hello')])),
+        DOM: xs.of(div([textarea('.blurable', 'Hello')])),
       };
     }
 
@@ -538,20 +539,20 @@ describe('DOMSource.events()', function() {
       done();
     } else {
       const fragment = document.createDocumentFragment();
-      const renderTarget = fragment.appendChild(document.createElement('div'));
+      const renderTarget = fragment.appendChild(document.createElement('textarea'));
 
       const {sinks, sources, run} = setup(app, {
         DOM: makeDOMDriver(renderTarget as Element),
       });
 
-      sources.DOM.select('.clickable')
-        .events('click', {useCapture: true})
+      sources.DOM.select('.blurable')
+        .events('mouseenter', {useCapture: true})
         .addListener({
           next: (ev: Event) => {
             const elem = ev.target as HTMLElement;
-            assert.strictEqual(ev.type, 'click');
-            assert.strictEqual(elem.tagName, 'DIV');
-            assert.strictEqual(elem.className, 'clickable');
+            assert.strictEqual(ev.type, 'mouseenter');
+            assert.strictEqual(elem.tagName, 'TEXTAREA');
+            assert.strictEqual(elem.className, 'blurable');
             assert.strictEqual(elem.textContent, 'Hello');
             const top = elem.parentElement as Node;
             const renderTarget2 = top.parentNode as Node;
@@ -567,8 +568,23 @@ describe('DOMSource.events()', function() {
         .take(1)
         .addListener({
           next: (root: Element) => {
-            const clickable = root.querySelector('.clickable') as HTMLElement;
-            setTimeout(() => clickable.click(), 80);
+            const blurable = root.querySelector('.blurable') as HTMLElement;
+
+            setTimeout(() => {
+              let event;
+              if(typeof(MouseEvent) === 'function') {
+                event = new MouseEvent('mouseenter', {
+                  'view': window,
+                  'bubbles': false,
+                  'cancelable': false
+                }); 
+              } else {
+                event = document.createEvent('MouseEvent');
+                event.initMouseEvent('mouseenter', false, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+              }
+              
+              blurable.dispatchEvent(event);
+            }, 80);
           },
         });
       run();
