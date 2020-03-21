@@ -29,13 +29,16 @@
   "module": "lib/es6/index.js",
   "typings": "lib/cjs/index.d.ts",
   "types": "lib/cjs/index.d.ts",
-  "dependencies": {
+  "peerDependencies": {
     "@cycle/run": "^5.2.0",
-    "rxjs": "~6.3.3",
+    "rxjs": "6.x",
     "symbol-observable": "^1.2.0",
     "xstream": "*"
   },
   "devDependencies": {
+    "@cycle/run": "^5.2.0",
+    "rxjs": "~6.3.3",
+    "symbol-observable": "^1.2.0",
     "@types/mocha": "5.2.x",
     "@types/node": "10.12.x",
     "@types/sinon": "5.0.x",
