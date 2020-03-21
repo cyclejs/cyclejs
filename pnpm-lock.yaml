@@ -33,8 +33,8 @@ importers:
   dom:
     dependencies:
       '@cycle/run': 'link:../run'
-      snabbdom: 0.7.3
-      snabbdom-selector: 4.2.0_snabbdom@0.7.3
+      snabbdom: 0.7.4
+      snabbdom-selector: 4.2.0_snabbdom@0.7.4
       xstream: 11.11.0
     devDependencies:
       '@cycle/isolate': 'link:../isolate'
@@ -84,7 +84,7 @@ importers:
       rxjs: ^6.3.3
       simulant: ^0.2.2
       sinon: ^7.1.1
-      snabbdom: ^0.7.2
+      snabbdom: ^0.7.4
       snabbdom-pragma: ^2.8.0
       snabbdom-selector: ^4.2.0
       symbol-observable: ^1.2.0
@@ -193,6 +193,7 @@ importers:
       body-parser: 1.19.0
       cookie-parser: 1.4.4
       deepmerge: 4.0.0
+      es6-map: 0.1.5
       express: 4.17.1
       isarray: 2.0.5
       karma: 4.2.0
@@ -219,6 +220,7 @@ importers:
       body-parser: ~1.19.0
       cookie-parser: ~1.4.4
       deepmerge: ~4.0.0
+      es6-map: ^0.1.5
       express: ~4.17.1
       isarray: ~2.0.5
       karma: ~4.2.0
@@ -2586,8 +2588,8 @@ packages:
       integrity: sha512-6fBA8pbwApTY20Q5aDkWgJcg5wCmbwlcnccUFyBQypN8AoRJ0Vt4pLehai0/P2Xr29t2UDYoNGOUDhi4eoR0JQ==
   /d/1.0.1:
     dependencies:
-      es5-ext: 0.10.50
-      type: 1.0.1
+      es5-ext: 0.10.51
+      type: 1.2.0
     dev: true
     resolution:
       integrity: sha512-m62ShEObQ39CfralilEQRjH6oAMtNCV1xJyEx5LpRYUVN+EviphDgUc/F3hnYbADmkiNs67Y+3ylmlG7Lnu+FA==
@@ -3005,29 +3007,29 @@ packages:
       node: '>= 0.4'
     resolution:
       integrity: sha512-qZryBOJjV//LaxLTV6UC//WewneB3LcXOL9NP++ozKVXsIIIpm/2c13UDiD9Jp2eThsecw9m3jPqDwTyobcdbg==
-  /es5-ext/0.10.50:
+  /es5-ext/0.10.51:
     dependencies:
       es6-iterator: 2.0.3
-      es6-symbol: 3.1.1
+      es6-symbol: 3.1.2
       next-tick: 1.0.0
     dev: true
     resolution:
-      integrity: sha512-KMzZTPBkeQV/JcSQhI5/z6d9VWJ3EnQ194USTUwIYZ2ZbpN8+SGXQKt1h68EX44+qt+Fzr8DO17vnxrw7c3agw==
+      integrity: sha512-oRpWzM2WcLHVKpnrcyB7OW8j/s67Ba04JCm0WnNv3RiABSvs7mrQlutB8DBv793gKcp0XENR8Il8WxGTlZ73gQ==
   /es6-iterator/2.0.3:
     dependencies:
       d: 1.0.1
-      es5-ext: 0.10.50
-      es6-symbol: 3.1.1
+      es5-ext: 0.10.51
+      es6-symbol: 3.1.2
     dev: true
     resolution:
       integrity: sha1-p96IkUGgWpSwhUQDstCg+/qY87c=
   /es6-map/0.1.5:
     dependencies:
       d: 1.0.1
-      es5-ext: 0.10.50
+      es5-ext: 0.10.51
       es6-iterator: 2.0.3
       es6-set: 0.1.5
-      es6-symbol: 3.1.1
+      es6-symbol: 3.1.2
       event-emitter: 0.3.5
     dev: true
     resolution:
@@ -3053,7 +3055,7 @@ packages:
   /es6-set/0.1.5:
     dependencies:
       d: 1.0.1
-      es5-ext: 0.10.50
+      es5-ext: 0.10.51
       es6-iterator: 2.0.3
       es6-symbol: 3.1.1
       event-emitter: 0.3.5
@@ -3063,10 +3065,17 @@ packages:
   /es6-symbol/3.1.1:
     dependencies:
       d: 1.0.1
-      es5-ext: 0.10.50
+      es5-ext: 0.10.51
     dev: true
     resolution:
       integrity: sha1-vwDvT9q2uhtG7Le2KbTH7VcVzHc=
+  /es6-symbol/3.1.2:
+    dependencies:
+      d: 1.0.1
+      es5-ext: 0.10.51
+    dev: true
+    resolution:
+      integrity: sha512-/ZypxQsArlv+KHpGvng52/Iz8by3EQPxhmbuz8yFG89N/caTFBSbcXONDw0aMjy827gQg26XAjP4uXFvnfINmQ==
   /escape-html/1.0.3:
     dev: true
     resolution:
@@ -3125,7 +3134,7 @@ packages:
   /event-emitter/0.3.5:
     dependencies:
       d: 1.0.1
-      es5-ext: 0.10.50
+      es5-ext: 0.10.51
     dev: true
     resolution:
       integrity: sha1-34xp7vFkeSPHFXuc6DhAYQsCzDk=
@@ -6944,9 +6953,9 @@ packages:
     dev: true
     resolution:
       integrity: sha512-NDWOVSUR6yPlxH2F9XRwnF59UObLnItfSXcIw6+azkyrEDqT2c8pZ85UHvjijsgdve3g19qsC0/69tB5eZqTvA==
-  /snabbdom-selector/4.2.0_snabbdom@0.7.3:
+  /snabbdom-selector/4.2.0_snabbdom@0.7.4:
     dependencies:
-      snabbdom: 0.7.3
+      snabbdom: 0.7.4
       tree-selector: 2.1.0
     dev: false
     peerDependencies:
@@ -6969,10 +6978,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-rDY283fYUB/3z2tjXsRRccsbVJqmGLtP+iI1tfa1DDHo2xZ49cq1leq9JmYyvZQhESuYJRY/is6WYhP2UuiRVg==
-  /snabbdom/0.7.3:
+  /snabbdom/0.7.4:
     dev: false
     resolution:
-      integrity: sha512-XNh90GQiV36hWdfSL46fIVrSSvmBuZlWk3++qaEgBeQWQJCqTphcbjTODPv8/vyZHJaB3VhePsWfGxi/zBxXyw==
+      integrity: sha512-nnN+7uZ2NTIiu7EPMNwSDhmrYXqwlfCP/j72RdzvDPujXyvQxOW7Jl9yuLayzxMHDNWQR7FM6Pcn4wnDpKRe6Q==
   /snapdragon-node/2.1.1:
     dependencies:
       define-property: 1.0.0
@@ -7752,10 +7761,10 @@ packages:
       node: '>= 0.6'
     resolution:
       integrity: sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g==
-  /type/1.0.1:
+  /type/1.2.0:
     dev: true
     resolution:
-      integrity: sha512-MAM5dBMJCJNKs9E7JXo4CXRAansRfG0nlJxW7Wf6GZzSOvH31zClSaHdIMWLehe/EGMBkqeC55rrkaOr5Oo7Nw==
+      integrity: sha512-+5nt5AAniqsCnu2cEQQdpzCAh33kVx8n0VoFidKpB1dVVLAN/F+bgVOqOJqOnEnrhp222clB5p3vUlD+1QAnfg==
   /typedarray/0.0.6:
     dev: true
     resolution:

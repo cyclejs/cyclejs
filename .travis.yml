@@ -5,10 +5,11 @@ node_js:
 script:
   - pnpm run build && pnpm run lint && pnpm recursive run test-ci
 before_install:
-  - curl -L https://unpkg.com/@pnpm/self-installer | PNPM_VERSION=3.5.3 node
+  - npm i -g pnpm@4.1.6
 install:
   - pnpm install && pnpm recursive install
 cache:
+  npm: false
   directories:
     - /home/travis/.pnpm-store
 branches:
