@@ -86,7 +86,7 @@ function makeDOMDriver(
   const modules = options.modules || defaultModules;
   makeDOMDriverInputGuard(modules);
   const isolateModule = new IsolateModule();
-  const patch = init([isolateModule.createModule()].concat(modules));
+  const patch = init([isolateModule.createModule() as Partial<Module>].concat(modules));
   const domReady$ = makeDOMReady$();
   let vnodeWrapper: VNodeWrapper;
   let mutationObserver: MutationObserver;
