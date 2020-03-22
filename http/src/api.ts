@@ -37,7 +37,7 @@ export class HttpApi {
     private sinkSubject: Subject<SinkRequest>,
     private source: Producer<ResponseStream>,
     private gen: IdGenerator
-  ) {}
+  ) { }
 
   public get<T, Type extends ResponseType = 'text'>(
     optsOrUrl: string | Request<T, Type>

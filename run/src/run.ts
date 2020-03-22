@@ -38,7 +38,11 @@ export function setup(
 
     for (const k of Object.keys(plugins)) {
       if (masterSinks[k]) {
-        sinkProxies[k](0, masterSinks[k]);
+        masterSinks[k](0, (t: any, d: any) => {
+          if(t !== 0) {
+            sinkProxies[k](t, d);
+          }
+        });
       }
     }
 
