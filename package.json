@@ -2,8 +2,8 @@
   "private": true,
   "license": "MIT",
   "devDependencies": {
-    "prettier": "^1.19.1",
-    "rollup": "^1.31.1",
-    "typescript": "^3.7.5"
+    "prettier": "^2.0.1",
+    "rollup": "^2.1.0",
+    "typescript": "^3.8.3"
   }
 }

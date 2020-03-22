@@ -1,13 +1,13 @@
 importers:
   .:
     devDependencies:
-      prettier: 1.19.1
-      rollup: 1.31.1
-      typescript: 3.7.5
+      prettier: 2.0.1
+      rollup: 2.1.0
+      typescript: 3.8.3
     specifiers:
-      prettier: ^1.19.1
-      rollup: ^1.31.1
-      typescript: ^3.7.5
+      prettier: ^2.0.1
+      rollup: ^2.1.0
+      typescript: ^3.8.3
   http:
     dependencies:
       '@cycle/callbags': 2.0.0
@@ -15,51 +15,50 @@ importers:
     specifiers:
       '@cycle/callbags': ^2.0.0
       minireq: ^1.1.0
+  run:
+    dependencies:
+      '@cycle/callbags': 2.0.0
+    specifiers:
+      '@cycle/callbags': ^2.0.0
 lockfileVersion: 5.1
 packages:
   /@cycle/callbags/2.0.0:
     dev: false
     resolution:
       integrity: sha512-7pNapPafZtIglnvulBh1VUXM52qnqsU0g1yeF0BZntk8i2WQDNVAJmNlcL8M7fF/zEN7MidKhL6u7V8kTqPUWw==
-  /@types/estree/0.0.42:
-    dev: true
-    resolution:
-      integrity: sha512-K1DPVvnBCPxzD+G51/cxVIoc2X8uUVl1zpJeE6iKcgHMj4+tbat5Xu4TjV7v2QSDbIeAfLi2hIk+u2+s0MlpUQ==
-  /@types/node/13.7.1:
-    dev: true
-    resolution:
-      integrity: sha512-Zq8gcQGmn4txQEJeiXo/KiLpon8TzAl0kmKH4zdWctPj05nWwp1ClMdAVEloqrQKfaC48PNLdgN/aVaLqUrluA==
-  /acorn/7.1.0:
+  /fsevents/2.1.2:
     dev: true
     engines:
-      node: '>=0.4.0'
-    hasBin: true
+      node: ^8.16.0 || ^10.6.0 || >=11.0.0
+    optional: true
+    os:
+      - darwin
     resolution:
-      integrity: sha512-kL5CuoXA/dgxlBbVrflsflzQ3PAas7RYZB52NOm/6839iVYJgKMJ3cQJD+t2i5+qFa8h3MDpEOJiS64E8JLnSQ==
+      integrity: sha512-R4wDiBwZ0KzpgOWetKDug1FZcYhqYnUYKtfZYt4mD5SBz76q0KR4Q9o7GIPamsVPGmW3EYPPJ0dOOjvx32ldZA==
   /minireq/1.1.0:
     dev: false
     resolution:
       integrity: sha512-wQPvF8FiVHdSkIHccVr01OWsYVhgNwslEVC/kc9ghtycMQFCU7Ki63gbwUXSQl2MZFdYoK+/52ovtKVVWS+JDg==
-  /prettier/1.19.1:
+  /prettier/2.0.1:
     dev: true
     engines:
-      node: '>=4'
+      node: '>=10.13.0'
     hasBin: true
     resolution:
-      integrity: sha512-s7PoyDv/II1ObgQunCbB9PdLmUcBZcnWOcxDh7O0N/UwDEsHyqkW+Qh28jW+mVuCdx7gLB0BotYI1Y6uI9iyew==
-  /rollup/1.31.1:
-    dependencies:
-      '@types/estree': 0.0.42
-      '@types/node': 13.7.1
-      acorn: 7.1.0
+      integrity: sha512-piXGBcY1zoFOG0MvHpNE5reAGseLmaCRifQ/fmfF49BcYkInEs/naD/unxGNAeOKFA5+JxVrPyMvMlpzcd20UA==
+  /rollup/2.1.0:
     dev: true
+    engines:
+      node: '>=10.0.0'
     hasBin: true
+    optionalDependencies:
+      fsevents: 2.1.2
     resolution:
-      integrity: sha512-2JREN1YdrS/kpPzEd33ZjtuNbOuBC3ePfuZBdKEybvqcEcszW1ckyVqzcEiEe0nE8sqHK+pbJg+PsAgRJ8+1dg==
-  /typescript/3.7.5:
+      integrity: sha512-gfE1455AEazVVTJoeQtcOq/U6GSxwoj4XPSWVsuWmgIxj7sBQNLDOSA82PbdMe+cP8ql8fR1jogPFe8Wg8g4SQ==
+  /typescript/3.8.3:
     dev: true
     engines:
       node: '>=4.2.0'
     hasBin: true
     resolution:
-      integrity: sha512-/P5lkRXkWHNAbcJIiHPfRoKqyd7bsyCma1hZNUGfn20qm64T6ZBlrzprymeu918H+mB/0rIg2gGK/BXkhhYgBw==
+      integrity: sha512-MYlEfn5VrLNsgudQTVJeNaQFUAI7DkhnOjdpAp4T+ku1TfQClewlbSuTVHiA+8skNBgaf02TL/kLOvig4y3G8w==
