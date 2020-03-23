@@ -1,3 +1,10 @@
+## 3.4.0 (2020-03-23)
+
+* docs(html): note about reportSnabbdomError in HTMLDriverOptions ([18b915f](https://github.com/cyclejs/cyclejs/commit/18b915f))
+* feat(html): add reportSnabbdomError option to HTMLDriverOptions ([d8b0423](https://github.com/cyclejs/cyclejs/commit/d8b0423)), closes [#922](https://github.com/cyclejs/cyclejs/issues/922)
+
+
+
 ## 3.3.0 (2019-11-06)
 
 
