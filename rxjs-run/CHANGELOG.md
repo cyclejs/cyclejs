@@ -1,3 +1,9 @@
+## 10.5.0 (2020-03-23)
+
+* fix(rxjs-run): use peerDependencies to avoid dependency shadowing (#905) ([4683894](https://github.com/cyclejs/cyclejs/commit/4683894)), closes [#905](https://github.com/cyclejs/cyclejs/issues/905) [#902](https://github.com/cyclejs/cyclejs/issues/902)
+
+
+
 ## 10.4.0 (2019-11-06)
 
 
