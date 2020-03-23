@@ -1,3 +1,9 @@
+## 15.4.0 (2020-03-23)
+
+* fix(http): do not mutate the request in isolate (#935) ([276515e](https://github.com/cyclejs/cyclejs/commit/276515e)), closes [#935](https://github.com/cyclejs/cyclejs/issues/935)
+
+
+
 ## 15.3.0 (2019-11-06)
 
 
