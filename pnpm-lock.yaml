@@ -319,20 +319,19 @@ importers:
       typescript: =3.2.4
       xstream: 10.x || 11.x
   rxjs-run:
-    dependencies:
-      '@cycle/run': 'link:../run'
-      rxjs: 6.3.3
-      symbol-observable: 1.2.0
-      xstream: 11.11.0
     devDependencies:
+      '@cycle/run': 'link:../run'
       '@types/mocha': 5.2.7
       '@types/node': 10.12.30
       '@types/sinon': 5.0.7
       mocha: 6.2.0
+      rxjs: 6.3.3
       sinon: 7.3.2
+      symbol-observable: 1.2.0
       ts-node: 7.0.1
       tslint: 5.18.0_typescript@3.2.4
       typescript: 3.2.4
+      xstream: 11.11.0
     specifiers:
       '@cycle/run': ^5.2.0
       '@types/mocha': 5.2.x
@@ -345,7 +344,7 @@ importers:
       ts-node: ^7.0.1
       tslint: ^5.11.0
       typescript: =3.2.4
-      xstream: '*'
+      xstream: 11.x
   state:
     dependencies:
       '@cycle/isolate': 'link:../isolate'
@@ -6743,6 +6742,7 @@ packages:
   /rxjs/6.3.3:
     dependencies:
       tslib: 1.10.0
+    dev: true
     engines:
       npm: '>=2.0.0'
     resolution:
@@ -8072,7 +8072,6 @@ packages:
   /xstream/11.11.0:
     dependencies:
       symbol-observable: 1.2.0
-    dev: false
     resolution:
       integrity: sha512-0zF3PLsHrmbToPBgX1jYZFNw+t5octSFJgVRH44HGlGBBjY7gscvDQOZvty8IQV15Snia1RcLPECWDfEaE4aXg==
   /xtend/4.0.2:
