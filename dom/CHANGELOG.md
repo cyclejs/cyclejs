@@ -1,3 +1,13 @@
+## 22.6.0 (2020-03-23)
+
+* fix(dom): fix nonBubbling events bug for resubscribing streams (#906) ([2f4ebc9](https://github.com/cyclejs/cyclejs/commit/2f4ebc9)), closes [#906](https://github.com/cyclejs/cyclejs/issues/906) [#893](https://github.com/cyclejs/cyclejs/issues/893)
+* fix(dom): fix type inference for modules array ([27c29e3](https://github.com/cyclejs/cyclejs/commit/27c29e3))
+* feat(dom): accept partial modules in DOMDriverOptions (#928) ([3b25d53](https://github.com/cyclejs/cyclejs/commit/3b25d53)), closes [#928](https://github.com/cyclejs/cyclejs/issues/928) [#927](https://github.com/cyclejs/cyclejs/issues/927)
+* feat(dom): add reportSnabbdomError option to DOMDriverOptions ([21a8f1e](https://github.com/cyclejs/cyclejs/commit/21a8f1e)), closes [#922](https://github.com/cyclejs/cyclejs/issues/922)
+* docs(dom): note about reportSnabbdomError in DOMDriverOptions ([5b70cd8](https://github.com/cyclejs/cyclejs/commit/5b70cd8))
+
+
+
 ## 22.5.0 (2019-11-06)
 
 
