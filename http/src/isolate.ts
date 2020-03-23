@@ -44,9 +44,10 @@ export function isolateSink(
       if (typeof req === 'string') {
         return {url: req, _namespace: [scope]} as RequestOptions;
       }
-      req._namespace = req._namespace || [];
-      req._namespace.unshift(scope);
-      return req;
+      return {
+        ...req,
+        _namespace: [scope, ...(req._namespace || [])]
+      };
     })
   );
 }
