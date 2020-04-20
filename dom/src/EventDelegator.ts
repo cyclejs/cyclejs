@@ -170,6 +170,8 @@ export class EventDelegator {
         dest = this.insertListener(subject, scopeChecker, eventType, options);
         input = [subject, eventType, finder, dest];
         nonBubbleSubject = subject;
+        this.nonBubblingListenersToAdd.add(input);
+        this.setupNonBubblingListener(input);
       } else {
         const [sub] = input;
         nonBubbleSubject = sub;
@@ -180,8 +182,6 @@ export class EventDelegator {
       let subscription: any = null;
       return xs.create({
         start: listener => {
-          self.nonBubblingListenersToAdd.add(input);
-          self.setupNonBubblingListener(input);
           subscription = nonBubbleSubject.subscribe(listener);
         },
         stop: () => {
