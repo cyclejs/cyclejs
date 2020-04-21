@@ -23,8 +23,14 @@
     "access": "public"
   },
   "dependencies": {
-    "@cycle/callbags": "^2.0.0",
+    "@cycle/callbags": "^2.1.0",
     "minireq": "^1.1.0"
+  },
+  "peerDependencies": {
+    "@cycle/run": "^5.4.0"
+  },
+  "devDependencies": {
+    "@cycle/run": "workspace:^5.4.0"
   },
   "funding": {
     "type": "opencollective",

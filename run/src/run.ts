@@ -1,4 +1,4 @@
-import { merge, makeSubject } from '@cycle/callbags';
+import { merge, makeReplaySubject } from '@cycle/callbags';
 import { Plugin, Main, MasterWrapper, Subscription } from './types';
 
 let currentId = 0;
@@ -29,7 +29,7 @@ export function setup(
     let masterSources: any = {};
 
     for (const k of Object.keys(plugins)) {
-      sinkProxies[k] = makeSubject();
+      sinkProxies[k] = makeReplaySubject();
       subscriptions[k] = plugins[k][0].consumeSink(sinkProxies[k]);
       masterSources[k] = plugins[k][0].provideSource();
     }
@@ -39,7 +39,7 @@ export function setup(
     for (const k of Object.keys(plugins)) {
       if (masterSinks[k]) {
         masterSinks[k](0, (t: any, d: any) => {
-          if(t !== 0) {
+          if (t !== 0) {
             sinkProxies[k](t, d);
           }
         });
@@ -64,12 +64,12 @@ export function makeMasterMain(
     let pluginsSinks: any = {};
 
     for (const k of Object.keys(plugins)) {
-      const [source, sink] = plugins[k][1](sources[k], cuid);
-      pluginSources[k] = source;
-      pluginsSinks[k] = sink;
+      const sinkSubject = makeReplaySubject();
+      pluginSources[k] = plugins[k][1](sources[k], sinkSubject, cuid);
+      pluginsSinks[k] = sinkSubject;
     }
 
-    let sinks = main({ ...sources, ...pluginSources });
+    let sinks = main({ ...sources, ...pluginSources }) ?? {};
 
     for (const k of Object.keys(pluginsSinks)) {
       if (sinks[k]) {

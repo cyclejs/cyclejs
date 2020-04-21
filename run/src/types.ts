@@ -1,4 +1,4 @@
-import { Producer, Dispose } from '@cycle/callbags';
+import { Producer, Dispose, Subject } from '@cycle/callbags';
 
 export type Plugin<Source, Sink> = [
   Driver<Source, Sink>,
@@ -7,8 +7,9 @@ export type Plugin<Source, Sink> = [
 
 export type ApiFactory<Source, Sink> = (
   source: Producer<Source>,
+  sinkSubject: Subject<Sink>,
   gen: IdGenerator
-) => [any, Producer<Sink>];
+) => any;
 
 export interface Driver<Source, Sink> {
   consumeSink(sink: Producer<Sink>): Dispose;

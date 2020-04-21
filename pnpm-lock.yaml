@@ -10,22 +10,25 @@ importers:
       typescript: ^3.8.3
   http:
     dependencies:
-      '@cycle/callbags': 2.0.0
+      '@cycle/callbags': 2.1.0
       minireq: 1.1.0
+    devDependencies:
+      '@cycle/run': 'link:../run'
     specifiers:
-      '@cycle/callbags': ^2.0.0
+      '@cycle/callbags': ^2.1.0
+      '@cycle/run': 'workspace:^5.4.0'
       minireq: ^1.1.0
   run:
     dependencies:
-      '@cycle/callbags': 2.0.0
+      '@cycle/callbags': 2.1.0
     specifiers:
-      '@cycle/callbags': ^2.0.0
+      '@cycle/callbags': ^2.1.0
 lockfileVersion: 5.1
 packages:
-  /@cycle/callbags/2.0.0:
+  /@cycle/callbags/2.1.0:
     dev: false
     resolution:
-      integrity: sha512-7pNapPafZtIglnvulBh1VUXM52qnqsU0g1yeF0BZntk8i2WQDNVAJmNlcL8M7fF/zEN7MidKhL6u7V8kTqPUWw==
+      integrity: sha512-D1Ia5sVvZMKTWoMHHrAW2VkiQlIxXnl1JEidVZr9FiE2B40L8oJcHkvHqsU4/xYVa3kg7Ose7lSorrVUqrlzPA==
   /fsevents/2.1.2:
     dev: true
     engines:

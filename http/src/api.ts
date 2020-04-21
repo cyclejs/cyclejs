@@ -1,11 +1,5 @@
-import {
-  Subject,
-  Producer,
-  pipe,
-  flatten,
-  filter,
-  makeSubject
-} from '@cycle/callbags';
+import { Subject, Producer, pipe, flatten, filter } from '@cycle/callbags';
+import { IdGenerator } from '@cycle/run';
 import {
   RequestOptions,
   METHOD,
@@ -13,19 +7,15 @@ import {
   ResultMapping,
   Response as RawResponse
 } from 'minireq';
-import { IdGenerator } from './run';
 
 import { SinkRequest, ResponseStream, Request } from './types';
 
 export function makeHttpApi(
   source: Producer<ResponseStream>,
+  sinkSubject: Subject<SinkRequest>,
   gen: IdGenerator
-): [HttpApi, Producer<SinkRequest>] {
-  const sinkSubject = makeSubject<SinkRequest>();
-
-  const api = new HttpApi(sinkSubject, source, gen);
-
-  return [api, sinkSubject];
+): HttpApi {
+  return new HttpApi(sinkSubject, source, gen);
 }
 
 type Response<T, Type extends ResponseType> = RawResponse<
@@ -37,7 +27,7 @@ export class HttpApi {
     private sinkSubject: Subject<SinkRequest>,
     private source: Producer<ResponseStream>,
     private gen: IdGenerator
-  ) { }
+  ) {}
 
   public get<T, Type extends ResponseType = 'text'>(
     optsOrUrl: string | Request<T, Type>
