@@ -28,7 +28,7 @@ function makeCallOnHistory(history: History) {
     }
 
     if (input.type === 'replace') {
-      history.replace(input.pathname, input.state);
+      history.replace({...input});
     }
 
     if (input.type === 'go') {
