@@ -23,7 +23,10 @@ export type PushHistoryInput = {
 export type ReplaceHistoryInput = {
   type: 'replace';
   pathname: Pathname;
+  search?: Search;
   state?: any;
+  hash?: Hash;
+  key?: LocationKey;
 };
 
 export type GoHistoryInput = {
