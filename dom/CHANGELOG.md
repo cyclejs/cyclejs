@@ -1,3 +1,9 @@
+## 22.7.0 (2020-04-23)
+
+* fix(dom): fix nonBubbling events only emit to one stream ([8a963ed](https://github.com/cyclejs/cyclejs/commit/8a963ed)), closes [#941](https://github.com/cyclejs/cyclejs/issues/941) [#940](https://github.com/cyclejs/cyclejs/issues/940)
+
+
+
 ## 22.6.0 (2020-03-23)
 
 * fix(dom): fix nonBubbling events bug for resubscribing streams (#906) ([2f4ebc9](https://github.com/cyclejs/cyclejs/commit/2f4ebc9)), closes [#906](https://github.com/cyclejs/cyclejs/issues/906) [#893](https://github.com/cyclejs/cyclejs/issues/893)
