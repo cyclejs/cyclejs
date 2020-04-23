@@ -1,4 +1,11 @@
-import { Subject, Producer, pipe, flatten, filter } from '@cycle/callbags';
+import {
+  Subject,
+  Producer,
+  pipe,
+  flatten,
+  filter,
+  uponStart
+} from '@cycle/callbags';
 import { IdGenerator } from '@cycle/run';
 import {
   RequestOptions,
@@ -61,14 +68,14 @@ export class HttpApi {
 
   public request<T>(options: RequestOptions): Producer<RawResponse<T>> {
     const id = this.gen();
-
-    this.sinkSubject(1, {
-      ...options,
-      id
-    });
-
     return pipe(
       this.source,
+      uponStart(() =>
+        this.sinkSubject(1, {
+          ...options,
+          id
+        })
+      ),
       filter(res$ => res$.id === id),
       flatten
     );
