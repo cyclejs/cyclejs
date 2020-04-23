@@ -746,6 +746,52 @@ describe('DOMSource.events()', function() {
     run();
   });
 
+  it('should emit to multiple nonbubbling event streams', function(done) {
+    function app(_sources: {DOM: DOMSource}) {
+      return {
+        DOM: xs.of(
+          div('.parent', [
+            input('.input', {type: 'text'}),
+          ])
+        ),
+      };
+    }
+
+    if (!document.hasFocus()) {
+      done();
+    } else {
+      const {sinks, sources, run} = setup(app, {
+        DOM: makeDOMDriver(createRenderTarget()),
+      });
+
+      Stream.merge(
+        sources.DOM.select('.input').events('focus'),
+        sources.DOM.select('.input').events('focus'),
+      )
+      .mapTo(1)
+      .fold((prev, current)=> prev + current, 0)
+      .addListener({
+          next: (count) => {
+            if (count === 2) {
+              done();
+            }
+          },
+        });
+
+      sources.DOM.select(':root')
+        .element()
+        .drop(1)
+        .take(1)
+        .addListener({
+          next: (root: Element) => {
+            const inputElement = root.querySelector('.input') as HTMLElement;
+            setTimeout(() => inputElement.focus(), 50);
+          },
+        });
+      run();
+    }
+  });
+
   it('should catch a blur event with useCapture', function(done) {
     function app(_sources: {DOM: DOMSource}) {
       return {
