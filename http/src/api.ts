@@ -13,7 +13,7 @@ import {
   ResponseType,
   ResultMapping,
   Response as RawResponse
-} from 'minireq';
+} from '@minireq/browser';
 
 import { SinkRequest, ResponseStream, Request } from './types';
 
@@ -35,6 +35,10 @@ export class HttpApi {
     private source: Producer<ResponseStream>,
     private gen: IdGenerator
   ) {}
+
+  get response$$(): Producer<ResponseStream> {
+    return this.source;
+  }
 
   public get<T, Type extends ResponseType = 'text'>(
     optsOrUrl: string | Request<T, Type>

@@ -5,11 +5,10 @@ import {
   subscribe,
   fromPromise,
   Dispose,
-  Operator,
   uponEnd
 } from '@cycle/callbags';
 import { Driver } from '@cycle/run';
-import { RequestFn, Response } from 'minireq';
+import { RequestFn, Response } from '@minireq/browser';
 
 import { ResponseStream, SinkRequest } from './types';
 

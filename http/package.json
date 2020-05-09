@@ -24,13 +24,27 @@
   },
   "dependencies": {
     "@cycle/callbags": "^2.1.0",
-    "minireq": "^1.1.0"
+    "@minireq/browser": "^1.2.0-beta.4"
   },
   "peerDependencies": {
     "@cycle/run": "^5.4.0"
   },
   "devDependencies": {
-    "@cycle/run": "workspace:^5.4.0"
+    "@cycle/run": "workspace:^5.4.0",
+    "@minireq/node": "^1.0.0-beta.4",
+    "@types/assert": "^1.4.6",
+    "@types/body-parser": "^1.19.0",
+    "@types/cookie-parser": "^1.4.2",
+    "@types/express": "^4.17.6",
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^13.13.5",
+    "assert": "^2.0.0",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
+    "express": "^4.17.1",
+    "mocha": "^7.1.2",
+    "start-server-and-test": "^1.11.0",
+    "ts-node": "^8.10.1"
   },
   "funding": {
     "type": "opencollective",
@@ -40,6 +54,9 @@
     "build": "tsc --build tsconfig.build.json && pnpm run build:cjs && pnpm run build:esm",
     "build:cjs": "BUNDLE_FORMAT=cjs rollup -c ../configs/rollup.config.ts",
     "build:esm": "BUNDLE_FORMAT=esm rollup -c ../configs/rollup.config.ts",
+    "test": "start-server-and-test start-server 3000 test:normal",
+    "test:normal": "mocha --require ts-node/register test/node.ts",
+    "start-server": "ts-node test/support/server.ts",
     "format": "prettier --write './{src,test}/**/*'"
   },
   "prettier": "../configs/.prettierrc.json"

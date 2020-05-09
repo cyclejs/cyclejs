@@ -11,8 +11,8 @@ function cuid(): number {
 }
 
 export function run(
-  plugins: Record<string, Plugin<any, any>>,
   main: Main,
+  plugins: Record<string, Plugin<any, any>>,
   wrappers: MasterWrapper[]
 ): Subscription {
   const masterMain = makeMasterMain(plugins, main, wrappers);
