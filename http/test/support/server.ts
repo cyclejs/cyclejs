@@ -35,6 +35,7 @@ app.get('/hello', function(req: any, res: any) {
 let petResponse = 'no request yet';
 app.get('/petResponse', (req: any, res: any) => {
   res.status(200).send(petResponse);
+  petResponse = 'no request yet';
 });
 
 app.post('/pet', function(req: any, res: any) {

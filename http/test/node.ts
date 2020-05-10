@@ -7,8 +7,10 @@ import { HttpApi, makeHttpPlugin } from '../src/index';
 
 const uri = 'http://localhost:3000';
 
-describe('HTTP Driver in Node.js', function() {
-  it('should auto-execute HTTP request when without listening to response stream', function(done) {
+describe('HTTP Driver in Node.js', () => {
+  const request = makeRequest();
+
+  it('should auto-execute HTTP request when without listening to response stream', done => {
     function main(_sources: { HTTP: HttpApi }) {
       return {
         HTTP: of({
@@ -19,8 +21,6 @@ describe('HTTP Driver in Node.js', function() {
         })
       };
     }
-
-    const request = makeRequest();
 
     const plugins = {
       HTTP: makeHttpPlugin(request)
@@ -40,5 +40,37 @@ describe('HTTP Driver in Node.js', function() {
         done();
       });
     }, 200);
+  });
+
+  it('should handle errors when sending request to non-existent server', done => {
+    function main(sources: { HTTP: HttpApi }) {
+      pipe(
+        sources.HTTP.response$$,
+        filter(res$ => res$.id === 0),
+        flatten,
+        subscribe(
+          () => done('should not deliver data'),
+          err => {
+            assert.strictEqual(err.code, 'ECONNREFUSED');
+            assert.strictEqual(err.port, 9999);
+            done();
+          }
+        )
+      );
+
+      return {
+        HTTP: of({
+          url: 'http://localhost:9999', // no server here
+          method: 'GET',
+          id: 0
+        })
+      };
+    }
+
+    const plugins = {
+      HTTP: makeHttpPlugin(request)
+    };
+
+    run(main, plugins, []);
   });
 });
