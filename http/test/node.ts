@@ -5,10 +5,14 @@ import { makeRequest } from '@minireq/node';
 import { run } from '@cycle/run';
 import { HttpApi, makeHttpPlugin } from '../src/index';
 
+import { runTests } from './common';
+
 const uri = 'http://localhost:3000';
 
 describe('HTTP Driver in Node.js', () => {
   const request = makeRequest();
+
+  runTests(request);
 
   it('should auto-execute HTTP request when without listening to response stream', done => {
     function main(_sources: { HTTP: HttpApi }) {
@@ -68,7 +72,7 @@ describe('HTTP Driver in Node.js', () => {
     function main(sources: { HTTP: HttpApi }) {
       pipe(
         sources.HTTP.response$$,
-        filter(res$ => res$.id === 0),
+        filter(res$ => res$.request.id === 0),
         flatten,
         subscribe(
           () => done('should not deliver data'),

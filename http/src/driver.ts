@@ -5,7 +5,8 @@ import {
   subscribe,
   fromPromise,
   Dispose,
-  uponEnd
+  uponEnd,
+  throwError
 } from '@cycle/callbags';
 import { Driver } from '@cycle/run';
 import { RequestFn, Response } from '@minireq/browser';
@@ -25,14 +26,37 @@ export class HttpDriver implements Driver<ResponseStream, SinkRequest> {
       sink,
       subscribe(
         opts => {
-          const { promise, abort } = this.request(opts);
+          if (typeof opts !== 'string' && typeof opts !== 'object') {
+            this.subject(
+              2,
+              new Error(
+                'Observable of requests given to HTTP Driver must emit ' +
+                  'either URL strings or objects with parameters.'
+              )
+            );
+            return;
+          }
 
-          const res$: Producer<Response<any>> = pipe(
-            fromPromise(promise),
-            uponEnd(abort)
-          );
+          let res$: any;
+          const request: SinkRequest =
+            typeof opts === 'string'
+              ? { url: opts, method: 'GET', id: -1 }
+              : opts;
 
-          const responseStream = Object.assign(res$, { id: opts.id });
+          if (typeof request.url === 'string') {
+            const { promise, abort } = this.request(request);
+
+            res$ = pipe(fromPromise(promise), uponEnd(abort));
+          } else {
+            res$ = throwError(
+              new Error(
+                'Please provide a `url` property in the request options.'
+              )
+            );
+          }
+
+          const responseStream = Object.assign(res$, { request });
+          Object.freeze(responseStream);
           this.subject(1, responseStream);
         },
         err => {

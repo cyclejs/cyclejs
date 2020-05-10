@@ -11,10 +11,10 @@ importers:
   http:
     dependencies:
       '@cycle/callbags': 2.1.0
-      '@minireq/browser': 1.2.0-beta.4
+      '@minireq/browser': 1.2.0-beta.5
     devDependencies:
       '@cycle/run': 'link:../run'
-      '@minireq/node': 1.0.0-beta.5
+      '@minireq/node': 1.0.0-beta.6
       '@types/assert': 1.4.6
       '@types/body-parser': 1.19.0
       '@types/cookie-parser': 1.4.2
@@ -31,8 +31,8 @@ importers:
     specifiers:
       '@cycle/callbags': ^2.1.0
       '@cycle/run': 'workspace:^5.4.0'
-      '@minireq/browser': ^1.2.0-beta.4
-      '@minireq/node': ^1.0.0-beta.4
+      '@minireq/browser': ^1.2.0-beta.5
+      '@minireq/node': ^1.0.0-beta.6
       '@types/assert': ^1.4.6
       '@types/body-parser': ^1.19.0
       '@types/cookie-parser': ^1.4.2
@@ -89,21 +89,21 @@ packages:
     dev: true
     resolution:
       integrity: sha512-tAag0jEcjwH+P2quUfipd7liWCNX2F8NvYjQp2wtInsZxnMlypdw0FtAOLxtvvkO+GSRRbmNi8m/5y42PQJYCQ==
-  /@minireq/browser/1.2.0-beta.4:
+  /@minireq/browser/1.2.0-beta.5:
     dependencies:
       '@minireq/common': 1.0.0-beta.1
     dev: false
     resolution:
-      integrity: sha512-nujmTn5hv4mDr3exfen3KytAqPZIOiIYfSRXRVMUuPB3j8o5whZLAcvMXTLnxpUZMlnps4lGcyuhCdPrcetq/A==
+      integrity: sha512-LOW16/czDBBIXXYTdXvCDJdAf9ryZI8tp917n0WtWdxYnwM8lnrIuWCjJLJIuEuYD1lBxAKTDML6r6sJEYi+Bg==
   /@minireq/common/1.0.0-beta.1:
     resolution:
       integrity: sha512-KhQpTS+loNFAffTnO4Lue7amZfBe+ix3c+I0zqwJqkhDpDMywMd1TOX9B6gP14HnrEywHW7/pNTr//VrfQwmYA==
-  /@minireq/node/1.0.0-beta.5:
+  /@minireq/node/1.0.0-beta.6:
     dependencies:
       '@minireq/common': 1.0.0-beta.1
     dev: true
     resolution:
-      integrity: sha512-dWfCJoUajKrIgJpS9bmQkT5xiI+/0NQ7NtjR5v7lzUMh3m6MbqQmuUaae8fJd8N7itletGWgTOBQ33iu2SDuog==
+      integrity: sha512-zQLunlHWEwOpNTs8yMq2IIsDsjDdl0FiXfQsJEFjJk394YuwwZAu/xKugVOn7olIroirltjuWMJDY6B+XRfRpA==
   /@types/assert/1.4.6:
     dev: true
     resolution:

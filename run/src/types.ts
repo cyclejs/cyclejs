@@ -2,7 +2,7 @@ import { Producer, Dispose, Subject } from '@cycle/callbags';
 
 export type Plugin<Source, Sink> = [
   Driver<Source, Sink>,
-  ApiFactory<Source, Sink>
+  ApiFactory<Source, Sink> | null
 ];
 
 export type ApiFactory<Source, Sink> = (

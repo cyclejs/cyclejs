@@ -24,14 +24,14 @@
   },
   "dependencies": {
     "@cycle/callbags": "^2.1.0",
-    "@minireq/browser": "^1.2.0-beta.4"
+    "@minireq/browser": "^1.2.0-beta.5"
   },
   "peerDependencies": {
     "@cycle/run": "^5.4.0"
   },
   "devDependencies": {
     "@cycle/run": "workspace:^5.4.0",
-    "@minireq/node": "^1.0.0-beta.4",
+    "@minireq/node": "^1.0.0-beta.6",
     "@types/assert": "^1.4.6",
     "@types/body-parser": "^1.19.0",
     "@types/cookie-parser": "^1.4.2",

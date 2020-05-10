@@ -80,7 +80,7 @@ export class HttpApi {
           id
         })
       ),
-      filter(res$ => res$.id === id),
+      filter(res$ => res$.request.id === id),
       flatten
     );
   }

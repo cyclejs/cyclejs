@@ -65,7 +65,9 @@ export function makeMasterMain(
 
     for (const k of Object.keys(plugins)) {
       const sinkSubject = makeReplaySubject();
-      pluginSources[k] = plugins[k][1](sources[k], sinkSubject, cuid);
+      pluginSources[k] = plugins[k][1]
+        ? plugins[k][1]!(sources[k], sinkSubject, cuid)
+        : sources[k];
       pluginsSinks[k] = sinkSubject;
     }
 
