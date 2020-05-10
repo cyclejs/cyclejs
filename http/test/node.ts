@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { of, filter, pipe, subscribe, flatten } from '@cycle/callbags';
+import { of, filter, pipe, subscribe, flatten, map } from '@cycle/callbags';
 import { makeRequest } from '@minireq/node';
 
 import { run } from '@cycle/run';
@@ -42,7 +42,29 @@ describe('HTTP Driver in Node.js', () => {
     }, 200);
   });
 
-  it('should handle errors when sending request to non-existent server', done => {
+  it('should handle errors when sending request via API to non-existent server', done => {
+    function main(sources: { HTTP: HttpApi }) {
+      pipe(
+        sources.HTTP.get('http://localhost:9999'), // no server here
+        subscribe(
+          () => done('should not deliver data'),
+          err => {
+            assert.strictEqual(err.code, 'ECONNREFUSED');
+            assert.strictEqual(err.port, 9999);
+            done();
+          }
+        )
+      );
+    }
+
+    const plugins = {
+      HTTP: makeHttpPlugin(request)
+    };
+
+    run(main, plugins, []);
+  });
+
+  it('should handle errors when sending request via sinks to non-existent server', done => {
     function main(sources: { HTTP: HttpApi }) {
       pipe(
         sources.HTTP.response$$,
@@ -69,6 +91,35 @@ describe('HTTP Driver in Node.js', () => {
 
     const plugins = {
       HTTP: makeHttpPlugin(request)
+    };
+
+    run(main, plugins, []);
+  });
+
+  it('should throw on unhandled errors that reach the driver', done => {
+    function main(sources: { HTTP: HttpApi }) {
+      const req$ = pipe(
+        sources.HTTP.get('http://localhost:9999'), // no server here
+        map(x => ({
+          url: uri,
+          method: 'GET',
+          send: x
+        }))
+      );
+
+      return {
+        HTTP: req$
+      };
+    }
+
+    const handler = (err: any) => {
+      assert.strictEqual(err.code, 'ECONNREFUSED');
+      assert.strictEqual(err.port, 9999);
+      done();
+    };
+
+    const plugins = {
+      HTTP: makeHttpPlugin(request, handler)
     };
 
     run(main, plugins, []);

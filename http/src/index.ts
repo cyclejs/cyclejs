@@ -7,8 +7,13 @@ import { ResponseStream, SinkRequest } from './types';
 
 export { HttpApi } from './api';
 
+const defaultHandler = (err: any) => {
+  throw err;
+};
+
 export function makeHttpPlugin(
-  request: RequestFn = makeRequest()
+  request: RequestFn = makeRequest(),
+  errorHandler: (err: any) => void = defaultHandler
 ): Plugin<ResponseStream, SinkRequest> {
-  return [new HttpDriver(request), makeHttpApi];
+  return [new HttpDriver(request, errorHandler), makeHttpApi];
 }

@@ -15,22 +15,31 @@ import { ResponseStream, SinkRequest } from './types';
 export class HttpDriver implements Driver<ResponseStream, SinkRequest> {
   private subject = makeSubject<ResponseStream>();
 
-  constructor(private request: RequestFn) {}
+  constructor(
+    private request: RequestFn,
+    private errorHandler: (err: any) => void
+  ) {}
 
   public consumeSink(sink: Producer<SinkRequest>): Dispose {
     const dispose = pipe(
       sink,
-      subscribe(opts => {
-        const { promise, abort } = this.request(opts);
+      subscribe(
+        opts => {
+          const { promise, abort } = this.request(opts);
 
-        const res$: Producer<Response<any>> = pipe(
-          fromPromise(promise),
-          uponEnd(abort)
-        );
+          const res$: Producer<Response<any>> = pipe(
+            fromPromise(promise),
+            uponEnd(abort)
+          );
 
-        const responseStream = Object.assign(res$, { id: opts.id });
-        this.subject(1, responseStream);
-      })
+          const responseStream = Object.assign(res$, { id: opts.id });
+          this.subject(1, responseStream);
+        },
+        err => {
+          // This is to break out of promise error handling
+          setTimeout(() => this.errorHandler(err));
+        }
+      )
     );
 
     return dispose;
