@@ -41,6 +41,10 @@ export class HttpDriver implements Driver<ResponseStream, SinkRequest> {
           const request: SinkRequest =
             typeof opts === 'string' ? { url: opts, method: 'GET' } : opts;
 
+          if (!request.method) {
+            request.method = 'GET';
+          }
+
           if (typeof request.url === 'string') {
             const { promise, abort } = this.request(request);
 

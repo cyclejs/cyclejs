@@ -9,6 +9,9 @@
 # Typescript build
 build/
 
+# Coverage reports
+coverage/
+
 # Installed libs
 node_modules
 

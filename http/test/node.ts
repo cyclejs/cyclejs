@@ -12,7 +12,7 @@ const uri = 'http://localhost:3000';
 describe('HTTP Driver in Node.js', () => {
   const request = makeRequest();
 
-  runTests(request);
+  runTests(uri, request);
 
   it('should auto-execute HTTP request when without listening to response stream', done => {
     function main(_sources: { HTTP: HttpApi }) {

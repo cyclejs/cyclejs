@@ -5,9 +5,7 @@ import { run, Driver, Plugin } from '@cycle/run';
 
 import { HttpApi, makeHttpPlugin } from '../src/index';
 
-const uri = 'http://localhost:3000';
-
-export function runTests(request: RequestFn) {
+export function runTests(uri: string, request: RequestFn) {
   describe('common tests between Node.js and the browser', function() {
     this.timeout(8000);
 
