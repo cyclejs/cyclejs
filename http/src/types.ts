@@ -13,5 +13,5 @@ export type Request<T, Type extends ResponseType> = Omit<
 export type ResponseStream = Producer<Response<any>> & { request: SinkRequest };
 
 export type SinkRequest = RequestOptions & {
-  id: number;
+  id?: number;
 };

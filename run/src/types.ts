@@ -13,7 +13,7 @@ export type ApiFactory<Source, Sink> = (
 
 export interface Driver<Source, Sink> {
   consumeSink(sink: Producer<Sink>): Dispose;
-  provideSource(): Producer<Source>;
+  provideSource(): Producer<Source> | null;
 }
 
 export type IdGenerator = () => number;

@@ -1,6 +1,6 @@
 import {
   Producer,
-  makeSubject,
+  makeReplaySubject,
   pipe,
   subscribe,
   fromPromise,
@@ -9,12 +9,12 @@ import {
   throwError
 } from '@cycle/callbags';
 import { Driver } from '@cycle/run';
-import { RequestFn, Response } from '@minireq/browser';
+import { RequestFn } from '@minireq/browser';
 
 import { ResponseStream, SinkRequest } from './types';
 
 export class HttpDriver implements Driver<ResponseStream, SinkRequest> {
-  private subject = makeSubject<ResponseStream>();
+  private subject = makeReplaySubject<ResponseStream>();
 
   constructor(
     private request: RequestFn,
@@ -39,9 +39,7 @@ export class HttpDriver implements Driver<ResponseStream, SinkRequest> {
 
           let res$: any;
           const request: SinkRequest =
-            typeof opts === 'string'
-              ? { url: opts, method: 'GET', id: -1 }
-              : opts;
+            typeof opts === 'string' ? { url: opts, method: 'GET' } : opts;
 
           if (typeof request.url === 'string') {
             const { promise, abort } = this.request(request);

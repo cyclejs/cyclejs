@@ -31,7 +31,10 @@ export function setup(
     for (const k of Object.keys(plugins)) {
       sinkProxies[k] = makeReplaySubject();
       subscriptions[k] = plugins[k][0].consumeSink(sinkProxies[k]);
-      masterSources[k] = plugins[k][0].provideSource();
+      const masterSource = plugins[k][0].provideSource();
+      if (masterSource) {
+        masterSources[k] = masterSource;
+      }
     }
 
     const masterSinks = masterMain(masterSources);

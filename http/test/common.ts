@@ -340,13 +340,14 @@ export function runTests(request: RequestFn) {
       run(main, plugins, []);
     });
 
-    // TODO: Figure out why this is not requesting anything
-    it.skip('should not be sensitive to ordering of sinks (issue #476)', done => {
+    it('should not be sensitive to ordering of sinks (issue #476)', done => {
       function main(sources: { HTTP: HttpApi }) {
         const request$ = of({
           url: uri + '/hello',
-          method: 'GET'
+          method: 'GET',
+          contentType: undefined
         });
+
         const str$ = pipe(
           sources.HTTP.response$$,
           flatten,
@@ -363,7 +364,7 @@ export function runTests(request: RequestFn) {
 
       class TestDriver implements Driver<undefined, string> {
         provideSource() {
-          return of(undefined);
+          return null;
         }
 
         consumeSink(sink: Producer<string>) {
