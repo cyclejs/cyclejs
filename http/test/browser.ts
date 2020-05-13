@@ -24,17 +24,16 @@ describe('HTTP Driver in the browser', function() {
           pipe(
             res$,
             subscribe(res => {
-              // TODO: Implement progress events
-              /*if (res.type === 'progress') {
-                assert.strictEqual(typeof res.data, 'number');
+              if (res.type === 'progress') {
+                assert.strictEqual(typeof res.event.loaded, 'number');
                 progressEventHappened = true;
-              } else {*/
-              //assert.strictEqual(progressEventHappened, true);
-              assert.strictEqual(res.status, 200);
-              assert.strictEqual(res.data.foo, '102030');
-              assert.strictEqual(res.data.bar, 'Pub');
-              done();
-              // }
+              } else {
+                assert.strictEqual(progressEventHappened, true);
+                assert.strictEqual(res.status, 200);
+                assert.strictEqual(res.data.foo, '102030');
+                assert.strictEqual(res.data.bar, 'Pub');
+                done();
+              }
             })
           );
         })
@@ -44,11 +43,76 @@ describe('HTTP Driver in the browser', function() {
         HTTP: of({
           url: uri + '/querystring',
           method: 'GET',
-          //progress: true,
+          progress: true,
           query: { foo: 102030, bar: 'Pub' }
         })
       };
     }
+    const plugins = {
+      HTTP: makeHttpPlugin()
+    };
+
+    run(main, plugins, []);
+  });
+
+  it('should infer a union of response and progress when progress events may be emitted', function(done) {
+    function main(sources: { HTTP: HttpApi }) {
+      let progressEventHappened = false;
+      pipe(
+        sources.HTTP.get({
+          url: uri + '/querystring',
+          progress: true,
+          query: { foo: 102030, bar: 'Pub' }
+        }),
+        subscribe(res => {
+          assert.strictEqual(res.request.url, uri + '/querystring');
+          assert.strictEqual(res.request.method, 'GET');
+          assert.strictEqual((res.request.query as any).foo, 102030);
+          assert.strictEqual((res.request.query as any).bar, 'Pub');
+
+          if (res.type === 'progress') {
+            assert.strictEqual(typeof res.event.loaded, 'number');
+            progressEventHappened = true;
+          } else {
+            assert.strictEqual(progressEventHappened, true);
+            assert.strictEqual(res.status, 200);
+            assert.strictEqual(res.data.foo, '102030');
+            assert.strictEqual(res.data.bar, 'Pub');
+            done();
+          }
+        })
+      );
+    }
+
+    const plugins = {
+      HTTP: makeHttpPlugin()
+    };
+
+    run(main, plugins, []);
+  });
+
+  it('should not infer a union if `progress` is false', function(done) {
+    function main(sources: { HTTP: HttpApi }) {
+      pipe(
+        sources.HTTP.get({
+          url: uri + '/querystring',
+          query: { foo: 102030, bar: 'Pub' }
+        }),
+        subscribe(res => {
+          assert.strictEqual(res.request.url, uri + '/querystring');
+          assert.strictEqual(res.request.method, 'GET');
+          assert.strictEqual((res.request.query as any).foo, 102030);
+          assert.strictEqual((res.request.query as any).bar, 'Pub');
+
+          // No need for a conditional here
+          assert.strictEqual(res.status, 200);
+          assert.strictEqual(res.data.foo, '102030');
+          assert.strictEqual(res.data.bar, 'Pub');
+          done();
+        })
+      );
+    }
+
     const plugins = {
       HTTP: makeHttpPlugin()
     };

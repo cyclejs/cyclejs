@@ -64,7 +64,7 @@
     "test:node": "mocha --require ts-node/register test/node.ts",
     "test:browser": "karma start",
     "debug:browser": "DEBUG=1 karma start",
-    "start-server": "ts-node test/support/server.ts",
+    "start-server": "ts-node --project tsconfig.json test/support/server.ts",
     "format": "prettier --write './{src,test}/**/*'"
   },
   "prettier": "../configs/.prettierrc.json"

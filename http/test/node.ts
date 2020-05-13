@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { of, filter, pipe, subscribe, flatten, map } from '@cycle/callbags';
-import { makeRequest } from '@minireq/node';
+import { makeRequest, Response } from '@minireq/node';
 
 import { run } from '@cycle/run';
 import { HttpApi, makeHttpPlugin } from '../src/index';
@@ -38,7 +38,7 @@ describe('HTTP Driver in Node.js', () => {
         method: 'GET'
       });
 
-      promise.then((res: any) => {
+      promise.then((res: Response<any>) => {
         assert.strictEqual(res.status, 200);
         assert.strictEqual(res.data, 'added Woof the Dog');
         done();

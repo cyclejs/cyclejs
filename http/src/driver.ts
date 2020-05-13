@@ -3,13 +3,15 @@ import {
   makeReplaySubject,
   pipe,
   subscribe,
+  map,
   fromPromise,
   Dispose,
   uponEnd,
-  throwError
+  throwError,
+  merge
 } from '@cycle/callbags';
 import { Driver } from '@cycle/run';
-import { RequestFn } from '@minireq/browser';
+import { RequestFn, Response, Progress as RawProgress } from '@minireq/browser';
 
 import { ResponseStream, SinkRequest } from './types';
 
@@ -46,9 +48,33 @@ export class HttpDriver implements Driver<ResponseStream, SinkRequest> {
           }
 
           if (typeof request.url === 'string') {
-            const { promise, abort } = this.request(request);
+            const r = { ...request, progress: undefined };
 
-            res$ = pipe(fromPromise(promise), uponEnd(abort));
+            const fromRequest = (promise: Promise<Response<any>>) =>
+              pipe(
+                fromPromise(promise),
+                map(res => ({ type: 'response', ...res }))
+              );
+
+            if (request.progress) {
+              const progressSubject = makeReplaySubject<{
+                type: 'progress';
+                event: RawProgress;
+              }>();
+              (r as any).progress = (event: RawProgress) =>
+                progressSubject(1, { type: 'progress', event });
+
+              const { promise, abort } = this.request(r);
+
+              res$ = pipe(
+                merge(fromRequest(promise), progressSubject),
+                uponEnd(abort)
+              );
+            } else {
+              const { promise, abort } = this.request(r);
+
+              res$ = pipe(fromRequest(promise), uponEnd(abort));
+            }
           } else {
             res$ = throwError(
               new Error(
@@ -56,6 +82,11 @@ export class HttpDriver implements Driver<ResponseStream, SinkRequest> {
               )
             );
           }
+
+          res$ = pipe(
+            res$,
+            map((res: any) => ({ ...res, request }))
+          );
 
           const responseStream = Object.assign(res$, { request });
           Object.freeze(responseStream);

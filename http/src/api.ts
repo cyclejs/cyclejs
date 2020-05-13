@@ -7,15 +7,15 @@ import {
   uponStart
 } from '@cycle/callbags';
 import { IdGenerator } from '@cycle/run';
-import {
-  RequestOptions,
-  METHOD,
-  ResponseType,
-  ResultMapping,
-  Response as RawResponse
-} from '@minireq/browser';
+import { METHOD, ResponseType } from '@minireq/browser';
 
-import { SinkRequest, ResponseStream, Request } from './types';
+import {
+  SinkRequest,
+  RequestOptions,
+  ResponseStream,
+  Request,
+  Response
+} from './types';
 
 export function makeHttpApi(
   source: Producer<ResponseStream>,
@@ -24,10 +24,6 @@ export function makeHttpApi(
 ): HttpApi {
   return new HttpApi(sinkSubject, source, gen);
 }
-
-type Response<T, Type extends ResponseType> = RawResponse<
-  ResultMapping<T>[Type]
->;
 
 export class HttpApi {
   constructor(
@@ -40,37 +36,59 @@ export class HttpApi {
     return this.source;
   }
 
-  public get<T, Type extends ResponseType = 'text'>(
-    optsOrUrl: string | Request<T, Type>
-  ): Producer<Response<T, Type>> {
+  public get<
+    T = any,
+    Type extends ResponseType = 'text',
+    Progress extends boolean = false
+  >(
+    optsOrUrl: string | Request<T, Type, Progress>
+  ): Producer<Response<T, Type, Progress>> {
     return this.request(mkOpts('GET', optsOrUrl));
   }
 
-  public post<T, Type extends ResponseType = 'text'>(
-    optsOrUrl: string | Request<T, Type>
-  ): Producer<Response<T, Type>> {
+  public post<
+    T = any,
+    Type extends ResponseType = 'text',
+    Progress extends boolean = false
+  >(
+    optsOrUrl: string | Request<T, Type, Progress>
+  ): Producer<Response<T, Type, Progress>> {
     return this.request(mkOpts('POST', optsOrUrl));
   }
 
-  public put<T, Type extends ResponseType = 'text'>(
-    optsOrUrl: string | Request<T, Type>
-  ): Producer<Response<T, Type>> {
+  public put<
+    T = any,
+    Type extends ResponseType = 'text',
+    Progress extends boolean = false
+  >(
+    optsOrUrl: string | Request<T, Type, Progress>
+  ): Producer<Response<T, Type, Progress>> {
     return this.request(mkOpts('PUT', optsOrUrl));
   }
 
-  public delete<T, Type extends ResponseType = 'text'>(
-    optsOrUrl: string | Request<T, Type>
-  ): Producer<Response<T, Type>> {
+  public delete<
+    T = any,
+    Type extends ResponseType = 'text',
+    Progress extends boolean = false
+  >(
+    optsOrUrl: string | Request<T, Type, Progress>
+  ): Producer<Response<T, Type, Progress>> {
     return this.request(mkOpts('DELETE', optsOrUrl));
   }
 
-  public patch<T, Type extends ResponseType = 'text'>(
-    optsOrUrl: string | Request<T, Type>
-  ): Producer<Response<T, Type>> {
+  public patch<
+    T = any,
+    Type extends ResponseType = 'text',
+    Progress extends boolean = false
+  >(
+    optsOrUrl: string | Request<T, Type, Progress>
+  ): Producer<Response<T, Type, Progress>> {
     return this.request(mkOpts('PATCH', optsOrUrl));
   }
 
-  public request<T>(options: RequestOptions): Producer<RawResponse<T>> {
+  public request<T = any>(
+    options: RequestOptions<any, ResponseType, boolean>
+  ): Producer<Response<T, ResponseType, boolean>> {
     const id = this.gen();
     return pipe(
       this.source,
@@ -88,8 +106,8 @@ export class HttpApi {
 
 function mkOpts(
   method: METHOD,
-  optsOrUrl: string | Request<any, ResponseType>
-): RequestOptions {
+  optsOrUrl: string | Request<any, ResponseType, boolean>
+): RequestOptions<any, ResponseType, boolean> {
   if (typeof optsOrUrl === 'string') {
     return { method, url: optsOrUrl };
   } else {

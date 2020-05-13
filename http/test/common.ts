@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { of, pipe, subscribe, flatten, map, Producer } from '@cycle/callbags';
-import { RequestFn } from '@minireq/browser';
+import { RequestFn, Response } from '@minireq/browser';
 import { run, Driver, Plugin } from '@cycle/run';
 
 import { HttpApi, makeHttpPlugin } from '../src/index';
@@ -77,7 +77,8 @@ export function runTests(uri: string, request: RequestFn) {
             assert.strictEqual(res$.request.url, uri + '/hello');
             pipe(
               res$,
-              subscribe(res => {
+              // Without using the API we can not know if the request may emit progress events
+              subscribe((res: Response<any>) => {
                 assert.strictEqual(res.status, 500);
                 assert.strictEqual(
                   res.data,
@@ -110,7 +111,7 @@ export function runTests(uri: string, request: RequestFn) {
             assert.strictEqual(res$.request.url, uri + '/hello');
             pipe(
               res$,
-              subscribe(res => {
+              subscribe((res: Response<any>) => {
                 assert.strictEqual(res.status, 200);
                 assert.strictEqual(res.data, 'Hello World');
                 done();
@@ -145,7 +146,7 @@ export function runTests(uri: string, request: RequestFn) {
             assert.strictEqual((res$.request.send as any).species, 'Dog');
             pipe(
               res$,
-              subscribe(res => {
+              subscribe((res: Response<any>) => {
                 assert.strictEqual(res.status, 200);
                 assert.strictEqual(res.data, 'added Woof the Dog');
                 done();
@@ -180,7 +181,7 @@ export function runTests(uri: string, request: RequestFn) {
             assert.strictEqual(res$.request.send, 'name=Woof&species=Dog');
             pipe(
               res$,
-              subscribe(res => {
+              subscribe((res: Response<any>) => {
                 assert.strictEqual(res.status, 200);
                 assert.strictEqual(res.data, 'added Woof the Dog');
                 done();
@@ -217,7 +218,7 @@ export function runTests(uri: string, request: RequestFn) {
             assert.strictEqual((res$.request.query as any).bar, 'Pub');
             pipe(
               res$,
-              subscribe(res => {
+              subscribe((res: Response<any>) => {
                 assert.strictEqual(res.status, 200);
                 assert.strictEqual(res.data.foo, '102030');
                 assert.strictEqual(res.data.bar, 'Pub');
@@ -252,7 +253,7 @@ export function runTests(uri: string, request: RequestFn) {
             assert.strictEqual(res$.request.method, 'DELETE');
             pipe(
               res$,
-              subscribe(res => {
+              subscribe((res: Response<any>) => {
                 assert.strictEqual(res.status, 200);
                 assert.strictEqual(res.data.deleted, true);
                 done();
@@ -317,7 +318,7 @@ export function runTests(uri: string, request: RequestFn) {
             assert.strictEqual(res$.request.url, uri + '/error');
             pipe(
               res$,
-              subscribe(res => {
+              subscribe((res: Response<any>) => {
                 assert.strictEqual(res.status, 500);
                 assert.strictEqual(res.data, 'boom');
                 done();
@@ -349,7 +350,7 @@ export function runTests(uri: string, request: RequestFn) {
         const str$ = pipe(
           sources.HTTP.response$$,
           flatten,
-          map(res => res.data as string)
+          map((res: Response<any>) => res.data as string)
         );
 
         // Notice HTTP comes before Test here. This is crucial for this test.
