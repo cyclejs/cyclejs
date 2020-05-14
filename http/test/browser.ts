@@ -1,17 +1,79 @@
 import * as assert from 'assert';
-import { makeRequest } from '@minireq/browser';
-import { of, pipe, subscribe } from '@cycle/callbags';
-import { run } from '@cycle/run';
+import { makeRequest, Response } from '@minireq/browser';
+import {
+  of,
+  pipe,
+  subscribe,
+  filter,
+  map,
+  take,
+  flatten,
+  Producer,
+  Operator
+} from '@cycle/callbags';
+import { run, Driver, Plugin } from '@cycle/run';
 
 import { runTests } from './common';
 import { makeHttpPlugin, HttpApi } from '../src/index';
 
 const uri = '//' + window.location.host;
 
+function never<T>(): Producer<T> {
+  return (_, sink) => {
+    sink(0, () => {});
+  };
+}
+
+function empty<T>(): Producer<T> {
+  return (_, sink) => {
+    sink(0, () => {});
+    sink(2);
+  };
+}
+
+function interval(n: number): Producer<number> {
+  return (_, sink) => {
+    let i = 0;
+    let id: any;
+
+    sink(0, () => {
+      if (id !== undefined) clearInterval(id);
+    });
+
+    id = setInterval(() => {
+      sink(1, i++);
+    }, n);
+  };
+}
+
+function publishReplay<T>(): Operator<T, T> {
+  let subscribers: any[] = [];
+  let hasLast = false;
+  let last: T | undefined;
+
+  return source => {
+    source(0, (t, d) => {
+      if (t === 1) {
+        subscribers.forEach(sink => sink(1, d));
+        last = d;
+        hasLast = true;
+      }
+    });
+
+    return (_, sink) => {
+      subscribers.push(sink);
+      sink(0, () => {});
+      if (hasLast) {
+        sink(1, last);
+      }
+    };
+  };
+}
+
 describe('HTTP Driver in the browser', function() {
   runTests(uri, makeRequest());
 
-  it('should be able to emit progress events on the response stream', function(done) {
+  it('should be able to emit progress events on the response stream', done => {
     function main(sources: { HTTP: HttpApi }) {
       pipe(
         sources.HTTP.response$$,
@@ -55,7 +117,7 @@ describe('HTTP Driver in the browser', function() {
     run(main, plugins, []);
   });
 
-  it('should infer a union of response and progress when progress events may be emitted', function(done) {
+  it('should infer a union of response and progress when progress events may be emitted', done => {
     function main(sources: { HTTP: HttpApi }) {
       let progressEventHappened = false;
       pipe(
@@ -91,7 +153,7 @@ describe('HTTP Driver in the browser', function() {
     run(main, plugins, []);
   });
 
-  it('should not infer a union if `progress` is false', function(done) {
+  it('should not infer a union if `progress` is false', done => {
     function main(sources: { HTTP: HttpApi }) {
       pipe(
         sources.HTTP.get({
@@ -120,80 +182,81 @@ describe('HTTP Driver in the browser', function() {
     run(main, plugins, []);
   });
 
-  /*it('should return binary response when responseType option is arraybuffer', function(done) {
-    function main(_sources: { HTTP: HTTPSource }) {
-      return {
-        HTTP: of({
+  it('should return binary response when responseType option is arraybuffer', done => {
+    function main(sources: { HTTP: HttpApi }) {
+      pipe(
+        sources.HTTP.get({
           url: uri + '/binary',
-          method: 'GET',
           responseType: 'arraybuffer'
-        })
-      };
-    }
+        }),
+        subscribe(res => {
+          assert.strictEqual(res.request.url, uri + '/binary');
+          assert.strictEqual(res.request.method, 'GET');
+          assert.strictEqual(res.request.responseType, 'arraybuffer');
 
-    const { sources, run } = setup(main, { HTTP: makeHTTPDriver() });
-
-    const response$$ = sources.HTTP.select();
-    response$$.subscribe(function(response$) {
-      assert.strictEqual(response$.request.url, uri + '/binary');
-      assert.strictEqual(response$.request.method, 'GET');
-      assert.strictEqual(response$.request.responseType, 'arraybuffer');
-      response$.subscribe(function(response) {
-        assert.strictEqual(response.status, 200);
-        assert.deepStrictEqual(
-          new Uint8Array(response.body),
-          new Uint8Array([1, 2, 3])
-        );
-        done();
-      });
-    });
-    run();
-  });
-
-  it('should return binary response when responseType option is blob', function(done) {
-    function main(_sources: { HTTP: HTTPSource }) {
-      return {
-        HTTP: of({
-          url: uri + '/binary',
-          method: 'GET',
-          responseType: 'blob'
-        })
-      };
-    }
-
-    const { sources, run } = setup(main, { HTTP: makeHTTPDriver() });
-
-    const response$$ = sources.HTTP.select();
-    response$$.subscribe(function(response$) {
-      assert.strictEqual(response$.request.url, uri + '/binary');
-      assert.strictEqual(response$.request.method, 'GET');
-      assert.strictEqual(response$.request.responseType, 'blob');
-      response$.subscribe(function(response) {
-        assert.strictEqual(response.status, 200);
-        const fr = new FileReader();
-        fr.onload = ev => {
+          assert.strictEqual(res.status, 200);
           assert.deepStrictEqual(
-            new Uint8Array(fr.result as ArrayBuffer),
+            new Uint8Array(res.data),
             new Uint8Array([1, 2, 3])
           );
+
           done();
-        };
-        fr.onerror = ev => {
-          done('should not be called');
-        };
-        fr.readAsArrayBuffer(response.body);
-      });
-    });
-    run();
+        })
+      );
+    }
+
+    const plugins = {
+      HTTP: makeHttpPlugin()
+    };
+
+    run(main, plugins, []);
+  });
+
+  it('should return binary response when responseType option is blob', done => {
+    function main(sources: { HTTP: HttpApi }) {
+      pipe(
+        sources.HTTP.get({
+          url: uri + '/binary',
+          responseType: 'blob'
+        }),
+        subscribe(res => {
+          assert.strictEqual(res.request.url, uri + '/binary');
+          assert.strictEqual(res.request.method, 'GET');
+          assert.strictEqual(res.request.responseType, 'blob');
+
+          assert.strictEqual(res.status, 200);
+          const fr = new FileReader();
+          fr.onload = () => {
+            assert.deepStrictEqual(
+              new Uint8Array(fr.result as ArrayBuffer),
+              new Uint8Array([1, 2, 3])
+            );
+            done();
+          };
+          fr.onerror = ev => {
+            done('should not be called');
+          };
+          fr.readAsArrayBuffer(res.data);
+        })
+      );
+    }
+
+    const plugins = {
+      HTTP: makeHttpPlugin()
+    };
+
+    run(main, plugins, []);
   });
 
   it('should not have cross-driver race conditions, A (#592)', function(done) {
     this.timeout(10000);
 
-    function child(_sources: any, num: any) {
-      const vdom$ = _sources.HTTP.select('cat').pipe(
-        mergeAll(),
-        map((res: any) => 'My name is ' + res.text)
+    function child(sources: { HTTP: HttpApi }, num: number) {
+      const vdom$ = pipe(
+        sources.HTTP.response$$,
+        filter(res$ => (res$.request as any).category === 'cat'),
+        flatten,
+        map((res: Response<any>) => 'My name is ' + res.data)
       );
 
       const request$ =
@@ -210,12 +273,13 @@ describe('HTTP Driver in the browser', function() {
       };
     }
 
-    function mainHTTPThenDOM(_sources: any) {
-      const sinks$ = interval(1000).pipe(
+    function mainHTTPThenDOM(sources: { HTTP: HttpApi }) {
+      const sinks$ = pipe(
+        interval(1000),
         take(6),
         map(i => {
           if (i % 2 === 1) {
-            return child(_sources, i);
+            return child(sources, i);
           } else {
             return {
               HTTP: empty(),
@@ -223,14 +287,21 @@ describe('HTTP Driver in the browser', function() {
             };
           }
         }),
-        publishReplay(1),
-        refCount()
+        publishReplay()
       );
 
       // order of sinks is important
       return {
-        HTTP: sinks$.pipe(switchMap(sinks => sinks.HTTP)),
-        DOM: sinks$.pipe(switchMap(sinks => sinks.DOM))
+        HTTP: pipe(
+          sinks$,
+          map(sinks => sinks.HTTP),
+          flatten
+        ),
+        DOM: pipe(
+          sinks$,
+          map(sinks => sinks.DOM),
+          flatten
+        )
       };
     }
 
@@ -242,20 +313,29 @@ describe('HTTP Driver in the browser', function() {
       ''
     ];
 
-    function domDriver(sink: any) {
-      sink.addListener({
-        next: (s: any) => {
-          assert.strictEqual(s, expectedDOMSinks.shift());
-        },
-        error: (err: any) => {}
-      });
+    class DomDriver implements Driver<any, any> {
+      public provideSource() {
+        return null;
+      }
+
+      public consumeSink(sink$: Producer<any>) {
+        return pipe(
+          sink$,
+          subscribe(s => {
+            assert.strictEqual(s, expectedDOMSinks.shift());
+          })
+        );
+      }
     }
 
+    const plugins: Record<string, Plugin<any, any>> = {
+      HTTP: makeHttpPlugin(),
+      DOM: [new DomDriver(), null]
+    };
+
     // HTTP then DOM:
-    globalRun(mainHTTPThenDOM, {
-      HTTP: makeHTTPDriver(),
-      DOM: domDriver
-    });
+    run(mainHTTPThenDOM, plugins, []);
+
     setTimeout(() => {
       assert.strictEqual(expectedDOMSinks.length, 0);
       done();
@@ -265,10 +345,12 @@ describe('HTTP Driver in the browser', function() {
   it('should not have cross-driver race conditions, B (#592)', function(done) {
     this.timeout(10000);
 
-    function child(_sources: any, num: any) {
-      const vdom$ = _sources.HTTP.select('cat').pipe(
-        mergeAll(),
-        map((res: any) => 'My name is ' + res.text)
+    function child(sources: { HTTP: HttpApi }, num: number) {
+      const vdom$ = pipe(
+        sources.HTTP.response$$,
+        filter(res$ => (res$.request as any).category === 'cat'),
+        flatten,
+        map((res: Response<any>) => 'My name is ' + res.data)
       );
 
       const request$ =
@@ -285,12 +367,13 @@ describe('HTTP Driver in the browser', function() {
       };
     }
 
-    function mainDOMThenHTTP(_sources: any) {
-      const sinks$ = interval(1000).pipe(
+    function mainDOMThenHTTP(sources: { HTTP: HttpApi }) {
+      const sinks$ = pipe(
+        interval(1000),
         take(6),
         map(i => {
           if (i % 2 === 1) {
-            return child(_sources, i);
+            return child(sources, i);
           } else {
             return {
               HTTP: empty(),
@@ -298,14 +381,21 @@ describe('HTTP Driver in the browser', function() {
             };
           }
         }),
-        publishReplay(1),
-        refCount()
+        publishReplay()
       );
 
       // order of sinks is important
       return {
-        DOM: sinks$.pipe(switchMap(sinks => sinks.DOM)),
-        HTTP: sinks$.pipe(switchMap(sinks => sinks.HTTP))
+        DOM: pipe(
+          sinks$,
+          map(sinks => sinks.DOM),
+          flatten
+        ),
+        HTTP: pipe(
+          sinks$,
+          map(sinks => sinks.HTTP),
+          flatten
+        )
       };
     }
 
@@ -317,20 +407,29 @@ describe('HTTP Driver in the browser', function() {
       ''
     ];
 
-    function domDriver(sink: any) {
-      sink.addListener({
-        next: (s: any) => {
-          assert.strictEqual(s, expectedDOMSinks.shift());
-        },
-        error: (err: any) => {}
-      });
+    class DomDriver implements Driver<any, any> {
+      provideSource() {
+        return null;
+      }
+
+      consumeSink(sink$: Producer<any>) {
+        return pipe(
+          sink$,
+          subscribe(s => {
+            assert.strictEqual(s, expectedDOMSinks.shift());
+          })
+        );
+      }
     }
 
+    const plugins: Record<string, Plugin<any, any>> = {
+      HTTP: makeHttpPlugin(),
+      DOM: [new DomDriver(), null]
+    };
+
     // HTTP then DOM:
-    globalRun(mainDOMThenHTTP, {
-      HTTP: makeHTTPDriver(),
-      DOM: domDriver
-    });
+    run(mainDOMThenHTTP, plugins, []);
+
     setTimeout(() => {
       assert.strictEqual(expectedDOMSinks.length, 0);
       done();
@@ -340,20 +439,39 @@ describe('HTTP Driver in the browser', function() {
   it('should not remember past responses when selecting', function(done) {
     this.timeout(4000);
 
-    function main(_sources: any) {
-      const test$ = of(null).pipe(
+    function delay<T>(n: number): Operator<T, T> {
+      return source => (_, sink) => {
+        source(0, (t, d) => {
+          if (t !== 1) {
+            sink(t, d);
+          } else {
+            setTimeout(() => sink(1, d), n);
+          }
+        });
+      };
+    }
+
+    function main(sources: { HTTP: HttpApi }) {
+      const test$ = pipe(
+        of(null),
         delay(1000),
-        mergeMap(() =>
-          _sources.HTTP.select('cat').pipe(
-            mergeAll(),
-            map((res: any) => 'I should not show this, ' + res.text)
+        map(() =>
+          pipe(
+            sources.HTTP.response$$,
+            filter(res$ => (res$.request as any).category === 'cat'),
+            flatten,
+            map(
+              (res: Response<string>) => 'I should not show this, ' + res.data
+            )
           )
-        )
+        ),
+        flatten
       );
 
       const request$ = of({
         category: 'cat',
-        url: uri + '/hello'
+        url: uri + '/hello',
+        contentType: undefined
       });
 
       return {
@@ -362,25 +480,31 @@ describe('HTTP Driver in the browser', function() {
       };
     }
 
-    function testDriver(sink: any) {
-      sink.addListener({
-        next: (s: any) => {
-          console.log(s);
-          done('No data should come through the Test sink');
-        },
-        error: (err: any) => {
-          done(err);
-        }
-      });
+    class TestDriver implements Driver<any, any> {
+      public provideSource() {
+        return null;
+      }
+
+      public consumeSink(sink$: Producer<any>) {
+        return pipe(
+          sink$,
+          subscribe(s => {
+            console.log(s);
+            done('No data should come through the Test sink');
+          }, done)
+        );
+      }
     }
 
-    globalRun(main, {
-      HTTP: makeHTTPDriver(),
-      Test: testDriver
-    });
+    const plugins: Record<string, Plugin<any, any>> = {
+      HTTP: makeHttpPlugin(),
+      Test: [new TestDriver(), null]
+    };
+
+    run(main, plugins, []);
 
     setTimeout(() => {
       done();
     }, 2000);
-  });*/
+  });
 });

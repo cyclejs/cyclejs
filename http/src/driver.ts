@@ -1,6 +1,6 @@
 import {
   Producer,
-  makeReplaySubject,
+  makeSubject,
   pipe,
   subscribe,
   map,
@@ -16,7 +16,7 @@ import { RequestFn, Response, Progress as RawProgress } from '@minireq/browser';
 import { ResponseStream, SinkRequest } from './types';
 
 export class HttpDriver implements Driver<ResponseStream, SinkRequest> {
-  private subject = makeReplaySubject<ResponseStream>();
+  private subject = makeSubject<ResponseStream>();
 
   constructor(
     private request: RequestFn,
@@ -57,7 +57,7 @@ export class HttpDriver implements Driver<ResponseStream, SinkRequest> {
               );
 
             if (request.progress) {
-              const progressSubject = makeReplaySubject<{
+              const progressSubject = makeSubject<{
                 type: 'progress';
                 event: RawProgress;
               }>();
