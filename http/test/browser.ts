@@ -233,7 +233,7 @@ describe('HTTP Driver in the browser', function() {
             );
             done();
           };
-          fr.onerror = ev => {
+          fr.onerror = () => {
             done('should not be called');
           };
           fr.readAsArrayBuffer(res.data);
