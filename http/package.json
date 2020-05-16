@@ -23,7 +23,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@cycle/callbags": "^2.1.0",
+    "@cycle/callbags": "^2.2.0-beta.1",
     "@minireq/browser": "^1.2.0-beta.5"
   },
   "peerDependencies": {

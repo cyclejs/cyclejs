@@ -9,7 +9,9 @@ import {
   take,
   flatten,
   Producer,
-  Operator
+  Operator,
+  empty,
+  never
 } from '@cycle/callbags';
 import { run, Driver, Plugin } from '@cycle/run';
 
@@ -17,19 +19,6 @@ import { runTests } from './common';
 import { makeHttpPlugin, HttpApi } from '../src/index';
 
 const uri = '//' + window.location.host;
-
-function never<T>(): Producer<T> {
-  return (_, sink) => {
-    sink(0, () => {});
-  };
-}
-
-function empty<T>(): Producer<T> {
-  return (_, sink) => {
-    sink(0, () => {});
-    sink(2);
-  };
-}
 
 function interval(n: number): Producer<number> {
   return (_, sink) => {

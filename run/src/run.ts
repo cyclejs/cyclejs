@@ -1,4 +1,4 @@
-import { merge, makeReplaySubject, Producer } from '@cycle/callbags';
+import { merge, makeReplaySubject, multicast } from '@cycle/callbags';
 import { Plugin, Main, MasterWrapper, Subscription } from './types';
 
 let currentId = 0;
@@ -8,53 +8,6 @@ function cuid(): number {
     currentId = 0;
   }
   return currentId;
-}
-
-export function bufferSync<T>(source: Producer<T>): Producer<T> {
-  let sinks: any[] = [];
-  let last: any = undefined;
-  let hasLast = false;
-
-  let talkback: any;
-
-  source(0, (t, d) => {
-    if (t === 0) {
-      talkback = d;
-    } else {
-      if (t === 1) {
-        Promise.resolve().then(() => {
-          hasLast = false;
-          last = void 0;
-        });
-
-        last = d;
-        hasLast = true;
-      }
-      let hasDeleted = false;
-
-      for (const sink of sinks) {
-        if (sink) sink(t, d);
-        else hasDeleted = true;
-      }
-
-      if (hasDeleted) {
-        sinks = sinks.filter(x => x !== undefined);
-        if (sinks.length === 0) {
-          talkback(2);
-        }
-      }
-    }
-  });
-
-  return (_, sink) => {
-    sinks.push(sink);
-    sink(0, () => {
-      sinks[sinks.indexOf(sink)] = undefined;
-    });
-    if (hasLast) {
-      sink(1, last);
-    }
-  };
 }
 
 export function run(
@@ -78,7 +31,7 @@ export function setup(
     for (const k of Object.keys(plugins)) {
       const masterSource = plugins[k][0].provideSource();
       if (masterSource) {
-        masterSources[k] = bufferSync(masterSource);
+        masterSources[k] = multicast(masterSource);
       }
       sinkProxies[k] = makeReplaySubject();
       subscriptions[k] = plugins[k][0].consumeSink(sinkProxies[k]);
