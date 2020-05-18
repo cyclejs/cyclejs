@@ -303,10 +303,6 @@ describe('HTTP Driver in the browser', function() {
     ];
 
     class DomDriver implements Driver<any, any> {
-      public provideSource() {
-        return null;
-      }
-
       public consumeSink(sink$: Producer<any>) {
         return pipe(
           sink$,
@@ -397,10 +393,6 @@ describe('HTTP Driver in the browser', function() {
     ];
 
     class DomDriver implements Driver<any, any> {
-      provideSource() {
-        return null;
-      }
-
       consumeSink(sink$: Producer<any>) {
         return pipe(
           sink$,
@@ -470,10 +462,6 @@ describe('HTTP Driver in the browser', function() {
     }
 
     class TestDriver implements Driver<any, any> {
-      public provideSource() {
-        return null;
-      }
-
       public consumeSink(sink$: Producer<any>) {
         return pipe(
           sink$,

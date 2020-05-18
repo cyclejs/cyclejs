@@ -10,7 +10,7 @@ importers:
       typescript: ^3.8.3
   http:
     dependencies:
-      '@cycle/callbags': 2.2.0-beta.1
+      '@cycle/callbags': 2.2.0-beta.2
       '@minireq/browser': 1.2.0-beta.5
     devDependencies:
       '@cycle/run': 'link:../run'
@@ -34,7 +34,7 @@ importers:
       start-server-and-test: 1.11.0
       ts-node: 8.10.1
     specifiers:
-      '@cycle/callbags': ^2.2.0-beta.1
+      '@cycle/callbags': ^2.2.0-beta.2
       '@cycle/run': 'workspace:^5.4.0'
       '@minireq/browser': ^1.2.0-beta.5
       '@minireq/node': ^1.0.0-beta.6
@@ -58,9 +58,18 @@ importers:
       ts-node: ^8.10.1
   run:
     dependencies:
-      '@cycle/callbags': 2.2.0-beta.1
+      '@cycle/callbags': 2.2.0-beta.2
+    devDependencies:
+      '@types/mocha': 7.0.2
+      '@types/node': 14.0.1
+      mocha: 7.1.2
+      ts-node: 8.10.1
     specifiers:
-      '@cycle/callbags': ^2.2.0-beta.1
+      '@cycle/callbags': ^2.2.0-beta.2
+      '@types/mocha': ^7.0.2
+      '@types/node': ^14.0.1
+      mocha: ^7.1.2
+      ts-node: ^8.10.1
 lockfileVersion: 5.1
 packages:
   /@babel/code-frame/7.8.3:
@@ -224,10 +233,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-qxXzvBO//jO9ZnoasKF1uJzHd2+M6Q2ZPIVfnFps8JJvXy0ZBbwbNOmE6SGIY5XOY6d1Bo5lb9d9RJ8nv3WSeA==
-  /@cycle/callbags/2.2.0-beta.1:
+  /@cycle/callbags/2.2.0-beta.2:
     dev: false
     resolution:
-      integrity: sha512-aIEbaVOtgstvLDojYY+i7lWG2nr5K8wx2Fd0Vtu6wibikRw5NrX5Z0E5uTQy3OXiGwUZyE55Xek3YRFHDQlFnA==
+      integrity: sha512-y5JidYVSmblX2ir/1jLLH1VdARmihkHjbKSsNVf9QPUTjK0AfV3YlmpmFK/iEjzn89Sbserkm6VWdTP8IhSKrw==
   /@hapi/address/2.1.4:
     dev: true
     resolution:
@@ -337,6 +346,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-3ySmiBYJPqgjiHA7oEaIo2Rzz0HrOZ7yrNO5HWyaE5q0lQ3BppDZ3N53Miz8bw2I7gh1/zir2MGVZBvpb1zq9g==
+  /@types/node/14.0.1:
+    dev: true
+    resolution:
+      integrity: sha512-FAYBGwC+W6F9+huFIDtn43cpy7+SzG+atzRiTfdp3inUKL2hXnd4rG8hylJLIh4+hqrQy1P17kvJByE/z825hA==
   /@types/qs/6.9.2:
     dev: true
     resolution:
@@ -1021,7 +1034,7 @@ packages:
       integrity: sha512-OX8XqP7/1a9cqkxYw2yXss15f26NKWBpDXQd0/uK/KPqdQhxbPa994hnzjcE2VqQpDslf55723cKPUOGSmMY3g==
   /debug/3.2.6:
     dependencies:
-      ms: 2.1.2
+      ms: 2.1.1
     dev: true
     resolution:
       integrity: sha512-mel+jf7nrtEl5Pn1Qx46zARXKDpBbvzezse7p7LqINmdoIk8PYP5SySaxEmYv6TZ0JyEKA1hsCId6DIhgITtWQ==

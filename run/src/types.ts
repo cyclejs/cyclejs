@@ -1,5 +1,7 @@
 import { Producer, Dispose, Subject } from '@cycle/callbags';
 
+export type Plugins = Record<string, Plugin<any, any>>;
+
 export type Plugin<Source, Sink> = [
   Driver<Source, Sink>,
   ApiFactory<Source, Sink> | null
@@ -12,8 +14,8 @@ export type ApiFactory<Source, Sink> = (
 ) => any;
 
 export interface Driver<Source, Sink> {
-  consumeSink(sink: Producer<Sink>): Dispose;
-  provideSource(): Producer<Source> | null;
+  consumeSink?(sink: Producer<Sink>): Dispose;
+  provideSource?(): Producer<Source>;
 }
 
 export type IdGenerator = () => number;

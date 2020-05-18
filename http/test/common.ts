@@ -362,10 +362,6 @@ export function runTests(uri: string, request: RequestFn) {
       const testDriverExpected = ['Hello World'];
 
       class TestDriver implements Driver<undefined, string> {
-        provideSource() {
-          return null;
-        }
-
         consumeSink(sink: Producer<string>) {
           return pipe(
             sink,

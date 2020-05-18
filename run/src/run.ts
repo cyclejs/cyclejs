@@ -1,4 +1,4 @@
-import { merge, makeReplaySubject, multicast } from '@cycle/callbags';
+import { merge, makeReplaySubject, Producer } from '@cycle/callbags';
 import { Plugin, Main, MasterWrapper, Subscription } from './types';
 
 let currentId = 0;
@@ -10,12 +10,60 @@ function cuid(): number {
   return currentId;
 }
 
+export function multicastNow<T>(source: Producer<T>): Producer<T> {
+  let sinks: any[] = [];
+  let last: any = undefined;
+  let hasLast = false;
+
+  let talkback: any;
+
+  source(0, (t, d) => {
+    if (t === 0) {
+      talkback = d;
+    } else {
+      if (t === 1) {
+        Promise.resolve().then(() => {
+          hasLast = false;
+          last = void 0;
+        });
+
+        last = d;
+        hasLast = true;
+      }
+
+      let hasDeleted = false;
+      for (const sink of sinks) {
+        if (sink) sink(t, d);
+        else hasDeleted = true;
+      }
+
+      if (hasDeleted) {
+        sinks = sinks.filter(Boolean);
+      }
+    }
+  });
+
+  return (_, sink) => {
+    sinks.push(sink);
+    sink(0, () => {
+      sinks[sinks.indexOf(sink)] = void 0;
+      if (sinks.every(x => x === undefined)) {
+        talkback(2);
+        sinks = [];
+      }
+    });
+    if (hasLast) {
+      sink(1, last);
+    }
+  };
+}
+
 export function run(
   main: Main,
   plugins: Record<string, Plugin<any, any>>,
   wrappers: MasterWrapper[]
 ): Subscription {
-  const masterMain = makeMasterMain(plugins, main, wrappers);
+  const masterMain = makeMasterMain(main, plugins, wrappers);
   const connect = setup(plugins);
   return connect(masterMain);
 }
@@ -29,18 +77,21 @@ export function setup(
     let masterSources: any = {};
 
     for (const k of Object.keys(plugins)) {
-      const masterSource = plugins[k][0].provideSource();
+      const driver = plugins[k][0];
+      const masterSource = driver.provideSource?.();
       if (masterSource) {
-        masterSources[k] = multicast(masterSource);
+        masterSources[k] = multicastNow(masterSource);
       }
-      sinkProxies[k] = makeReplaySubject();
-      subscriptions[k] = plugins[k][0].consumeSink(sinkProxies[k]);
+      if (driver.consumeSink) {
+        sinkProxies[k] = makeReplaySubject();
+        subscriptions[k] = driver.consumeSink(sinkProxies[k]);
+      }
     }
 
     const masterSinks = masterMain(masterSources);
 
     for (const k of Object.keys(plugins)) {
-      if (masterSinks[k]) {
+      if (masterSinks[k] && sinkProxies[k]) {
         masterSinks[k](0, (t: any, d: any) => {
           if (t !== 0) {
             sinkProxies[k](t, d);
@@ -58,10 +109,24 @@ export function setup(
 }
 
 export function makeMasterMain(
-  plugins: Record<string, Plugin<any, any>>,
   main: Main,
+  plugins: Record<string, Plugin<any, any>>,
   wrappers: MasterWrapper[]
 ) {
+  if (typeof main !== 'function') {
+    throw new Error(
+      "First argument given to Cycle must be the 'main' function"
+    );
+  }
+  if (typeof plugins !== 'object') {
+    throw new Error(
+      'Second argument given to Cycle must be an object with plugins'
+    );
+  } else if (Object.keys(plugins).length === 0) {
+    throw new Error(
+      'Second argument given to Cycle must be an object with at least one plugin'
+    );
+  }
   function masterMain(sources: any): any {
     let pluginSources: any = {};
     let pluginsSinks: any = {};
