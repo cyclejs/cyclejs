@@ -11,18 +11,24 @@ function cuid(): number {
   return currentId;
 }
 
+function defaultErrorHandler(err: any): void {
+  throw err;
+}
+
 export function run(
   main: Main,
   plugins: Record<string, Plugin<any, any>>,
-  wrappers: MasterWrapper[]
+  wrappers: MasterWrapper[],
+  errorHandler: (err: any) => void = defaultErrorHandler
 ): Subscription {
   const masterMain = makeMasterMain(main, plugins, wrappers);
-  const connect = setup(plugins);
+  const connect = setup(plugins, errorHandler);
   return connect(masterMain);
 }
 
 export function setup(
-  plugins: Record<string, Plugin<any, any>>
+  plugins: Record<string, Plugin<any, any>>,
+  errorHandler: (err: any) => void = defaultErrorHandler
 ): (masterMain: Main) => Subscription {
   return function connect(masterMain: Main) {
     let sinkProxies: any = {};
@@ -47,7 +53,9 @@ export function setup(
       if (masterSinks[k] && sinkProxies[k]) {
         masterSinks[k](0, (t: any, d: any) => {
           if (t !== 0) {
-            sinkProxies[k](t, d);
+            if (t === 2 && d) {
+              errorHandler(d);
+            } else sinkProxies[k](t, d);
           }
         });
       }

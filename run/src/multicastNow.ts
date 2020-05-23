@@ -2,8 +2,7 @@ import { Producer } from '@cycle/callbags';
 
 export function multicastNow<T>(source: Producer<T>): Producer<T> {
   let sinks: any[] = [];
-  let last: any = undefined;
-  let hasLast = false;
+  let lasts: T[] = [];
 
   let talkback: any;
 
@@ -12,13 +11,10 @@ export function multicastNow<T>(source: Producer<T>): Producer<T> {
       talkback = d;
     } else {
       if (t === 1) {
+        lasts.push(d);
         Promise.resolve().then(() => {
-          hasLast = false;
-          last = void 0;
+          lasts = [];
         });
-
-        last = d;
-        hasLast = true;
       }
 
       let hasDeleted = false;
@@ -42,8 +38,8 @@ export function multicastNow<T>(source: Producer<T>): Producer<T> {
         sinks = [];
       }
     });
-    if (hasLast) {
-      sink(1, last);
+    for (const x of lasts) {
+      sink(1, x);
     }
   };
 }

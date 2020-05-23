@@ -123,9 +123,9 @@ describe('HTTP Driver in Node.js', () => {
     };
 
     const plugins = {
-      HTTP: makeHttpPlugin(request, handler)
+      HTTP: makeHttpPlugin(request)
     };
 
-    run(main, plugins, []);
+    run(main, plugins, [], handler);
   });
 });

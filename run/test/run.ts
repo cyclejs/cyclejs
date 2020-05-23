@@ -6,6 +6,7 @@ import {
   startWith,
   map,
   of,
+  fromArray,
   subscribe,
   never,
   empty,
@@ -13,7 +14,7 @@ import {
   flatten,
   makeSubject,
   multicast,
-  uponEnd
+  Operator
 } from '@cycle/callbags';
 
 import { run, Driver, Plugins } from '../src/index';
@@ -294,137 +295,113 @@ describe('run', function() {
     }, 1000);
   });
 
-  /*it('should report errors from main() in the console', function(done) {
-    const sandbox = sinon.createSandbox();
-    sandbox.stub(console, 'error');
+  it('should report errors from main() to a custom error handler', done => {
+    function map2<A, B>(f: (a: A) => B): Operator<A, B> {
+      return source => (_, sink) => {
+        source(0, (t, d) => {
+          if (t === 1) {
+            try {
+              const result = f(d);
+              sink(1, result);
+            } catch (e) {
+              sink(2, e);
+            }
+          } else sink(t, d);
+        });
+      };
+    }
 
     function main(sources: any): any {
       return {
-        other: sources.other
-          .take(1)
-          .startWith('a')
-          .map(() => {
+        other: pipe(
+          sources.other,
+          take(1),
+          map2(() => {
             throw new Error('malfunction');
-          }),
+          })
+        )
       };
     }
-    function driver(sink: Stream<any>) {
-      sink.addListener({
-        next: () => {},
-        error: (err: any) => {},
-      });
-      return xs.of('b');
+
+    class TestDriver implements Driver<string, any> {
+      consumeSink(sink$: Producer<any>) {
+        return pipe(
+          sink$,
+          subscribe(() => {})
+        );
+      }
+
+      provideSource() {
+        return of('b');
+      }
     }
+
+    const plugins: Plugins = {
+      other: [new TestDriver(), null]
+    };
+
+    let numCalled = 0;
+
+    const handler = (err: any) => {
+      numCalled++;
+      assert.strictEqual(err.message, 'malfunction');
+    };
 
     let caught = false;
     try {
-      run(main, {other: driver});
+      run(main, plugins, [], handler);
     } catch (e) {
       caught = true;
     }
     setTimeout(() => {
-      sinon.assert.calledOnce(console.error as any);
-      sinon.assert.calledWithExactly(
-        console.error as any,
-        sinon.match((err: any) => err.message === 'malfunction')
-      );
+      assert.strictEqual(numCalled, 1);
 
       // Should be false because the error was already reported in the console.
       // Otherwise we would have double reporting of the error.
       assert.strictEqual(caught, false);
 
-      sandbox.restore();
       done();
     }, 80);
   });
 
-  it('should call DevTool internal function to pass sinks', function() {
-    let window: any;
-    if (typeof global === 'object') {
-      (global as any).window = {};
-      window = (global as any).window;
-    }
-    const sandbox = sinon.createSandbox();
-    const spy = sandbox.spy();
-    window.CyclejsDevTool_startGraphSerializer = spy;
-
-    function app(ext: any): any {
-      return {
-        other: ext.other.take(1).startWith('a'),
-      };
-    }
-    function driver() {
-      return xs.of('b');
-    }
-    run(app, {other: driver});
-
-    sinon.assert.calledOnce(spy);
-  });
-
-  it('should adapt() a simple source (stream)', function(done) {
-    let appCalled = false;
-    function app(sources: any): any {
-      assert.strictEqual(typeof sources.other, 'string');
-      assert.strictEqual(sources.other, 'this is adapted');
-      appCalled = true;
-
-      return {
-        other: xs.of(1, 2, 3),
-      };
-    }
-
-    function driver(sink: Stream<string>) {
-      return xs.of(10, 20, 30);
-    }
-
-    setAdapt(stream => 'this is adapted');
-    run(app, {other: driver});
-    setAdapt(x => x);
-
-    assert.strictEqual(appCalled, true);
-    done();
-  });
-
-  it('should support sink-only drivers', function(done) {
+  it('should support sink-only and source-only drivers', done => {
     function app(sources: any): any {
       return {
-        other: xs.of(1, 2, 3),
+        other: sources.read
       };
     }
 
     let driverCalled = false;
-    function driver(sink: Stream<string>) {
-      assert.strictEqual(typeof sink, 'object');
-      assert.strictEqual(typeof sink.fold, 'function');
-      driverCalled = true;
+    let expected = [1, 2, 3];
+
+    class WriteDriver implements Driver<never, number> {
+      consumeSink(sink$: Producer<number>) {
+        assert.strictEqual(typeof sink$, 'function');
+        driverCalled = true;
+
+        return pipe(
+          sink$,
+          subscribe(x => {
+            assert.strictEqual(x, expected.shift());
+          })
+        );
+      }
     }
 
-    run(app, {other: driver});
+    class ReadDriver implements Driver<number, never> {
+      provideSource() {
+        return fromArray([1, 2, 3]);
+      }
+    }
+
+    const plugins: Plugins = {
+      other: [new WriteDriver(), null],
+      read: [new ReadDriver(), null]
+    };
+
+    run(app, plugins, []);
 
     assert.strictEqual(driverCalled, true);
     done();
   });
-
-  it('should not adapt() sinks', function(done) {
-    function app(sources: any): any {
-      return {
-        other: xs.of(1, 2, 3),
-      };
-    }
-
-    let driverCalled = false;
-    function driver(sink: Stream<string>) {
-      assert.strictEqual(typeof sink, 'object');
-      assert.strictEqual(typeof sink.fold, 'function');
-      driverCalled = true;
-      return xs.of(10, 20, 30);
-    }
-
-    setAdapt(stream => 'this not a stream');
-    run(app, {other: driver});
-    setAdapt(x => x);
-
-    assert.strictEqual(driverCalled, true);
-    done();
-  });*/
 });
