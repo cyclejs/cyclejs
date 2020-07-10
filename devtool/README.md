@@ -11,7 +11,7 @@ For a thorough introduction to "Why" and "How" of this tool, watch this talk: [S
 This DevTool requires that your app is built using the following packages:
 
 - `xstream` v6.1.x or higher
-- `@cycle/xstream-run` v3.1.x or higher
+- `@cycle/run` v3.1.x or higher
 - `@cycle/dom` v12.2.x or higher, if you are using it
 - `@cycle/http` v10.2.x or higher, if you are using it
 

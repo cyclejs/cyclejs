@@ -1,4 +1,4 @@
-# Cycle DOM
+# Cycle DOM - [source](https://github.com/cyclejs/cyclejs/tree/master/dom)
 
 A Cycle.js driver to enable interaction with the DOM. The driver is based on [snabbdom](https://github.com/paldepind/snabbdom/) as the Virtual DOM library.
 
@@ -8,9 +8,19 @@ npm install @cycle/dom
 
 ## Browser support
 
-These are the browsers we officially support currently. Cycle.js may not work (or may work partially) in other browsers.
+These are the browsers we officially test for:
 
-[![Sauce Test Status](https://saucelabs.com/browser-matrix/cyclejs-dom.svg)](https://saucelabs.com/u/cyclejs-dom)
+- Chrome 49 and higher
+- Firefox 52 and higher
+- Safari 9.1 and higher
+- Android Chrome (OS version 4.4 and higher)
+- iOS Safari (OS version 10.3 and higher)
+- Microsoft Edge
+- Internet Explorer 11
+
+**Note for Internet Explorer 10:** This driver works on IE10 only if you polyfill ES6 Map, ES6 Set, [MutationObserver](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver) (we recommend `mutation-observer` package from npm) **and** if you don't render the app in a [DocumentFragment](https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment).
+
+In other browsers, the DOM driver may not work or may work partially.
 
 # Isolation semantics
 

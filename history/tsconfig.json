@@ -1,14 +1,9 @@
 {
   "extends": "../tsconfig.common.json",
   "compilerOptions": {
-    "outDir": "lib/",
     "lib": [
       "dom",
       "es2015"
-    ],
-    "types": [
-      "mocha",
-      "node"
     ]
   },
   "files": [

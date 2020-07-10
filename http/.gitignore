@@ -6,16 +6,14 @@
 
 # Installed libs
 node_modules
-typings/
 
 # Generated
-test/browser/page/tests-bundle.js
 lib/
-dist/
+coverage/
 test-support-server.pid
 
 # Misc
 ignore
-npm-debug.log
+*.log
 ts/*
 !ts/cycle.d.ts

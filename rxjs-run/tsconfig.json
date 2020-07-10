@@ -1,7 +1,6 @@
 {
   "extends": "../tsconfig.common.json",
   "compilerOptions": {
-    "outDir": "lib/",
     "lib": [
       "es2015",
       "es2015.promise",

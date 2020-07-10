@@ -1,6 +1,6 @@
 {
   "name": "@cycle/isolate",
-  "version": "2.1.0",
+  "version": "5.2.0",
   "description": "A utility function to make scoped dataflow components in Cycle.js",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
@@ -26,25 +26,44 @@
     "dataflow",
     "virtual-dom"
   ],
-  "main": "lib/index.js",
-  "typings": "lib/index.d.ts",
-  "types": "lib/index.d.ts",
-  "dependencies": {},
+  "main": "lib/cjs/index.js",
+  "module": "lib/es6/index.js",
+  "typings": "lib/cjs/index.d.ts",
+  "types": "lib/cjs/index.d.ts",
+  "dependencies": {
+    "@cycle/run": "^5.2.0",
+    "xstream": "^11.7.0"
+  },
   "devDependencies": {
-    "@types/mocha": "2.2.x",
-    "@types/node": "7.0.x",
-    "@types/sinon": "1.16.x",
-    "rxjs": "5.1.0"
+    "@cycle/rxjs-run": "^10.2.0",
+    "@types/mocha": "5.2.x",
+    "@types/node": "10.12.x",
+    "@types/sinon": "5.0.x",
+    "mocha": "~6.2.0",
+    "rxjs": "^6.3.3",
+    "sinon": "^7.1.1",
+    "symbol-observable": "^1.2.0",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.11.0",
+    "typescript": "=3.2.4"
+  },
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/cyclejs"
   },
   "engines": {
     "node": ">=0.10.0"
   },
   "scripts": {
-    "mocha": "../node_modules/.bin/mocha test/*.ts --require ts-node/register",
-    "test": "npm run mocha",
-    "test-ci": "npm run test",
-    "browserify": "../node_modules/.bin/browserify lib/index.js --standalone CycleIsolate --outfile dist/cycle-isolate.js",
-    "uglify": "../node_modules/.bin/uglifyjs dist/cycle-isolate.js -o dist/cycle-isolate.min.js"
+    "build": "pnpm run build-cjs && pnpm run build-es6",
+    "build-cjs": "tsc --module commonjs --outDir ./lib/cjs",
+    "build-es6": "tsc --module es6 --outDir ./lib/es6",
+    "lint": "tslint --project tsconfig.lint.json --config ../tslint.json",
+    "docs": "cd .. && node .scripts/make-api-docs.js isolate",
+    "changelog": "cd .. && node .scripts/update-changelogs.js isolate",
+    "test": "mocha test/*.ts --require ts-node/register --exit",
+    "test-ci": "../.scripts/retry.sh pnpm test",
+    "prepublishOnly": "pnpm run build && pnpm test"
   },
   "publishConfig": {
     "access": "public"

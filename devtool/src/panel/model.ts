@@ -1,4 +1,3 @@
-/// <reference path="../circular-json.d.ts" />
 import xs, {Stream} from 'xstream';
 import * as dagre from 'dagre';
 import {Zap} from '../graphSerializer';
@@ -6,7 +5,7 @@ import * as CircularJSON from 'circular-json';
 
 export interface DiagramState {
   id: string;
-  graph: Dagre.Graph;
+  graph: dagre.graphlib.Graph;
   zaps: Array<Zap>;
   speed: ZapSpeed;
 }
@@ -24,7 +23,7 @@ export default function model(serializedGraph$: Stream<string>,
       const id: string = object.id || 'graph-0';
       const zaps: Array<Zap> = object.zaps;
       object.zaps = null;
-      const graph: Dagre.Graph = dagre.graphlib['json'].read(object);
+      const graph: dagre.graphlib.Graph = dagre.graphlib['json'].read(object);
       return { graph, zaps, id };
     });
 

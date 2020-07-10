@@ -1,0 +1,76 @@
+{
+  "name": "@cycle/time",
+  "version": "0.20.0",
+  "description": "A time driver designed to enable awesome testing and dev tooling",
+  "license": "MIT",
+  "homepage": "https://cycle.js.org",
+  "bugs": "https://github.com/cyclejs/cyclejs/issues",
+  "repository": "https://github.com/cyclejs/cyclejs/tree/master/time",
+  "author": "Nick Johnstone",
+  "main": "lib/cjs/index.js",
+  "module": "lib/es6/index.js",
+  "typings": "lib/cjs/index.d.ts",
+  "types": "lib/cjs/index.d.ts",
+  "dependencies": {
+    "@cycle/run": "^5.2.0",
+    "combine-errors": "3.0.x",
+    "most": "*",
+    "performance-now": "^2.1.0",
+    "raf": "3.4.x",
+    "rxjs": "*",
+    "setimmediate": "1.0.x",
+    "sorted-immutable-list": "1.1.x",
+    "variable-diff": "1.1.x",
+    "xstream": "*"
+  },
+  "devDependencies": {
+    "@cycle/dom": "^22.2.0",
+    "@cycle/rxjs-run": "^10.2.0",
+    "@types/mocha": "5.2.x",
+    "@types/node": "10.12.x",
+    "budo": "^11.5.0",
+    "garnish": "5.2.x",
+    "markdown-doctest": "0.9.x",
+    "mocha": "~6.2.0",
+    "most": "1.7.x",
+    "rxjs": "6.3.x",
+    "snabbdom-selector": "4.1.x",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.11.0",
+    "typescript": "=3.2.4"
+  },
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/cyclejs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "lib/",
+    "dist/",
+    "most.js",
+    "rxjs.js",
+    "most.d.ts",
+    "rxjs.d.ts"
+  ],
+  "react-native": {
+    "variable-diff": false
+  },
+  "scripts": {
+    "build": "pnpm run build-cjs && pnpm run build-es6",
+    "build-cjs": "tsc --module commonjs --outDir ./lib/cjs",
+    "build-es6": "tsc --module es6 --outDir ./lib/es6",
+    "docs": ":",
+    "lint": "tslint --project tsconfig.lint.json --config ../tslint.json",
+    "changelog": "cd .. && node .scripts/update-changelogs.js time",
+    "start": "budo -d example example/index.ts:index.js --live -- -p tsify",
+    "test-watch": "mocha 'test/**/*.ts' --require ts-node/register --watch -R min",
+    "test-node": "mocha 'test/**/*.ts' --require ts-node/register --exit",
+    "test": "pnpm run test-node && pnpm run test-docs",
+    "test-ci": "../.scripts/retry.sh pnpm test",
+    "test-docs": "markdown-doctest",
+    "postbuild": "tsc rxjs.ts most.ts --declaration --lib DOM,ES5,ES6 && rm src/*.d.ts && rm src/*.js",
+    "prepublishOnly": "pnpm run build && pnpm test"
+  }
+}

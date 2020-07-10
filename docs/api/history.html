@@ -1,5 +1,6 @@
 <!doctype html>
 <html>
+
 <head>
   <meta charset='utf-8'>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -29,7 +30,7 @@
 
   <!-- Content -->
   <script id="markdown" type="text/markdown" src="index.html">
-# Cycle History
+# Cycle History - [source](https://github.com/cyclejs/cyclejs/tree/master/history)
 
 This is the standard Cycle.js driver for dealing with the History API.
 
@@ -43,23 +44,6 @@ npm install @cycle/history
 
 # API
 
-## <a id="captureClicks"></a> `captureClicks(driver)`
-
-Wraps a History Driver to add "click capturing" functionality.
-
-If you want to intercept and handle any click event that leads to a link,
-like on an `<a>` element, you pass your existing driver (e.g. created from
-`makeHistoryDriver()`) as argument and this function will return another
-driver of the same nature, but including click capturing logic.
-
-#### Arguments:
-
-- `driver: Function` an existing History Driver function.
-
-#### Returns:
-
-*(Function)* a History Driver function
-
 ## <a id="makeHistoryDriver"></a> `makeHistoryDriver(options)`
 
 Create a History Driver to be used in the browser.
@@ -67,7 +51,25 @@ Create a History Driver to be used in the browser.
 This is a function which, when called, returns a History Driver for Cycle.js
 apps. The driver is also a function, and it takes a stream of new locations
 (strings representing pathnames or location objects) as input, and outputs
-another stream of locations that were applied.
+another stream of locations that were applied. Example:
+
+```js
+import {run} from '@cycle/run';
+import {makeHistoryDriver} from '@cycle/history';
+
+function main(sources){
+  return {
+    // updates the browser URL every 500ms
+    history: xs.periodic(500).map(i => `url-${i}`)
+  };
+}
+
+const drivers = {
+  history: makeHistoryDriver()
+};
+
+run(main, drivers);
+```
 
 #### Arguments:
 
@@ -102,6 +104,31 @@ description on the options.
 
 *(Function)* the History Driver function
 
+## <a id="captureClicks"></a> `captureClicks(driver)`
+
+Wraps a History Driver to add "click capturing" functionality.
+
+If you want to intercept and handle any click event that leads to a link,
+like on an `<a>` element, you pass your existing driver (e.g. created from
+`makeHistoryDriver()`) as argument and this function will return another
+driver of the same nature, but including click capturing logic. Example:
+
+```js
+import {captureClicks, makeHistoryDriver} from '@cycle/history';
+
+const drivers = {
+  history: captureClicks(makeHistoryDriver())
+};
+```
+
+#### Arguments:
+
+- `driver: Function` an existing History Driver function.
+
+#### Returns:
+
+*(Function)* a History Driver function
+
 ## <a id="makeServerHistoryDriver"></a> `makeServerHistoryDriver(options)`
 
 Create a History Driver to be used in non-browser enviroments such as
@@ -129,7 +156,7 @@ description on the options.
   <!-- Initializer -->
   <script>
     Flatdoc.run({
-      fetcher: function(callback) {
+      fetcher: function (callback) {
         callback(null, document.getElementById('markdown').innerHTML);
       },
       highlight: function (code, value) {
@@ -139,16 +166,17 @@ description on the options.
   </script>
 
 </head>
+
 <body role='flatdoc' class="no-literate">
 
-
+  
 
   <div class='header'>
     <div class='left'>
-      <h1><a href="/"><img class="logo" src="../img/cyclejs_logo.svg" >Cycle.js</a></h1>
+      <h1><a href="/"><img class="logo" src="../img/cyclejs_logo.svg">Cycle.js</a></h1>
       <ul>
-        <li><a href='../getting-started.html'>Documentation</a></li>
-        <li><a href='../api/index.html'>API reference</a></li>
+        <li><a href='../getting-started.html'>Guide</a></li>
+        <li><a href='../api/index.html'>API</a></li>
         <li><a href='../releases.html'>Releases</a></li>
         <li><a href='https://github.com/cyclejs/cyclejs'>GitHub</a></li>
       </ul>
@@ -156,31 +184,24 @@ description on the options.
     </div>
     <div class='right'>
       <!-- GitHub buttons: see https://ghbtns.com -->
-      <iframe src="https://ghbtns.com/github-btn.html?user=cyclejs&amp;repo=cyclejs&amp;type=watch&amp;count=true" allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
+      <iframe src="https://ghbtns.com/github-btn.html?user=cyclejs&amp;repo=cyclejs&amp;type=watch&amp;count=true"
+        allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
     </div>
   </div>
 
   <div class='content-root'>
     <div class='menubar'>
       <div class='menu section'>
-
+        
         <div role='flatdoc-menu'></div>
-
+        
       </div>
     </div>
     <div role='flatdoc-content' class='content'></div>
-
+    
   </div>
+  
 
-
-  <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-    ga('create', 'UA-43862400-3', 'auto');
-    ga('send', 'pageview');
-  </script>
   <script>
     ((window.gitter = {}).chat = {}).options = {
       room: 'cyclejs/cyclejs'
@@ -190,4 +211,5 @@ description on the options.
   <script src='//cdn.jsdelivr.net/docsearch.js/2/docsearch.min.js'></script>
   <script src='../docsearch.js'></script>
 </body>
+
 </html>

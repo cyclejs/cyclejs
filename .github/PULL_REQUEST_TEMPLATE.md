@@ -1,8 +1,8 @@
 <!--
-Thank you for your contribution! You're awesome.
+Thank you for your contribution!
 To help speed up the process of merging your code, check the following:
 -->
 
-- [ ] I added new tests for the issue I fixed/built
-- [ ] I ran `yarn test` for the package I'm modifying
-- [ ] I used `yarn run commit` instead of `git commit`
+- [ ] There exists an issue discussing the need for this PR
+- [ ] I added new tests for the issue I fixed or built
+- [ ] I used `pnpm run commit` instead of `git commit`

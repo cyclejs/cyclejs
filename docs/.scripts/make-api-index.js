@@ -2,7 +2,9 @@
 var fs = require('fs');
 var ejs = require('ejs');
 
-var template = ejs.compile(fs.readFileSync(__dirname + '/template.html', 'utf-8'));
+var template = ejs.compile(
+  fs.readFileSync(__dirname + '/template.html', 'utf-8')
+);
 
 var mdFilename = __dirname + '/../content/api/index.md';
 var htmlFilename = __dirname + '/../api/index.html';
@@ -21,7 +23,7 @@ var outputStr = template({
     {title: 'Cycle HTTP', link: 'api/http.html'},
     {title: 'Cycle History', link: 'api/history.html'},
     {title: 'Cycle Isolate', link: 'api/isolate.html'},
-    {title: 'Cycle JSONP', link: 'api/jsonp.html'},
+    {title: 'Cycle State', link: 'api/state.html'},
   ],
 });
 fs.writeFileSync(htmlFilename, outputStr, 'utf-8');

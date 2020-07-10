@@ -16,7 +16,7 @@ export interface RequestOptions {
   url: string;
   method?: string;
   query?: Object;
-  send?: Object;
+  send?: Object | string;
   headers?: Object;
   accept?: string;
   type?: string;
@@ -30,6 +30,8 @@ export interface RequestOptions {
   redirects?: number;
   category?: string;
   lazy?: boolean;
+  responseType?: string;
+  ok?: ((res: SuperagentResponse) => boolean);
   _error?: any;
   _namespace?: Array<string>;
 }
@@ -46,7 +48,10 @@ export interface Response extends SuperagentResponse {
 }
 
 export interface HTTPSource {
-  filter<S extends HTTPSource>(predicate: (request: RequestOptions) => boolean): S;
+  filter(
+    predicate: (request: RequestOptions) => boolean,
+    scope?: string
+  ): HTTPSource;
   select(category?: string): Stream<MemoryStream<Response> & ResponseStream>;
   isolateSource(source: HTTPSource, scope: string): HTTPSource;
   isolateSink(sink: Stream<RequestInput>, scope: string): Stream<RequestInput>;

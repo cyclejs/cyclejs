@@ -1,6 +1,6 @@
 {
   "name": "@cycle/rxjs-run",
-  "version": "7.0.0",
+  "version": "10.5.0",
   "description": "The Cycle run() function meant to be used with RxJS v5",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
@@ -25,34 +25,47 @@
     "mvi",
     "virtual-dom"
   ],
-  "main": "lib/index.js",
-  "typings": "lib/index.d.ts",
-  "types": "lib/index.d.ts",
-  "dependencies": {
-    "@cycle/run": "3.x"
-  },
+  "main": "lib/cjs/index.js",
+  "module": "lib/es6/index.js",
+  "typings": "lib/cjs/index.d.ts",
+  "types": "lib/cjs/index.d.ts",
   "peerDependencies": {
-    "rxjs": "*"
+    "@cycle/run": "^5.2.0",
+    "rxjs": "6.x",
+    "symbol-observable": "^1.2.0",
+    "xstream": "*"
   },
   "devDependencies": {
-    "@types/mocha": "2.2.x",
-    "@types/node": "7.0.x",
-    "@types/sinon": "1.16.x",
-    "rxjs": "5.1.x",
-    "xstream": "10.x"
+    "@cycle/run": "^5.2.0",
+    "rxjs": "~6.3.3",
+    "symbol-observable": "^1.2.0",
+    "@types/mocha": "5.2.x",
+    "@types/node": "10.12.x",
+    "@types/sinon": "5.0.x",
+    "mocha": "~6.2.0",
+    "sinon": "^7.1.1",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.11.0",
+    "typescript": "=3.2.4",
+    "xstream": "11.x"
   },
   "engines": {
     "node": ">=0.12.0"
   },
-  "browserify-shim": {
-    "rxjs": "global:Rx"
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/cyclejs"
   },
   "scripts": {
-    "mocha": "../node_modules/.bin/mocha test/*.ts --require ts-node/register",
-    "test": "npm run mocha",
-    "test-ci": "npm run test",
-    "browserify": "../node_modules/.bin/browserify lib/index.js --global-transform=browserify-shim --standalone Cycle --exclude rxjs -o dist/cycle.js",
-    "uglify": "../node_modules/.bin/uglifyjs dist/cycle.js -o dist/cycle.min.js"
+    "build": "pnpm run build-cjs && pnpm run build-es6",
+    "build-cjs": "tsc --module commonjs --outDir ./lib/cjs",
+    "build-es6": "tsc --module es6 --outDir ./lib/es6",
+    "lint": "tslint --project tsconfig.lint.json --config ../tslint.json",
+    "docs": "cd .. && node .scripts/make-api-docs.js rxjs-run",
+    "changelog": "cd .. && node .scripts/update-changelogs.js rxjs-run",
+    "test": "mocha test/*.ts --require ts-node/register --exit",
+    "test-ci": "../.scripts/retry.sh pnpm test",
+    "prepublishOnly": "pnpm run build && pnpm test"
   },
   "publishConfig": {
     "access": "public"

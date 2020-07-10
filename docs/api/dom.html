@@ -1,5 +1,6 @@
 <!doctype html>
 <html>
+
 <head>
   <meta charset='utf-8'>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -29,7 +30,7 @@
 
   <!-- Content -->
   <script id="markdown" type="text/markdown" src="index.html">
-# Cycle DOM
+# Cycle DOM - [source](https://github.com/cyclejs/cyclejs/tree/master/dom)
 
 A Cycle.js driver to enable interaction with the DOM. The driver is based on [snabbdom](https://github.com/paldepind/snabbdom/) as the Virtual DOM library.
 
@@ -39,9 +40,19 @@ npm install @cycle/dom
 
 ## Browser support
 
-These are the browsers we officially support currently. Cycle.js may not work (or may work partially) in other browsers.
+These are the browsers we officially test for:
 
-[![Sauce Test Status](https://saucelabs.com/browser-matrix/cyclejs-dom.svg)](https://saucelabs.com/u/cyclejs-dom)
+- Chrome 49 and higher
+- Firefox 52 and higher
+- Safari 9.1 and higher
+- Android Chrome (OS version 4.4 and higher)
+- iOS Safari (OS version 10.3 and higher)
+- Microsoft Edge
+- Internet Explorer 11
+
+**Note for Internet Explorer 10:** This driver works on IE10 only if you polyfill ES6 Map, ES6 Set, [MutationObserver](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver) (we recommend `mutation-observer` package from npm) **and** if you don't render the app in a [DocumentFragment](https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment).
+
+In other browsers, the DOM driver may not work or may work partially.
 
 # Isolation semantics
 
@@ -72,26 +83,68 @@ input to this driver is a stream of virtual DOM objects, or in other words,
 Snabbdom "VNode" objects. The output of this driver is a "DOMSource": a
 collection of Observables queried with the methods `select()` and `events()`.
 
-`DOMSource.select(selector)` returns a new DOMSource with scope restricted to
-the element(s) that matches the CSS `selector` given.
+**`DOMSource.select(selector)`** returns a new DOMSource with scope
+restricted to the element(s) that matches the CSS `selector` given. To select
+the page's `document`, use `.select('document')`. To select the container
+element for this app, use `.select(':root')`.
 
-`DOMSource.events(eventType, options)` returns a stream of events of
+**`DOMSource.events(eventType, options)`** returns a stream of events of
 `eventType` happening on the elements that match the current DOMSource. The
 event object contains the `ownerTarget` property that behaves exactly like
 `currentTarget`. The reason for this is that some browsers doesn't allow
 `currentTarget` property to be mutated, hence a new property is created. The
 returned stream is an *xstream* Stream if you use `@cycle/xstream-run` to run
 your app with this driver, or it is an RxJS Observable if you use
-`@cycle/rxjs-run`, and so forth. The `options` parameter can have the
-property `useCapture`, which is by default `false`, except it is `true` for
-event types that do not bubble. Read more here
+`@cycle/rxjs-run`, and so forth.
+
+**options for DOMSource.events**
+
+The `options` parameter on `DOMSource.events(eventType, options)` is an
+(optional) object with two optional fields: `useCapture` and
+`preventDefault`.
+
+`useCapture` is by default `false`, except it is `true` for event types that
+do not bubble. Read more here
 https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
 about the `useCapture` and its purpose.
 
-`DOMSource.elements()` returns a stream of the DOM element(s) matched by the
-selectors in the DOMSource. Also, `DOMSource.select(':root').elements()`
-returns a stream of DOM element corresponding to the root (or container) of
-the app on the DOM.
+`preventDefault` is by default `false`, and indicates to the driver whether
+`event.preventDefault()` should be invoked. This option can be configured in
+three ways:
+
+- `{preventDefault: boolean}` to invoke preventDefault if `true`, and not
+invoke otherwise.
+- `{preventDefault: (ev: Event) => boolean}` for conditional invocation.
+- `{preventDefault: NestedObject}` uses an object to be recursively compared
+to the `Event` object. `preventDefault` is invoked when all properties on the
+nested object match with the properties on the event object.
+
+Here are some examples:
+```typescript
+// always prevent default
+DOMSource.select('input').events('keydown', {
+  preventDefault: true
+})
+
+// prevent default only when `ENTER` is pressed
+DOMSource.select('input').events('keydown', {
+  preventDefault: e => e.keyCode === 13
+})
+
+// prevent defualt when `ENTER` is pressed AND target.value is 'HELLO'
+DOMSource.select('input').events('keydown', {
+  preventDefault: { keyCode: 13, ownerTarget: { value: 'HELLO' } }
+});
+```
+
+**`DOMSource.elements()`** returns a stream of arrays containing the DOM
+elements that match the selectors in the DOMSource (e.g. from previous
+`select(x)` calls).
+
+**`DOMSource.element()`** returns a stream of DOM elements. Notice that this
+is the singular version of `.elements()`, so the stream will emit an element,
+not an array. If there is no element that matches the selected DOMSource,
+then the returned stream will not emit anything.
 
 #### Arguments:
 
@@ -99,8 +152,7 @@ the app on the DOM.
 - `options: DOMDriverOptions` an object with two optional properties: 
   - `modules: array` overrides `@cycle/dom`'s default Snabbdom modules as
     as defined in [`src/modules.ts`](./src/modules.ts).
-  - `transposition: boolean` enables/disables transposition of inner streams
-    in the virtual DOM tree.
+  - `reportSnabbdomError: (err: any) => void` overrides the default error reporter function.
 
 #### Returns:
 
@@ -110,28 +162,22 @@ the app on the DOM.
 
 A factory function to create mocked DOMSource objects, for testing purposes.
 
-Takes a `streamAdapter` and a `mockConfig` object as arguments, and returns
+Takes a `mockConfig` object as argument, and returns
 a DOMSource that can be given to any Cycle.js app that expects a DOMSource in
 the sources, for testing.
-
-The `streamAdapter` parameter is a package such as `@cycle/xstream-adapter`,
-`@cycle/rxjs-adapter`, etc. Import it as `import a from '@cycle/rx-adapter`,
-then provide it to `mockDOMSource`. This is important so the DOMSource created
-knows which stream library should it use to export its streams when you call
-`DOMSource.events()` for instance.
 
 The `mockConfig` parameter is an object specifying selectors, eventTypes and
 their streams. Example:
 
 ```js
-const domSource = mockDOMSource(RxAdapter, {
+const domSource = mockDOMSource({
   '.foo': {
-    'click': Rx.Observable.of({target: {}}),
-    'mouseover': Rx.Observable.of({target: {}}),
+    'click': xs.of({target: {}}),
+    'mouseover': xs.of({target: {}}),
   },
   '.bar': {
-    'scroll': Rx.Observable.of({target: {}}),
-    elements: Rx.Observable.of({tagName: 'div'}),
+    'scroll': xs.of({target: {}}),
+    elements: xs.of({tagName: 'div'}),
   }
 });
 
@@ -185,7 +231,7 @@ SVG element, and `svg.g`, `svg.polygon`, `svg.circle`, `svg.path` are for
 SVG-specific child elements. Example:
 
 ```js
-svg({width: 150, height: 150}, [
+svg({attrs: {width: 150, height: 150}}, [
   svg.polygon({
     attrs: {
       class: 'triangle',
@@ -201,7 +247,7 @@ svg({width: 150, height: 150}, [
   <!-- Initializer -->
   <script>
     Flatdoc.run({
-      fetcher: function(callback) {
+      fetcher: function (callback) {
         callback(null, document.getElementById('markdown').innerHTML);
       },
       highlight: function (code, value) {
@@ -211,16 +257,17 @@ svg({width: 150, height: 150}, [
   </script>
 
 </head>
+
 <body role='flatdoc' class="no-literate">
 
-
+  
 
   <div class='header'>
     <div class='left'>
-      <h1><a href="/"><img class="logo" src="../img/cyclejs_logo.svg" >Cycle.js</a></h1>
+      <h1><a href="/"><img class="logo" src="../img/cyclejs_logo.svg">Cycle.js</a></h1>
       <ul>
-        <li><a href='../getting-started.html'>Documentation</a></li>
-        <li><a href='../api/index.html'>API reference</a></li>
+        <li><a href='../getting-started.html'>Guide</a></li>
+        <li><a href='../api/index.html'>API</a></li>
         <li><a href='../releases.html'>Releases</a></li>
         <li><a href='https://github.com/cyclejs/cyclejs'>GitHub</a></li>
       </ul>
@@ -228,31 +275,24 @@ svg({width: 150, height: 150}, [
     </div>
     <div class='right'>
       <!-- GitHub buttons: see https://ghbtns.com -->
-      <iframe src="https://ghbtns.com/github-btn.html?user=cyclejs&amp;repo=cyclejs&amp;type=watch&amp;count=true" allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
+      <iframe src="https://ghbtns.com/github-btn.html?user=cyclejs&amp;repo=cyclejs&amp;type=watch&amp;count=true"
+        allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
     </div>
   </div>
 
   <div class='content-root'>
     <div class='menubar'>
       <div class='menu section'>
-
+        
         <div role='flatdoc-menu'></div>
-
+        
       </div>
     </div>
     <div role='flatdoc-content' class='content'></div>
-
+    
   </div>
+  
 
-
-  <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-    ga('create', 'UA-43862400-3', 'auto');
-    ga('send', 'pageview');
-  </script>
   <script>
     ((window.gitter = {}).chat = {}).options = {
       room: 'cyclejs/cyclejs'
@@ -262,4 +302,5 @@ svg({width: 150, height: 150}, [
   <script src='//cdn.jsdelivr.net/docsearch.js/2/docsearch.min.js'></script>
   <script src='../docsearch.js'></script>
 </body>
+
 </html>

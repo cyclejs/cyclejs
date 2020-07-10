@@ -1,135 +1,131 @@
 import {VNode} from 'snabbdom/vnode';
 import {EventDelegator} from './EventDelegator';
-const MapPolyfill: typeof Map = require('es6-map');
+import {Scope} from './isolate';
+import {isEqualNamespace} from './utils';
+import SymbolTree from './SymbolTree';
 
 export class IsolateModule {
-  private elementsByFullScope: Map<string, Element>;
+  private namespaceTree = new SymbolTree<Element, Scope>(x => x.scope);
+  private namespaceByElement: Map<Element, Array<Scope>>;
+  private eventDelegator: EventDelegator | undefined;
 
   /**
-   * A Map where keys are full scope strings and values are many delegators
-   * for that scope. The only reason why this data structure is here is to
-   * be able to update the origin element inside those delegators.
-   * The delegators are never created in this class.
+   * A registry that keeps track of all the nodes that are removed from
+   * the virtual DOM in a single patch. Those nodes are cleaned once snabbdom
+   * has finished patching the DOM.
    */
-  private delegatorsByFullScope: Map<string, Array<EventDelegator>>;
-
-  /**
-   * A registry of full scopes representing scopes that are currently
-   * being updated in delegators or elements. This is useful to avoid
-   * cleaning up data structures for an element that is being *replaced*,
-   * not *removed* in the virtual DOM.
-   */
-  private fullScopesBeingUpdated: Array<string>;
+  private vnodesBeingRemoved: Array<VNode>;
 
   constructor() {
-    this.elementsByFullScope = new MapPolyfill<string, Element>();
-    this.delegatorsByFullScope = new MapPolyfill<string, Array<EventDelegator>>();
-    this.fullScopesBeingUpdated = [];
+    this.namespaceByElement = new Map<Element, Array<Scope>>();
+    this.vnodesBeingRemoved = [];
   }
 
-  private cleanupVNode({data, elm}: VNode) {
-    const fullScope: string = (data || {} as any).isolate || '';
-    const isCurrentElm = this.elementsByFullScope.get(fullScope) === elm;
-    const isScopeBeingUpdated = this.fullScopesBeingUpdated.indexOf(fullScope) >= 0;
-    if (fullScope && isCurrentElm && !isScopeBeingUpdated) {
-      this.elementsByFullScope.delete(fullScope);
-      this.delegatorsByFullScope.delete(fullScope);
+  public setEventDelegator(del: EventDelegator): void {
+    this.eventDelegator = del;
+  }
+
+  private insertElement(namespace: Array<Scope>, el: Element): void {
+    this.namespaceByElement.set(el, namespace);
+    this.namespaceTree.set(namespace, el);
+  }
+
+  private removeElement(elm: Element): void {
+    this.namespaceByElement.delete(elm);
+    const namespace = this.getNamespace(elm);
+    if (namespace) {
+      this.namespaceTree.delete(namespace);
     }
   }
 
-  public getElement(fullScope: string): Element | undefined {
-    return this.elementsByFullScope.get(fullScope);
+  public getElement(
+    namespace: Array<Scope>,
+    max?: number
+  ): Element | undefined {
+    return this.namespaceTree.get(namespace, undefined, max);
   }
 
-  public getFullScope(elm: Element): string {
-    const iterator = this.elementsByFullScope.entries();
-    for (let result = iterator.next(); !!result.value; result = iterator.next()) {
-      const [fullScope, element] = result.value;
-      if (elm === element) {
-        return fullScope;
+  public getRootElement(elm: Element): Element | undefined {
+    if (this.namespaceByElement.has(elm)) {
+      return elm;
+    }
+
+    //TODO: Add quick-lru or similar as additional O(1) cache
+
+    let curr = elm;
+    while (!this.namespaceByElement.has(curr)) {
+      curr = curr.parentNode as Element;
+      if (!curr) {
+        return undefined;
+      } else if (curr.tagName === 'HTML') {
+        throw new Error('No root element found, this should not happen at all');
       }
     }
-    return '';
+    return curr;
   }
 
-  public addEventDelegator(fullScope: string, eventDelegator: EventDelegator) {
-    let delegators = this.delegatorsByFullScope.get(fullScope);
-    if (!delegators) {
-      delegators = [];
-      this.delegatorsByFullScope.set(fullScope, delegators);
+  public getNamespace(elm: Element): Array<Scope> | undefined {
+    const rootElement = this.getRootElement(elm);
+    if (!rootElement) {
+      return undefined;
     }
-    delegators[delegators.length] = eventDelegator;
-  }
-
-  public reset() {
-    this.elementsByFullScope.clear();
-    this.delegatorsByFullScope.clear();
-    this.fullScopesBeingUpdated = [];
+    return this.namespaceByElement.get(rootElement) as Array<Scope>;
   }
 
   public createModule() {
     const self = this;
     return {
-      create(oldVNode: VNode, vNode: VNode) {
-        const {data: oldData = {}} = oldVNode;
+      create(emptyVNode: VNode, vNode: VNode) {
         const {elm, data = {}} = vNode;
-        const oldFullScope: string = (oldData as any).isolate || '';
-        const fullScope: string = (data as any).isolate || '';
+        const namespace: Array<Scope> = (data as any).isolate;
 
-        // Update data structures with the newly-created element
-        if (fullScope) {
-          self.fullScopesBeingUpdated.push(fullScope);
-          if (oldFullScope) { self.elementsByFullScope.delete(oldFullScope); }
-          self.elementsByFullScope.set(fullScope, elm as Element);
-
-          // Update delegators for this scope
-          const delegators = self.delegatorsByFullScope.get(fullScope);
-          if (delegators) {
-            const len = delegators.length;
-            for (let i = 0; i < len; ++i) {
-              delegators[i].updateOrigin(elm as Element);
-            }
-          }
-        }
-        if (oldFullScope && !fullScope) {
-          self.elementsByFullScope.delete(fullScope);
+        if (Array.isArray(namespace)) {
+          self.insertElement(namespace, elm as Element);
         }
       },
 
       update(oldVNode: VNode, vNode: VNode) {
-        const {data: oldData = {}} = oldVNode;
+        const {elm: oldElm, data: oldData = {}} = oldVNode;
         const {elm, data = {}} = vNode;
-        const oldFullScope: string = (oldData as any).isolate || '';
-        const fullScope: string = (data as any).isolate || '';
+        const oldNamespace: Array<Scope> = (oldData as any).isolate;
+        const namespace: Array<Scope> = (data as any).isolate;
 
-        // Same element, but different scope, so update the data structures
-        if (fullScope && fullScope !== oldFullScope) {
-          if (oldFullScope) { self.elementsByFullScope.delete(oldFullScope); }
-          self.elementsByFullScope.set(fullScope, elm as Element);
-          const delegators = self.delegatorsByFullScope.get(oldFullScope);
-          if (delegators) {
-            self.delegatorsByFullScope.delete(oldFullScope);
-            self.delegatorsByFullScope.set(fullScope, delegators);
+        if (!isEqualNamespace(oldNamespace, namespace)) {
+          if (Array.isArray(oldNamespace)) {
+            self.removeElement(oldElm as Element);
           }
         }
-        // Same element, but lost the scope, so update the data structures
-        if (oldFullScope && !fullScope) {
-          self.elementsByFullScope.delete(oldFullScope);
-          self.delegatorsByFullScope.delete(oldFullScope);
+        if (Array.isArray(namespace)) {
+          self.insertElement(namespace, elm as Element);
         }
       },
 
       destroy(vNode: VNode) {
-        self.cleanupVNode(vNode);
+        self.vnodesBeingRemoved.push(vNode);
       },
 
       remove(vNode: VNode, cb: Function) {
-        self.cleanupVNode(vNode);
+        self.vnodesBeingRemoved.push(vNode);
         cb();
       },
 
       post() {
-        self.fullScopesBeingUpdated = [];
+        const vnodesBeingRemoved = self.vnodesBeingRemoved;
+        for (let i = vnodesBeingRemoved.length - 1; i >= 0; i--) {
+          const vnode = vnodesBeingRemoved[i];
+          const namespace =
+            vnode.data !== undefined
+              ? (vnode.data as any).isolation
+              : undefined;
+          if (namespace !== undefined) {
+            self.removeElement(namespace);
+          }
+          (self.eventDelegator as EventDelegator).removeElement(
+            vnode.elm as Element,
+            namespace
+          );
+        }
+        self.vnodesBeingRemoved = [];
       },
     };
   }

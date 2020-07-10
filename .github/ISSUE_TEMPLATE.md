@@ -1,7 +1,7 @@
 <!--
-Have a question? Ask us on [Gitter](https://gitter.im/cyclejs/cyclejs).
+Have a question? Ask us on [StackOverflow](http://stackoverflow.com/questions/tagged/cyclejs).
 Found a bug? Please fill out the sections below.
-Give enough details and be polite when writing in text. Thanks!
+Be kind and objective when writing in text. Thanks!
 -->
 
 **Code to reproduce the issue:**

@@ -1,3 +1,170 @@
+## 15.4.0 (2020-03-23)
+
+* fix(http): do not mutate the request in isolate (#935) ([276515e](https://github.com/cyclejs/cyclejs/commit/276515e)), closes [#935](https://github.com/cyclejs/cyclejs/issues/935)
+
+
+
+## 15.3.0 (2019-11-06)
+
+
+
+
+## 15.2.0 (2019-09-10)
+
+* chore(http): run http node tests in CI again ([cfd046f](https://github.com/cyclejs/cyclejs/commit/cfd046f)), closes [#865](https://github.com/cyclejs/cyclejs/issues/865)
+* chore(http): use isolate v5 in tests ([b11ce9e](https://github.com/cyclejs/cyclejs/commit/b11ce9e))
+
+
+
+## 15.1.0 (2018-12-10)
+
+* fix(http): support TypeScript's strict mode ([a6e370e](https://github.com/cyclejs/cyclejs/commit/a6e370e))
+
+
+
+## 15.0.0 (2018-10-17)
+
+* chore(http): split a test in two, reduce CI flakiness ([c231235](https://github.com/cyclejs/cyclejs/commit/c231235))
+* fix(http): support Typescript 3.1 ([d51f882](https://github.com/cyclejs/cyclejs/commit/d51f882))
+
+
+### BREAKING CHANGE
+
+* If you use JavaScript, there are no breaking changes. If you use
+TypeScript, then you may have to change some imports, only if you are
+using RxJS or Most.js. If you are using RxJS: change
+`import {makeHTTPDriver} from '@cycle/http'` to
+`import {makeHTTPDriver} from '@cycle/http/lib/cjs/rxjs'` and change
+`import {HTTPSource} from '@cycle/http/rxjs-typings'` to
+`import {HTTPSource} from '@cycle/http/lib/cjs/rxjs'`. If you are
+using Most.js: change
+`import {makeHTTPDriver} from '@cycle/http'` to
+`import {makeHTTPDriver} from '@cycle/http/lib/cjs/most'` and change
+`import {HTTPSource} from '@cycle/http/most-typings'` to
+`import {HTTPSource} from '@cycle/http/lib/cjs/most'`.
+
+
+## 14.10.0 (2018-08-21)
+
+* fix(http): update superagent to 3.8.3 ([fe3c5ce](https://github.com/cyclejs/cyclejs/commit/fe3c5ce))
+
+
+
+<a name="14.9.0"></a>
+# 14.9.0 (2018-01-23)
+
+
+### Bug Fixes
+
+* **http:** upgrade superagent to 3.8.2 ([a0d8f24](https://github.com/cyclejs/cyclejs/commit/a0d8f24))
+
+
+
+<a name="14.8.0"></a>
+# 14.8.0 (2017-10-26)
+
+
+### Bug Fixes
+
+* **http:** fix isolation regression ([ac20334](https://github.com/cyclejs/cyclejs/commit/ac20334))
+
+
+
+<a name="14.7.0"></a>
+# 14.7.0 (2017-10-25)
+
+
+### Bug Fixes
+
+* **http:** upgrade superagent to v3.7.0 ([b17ab8d](https://github.com/cyclejs/cyclejs/commit/b17ab8d))
+
+
+
+<a name="14.6.0"></a>
+# 14.6.0 (2017-10-24)
+
+
+
+<a name="14.5.0"></a>
+# 14.5.0 (2017-10-10)
+
+
+### Bug Fixes
+
+* **http:** update superagent to v3.6.3 ([c20ecc1](https://github.com/cyclejs/cyclejs/commit/c20ecc1))
+
+
+
+<a name="14.4.0"></a>
+# 14.4.0 (2017-10-02)
+
+
+### Bug Fixes
+
+* **http:** check position of isolation namespace ([e0dea73](https://github.com/cyclejs/cyclejs/commit/e0dea73))
+
+
+### Features
+
+* **http:** implement `ok` field in request objects (#684) ([63e3022](https://github.com/cyclejs/cyclejs/commit/63e3022))
+
+
+
+<a name="14.3.0"></a>
+# 14.3.0 (2017-09-05)
+
+
+### Bug Fixes
+
+* **http:** allow string type of send property ([5ea4bf3](https://github.com/cyclejs/cyclejs/commit/5ea4bf3))
+
+
+
+<a name="14.2.0"></a>
+# 14.2.0 (2017-08-15)
+
+
+### Bug Fixes
+
+* **http:** use ES6 imports to guarantee presence after tree shaking ([a6e9c74](https://github.com/cyclejs/cyclejs/commit/a6e9c74))
+
+
+
+<a name="14.1.0"></a>
+# 14.1.0 (2017-08-12)
+
+
+
+<a name="14.0.0"></a>
+# 14.0.0 (2017-07-20)
+
+
+### Bug Fixes
+
+* **http:** update to TypeScript v2.4, change HTTPSource interface ([56cdf62](https://github.com/cyclejs/cyclejs/commit/56cdf62))
+
+
+### BREAKING CHANGES
+
+* **http:** If you are a JavaScript user, there are zero breaking changes. If you use TypeScript, the
+HTTPSource's filter() method has a slightly different type signature, upgrade manually and
+carefully.
+
+ISSUES CLOSED: #640
+
+
+
+<a name="13.3.0"></a>
+# 13.3.0 (2017-05-16)
+
+
+### Features
+
+* **http:** add option responseType ([df1f30a](https://github.com/cyclejs/cyclejs/commit/df1f30a))
+* **http:** update superagent to v3.5.2 ([c91f37f](https://github.com/cyclejs/cyclejs/commit/c91f37f))
+
+
+
 <a name="13.2.0"></a>
 # 13.2.0 (2017-03-15)
 

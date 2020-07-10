@@ -1,3 +1,127 @@
+## 5.4.0 (2019-11-06)
+
+
+
+
+## 5.3.0 (2019-09-10)
+
+* chore(run): tweak some tests so that TypeScript compiles ([c2c2cbd](https://github.com/cyclejs/cyclejs/commit/c2c2cbd)), closes [#871](https://github.com/cyclejs/cyclejs/issues/871)
+
+
+
+## 5.2.0 (2018-12-10)
+
+* fix(run): support TypeScript's strict mode ([7412f56](https://github.com/cyclejs/cyclejs/commit/7412f56))
+
+
+
+## 5.1.0 (2018-10-17)
+
+* fix(run): support TypeScript 3.1 ([a90cd63](https://github.com/cyclejs/cyclejs/commit/a90cd63)), closes [#815](https://github.com/cyclejs/cyclejs/issues/815)
+* refactor(run): move run tooling to pnpm ([0b2eebd](https://github.com/cyclejs/cyclejs/commit/0b2eebd))
+
+
+### BREAKING CHANGE
+
+* If you use JavaScript, there are no breaking changes. If you use
+TypeScript, this package may not work anymore with versions of TS below
+3.1.
+
+
+## 5.0.0 (2018-09-26)
+
+* fix(run): support TypeScript 3.0 ([21245dc](https://github.com/cyclejs/cyclejs/commit/21245dc)), closes [#815](https://github.com/cyclejs/cyclejs/issues/815)
+* refactor(run): move run tooling to pnpm ([0b2eebd](https://github.com/cyclejs/cyclejs/commit/0b2eebd))
+
+
+
+<a name="4.4.0"></a>
+# 4.4.0 (2018-06-28)
+
+
+### Bug Fixes
+
+* **run:** add two kinds of dispose() for setupReusable() ([ca20dc9](https://github.com/cyclejs/cyclejs/commit/ca20dc9))
+
+
+
+<a name="4.3.0"></a>
+# 4.3.0 (2018-06-27)
+
+
+### Features
+
+* **run:** add setupReusable(drivers) ([868eedf](https://github.com/cyclejs/cyclejs/commit/868eedf))
+
+
+
+<a name="4.2.0"></a>
+# 4.2.0 (2018-06-25)
+
+
+### Bug Fixes
+
+* **run:** use 'quicktask' dependency, supporting React Native ([2f3ed44](https://github.com/cyclejs/cyclejs/commit/2f3ed44))
+
+
+
+<a name="4.1.0"></a>
+# 4.1.0 (2017-12-08)
+
+
+### Bug Fixes
+
+* **run:** make exception reporting less opinionated ([b124fff](https://github.com/cyclejs/cyclejs/commit/b124fff))
+
+
+
+<a name="4.0.0"></a>
+# 4.0.0 (2017-11-10)
+
+
+### Bug Fixes
+
+* **run:** changes behavior of sinks to not have memory ([445fe08](https://github.com/cyclejs/cyclejs/commit/445fe08))
+* **run:** schedule sink emissions as microtasks ([9d0fc02](https://github.com/cyclejs/cyclejs/commit/9d0fc02))
+
+
+### BREAKING CHANGES
+
+* **run:** This means Cycle run() function is no longer synchronous, so if for some reason you were depending
+on the synchronicity of run(), you will lose this guarantee. This is breaking change, but rarely
+should this be experienced. With the new microtask scheduling, sinks are emitted to drivers as soon
+as the current event loop scripts are completed, so there will not be noticeable delays in the user
+interface (like setTimeout would incur).
+
+ISSUES CLOSED: #592
+* **run:** This is a breaking change that requires updating your project to use the latest Cycle Run as well as
+the latest Cycle HTTP and Cycle DOM all at the same time, otherwise you may see race conditions
+across drivers.
+
+ISSUES CLOSED: #592
+
+
+
+<a name="3.4.0"></a>
+# 3.4.0 (2017-10-24)
+
+
+
+<a name="3.3.0"></a>
+# 3.3.0 (2017-10-04)
+
+
+### Bug Fixes
+
+* **run:** allow xstream v11 (not just v10) as a dependency ([0734dfd](https://github.com/cyclejs/cyclejs/commit/0734dfd))
+
+
+
+<a name="3.2.0"></a>
+# 3.2.0 (2017-08-12)
+
+
+
 <a name="3.1.0"></a>
 # 3.1.0 (2017-03-24)
 

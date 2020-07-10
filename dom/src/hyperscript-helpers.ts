@@ -1,5 +1,6 @@
+// tslint:disable:max-file-line-count
 import {h} from 'snabbdom/h';
-import {VNode} from 'snabbdom/vnode';
+import {VNode, VNodeData} from 'snabbdom/vnode';
 
 function isValidString(param: any): boolean {
   return typeof param === 'string' && param.length > 0;
@@ -35,20 +36,85 @@ function createTagFunction(tagName: string): Function {
 }
 
 const SVG_TAG_NAMES = [
-  'a', 'altGlyph', 'altGlyphDef', 'altGlyphItem', 'animate', 'animateColor',
-  'animateMotion', 'animateTransform', 'circle', 'clipPath', 'colorProfile',
-  'cursor', 'defs', 'desc', 'ellipse', 'feBlend', 'feColorMatrix',
-  'feComponentTransfer', 'feComposite', 'feConvolveMatrix', 'feDiffuseLighting',
-  'feDisplacementMap', 'feDistantLight', 'feFlood', 'feFuncA', 'feFuncB',
-  'feFuncG', 'feFuncR', 'feGaussianBlur', 'feImage', 'feMerge', 'feMergeNode',
-  'feMorphology', 'feOffset', 'fePointLight', 'feSpecularLighting',
-  'feSpotlight', 'feTile', 'feTurbulence', 'filter', 'font', 'fontFace',
-  'fontFaceFormat', 'fontFaceName', 'fontFaceSrc', 'fontFaceUri',
-  'foreignObject', 'g', 'glyph', 'glyphRef', 'hkern', 'image', 'line',
-  'linearGradient', 'marker', 'mask', 'metadata', 'missingGlyph', 'mpath',
-  'path', 'pattern', 'polygon', 'polyline', 'radialGradient', 'rect', 'script',
-  'set', 'stop', 'style', 'switch', 'symbol', 'text', 'textPath', 'title',
-  'tref', 'tspan', 'use', 'view', 'vkern',
+  'a',
+  'altGlyph',
+  'altGlyphDef',
+  'altGlyphItem',
+  'animate',
+  'animateColor',
+  'animateMotion',
+  'animateTransform',
+  'circle',
+  'clipPath',
+  'colorProfile',
+  'cursor',
+  'defs',
+  'desc',
+  'ellipse',
+  'feBlend',
+  'feColorMatrix',
+  'feComponentTransfer',
+  'feComposite',
+  'feConvolveMatrix',
+  'feDiffuseLighting',
+  'feDisplacementMap',
+  'feDistantLight',
+  'feFlood',
+  'feFuncA',
+  'feFuncB',
+  'feFuncG',
+  'feFuncR',
+  'feGaussianBlur',
+  'feImage',
+  'feMerge',
+  'feMergeNode',
+  'feMorphology',
+  'feOffset',
+  'fePointLight',
+  'feSpecularLighting',
+  'feSpotlight',
+  'feTile',
+  'feTurbulence',
+  'filter',
+  'font',
+  'fontFace',
+  'fontFaceFormat',
+  'fontFaceName',
+  'fontFaceSrc',
+  'fontFaceUri',
+  'foreignObject',
+  'g',
+  'glyph',
+  'glyphRef',
+  'hkern',
+  'image',
+  'line',
+  'linearGradient',
+  'marker',
+  'mask',
+  'metadata',
+  'missingGlyph',
+  'mpath',
+  'path',
+  'pattern',
+  'polygon',
+  'polyline',
+  'radialGradient',
+  'rect',
+  'script',
+  'set',
+  'stop',
+  'style',
+  'switch',
+  'symbol',
+  'text',
+  'textPath',
+  'title',
+  'tref',
+  'tspan',
+  'use',
+  'view',
+  'vkern',
 ];
 
 const svg = createTagFunction('svg');
@@ -58,27 +124,137 @@ SVG_TAG_NAMES.forEach(tag => {
 });
 
 const TAG_NAMES = [
-  'a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base',
-  'bdi', 'bdo', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption',
-  'cite', 'code', 'col', 'colgroup', 'dd', 'del', 'dfn', 'dir', 'div', 'dl',
-  'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form',
-  'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html',
-  'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend',
-  'li', 'link', 'main', 'map', 'mark', 'menu', 'meta', 'nav', 'noscript',
-  'object', 'ol', 'optgroup', 'option', 'p', 'param', 'pre', 'progress', 'q',
-  'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small',
-  'source', 'span', 'strong', 'style', 'sub', 'sup', 'table', 'tbody', 'td',
-  'textarea', 'tfoot', 'th', 'thead', 'title', 'tr', 'u', 'ul', 'video',
+  'a',
+  'abbr',
+  'address',
+  'area',
+  'article',
+  'aside',
+  'audio',
+  'b',
+  'base',
+  'bdi',
+  'bdo',
+  'blockquote',
+  'body',
+  'br',
+  'button',
+  'canvas',
+  'caption',
+  'cite',
+  'code',
+  'col',
+  'colgroup',
+  'dd',
+  'del',
+  'details',
+  'dfn',
+  'dir',
+  'div',
+  'dl',
+  'dt',
+  'em',
+  'embed',
+  'fieldset',
+  'figcaption',
+  'figure',
+  'footer',
+  'form',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'head',
+  'header',
+  'hgroup',
+  'hr',
+  'html',
+  'i',
+  'iframe',
+  'img',
+  'input',
+  'ins',
+  'kbd',
+  'keygen',
+  'label',
+  'legend',
+  'li',
+  'link',
+  'main',
+  'map',
+  'mark',
+  'menu',
+  'meta',
+  'nav',
+  'noscript',
+  'object',
+  'ol',
+  'optgroup',
+  'option',
+  'p',
+  'param',
+  'pre',
+  'progress',
+  'q',
+  'rp',
+  'rt',
+  'ruby',
+  's',
+  'samp',
+  'script',
+  'section',
+  'select',
+  'small',
+  'source',
+  'span',
+  'strong',
+  'style',
+  'sub',
+  'summary',
+  'sup',
+  'table',
+  'tbody',
+  'td',
+  'textarea',
+  'tfoot',
+  'th',
+  'thead',
+  'time',
+  'title',
+  'tr',
+  'u',
+  'ul',
+  'video',
 ];
 
-const exported = {SVG_TAG_NAMES, TAG_NAMES, svg, isSelector, createTagFunction};
+const exported = {
+  SVG_TAG_NAMES,
+  TAG_NAMES,
+  svg,
+  isSelector,
+  createTagFunction,
+};
 TAG_NAMES.forEach(n => {
   exported[n] = createTagFunction(n);
 });
-export default (exported as any as HyperScriptHelpers);
+export default (exported as any) as HyperScriptHelpers;
 
+export type Children = Array<VNode | string | null>;
+export type Properties = any; //VNodeData // does not work yet, because of https://github.com/snabbdom/snabbdom/pull/325
 export interface HyperScriptHelperFn {
-  (selector?: any, properties?: any, children?: any): VNode;
+  (): VNode;
+  (textOrSelector: string): VNode;
+  (children: Children): VNode;
+  (properties: Properties): VNode;
+  (selector: string, children: Children): VNode;
+  (selector: string, text: string): VNode;
+  (selector: string, properties: Properties): VNode;
+  (properties: Properties, children: Children): VNode;
+  (properties: Properties, text: string): VNode;
+  (selector: string, properties: Properties, text: string): VNode;
+  (selector: string, properties: Properties, children: Children): VNode;
 }
 
 export interface SVGHelperFn extends HyperScriptHelperFn {
@@ -188,6 +364,7 @@ export interface HyperScriptHelpers {
   colgroup: HyperScriptHelperFn;
   dd: HyperScriptHelperFn;
   del: HyperScriptHelperFn;
+  details: HyperScriptHelperFn;
   dfn: HyperScriptHelperFn;
   dir: HyperScriptHelperFn;
   div: HyperScriptHelperFn;
@@ -252,6 +429,7 @@ export interface HyperScriptHelpers {
   strong: HyperScriptHelperFn;
   style: HyperScriptHelperFn;
   sub: HyperScriptHelperFn;
+  summary: HyperScriptHelperFn;
   sup: HyperScriptHelperFn;
   table: HyperScriptHelperFn;
   tbody: HyperScriptHelperFn;
@@ -260,6 +438,7 @@ export interface HyperScriptHelpers {
   tfoot: HyperScriptHelperFn;
   th: HyperScriptHelperFn;
   thead: HyperScriptHelperFn;
+  time: HyperScriptHelperFn;
   title: HyperScriptHelperFn;
   tr: HyperScriptHelperFn;
   u: HyperScriptHelperFn;

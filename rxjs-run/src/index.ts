@@ -1,23 +1,60 @@
+// tslint:disable-next-line:no-import-side-effect
+import 'symbol-observable';
 import {Stream} from 'xstream';
-import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/observable/from';
+import {from, Observable} from 'rxjs';
 import {setAdapt} from '@cycle/run/lib/adapt';
 import {
   setup as coreSetup,
   DisposeFunction,
-  Driver,
-  FantasyObservable,
+  Drivers,
+  Main,
   Sources,
   Sinks,
-  CycleProgram,
+  GetValidInputs,
+  WidenStream,
 } from '@cycle/run';
 
-export type Drivers<So extends Sources, Si extends Sinks> = {
-  [P in keyof (So & Si)]: Driver<FantasyObservable, any>;
-};
+export type ToObservable<S> = S extends Stream<infer T> ? Observable<T> : S;
+export type ToObservables<S> = {[k in keyof S]: ToObservable<S[k]>};
+
+export type MatchingMain<D extends Drivers, M extends Main> =
+  | Main & {
+      (so: ToObservables<Sources<D>>): Sinks<M>;
+    }
+  | Main & {
+      (): Sinks<M>;
+    };
+
+// We return S and not never, because isolation currently cannot type the return stream
+// resulting in the value being typed any.
+export type ToStream<S> = S extends Observable<infer T> ? Stream<T> : S;
+
+export type MatchingDrivers<D extends Drivers, M extends Main> = Drivers &
+  {
+    [k in string & keyof Sinks<M>]:
+      | (() => Sources<D>[k])
+      | ((
+          si: Stream<WidenStream<ToStream<Sinks<M>[k]>, GetValidInputs<D[k]>>>
+        ) => Sources<D>[k])
+  };
+
+export interface CycleProgram<
+  D extends MatchingDrivers<D, M>,
+  M extends MatchingMain<D, M>
+> {
+  sources: ToObservables<Sources<D>>;
+  sinks: Sinks<M>;
+  run(): DisposeFunction;
+}
+
+export interface Engine<D extends Drivers> {
+  sources: Sources<D>;
+  run<M extends MatchingMain<D, M>>(sinks: Sinks<M>): DisposeFunction;
+  dispose(): void;
+}
 
 setAdapt(function adaptXstreamToRx(stream: Stream<any>): Observable<any> {
-  return Observable.from(stream);
+  return from(stream as any);
 });
 
 /**
@@ -47,11 +84,12 @@ setAdapt(function adaptXstreamToRx(stream: Stream<any>): Observable<any> {
  * Cycle.js program, cleaning up resources used.
  * @function run
  */
-export function run<So extends Sources, Si extends Sinks>(
-                   main: (sources: So) => Si,
-                   drivers: Drivers<So, Si>): DisposeFunction {
-  const {run} = coreSetup(main, drivers);
-  return run();
+export function run<
+  D extends MatchingDrivers<D, M>,
+  M extends MatchingMain<D, M>
+>(main: M, drivers: D): DisposeFunction {
+  const program = coreSetup(main, drivers as any);
+  return program.run();
 }
 
 /**
@@ -82,10 +120,11 @@ export function run<So extends Sources, Si extends Sinks>(
  * is the function that once called will execute the application.
  * @function setup
  */
-export function setup<So extends Sources, Si extends Sinks>(
-                     main: (sources: So) => Si,
-                     drivers: Drivers<So, Si>): CycleProgram<So, Si> {
-  return coreSetup(main, drivers);
-};
+export function setup<
+  D extends MatchingDrivers<D, M>,
+  M extends MatchingMain<D, M>
+>(main: M, drivers: D): CycleProgram<D, M> {
+  return coreSetup(main, drivers as any) as any;
+}
 
 export default run;

@@ -1,4 +1,4 @@
-# Run() for most.js
+# Run() for most.js - [source](https://github.com/cyclejs/cyclejs/tree/master/most-run)
 
 Cycle.js `run(main, drivers)` function for applications written with most.js (Monadic Streams)
 

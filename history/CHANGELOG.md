@@ -1,3 +1,113 @@
+## 7.4.0 (2019-11-06)
+
+
+
+
+## 7.3.0 (2019-09-10)
+
+
+
+
+## 7.2.0 (2019-07-01)
+
+* feat(history): complete support for history.push API (#890) ([efff1ce](https://github.com/cyclejs/cyclejs/commit/efff1ce)), closes [#890](https://github.com/cyclejs/cyclejs/issues/890)
+
+
+
+## 7.1.0 (2018-12-10)
+
+* fix(history): support TypeScript's strict mode ([1c25cab](https://github.com/cyclejs/cyclejs/commit/1c25cab))
+
+
+
+## 7.0.0 (2018-10-17)
+
+* fix(history): support TypeScript 3.1 ([4be72b2](https://github.com/cyclejs/cyclejs/commit/4be72b2))
+* refactor(history): move history tests to browserstack, run skipped tests ([8a1d5f6](https://github.com/cyclejs/cyclejs/commit/8a1d5f6))
+
+
+### BREAKING CHANGE
+
+* If you use JavaScript, there are no breaking changes. If you use
+TypeScript, this package may not work anymore with versions of TS below
+3.1.
+
+
+<a name="6.10.0"></a>
+# 6.10.0 (2017-11-27)
+
+
+### Bug Fixes
+
+* **history:** add [@types](https://github.com/types)/history as dependency ([d4e572f](https://github.com/cyclejs/cyclejs/commit/d4e572f)), closes [#741](https://github.com/cyclejs/cyclejs/issues/741)
+
+
+
+<a name="6.9.0"></a>
+# 6.9.0 (2017-11-14)
+
+
+### Bug Fixes
+
+* **history:** fix captureClicks listener cleanup ([5b5ce9b](https://github.com/cyclejs/cyclejs/commit/5b5ce9b))
+
+
+
+<a name="6.8.0"></a>
+# 6.8.0 (2017-10-26)
+
+
+### Bug Fixes
+
+* **history:** reduce ambiguity in package.json dependencies ([923e649](https://github.com/cyclejs/cyclejs/commit/923e649))
+
+
+
+<a name="6.7.0"></a>
+# 6.7.0 (2017-10-24)
+
+
+
+<a name="6.6.0"></a>
+# 6.6.0 (2017-10-24)
+
+
+
+<a name="6.5.0"></a>
+# 6.5.0 (2017-10-19)
+
+
+### Bug Fixes
+
+* **history:** update history to v4.7.x ([9f22678](https://github.com/cyclejs/cyclejs/commit/9f22678))
+
+
+
+<a name="6.4.0"></a>
+# 6.4.0 (2017-08-12)
+
+
+
+<a name="6.3.0"></a>
+# 6.3.0 (2017-07-20)
+
+
+### Bug Fixes
+
+* **history:** update TypeScript to v2.4 ([2c2583e](https://github.com/cyclejs/cyclejs/commit/2c2583e))
+
+
+
+<a name="6.2.0"></a>
+# 6.2.0 (2017-05-16)
+
+
+### Features
+
+* **history:** update history dependency to v4.6 ([04d1e4c](https://github.com/cyclejs/cyclejs/commit/04d1e4c))
+
+
+
 <a name="6.1.0"></a>
 # 6.1.0 (2017-03-16)
 

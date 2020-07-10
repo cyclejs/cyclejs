@@ -1,4 +1,4 @@
-# Cycle HTTP
+# Cycle HTTP - [source](https://github.com/cyclejs/cyclejs/tree/master/http)
 
 A Driver for making HTTP requests, based on [superagent](https://github.com/visionmedia/superagent).
 

@@ -18,7 +18,7 @@
  * the HTTP Source when querying for the response. E.g.
  * `sources.http.select(category)`
  * - `query` *(Object)*: an object with the payload for `GET` or `POST`.
- * - `send` *(Object)*: an object with the payload for `POST`.
+ * - `send` *(Object|String)*: an object or string with the payload for `POST`.
  * - `headers` *(Object)*: object specifying HTTP headers.
  * - `accept` *(String)*: the Accept header.
  * - `type` *(String)*: a short-hand for setting Content-Type.
@@ -38,6 +38,9 @@
  * the request happens if and only if its corresponding response stream from the
  * HTTP Source is subscribed to. By default this value is false: requests run
  * eagerly, even if their response is ignored by the application.
+ * - `responseType` *(String)*: setting for XHR responseType.
+ * - `ok` *(Function): method to decide whether a response is an error or not.
+ *  The callback to the ok function gets a response and returns true if the response should be interpreted as success.
  *
  * **Responses**. A metastream is a stream that emits streams. The HTTP Source
  * manages response metastreams. These streams of responses have a `request`
@@ -62,5 +65,5 @@ export {
   RequestInput,
   Response,
   ResponseStream,
-  HTTPSource
+  HTTPSource,
 } from './interfaces';

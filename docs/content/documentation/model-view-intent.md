@@ -38,11 +38,15 @@ function main(sources) {
     div([
       div([
         'Weight ' + weight + 'kg',
-        input('.weight', {type: 'range', min: 40, max: 140, value: weight})
+        input('.weight', {
+          attrs: {type: 'range', min: 40, max: 140, value: weight}
+        })
       ]),
       div([
         'Height ' + height + 'cm',
-        input('.height', {type: 'range', min: 140, max: 210, value: height})
+        input('.height', {
+          attrs: {type: 'range', min: 140, max: 210, value: height}
+        })
       ]),
       h2('BMI is ' + bmi)
     ])
@@ -68,14 +72,18 @@ We have plenty of anonymous functions which could be refactored away from `main`
 +function renderWeightSlider(weight) {
 +  return div([
 +    'Weight ' + weight + 'kg',
-+    input('.weight', {type: 'range', min: 40, max: 140, value: weight})
++    input('.weight', {
++      attrs: {type: 'range', min: 40, max: 140, value: weight}
++    })
 +  ]);
 +}
 
 +function renderHeightSlider(height) {
 +  return div([
 +    'Height ' + height + 'cm',
-+    input('.height', {type: 'range', min: 140, max: 210, value: height})
++    input('.height', {
++      attrs: {type: 'range', min: 140, max: 210, value: height}
++    })
 +  ]);
 +}
 
@@ -108,11 +116,15 @@ We have plenty of anonymous functions which could be refactored away from `main`
      div([
 -      div([
 -        'Weight ' + weight + 'kg',
--        input('.weight', {type: 'range', min: 40, max: 140, value: weight})
+-        input('.weight', {
+-          attrs: {type: 'range', min: 40, max: 140, value: weight}
+-        })
 -      ]),
 -      div([
 -        'Height ' + height + 'cm',
--        input('.height', {type: 'range', min: 140, max: 210, value: height})
+-        input('.height', {
+-          attrs: {type: 'range', min: 140, max: 210, value: height}
+-        })
 -      ]),
 +      renderWeightSlider(weight),
 +      renderHeightSlider(height),
@@ -140,14 +152,18 @@ We have plenty of anonymous functions which could be refactored away from `main`
  function renderWeightSlider(weight) {
    return div([
      'Weight ' + weight + 'kg',
-     input('.weight', {type: 'range', min: 40, max: 140, value: weight})
+     input('.weight', {
+       attrs: {type: 'range', min: 40, max: 140, value: weight}
+     })
    ]);
  }
 
  function renderHeightSlider(height) {
    return div([
      'Height ' + height + 'cm',
-     input('.height', {type: 'range', min: 140, max: 210, value: height})
+     input('.height', {
+       attrs: {type: 'range', min: 140, max: 210, value: height}
+     })
    ]);
  }
 
@@ -252,7 +268,7 @@ Now, `main` is much smaller. But is it doing *one thing*? We still have `changeW
    const vdom$ = view(state$);
 
    return {
-     DOM: view(state$)
+     DOM: vdom$
    };
  }
 
@@ -413,14 +429,18 @@ For instance, the View rendering of the sliders share a significant amount of co
 function renderWeightSlider(weight) {
   return div([
     'Weight ' + weight + 'kg',
-    input('.weight', {type: 'range', min: 40, max: 140, value: weight})
+    input('.weight', {
+      attrs: {type: 'range', min: 40, max: 140, value: weight}
+    })
   ]);
 }
 
 function renderHeightSlider(height) {
   return div([
     'Height ' + height + 'cm',
-    input('.height', {type: 'range', min: 140, max: 210, value: height})
+    input('.height', {
+      attrs: {type: 'range', min: 140, max: 210, value: height}
+    })
   ]);
 }
 
@@ -442,7 +462,7 @@ We could create functions to remove this duplication, as such:
 function renderSlider(label, value, unit, className, min, max) {
   return div([
     '' + label + ' ' + value + unit,
-    input('.' + className, {type: 'range', min, max, value})
+    input('.' + className, {attrs: {type: 'range', min, max, value}})
   ]);
 }
 

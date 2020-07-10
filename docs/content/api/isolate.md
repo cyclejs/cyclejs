@@ -1,4 +1,4 @@
-# Isolate
+# Isolate - [source](https://github.com/cyclejs/cyclejs/tree/master/isolate)
 
 A utility function to make scoped dataflow components in Cycle.js.
 

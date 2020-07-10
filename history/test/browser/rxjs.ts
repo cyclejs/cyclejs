@@ -1,128 +1,167 @@
-/// <reference path="../../node_modules/@types/mocha/index.d.ts" />
-/// <reference path="../../node_modules/@types/node/index.d.ts" />
 import * as assert from 'assert';
+import {
+  HistoryInput,
+  PushHistoryInput,
+  ReplaceHistoryInput,
+  Location,
+  captureClicks,
+  makeHistoryDriver,
+} from '../../src';
+import {setup} from '@cycle/rxjs-run';
+import {setAdapt} from '@cycle/run/lib/adapt';
 
-import {HistoryInput, Location, captureClicks, makeHistoryDriver} from '../../src';
-import {run, setup} from '@cycle/rxjs-run';
-
-import {Observable} from 'rxjs';
-import 'rxjs/add/operator/switchMap';
+import {Observable, from, of, interval, never} from 'rxjs';
+import {map, take, skip} from 'rxjs/operators';
 
 let dispose = () => {};
 
-// This is skipped because somehow state is being carried around between tests.
-// Tests work when run separately, but when run all together, something fails.
-describe.skip('historyDriver - RxJS', () => {
-  beforeEach(function () {
+describe('historyDriver - RxJS', () => {
+  beforeEach(function() {
+    setAdapt(x => from(x as any));
+    if (window.history) {
+      window.history.replaceState(undefined, '', '/');
+    }
+  });
+
+  afterEach(function() {
     dispose();
   });
 
   it('should return a stream', () => {
-    function main(sources: {history: Observable<Location>}) {
-      assert.strictEqual(typeof sources.history.switchMap, 'function');
+    function main(_sources: {history: Observable<Location>}) {
+      assert.strictEqual(typeof _sources.history.pipe, 'function');
       return {
-        history: Observable.never(),
+        history: never() as Observable<string>,
       };
     }
 
-    const {sources, run} = setup(main, { history: makeHistoryDriver() });
-    assert.strictEqual(typeof sources.history.switchMap, 'function');
+    const {sources, run} = setup(main, {history: makeHistoryDriver()});
+    assert.strictEqual(typeof sources.history.pipe, 'function');
   });
 
-  it('should create a location from pathname', function (done) {
-    function main(sources: {history: Observable<Location>}) {
+  it('should create a location from pathname', function(done) {
+    function main(_sources: {history: Observable<Location>}) {
       return {
-        history: Observable.of('/test'),
+        history: of('/test'),
       };
     }
 
-    const {sources, run} = setup(main, { history: makeHistoryDriver() });
+    const {sources, run} = setup(main, {history: makeHistoryDriver()});
 
-    sources.history.skip(1).subscribe({
-      next (location: Location) {
+    sources.history.pipe(skip(1)).subscribe({
+      next(location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
       },
       error: done,
-      complete: () => { done('complete should not be called'); },
+      complete: () => {
+        done('complete should not be called');
+      },
     });
     dispose = run();
   });
 
-  it('should create a location from PushHistoryInput', function (done) {
-    function main(sources: {history: Observable<Location>}) {
+  it('should create a location from PushHistoryInput', function(done) {
+    function main(_sources: {history: Observable<Location>}) {
       return {
-        history: Observable.of({type: 'push', pathname: '/test'}),
+        history: of<PushHistoryInput>({type: 'push', pathname: '/test'}),
       };
     }
 
-    const {sources, run} = setup(main, { history: makeHistoryDriver() });
+    const {sources, run} = setup(main, {history: makeHistoryDriver()});
 
-    sources.history.skip(1).subscribe({
-      next (location: Location) {
+    sources.history.pipe(skip(1)).subscribe({
+      next(location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
       },
       error: done,
-      complete: () => { done('complete should not be called'); },
+      complete: () => {
+        done('complete should not be called');
+      },
     });
     dispose = run();
   });
 
-  it('should create a location from ReplaceHistoryInput', function (done) {
-    function main(sources: {history: Observable<Location>}) {
+  it('should allow changing search with PushHistoryInput', function(done) {
+    function main(_sources: {history: Observable<Location>}) {
       return {
-        history: Observable.of({type: 'replace', pathname: '/test'}),
+        history: of<PushHistoryInput>({type: 'push', search: '?a=b'}),
       };
     }
 
-    const {sources, run} = setup(main, { history: makeHistoryDriver() });
+    const {sources, run} = setup(main, {history: makeHistoryDriver()});
 
-    sources.history.skip(1).subscribe({
-      next (location: Location) {
+    sources.history.pipe(skip(1)).subscribe({
+      next(location: Location) {
+        assert.strictEqual(location.search, '?a=b');
+        done();
+      },
+      error: done,
+      complete: () => {
+        done('complete should not be called');
+      },
+    });
+    dispose = run();
+  });
+
+  it('should create a location from ReplaceHistoryInput', function(done) {
+    function main(_sources: {history: Observable<Location>}) {
+      return {
+        history: of<ReplaceHistoryInput>({type: 'replace', pathname: '/test'}),
+      };
+    }
+
+    const {sources, run} = setup(main, {history: makeHistoryDriver()});
+
+    sources.history.pipe(skip(1)).subscribe({
+      next(location: Location) {
         assert.strictEqual(location.pathname, '/test');
         done();
       },
       error: done,
-      complete: () => { done('complete should not be called'); },
+      complete: () => {
+        done('complete should not be called');
+      },
     });
     dispose = run();
   });
 
-  it('should allow going back/forwards with `go`, `goBack`, `goForward`', function (done) {
-    function main(sources: {history: Observable<Location>}) {
+  it('should allow going back/forwards with `go`, `goBack`, `goForward`', function(done) {
+    function main(_sources: {history: Observable<Location>}) {
       return {
-        history: Observable.interval(100).take(6).map(i => [
-          '/test',
-          '/other',
-          {type: 'go', amount: -1},
-          {type: 'go', amount: +1},
-          {type: 'goBack'},
-          {type: 'goForward'},
-        ][i]),
+        history: interval(100).pipe(
+          take(6),
+          map(
+            i =>
+              [
+                '/test',
+                '/other',
+                {type: 'go', amount: -1},
+                {type: 'go', amount: +1},
+                {type: 'goBack'},
+                {type: 'goForward'},
+              ][i]
+          )
+        ),
       };
     }
 
-    const {sources, run} = setup(main, { history: makeHistoryDriver() });
+    const {sources, run} = setup(main, {history: makeHistoryDriver()});
 
-    const expected = [
-      '/test',
-      '/other',
-      '/test',
-      '/other',
-      '/test',
-      '/other',
-    ];
+    const expected = ['/test', '/other', '/test', '/other', '/test', '/other'];
 
-    sources.history.skip(1).subscribe({
-      next (location: Location) {
+    sources.history.pipe(skip(1)).subscribe({
+      next(location: Location) {
         assert.strictEqual(location.pathname, expected.shift());
         if (expected.length === 0) {
           done();
         }
       },
       error: done,
-      complete: () => { done('complete should not be called'); },
+      complete: () => {
+        done('complete should not be called');
+      },
     });
     dispose = run();
   });

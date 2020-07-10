@@ -2,6 +2,7 @@
 .idea
 *.sublime-project
 *.sublime-workspace
+*.swp
 .settings
 .vscode
 
@@ -9,6 +10,6 @@
 node_modules
 
 # Misc
-npm-debug.log
+*.log
 .DS_Store
 ignore/

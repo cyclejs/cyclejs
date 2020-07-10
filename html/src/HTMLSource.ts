@@ -1,9 +1,9 @@
 import xs, {Stream, MemoryStream} from 'xstream';
 import {adapt} from '@cycle/run/lib/adapt';
 import {DevToolEnabledSource} from '@cycle/run';
-import {DOMSource, EventsFnOptions} from '@cycle/dom';
+import {EventsFnOptions} from '@cycle/dom';
 
-export class HTMLSource implements DOMSource {
+export class HTMLSource {
   private _html$: Stream<string>;
   private _empty$: Stream<any>;
 
@@ -18,7 +18,11 @@ export class HTMLSource implements DOMSource {
     return out;
   }
 
-  public select(selector: string): DOMSource {
+  public element(): MemoryStream<string> {
+    return this.elements();
+  }
+
+  public select(selector: string): HTMLSource {
     return new HTMLSource(xs.empty(), this._name);
   }
 

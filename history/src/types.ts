@@ -2,27 +2,22 @@ import {Stream, MemoryStream} from 'xstream';
 import {Driver} from '@cycle/run';
 import {Location} from 'history';
 export type Pathname = string;
+export type Search = string;
+export type Hash = string;
+export type LocationKey = string;
 
-export type HistoryDriver =
-  Driver<Stream<HistoryInput | GenericInput | string>, MemoryStream<Location>>;
-
-/**
- * A "catch all" case that is necessary because sometimes the sink from the app
- * is inferred by TypeScript to be {type: string, pathname: string} and this
- * wouldn't match any of the other HistoryInput types below, because the
- * property `type` was `string` and not e.g. `'push'`. Seems like a limitation
- * in TypeScript for the time being.
- */
-export type GenericInput = {
-  type: string;
-  pathname?: Pathname;
-  state?: any;
-};
+export type HistoryDriver = Driver<
+  Stream<HistoryInput>,
+  MemoryStream<Location>
+>;
 
 export type PushHistoryInput = {
   type: 'push';
-  pathname: Pathname;
+  pathname?: Pathname;
+  search?: Search;
   state?: any;
+  hash?: Hash;
+  key?: LocationKey;
 };
 
 export type ReplaceHistoryInput = {
@@ -45,8 +40,9 @@ export type GoForwardHistoryInput = {
 };
 
 export type HistoryInput =
-  PushHistoryInput
+  | PushHistoryInput
   | ReplaceHistoryInput
   | GoHistoryInput
   | GoBackHistoryInput
-  | GoForwardHistoryInput;
+  | GoForwardHistoryInput
+  | string;

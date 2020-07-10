@@ -1,5 +1,6 @@
 <!doctype html>
 <html>
+
 <head>
   <meta charset='utf-8'>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -53,7 +54,7 @@ Let's study what drivers do by analyzing the most common one: the DOM Driver.
 
 The DOM Driver is the most important and most common driver in Cycle.js. When building interactive web apps, it is probably the most important tool in Cycle.js. In fact, while Cycle *Run* function is only about 200 lines of code, Cycle *DOM* is at least 4 times larger.
 
-It's main purpose is to be a proxy to the user using the browser. Conceptually we would like to work assuming the existence of a `human()` function, as this diagram reminds us:
+Its main purpose is to be a proxy to the user using the browser. Conceptually we would like to work assuming the existence of a `human()` function, as this diagram reminds us:
 
 ![Human computer diagram](img/human-computer-diagram.svg)
 
@@ -125,7 +126,7 @@ Most drivers, like the DOM Driver, take *sinks* (to describe a *write*) and retu
 
 For instance, the one-liner `log` driver we just saw above is a write-only driver. Notice how it is a function that does not return any stream, it simply consumes the sink `msg$` it receives.
 
-Other drivers only create source streams that emit events to the `main()`, but don't take in any `sink` from `main()`. An example of such would be a read-only Web Socket driver, drafted below:
+Other drivers only create source streams that emit events to the `main()`, but don't take in any `sink` from `main()`. An example of such would be a read-only WebSocket driver, drafted below:
 
 ```javascript
 function WSDriver(/* no sinks */) {
@@ -228,7 +229,7 @@ sock.send('Hello world');
 
 **How do we build a driver for `Sock`?** We start by identifying the effects. The *write* effect is `sock.send(msg)` and the *read* effect is the listener for received messages. Our `sockDriver(sink)` should take `sink` as instructions to perform the `send(msg)` calls. The output from `sockDriver()` should be `source`, containing all received messages.
 
-Since both input and output should be streams, it's easy to see `sink` in `sockDriver(sink)` should be an stream of outgoing messages to the peer. And conversely, the source should be an stream of incoming messages. This is a draft of our driver function:
+Since both input and output should be streams, it's easy to see `sink` in `sockDriver(sink)` should be an stream of outgoing messages to the peer. And conversely, the source should be a stream of incoming messages. This is a draft of our driver function:
 
 ```javascript
 import {adapt} from '@cycle/run/lib/adapt';
@@ -266,7 +267,7 @@ function makeSockDriver(peerId) {
   function sockDriver(outgoing$) {
     outgoing$.addListener({
       next: outgoing => {
-        sock.send(outgoing));
+        sock.send(outgoing);
       },
       error: () => {},
       complete: () => {},
@@ -320,7 +321,7 @@ As a framework, it cannot be compared to monoliths which have ruled web developm
   <!-- Initializer -->
   <script>
     Flatdoc.run({
-      fetcher: function(callback) {
+      fetcher: function (callback) {
         callback(null, document.getElementById('markdown').innerHTML);
       },
       highlight: function (code, value) {
@@ -330,16 +331,17 @@ As a framework, it cannot be compared to monoliths which have ruled web developm
   </script>
 
 </head>
+
 <body role='flatdoc' class="no-literate">
 
-
+  
 
   <div class='header'>
     <div class='left'>
-      <h1><a href="/"><img class="logo" src="img/cyclejs_logo.svg" >Cycle.js</a></h1>
+      <h1><a href="/"><img class="logo" src="img/cyclejs_logo.svg">Cycle.js</a></h1>
       <ul>
-        <li><a href='getting-started.html'>Documentation</a></li>
-        <li><a href='api/index.html'>API reference</a></li>
+        <li><a href='getting-started.html'>Guide</a></li>
+        <li><a href='api/index.html'>API</a></li>
         <li><a href='releases.html'>Releases</a></li>
         <li><a href='https://github.com/cyclejs/cyclejs'>GitHub</a></li>
       </ul>
@@ -347,47 +349,40 @@ As a framework, it cannot be compared to monoliths which have ruled web developm
     </div>
     <div class='right'>
       <!-- GitHub buttons: see https://ghbtns.com -->
-      <iframe src="https://ghbtns.com/github-btn.html?user=cyclejs&amp;repo=cyclejs&amp;type=watch&amp;count=true" allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
+      <iframe src="https://ghbtns.com/github-btn.html?user=cyclejs&amp;repo=cyclejs&amp;type=watch&amp;count=true"
+        allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
     </div>
   </div>
 
   <div class='content-root'>
     <div class='menubar'>
       <div class='menu section'>
-
+        
         <ul>
-  
-            <li><a href="getting-started.html" class="level-1 out-link">Getting started</a></li>
-  
-            <li><a href="dialogue.html" class="level-1 out-link">Dialogue abstraction</a></li>
-  
-            <li><a href="streams.html" class="level-1 out-link">Streams</a></li>
-  
-            <li><a href="basic-examples.html" class="level-1 out-link">Basic examples</a></li>
-  
-            <li><a href="model-view-intent.html" class="level-1 out-link">Model-View-Intent</a></li>
-  
-            <li><a href="components.html" class="level-1 out-link">Components</a></li>
-  
+          
+          <li><a href="getting-started.html" class="level-1 out-link">Getting started</a></li>
+          
+          <li><a href="dialogue.html" class="level-1 out-link">Dialogue abstraction</a></li>
+          
+          <li><a href="streams.html" class="level-1 out-link">Streams</a></li>
+          
+          <li><a href="basic-examples.html" class="level-1 out-link">Basic examples</a></li>
+          
+          <li><a href="model-view-intent.html" class="level-1 out-link">Model-View-Intent</a></li>
+          
+          <li><a href="components.html" class="level-1 out-link">Components</a></li>
+          
         </ul>
-
+        
         <div role='flatdoc-menu'></div>
-
+        
       </div>
     </div>
     <div role='flatdoc-content' class='content'></div>
-
+    
   </div>
+  
 
-
-  <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-    ga('create', 'UA-43862400-3', 'auto');
-    ga('send', 'pageview');
-  </script>
   <script>
     ((window.gitter = {}).chat = {}).options = {
       room: 'cyclejs/cyclejs'
@@ -397,4 +392,5 @@ As a framework, it cannot be compared to monoliths which have ruled web developm
   <script src='//cdn.jsdelivr.net/docsearch.js/2/docsearch.min.js'></script>
   <script src='docsearch.js'></script>
 </body>
+
 </html>

@@ -2,32 +2,48 @@
 # yarn lockfile v1
 
 
-"@cycle/base@^4.1.1":
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/@cycle/base/-/base-4.3.0.tgz#464d320e5dbe80b3e3821195200607cdcf47198b"
-
-"@cycle/dom@12.2.5":
-  version "12.2.5"
-  resolved "https://registry.yarnpkg.com/@cycle/dom/-/dom-12.2.5.tgz#b019215b54616f191d227329537633200ea23d05"
+"@cycle/dom@17.3":
+  version "17.3.0"
+  resolved "https://registry.yarnpkg.com/@cycle/dom/-/dom-17.3.0.tgz#99c80b748cad98a53946f7180ba5c3d9450d23f2"
   dependencies:
-    "@cycle/xstream-adapter" "3.x.x"
+    "@cycle/run" "*"
     es6-map "^0.1.4"
-    matches-selector "1.0.0"
-    snabbdom "0.5.0"
-    snabbdom-selector "^0.4.0"
-    snabbdom-to-html "^2.0.1"
+    snabbdom "0.6.8"
+    snabbdom-selector "1.2.0"
 
-"@cycle/isolate@1.4.x":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@cycle/isolate/-/isolate-1.4.0.tgz#7cd7908a280e0695467b41c1171b1e37522233df"
+"@cycle/isolate@2.1":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@cycle/isolate/-/isolate-2.1.0.tgz#8db1c6a068dc1d3fc709d5adbe838083577ad0e0"
 
-"@cycle/xstream-adapter@3.0.x", "@cycle/xstream-adapter@3.x.x":
-  version "3.0.4"
-  resolved "https://registry.yarnpkg.com/@cycle/xstream-adapter/-/xstream-adapter-3.0.4.tgz#54c440b02ef3c8433cdb2d31082c8e5d0dd4d93a"
+"@cycle/run@*", "@cycle/run@3.1":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@cycle/run/-/run-3.1.0.tgz#76df582a501d2d1b871f8f6decf263afae090384"
+  dependencies:
+    xstream "10.x"
 
-"@types/webrtc@0.0.20":
-  version "0.0.20"
-  resolved "https://registry.yarnpkg.com/@types/webrtc/-/webrtc-0.0.20.tgz#9a0e73b76ba866c164b7ba13451d2f3fdcdfb6ba"
+"@types/chrome@^0.0.46":
+  version "0.0.46"
+  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.46.tgz#f597623b2244c7484bbf59aceb9c8d16a39d4cd7"
+  dependencies:
+    "@types/filesystem" "*"
+
+"@types/dagre@^0.7.34":
+  version "0.7.34"
+  resolved "https://registry.yarnpkg.com/@types/dagre/-/dagre-0.7.34.tgz#69becfabbd59d277cae8237bdc7fb887571bc500"
+
+"@types/filesystem@*", "@types/filesystem@^0.0.28":
+  version "0.0.28"
+  resolved "https://registry.yarnpkg.com/@types/filesystem/-/filesystem-0.0.28.tgz#3fd7735830f2c7413cb5ac45780bc45904697b0e"
+  dependencies:
+    "@types/filewriter" "*"
+
+"@types/filewriter@*", "@types/filewriter@^0.0.28":
+  version "0.0.28"
+  resolved "https://registry.yarnpkg.com/@types/filewriter/-/filewriter-0.0.28.tgz#c054e8af4d9dd75db4e63abc76f885168714d4b3"
+
+"@types/webrtc@0.0.21":
+  version "0.0.21"
+  resolved "https://registry.yarnpkg.com/@types/webrtc/-/webrtc-0.0.21.tgz#bc3cfb7e22add284761e5d63efad664b0eba8b86"
 
 JSONStream@^1.0.3:
   version "1.3.1"
@@ -110,10 +126,6 @@ browser-resolve@^1.11.0, browser-resolve@^1.7.0:
   resolved "https://registry.yarnpkg.com/browser-resolve/-/browser-resolve-1.11.2.tgz#8ff09b0a2c421718a1051c260b32e48f442938ce"
   dependencies:
     resolve "1.1.7"
-
-browser-split@0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/browser-split/-/browser-split-0.0.1.tgz#7b097574f8e3ead606fb4664e64adfdda2981a93"
 
 browserify-aes@^1.0.0, browserify-aes@^1.0.4:
   version "1.0.6"
@@ -328,7 +340,7 @@ crypto-browserify@^3.0.0:
     public-encrypt "^4.0.0"
     randombytes "^2.0.0"
 
-cssauron@^1.2.0:
+cssauron@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/cssauron/-/cssauron-1.4.0.tgz#a6602dff7e04a8306dc0db9a551e92e8b5662ad8"
   dependencies:
@@ -602,123 +614,13 @@ lexical-scope@^1.2.0:
   dependencies:
     astw "^2.0.0"
 
-lodash._baseflatten@^3.0.0:
-  version "3.1.4"
-  resolved "https://registry.yarnpkg.com/lodash._baseflatten/-/lodash._baseflatten-3.1.4.tgz#0770ff80131af6e34f3b511796a7ba5214e65ff7"
-  dependencies:
-    lodash.isarguments "^3.0.0"
-    lodash.isarray "^3.0.0"
-
-lodash._basefor@^3.0.0:
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/lodash._basefor/-/lodash._basefor-3.0.3.tgz#7550b4e9218ef09fad24343b612021c79b4c20c2"
-
-lodash._baseindexof@^3.0.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/lodash._baseindexof/-/lodash._baseindexof-3.1.0.tgz#fe52b53a1c6761e42618d654e4a25789ed61822c"
-
-lodash._baseuniq@^3.0.0:
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/lodash._baseuniq/-/lodash._baseuniq-3.0.3.tgz#2123fa0db2d69c28d5beb1c1f36d61522a740234"
-  dependencies:
-    lodash._baseindexof "^3.0.0"
-    lodash._cacheindexof "^3.0.0"
-    lodash._createcache "^3.0.0"
-
-lodash._bindcallback@^3.0.0:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/lodash._bindcallback/-/lodash._bindcallback-3.0.1.tgz#e531c27644cf8b57a99e17ed95b35c748789392e"
-
-lodash._cacheindexof@^3.0.0:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/lodash._cacheindexof/-/lodash._cacheindexof-3.0.2.tgz#3dc69ac82498d2ee5e3ce56091bafd2adc7bde92"
-
-lodash._createcache@^3.0.0:
-  version "3.1.2"
-  resolved "https://registry.yarnpkg.com/lodash._createcache/-/lodash._createcache-3.1.2.tgz#56d6a064017625e79ebca6b8018e17440bdcf093"
-  dependencies:
-    lodash._getnative "^3.0.0"
-
-lodash._getnative@^3.0.0:
-  version "3.9.1"
-  resolved "https://registry.yarnpkg.com/lodash._getnative/-/lodash._getnative-3.9.1.tgz#570bc7dede46d61cdcde687d65d3eecbaa3aaff5"
-
-lodash._root@^3.0.0:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/lodash._root/-/lodash._root-3.0.1.tgz#fba1c4524c19ee9a5f8136b4609f017cf4ded692"
-
-lodash.deburr@^3.0.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/lodash.deburr/-/lodash.deburr-3.2.0.tgz#6da8f54334a366a7cf4c4c76ef8d80aa1b365ed5"
-  dependencies:
-    lodash._root "^3.0.0"
-
-lodash.escape@^3.0.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/lodash.escape/-/lodash.escape-3.2.0.tgz#995ee0dc18c1b48cc92effae71a10aab5b487698"
-  dependencies:
-    lodash._root "^3.0.0"
-
-lodash.forown@^3.0.2:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/lodash.forown/-/lodash.forown-3.0.2.tgz#90e29cdf7893048dd0529a333e304896b0bac28e"
-  dependencies:
-    lodash._basefor "^3.0.0"
-    lodash._bindcallback "^3.0.0"
-    lodash.keys "^3.0.0"
-
-lodash.isarguments@^3.0.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/lodash.isarguments/-/lodash.isarguments-3.1.0.tgz#2f573d85c6a24289ff00663b491c1d338ff3458a"
-
-lodash.isarray@^3.0.0:
-  version "3.0.4"
-  resolved "https://registry.yarnpkg.com/lodash.isarray/-/lodash.isarray-3.0.4.tgz#79e4eb88c36a8122af86f844aa9bcd851b5fbb55"
-
-lodash.kebabcase@^3.0.1:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/lodash.kebabcase/-/lodash.kebabcase-3.1.1.tgz#28c3e675c6a5b5d3526419d3ab605dcbbff17c8b"
-  dependencies:
-    lodash.deburr "^3.0.0"
-    lodash.words "^3.0.0"
-
-lodash.keys@^3.0.0:
-  version "3.1.2"
-  resolved "https://registry.yarnpkg.com/lodash.keys/-/lodash.keys-3.1.2.tgz#4dbc0472b156be50a0b286855d1bd0b0c656098a"
-  dependencies:
-    lodash._getnative "^3.0.0"
-    lodash.isarguments "^3.0.0"
-    lodash.isarray "^3.0.0"
-
 lodash.memoize@~3.0.3:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/lodash.memoize/-/lodash.memoize-3.0.4.tgz#2dcbd2c287cbc0a55cc42328bd0c736150d53e3f"
 
-lodash.restparam@^3.0.0:
-  version "3.6.1"
-  resolved "https://registry.yarnpkg.com/lodash.restparam/-/lodash.restparam-3.6.1.tgz#936a4e309ef330a7645ed4145986c85ae5b20805"
-
-lodash.union@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/lodash.union/-/lodash.union-3.1.0.tgz#a4a3066fc15d6a7f8151cce9bdfe63dce7f5bcff"
-  dependencies:
-    lodash._baseflatten "^3.0.0"
-    lodash._baseuniq "^3.0.0"
-    lodash.restparam "^3.0.0"
-
-lodash.words@^3.0.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/lodash.words/-/lodash.words-3.2.0.tgz#4e2a8649bc08745b17c695b1a3ce8fee596623b3"
-  dependencies:
-    lodash._root "^3.0.0"
-
 lodash@^3.10.0:
   version "3.10.1"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-3.10.1.tgz#5bf45e8e49ba4189e17d482789dfd15bd140b7b6"
-
-matches-selector@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/matches-selector/-/matches-selector-1.0.0.tgz#434833447026a25ea4999edab18e4b8892b25721"
 
 miller-rabin@^4.0.0:
   version "4.0.0"
@@ -920,26 +822,15 @@ shell-quote@^1.4.3:
     array-reduce "~0.0.0"
     jsonify "~0.0.0"
 
-snabbdom-selector@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/snabbdom-selector/-/snabbdom-selector-0.4.0.tgz#b83676aed64330c2acb1caa40adad5337f515ba5"
+snabbdom-selector@1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/snabbdom-selector/-/snabbdom-selector-1.2.0.tgz#4260a269d9d46f50b9c1f39da628c2af6828dd53"
   dependencies:
-    browser-split "0.0.1"
-    cssauron "^1.2.0"
+    cssauron "^1.4.0"
 
-snabbdom-to-html@^2.0.1:
-  version "2.1.3"
-  resolved "https://registry.yarnpkg.com/snabbdom-to-html/-/snabbdom-to-html-2.1.3.tgz#166acd89db18e9c62dfed4a1d4cbd0c378a1b691"
-  dependencies:
-    browser-split "0.0.1"
-    lodash.escape "^3.0.0"
-    lodash.forown "^3.0.2"
-    lodash.kebabcase "^3.0.1"
-    lodash.union "^3.1.0"
-
-snabbdom@0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-0.5.0.tgz#be46231942602154b74cd94985dd9deda5b41761"
+snabbdom@0.6.8:
+  version "0.6.8"
+  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-0.6.8.tgz#6ca7f90c203e0450e2525a1c11b0ad7410413c4b"
 
 source-map@~0.5.3:
   version "0.5.6"
@@ -985,6 +876,10 @@ subarg@^1.0.0:
   resolved "https://registry.yarnpkg.com/subarg/-/subarg-1.0.0.tgz#f62cf17581e996b48fc965699f54c06ae268b8d2"
   dependencies:
     minimist "^1.1.0"
+
+symbol-observable@^1.0.2:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-1.0.4.tgz#29bf615d4aa7121bdd898b22d4b3f9bc4e2aa03d"
 
 syntax-error@^1.1.1:
   version "1.3.0"
@@ -1052,9 +947,11 @@ wrappy@1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
 
-xstream@6.1.x:
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/xstream/-/xstream-6.1.0.tgz#5da636589200c37e99a55252f9d102045c130cdf"
+xstream@10.8, xstream@10.x:
+  version "10.8.0"
+  resolved "https://registry.yarnpkg.com/xstream/-/xstream-10.8.0.tgz#f3c70b12a71ef34dcc6af44ea7e1b0c40d320f4f"
+  dependencies:
+    symbol-observable "^1.0.2"
 
 xtend@^4.0.0, xtend@~4.0.1:
   version "4.0.1"

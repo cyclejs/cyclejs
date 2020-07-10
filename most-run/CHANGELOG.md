@@ -1,3 +1,67 @@
+## 8.4.0 (2019-11-06)
+
+
+
+
+## 8.3.0 (2019-09-10)
+
+
+
+
+## 8.2.0 (2018-12-10)
+
+* fix(most-run): support TypeScript's strict mode ([98b256b](https://github.com/cyclejs/cyclejs/commit/98b256b))
+
+
+
+## 8.1.0 (2018-10-17)
+
+* fix(most-run): support TypeScript 3.1 ([b60fa96](https://github.com/cyclejs/cyclejs/commit/b60fa96))
+* refactor(most-run): move most-run tooling to pnpm ([80578f0](https://github.com/cyclejs/cyclejs/commit/80578f0))
+
+
+### BREAKING CHANGE
+
+* If you use JavaScript, there are no breaking changes. If you use
+TypeScript, this package may not work anymore with versions of TS below
+3.1.
+
+
+<a name="8.0.0"></a>
+# 8.0.0 (2017-11-10)
+
+
+### Bug Fixes
+
+* **most-run:** depend on run v4 ([52a1a62](https://github.com/cyclejs/cyclejs/commit/52a1a62))
+
+
+### BREAKING CHANGES
+
+* **most-run:** cycle/run v4 is a breaking change, so also the new version for most-run must be a breaking change
+
+
+
+<a name="7.4.0"></a>
+# 7.4.0 (2017-10-26)
+
+
+### Bug Fixes
+
+* **most-run:** reduce ambiguity in package.json dependencies ([e6077fe](https://github.com/cyclejs/cyclejs/commit/e6077fe))
+
+
+
+<a name="7.3.0"></a>
+# 7.3.0 (2017-10-24)
+
+
+
+<a name="7.2.0"></a>
+# 7.2.0 (2017-08-12)
+
+
+
 <a name="7.1.0"></a>
 # 7.1.0 (2017-03-06)
 

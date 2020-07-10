@@ -1,5 +1,6 @@
 <!doctype html>
 <html>
+
 <head>
   <meta charset='utf-8'>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -144,22 +145,23 @@ Got 1 hour and 37 minutes? That is all it takes to learn the essentials of Cycle
 ## Supports...
 
 - [**Virtual DOM rendering**](https://github.com/cyclejs/cyclejs/tree/master/dom)
-- [**Server-side rendering**](https://github.com/cyclejs/cyclejs/tree/master/examples/isomorphic)
+- [**Server-side rendering**](https://github.com/cyclejs/cyclejs/tree/master/examples/advanced/isomorphic)
 - [**JSX**](http://cycle.js.org/getting-started.html)
-- [**TypeScript**](https://github.com/cyclejs/cyclejs/tree/master/examples/bmi-typescript)
+- [**TypeScript**](https://github.com/cyclejs/cyclejs/tree/master/examples/intermediate/bmi-typescript)
 - [**React Native**](https://github.com/cyclejs/cycle-react-native)
 - [**Time traveling**](https://github.com/cyclejs/cycle-time-travel)
-- [**Routing with the History API**](https://github.com/cyclejs/history)
+- [**Routing with the History API**](https://github.com/cyclejs/cyclejs/tree/master/history)
 - [**And more...**](https://github.com/cyclejs-community/awesome-cyclejs)
 
 
 [Read the docs >](getting-started.html)
+
   </script>
 
   <!-- Initializer -->
   <script>
     Flatdoc.run({
-      fetcher: function(callback) {
+      fetcher: function (callback) {
         callback(null, document.getElementById('markdown').innerHTML);
       },
       highlight: function (code, value) {
@@ -169,9 +171,10 @@ Got 1 hour and 37 minutes? That is all it takes to learn the essentials of Cycle
   </script>
 
 </head>
+
 <body role='flatdoc' class="no-literate">
 
-
+  
   <div class="hero">
     <div class="hero-body">
       <div class="hero-title">
@@ -181,17 +184,16 @@ Got 1 hour and 37 minutes? That is all it takes to learn the essentials of Cycle
       <h2>A functional and reactive JavaScript framework for predictable code</h2>
       <h3><a href="getting-started.html">Read the docs</a></h3>
       <h4><a href="http://widdersh.in/tricycle/">Or try it live!</a></h4>
-      <h5 class="hero-sponsor">Sponsored by <a class="hero-sponsor-logo" href="http://www.verizon.com"><img src="img/verizon.png" alt="Verizon"></a> and <a href="https://opencollective.com/cyclejs#contributors">others</a></h5>
     </div>
   </div>
-
+  
 
   <div class='header'>
     <div class='left'>
-      <h1><a href="/"><img class="logo" src="img/cyclejs_logo.svg" >Cycle.js</a></h1>
+      <h1><a href="/"><img class="logo" src="img/cyclejs_logo.svg">Cycle.js</a></h1>
       <ul>
-        <li><a href='getting-started.html'>Documentation</a></li>
-        <li><a href='api/index.html'>API reference</a></li>
+        <li><a href='getting-started.html'>Guide</a></li>
+        <li><a href='api/index.html'>API</a></li>
         <li><a href='releases.html'>Releases</a></li>
         <li><a href='https://github.com/cyclejs/cyclejs'>GitHub</a></li>
       </ul>
@@ -199,37 +201,30 @@ Got 1 hour and 37 minutes? That is all it takes to learn the essentials of Cycle
     </div>
     <div class='right'>
       <!-- GitHub buttons: see https://ghbtns.com -->
-      <iframe src="https://ghbtns.com/github-btn.html?user=cyclejs&amp;repo=cyclejs&amp;type=watch&amp;count=true" allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
+      <iframe src="https://ghbtns.com/github-btn.html?user=cyclejs&amp;repo=cyclejs&amp;type=watch&amp;count=true"
+        allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
     </div>
   </div>
 
   <div class='content-root'>
     <div class='menubar'>
       <div class='menu section'>
-
+        
         <div role='flatdoc-menu'></div>
-
+        
       </div>
     </div>
     <div role='flatdoc-content' class='content'></div>
-
+    
     <div class='content'>
       <script src="https://opencollective.com/cyclejs/banner.js"></script>
     </div>
-
+    
   </div>
-
+  
   <script src="js/example-hello-world.min.js" async defer></script>
+  
 
-
-  <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-    ga('create', 'UA-43862400-3', 'auto');
-    ga('send', 'pageview');
-  </script>
   <script>
     ((window.gitter = {}).chat = {}).options = {
       room: 'cyclejs/cyclejs'
@@ -239,4 +234,5 @@ Got 1 hour and 37 minutes? That is all it takes to learn the essentials of Cycle
   <script src='//cdn.jsdelivr.net/docsearch.js/2/docsearch.min.js'></script>
   <script src='docsearch.js'></script>
 </body>
+
 </html>

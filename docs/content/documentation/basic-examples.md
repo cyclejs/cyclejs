@@ -484,11 +484,11 @@ function main(sources) {
     div([
       div([
         'Weight ' + weight + 'kg',
-        input('.weight', {type: 'range', min: 40, max: 140, value: weight})
+        input('.weight', {attrs: {type: 'range', min: 40, max: 140, value: weight}})
       ]),
       div([
         'Height ' + height + 'cm',
-        input('.height', {type: 'range', min: 140, max: 210, value: height})
+        input('.height', {attrs: {type: 'range', min: 140, max: 210, value: height}})
       ]),
       h2('BMI is ' + bmi)
     ])

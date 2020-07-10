@@ -1,3 +1,361 @@
+## 22.7.0 (2020-04-23)
+
+* fix(dom): fix nonBubbling events only emit to one stream ([8a963ed](https://github.com/cyclejs/cyclejs/commit/8a963ed)), closes [#941](https://github.com/cyclejs/cyclejs/issues/941) [#940](https://github.com/cyclejs/cyclejs/issues/940)
+
+
+
+## 22.6.0 (2020-03-23)
+
+* fix(dom): fix nonBubbling events bug for resubscribing streams (#906) ([2f4ebc9](https://github.com/cyclejs/cyclejs/commit/2f4ebc9)), closes [#906](https://github.com/cyclejs/cyclejs/issues/906) [#893](https://github.com/cyclejs/cyclejs/issues/893)
+* fix(dom): fix type inference for modules array ([27c29e3](https://github.com/cyclejs/cyclejs/commit/27c29e3))
+* feat(dom): accept partial modules in DOMDriverOptions (#928) ([3b25d53](https://github.com/cyclejs/cyclejs/commit/3b25d53)), closes [#928](https://github.com/cyclejs/cyclejs/issues/928) [#927](https://github.com/cyclejs/cyclejs/issues/927)
+* feat(dom): add reportSnabbdomError option to DOMDriverOptions ([21a8f1e](https://github.com/cyclejs/cyclejs/commit/21a8f1e)), closes [#922](https://github.com/cyclejs/cyclejs/issues/922)
+* docs(dom): note about reportSnabbdomError in DOMDriverOptions ([5b70cd8](https://github.com/cyclejs/cyclejs/commit/5b70cd8))
+
+
+
+## 22.5.0 (2019-11-06)
+
+
+
+
+## 22.4.0 (2019-09-10)
+
+* fix(dom): update snabbdom-selector and tidy up pnpm configs ([1607a94](https://github.com/cyclejs/cyclejs/commit/1607a94)), closes [#901](https://github.com/cyclejs/cyclejs/issues/901)
+* chore(dom): tweak test so that TypeScript compiles ([fb3ac3a](https://github.com/cyclejs/cyclejs/commit/fb3ac3a)), closes [#871](https://github.com/cyclejs/cyclejs/issues/871)
+* chore(dom): use isolate v5 in tests ([990755f](https://github.com/cyclejs/cyclejs/commit/990755f))
+
+
+
+## 22.3.0 (2018-12-10)
+
+* fix(dom): add better typings for the hyperscript helpers ([e211037](https://github.com/cyclejs/cyclejs/commit/e211037))
+
+
+
+## 22.2.0 (2018-12-10)
+
+* fix(dom): support TypeScript's strict mode ([90645d6](https://github.com/cyclejs/cyclejs/commit/90645d6))
+
+
+
+## 22.1.0 (2018-12-05)
+
+* fix(dom): fix rxjs and most typings of makeDOMDriver (#862) ([f661cf5](https://github.com/cyclejs/cyclejs/commit/f661cf5)), closes [#862](https://github.com/cyclejs/cyclejs/issues/862) [#860](https://github.com/cyclejs/cyclejs/issues/860)
+* chore(dom): remove zombie transposition use in tests ([aff1c9d](https://github.com/cyclejs/cyclejs/commit/aff1c9d))
+
+
+
+## 22.0.0 (2018-10-17)
+
+* fix(dom): support Typescript 3.1 ([8174c25](https://github.com/cyclejs/cyclejs/commit/8174c25))
+
+
+### BREAKING CHANGE
+
+* If you use JavaScript, there are no breaking changes. If you use
+TypeScript, then you may have to change some imports, only if you are
+using RxJS or Most.js. If you are using RxJS: change
+`import {makeDOMDriver} from '@cycle/dom'` to
+`import {makeDOMDriver} from '@cycle/dom/lib/cjs/rxjs'` and change
+`import {DOMSource} from '@cycle/dom/rxjs-typings'` to
+`import {DOMSource} from '@cycle/dom/lib/cjs/rxjs'`. If you are
+using Most.js: change
+`import {makeDOMDriver} from '@cycle/dom'` to
+`import {makeDOMDriver} from '@cycle/dom/lib/cjs/most'` and change
+`import {DOMSource} from '@cycle/dom/most-typings'` to
+`import {DOMSource} from '@cycle/dom/lib/cjs/most'`.
+
+
+## 21.1.0 (2018-09-04)
+
+* fix(dom): update snabbdom ([4ae8f80](https://github.com/cyclejs/cyclejs/commit/4ae8f80)), closes [#747](https://github.com/cyclejs/cyclejs/issues/747)
+* docs(dom): document browser support for v21 ([2412938](https://github.com/cyclejs/cyclejs/commit/2412938))
+* test(dom): test against older browsers ([60788d1](https://github.com/cyclejs/cyclejs/commit/60788d1))
+
+
+
+## 21.4.0 (2018-08-21)
+
+* docs(dom): more release notes on the new driver ([b83f8d7](https://github.com/cyclejs/cyclejs/commit/b83f8d7))
+* fix(dom): add polyfills for IE10 and Safari 8 ([4fae7e4](https://github.com/cyclejs/cyclejs/commit/4fae7e4))
+* fix(dom): document the breaking changes in the new dom driver ([5937168](https://github.com/cyclejs/cyclejs/commit/5937168))
+* fix(dom): EventDelegator shouldnt register duplicate event listeners ([3e2e1cc](https://github.com/cyclejs/cyclejs/commit/3e2e1cc))
+* fix(dom): fix rxjs and most typings ([c19ffea](https://github.com/cyclejs/cyclejs/commit/c19ffea)), closes [#775](https://github.com/cyclejs/cyclejs/issues/775)
+* test(dom): add Android to browserstack tests ([af6d6e6](https://github.com/cyclejs/cyclejs/commit/af6d6e6))
+* test(dom): add test for #747 ([0982d67](https://github.com/cyclejs/cyclejs/commit/0982d67)), closes [#747](https://github.com/cyclejs/cyclejs/issues/747)
+* test(dom): add test for sibling isolation with className prop ([4a46cd4](https://github.com/cyclejs/cyclejs/commit/4a46cd4))
+* test(dom): fix dom tests ([160cc89](https://github.com/cyclejs/cyclejs/commit/160cc89))
+* test(dom): remove old and unused tests ([b169d64](https://github.com/cyclejs/cyclejs/commit/b169d64))
+* refactor(dom): abort bubbling if elements are not in the DOM any more ([244f239](https://github.com/cyclejs/cyclejs/commit/244f239))
+* refactor(dom): add remote BrowserStack tests ([9c44022](https://github.com/cyclejs/cyclejs/commit/9c44022)), closes [#803](https://github.com/cyclejs/cyclejs/issues/803)
+* refactor(dom): fix remapping of coverage reports ([a261457](https://github.com/cyclejs/cyclejs/commit/a261457))
+* refactor(dom): improve bubbling algorithm ([0a33539](https://github.com/cyclejs/cyclejs/commit/0a33539))
+* refactor(dom): improve handling of domListenersToAdd ([4afb985](https://github.com/cyclejs/cyclejs/commit/4afb985))
+* refactor(dom): move DOM tests to karma ([88d226d](https://github.com/cyclejs/cyclejs/commit/88d226d))
+* refactor(dom): rewrite DOM driver to fix isolation ([34a5e6d](https://github.com/cyclejs/cyclejs/commit/34a5e6d))
+* refactor(dom): use Array<T> not T[], for consistency ([d7edf9e](https://github.com/cyclejs/cyclejs/commit/d7edf9e))
+
+
+### BREAKING CHANGE
+
+* The dom driver now uses syntetic event bubbling and the isolation semantics changed slightly, see
+https://cycle.js.org/releases.html for more information
+
+
+<a name="20.4.0"></a>
+# 20.4.0 (2018-05-04)
+
+
+### Bug Fixes
+
+* **dom:** postpone sampling of root element until DOM is ready. ([9653d98](https://github.com/cyclejs/cyclejs/commit/9653d98))
+
+
+
+<a name="20.3.0"></a>
+# 20.3.0 (2018-05-01)
+
+
+### Bug Fixes
+
+* **dom:** update snabbdom-selector ([b345417](https://github.com/cyclejs/cyclejs/commit/b345417))
+
+
+### Features
+
+* **dom:** add support for HTML5 `<details>` and `<summary>` tags to HyperscriptHelpers ([cf3cc81](https://github.com/cyclejs/cyclejs/commit/cf3cc81))
+
+
+
+<a name="20.2.0"></a>
+# 20.2.0 (2018-02-22)
+
+
+### Bug Fixes
+
+* **dom:** fix .elements() support for rxjs and most ([1239822](https://github.com/cyclejs/cyclejs/commit/1239822))
+
+
+
+<a name="20.1.0"></a>
+# 20.1.0 (2017-11-11)
+
+
+### Bug Fixes
+
+* **dom:** fix race condition between DOM ready and cycle/run replication ([9fcec3c](https://github.com/cyclejs/cyclejs/commit/9fcec3c))
+
+
+
+<a name="20.0.0"></a>
+# 20.0.0 (2017-11-10)
+
+
+### Bug Fixes
+
+* **dom:** use MutationObserver to avoid mutation loop ([a349b20](https://github.com/cyclejs/cyclejs/commit/a349b20))
+
+
+### BREAKING CHANGES
+
+* **dom:** Internet Explorer 10 is no longer officially supported, but it can still
+be used with cycle/dom under some circumstances. You should use a
+polyfill for MutationObserver and make sure you are not rendering the
+application in a DocumentFragment as the container node. Only under
+those conditions will cycle/dom should work correctly in IE10.
+
+ISSUES CLOSED: #699
+
+
+
+<a name="19.3.0"></a>
+# 19.3.0 (2017-10-26)
+
+
+### Bug Fixes
+
+* **dom:** correct the TypeScript signature of DOMSource.element() ([a201abd](https://github.com/cyclejs/cyclejs/commit/a201abd))
+* **dom:** upgrade snabbdom-selector dependency to 2.0.1 ([7af2b19](https://github.com/cyclejs/cyclejs/commit/7af2b19))
+
+
+
+<a name="19.2.0"></a>
+# 19.2.0 (2017-10-24)
+
+
+
+<a name="19.1.0"></a>
+# 19.1.0 (2017-10-24)
+
+
+
+<a name="19.0.0"></a>
+# 19.0.0 (2017-10-19)
+
+
+### Bug Fixes
+
+* **dom:** remove "change" from eventTypesThatDontBubble (#690) ([a1600d0](https://github.com/cyclejs/cyclejs/commit/a1600d0))
+
+
+### Features
+
+* **dom:** allow predicate function or object as preventDefault ([e66a534](https://github.com/cyclejs/cyclejs/commit/e66a534))
+* **dom:** DOMSource.elements() always returns arrays ([0501189](https://github.com/cyclejs/cyclejs/commit/0501189))
+* **dom:** overload .event() method using HTMLElementEventMap (#682) ([b9db15c](https://github.com/cyclejs/cyclejs/commit/b9db15c))
+
+
+### BREAKING CHANGES
+
+* **dom:** `select('document').elements()` now always returns
+`Stream<Array<Document>>`
+`select('body').elements()` now always returns
+`Stream<Array<HTMLBodyElement>>`
+`select(everythingElse).elements()` now always returns `Stream<Array<Element>>`
+We also introduced `.element()` (notice in the singular, not plural)
+which will always return a non-array, either `Stream<Document>` or
+`Stream<HTMLBodyElement>` or `Stream<Element>`.
+
+ISSUES CLOSED: #677
+* **dom:** It's probable your app will not break when updating cycle/dom. However,
+if you are using `domSource.events('change')` and unknowingly relying on
+buggy behavior of this library, your app might behave differently. So
+upgrade carefully if you have that use case, otherwise this version is
+very safe to upgrade to, since this bug fix is so tiny.
+
+
+
+<a name="18.3.0"></a>
+# 18.3.0 (2017-09-05)
+
+
+### Bug Fixes
+
+* **dom:** wait for snabbdom's post hook to clean vnodes (#667) ([dd5712f](https://github.com/cyclejs/cyclejs/commit/dd5712f))
+
+
+### Performance Improvements
+
+* **dom:** use for loop instead of forEach+bind in IsolateModule ([70a4521](https://github.com/cyclejs/cyclejs/commit/70a4521))
+
+
+
+<a name="18.2.0"></a>
+# 18.2.0 (2017-08-29)
+
+
+### Bug Fixes
+
+* **dom:** add TypeScript typings for es6-map polyfill ([805aa6d](https://github.com/cyclejs/cyclejs/commit/805aa6d))
+* **dom:** switch from require() to import statements for es6 map polyfill ([f459ada](https://github.com/cyclejs/cyclejs/commit/f459ada))
+
+
+
+<a name="18.1.0"></a>
+# 18.1.0 (2017-08-11)
+
+
+### Bug Fixes
+
+* **dom:** update snabbdom to v0.7.0 ([506bf88](https://github.com/cyclejs/cyclejs/commit/506bf88))
+* **dom:** wrap svg example width and height attrs inside attrs object (#653) ([832f567](https://github.com/cyclejs/cyclejs/commit/832f567))
+
+
+### BREAKING CHANGES
+
+* **dom:** Snabbdom 0.7.0 has some breaking changes, see their release notes:
+https://github.com/snabbdom/snabbdom/releases/tag/v0.7.0
+
+ISSUES CLOSED: #656
+
+
+
+<a name="18.0.0"></a>
+# 18.0.0 (2017-07-20)
+
+
+### Bug Fixes
+
+* **dom:** revert patchEvent optimization, to support IE10+ ([2e78ee0](https://github.com/cyclejs/cyclejs/commit/2e78ee0))
+* **dom:** update to TypeScript v2.4 ([e72283b](https://github.com/cyclejs/cyclejs/commit/e72283b))
+
+
+### BREAKING CHANGES
+
+* **dom:** If you are a JavaScript user, there are no breaking changes. If you are a TypeScript user, this
+version has breaking changes due to TypeScript v2.4 update. Update and recompile carefully.
+
+ISSUES CLOSED: #640
+
+
+
+<a name="17.6.0"></a>
+# 17.6.0 (2017-07-08)
+
+
+### Bug Fixes
+
+* **dom:** allow using isolated DOMSource.events() ([8de1a78](https://github.com/cyclejs/cyclejs/commit/8de1a78))
+
+
+### Performance Improvements
+
+* **dom:** avoid an allocation in EventDelegator.patchEvent ([0153cea](https://github.com/cyclejs/cyclejs/commit/0153cea))
+
+
+
+<a name="17.5.0"></a>
+# 17.5.0 (2017-06-28)
+
+
+### Bug Fixes
+
+* **dom:** add support for "time" hyperscript-helper ([550d83f](https://github.com/cyclejs/cyclejs/commit/550d83f))
+
+
+
+<a name="17.4.0"></a>
+# 17.4.0 (2017-05-29)
+
+
+### Bug Fixes
+
+* **dom:** update to snabbdom 0.6.9 ([22d5cf0](https://github.com/cyclejs/cyclejs/commit/22d5cf0)), closes [#612](https://github.com/cyclejs/cyclejs/issues/612)
+
+
+
+<a name="17.3.0"></a>
+# 17.3.0 (2017-05-16)
+
+
+### Bug Fixes
+
+* **dom:** thunk() supports isolation ([ea50dc5](https://github.com/cyclejs/cyclejs/commit/ea50dc5))
+* **dom:** update snabbdom to v0.6.8 ([4c11676](https://github.com/cyclejs/cyclejs/commit/4c11676))
+
+
+### Features
+
+* **dom:** update snabbdom to 0.6.7, snabbdom-selector to 1.2 ([3fc528b](https://github.com/cyclejs/cyclejs/commit/3fc528b))
+
+
+
+<a name="17.2.0"></a>
+# 17.2.0 (2017-05-15)
+
+
+### Features
+
+* **dom:** add preventDefault option ([5d829a8](https://github.com/cyclejs/cyclejs/commit/5d829a8))
+
+
+### Performance Improvements
+
+* **dom:** avoid an object allocation in MainDOMSource ([fc218cf](https://github.com/cyclejs/cyclejs/commit/fc218cf))
+
+
+
 <a name="17.1.0"></a>
 # 17.1.0 (2017-03-28)
 

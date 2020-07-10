@@ -22,7 +22,7 @@ Let's study what drivers do by analyzing the most common one: the DOM Driver.
 
 The DOM Driver is the most important and most common driver in Cycle.js. When building interactive web apps, it is probably the most important tool in Cycle.js. In fact, while Cycle *Run* function is only about 200 lines of code, Cycle *DOM* is at least 4 times larger.
 
-It's main purpose is to be a proxy to the user using the browser. Conceptually we would like to work assuming the existence of a `human()` function, as this diagram reminds us:
+Its main purpose is to be a proxy to the user using the browser. Conceptually we would like to work assuming the existence of a `human()` function, as this diagram reminds us:
 
 ![Human computer diagram](img/human-computer-diagram.svg)
 
@@ -94,7 +94,7 @@ Most drivers, like the DOM Driver, take *sinks* (to describe a *write*) and retu
 
 For instance, the one-liner `log` driver we just saw above is a write-only driver. Notice how it is a function that does not return any stream, it simply consumes the sink `msg$` it receives.
 
-Other drivers only create source streams that emit events to the `main()`, but don't take in any `sink` from `main()`. An example of such would be a read-only Web Socket driver, drafted below:
+Other drivers only create source streams that emit events to the `main()`, but don't take in any `sink` from `main()`. An example of such would be a read-only WebSocket driver, drafted below:
 
 ```javascript
 function WSDriver(/* no sinks */) {
@@ -197,7 +197,7 @@ sock.send('Hello world');
 
 **How do we build a driver for `Sock`?** We start by identifying the effects. The *write* effect is `sock.send(msg)` and the *read* effect is the listener for received messages. Our `sockDriver(sink)` should take `sink` as instructions to perform the `send(msg)` calls. The output from `sockDriver()` should be `source`, containing all received messages.
 
-Since both input and output should be streams, it's easy to see `sink` in `sockDriver(sink)` should be an stream of outgoing messages to the peer. And conversely, the source should be an stream of incoming messages. This is a draft of our driver function:
+Since both input and output should be streams, it's easy to see `sink` in `sockDriver(sink)` should be an stream of outgoing messages to the peer. And conversely, the source should be a stream of incoming messages. This is a draft of our driver function:
 
 ```javascript
 import {adapt} from '@cycle/run/lib/adapt';
@@ -235,7 +235,7 @@ function makeSockDriver(peerId) {
   function sockDriver(outgoing$) {
     outgoing$.addListener({
       next: outgoing => {
-        sock.send(outgoing));
+        sock.send(outgoing);
       },
       error: () => {},
       complete: () => {},

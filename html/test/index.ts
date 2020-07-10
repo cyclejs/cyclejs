@@ -1,12 +1,12 @@
-import 'mocha';
 import * as assert from 'assert';
+import * as sinon from 'sinon';
 import xs, {Stream} from 'xstream';
 import {setup, run} from '@cycle/run';
 import {div, h3, h2, h, VNode} from '@cycle/dom';
-import {makeHTMLDriver, HTMLSource} from '../lib';
+import {makeHTMLDriver, HTMLSource} from '../src/index';
 
-describe('HTML Driver', function () {
-  it('should output HTML when given a simple vtree stream', function (done) {
+describe('HTML Driver', function() {
+  it('should output HTML when given a simple vtree stream', function(done) {
     function app() {
       return {
         html: xs.of(div('.test-element', ['Foobar'])),
@@ -23,12 +23,13 @@ describe('HTML Driver', function () {
     });
   });
 
-  it('should allow effect to see one or many HTML outputs', function (done) {
+  it('should allow effect to see one or many HTML outputs', function(done) {
     function app() {
       return {
-        html: xs.periodic(150).take(3).map(i =>
-          div('.test-element', ['Foobar' + i]),
-        ),
+        html: xs
+          .periodic(150)
+          .take(3)
+          .map(i => div('.test-element', ['Foobar' + i])),
       };
     }
 
@@ -50,12 +51,14 @@ describe('HTML Driver', function () {
     });
   });
 
-  it('should allow effect to see one (the last) HTML outputs', function (done) {
+  it('should allow effect to see one (the last) HTML outputs', function(done) {
     function app() {
       return {
-        html: xs.periodic(150).take(3).map(i =>
-          div('.test-element', ['Foobar' + i]),
-        ).last(),
+        html: xs
+          .periodic(150)
+          .take(3)
+          .map(i => div('.test-element', ['Foobar' + i]))
+          .last(),
       };
     }
 
@@ -69,7 +72,7 @@ describe('HTML Driver', function () {
     });
   });
 
-  it('should output HTMLSource as an adapted stream', function (done) {
+  it('should output HTMLSource as an adapted stream', function(done) {
     type MySources = {
       html: HTMLSource;
     };
@@ -77,7 +80,7 @@ describe('HTML Driver', function () {
       html: Stream<VNode>;
     };
 
-    function app(sources: MySources): MySinks {
+    function app(_sources: MySources): MySinks {
       return {
         html: xs.of(div('.test-element', ['Foobar'])),
       };
@@ -85,12 +88,15 @@ describe('HTML Driver', function () {
     const {sources} = setup(app, {
       html: makeHTMLDriver((html: string) => {}),
     });
-    assert.strictEqual(typeof (sources.html.elements() as any).imitate, 'function');
+    assert.strictEqual(
+      typeof (sources.html.elements() as any).imitate,
+      'function'
+    );
     done();
   });
 
-  it('should have DevTools flag in HTMLSource elements() stream', function (done) {
-    function app(sources: {html: HTMLSource}): any {
+  it('should have DevTools flag in HTMLSource elements() stream', function(done) {
+    function app(_sources: {html: HTMLSource}): any {
       return {
         html: xs.of(div('.test-element', ['Foobar'])),
       };
@@ -102,8 +108,8 @@ describe('HTML Driver', function () {
     done();
   });
 
-  it('should have DevTools flag in HTMLSource elements() stream', function (done) {
-    function app(sources: {html: HTMLSource}): any {
+  it('should have DevTools flag in HTMLSource elements() stream', function(done) {
+    function app(_sources: {html: HTMLSource}): any {
       return {
         html: xs.of(div('.test-element', ['Foobar'])),
       };
@@ -111,20 +117,23 @@ describe('HTML Driver', function () {
     const {sources} = setup(app, {
       html: makeHTMLDriver((html: string) => {}),
     });
-    assert.strictEqual((sources.html.events('click') as any)._isCycleSource, 'html');
+    assert.strictEqual(
+      (sources.html.events('click') as any)._isCycleSource,
+      'html'
+    );
     done();
   });
 
-  it('should make bogus select().events() as sources', function (done) {
+  it('should make bogus select().events() as sources', function(done) {
     function app(sources: {html: HTMLSource}) {
       assert.strictEqual(typeof sources.html.select, 'function');
       assert.strictEqual(
         typeof sources.html.select('whatever').elements().imitate,
-        'function',
+        'function'
       );
       assert.strictEqual(
         typeof sources.html.select('whatever').events('click').imitate,
-        'function',
+        'function'
       );
       return {
         html: xs.of(div('.test-element', ['Foobar'])),
@@ -141,7 +150,7 @@ describe('HTML Driver', function () {
     });
   });
 
-  it('should output simple HTML Observable', function (done) {
+  it('should output simple HTML Observable', function(done) {
     function app() {
       return {
         html: xs.of(div('.test-element', ['Foobar'])),
@@ -158,7 +167,7 @@ describe('HTML Driver', function () {
     });
   });
 
-  it('should support passing custom modules', function (done) {
+  it('should support passing custom modules', function(done) {
     function main() {
       return {
         html: xs.of(div(['Hello'])),
@@ -175,7 +184,7 @@ describe('HTML Driver', function () {
       done();
     }
 
-    const {sinks, sources, run} = setup(main, {
+    const {sinks, sources, run: _run} = setup(main, {
       html: makeHTMLDriver(effect, {
         modules: [
           (vnode: VNode, attributes: Map<string, any>) => {
@@ -184,47 +193,38 @@ describe('HTML Driver', function () {
         ],
       }),
     });
-    run();
+    _run();
   });
 
-  it('should render a complex and nested HTML', function (done) {
+  it('should render a complex and nested HTML', function(done) {
     function app() {
       return {
         html: xs.of(
           h('.test-element', [
-            div([
-              h2('.a', 'a'),
-              h('h4.b', 'b'),
-              h('h1.fooclass'),
-            ]),
-            div([
-              h3('.c', 'c'),
-              h('div', [
-                h('p.d', 'd'),
-                h('h2.barclass'),
-              ]),
-            ]),
-          ]),
+            div([h2('.a', 'a'), h('h4.b', 'b'), h('h1.fooclass')]),
+            div([h3('.c', 'c'), h('div', [h('p.d', 'd'), h('h2.barclass')])]),
+          ])
         ),
       };
     }
 
     function effect(html: string): void {
-      assert.strictEqual(html,
+      assert.strictEqual(
+        html,
         '<div class="test-element">' +
           '<div>' +
-            '<h2 class="a">a</h2>' +
-            '<h4 class="b">b</h4>' +
-            '<h1 class="fooclass"></h1>' +
+          '<h2 class="a">a</h2>' +
+          '<h4 class="b">b</h4>' +
+          '<h1 class="fooclass"></h1>' +
           '</div>' +
           '<div>' +
-            '<h3 class="c">c</h3>' +
-            '<div>' +
-              '<p class="d">d</p>' +
-              '<h2 class="barclass"></h2>' +
-            '</div>' +
+          '<h3 class="c">c</h3>' +
+          '<div>' +
+          '<p class="d">d</p>' +
+          '<h2 class="barclass"></h2>' +
           '</div>' +
-        '</div>',
+          '</div>' +
+          '</div>'
       );
       done();
     }
@@ -232,5 +232,26 @@ describe('HTML Driver', function () {
     run(app, {
       html: makeHTMLDriver(effect),
     });
+  });
+
+  it('should report errors thrown in snabbdom-to-html', function(done) {
+    const sandbox = sinon.createSandbox();
+    sandbox.stub(console, 'error');
+
+    function app() {
+      return {
+        html: xs.of('invalid snabbdom' as any),
+      };
+    }
+
+    run(app, {
+      html: makeHTMLDriver(() => {}),
+    });
+
+    setTimeout(() => {
+      sinon.assert.calledOnce(console.error as any);
+      sandbox.restore();
+      done();
+    }, 10);
   });
 });

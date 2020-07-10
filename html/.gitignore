@@ -6,7 +6,6 @@
 
 # Installed libs
 node_modules/
-typings/
 
 # Generated
 test/browser/page/tests-bundle.js
@@ -15,7 +14,7 @@ dist/
 
 # Misc
 ignore
-npm-debug.log
+*.log
 ts/*
 !ts/cycle.d.ts
 .DS_Store

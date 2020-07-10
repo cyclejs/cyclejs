@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "files": [
+    "src/index.ts",
+    "test/browser/common.ts",
+    "test/browser/rxjs.ts",
+    "test/browser/xstream.ts",
+    "test/node/common.ts",
+    "test/node/rxjs.ts",
+    "test/node/xstream.ts"
+  ]
+}

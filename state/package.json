@@ -1,0 +1,65 @@
+{
+  "name": "@cycle/state",
+  "version": "1.4.0",
+  "description": "Wraps your Cycle.js main function with reducer-driven state management",
+  "license": "MIT",
+  "homepage": "https://cycle.js.org",
+  "bugs": "https://github.com/cyclejs/cyclejs/issues",
+  "contributors": [
+    {
+      "name": "Andre Staltz",
+      "email": "andre@staltz.com"
+    }
+  ],
+  "repository": "https://github.com/cyclejs/cyclejs/tree/master/state",
+  "keywords": [
+    "reactive",
+    "framework",
+    "rxjs",
+    "rx",
+    "unidirectional",
+    "mvi",
+    "dataflow",
+    "virtual-dom"
+  ],
+  "main": "lib/cjs/index.js",
+  "module": "lib/es6/index.js",
+  "typings": "lib/cjs/index.d.ts",
+  "types": "lib/cjs/index.d.ts",
+  "dependencies": {
+    "@cycle/isolate": "^5.0.0",
+    "@cycle/run": "^5.2.0",
+    "quicktask": "1.1.0",
+    "xstream": ">=11"
+  },
+  "devDependencies": {
+    "@cycle/rxjs-run": "^10.2.0",
+    "@types/mocha": "5.2.x",
+    "@types/node": "10.12.x",
+    "@types/sinon": "5.0.x",
+    "mocha": "~6.2.0",
+    "most": "1.7.3",
+    "rxjs": "6.3.3",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.11.0",
+    "typescript": "=3.2.4"
+  },
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/cyclejs"
+  },
+  "scripts": {
+    "build": "pnpm run build-cjs && pnpm run build-es6",
+    "build-cjs": "tsc --module commonjs --outDir ./lib/cjs",
+    "build-es6": "tsc --module es6 --outDir ./lib/es6",
+    "lint": "tslint --project tsconfig.lint.json --config ../tslint.json",
+    "docs": "cd .. && node .scripts/make-api-docs.js state",
+    "changelog": "cd .. && node .scripts/update-changelogs.js state",
+    "test": "mocha test/*.ts --require ts-node/register --exit",
+    "test-ci": "../.scripts/retry.sh pnpm test",
+    "prepublishOnly": "pnpm run build && pnpm test"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

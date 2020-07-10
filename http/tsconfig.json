@@ -1,7 +1,6 @@
 {
   "extends": "../tsconfig.common.json",
   "compilerOptions": {
-    "outDir": "lib/",
     "lib": [
       "dom",
       "es5",
@@ -12,6 +11,8 @@
     ]
   },
   "files": [
-    "src/index.ts"
+    "src/index.ts",
+    "src/rxjs.ts",
+    "src/most.ts"
   ]
 }

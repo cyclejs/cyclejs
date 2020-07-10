@@ -1,3 +1,106 @@
+## 10.5.0 (2020-03-23)
+
+* fix(rxjs-run): use peerDependencies to avoid dependency shadowing (#905) ([4683894](https://github.com/cyclejs/cyclejs/commit/4683894)), closes [#905](https://github.com/cyclejs/cyclejs/issues/905) [#902](https://github.com/cyclejs/cyclejs/issues/902)
+
+
+
+## 10.4.0 (2019-11-06)
+
+
+
+
+## 10.3.0 (2019-09-10)
+
+
+
+
+## 10.2.0 (2018-12-10)
+
+* fix(rxjs-run): support TypeScript's strict mode ([e4fe427](https://github.com/cyclejs/cyclejs/commit/e4fe427))
+
+
+
+## 10.1.0 (2018-10-17)
+
+* fix(rxjs-run): support TypeScript 3.1 ([8ff936f](https://github.com/cyclejs/cyclejs/commit/8ff936f))
+* fix(rxjs-run): update RxJS to 6.3.x ([8ce36f1](https://github.com/cyclejs/cyclejs/commit/8ce36f1))
+
+
+### BREAKING CHANGE
+
+* If you use JavaScript, there are no breaking changes. If you use
+TypeScript, this package may not work anymore with versions of TS below
+3.1.
+
+
+## 9.3.0 (2018-09-04)
+
+* refactor(rxjs-run): move rxjs-run tooling to pnpm ([38ad9d6](https://github.com/cyclejs/cyclejs/commit/38ad9d6))
+
+
+
+<a name="9.1.0"></a>
+# 9.1.0 (2018-07-01)
+
+
+### Bug Fixes
+
+* **rxjs-run:** always require symbol-observable polyfill ([e1e0095](https://github.com/cyclejs/cyclejs/commit/e1e0095))
+
+
+
+<a name="9.0.0"></a>
+# 9.0.0 (2018-06-25)
+
+
+### Bug Fixes
+
+* **rxjs-run:** require rxjs 6 or higher ([ca96d91](https://github.com/cyclejs/cyclejs/commit/ca96d91))
+
+
+### Features
+
+* **rxjs-run:** compitible with RXJS6 ([67edc22](https://github.com/cyclejs/cyclejs/commit/67edc22))
+
+
+
+<a name="8.0.0"></a>
+# 8.0.0 (2017-11-10)
+
+
+### Bug Fixes
+
+* **rxjs-run:** depend on run v4 ([4032e40](https://github.com/cyclejs/cyclejs/commit/4032e40))
+
+
+### BREAKING CHANGES
+
+* **rxjs-run:** Like Cycle run() v4, RxJS run() will not anymore execute synchronously once the run() function is
+called, instead it will schedule sink emissions as microtasks that happen as soon as the current
+event loop scripts are completed.
+
+
+
+<a name="7.3.0"></a>
+# 7.3.0 (2017-10-26)
+
+
+### Bug Fixes
+
+* **rxjs-run:** reduce ambiguity in package.json dependencies ([6aeac83](https://github.com/cyclejs/cyclejs/commit/6aeac83))
+
+
+
+<a name="7.2.0"></a>
+# 7.2.0 (2017-10-24)
+
+
+
+<a name="7.1.0"></a>
+# 7.1.0 (2017-08-12)
+
+
+
 <a name="7.0.0"></a>
 # 7.0.0 (2017-03-16)
 

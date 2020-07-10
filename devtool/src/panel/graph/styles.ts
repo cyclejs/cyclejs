@@ -31,6 +31,7 @@ export default {
   }),
 
   sourceOrSinkNodeNameStyle: styleSheet.registerStyle({
+    'width': 120,
     'font-family': FONT_FAMILY,
     'font-size': FONT_SIZE_NORMAL,
     'fill': GRAY_DARK,
