@@ -1,5 +1,5 @@
 import { merge, makeReplaySubject } from '@cycle/callbags';
-import { Plugin, Main, MasterWrapper, Subscription } from './types';
+import { Plugin, Plugins, Main, MasterWrapper, Subscription } from './types';
 import { multicastNow } from './multicastNow';
 
 let currentId = 0;
@@ -17,7 +17,7 @@ function defaultErrorHandler(err: any): void {
 
 export function run(
   main: Main,
-  plugins: Record<string, Plugin<any, any>>,
+  plugins: Plugins,
   wrappers: MasterWrapper[],
   errorHandler: (err: any) => void = defaultErrorHandler
 ): Subscription {
@@ -27,26 +27,37 @@ export function run(
 }
 
 export function setup(
-  plugins: Record<string, Plugin<any, any>>,
+  plugins: Plugins,
   errorHandler: (err: any) => void = defaultErrorHandler
 ): (masterMain: Main) => Subscription {
-  return function connect(masterMain: Main) {
-    let sinkProxies: any = {};
-    let subscriptions: any = {};
-    let masterSources: any = {};
+  return masterMain => {
+    const { connect, dispose } = setupReusable(plugins, errorHandler);
+    connect(masterMain);
+    return dispose;
+  };
+}
 
-    for (const k of Object.keys(plugins)) {
-      const driver = plugins[k][0];
-      const masterSource = driver.provideSource?.();
-      if (masterSource) {
-        masterSources[k] = multicastNow(masterSource);
-      }
-      if (driver.consumeSink) {
-        sinkProxies[k] = makeReplaySubject();
-        subscriptions[k] = driver.consumeSink(sinkProxies[k]);
-      }
+export function setupReusable(
+  plugins: Plugins,
+  errorHandler: (err: any) => void = defaultErrorHandler
+): { connect: (masterMain: Main) => void; dispose: Subscription } {
+  let sinkProxies: any = {};
+  let subscriptions: any = {};
+  let masterSources: any = {};
+
+  for (const k of Object.keys(plugins)) {
+    const driver = plugins[k][0];
+    const masterSource = driver.provideSource?.();
+    if (masterSource) {
+      masterSources[k] = multicastNow(masterSource);
     }
+    if (driver.consumeSink) {
+      sinkProxies[k] = makeReplaySubject();
+      subscriptions[k] = driver.consumeSink(sinkProxies[k]);
+    }
+  }
 
+  function connect(masterMain: Main): void {
     const masterSinks = masterMain(masterSources);
 
     for (const k of Object.keys(plugins)) {
@@ -60,13 +71,14 @@ export function setup(
         });
       }
     }
+  }
 
-    return () => {
-      for (const k of Object.keys(subscriptions)) {
-        subscriptions[k]();
-      }
-    };
-  };
+  function dispose() {
+    for (const k of Object.keys(subscriptions)) {
+      subscriptions[k]();
+    }
+  }
+  return { connect, dispose };
 }
 
 export function makeMasterMain(
