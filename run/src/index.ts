@@ -1,3 +1,3 @@
 export * from './types';
 
-export { run, makeMasterMain } from './run';
+export { run, makeMasterMain, setup, setupReusable } from './run';

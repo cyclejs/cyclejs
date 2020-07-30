@@ -29,17 +29,22 @@ export function multicastNow<T>(source: Producer<T>): Producer<T> {
     }
   });
 
-  return (_, sink) => {
-    sinks.push(sink);
-    sink(0, () => {
-      sinks[sinks.indexOf(sink)] = void 0;
-      if (sinks.every(x => x === undefined)) {
-        talkback(2);
-        sinks = [];
+  return (t, d) => {
+    if (t === 0) {
+      sinks.push(d);
+      d(0, () => {
+        sinks[sinks.indexOf(d)] = void 0;
+        if (sinks.every(x => x === undefined)) {
+          talkback(2);
+          sinks = [];
+        }
+      });
+      for (const x of lasts) {
+        d(1, x);
       }
-    });
-    for (const x of lasts) {
-      sink(1, x);
+    } else if (t === 2) {
+      talkback(2);
+      sinks = [];
     }
   };
 }

@@ -30,19 +30,25 @@ export function setup(
   plugins: Plugins,
   errorHandler: (err: any) => void = defaultErrorHandler
 ): (masterMain: Main) => Subscription {
+  checkPlugins(plugins);
   return masterMain => {
     const { connect, dispose } = setupReusable(plugins, errorHandler);
-    connect(masterMain);
-    return dispose;
+    const disconnect = connect(masterMain);
+    return () => {
+      disconnect();
+      dispose();
+    };
   };
 }
 
 export function setupReusable(
   plugins: Plugins,
   errorHandler: (err: any) => void = defaultErrorHandler
-): { connect: (masterMain: Main) => void; dispose: Subscription } {
-  let sinkProxies: any = {};
-  let subscriptions: any = {};
+): { connect: (masterMain: Main) => Subscription; dispose: Subscription } {
+  checkPlugins(plugins);
+
+  let sinkProxies: Record<string, any> = {};
+  let subscriptions: Record<string, Subscription> = {};
   let masterSources: any = {};
 
   for (const k of Object.keys(plugins)) {
@@ -57,8 +63,9 @@ export function setupReusable(
     }
   }
 
-  function connect(masterMain: Main): void {
-    const masterSinks = masterMain(masterSources);
+  function connect(masterMain: Main): Subscription {
+    let masterSinks = masterMain(masterSources);
+    let sinkTalkbacks: Record<string, any> = {};
 
     for (const k of Object.keys(plugins)) {
       if (masterSinks[k] && sinkProxies[k]) {
@@ -67,18 +74,40 @@ export function setupReusable(
             if (t === 2 && d) {
               errorHandler(d);
             } else sinkProxies[k](t, d);
+          } else {
+            sinkTalkbacks[k] = d;
           }
         });
       }
     }
+
+    return () => {
+      for (const k of Object.keys(sinkTalkbacks)) {
+        sinkTalkbacks[k](2);
+      }
+    };
   }
 
   function dispose() {
     for (const k of Object.keys(subscriptions)) {
-      subscriptions[k]();
+      subscriptions[k]?.();
+      masterSources[k]?.(2);
     }
   }
+
   return { connect, dispose };
+}
+
+function checkPlugins(plugins: Plugins): void {
+  if (typeof plugins !== 'object') {
+    throw new Error(
+      'Second argument given to Cycle must be an object with plugins'
+    );
+  } else if (Object.keys(plugins).length === 0) {
+    throw new Error(
+      'Second argument given to Cycle must be an object with at least one plugin'
+    );
+  }
 }
 
 export function makeMasterMain(
@@ -91,15 +120,7 @@ export function makeMasterMain(
       "First argument given to Cycle must be the 'main' function"
     );
   }
-  if (typeof plugins !== 'object') {
-    throw new Error(
-      'Second argument given to Cycle must be an object with plugins'
-    );
-  } else if (Object.keys(plugins).length === 0) {
-    throw new Error(
-      'Second argument given to Cycle must be an object with at least one plugin'
-    );
-  }
+  checkPlugins(plugins);
   function masterMain(sources: any): any {
     let pluginSources: any = {};
     let pluginsSinks: any = {};
