@@ -8,7 +8,9 @@ import {
   startWith,
   map,
   subscribe,
-  combine
+  combine,
+  throwError,
+  flatten
 } from '@cycle/callbags';
 
 describe('setupReusable', () => {
@@ -277,49 +279,54 @@ describe('setupReusable', () => {
     }, 30);
   });
 
-  /*it('should report errors from main() in the console', function(done) {
-    const sandbox = sinon.createSandbox();
-    sandbox.stub(console, 'error');
-
+  it('should report errors from main() to a custom error handler', function (done) {
     function main(sources: any): any {
       return {
-        other: sources.other
-          .take(1)
-          .startWith('a')
-          .map(() => {
-            throw new Error('malfunction');
-          })
+        other: pipe(
+          sources.other,
+          take(1),
+          map(() => throwError(new Error('malfunction'))),
+          flatten
+        )
       };
     }
-    function driver(sink: Stream<any>) {
-      sink.addListener({
-        next: () => {},
-        error: (err: any) => {}
-      });
-      return xs.of('b');
+    class TestDriver implements Driver<string, any> {
+      provideSource() {
+        return of('b');
+      }
+
+      consumeSink(sink: Producer<any>) {
+        return pipe(
+          sink,
+          subscribe(() => {})
+        );
+      }
+    }
+
+    let numCalled = 0;
+    function errorHandler(err: any) {
+      numCalled++;
+      assert.strictEqual(err.message, 'malfunction');
     }
 
     let caught = false;
-    const engine = setupReusable({ other: driver });
+    const engine = setupReusable(
+      { other: [new TestDriver(), null] },
+      errorHandler
+    );
     try {
-      const sinks = main(engine.sources);
-      engine.run(sinks);
+      engine.connect(main);
     } catch (e) {
       caught = true;
     }
     setTimeout(() => {
-      sinon.assert.calledOnce(console.error as any);
-      sinon.assert.calledWithExactly(
-        console.error as any,
-        sinon.match((err: any) => err.message === 'malfunction')
-      );
+      assert.strictEqual(numCalled, 1);
 
       // Should be false because the error was already reported in the console.
       // Otherwise we would have double reporting of the error.
       assert.strictEqual(caught, false);
 
-      sandbox.restore();
       done();
     }, 80);
-  });*/
+  });
 });
