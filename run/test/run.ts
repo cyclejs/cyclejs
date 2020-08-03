@@ -17,7 +17,7 @@ import {
   Operator
 } from '@cycle/callbags';
 
-import { run, Driver, Plugins } from '../src/index';
+import { run, Driver, ReadonlyDriver, WriteonlyDriver, Plugins } from '../src/index';
 
 describe('run', function() {
   it('should throw if first argument is not a function', () => {
@@ -54,7 +54,7 @@ describe('run', function() {
       };
     }
 
-    class TestDriver implements Driver<string, string> {
+    class TestDriver implements ReadonlyDriver<string> {
       provideSource() {
         return pipe(
           of('b'),
@@ -85,7 +85,7 @@ describe('run', function() {
 
     const expected = [10];
 
-    class TestDriver implements Driver<never, number> {
+    class TestDriver implements WriteonlyDriver<number> {
       consumeSink(sink$: Producer<number>) {
         let buffer: number[] = [];
         const dispose = pipe(
@@ -239,7 +239,7 @@ describe('run', function() {
       ''
     ];
 
-    class DomDriver implements Driver<never, string> {
+    class DomDriver implements WriteonlyDriver<string> {
       consumeSink(sink$: Producer<string>) {
         return pipe(
           sink$,
@@ -374,7 +374,7 @@ describe('run', function() {
     let driverCalled = false;
     let expected = [1, 2, 3];
 
-    class WriteDriver implements Driver<never, number> {
+    class WriteDriver implements WriteonlyDriver<number> {
       consumeSink(sink$: Producer<number>) {
         assert.strictEqual(typeof sink$, 'function');
         driverCalled = true;
@@ -388,7 +388,7 @@ describe('run', function() {
       }
     }
 
-    class ReadDriver implements Driver<number, never> {
+    class ReadDriver implements ReadonlyDriver<number> {
       provideSource() {
         return fromArray([1, 2, 3]);
       }

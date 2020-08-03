@@ -13,10 +13,14 @@ export type ApiFactory<Source, Sink> = (
   gen: IdGenerator
 ) => any;
 
+
 export interface Driver<Source, Sink> {
-  consumeSink?(sink: Producer<Sink>): Dispose;
   provideSource?(): Producer<Source>;
+  consumeSink?(sink: Producer<Sink>): Dispose;
+  cleanup?(): void;
 }
+export type ReadonlyDriver<Source> = Driver<Source, never>;
+export type WriteonlyDriver<Sink> = Driver<never, Sink>;
 
 export type IdGenerator = () => number;
 

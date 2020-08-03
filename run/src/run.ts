@@ -91,6 +91,7 @@ export function setupReusable(
   function dispose() {
     for (const k of Object.keys(subscriptions)) {
       subscriptions[k]?.();
+      plugins[k][0].cleanup?.();
       masterSources[k]?.(2);
     }
   }

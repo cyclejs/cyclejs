@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { setupReusable, Driver } from '../src/index';
+import { setupReusable, Driver, ReadonlyDriver } from '../src/index';
 import {
   Producer,
   of,
@@ -11,7 +11,7 @@ import {
   combine
 } from '@cycle/callbags';
 
-describe('setupReusable', function() {
+describe('setupReusable', () => {
   it('should be a function', () => {
     assert.strictEqual(typeof setupReusable, 'function');
   });
@@ -29,7 +29,7 @@ describe('setupReusable', function() {
   });
 
   it('should return engine with connect and dispose', () => {
-    class TestDriver implements Driver<string, void> {
+    class TestDriver implements ReadonlyDriver<string> {
       public provideSource() {
         return of('b');
       }
@@ -180,13 +180,12 @@ describe('setupReusable', function() {
       consumeSink(sink: Producer<string>) {
         return pipe(
           sink,
-          subscribe(
-            () => {},
-            () => {
-              sinkCompleted++;
-            }
-          )
+          subscribe(() => {})
         );
+      }
+
+      cleanup() {
+        sinkCompleted++;
       }
     }
 
@@ -250,19 +249,18 @@ describe('setupReusable', function() {
       consumeSink(sink: Producer<string>) {
         return pipe(
           sink,
-          subscribe(
-            () => {
-              if (called.length <= 1) {
-                assert.strictEqual(ended, false);
-              } else if (called.length > 1) {
-                done(new Error('should not deliver data after disposal'));
-              }
-            },
-            () => {
-              sinkCompleted++;
+          subscribe(() => {
+            if (called.length <= 1) {
+              assert.strictEqual(ended, false);
+            } else if (called.length > 1) {
+              done(new Error('should not deliver data after disposal'));
             }
-          )
+          })
         );
+      }
+
+      cleanup() {
+        sinkCompleted++;
       }
     }
 
