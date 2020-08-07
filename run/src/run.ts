@@ -22,6 +22,7 @@ export function run(
   errorHandler: (err: any) => void = defaultErrorHandler
 ): Subscription {
   const masterMain = makeMasterMain(main, plugins, wrappers);
+  checkPlugins(plugins);
   const connect = setup(plugins, errorHandler);
   return connect(masterMain);
 }
@@ -30,9 +31,10 @@ export function setup(
   plugins: Plugins,
   errorHandler: (err: any) => void = defaultErrorHandler
 ): (masterMain: Main) => Subscription {
-  checkPlugins(plugins);
+  checkPlugins(plugins, 'setup', 'First');
+  const { connect, dispose } = setupReusable(plugins, errorHandler);
+
   return masterMain => {
-    const { connect, dispose } = setupReusable(plugins, errorHandler);
     const disconnect = connect(masterMain);
     return () => {
       disconnect();
@@ -45,7 +47,7 @@ export function setupReusable(
   plugins: Plugins,
   errorHandler: (err: any) => void = defaultErrorHandler
 ): { connect: (masterMain: Main) => Subscription; dispose: Subscription } {
-  checkPlugins(plugins);
+  checkPlugins(plugins, 'setupReusable', 'First');
 
   let sinkProxies: Record<string, any> = {};
   let subscriptions: Record<string, Subscription> = {};
@@ -99,14 +101,14 @@ export function setupReusable(
   return { connect, dispose };
 }
 
-function checkPlugins(plugins: Plugins): void {
+function checkPlugins(plugins: Plugins, name = 'Cycle', arg = 'Second'): void {
   if (typeof plugins !== 'object') {
     throw new Error(
-      'Second argument given to Cycle must be an object with plugins'
+      `${arg} argument given to ${name} must be an object with plugins`
     );
   } else if (Object.keys(plugins).length === 0) {
     throw new Error(
-      'Second argument given to Cycle must be an object with at least one plugin'
+      `${arg} argument given to ${name} must be an object with at least one plugin`
     );
   }
 }

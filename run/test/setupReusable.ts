@@ -21,13 +21,13 @@ describe('setupReusable', () => {
   it('should throw if argument is not object', () => {
     assert.throws(() => {
       (setupReusable as any)('not a function');
-    }, /Second argument given to Cycle must be an object with plugins/i);
+    }, /First argument given to setupReusable must be an object with plugins/i);
   });
 
   it('should throw if argument is an empty object', () => {
     assert.throws(() => {
       (setupReusable as any)({});
-    }, /Second argument given to Cycle must be an object with at least one plugin/i);
+    }, /First argument given to setupReusable must be an object with at least one plugin/i);
   });
 
   it('should return engine with connect and dispose', () => {
