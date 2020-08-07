@@ -273,13 +273,14 @@ describe('setupReusable', () => {
       disconnect();
       assert.strictEqual(ended, true);
       assert.deepStrictEqual(called, ['a']);
+      assert.strictEqual(sinkCompleted, 0);
       engine.dispose();
       assert.strictEqual(sinkCompleted, 1);
       done();
     }, 30);
   });
 
-  it('should report errors from main() to a custom error handler', function (done) {
+  it('should report errors from main() to a custom error handler', function(done) {
     function main(sources: any): any {
       return {
         other: pipe(
