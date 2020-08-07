@@ -39,7 +39,7 @@
     "build": "tsc --build tsconfig.build.json && pnpm run build:cjs && pnpm run build:esm",
     "build:cjs": "BUNDLE_FORMAT=cjs rollup -c ../configs/rollup.config.ts",
     "build:esm": "BUNDLE_FORMAT=esm rollup -c ../configs/rollup.config.ts",
-    "test": "mocha --require ts-node/register test/run.ts test/setupReusable.ts",
+    "test": "mocha --require ts-node/register test/*.ts",
     "format": "prettier --write './{src,test}/**/*'"
   },
   "publishConfig": {

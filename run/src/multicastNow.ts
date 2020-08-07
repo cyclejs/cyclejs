@@ -44,6 +44,9 @@ export function multicastNow<T>(source: Producer<T>): Producer<T> {
       }
     } else if (t === 2) {
       talkback(2);
+      for (const sink of sinks) {
+        sink?.(2, d);
+      }
       sinks = [];
     }
   };
