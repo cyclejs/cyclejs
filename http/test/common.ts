@@ -6,7 +6,7 @@ import { run, Driver, Plugin } from '@cycle/run';
 import { HttpApi, makeHttpPlugin } from '../src/index';
 
 export function runTests(uri: string, request: RequestFn) {
-  describe('common tests between Node.js and the browser', function() {
+  describe('common tests between Node.js and the browser', function () {
     this.timeout(8000);
 
     it('should throw when request stream emits neither string nor object', done => {
@@ -30,12 +30,12 @@ export function runTests(uri: string, request: RequestFn) {
         );
 
         return {
-          HTTP: of(123 as any)
+          HTTP: of(123 as any),
         };
       }
 
       const plugins = {
-        HTTP: makeHttpPlugin(request)
+        HTTP: makeHttpPlugin(request),
       };
 
       run(main, plugins, []);
@@ -57,12 +57,12 @@ export function runTests(uri: string, request: RequestFn) {
           )
         );
         return {
-          HTTP: of({ method: 'post' } as any)
+          HTTP: of({ method: 'post' } as any),
         };
       }
 
       const plugins = {
-        HTTP: makeHttpPlugin(request)
+        HTTP: makeHttpPlugin(request),
       };
 
       run(main, plugins, []);
@@ -91,12 +91,12 @@ export function runTests(uri: string, request: RequestFn) {
         );
 
         return {
-          HTTP: of(uri + '/hello')
+          HTTP: of(uri + '/hello'),
         };
       }
 
       const plugins = {
-        HTTP: makeHttpPlugin(request)
+        HTTP: makeHttpPlugin(request),
       };
 
       run(main, plugins, []);
@@ -123,19 +123,19 @@ export function runTests(uri: string, request: RequestFn) {
         return {
           HTTP: of({
             url: uri + '/hello',
-            contentType: undefined
-          })
+            contentType: undefined,
+          }),
         };
       }
 
       const plugins = {
-        HTTP: makeHttpPlugin(request)
+        HTTP: makeHttpPlugin(request),
       };
 
       run(main, plugins, []);
     });
 
-    it('should return response metastream when given simple options obj', function(done) {
+    it('should return response metastream when given simple options obj', function (done) {
       function main(sources: { HTTP: HttpApi }) {
         pipe(
           sources.HTTP.response$$,
@@ -159,13 +159,13 @@ export function runTests(uri: string, request: RequestFn) {
           HTTP: of({
             url: uri + '/pet',
             method: 'POST',
-            send: { name: 'Woof', species: 'Dog' }
-          })
+            send: { name: 'Woof', species: 'Dog' },
+          }),
         };
       }
 
       const plugins = {
-        HTTP: makeHttpPlugin(request)
+        HTTP: makeHttpPlugin(request),
       };
 
       run(main, plugins, []);
@@ -195,13 +195,13 @@ export function runTests(uri: string, request: RequestFn) {
             url: uri + '/pet',
             method: 'POST',
             send: 'name=Woof&species=Dog',
-            contentType: 'application/x-www-form-urlencoded'
-          })
+            contentType: 'application/x-www-form-urlencoded',
+          }),
         };
       }
 
       const plugins = {
-        HTTP: makeHttpPlugin(request)
+        HTTP: makeHttpPlugin(request),
       };
 
       run(main, plugins, []);
@@ -232,13 +232,13 @@ export function runTests(uri: string, request: RequestFn) {
           HTTP: of({
             url: uri + '/querystring',
             method: 'GET',
-            query: { foo: 102030, bar: 'Pub' }
-          })
+            query: { foo: 102030, bar: 'Pub' },
+          }),
         };
       }
 
       const plugins = {
-        HTTP: makeHttpPlugin(request)
+        HTTP: makeHttpPlugin(request),
       };
 
       run(main, plugins, []);
@@ -266,13 +266,13 @@ export function runTests(uri: string, request: RequestFn) {
           HTTP: of({
             url: uri + '/delete',
             method: 'DELETE',
-            query: { foo: 102030, bar: 'Pub' }
-          })
+            query: { foo: 102030, bar: 'Pub' },
+          }),
         };
       }
 
       const plugins = {
-        HTTP: makeHttpPlugin(request)
+        HTTP: makeHttpPlugin(request),
       };
 
       run(main, plugins, []);
@@ -297,13 +297,13 @@ export function runTests(uri: string, request: RequestFn) {
         return {
           HTTP: of({
             url: uri + '/hello',
-            method: 'GET'
-          })
+            method: 'GET',
+          }),
         };
       }
 
       const plugins = {
-        HTTP: makeHttpPlugin(request)
+        HTTP: makeHttpPlugin(request),
       };
 
       run(main, plugins, []);
@@ -328,12 +328,12 @@ export function runTests(uri: string, request: RequestFn) {
         );
 
         return {
-          HTTP: of(uri + '/error')
+          HTTP: of(uri + '/error'),
         };
       }
 
       const plugins = {
-        HTTP: makeHttpPlugin(request)
+        HTTP: makeHttpPlugin(request),
       };
 
       run(main, plugins, []);
@@ -344,7 +344,7 @@ export function runTests(uri: string, request: RequestFn) {
         const request$ = of({
           url: uri + '/hello',
           method: 'GET',
-          contentType: undefined
+          contentType: undefined,
         });
 
         const str$ = pipe(
@@ -356,7 +356,7 @@ export function runTests(uri: string, request: RequestFn) {
         // Notice HTTP comes before Test here. This is crucial for this test.
         return {
           HTTP: request$,
-          Test: str$
+          Test: str$,
         };
       }
       const testDriverExpected = ['Hello World'];
@@ -377,7 +377,7 @@ export function runTests(uri: string, request: RequestFn) {
 
       const plugins: Record<string, Plugin<any, any>> = {
         HTTP: makeHttpPlugin(request),
-        Test: [new TestDriver(), null]
+        Test: [new TestDriver(), null],
       };
 
       run(main, plugins, []);

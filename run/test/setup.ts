@@ -1,61 +1,61 @@
 // tslint:disable-next-line
 import 'mocha';
 import * as assert from 'assert';
-import {setup, Driver} from '../src/index';
-import xs, {Stream} from 'xstream';
+import { setup, Driver } from '../src/index';
+import xs, { Stream } from 'xstream';
 import concat from 'xstream/extra/concat';
 import delay from 'xstream/extra/delay';
 
-describe('setup', function() {
-  it('should be a function', function() {
+describe('setup', function () {
+  it('should be a function', function () {
     assert.strictEqual(typeof setup, 'function');
   });
 
-  it('should throw if first argument is not a function', function() {
+  it('should throw if first argument is not a function', function () {
     assert.throws(() => {
       (setup as any)('not a function');
     }, /First argument given to Cycle must be the 'main' function/i);
   });
 
-  it('should throw if second argument is not an object', function() {
+  it('should throw if second argument is not an object', function () {
     assert.throws(() => {
       (setup as any)(() => {}, 'not an object');
     }, /Second argument given to Cycle must be an object with driver functions/i);
   });
 
-  it('should throw if second argument is an empty object', function() {
+  it('should throw if second argument is an empty object', function () {
     assert.throws(() => {
       (setup as any)(() => {}, {});
     }, /Second argument given to Cycle must be an object with at least one/i);
   });
 
-  it('should allow to have a driver that takes a union as input', function() {
-    function app(so: {drv: Stream<string>}) {
+  it('should allow to have a driver that takes a union as input', function () {
+    function app(so: { drv: Stream<string> }) {
       return {
         drv: xs.of('foo'),
       };
     }
 
-    const {sinks, sources} = setup(app, {
+    const { sinks, sources } = setup(app, {
       drv: (s: Stream<string | number>) => xs.of('foo'),
     });
   });
 
-  it('should allow to not use all sources in main', function() {
-    function app(so: {first: Stream<string>}) {
+  it('should allow to not use all sources in main', function () {
+    function app(so: { first: Stream<string> }) {
       return {
         first: xs.of('test'),
         second: xs.of('string'),
       };
     }
     function app2() {
-      return {second: xs.of('test')};
+      return { second: xs.of('test') };
     }
     function driver(sink: Stream<string>) {
       return xs.of('answer');
     }
-    const {sinks, sources} = setup(app, {first: driver, second: driver});
-    const {sinks: sinks2, sources: sources2} = setup(app2, {
+    const { sinks, sources } = setup(app, { first: driver, second: driver });
+    const { sinks: sinks2, sources: sources2 } = setup(app2, {
       first: driver,
       second: driver,
     });
@@ -66,8 +66,8 @@ describe('setup', function() {
     assert.strictEqual(typeof sinks2.second.addListener, 'function');
   });
 
-  it('should return sinks object and sources object', function() {
-    function app(ext: {other: Stream<string>}) {
+  it('should return sinks object and sources object', function () {
+    function app(ext: { other: Stream<string> }) {
       return {
         other: ext.other.take(1).startWith('a'),
       };
@@ -75,7 +75,7 @@ describe('setup', function() {
     function driver() {
       return xs.of('b');
     }
-    const {sinks, sources} = setup(app, {other: driver});
+    const { sinks, sources } = setup(app, { other: driver });
     assert.strictEqual(typeof sinks, 'object');
     assert.strictEqual(typeof sinks.other.addListener, 'function');
     assert.strictEqual(typeof sources, 'object');
@@ -84,7 +84,7 @@ describe('setup', function() {
     assert.strictEqual(typeof sources.other.addListener, 'function');
   });
 
-  it('should type-check keyof sources and sinks in main and drivers', function() {
+  it('should type-check keyof sources and sinks in main and drivers', function () {
     type Sources = {
       str: Stream<string>;
       obj: Stream<object>;
@@ -119,7 +119,7 @@ describe('setup', function() {
     });
   });
 
-  it('should type-check keyof sources and sinks, supporting interfaces', function() {
+  it('should type-check keyof sources and sinks, supporting interfaces', function () {
     interface Sources {
       str: Stream<string>;
       obj: Stream<object>;
@@ -159,7 +159,7 @@ describe('setup', function() {
     });
   });
 
-  it('should type-check and allow more drivers than sinks', function() {
+  it('should type-check and allow more drivers than sinks', function () {
     type Sources = {
       str: Stream<string>;
       num: Stream<number>;
@@ -185,7 +185,7 @@ describe('setup', function() {
     });
   });
 
-  it('should return a run() which in turn returns a dispose()', function(done) {
+  it('should return a run() which in turn returns a dispose()', function (done) {
     type TestSources = {
       other: Stream<number>;
     };
@@ -193,10 +193,7 @@ describe('setup', function() {
     function app(_sources: TestSources) {
       return {
         other: concat(
-          _sources.other
-            .take(6)
-            .map(String)
-            .startWith('a'),
+          _sources.other.take(6).map(String).startWith('a'),
           xs.never()
         ),
       };
@@ -206,7 +203,7 @@ describe('setup', function() {
       return sink.map(x => x.charCodeAt(0)).compose(delay(1));
     }
 
-    const {sources, run} = setup(app, {other: driver});
+    const { sources, run } = setup(app, { other: driver });
 
     let dispose: any;
     sources.other.addListener({
@@ -220,19 +217,19 @@ describe('setup', function() {
     dispose = run();
   });
 
-  it('should not work after has been disposed', function(done) {
+  it('should not work after has been disposed', function (done) {
     type MySources = {
       other: Stream<string>;
     };
 
     function app(_sources: MySources) {
-      return {other: xs.periodic(100).map(i => i + 1)};
+      return { other: xs.periodic(100).map(i => i + 1) };
     }
     function driver(num$: Stream<number>): Stream<string> {
       return num$.map(num => 'x' + num);
     }
 
-    const {sources, run} = setup(app, {
+    const { sources, run } = setup(app, {
       other: driver,
     });
 

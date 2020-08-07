@@ -21,13 +21,13 @@ describe('HTTP Driver in Node.js', () => {
           url: uri + '/pet',
           method: 'POST',
           send: { name: 'Woof', species: 'Dog' },
-          id: 0
-        })
+          id: 0,
+        }),
       };
     }
 
     const plugins = {
-      HTTP: makeHttpPlugin(request)
+      HTTP: makeHttpPlugin(request),
     };
 
     run(main, plugins, []);
@@ -35,7 +35,7 @@ describe('HTTP Driver in Node.js', () => {
     setTimeout(() => {
       const { promise } = request({
         url: uri + '/petResponse',
-        method: 'GET'
+        method: 'GET',
       });
 
       promise.then((res: Response<any>) => {
@@ -62,7 +62,7 @@ describe('HTTP Driver in Node.js', () => {
     }
 
     const plugins = {
-      HTTP: makeHttpPlugin(request)
+      HTTP: makeHttpPlugin(request),
     };
 
     run(main, plugins, []);
@@ -88,13 +88,13 @@ describe('HTTP Driver in Node.js', () => {
         HTTP: of({
           url: 'http://localhost:9999', // no server here
           method: 'GET',
-          id: 0
-        })
+          id: 0,
+        }),
       };
     }
 
     const plugins = {
-      HTTP: makeHttpPlugin(request)
+      HTTP: makeHttpPlugin(request),
     };
 
     run(main, plugins, []);
@@ -107,12 +107,12 @@ describe('HTTP Driver in Node.js', () => {
         map(x => ({
           url: uri,
           method: 'GET',
-          send: x
+          send: x,
         }))
       );
 
       return {
-        HTTP: req$
+        HTTP: req$,
       };
     }
 
@@ -123,7 +123,7 @@ describe('HTTP Driver in Node.js', () => {
     };
 
     const plugins = {
-      HTTP: makeHttpPlugin(request)
+      HTTP: makeHttpPlugin(request),
     };
 
     run(main, plugins, [], handler);

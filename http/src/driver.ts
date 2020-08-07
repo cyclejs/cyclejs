@@ -8,7 +8,7 @@ import {
   Dispose,
   uponEnd,
   throwError,
-  merge
+  merge,
 } from '@cycle/callbags';
 import { Driver } from '@cycle/run';
 import { RequestFn, Response, Progress as RawProgress } from '@minireq/browser';

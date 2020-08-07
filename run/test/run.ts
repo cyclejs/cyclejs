@@ -14,12 +14,18 @@ import {
   flatten,
   makeSubject,
   multicast,
-  Operator
+  Operator,
 } from '@cycle/callbags';
 
-import { run, Driver, ReadonlyDriver, WriteonlyDriver, Plugins } from '../src/index';
+import {
+  run,
+  Driver,
+  ReadonlyDriver,
+  WriteonlyDriver,
+  Plugins,
+} from '../src/index';
 
-describe('run', function() {
+describe('run', function () {
   it('should throw if first argument is not a function', () => {
     assert.throws(() => {
       (run as any)('not a function');
@@ -50,7 +56,7 @@ describe('run', function() {
 
     function app(sources: NiceSources): NiceSinks {
       return {
-        other: pipe(sources.other, first(), startWith('a'))
+        other: pipe(sources.other, first(), startWith('a')),
       };
     }
 
@@ -67,7 +73,7 @@ describe('run', function() {
     }
 
     const plugins: Plugins = {
-      other: [new TestDriver(), null]
+      other: [new TestDriver(), null],
     };
 
     const dispose = run(app, plugins, []);
@@ -76,10 +82,10 @@ describe('run', function() {
     dispose();
   });
 
-  it('should support driver that asynchronously subscribes to sink', function(done) {
+  it('should support driver that asynchronously subscribes to sink', function (done) {
     function app(_sources: any): any {
       return {
-        foo: of(10)
+        foo: of(10),
       };
     }
 
@@ -110,7 +116,7 @@ describe('run', function() {
     }
 
     const plugins: Plugins = {
-      foo: [new TestDriver(), null]
+      foo: [new TestDriver(), null],
     };
 
     run(app, plugins, []);
@@ -121,7 +127,7 @@ describe('run', function() {
     }, 100);
   });
 
-  it('should forbid cross-driver synchronous races (#592)', function(done) {
+  it('should forbid cross-driver synchronous races (#592)', function (done) {
     this.timeout(4000);
 
     function interval(n: number): Producer<number> {
@@ -153,13 +159,13 @@ describe('run', function() {
         num === 1
           ? of({
               category: 'cat',
-              url: 'http://jsonplaceholder.typicode.com/users/1'
+              url: 'http://jsonplaceholder.typicode.com/users/1',
             })
           : never();
 
       return {
         HTTP: request$,
-        DOM: vdom$
+        DOM: vdom$,
       };
     }
 
@@ -173,7 +179,7 @@ describe('run', function() {
           } else {
             return {
               HTTP: empty(),
-              DOM: of('')
+              DOM: of(''),
             };
           }
         })
@@ -190,7 +196,7 @@ describe('run', function() {
           sinks$,
           map(sinks => sinks.DOM),
           flatten
-        )
+        ),
       };
     }
 
@@ -204,7 +210,7 @@ describe('run', function() {
           } else {
             return {
               HTTP: empty(),
-              DOM: of('')
+              DOM: of(''),
             };
           }
         })
@@ -221,7 +227,7 @@ describe('run', function() {
           sinks$,
           map(sinks => sinks.HTTP),
           flatten
-        )
+        ),
       };
     }
 
@@ -236,7 +242,7 @@ describe('run', function() {
       '',
       'My name is Louis',
       '',
-      ''
+      '',
     ];
 
     class DomDriver implements WriteonlyDriver<string> {
@@ -259,7 +265,7 @@ describe('run', function() {
           subscribe(req => {
             assert.deepStrictEqual(req, {
               category: 'cat',
-              url: 'http://jsonplaceholder.typicode.com/users/1'
+              url: 'http://jsonplaceholder.typicode.com/users/1',
             });
             requestsSent++;
 
@@ -275,7 +281,7 @@ describe('run', function() {
 
     const plugins: Plugins = {
       HTTP: [new HttpDriver(), null],
-      DOM: [new DomDriver(), null]
+      DOM: [new DomDriver(), null],
     };
 
     // HTTP then DOM:
@@ -319,7 +325,7 @@ describe('run', function() {
           map2(() => {
             throw new Error('malfunction');
           })
-        )
+        ),
       };
     }
 
@@ -337,7 +343,7 @@ describe('run', function() {
     }
 
     const plugins: Plugins = {
-      other: [new TestDriver(), null]
+      other: [new TestDriver(), null],
     };
 
     let numCalled = 0;
@@ -367,7 +373,7 @@ describe('run', function() {
   it('should support sink-only and source-only drivers', done => {
     function app(sources: any): any {
       return {
-        other: sources.read
+        other: sources.read,
       };
     }
 
@@ -396,7 +402,7 @@ describe('run', function() {
 
     const plugins: Plugins = {
       other: [new WriteDriver(), null],
-      read: [new ReadDriver(), null]
+      read: [new ReadDriver(), null],
     };
 
     run(app, plugins, []);

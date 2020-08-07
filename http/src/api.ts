@@ -4,7 +4,7 @@ import {
   pipe,
   flatten,
   filter,
-  uponStart
+  uponStart,
 } from '@cycle/callbags';
 import { IdGenerator } from '@cycle/run';
 import { METHOD, ResponseType } from '@minireq/browser';
@@ -14,7 +14,7 @@ import {
   RequestOptions,
   ResponseStream,
   Request,
-  Response
+  Response,
 } from './types';
 
 export function makeHttpApi(
@@ -95,7 +95,7 @@ export class HttpApi {
       uponStart(() =>
         this.sinkSubject(1, {
           ...options,
-          id
+          id,
         })
       ),
       filter(res$ => res$.request.id === id),

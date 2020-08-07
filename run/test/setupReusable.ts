@@ -10,7 +10,7 @@ import {
   subscribe,
   combine,
   throwError,
-  flatten
+  flatten,
 } from '@cycle/callbags';
 
 describe('setupReusable', () => {
@@ -37,7 +37,7 @@ describe('setupReusable', () => {
       }
     }
     const { connect, dispose } = setupReusable({
-      other: [new TestDriver(), null]
+      other: [new TestDriver(), null],
     });
     assert.strictEqual(typeof connect, 'function');
     assert.strictEqual(typeof dispose, 'function');
@@ -55,7 +55,7 @@ describe('setupReusable', () => {
 
     function app(sources: NiceSources): NiceSinks {
       return {
-        other: pipe(sources.other, take(1), startWith('a'))
+        other: pipe(sources.other, take(1), startWith('a')),
       };
     }
 
@@ -98,7 +98,7 @@ describe('setupReusable', () => {
             called1.push('a');
             return 'a';
           })
-        )
+        ),
       };
     }
 
@@ -110,7 +110,7 @@ describe('setupReusable', () => {
             called2.push('x');
             return 'x';
           })
-        )
+        ),
       };
     }
 
@@ -169,7 +169,7 @@ describe('setupReusable', () => {
             called.push('a');
             return 'a';
           })
-        )
+        ),
       };
     }
 
@@ -238,7 +238,7 @@ describe('setupReusable', () => {
             called.push('a');
             return 'a';
           })
-        )
+        ),
       };
     }
 
@@ -280,7 +280,7 @@ describe('setupReusable', () => {
     }, 30);
   });
 
-  it('should report errors from main() to a custom error handler', function(done) {
+  it('should report errors from main() to a custom error handler', function (done) {
     function main(sources: any): any {
       return {
         other: pipe(
@@ -288,7 +288,7 @@ describe('setupReusable', () => {
           take(1),
           map(() => throwError(new Error('malfunction'))),
           flatten
-        )
+        ),
       };
     }
     class TestDriver implements Driver<string, any> {

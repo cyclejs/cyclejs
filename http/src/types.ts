@@ -4,7 +4,7 @@ import {
   ResponseType,
   Progress as RawProgress,
   ResultMapping,
-  Response as RawResponse
+  Response as RawResponse,
 } from '@minireq/browser';
 
 export type Request<

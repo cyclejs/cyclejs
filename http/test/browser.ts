@@ -11,7 +11,7 @@ import {
   Producer,
   Operator,
   empty,
-  never
+  never,
 } from '@cycle/callbags';
 import { run, Driver, Plugin } from '@cycle/run';
 
@@ -59,7 +59,7 @@ function publishReplay<T>(): Operator<T, T> {
   };
 }
 
-describe('HTTP Driver in the browser', function() {
+describe('HTTP Driver in the browser', function () {
   runTests(uri, makeRequest());
 
   it('should be able to emit progress events on the response stream', done => {
@@ -95,12 +95,12 @@ describe('HTTP Driver in the browser', function() {
           url: uri + '/querystring',
           method: 'GET',
           progress: true,
-          query: { foo: 102030, bar: 'Pub' }
-        })
+          query: { foo: 102030, bar: 'Pub' },
+        }),
       };
     }
     const plugins = {
-      HTTP: makeHttpPlugin()
+      HTTP: makeHttpPlugin(),
     };
 
     run(main, plugins, []);
@@ -113,7 +113,7 @@ describe('HTTP Driver in the browser', function() {
         sources.HTTP.get({
           url: uri + '/querystring',
           progress: true,
-          query: { foo: 102030, bar: 'Pub' }
+          query: { foo: 102030, bar: 'Pub' },
         }),
         subscribe(res => {
           assert.strictEqual(res.request.url, uri + '/querystring');
@@ -136,7 +136,7 @@ describe('HTTP Driver in the browser', function() {
     }
 
     const plugins = {
-      HTTP: makeHttpPlugin()
+      HTTP: makeHttpPlugin(),
     };
 
     run(main, plugins, []);
@@ -147,7 +147,7 @@ describe('HTTP Driver in the browser', function() {
       pipe(
         sources.HTTP.get({
           url: uri + '/querystring',
-          query: { foo: 102030, bar: 'Pub' }
+          query: { foo: 102030, bar: 'Pub' },
         }),
         subscribe(res => {
           assert.strictEqual(res.request.url, uri + '/querystring');
@@ -165,7 +165,7 @@ describe('HTTP Driver in the browser', function() {
     }
 
     const plugins = {
-      HTTP: makeHttpPlugin()
+      HTTP: makeHttpPlugin(),
     };
 
     run(main, plugins, []);
@@ -176,7 +176,7 @@ describe('HTTP Driver in the browser', function() {
       pipe(
         sources.HTTP.get({
           url: uri + '/binary',
-          responseType: 'arraybuffer'
+          responseType: 'arraybuffer',
         }),
         subscribe(res => {
           assert.strictEqual(res.request.url, uri + '/binary');
@@ -195,7 +195,7 @@ describe('HTTP Driver in the browser', function() {
     }
 
     const plugins = {
-      HTTP: makeHttpPlugin()
+      HTTP: makeHttpPlugin(),
     };
 
     run(main, plugins, []);
@@ -206,7 +206,7 @@ describe('HTTP Driver in the browser', function() {
       pipe(
         sources.HTTP.get({
           url: uri + '/binary',
-          responseType: 'blob'
+          responseType: 'blob',
         }),
         subscribe(res => {
           assert.strictEqual(res.request.url, uri + '/binary');
@@ -231,13 +231,13 @@ describe('HTTP Driver in the browser', function() {
     }
 
     const plugins = {
-      HTTP: makeHttpPlugin()
+      HTTP: makeHttpPlugin(),
     };
 
     run(main, plugins, []);
   });
 
-  it('should not have cross-driver race conditions, A (#592)', function(done) {
+  it('should not have cross-driver race conditions, A (#592)', function (done) {
     this.timeout(10000);
 
     function child(sources: { HTTP: HttpApi }, num: number) {
@@ -252,13 +252,13 @@ describe('HTTP Driver in the browser', function() {
         num === 1
           ? of({
               category: 'cat',
-              url: uri + '/hello'
+              url: uri + '/hello',
             })
           : never();
 
       return {
         HTTP: request$,
-        DOM: vdom$
+        DOM: vdom$,
       };
     }
 
@@ -272,7 +272,7 @@ describe('HTTP Driver in the browser', function() {
           } else {
             return {
               HTTP: empty(),
-              DOM: of('')
+              DOM: of(''),
             };
           }
         }),
@@ -290,7 +290,7 @@ describe('HTTP Driver in the browser', function() {
           sinks$,
           map(sinks => sinks.DOM),
           flatten
-        )
+        ),
       };
     }
 
@@ -299,7 +299,7 @@ describe('HTTP Driver in the browser', function() {
       '',
       'My name is Hello World',
       '',
-      ''
+      '',
     ];
 
     class DomDriver implements Driver<any, any> {
@@ -315,7 +315,7 @@ describe('HTTP Driver in the browser', function() {
 
     const plugins: Record<string, Plugin<any, any>> = {
       HTTP: makeHttpPlugin(),
-      DOM: [new DomDriver(), null]
+      DOM: [new DomDriver(), null],
     };
 
     // HTTP then DOM:
@@ -327,7 +327,7 @@ describe('HTTP Driver in the browser', function() {
     }, 8500);
   });
 
-  it('should not have cross-driver race conditions, B (#592)', function(done) {
+  it('should not have cross-driver race conditions, B (#592)', function (done) {
     this.timeout(10000);
 
     function child(sources: { HTTP: HttpApi }, num: number) {
@@ -342,13 +342,13 @@ describe('HTTP Driver in the browser', function() {
         num === 1
           ? of({
               category: 'cat',
-              url: uri + '/hello'
+              url: uri + '/hello',
             })
           : never();
 
       return {
         HTTP: request$,
-        DOM: vdom$
+        DOM: vdom$,
       };
     }
 
@@ -362,7 +362,7 @@ describe('HTTP Driver in the browser', function() {
           } else {
             return {
               HTTP: empty(),
-              DOM: of('')
+              DOM: of(''),
             };
           }
         }),
@@ -380,7 +380,7 @@ describe('HTTP Driver in the browser', function() {
           sinks$,
           map(sinks => sinks.HTTP),
           flatten
-        )
+        ),
       };
     }
 
@@ -389,7 +389,7 @@ describe('HTTP Driver in the browser', function() {
       '',
       'My name is Hello World',
       '',
-      ''
+      '',
     ];
 
     class DomDriver implements Driver<any, any> {
@@ -405,7 +405,7 @@ describe('HTTP Driver in the browser', function() {
 
     const plugins: Record<string, Plugin<any, any>> = {
       HTTP: makeHttpPlugin(),
-      DOM: [new DomDriver(), null]
+      DOM: [new DomDriver(), null],
     };
 
     // HTTP then DOM:
@@ -417,7 +417,7 @@ describe('HTTP Driver in the browser', function() {
     }, 8500);
   });
 
-  it('should not remember past responses when selecting', function(done) {
+  it('should not remember past responses when selecting', function (done) {
     this.timeout(4000);
 
     function delay<T>(n: number): Operator<T, T> {
@@ -452,12 +452,12 @@ describe('HTTP Driver in the browser', function() {
       const request$ = of({
         category: 'cat',
         url: uri + '/hello',
-        contentType: undefined
+        contentType: undefined,
       });
 
       return {
         HTTP: request$,
-        Test: test$
+        Test: test$,
       };
     }
 
@@ -475,7 +475,7 @@ describe('HTTP Driver in the browser', function() {
 
     const plugins: Record<string, Plugin<any, any>> = {
       HTTP: makeHttpPlugin(),
-      Test: [new TestDriver(), null]
+      Test: [new TestDriver(), null],
     };
 
     run(main, plugins, []);

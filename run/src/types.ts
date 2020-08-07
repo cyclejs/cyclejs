@@ -13,7 +13,6 @@ export type ApiFactory<Source, Sink> = (
   gen: IdGenerator
 ) => any;
 
-
 export interface Driver<Source, Sink> {
   provideSource?(): Producer<Source>;
   consumeSink?(sink: Producer<Sink>): Dispose;
