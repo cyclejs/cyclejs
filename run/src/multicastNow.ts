@@ -42,7 +42,7 @@ export function multicastNow<T>(source: Producer<T>): Producer<T> {
       for (const x of lasts) {
         d(1, x);
       }
-    } else if (t === 2) {
+    } else {
       talkback(2);
       for (const sink of sinks) {
         sink?.(2, d);

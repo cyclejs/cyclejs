@@ -1,0 +1,31 @@
+name: Build
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Install pnpm
+        run: sudo npm install -g pnpm
+
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build packages
+        run: pnpm recursive run build
+
+      - name: Run tests
+        run: pnpm recursive run test:ci
