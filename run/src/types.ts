@@ -28,3 +28,8 @@ export type Main = (sources: any) => any;
 export type MasterWrapper = (main: Main) => Main;
 
 export type Subscription = () => void;
+
+export type Engine = {
+  connect: (masterMain: Main) => Subscription;
+  dispose: Subscription;
+};

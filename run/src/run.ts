@@ -1,5 +1,12 @@
 import { merge, makeReplaySubject } from '@cycle/callbags';
-import { Plugin, Plugins, Main, MasterWrapper, Subscription } from './types';
+import {
+  Plugin,
+  Plugins,
+  Main,
+  MasterWrapper,
+  Subscription,
+  Engine,
+} from './types';
 import { multicastNow } from './multicastNow';
 
 let currentId = 0;
@@ -46,7 +53,7 @@ export function setup(
 export function setupReusable(
   plugins: Plugins,
   errorHandler: (err: any) => void = defaultErrorHandler
-): { connect: (masterMain: Main) => Subscription; dispose: Subscription } {
+): Engine {
   checkPlugins(plugins, 'setupReusable', 'First');
 
   let sinkProxies: Record<string, any> = {};
