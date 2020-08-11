@@ -1,206 +1,332 @@
-// tslint:disable-next-line
-import 'mocha';
 import * as assert from 'assert';
-import * as sinon from 'sinon';
-import {setupReusable} from '../src/index';
-import xs, {Stream} from 'xstream';
+import { setupReusable, Driver, ReadonlyDriver } from '../src/index';
+import {
+  Producer,
+  of,
+  pipe,
+  take,
+  startWith,
+  map,
+  subscribe,
+  combine,
+  throwError,
+  flatten,
+} from '@cycle/callbags';
 
-describe('setupReusable', function() {
-  it('should be a function', function() {
+describe('setupReusable', () => {
+  it('should be a function', () => {
     assert.strictEqual(typeof setupReusable, 'function');
   });
 
-  it('should throw if argument is not object', function() {
+  it('should throw if argument is not object', () => {
     assert.throws(() => {
       (setupReusable as any)('not a function');
-    }, /Argument given to setupReusable must be an object with driver/i);
+    }, /First argument given to setupReusable must be an object with plugins/i);
   });
 
-  it('should throw if argument is an empty object', function() {
+  it('should throw if argument is an empty object', () => {
     assert.throws(() => {
       (setupReusable as any)({});
-    }, /Argument given to setupReusable must be an object with at least one/i);
+    }, /First argument given to setupReusable must be an object with at least one plugin/i);
   });
 
-  it('should return engine with sources and run', function() {
-    function app(ext: any): any {
-      return {
-        other: ext.other.take(1).startWith('a'),
-      };
+  it('should return engine with connect and dispose', () => {
+    class TestDriver implements ReadonlyDriver<string> {
+      public provideSource() {
+        return of('b');
+      }
     }
-    function driver() {
-      return xs.of('b');
-    }
-    const {sources, run} = setupReusable({other: driver});
-    assert.strictEqual(typeof sources, 'object');
-    assert.notStrictEqual(typeof sources.other, 'undefined');
-    assert.notStrictEqual(sources.other, null);
-    assert.strictEqual(typeof sources.other.addListener, 'function');
-    assert.strictEqual(typeof run, 'function');
+    const { connect, dispose } = setupReusable({
+      other: [new TestDriver(), null],
+    });
+    assert.strictEqual(typeof connect, 'function');
+    assert.strictEqual(typeof dispose, 'function');
   });
 
-  it('should return an engine, which we can run and dispose', function() {
-    const sandbox = sinon.createSandbox();
-    const spy = sandbox.spy();
+  it('should return an engine, which we can run and dispose', () => {
+    let numCalled = 0;
 
     type NiceSources = {
-      other: Stream<string>;
+      other: Producer<string>;
     };
     type NiceSinks = {
-      other: Stream<string>;
+      other: Producer<string>;
     };
 
     function app(sources: NiceSources): NiceSinks {
       return {
-        other: sources.other.take(1).startWith('a'),
+        other: pipe(sources.other, take(1), startWith('a')),
       };
     }
 
-    function driver(sink: Stream<string>) {
-      return xs.of('b').debug(spy);
+    class TestDriver implements Driver<string, void> {
+      public provideSource() {
+        return pipe(
+          of('b'),
+          map(x => {
+            numCalled++;
+            return x;
+          })
+        );
+      }
     }
 
-    const engine = setupReusable({other: driver});
-    const sinks = app(engine.sources);
-    const dispose = engine.run(sinks);
+    const engine = setupReusable({ other: [new TestDriver(), null] });
+    const dispose = engine.connect(app);
+    assert.strictEqual(typeof engine.dispose, 'function');
     assert.strictEqual(typeof dispose, 'function');
-    sinon.assert.calledOnce(spy);
-    dispose();
+    assert.strictEqual(numCalled, 1);
+    engine.dispose();
   });
 
-  it('should allow reusing drivers for many apps', function(done) {
-    const sandbox = sinon.createSandbox();
-    const spy1 = sandbox.spy();
-    const spy2 = sandbox.spy();
+  it('should allow reusing drivers for many apps', done => {
+    let called1: string[] = [];
+    let called2: string[] = [];
 
     type NiceSources = {
-      other: Stream<string>;
+      other: Producer<string>;
     };
     type NiceSinks = {
-      other: Stream<string>;
+      other: Producer<string>;
     };
 
     function app1(sources: NiceSources): NiceSinks {
       return {
-        other: sources.other.mapTo('a').debug(spy1),
+        other: pipe(
+          sources.other,
+          map(() => {
+            called1.push('a');
+            return 'a';
+          })
+        ),
       };
     }
 
     function app2(sources: NiceSources): NiceSinks {
       return {
-        other: sources.other.mapTo('x').debug(spy2),
+        other: pipe(
+          sources.other,
+          map(() => {
+            called2.push('x');
+            return 'x';
+          })
+        ),
       };
     }
 
     let sinkCompleted = 0;
-    function driver(sink: Stream<string>) {
-      sink.addListener({
-        complete: () => {
-          sinkCompleted++;
-          done(
-            new Error('complete should not be called before engine is before')
-          );
-        },
-      });
-      return xs.of('b');
+    class TestDriver implements Driver<string, string> {
+      public provideSource() {
+        return of('b');
+      }
+
+      public consumeSink(sink: Producer<string>) {
+        return pipe(
+          sink,
+          subscribe(
+            () => {},
+            () => {
+              sinkCompleted++;
+              done(
+                new Error(
+                  'complete should not be called before engine is before'
+                )
+              );
+            }
+          )
+        );
+      }
     }
 
-    const engine = setupReusable({other: driver});
+    const engine = setupReusable({ other: [new TestDriver(), null] });
 
-    const dispose1 = engine.run(app1(engine.sources));
-    sinon.assert.calledOnce(spy1);
-    sinon.assert.calledWithExactly(spy1, 'a');
-    sandbox.restore();
+    const dispose1 = engine.connect(app1);
+    assert.deepStrictEqual(called1, ['a']);
     dispose1();
 
-    const dispose2 = engine.run(app2(engine.sources));
-    sinon.assert.calledOnce(spy2);
-    sinon.assert.calledWithExactly(spy2, 'x');
+    const dispose2 = engine.connect(app2);
+    assert.deepStrictEqual(called2, ['x']);
     dispose2();
     assert.strictEqual(sinkCompleted, 0);
     done();
   });
 
-  it('should allow disposing the engine, stopping reusability', function(done) {
-    const sandbox = sinon.createSandbox();
-    const spy = sandbox.spy();
+  it('should allow disposing the engine, stopping reusability', done => {
+    let called: string[] = [];
 
     type NiceSources = {
-      other: Stream<string>;
+      other: Producer<string>;
     };
     type NiceSinks = {
-      other: Stream<string>;
+      other: Producer<string>;
     };
 
     function app(sources: NiceSources): NiceSinks {
       return {
-        other: sources.other.mapTo('a').debug(spy),
+        other: pipe(
+          sources.other,
+          map(() => {
+            called.push('a');
+            return 'a';
+          })
+        ),
       };
     }
 
     let sinkCompleted = 0;
-    function driver(sink: Stream<string>) {
-      sink.addListener({
-        complete: () => {
-          sinkCompleted++;
-        },
-      });
-      return xs.of('b');
+    class TestDriver implements Driver<string, string> {
+      provideSource() {
+        return of('b');
+      }
+
+      consumeSink(sink: Producer<string>) {
+        return pipe(
+          sink,
+          subscribe(() => {})
+        );
+      }
+
+      cleanup() {
+        sinkCompleted++;
+      }
     }
 
-    const engine = setupReusable({other: driver});
+    const engine = setupReusable({ other: [new TestDriver(), null] });
 
-    engine.run(app(engine.sources));
-    sinon.assert.calledOnce(spy);
-    sinon.assert.calledWithExactly(spy, 'a');
-    sandbox.restore();
+    engine.connect(app);
+
+    assert.deepStrictEqual(called, ['a']);
     engine.dispose();
     assert.strictEqual(sinkCompleted, 1);
     done();
   });
 
-  it('should report errors from main() in the console', function(done) {
-    const sandbox = sinon.createSandbox();
-    sandbox.stub(console, 'error');
+  it('should unsubscribe masterSinks on disconnect', done => {
+    let called: string[] = [];
 
-    function main(sources: any): any {
+    type NiceSources = {
+      other: Producer<string>;
+    };
+    type NiceSinks = {
+      other: Producer<string>;
+    };
+
+    let ended = false;
+
+    const testFromArray = (arr: any[]) => {
+      return (_: number, sink: any) => {
+        const id = setInterval(() => {
+          if (ended) clearInterval(id);
+          else sink(1, arr.unshift());
+          if (arr.length === 0) {
+            clearInterval(id);
+          }
+        }, 20);
+
+        sink(0, () => {
+          ended = true;
+          clearInterval(id);
+        });
+      };
+    };
+
+    function app(sources: NiceSources): NiceSinks {
       return {
-        other: sources.other
-          .take(1)
-          .startWith('a')
-          .map(() => {
-            throw new Error('malfunction');
-          }),
+        other: pipe(
+          combine(sources.other, testFromArray([1, 2, 3, 4, 5])),
+          map(() => {
+            called.push('a');
+            return 'a';
+          })
+        ),
       };
     }
-    function driver(sink: Stream<any>) {
-      sink.addListener({
-        next: () => {},
-        error: (err: any) => {},
-      });
-      return xs.of('b');
+
+    let sinkCompleted = 0;
+    class TestDriver implements Driver<string, string> {
+      provideSource() {
+        return of('b');
+      }
+
+      consumeSink(sink: Producer<string>) {
+        return pipe(
+          sink,
+          subscribe(() => {
+            if (called.length <= 1) {
+              assert.strictEqual(ended, false);
+            } else if (called.length > 1) {
+              done(new Error('should not deliver data after disposal'));
+            }
+          })
+        );
+      }
+
+      cleanup() {
+        sinkCompleted++;
+      }
+    }
+
+    const engine = setupReusable({ other: [new TestDriver(), null] });
+
+    const disconnect = engine.connect(app);
+    setTimeout(() => {
+      disconnect();
+      assert.strictEqual(ended, true);
+      assert.deepStrictEqual(called, ['a']);
+      assert.strictEqual(sinkCompleted, 0);
+      engine.dispose();
+      assert.strictEqual(sinkCompleted, 1);
+      done();
+    }, 30);
+  });
+
+  it('should report errors from main() to a custom error handler', function (done) {
+    function main(sources: any): any {
+      return {
+        other: pipe(
+          sources.other,
+          take(1),
+          map(() => throwError(new Error('malfunction'))),
+          flatten
+        ),
+      };
+    }
+    class TestDriver implements Driver<string, any> {
+      provideSource() {
+        return of('b');
+      }
+
+      consumeSink(sink: Producer<any>) {
+        return pipe(
+          sink,
+          subscribe(() => {})
+        );
+      }
+    }
+
+    let numCalled = 0;
+    function errorHandler(err: any) {
+      numCalled++;
+      assert.strictEqual(err.message, 'malfunction');
     }
 
     let caught = false;
-    const engine = setupReusable({other: driver});
+    const engine = setupReusable(
+      { other: [new TestDriver(), null] },
+      errorHandler
+    );
     try {
-      const sinks = main(engine.sources);
-      engine.run(sinks);
+      engine.connect(main);
     } catch (e) {
       caught = true;
     }
     setTimeout(() => {
-      sinon.assert.calledOnce(console.error as any);
-      sinon.assert.calledWithExactly(
-        console.error as any,
-        sinon.match((err: any) => err.message === 'malfunction')
-      );
+      assert.strictEqual(numCalled, 1);
 
       // Should be false because the error was already reported in the console.
       // Otherwise we would have double reporting of the error.
       assert.strictEqual(caught, false);
 
-      sandbox.restore();
       done();
     }, 80);
   });

@@ -9,6 +9,10 @@
 # Typescript build
 build/
 
+# Coverage reports
+coverage/
+.nyc_output/
+
 # Installed libs
 node_modules
 

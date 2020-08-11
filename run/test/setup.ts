@@ -1,252 +1,203 @@
-// tslint:disable-next-line
-import 'mocha';
 import * as assert from 'assert';
-import {setup, Driver} from '../src/index';
-import xs, {Stream} from 'xstream';
-import concat from 'xstream/extra/concat';
-import delay from 'xstream/extra/delay';
+import { setup, Driver } from '../src/index';
+import {
+  Producer,
+  of,
+  pipe,
+  subscribe,
+  merge,
+  take,
+  map,
+  startWith,
+  never,
+  makeSubject,
+} from '@cycle/callbags';
 
-describe('setup', function() {
-  it('should be a function', function() {
+describe('setup', () => {
+  it('should be a function', () => {
     assert.strictEqual(typeof setup, 'function');
   });
 
-  it('should throw if first argument is not a function', function() {
+  it('should throw if first argument is not an object', () => {
     assert.throws(() => {
-      (setup as any)('not a function');
-    }, /First argument given to Cycle must be the 'main' function/i);
+      (setup as any)('not an object');
+    }, /First argument given to setup must be an object with plugins/i);
   });
 
-  it('should throw if second argument is not an object', function() {
+  it('should throw if first argument is an empty object', () => {
     assert.throws(() => {
-      (setup as any)(() => {}, 'not an object');
-    }, /Second argument given to Cycle must be an object with driver functions/i);
+      (setup as any)({});
+    }, /First argument given to setup must be an object with at least one plugin/i);
   });
 
-  it('should throw if second argument is an empty object', function() {
-    assert.throws(() => {
-      (setup as any)(() => {}, {});
-    }, /Second argument given to Cycle must be an object with at least one/i);
-  });
-
-  it('should allow to have a driver that takes a union as input', function() {
-    function app(so: {drv: Stream<string>}) {
+  it('should allow to have a driver that takes a union as input', () => {
+    function app(_so: { drv: Producer<string> }) {
       return {
-        drv: xs.of('foo'),
+        drv: of('foo'),
       };
     }
 
-    const {sinks, sources} = setup(app, {
-      drv: (s: Stream<string | number>) => xs.of('foo'),
+    class TestDriver implements Driver<string | number, string> {
+      provideSource() {
+        return of('bar');
+      }
+
+      consumeSink(sink: Producer<string | number>) {
+        return pipe(
+          sink,
+          subscribe(d => assert.strictEqual(d, 'foo'))
+        );
+      }
+    }
+
+    const connect = setup({
+      drv: [new TestDriver(), null],
     });
+
+    connect(app);
   });
 
-  it('should allow to not use all sources in main', function() {
-    function app(so: {first: Stream<string>}) {
+  it('should allow to not use all sources in main', () => {
+    function app(so: { first: Producer<string> }) {
       return {
-        first: xs.of('test'),
-        second: xs.of('string'),
+        first: of('test'),
+        second: so.first,
       };
     }
     function app2() {
-      return {second: xs.of('test')};
+      return { second: of('test') };
     }
-    function driver(sink: Stream<string>) {
-      return xs.of('answer');
+
+    class TestDriver implements Driver<string, string> {
+      constructor(private test: string) {}
+
+      provideSource() {
+        return of('answer');
+      }
+
+      consumeSink(sink: Producer<string>) {
+        return pipe(
+          sink,
+          subscribe(d => assert.strictEqual(d, this.test))
+        );
+      }
     }
-    const {sinks, sources} = setup(app, {first: driver, second: driver});
-    const {sinks: sinks2, sources: sources2} = setup(app2, {
-      first: driver,
-      second: driver,
+
+    const connect = setup({
+      first: [new TestDriver('test'), null],
+      second: [new TestDriver('answer'), null],
     });
+    connect(app);
 
-    assert.strictEqual(typeof sinks, 'object');
-    assert.strictEqual(typeof sinks.second.addListener, 'function');
-    assert.strictEqual(typeof sinks2, 'object');
-    assert.strictEqual(typeof sinks2.second.addListener, 'function');
-  });
-
-  it('should return sinks object and sources object', function() {
-    function app(ext: {other: Stream<string>}) {
-      return {
-        other: ext.other.take(1).startWith('a'),
-      };
-    }
-    function driver() {
-      return xs.of('b');
-    }
-    const {sinks, sources} = setup(app, {other: driver});
-    assert.strictEqual(typeof sinks, 'object');
-    assert.strictEqual(typeof sinks.other.addListener, 'function');
-    assert.strictEqual(typeof sources, 'object');
-    assert.notStrictEqual(typeof sources.other, 'undefined');
-    assert.notStrictEqual(sources.other, null);
-    assert.strictEqual(typeof sources.other.addListener, 'function');
-  });
-
-  it('should type-check keyof sources and sinks in main and drivers', function() {
-    type Sources = {
-      str: Stream<string>;
-      obj: Stream<object>;
-    };
-
-    function app(sources: Sources) {
-      return {
-        str: sources.str.take(1).startWith('a'), // good
-        // str: sources.obj.mapTo('good'), // good
-        // strTYPO: sources.str.take(1).startWith('a'), // bad
-        // str: xs.of(123), // bad
-        num: xs.of(100), // good
-        // numTYPO: xs.of(100), // bad
-        // num: xs.of('BAD TYPE'), // bad
-      };
-    }
-
-    const stringDriver: Driver<Stream<string>, Stream<string>> = (
-      sink: Stream<string>
-    ) => xs.of('b');
-
-    const numberWriteOnlyDriver: Driver<Stream<number>, void> = (
-      sink: Stream<number>
-    ) => {};
-
-    const objectReadOnlyDriver: Driver<void, Stream<object>> = () => xs.of({});
-
-    setup(app, {
-      str: stringDriver,
-      num: numberWriteOnlyDriver,
-      obj: objectReadOnlyDriver,
+    const connect2 = setup({
+      first: [new TestDriver(''), null],
+      second: [new TestDriver('test'), null],
     });
+    connect2(app2);
   });
 
-  it('should type-check keyof sources and sinks, supporting interfaces', function() {
-    interface Sources {
-      str: Stream<string>;
-      obj: Stream<object>;
-    }
-
-    interface Sinks {
-      str: Stream<string>;
-      num: Stream<number>;
-    }
-
-    function app(sources: Sources): Sinks {
-      return {
-        str: sources.str.take(1).startWith('a'), // good
-        // str: sources.obj.mapTo('good'), // good
-        // strTYPO: sources.str.take(1).startWith('a'), // bad
-        // str: xs.of(123), // bad
-        num: xs.of(100), // good
-        // numTYPO: xs.of(100), // bad
-        // num: xs.of('BAD TYPE'), // bad
-      };
-    }
-
-    const stringDriver: Driver<Stream<string>, Stream<string>> = (
-      sink: Stream<string>
-    ) => xs.of('b');
-
-    const numberWriteOnlyDriver: Driver<Stream<number>, void> = (
-      sink: Stream<number>
-    ) => {};
-
-    const objectReadOnlyDriver: Driver<void, Stream<object>> = () => xs.of({});
-
-    setup(app, {
-      str: stringDriver,
-      num: numberWriteOnlyDriver,
-      obj: objectReadOnlyDriver,
-    });
-  });
-
-  it('should type-check and allow more drivers than sinks', function() {
-    type Sources = {
-      str: Stream<string>;
-      num: Stream<number>;
-      obj: Stream<object>;
-    };
-
-    function app(sources: Sources) {
-      return {};
-    }
-
-    function stringDriver(sink: Stream<string>) {
-      return xs.of('b');
-    }
-
-    const numberDriver = (sink: Stream<number>) => xs.of(100);
-
-    const objectReadOnlyDriver = () => xs.of({});
-
-    setup(app, {
-      str: stringDriver,
-      num: numberDriver,
-      obj: objectReadOnlyDriver,
-    });
-  });
-
-  it('should return a run() which in turn returns a dispose()', function(done) {
+  it('should return a connect() which in turn returns a dispose()', done => {
     type TestSources = {
-      other: Stream<number>;
+      other: Producer<number>;
     };
 
-    function app(_sources: TestSources) {
+    let dispose: any;
+    function app(sources: TestSources) {
+      pipe(
+        sources.other,
+        subscribe(x => {
+          assert.strictEqual(x, 97);
+          dispose();
+        }, done)
+      );
+
       return {
-        other: concat(
-          _sources.other
-            .take(6)
-            .map(String)
-            .startWith('a'),
-          xs.never()
+        other: merge(
+          pipe(sources.other, take(6), map(String), startWith('a')),
+          never()
         ),
       };
     }
 
-    function driver(sink: Stream<string>) {
-      return sink.map(x => x.charCodeAt(0)).compose(delay(1));
+    class TestDriver implements Driver<number, string> {
+      private subject = makeSubject<number>();
+
+      provideSource() {
+        return this.subject;
+      }
+
+      consumeSink(sink: Producer<string>) {
+        return pipe(
+          sink,
+          subscribe(x => {
+            setTimeout(() => this.subject(1, x.charCodeAt(0)), 1);
+          })
+        );
+      }
     }
 
-    const {sources, run} = setup(app, {other: driver});
-
-    let dispose: any;
-    sources.other.addListener({
-      next: x => {
-        assert.strictEqual(x, 97);
-        dispose(); // will trigger this listener's complete
-      },
-      error: done,
-      complete: done,
-    });
-    dispose = run();
+    const connect = setup({ other: [new TestDriver(), null] });
+    dispose = connect(app);
   });
 
-  it('should not work after has been disposed', function(done) {
+  it('should not work after has been disposed', done => {
     type MySources = {
-      other: Stream<string>;
+      other: Producer<string>;
     };
 
-    function app(_sources: MySources) {
-      return {other: xs.periodic(100).map(i => i + 1)};
-    }
-    function driver(num$: Stream<number>): Stream<string> {
-      return num$.map(num => 'x' + num);
-    }
+    function inverval(n: number): Producer<number> {
+      return (_, sink) => {
+        let id: any;
+        let i = 0;
 
-    const {sources, run} = setup(app, {
-      other: driver,
-    });
+        sink(0, () => {
+          clearInterval(id);
+        });
+
+        id = setInterval(() => {
+          sink(1, i++);
+        }, n);
+      };
+    }
 
     let dispose: any;
-    sources.other.addListener({
-      next: x => {
-        assert.notStrictEqual(x, 'x3');
-        if (x === 'x2') {
-          dispose(); // will trigger this listener's complete
-        }
-      },
-      error: done,
-      complete: done,
-    });
-    dispose = run();
+    function app(sources: MySources) {
+      pipe(
+        sources.other,
+        subscribe(x => {
+          assert.notStrictEqual(x, 'x3');
+          if (x === 'x2') {
+            dispose();
+          }
+        }, done)
+      );
+
+      return {
+        other: pipe(
+          inverval(100),
+          map(i => i + 1)
+        ),
+      };
+    }
+
+    class TestDriver implements Driver<string, number> {
+      private subject = makeSubject<string>();
+      provideSource() {
+        return this.subject;
+      }
+
+      consumeSink(sink: Producer<number>) {
+        return pipe(
+          sink,
+          subscribe(x => {
+            this.subject(1, 'x' + x);
+          })
+        );
+      }
+    }
+
+    const connect = setup({ other: [new TestDriver(), null] });
+
+    dispose = connect(app);
   });
 });
