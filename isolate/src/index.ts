@@ -141,8 +141,8 @@ export type OuterSo<ISo> = {
 
 export type OuterSi<ISo, ISi> = {
   [K in keyof ISo & keyof ISi]: ISo[K] extends IsolateableSource
-    ? (ReturnType<ISo[K]['isolateSink']> extends Stream<ISi[K]>
-        ? Stream<ISi[K]>
+    ? (ReturnType<ISo[K]['isolateSink']> extends ISi[K]
+        ? ISi[K]
         : ReturnType<ISo[K]['isolateSink']> extends Stream<infer T>
         ? Stream<T>
         : (ReturnType<ISo[K]['isolateSink']> extends Stream<any>
