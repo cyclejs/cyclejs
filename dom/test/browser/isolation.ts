@@ -1079,7 +1079,7 @@ describe('isolation', function() {
         .take(2)
         .map(x => x + 1)
         .startWith(0)
-        .map(x => (x === 1 ? xs.of(div()) : (child.DOM as Stream<VNode>)))
+        .map(x => (x === 1 ? xs.of(div()) : (child.DOM)))
         .flatten();
       return {
         DOM: innerDOM$,
