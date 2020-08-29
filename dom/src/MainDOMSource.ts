@@ -144,5 +144,5 @@ export class MainDOMSource {
   // not get bitten by a missing `this` reference.
 
   public isolateSource: (source: MainDOMSource, scope: string) => MainDOMSource;
-  public isolateSink: IsolateSink<any>;
+  public isolateSink: IsolateSink<VNode>;
 }
