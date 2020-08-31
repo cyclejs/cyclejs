@@ -1,3 +1,9 @@
+## 22.8.0 (2020-08-31)
+
+* fix(dom): correct type for isolateSink ([0b68452](https://github.com/cyclejs/cyclejs/commit/0b68452)), closes [#949](https://github.com/cyclejs/cyclejs/issues/949)
+
+
+
 ## 22.7.0 (2020-04-23)
 
 * fix(dom): fix nonBubbling events only emit to one stream ([8a963ed](https://github.com/cyclejs/cyclejs/commit/8a963ed)), closes [#941](https://github.com/cyclejs/cyclejs/issues/941) [#940](https://github.com/cyclejs/cyclejs/issues/940)
