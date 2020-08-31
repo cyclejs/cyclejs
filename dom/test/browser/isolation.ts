@@ -346,7 +346,7 @@ describe('isolation', function() {
   it('should work with thunks', function(done) {
     function app(_sources: {DOM: MainDOMSource}) {
       const child$ = _sources.DOM.isolateSink(
-        xs.of(thunk('div.foo', () => div('.foo', [h4('.bar', 'Wrong')]), [])),
+        xs.of<VNode>(thunk('div.foo', () => div('.foo', [h4('.bar', 'Wrong')]), [])),
         'ISOLATION'
       );
 
@@ -1079,7 +1079,7 @@ describe('isolation', function() {
         .take(2)
         .map(x => x + 1)
         .startWith(0)
-        .map(x => (x === 1 ? xs.of(div()) : (child.DOM as Stream<VNode>)))
+        .map(x => (x === 1 ? xs.of(div()) : (child.DOM)))
         .flatten();
       return {
         DOM: innerDOM$,
