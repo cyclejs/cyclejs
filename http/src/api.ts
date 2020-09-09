@@ -6,7 +6,7 @@ import {
   filter,
   uponStart,
 } from '@cycle/callbags';
-import { IdGenerator } from '@cycle/run';
+import { IdGenerator, Api } from '@cycle/run';
 import { METHOD, ResponseType } from '@minireq/browser';
 
 import {
@@ -22,13 +22,13 @@ export function makeHttpApi(
   sinkSubject: Subject<SinkRequest>,
   gen: IdGenerator
 ): HttpApi {
-  return new HttpApi(sinkSubject, source, gen);
+  return new HttpApi(source, sinkSubject, gen);
 }
 
-export class HttpApi {
+export class HttpApi implements Api<ResponseStream> {
   constructor(
+    public readonly source: Producer<ResponseStream>,
     private sinkSubject: Subject<SinkRequest>,
-    private source: Producer<ResponseStream>,
     private gen: IdGenerator
   ) {}
 

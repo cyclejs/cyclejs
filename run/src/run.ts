@@ -6,6 +6,7 @@ import {
   MasterWrapper,
   Subscription,
   Engine,
+  ApiFactory,
 } from './types';
 import { multicastNow } from './multicastNow';
 
@@ -120,6 +121,22 @@ function checkPlugins(plugins: Plugins, name = 'Cycle', arg = 'Second'): void {
   }
 }
 
+function mapObj<A extends string | number | symbol, T, U>(
+  f: (t: T) => U | undefined | null,
+  x: Record<A, T>
+): Record<A, U> {
+  let result: Record<A, U> = {} as any;
+  for (const key in x) {
+    if (x.hasOwnProperty(key)) {
+      const y = f(x[key]);
+      if (y !== null && y !== undefined) {
+        result[key] = y;
+      }
+    }
+  }
+  return result;
+}
+
 export function makeMasterMain(
   main: Main,
   plugins: Record<string, Plugin<any, any>>,
@@ -131,15 +148,33 @@ export function makeMasterMain(
     );
   }
   checkPlugins(plugins);
-  function masterMain(sources: any): any {
+
+  let m = applyApis(
+    main,
+    mapObj(([_, api]) => api, plugins)
+  );
+
+  for (let i = wrappers.length - 1; i >= 0; i--) {
+    m = wrappers[i](m);
+  }
+
+  return m;
+}
+
+export function applyApis(
+  main: Main,
+  apis: Record<string, ApiFactory<any, any>>
+): Main {
+  return function appliedMain(sources: any): any {
     let pluginSources: any = {};
     let pluginsSinks: any = {};
 
-    for (const k of Object.keys(plugins)) {
+    for (const k of Object.keys(apis)) {
+      if (!sources[k]) continue;
       const sinkSubject = makeReplaySubject();
-      pluginSources[k] = plugins[k][1]
-        ? plugins[k][1]!(sources[k], sinkSubject, cuid)
-        : sources[k];
+      const source = sources[k].source ?? sources[k];
+
+      pluginSources[k] = apis[k] ? apis[k]!(source, sinkSubject, cuid) : source;
       pluginsSinks[k] = sinkSubject;
     }
 
@@ -154,12 +189,5 @@ export function makeMasterMain(
     }
 
     return sinks;
-  }
-
-  let m = masterMain;
-  for (let i = wrappers.length - 1; i >= 0; i--) {
-    m = wrappers[i](m);
-  }
-
-  return m;
+  };
 }

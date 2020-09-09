@@ -11,7 +11,11 @@ export type ApiFactory<Source, Sink> = (
   source: Producer<Source>,
   sinkSubject: Subject<Sink>,
   gen: IdGenerator
-) => any;
+) => Api<Source>;
+
+export interface Api<Source> {
+  readonly source: Producer<Source>;
+}
 
 export interface Driver<Source, Sink> {
   provideSource?(): Producer<Source>;
