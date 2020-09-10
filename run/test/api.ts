@@ -89,6 +89,7 @@ describe('api', () => {
     }
 
     run(main, { random: makeRandomPlugin(n) }, []);
+    assert.strictEqual(called, true);
   });
 
   it('should allow to manually apply apis', () => {
@@ -123,5 +124,6 @@ describe('api', () => {
     }
 
     run(parent, { random: makeRandomPlugin(n) }, []);
+    assert.strictEqual(called, true);
   });
 });
