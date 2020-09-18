@@ -1,3 +1,9 @@
+## 5.5.0 (2020-09-18)
+
+* fix(run): setup quicktask lazily, only upon run() ([dee01dd](https://github.com/cyclejs/cyclejs/commit/dee01dd)), closes [#956](https://github.com/cyclejs/cyclejs/issues/956)
+
+
+
 ## 5.4.0 (2019-11-06)
 
 
