@@ -9,8 +9,6 @@ import {
   Sources,
 } from './types';
 
-const scheduleMicrotask = quicktask();
-
 export function makeSinkProxies<D extends Drivers>(drivers: D): SinkProxies<D> {
   const sinkProxies: SinkProxies<D> = {} as SinkProxies<D>;
   for (const name in drivers) {
@@ -65,20 +63,22 @@ type SinkReplicators<Si> = {
     error(err: any): void;
     _e?(err: any): void;
     complete(): void;
-  }
+  };
 };
 
 type ReplicationBuffers<Si> = {
   [P in keyof Si]: {
     _n: Array<any>;
     _e: Array<any>;
-  }
+  };
 };
 
 export function replicateMany<Si extends any>(
   sinks: Si,
   sinkProxies: SinkProxies<Si>
 ): DisposeFunction {
+  const scheduleMicrotask = quicktask();
+
   const sinkNames: Array<keyof Si> = Object.keys(sinks).filter(
     name => !!sinkProxies[name]
   );
