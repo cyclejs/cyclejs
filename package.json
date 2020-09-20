@@ -2,11 +2,11 @@
   "private": true,
   "license": "MIT",
   "devDependencies": {
-    "husky": "^4.2.5",
-    "lint-staged": "^10.2.11",
-    "prettier": "^2.0.1",
-    "rollup": "^2.1.0",
-    "typescript": "^3.8.3"
+    "husky": "^4.3.0",
+    "lint-staged": "^10.4.0",
+    "prettier": "^2.1.2",
+    "rollup": "^2.27.1",
+    "typescript": "^4.0.3"
   },
   "husky": {
     "hooks": {

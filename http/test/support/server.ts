@@ -72,12 +72,7 @@ app.delete('/delete', function (req: any, res: any) {
 
 app.get('/binary', function (req: any, res: any) {
   setTimeout(function () {
-    const result = Buffer.from([1, 2, 3]);
-    res.writeHead(200, {
-      'Content-Type': 'application/octet-stream',
-      'Content-Length': result.byteLength,
-    });
-    res.status(200).write(result, 'binary');
+    res.send(Buffer.from([1, 2, 3]));
   }, 150);
 });
 
