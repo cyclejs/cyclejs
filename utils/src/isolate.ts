@@ -1,12 +1,6 @@
-import type { Main, Api } from '@cycle/run';
-import type { Producer } from '@cycle/callbags';
+import type { Main } from '@cycle/run';
 
 export type Scope = string | symbol | Record<string, any>;
-
-export interface IsolateableApi<Source, Sink> extends Api<Source> {
-  isolateSource<So, Si>(scope: any): IsolateableApi<So, Si>;
-  isolateSink<Si>(sink: Producer<Sink>, scope: any): Producer<Si>;
-}
 
 export function isolate(main: Main, scope: Scope): Main {
   checkArguments(main, scope);

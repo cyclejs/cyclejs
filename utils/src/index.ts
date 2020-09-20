@@ -1,0 +1,1 @@
+export { isolate } from './isolate';

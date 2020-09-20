@@ -16,6 +16,10 @@ export type ApiFactory<Source, Sink> = (
 export interface Api<Source> {
   readonly source: Producer<Source>;
 }
+export interface IsolateableApi<Source, Sink> extends Api<Source> {
+  isolateSource<So, Si>(scope: any): IsolateableApi<So, Si>;
+  isolateSink<Si>(sink: Producer<Sink>, scope: any): Producer<Si>;
+}
 
 export interface Driver<Source, Sink> {
   provideSource?(): Producer<Source>;

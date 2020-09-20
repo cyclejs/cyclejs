@@ -60,24 +60,6 @@ importers:
       mocha: ^8.1.3
       start-server-and-test: ^1.11.4
       ts-node: ^9.0.0
-  isolate:
-    dependencies:
-      '@cycle/callbags': 2.2.0
-    devDependencies:
-      '@cycle/run': 'link:../run'
-      '@types/mocha': 8.0.3
-      '@types/node': 14.11.1
-      mocha: 8.1.3
-      nyc: 15.1.0
-      ts-node: 9.0.0
-    specifiers:
-      '@cycle/callbags': ^2.2.0
-      '@cycle/run': 'workspace:^6.0.0'
-      '@types/mocha': ^8.0.3
-      '@types/node': ^14.11.1
-      mocha: ^8.1.3
-      nyc: ^15.1.0
-      ts-node: ^9.0.0
   run:
     dependencies:
       '@cycle/callbags': 2.2.0
@@ -89,6 +71,23 @@ importers:
       ts-node: 9.0.0
     specifiers:
       '@cycle/callbags': ^2.2.0
+      '@types/mocha': ^8.0.3
+      '@types/node': ^14.11.1
+      mocha: ^8.1.3
+      nyc: ^15.1.0
+      ts-node: ^9.0.0
+  utils:
+    devDependencies:
+      '@cycle/callbags': 2.2.0
+      '@cycle/run': 'link:../run'
+      '@types/mocha': 8.0.3
+      '@types/node': 14.11.1
+      mocha: 8.1.3
+      nyc: 15.1.0
+      ts-node: 9.0.0
+    specifiers:
+      '@cycle/callbags': ^2.2.0
+      '@cycle/run': 'workspace:^6.0.0'
       '@types/mocha': ^8.0.3
       '@types/node': ^14.11.1
       mocha: ^8.1.3
@@ -257,7 +256,6 @@ packages:
     resolution:
       integrity: sha512-bvM7Qz6eKnJVFIn+1LPtjlBFPVN5jNDc1XmN15vWe7Q3DPBufWWsLiIvUu7xW87uTG6QoggpIDnUgLQvPheU+Q==
   /@cycle/callbags/2.2.0:
-    dev: false
     resolution:
       integrity: sha512-QTK3Pec9LHKh1hFB4CTxqPB8IYeVQSGWb4ezfciyojjlwwQYOzjObbUEv91Q9SBjZRJMKwMis40RJnsmDkK72g==
   /@hapi/address/4.1.0:
