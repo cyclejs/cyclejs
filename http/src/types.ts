@@ -1,5 +1,5 @@
-import { Producer } from '@cycle/callbags';
-import {
+import type { Producer } from '@cycle/callbags';
+import type {
   RequestOpts,
   ResponseType,
   Progress as RawProgress,

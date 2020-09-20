@@ -6,10 +6,10 @@ import {
   filter,
   uponStart,
 } from '@cycle/callbags';
-import { IdGenerator, Api } from '@cycle/run';
-import { METHOD, ResponseType } from '@minireq/browser';
+import type { IdGenerator, Api } from '@cycle/run';
+import type { METHOD, ResponseType } from '@minireq/browser';
 
-import {
+import type {
   SinkRequest,
   RequestOptions,
   ResponseStream,

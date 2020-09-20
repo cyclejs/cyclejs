@@ -27,10 +27,10 @@
     "@minireq/browser": "^1.2.0-beta.5"
   },
   "peerDependencies": {
-    "@cycle/run": "^5.5.0"
+    "@cycle/run": "^6.0.0"
   },
   "devDependencies": {
-    "@cycle/run": "workspace:^5.4.0",
+    "@cycle/run": "workspace:^6.0.0",
     "@minireq/node": "^1.0.0-beta.6",
     "@types/assert": "^1.5.2",
     "@types/body-parser": "^1.19.0",
