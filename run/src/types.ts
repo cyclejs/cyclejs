@@ -27,7 +27,7 @@ export type WriteonlyDriver<Sink> = Driver<never, Sink>;
 
 export type IdGenerator = () => number;
 
-export type Main = (sources: any) => any;
+export type Main = (sources: any, ...rest: any[]) => any;
 
 export type MasterWrapper = (main: Main) => Main;
 

@@ -165,7 +165,7 @@ export function applyApis(
   main: Main,
   apis: Record<string, ApiFactory<any, any>>
 ): Main {
-  return function appliedMain(sources: any): any {
+  return function appliedMain(sources: any, ...rest: any[]): any {
     let pluginSources: any = {};
     let pluginsSinks: any = {};
 
@@ -178,7 +178,7 @@ export function applyApis(
       pluginsSinks[k] = sinkSubject;
     }
 
-    let sinks = main({ ...sources, ...pluginSources }) ?? {};
+    let sinks = main({ ...sources, ...pluginSources }, ...rest) ?? {};
 
     for (const k of Object.keys(pluginsSinks)) {
       if (sinks[k]) {

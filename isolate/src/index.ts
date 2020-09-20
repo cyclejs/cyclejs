@@ -9,11 +9,13 @@ export interface IsolateableApi<Source, Sink> extends Api<Source> {
 }
 
 export function isolate(main: Main, scope: Scope): Main {
-  return function isolatedMain(sources: any) {
+  checkArguments(main, scope);
+
+  return function isolatedMain(sources: any, ...rest: any[]) {
     let channelsToIsolate: any = {};
 
     for (const name of Object.keys(sources)) {
-      if (typeof sources[name].isolateSource !== 'undefined') {
+      if (typeof sources[name]?.isolateSource !== 'undefined') {
         if (typeof scope !== 'object') {
           channelsToIsolate[name] = scope;
         } else if (defined(scope[name])) {
@@ -29,7 +31,7 @@ export function isolate(main: Main, scope: Scope): Main {
       newSources[name] = sources[name].isolateSource(channelsToIsolate[name]);
     }
 
-    const sinks = main({ ...sources, ...newSources });
+    const sinks = main({ ...sources, ...newSources }, ...rest);
 
     let newSinks: any = {};
     for (const name of Object.keys(channelsToIsolate)) {
@@ -41,6 +43,17 @@ export function isolate(main: Main, scope: Scope): Main {
 
     return { ...sinks, ...newSinks };
   };
+}
+
+function checkArguments(main: Main, scope: Scope): void {
+  if (typeof main !== 'function') {
+    throw new Error(
+      'First argument given to isolate() must be a main function'
+    );
+  }
+  if (scope === null) {
+    throw new Error('Second argument given to isolate() must not be null');
+  }
 }
 
 function defined(x: any): boolean {
