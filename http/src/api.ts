@@ -7,7 +7,7 @@ import {
   filter,
   uponStart,
 } from '@cycle/callbags';
-import type { IdGenerator, IsolateableApi, Scope } from '@cycle/run';
+import { IdGenerator, IsolateableApi, Scope, wrapSubject } from '@cycle/run';
 import type { METHOD, ResponseType } from '@minireq/browser';
 
 import type {
@@ -135,16 +135,21 @@ export class HttpApi implements IsolateableApi<ResponseStream, SinkRequest> {
     sinkSubject: Subject<SinkRequest>,
     gen: IdGenerator
   ): HttpApi {
-    const wrappedSubject = (t: number, d: any) => {
-      if (t === 1 && isPrefixOf(this.namespace, d.namespace)) {
-        sinkSubject(1, {
-          ...d,
-          namespace: d.namespace.slice(this.namespace.length),
-        });
-      } else sinkSubject(t as any, d);
+    const stripNamespace = (req: SinkRequest) => {
+      if (isPrefixOf(this.namespace, req.namespace)) {
+        return {
+          ...req,
+          namespace: req.namespace!.slice(this.namespace.length),
+        };
+      } else return req;
     };
 
-    return new HttpApi(source, wrappedSubject, gen, this.namespace);
+    return new HttpApi(
+      source,
+      wrapSubject(stripNamespace, sinkSubject),
+      gen,
+      this.namespace
+    );
   }
 }
 
