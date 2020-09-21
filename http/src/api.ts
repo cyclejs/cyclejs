@@ -125,7 +125,7 @@ export class HttpApi implements IsolateableApi<ResponseStream, SinkRequest> {
       sink,
       map(req => ({
         ...mkOpts(req.method ?? 'GET', req),
-        namespace: (req.namespace ?? []).concat(scope),
+        namespace: [scope].concat(req.namespace ?? []),
       }))
     );
   }
@@ -135,7 +135,16 @@ export class HttpApi implements IsolateableApi<ResponseStream, SinkRequest> {
     sinkSubject: Subject<SinkRequest>,
     gen: IdGenerator
   ): HttpApi {
-    return new HttpApi(source, sinkSubject, gen, this.namespace);
+    const wrappedSubject = (t: number, d: any) => {
+      if (t === 1 && isPrefixOf(this.namespace, d.namespace)) {
+        sinkSubject(1, {
+          ...d,
+          namespace: d.namespace.slice(this.namespace.length),
+        });
+      } else sinkSubject(t as any, d);
+    };
+
+    return new HttpApi(source, wrappedSubject, gen, this.namespace);
   }
 }
 

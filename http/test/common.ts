@@ -11,7 +11,7 @@ import {
   Operator,
 } from '@cycle/callbags';
 import { RequestFn, Response } from '@minireq/browser';
-import { run, Driver, Plugin } from '@cycle/run';
+import { run, applyApis, Driver, Plugin } from '@cycle/run';
 import { isolate } from '@cycle/utils';
 // @ts-ignore
 import delayInternal from 'callbag-delay';
@@ -470,8 +470,8 @@ export function runTests(uri: string, request: RequestFn) {
           multicast
         );
         const fooInsideBarHTTPSource = sources.HTTP.isolateSource(
-          'foo'
-        ).isolateSource('bar');
+          'bar'
+        ).isolateSource('foo');
         const fooInsideFooHTTPSource = sources.HTTP.isolateSource(
           'foo'
         ).isolateSource('foo');
@@ -539,6 +539,51 @@ export function runTests(uri: string, request: RequestFn) {
       dispose = run(wrapper2, { HTTP: makeHttpPlugin(request) }, []);
     });
 
-    //TODO: Add test that the api keeps the isolation scope even if applyApi is used
+    it('should stay isolated even if discharged with `applyApi`', done => {
+      let dispose: any;
+      let mapped = false;
+
+      function main(sources: { HTTP: HttpApi }) {
+        pipe(
+          sources.HTTP.get({ url: uri + '/hello', contentType: undefined }),
+          delay(10),
+          subscribe(response => {
+            assert.strictEqual(mapped, true);
+            assert.strictEqual(typeof response.request, 'object');
+            assert.strictEqual(response.request.url, uri + '/hello');
+
+            assert.strictEqual(response.status, 200);
+            assert.strictEqual(response.data, 'Hello World');
+            dispose();
+            done();
+          })
+        );
+
+        return {};
+      }
+
+      function wrapper1(sources: { HTTP: HttpApi }) {
+        const isolatedMain = isolate(main, { HTTP: 'wrapper1' });
+        const appliedSinks = applyApis(isolatedMain, ['HTTP'])(sources);
+        assert.strictEqual(typeof appliedSinks.HTTP, 'function');
+        return appliedSinks;
+      }
+
+      function wrapper2(sources: { HTTP: HttpApi }) {
+        const sinks = isolate(wrapper1, { HTTP: 'wrapper2' })(sources);
+        return {
+          HTTP: pipe(
+            sinks.HTTP,
+            map((req: any) => {
+              mapped = true;
+              assert.deepStrictEqual(req.namespace, ['wrapper2', 'wrapper1']);
+              return req;
+            })
+          ),
+        };
+      }
+
+      dispose = run(wrapper2, { HTTP: makeHttpPlugin(request) }, []);
+    });
   });
 }
