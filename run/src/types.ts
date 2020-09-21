@@ -11,14 +11,21 @@ export type ApiFactory<Source, Sink> = (
   source: Producer<Source>,
   sinkSubject: Subject<Sink>,
   gen: IdGenerator
-) => Api<Source>;
+) => Api<Source, Sink>;
 
-export interface Api<Source> {
+export interface Api<Source, Sink> {
   readonly source: Producer<Source>;
+  create?(
+    source: Producer<Source>,
+    sinkSubject: Subject<Sink>,
+    gen: IdGenerator
+  ): Api<Source, Sink>;
 }
-export interface IsolateableApi<Source, Sink> extends Api<Source> {
-  isolateSource<So, Si>(scope: any): IsolateableApi<So, Si>;
-  isolateSink<Si>(sink: Producer<Sink>, scope: any): Producer<Si>;
+
+export type Scope = string | symbol | number;
+export interface IsolateableApi<Source, Sink> extends Api<Source, Sink> {
+  isolateSource(scope: Scope): IsolateableApi<any, any>;
+  isolateSink(sink: Producer<Sink>, scope: Scope): Producer<any>;
 }
 
 export interface Driver<Source, Sink> {

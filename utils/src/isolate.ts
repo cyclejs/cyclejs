@@ -1,8 +1,8 @@
-import type { Main } from '@cycle/run';
+import type { Main, Scope } from '@cycle/run';
 
-export type Scope = string | symbol | Record<string, any>;
+export type Scopes = Scope | Record<string, Scope | null>;
 
-export function isolate(main: Main, scope: Scope): Main {
+export function isolate(main: Main, scope: Scopes): Main {
   checkArguments(main, scope);
 
   return function isolatedMain(sources: any, ...rest: any[]) {
@@ -29,6 +29,7 @@ export function isolate(main: Main, scope: Scope): Main {
 
     let newSinks: any = {};
     for (const name of Object.keys(channelsToIsolate)) {
+      if (!sinks[name]) continue;
       newSinks[name] = sources[name].isolateSink(
         sinks[name],
         channelsToIsolate[name]
@@ -39,7 +40,7 @@ export function isolate(main: Main, scope: Scope): Main {
   };
 }
 
-function checkArguments(main: Main, scope: Scope): void {
+function checkArguments(main: Main, scope: Scopes): void {
   if (typeof main !== 'function') {
     throw new Error(
       'First argument given to isolate() must be a main function'

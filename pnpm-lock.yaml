@@ -18,6 +18,7 @@ importers:
       '@minireq/browser': 1.2.0-beta.5
     devDependencies:
       '@cycle/run': 'link:../run'
+      '@cycle/utils': 'link:../utils'
       '@minireq/node': 1.0.0-beta.6
       '@types/assert': 1.5.2
       '@types/body-parser': 1.19.0
@@ -27,6 +28,7 @@ importers:
       '@types/node': 14.11.1
       assert: 2.0.0
       body-parser: 1.19.0
+      callbag-delay: 0.1.0
       cookie-parser: 1.4.5
       express: 4.17.1
       karma: 5.2.2
@@ -40,6 +42,7 @@ importers:
     specifiers:
       '@cycle/callbags': ^2.2.0
       '@cycle/run': 'workspace:^6.0.0'
+      '@cycle/utils': 'workspace:^6.0.0'
       '@minireq/browser': ^1.2.0-beta.5
       '@minireq/node': ^1.0.0-beta.6
       '@types/assert': ^1.5.2
@@ -50,6 +53,7 @@ importers:
       '@types/node': ^14.11.1
       assert: ^2.0.0
       body-parser: ^1.19.0
+      callbag-delay: ^0.1.0
       cookie-parser: ^1.4.5
       express: ^4.17.1
       karma: ^5.2.2
@@ -764,6 +768,10 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-kpqOvwXnjjN44D89K5ccQC+RUrsy7jB/XLlRrx0D7/2HNcTPqzsb6XgYoErwko6QsV184CA2YgS1fxDiiDZMWA==
+  /callbag-delay/0.1.0:
+    dev: true
+    resolution:
+      integrity: sha512-zGef76kRirh9OVjzA11qqUJ/AYFrkN7nSfP2cXSslrE6NSFmo20ywVedtEcilsmFaMobpaSsTDcRbyYADiUTgg==
   /callsite/1.0.0:
     dev: true
     resolution:

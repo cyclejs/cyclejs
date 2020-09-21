@@ -1,1 +1,1 @@
-export { isolate } from './isolate';
+export { isolate, Scopes } from './isolate';

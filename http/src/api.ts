@@ -2,11 +2,12 @@ import {
   Subject,
   Producer,
   pipe,
+  map,
   flatten,
   filter,
   uponStart,
 } from '@cycle/callbags';
-import type { IdGenerator, Api } from '@cycle/run';
+import type { IdGenerator, IsolateableApi, Scope } from '@cycle/run';
 import type { METHOD, ResponseType } from '@minireq/browser';
 
 import type {
@@ -25,11 +26,12 @@ export function makeHttpApi(
   return new HttpApi(source, sinkSubject, gen);
 }
 
-export class HttpApi implements Api<ResponseStream> {
+export class HttpApi implements IsolateableApi<ResponseStream, SinkRequest> {
   constructor(
     public readonly source: Producer<ResponseStream>,
     private sinkSubject: Subject<SinkRequest>,
-    private gen: IdGenerator
+    private gen: IdGenerator,
+    private namespace: Scope[] = []
   ) {}
 
   get response$$(): Producer<ResponseStream> {
@@ -96,12 +98,56 @@ export class HttpApi implements Api<ResponseStream> {
         this.sinkSubject(1, {
           ...options,
           id,
+          namespace: this.namespace,
         })
       ),
       filter(res$ => res$.request.id === id),
       flatten
     );
   }
+
+  public isolateSource(scope: Scope): HttpApi {
+    const namespace = this.namespace.concat(scope);
+
+    const source = pipe(
+      this.source,
+      filter(res$ => isPrefixOf(namespace, res$.request.namespace))
+    );
+
+    return new HttpApi(source, this.sinkSubject, this.gen, namespace);
+  }
+
+  public isolateSink(
+    sink: Producer<SinkRequest>,
+    scope: Scope
+  ): Producer<SinkRequest> {
+    return pipe(
+      sink,
+      map(req => ({
+        ...mkOpts(req.method ?? 'GET', req),
+        namespace: (req.namespace ?? []).concat(scope),
+      }))
+    );
+  }
+
+  public create(
+    source: Producer<ResponseStream>,
+    sinkSubject: Subject<SinkRequest>,
+    gen: IdGenerator
+  ): HttpApi {
+    return new HttpApi(source, sinkSubject, gen, this.namespace);
+  }
+}
+
+function isPrefixOf(prefix: unknown[], arr: unknown[] | undefined): boolean {
+  if (!Array.isArray(arr) || arr.length < prefix.length) return false;
+
+  for (let i = 0; i < prefix.length; i++) {
+    if (prefix[i] !== arr[i]) {
+      return false;
+    }
+  }
+  return true;
 }
 
 function mkOpts(

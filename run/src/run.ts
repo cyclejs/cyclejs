@@ -174,7 +174,11 @@ export function applyApis(
       const sinkSubject = makeReplaySubject();
       const source = sources[k].source ?? sources[k];
 
-      pluginSources[k] = apis[k] ? apis[k]!(source, sinkSubject, cuid) : source;
+      pluginSources[k] = apis[k]
+        ? source[k]?.create
+          ? source[k].create(source, sinkSubject, cuid)
+          : apis[k]!(source, sinkSubject, cuid)
+        : source;
       pluginsSinks[k] = sinkSubject;
     }
 

@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@cycle/run": "workspace:^6.0.0",
+    "@cycle/utils": "workspace:^6.0.0",
     "@minireq/node": "^1.0.0-beta.6",
     "@types/assert": "^1.5.2",
     "@types/body-parser": "^1.19.0",
@@ -40,6 +41,7 @@
     "@types/node": "^14.11.1",
     "assert": "^2.0.0",
     "body-parser": "^1.19.0",
+    "callbag-delay": "^0.1.0",
     "cookie-parser": "^1.4.5",
     "express": "^4.17.1",
     "karma": "^5.2.2",
