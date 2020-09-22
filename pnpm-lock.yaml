@@ -5,12 +5,14 @@ importers:
       lint-staged: 10.4.0
       prettier: 2.1.2
       rollup: 2.27.1
+      rollup-plugin-sourcemaps: 0.6.2_rollup@2.27.1
       typescript: 4.0.3
     specifiers:
       husky: ^4.3.0
       lint-staged: ^10.4.0
       prettier: ^2.1.2
       rollup: ^2.27.1
+      rollup-plugin-sourcemaps: ^0.6.2
       typescript: ^4.0.3
   http:
     dependencies:
@@ -325,6 +327,19 @@ packages:
     dev: true
     resolution:
       integrity: sha512-zQLunlHWEwOpNTs8yMq2IIsDsjDdl0FiXfQsJEFjJk394YuwwZAu/xKugVOn7olIroirltjuWMJDY6B+XRfRpA==
+  /@rollup/pluginutils/3.1.0_rollup@2.27.1:
+    dependencies:
+      '@types/estree': 0.0.39
+      estree-walker: 1.0.1
+      picomatch: 2.2.2
+      rollup: 2.27.1
+    dev: true
+    engines:
+      node: '>= 8.0.0'
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0
+    resolution:
+      integrity: sha512-GksZ6pr6TpIjHm8h9lSQ8pi8BE9VeubNT0OMJ3B5uZJ8pz73NPiqOtCog/x2/QzM1ENChPKxMDhiQuRHsqc+lg==
   /@types/assert/1.5.2:
     dev: true
     resolution:
@@ -352,6 +367,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-uwcY8m6SDQqciHsqcKDGbo10GdasYsPCYkH3hVegj9qAah6pX5HivOnOuI3WYmyQMnOATV39zv/Ybs0bC/6iVg==
+  /@types/estree/0.0.39:
+    dev: true
+    resolution:
+      integrity: sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==
   /@types/express-serve-static-core/4.17.12:
     dependencies:
       '@types/node': 14.11.1
@@ -570,6 +589,13 @@ packages:
     dev: true
     resolution:
       integrity: sha512-TR2mEZFVOj2pLStYxLht7TyfuRzaydfpxr3k9RpHIzMgw7A64dzsdqCxH1WJyQdoe8T10nDXd9wnEigmiuHIZw==
+  /atob/2.1.2:
+    dev: true
+    engines:
+      node: '>= 4.5.0'
+    hasBin: true
+    resolution:
+      integrity: sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
   /available-typed-arrays/1.0.2:
     dependencies:
       array-filter: 1.0.0
@@ -1148,6 +1174,12 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-9lNNFRSCabIDUue+4m9QH5oZEpA=
+  /decode-uri-component/0.2.0:
+    dev: true
+    engines:
+      node: '>=0.10'
+    resolution:
+      integrity: sha1-6zkTMzRYd1y4TNGh+uBiEGu4dUU=
   /dedent/0.7.0:
     dev: true
     resolution:
@@ -1396,6 +1428,10 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-eGuFFw7Upda+g4p+QHvnW0RyTX/SVeJBDM/gCtMARO0cLuT2HcEKnTPvhjV6aGeqrCB/sbNop0Kszm0jsaWU4A==
+  /estree-walker/1.0.1:
+    dev: true
+    resolution:
+      integrity: sha512-1fMXF3YP4pZZVozF8j/ZLfvnR8NSIljt56UhbZ5PeeDmmGHpgpdwQt7ITlGvYaQukCvuBRMLEiKiYC+oeIg4cg==
   /etag/1.8.1:
     dev: true
     engines:
@@ -3197,6 +3233,19 @@ packages:
     dev: true
     resolution:
       integrity: sha512-ii4iagi25WusVoiC4B4lq7pbXfAp3D9v5CwfkY33vffw2+pkDjY1D8GaN7spsxvCSx8dkPqOZCEZyfxcmJG2IA==
+  /rollup-plugin-sourcemaps/0.6.2_rollup@2.27.1:
+    dependencies:
+      '@rollup/pluginutils': 3.1.0_rollup@2.27.1
+      rollup: 2.27.1
+      source-map-resolve: 0.6.0
+    dev: true
+    engines:
+      node: '>=10.0.0'
+    peerDependencies:
+      '@types/node': '>=10.0.0'
+      rollup: '>=0.31.2'
+    resolution:
+      integrity: sha512-9AwTKg3yRykwzemfLt71ySe0LvrAci+bpsOL1LaTYFk5BX4HF6X7DQfpHa74ANfSja3hyjiQkXCR8goSOnW//Q==
   /rollup/2.27.1:
     dev: true
     engines:
@@ -3397,6 +3446,13 @@ packages:
     dev: true
     resolution:
       integrity: sha512-2A892lrj0GcgR/9Qk81EaY2gYhCBxurV0PfmmESO6p27QPrUK1J3zdns+5QPqvUYK2q657nSj0guoIil9+7eFg==
+  /source-map-resolve/0.6.0:
+    dependencies:
+      atob: 2.1.2
+      decode-uri-component: 0.2.0
+    dev: true
+    resolution:
+      integrity: sha512-KXBr9d/fO/bWo97NXsPIAW1bFSBOuCnjbNTBMO7N59hsv5i9yzRDfcYwwt0l04+VqnKC+EwzvJZIP/qkuMgR/w==
   /source-map-support/0.5.19:
     dependencies:
       buffer-from: 1.1.1
