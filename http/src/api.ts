@@ -7,7 +7,7 @@ import {
   filter,
   uponStart,
 } from '@cycle/callbags';
-import { IdGenerator, IsolateableApi, Scope, wrapSubject } from '@cycle/run';
+import { IdGenerator, IsolateableApi, wrapSubject } from '@cycle/run';
 import type { METHOD, ResponseType } from '@minireq/browser';
 
 import type {
@@ -16,6 +16,7 @@ import type {
   ResponseStream,
   Request,
   Response,
+  Scope,
 } from './types';
 
 export function makeHttpApi(

@@ -1,6 +1,6 @@
-import type { Main, Scope } from '@cycle/run';
+import type { Main } from '@cycle/run';
 
-export type Scopes = Scope | Record<string, Scope | null>;
+export type Scopes = string | symbol | number | Record<string, any | null>;
 
 export function isolate(main: Main, scope: Scopes): Main {
   checkArguments(main, scope);

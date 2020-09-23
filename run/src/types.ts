@@ -22,10 +22,9 @@ export interface Api<Source, Sink> {
   ): Api<Source, Sink>;
 }
 
-export type Scope = string | symbol | number;
 export interface IsolateableApi<Source, Sink> extends Api<Source, Sink> {
-  isolateSource(scope: Scope): IsolateableApi<any, any>;
-  isolateSink(sink: Producer<Sink>, scope: Scope): Producer<any>;
+  isolateSource(scope: any): IsolateableApi<any, any>;
+  isolateSink(sink: Producer<Sink>, scope: any): Producer<any>;
 }
 
 export interface Driver<Source, Sink> {
