@@ -163,22 +163,43 @@ export function makeMasterMain(
 
 export function applyApis(
   main: Main,
-  apis: Record<string, ApiFactory<any, any>>
+  apis: Record<string, ApiFactory<any, any>> | string[]
 ): Main {
-  return function appliedMain(sources: any): any {
+  return function appliedMain(sources: any, ...rest: any[]): any {
     let pluginSources: any = {};
     let pluginsSinks: any = {};
 
-    for (const k of Object.keys(apis)) {
-      if (!sources[k]) continue;
-      const sinkSubject = makeReplaySubject();
-      const source = sources[k].source ?? sources[k];
+    if (Array.isArray(apis)) {
+      for (const name of apis) {
+        if (!sources[name]?.create) {
+          throw new Error(
+            `The api '${name}' does not implement the \`create\` method, please provide the api factory` +
+              'instead of a plain array of channel names'
+          );
+        }
 
-      pluginSources[k] = apis[k] ? apis[k]!(source, sinkSubject, cuid) : source;
-      pluginsSinks[k] = sinkSubject;
+        const sinkSubject = makeReplaySubject();
+        const source = sources[name].source ?? sources[name];
+
+        pluginSources[name] = sources[name].create(source, sinkSubject, cuid);
+        pluginsSinks[name] = sinkSubject;
+      }
+    } else {
+      for (const k of Object.keys(apis)) {
+        if (!sources[k]) continue;
+        const sinkSubject = makeReplaySubject();
+        const source = sources[k].source ?? sources[k];
+
+        pluginSources[k] = apis[k]
+          ? sources[k]?.create
+            ? sources[k].create(source, sinkSubject, cuid)
+            : apis[k]!(source, sinkSubject, cuid)
+          : source;
+        pluginsSinks[k] = sinkSubject;
+      }
     }
 
-    let sinks = main({ ...sources, ...pluginSources }) ?? {};
+    let sinks = main({ ...sources, ...pluginSources }, ...rest) ?? {};
 
     for (const k of Object.keys(pluginsSinks)) {
       if (sinks[k]) {

@@ -1,9 +1,26 @@
 import * as assert from 'assert';
-import { of, pipe, subscribe, flatten, map, Producer } from '@cycle/callbags';
+import {
+  of,
+  pipe,
+  subscribe,
+  flatten,
+  map,
+  Producer,
+  merge,
+  multicast,
+  Operator,
+} from '@cycle/callbags';
 import { RequestFn, Response } from '@minireq/browser';
-import { run, Driver, Plugin } from '@cycle/run';
+import { run, applyApis, Driver, Plugin } from '@cycle/run';
+import { isolate } from '@cycle/utils';
+// @ts-ignore
+import delayInternal from 'callbag-delay';
 
 import { HttpApi, makeHttpPlugin } from '../src/index';
+
+function delay<T>(n: number): Operator<T, T> {
+  return delayInternal(n);
+}
 
 export function runTests(uri: string, request: RequestFn) {
   describe('common tests between Node.js and the browser', function () {
@@ -295,10 +312,7 @@ export function runTests(uri: string, request: RequestFn) {
         );
 
         return {
-          HTTP: of({
-            url: uri + '/hello',
-            method: 'GET',
-          }),
+          HTTP: of(uri + '/hello'),
         };
       }
 
@@ -384,175 +398,192 @@ export function runTests(uri: string, request: RequestFn) {
     });
   });
 
-  /*describe('isolateSource and isolateSink', function() {
-    it('should exist on the HTTPSource', function(done) {
-      function main(_sources: {HTTP: HTTPSource}) {
-        return {
-          HTTP: new Subject<RequestOptions>(),
-        };
+  describe('isolateSource and isolateSink', () => {
+    it('should exist on the HttpApi', () => {
+      function main(sources: { HTTP: HttpApi }) {
+        assert.strictEqual(typeof sources.HTTP.isolateSource, 'function');
+        assert.strictEqual(typeof sources.HTTP.isolateSink, 'function');
+        return {};
       }
-      const {sources, run} = setup(main, {HTTP: makeHTTPDriver()});
-
-      assert.strictEqual(typeof sources.HTTP.isolateSource, 'function');
-      assert.strictEqual(typeof sources.HTTP.isolateSink, 'function');
-      done();
+      run(main, { HTTP: makeHttpPlugin(request) }, []);
     });
 
-    it('should exist on a scoped HTTPSource', function(done) {
-      function main(_sources: {HTTP: HTTPSource}) {
-        return {
-          HTTP: new Subject<RequestOptions>(),
-        };
+    it('should exist on a scoped HTTPSource', () => {
+      function main(sources: { HTTP: HttpApi }) {
+        const scopedHTTPSource = sources.HTTP.isolateSource('foo');
+
+        assert.strictEqual(typeof scopedHTTPSource.isolateSource, 'function');
+        assert.strictEqual(typeof scopedHTTPSource.isolateSink, 'function');
+        return {};
       }
-      const {sources, run} = setup(main, {HTTP: makeHTTPDriver()});
-
-      const scopedHTTPSource = sources.HTTP.isolateSource(sources.HTTP, 'foo');
-
-      assert.strictEqual(typeof scopedHTTPSource.isolateSource, 'function');
-      assert.strictEqual(typeof scopedHTTPSource.isolateSink, 'function');
-      done();
+      run(main, { HTTP: makeHttpPlugin(request) }, []);
     });
 
-    it('should hide responses from outside the scope', function(done) {
-      const proxyRequest$ = new Subject<RequestOptions>();
-      function main(_sources: {HTTP: HTTPSource}) {
+    it('should hide responses from outside the scope', done => {
+      function main(sources: { HTTP: HttpApi }) {
+        const ignoredRequest$ = pipe(of(uri + '/json'), delay(1));
+        const request$ = pipe(
+          of({ url: uri + '/hello', method: 'GET', contentType: undefined }),
+          delay(10)
+        );
+        const scopedRequest$ = sources.HTTP.isolateSink(request$, 'foo');
+        const scopedHTTPSource = sources.HTTP.isolateSource('foo');
+
+        pipe(
+          scopedHTTPSource.response$$,
+          subscribe(response$ => {
+            assert.strictEqual(typeof response$.request, 'object');
+            assert.strictEqual(response$.request.url, uri + '/hello');
+
+            pipe(
+              response$,
+              subscribe((response: Response<any>) => {
+                assert.strictEqual(response.status, 200);
+                assert.strictEqual(response.data, 'Hello World');
+                done();
+              })
+            );
+          })
+        );
+
         return {
-          HTTP: proxyRequest$,
-        };
-      }
-
-      const {sources, run} = setup(main, {HTTP: makeHTTPDriver()});
-
-      const ignoredRequest$ = of(uri + '/json');
-      const request$ = of(uri + '/hello').pipe(delay(10));
-      const scopedRequest$ = sources.HTTP.isolateSink(request$, 'foo');
-      const scopedHTTPSource = sources.HTTP.isolateSource(sources.HTTP, 'foo');
-
-      scopedHTTPSource.select().subscribe(function(response$) {
-        assert.strictEqual(typeof response$.request, 'object');
-        assert.strictEqual(response$.request.url, uri + '/hello');
-        response$.subscribe(function(response: any) {
-          assert.strictEqual(response.status, 200);
-          assert.strictEqual(response.text, 'Hello World');
-          done();
-        });
-      });
-
-      merge(ignoredRequest$, scopedRequest$).subscribe(proxyRequest$ as any);
-
-      run();
-    });
-
-    it('should hide responses even if using the same scope multiple times', function(done) {
-      const proxyRequest$ = new Subject<RequestOptions>();
-      function main(_sources: {HTTP: HTTPSource}) {
-        return {
-          HTTP: proxyRequest$,
+          HTTP: merge(ignoredRequest$, scopedRequest$),
         };
       }
 
-      const {sources, run} = setup(main, {HTTP: makeHTTPDriver()});
-
-      const ignoredRequest$ = of(uri + '/json');
-      const request$ = of(uri + '/hello').pipe(delay(10));
-      const fooInsideBarRequest$ = sources.HTTP.isolateSink(
-        sources.HTTP.isolateSink(request$, 'foo'),
-        'bar'
-      ).pipe(shareReplay());
-      const fooInsideBarHTTPSource = sources.HTTP.isolateSource(
-        sources.HTTP.isolateSource(sources.HTTP, 'bar'),
-        'foo'
-      );
-      const fooInsideFooHTTPSource = sources.HTTP.isolateSource(
-        sources.HTTP.isolateSource(sources.HTTP, 'foo'),
-        'foo'
-      );
-
-      fooInsideFooHTTPSource.select().subscribe(function(response$) {
-        assert(false);
-        done('should not be called');
-      });
-
-      fooInsideBarHTTPSource.select().subscribe(function(response$) {
-        assert.strictEqual(typeof response$.request, 'object');
-        assert.strictEqual(response$.request.url, uri + '/hello');
-        response$.subscribe(function(response) {
-          assert.strictEqual(response.status, 200);
-          assert.strictEqual(response.text, 'Hello World');
-          done();
-        });
-      });
-
-      merge(ignoredRequest$, fooInsideBarRequest$).subscribe(
-        proxyRequest$ as any
-      );
-
-      run();
+      run(main, { HTTP: makeHttpPlugin(request) }, []);
     });
 
-    it('should emit responses when isolated many scopes deep', function(done) {
+    it('should hide responses even if using the same scope multiple times', done => {
+      function main(sources: { HTTP: HttpApi }) {
+        const ignoredRequest$ = pipe(of(uri + '/json'), delay(1));
+        const request$ = pipe(
+          of({ url: uri + '/hello', method: 'GET', contentType: undefined }),
+          delay(10)
+        );
+
+        const fooInsideBarRequest$ = pipe(
+          sources.HTTP.isolateSink(
+            sources.HTTP.isolateSink(request$, 'foo'),
+            'bar'
+          ),
+          multicast
+        );
+        const fooInsideBarHTTPSource = sources.HTTP.isolateSource(
+          'bar'
+        ).isolateSource('foo');
+        const fooInsideFooHTTPSource = sources.HTTP.isolateSource(
+          'foo'
+        ).isolateSource('foo');
+
+        pipe(
+          fooInsideFooHTTPSource.response$$,
+          subscribe(_response$ => {
+            done('should not be called');
+          })
+        );
+
+        pipe(
+          fooInsideBarHTTPSource.response$$,
+          subscribe(response$ => {
+            assert.strictEqual(typeof response$.request, 'object');
+            assert.strictEqual(response$.request.url, uri + '/hello');
+
+            pipe(
+              response$,
+              subscribe((response: Response<any>) => {
+                assert.strictEqual(response.status, 200);
+                assert.strictEqual(response.data, 'Hello World');
+                done();
+              })
+            );
+          })
+        );
+
+        return {
+          HTTP: merge(ignoredRequest$, fooInsideBarRequest$),
+        };
+      }
+
+      run(main, { HTTP: makeHttpPlugin(request) }, []);
+    });
+
+    it('should emit responses when isolated many scopes deep', done => {
       let dispose: any;
-      function main(_sources: {HTTP: HTTPSource}) {
-        _sources.HTTP.select('hello').subscribe(function(response$) {
-          assert.strictEqual(typeof response$.request, 'object');
-          assert.strictEqual(response$.request.url, uri + '/hello');
-          response$.subscribe(function(response) {
+      function main(sources: { HTTP: HttpApi }) {
+        pipe(
+          sources.HTTP.get({ url: uri + '/hello', contentType: undefined }),
+          delay(10),
+          subscribe(response => {
+            assert.strictEqual(typeof response.request, 'object');
+            assert.strictEqual(response.request.url, uri + '/hello');
+
             assert.strictEqual(response.status, 200);
-            assert.strictEqual(response.text, 'Hello World');
+            assert.strictEqual(response.data, 'Hello World');
             dispose();
             done();
-          });
-        });
+          })
+        );
 
+        return {};
+      }
+
+      function wrapper1(sources: { HTTP: HttpApi }) {
+        return isolate(main, { HTTP: 'wrapper1' })(sources);
+      }
+
+      function wrapper2(sources: { HTTP: HttpApi }) {
+        return isolate(wrapper1, { HTTP: 'wrapper2' })(sources);
+      }
+
+      dispose = run(wrapper2, { HTTP: makeHttpPlugin(request) }, []);
+    });
+
+    it('should stay isolated even if discharged with `applyApi`', done => {
+      let dispose: any;
+      let mapped = false;
+
+      function main(sources: { HTTP: HttpApi }) {
+        pipe(
+          sources.HTTP.get({ url: uri + '/hello', contentType: undefined }),
+          delay(10),
+          subscribe(response => {
+            assert.strictEqual(mapped, true);
+            assert.strictEqual(typeof response.request, 'object');
+            assert.strictEqual(response.request.url, uri + '/hello');
+
+            assert.strictEqual(response.status, 200);
+            assert.strictEqual(response.data, 'Hello World');
+            dispose();
+            done();
+          })
+        );
+
+        return {};
+      }
+
+      function wrapper1(sources: { HTTP: HttpApi }) {
+        const isolatedMain = isolate(main, { HTTP: 'wrapper1' });
+        const appliedSinks = applyApis(isolatedMain, ['HTTP'])(sources);
+        assert.strictEqual(typeof appliedSinks.HTTP, 'function');
+        return appliedSinks;
+      }
+
+      function wrapper2(sources: { HTTP: HttpApi }) {
+        const sinks = isolate(wrapper1, { HTTP: 'wrapper2' })(sources);
         return {
-          HTTP: of({
-            url: uri + '/hello',
-            category: 'hello',
-          }).pipe(delay(10)),
+          HTTP: pipe(
+            sinks.HTTP,
+            map((req: any) => {
+              mapped = true;
+              assert.deepStrictEqual(req.namespace, ['wrapper2', 'wrapper1']);
+              return req;
+            })
+          ),
         };
       }
 
-      function wrapper1(_sources: {HTTP: HTTPSource}) {
-        return isolate(main, {HTTP: 'wrapper1'})(_sources);
-      }
-
-      function wrapper2(_sources: {HTTP: HTTPSource}) {
-        return isolate(wrapper1, {HTTP: 'wrapper2'})(_sources);
-      }
-
-      const {sources, run} = setup(wrapper2, {HTTP: makeHTTPDriver()});
-
-      dispose = run();
+      dispose = run(wrapper2, { HTTP: makeHttpPlugin(request) }, []);
     });
-
-    it('should allow null scope to bypass isolation', function(done) {
-      const proxyRequest$ = new Subject<any>();
-      function main(_sources: {HTTP: HTTPSource}) {
-        return {
-          HTTP: proxyRequest$,
-        };
-      }
-
-      const {sources, run} = setup(main, {HTTP: makeHTTPDriver()});
-
-      const ignoredRequest$ = of(uri + '/json');
-      const request$ = of(uri + '/hello').pipe(delay(100));
-      const scopedRequest$ = sources.HTTP.isolateSink(proxyRequest$, null);
-      const scopedHTTPSource = sources.HTTP.isolateSource(sources.HTTP, null);
-
-      const expected = [uri + '/json', uri + '/hello'];
-
-      scopedHTTPSource.select().subscribe(function(response$: any) {
-        assert.strictEqual(typeof response$.request, 'object');
-        assert.strictEqual(response$.request.url, expected.shift());
-        if (expected.length === 0) {
-          done();
-        }
-      });
-
-      run();
-
-      merge(ignoredRequest$, request$).subscribe(proxyRequest$);
-    });
-  });*/
+  });
 }

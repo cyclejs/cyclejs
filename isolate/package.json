@@ -1,0 +1,47 @@
+{
+  "name": "@cycle/isolate",
+  "version": "6.0.0",
+  "description": "A utility function to make scoped dataflow components in Cycle.js",
+  "license": "MIT",
+  "homepage": "https://cycle.js.org",
+  "bugs": "https://github.com/cyclejs/cyclejs/issues",
+  "repository": "https://github.com/cyclejs/cyclejs/tree/master/isolate",
+  "contributors": [
+    {
+      "name": "Andre Staltz",
+      "email": "andre@staltz.com"
+    },
+    {
+      "name": "Jan van Brügge",
+      "email": "supermanitu@gmail.com"
+    }
+  ],
+  "keywords": [
+    "reactive",
+    "framework",
+    "rxjs",
+    "rx",
+    "unidirectional",
+    "mvi",
+    "virtual-dom"
+  ],
+  "main": "build/bundle.cjs.js",
+  "module": "build/index.js",
+  "types": "build/index.d.ts",
+  "dependencies": {
+    "@cycle/utils": "workspace:^6.0.0"
+  },
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/cyclejs"
+  },
+  "scripts": {
+    "build": "tsc --build tsconfig.build.json && pnpm run build:cjs",
+    "build:cjs": "BUNDLE_FORMAT=cjs rollup -c ../configs/rollup.config.ts --exports default",
+    "format": "prettier --write './{src,test}/**/*'"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "prettier": "../configs/.prettierrc.json"
+}

@@ -22,7 +22,7 @@ import {
 
 type RandomSource = { id: number; value: number };
 
-class RandomApi implements Api<RandomSource> {
+class RandomApi implements Api<RandomSource, number> {
   constructor(
     public readonly source: Producer<RandomSource>,
     private sinkSubject: Subject<number>,

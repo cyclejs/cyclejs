@@ -10,10 +10,14 @@ import {
   throwError,
   merge,
 } from '@cycle/callbags';
-import { Driver } from '@cycle/run';
-import { RequestFn, Response, Progress as RawProgress } from '@minireq/browser';
+import type { Driver } from '@cycle/run';
+import type {
+  RequestFn,
+  Response,
+  Progress as RawProgress,
+} from '@minireq/browser';
 
-import { ResponseStream, SinkRequest } from './types';
+import type { ResponseStream, SinkRequest } from './types';
 
 export class HttpDriver implements Driver<ResponseStream, SinkRequest> {
   private subject = makeSubject<ResponseStream>();

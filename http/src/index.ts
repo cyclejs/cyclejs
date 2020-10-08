@@ -1,9 +1,9 @@
 import { makeRequest, RequestFn } from '@minireq/browser';
-import { Plugin } from '@cycle/run';
+import type { Plugin } from '@cycle/run';
 
 import { HttpDriver } from './driver';
 import { makeHttpApi } from './api';
-import { ResponseStream, SinkRequest } from './types';
+import type { ResponseStream, SinkRequest } from './types';
 
 export { HttpApi } from './api';
 

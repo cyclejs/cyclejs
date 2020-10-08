@@ -1,11 +1,11 @@
 {
-  "name": "@cycle/run",
+  "name": "@cycle/utils",
   "version": "6.0.0",
-  "description": "The Cycle.js run() function",
+  "description": "A utility function to isolate components in Cycle.js",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
-  "repository": "https://github.com/cyclejs/cyclejs/tree/master/run",
+  "repository": "https://github.com/cyclejs/cyclejs/tree/master/isolate",
   "contributors": [
     {
       "name": "Andre Staltz",
@@ -28,8 +28,8 @@
   "main": "build/bundle.cjs.js",
   "module": "build/bundle.esm.js",
   "types": "build/index.d.ts",
-  "dependencies": {
-    "@cycle/callbags": "^2.2.0"
+  "peerDependencies": {
+    "@cycle/run": "^6.0.0"
   },
   "funding": {
     "type": "opencollective",
@@ -49,6 +49,8 @@
   },
   "prettier": "../configs/.prettierrc.json",
   "devDependencies": {
+    "@cycle/callbags": "^2.2.0",
+    "@cycle/run": "workspace:^6.0.0",
     "@types/mocha": "^8.0.3",
     "@types/node": "^14.11.1",
     "mocha": "^8.1.3",

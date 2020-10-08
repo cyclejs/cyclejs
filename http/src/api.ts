@@ -2,14 +2,15 @@ import {
   Subject,
   Producer,
   pipe,
+  map,
   flatten,
   filter,
   uponStart,
 } from '@cycle/callbags';
-import { IdGenerator, Api } from '@cycle/run';
-import { METHOD, ResponseType } from '@minireq/browser';
+import { IdGenerator, IsolateableApi, Scope, wrapSubject } from '@cycle/run';
+import type { METHOD, ResponseType } from '@minireq/browser';
 
-import {
+import type {
   SinkRequest,
   RequestOptions,
   ResponseStream,
@@ -25,11 +26,12 @@ export function makeHttpApi(
   return new HttpApi(source, sinkSubject, gen);
 }
 
-export class HttpApi implements Api<ResponseStream> {
+export class HttpApi implements IsolateableApi<ResponseStream, SinkRequest> {
   constructor(
     public readonly source: Producer<ResponseStream>,
     private sinkSubject: Subject<SinkRequest>,
-    private gen: IdGenerator
+    private gen: IdGenerator,
+    private namespace: Scope[] = []
   ) {}
 
   get response$$(): Producer<ResponseStream> {
@@ -96,12 +98,70 @@ export class HttpApi implements Api<ResponseStream> {
         this.sinkSubject(1, {
           ...options,
           id,
+          namespace: this.namespace,
         })
       ),
       filter(res$ => res$.request.id === id),
       flatten
     );
   }
+
+  public isolateSource(scope: Scope): HttpApi {
+    const namespace = this.namespace.concat(scope);
+
+    const source = pipe(
+      this.source,
+      filter(res$ => isPrefixOf(namespace, res$.request.namespace))
+    );
+
+    return new HttpApi(source, this.sinkSubject, this.gen, namespace);
+  }
+
+  public isolateSink(
+    sink: Producer<SinkRequest>,
+    scope: Scope
+  ): Producer<SinkRequest> {
+    return pipe(
+      sink,
+      map(req => ({
+        ...mkOpts(req.method ?? 'GET', req),
+        namespace: [scope].concat(req.namespace ?? []),
+      }))
+    );
+  }
+
+  public create(
+    source: Producer<ResponseStream>,
+    sinkSubject: Subject<SinkRequest>,
+    gen: IdGenerator
+  ): HttpApi {
+    const stripNamespace = (req: SinkRequest) => {
+      if (isPrefixOf(this.namespace, req.namespace)) {
+        return {
+          ...req,
+          namespace: req.namespace!.slice(this.namespace.length),
+        };
+      } else return req;
+    };
+
+    return new HttpApi(
+      source,
+      wrapSubject(stripNamespace, sinkSubject),
+      gen,
+      this.namespace
+    );
+  }
+}
+
+function isPrefixOf(prefix: unknown[], arr: unknown[] | undefined): boolean {
+  if (!Array.isArray(arr) || arr.length < prefix.length) return false;
+
+  for (let i = 0; i < prefix.length; i++) {
+    if (prefix[i] !== arr[i]) {
+      return false;
+    }
+  }
+  return true;
 }
 
 function mkOpts(

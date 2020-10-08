@@ -1,11 +1,12 @@
-import { Producer } from '@cycle/callbags';
-import {
+import type { Producer } from '@cycle/callbags';
+import type {
   RequestOpts,
   ResponseType,
   Progress as RawProgress,
   ResultMapping,
   Response as RawResponse,
 } from '@minireq/browser';
+import type { Scope } from '@cycle/run';
 
 export type Request<
   T,
@@ -38,4 +39,5 @@ export type ResponseStream = Producer<Response<any, ResponseType, boolean>> & {
 
 export type SinkRequest = RequestOptions<any, ResponseType, boolean> & {
   id?: number;
+  namespace?: Array<Scope>;
 };
