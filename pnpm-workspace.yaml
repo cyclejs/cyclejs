@@ -3,6 +3,7 @@ packages:
   - history
   - html
   - http
+  - isolate
   - run
   - state
   - utils
