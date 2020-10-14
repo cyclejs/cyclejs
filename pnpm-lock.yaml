@@ -92,6 +92,7 @@ importers:
       '@cycle/callbags': 2.2.0
     devDependencies:
       '@cycle/run': 'link:../run'
+      '@cycle/utils': 'link:../utils'
       '@types/mocha': 8.0.3
       '@types/node': 14.11.1
       mocha: 8.1.3
@@ -100,6 +101,7 @@ importers:
     specifiers:
       '@cycle/callbags': ^2.2.0
       '@cycle/run': 'workspace:^6.0.0'
+      '@cycle/utils': 'workspace:^6.0.0'
       '@types/mocha': ^8.0.3
       '@types/node': ^14.11.1
       mocha: ^8.1.3
