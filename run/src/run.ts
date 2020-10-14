@@ -78,7 +78,7 @@ export function setupReusable(
     let sinkTalkbacks: Record<string, any> = {};
 
     for (const k of Object.keys(plugins)) {
-      if (masterSinks[k] && sinkProxies[k]) {
+      if (masterSinks?.[k] && sinkProxies[k]) {
         masterSinks[k](0, (t: any, d: any) => {
           if (t !== 0) {
             if (t === 2 && d) {

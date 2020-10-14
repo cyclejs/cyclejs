@@ -1,5 +1,6 @@
 import * as assert from 'assert';
 import { isolate } from '@cycle/utils';
+import { run, ReadonlyDriver } from '@cycle/run';
 import {
   never,
   pipe,
@@ -7,6 +8,7 @@ import {
   of,
   fromArray,
   merge,
+  throwError,
   Producer,
 } from '@cycle/callbags';
 import { withState, StateApi, Reducer, Lens } from '../src/index';
@@ -781,7 +783,7 @@ describe('withState', () => {
     });
   });
 
-  it('not complete reducer stream neither source state$', done => {
+  it('should not complete reducer stream neither source state$', done => {
     let called = false;
 
     function main(sources: { state: StateApi<any> }) {
@@ -809,6 +811,77 @@ describe('withState', () => {
 
     const wrapped = withState()(main);
     wrapped({});
+    setImmediate(() => {
+      assert.strictEqual(called, true);
+      done();
+    });
+  });
+
+  it('should pass errors back via stateApi.stream', done => {
+    function main(sources: { state: StateApi<any> }) {
+      assert(sources.state);
+      assert(sources.state.stream);
+      pipe(
+        sources.state.stream,
+        subscribe(
+          () => done('should not deliver data'),
+          e => {
+            if (e.message === 'This is an expected error') {
+              done();
+            } else done('received the wrong error');
+          }
+        )
+      );
+
+      return {
+        state: throwError(new Error('This is an expected error')),
+      };
+    }
+
+    const wrapped = withState()(main);
+    wrapped({});
+  });
+
+  it('should work if the application does not return a reducer stream', () => {
+    function main(sources: { state: StateApi<any> }) {
+      assert(sources.state);
+      assert(sources.state.stream);
+
+      return {};
+    }
+
+    const wrapped = withState()(main);
+    wrapped({});
+  });
+
+  it('should work if withState is applied by @cycle/run', done => {
+    let called = false;
+
+    function main(sources: { state: StateApi<any> }) {
+      assert(sources.state);
+      assert(sources.state.stream);
+      const expected = [[3, 5, 6]];
+
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => {
+            assert.deepStrictEqual(x, expected.shift());
+            called = true;
+          },
+          e => done('should not error or complete: ' + e)
+        )
+      );
+
+      const reducer$ = of(() => [3, 5, 6]);
+
+      return {
+        state: reducer$,
+      };
+    }
+
+    run(main, { DOM: [{} as any, null] }, [withState()]);
+
     setImmediate(() => {
       assert.strictEqual(called, true);
       done();
