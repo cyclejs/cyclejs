@@ -221,7 +221,7 @@ describe('withState', () => {
 
   it('child component default reducer can get state from parent', done => {
     let calledSource = false;
-    let expected = [7, 7];
+    let expected = [7];
 
     function child(sources: { state: StateApi<any> }) {
       assert(sources.state);

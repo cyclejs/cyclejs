@@ -1,5 +1,5 @@
 import type { IsolateableApi } from '@cycle/run';
-import { Producer, pipe, map } from '@cycle/callbags';
+import { Producer, Operator, pipe, map, filter } from '@cycle/callbags';
 
 export type Reducer<T> = (currentState: T) => T;
 
@@ -22,7 +22,8 @@ export class StateApi<T> implements IsolateableApi<T, Reducer<T>> {
 
     const source = pipe(
       this.source,
-      map(state => lens.get(state))
+      map(state => lens.get(state)),
+      dropRepeats()
     );
 
     return new StateApi(source);
@@ -51,4 +52,14 @@ function makeDefaultLens<T, S>(
     get: (x: any) => x[scope],
     set: (x, y) => ({ ...x, [scope]: y }),
   };
+}
+
+function dropRepeats<T>(): Operator<T, T> {
+  let prev: any = {};
+
+  return filter(x => {
+    let result = x !== prev;
+    prev = x;
+    return result;
+  });
 }
