@@ -23,6 +23,7 @@ export class StateApi<T> implements IsolateableApi<T, Reducer<T>> {
     const source = pipe(
       this.source,
       map(state => lens.get(state)),
+      filter(x => typeof x !== 'undefined'),
       dropRepeats()
     );
 
@@ -49,8 +50,14 @@ function makeDefaultLens<T, S>(
     return scope;
   }
   return {
-    get: (x: any) => x[scope],
-    set: (x, y) => ({ ...x, [scope]: y }),
+    get: (x: any) => x?.[scope],
+    set: (x, y) => {
+      if (Array.isArray(x)) {
+        if (typeof y === 'undefined') {
+          return x.filter((_, i) => i !== scope);
+        } else return x.map((z, i) => (i === scope ? y : z)) as any;
+      } else return { ...x, [scope]: y };
+    },
   };
 }
 

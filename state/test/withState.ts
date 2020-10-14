@@ -9,7 +9,7 @@ import {
   merge,
   Producer,
 } from '@cycle/callbags';
-import { withState, StateApi, Reducer } from '../src/index';
+import { withState, StateApi, Reducer, Lens } from '../src/index';
 
 describe('withState', () => {
   it('returns a wrapped main function', () => {
@@ -271,23 +271,24 @@ describe('withState', () => {
     });
   });
 
-  /*it('child component default reducer can set default state', done => {
+  it('child component default reducer can set default state', done => {
     let calledSource = false;
     function child(sources: { state: StateApi<any> }) {
       assert(sources.state);
       assert(sources.state.stream);
       const expected = [0];
-      sources.state.stream.addListener({
-        next(x) {
-          assert.strictEqual(x.count, expected.shift());
-          calledSource = true;
-        },
-        error(e) {
-          done(e);
-        },
-        complete() {},
-      });
-      const reducer$ = xs.of(function defaultReducer(prevState: any): any {
+
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => {
+            assert.strictEqual(x.count, expected.shift());
+            calledSource = true;
+          },
+          e => done('should not error: ' + e)
+        )
+      );
+      const reducer$ = of((prevState: any) => {
         if (typeof prevState === 'undefined') {
           return { count: 0 };
         } else {
@@ -303,19 +304,15 @@ describe('withState', () => {
       const childSinks = isolate(child, 'child')(sources);
       const childReducer$ = childSinks.state;
 
-      const parentReducer$ = xs.of(function initReducer(prevState: any): any {
-        return {};
-      });
-      const reducer$ = xs.merge(parentReducer$, childReducer$) as Stream<
-        Reducer<any>
-      >;
+      const parentReducer$ = of(() => ({}));
+      const reducer$ = merge(parentReducer$, childReducer$);
 
       return {
         state: reducer$,
       };
     }
 
-    const wrapped = withState(main);
+    const wrapped = withState()(main);
     wrapped({});
     setImmediate(() => {
       assert.strictEqual(calledSource, true);
@@ -333,21 +330,22 @@ describe('withState', () => {
       assert(sources.state);
       assert(sources.state.stream);
       const expected = [27, 37];
-      sources.state.stream.addListener({
-        next(x) {
-          assert.strictEqual(x.celsius, expected.shift());
-          calledChild += 1;
-        },
-        error(e) {
-          done(e.message);
-        },
-        complete() {},
-      });
-      const reducer$ = xs.of(function increment(
-        prevState: ChildState
-      ): ChildState {
-        return { celsius: prevState.celsius + 10 };
-      });
+
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => {
+            assert.strictEqual(x.celsius, expected.shift());
+            calledChild += 1;
+          },
+          e => done('should not error: ' + e)
+        )
+      );
+
+      const reducer$ = of((prevState: ChildState) => ({
+        celsius: prevState.celsius + 10,
+      }));
+
       return {
         state: reducer$,
       };
@@ -362,12 +360,13 @@ describe('withState', () => {
         };
       };
     };
+
     function main(sources: { state: StateApi<MainState> }) {
       const celsiusLens: Lens<MainState, ChildState> = {
         get: state => ({
           celsius: state ? state.deeply.nested.prop.kelvin - 273 : 0,
         }),
-        set: (state, childState) => ({
+        set: (_state, childState) => ({
           deeply: {
             nested: {
               prop: { kelvin: childState ? childState.celsius + 273 : 0 },
@@ -380,40 +379,33 @@ describe('withState', () => {
       const childReducer$ = childSinks.state;
 
       const expected = [300, 310];
-      sources.state.stream.addListener({
-        next(s) {
-          assert.strictEqual(s.deeply.nested.prop.kelvin, expected.shift());
-          calledMain += 1;
-        },
-        error(e) {
-          done(e.message);
-        },
-        complete() {},
-      });
+      pipe(
+        sources.state.stream,
+        subscribe(
+          s => {
+            assert.strictEqual(s.deeply.nested.prop.kelvin, expected.shift());
+            calledMain += 1;
+          },
+          e => done('should not error: ' + e)
+        )
+      );
 
-      const parentReducer$ = xs.of(function initReducer(
-        prevState: MainState
-      ): MainState {
-        return {
-          deeply: {
-            nested: {
-              prop: {
-                kelvin: 300,
-              },
+      const parentReducer$ = of(() => ({
+        deeply: {
+          nested: {
+            prop: {
+              kelvin: 300,
             },
           },
-        };
-      });
-      const reducer$ = xs.merge(parentReducer$, childReducer$) as Stream<
-        Reducer<MainState>
-      >;
+        },
+      }));
 
       return {
-        state: reducer$,
+        state: merge(parentReducer$, childReducer$),
       };
     }
 
-    const wrapped = withState(main);
+    const wrapped = withState()(main);
     wrapped({});
     setImmediate(() => {
       assert.strictEqual(calledChild, 2);
@@ -426,23 +418,26 @@ describe('withState', () => {
     let called = false;
     function child(sources: { state: StateApi<any> }) {
       const expected = [0];
-      sources.state.stream.addListener({
-        next(x) {
-          assert.strictEqual(x.count, expected.shift());
-          called = true;
-        },
-        error(e) {
-          done(e);
-        },
-        complete() {},
-      });
-      const reducer$ = xs.of(function defaultReducer(prevState: any): any {
+
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => {
+            assert.strictEqual(x.count, expected.shift());
+            called = true;
+          },
+          e => done('should not error: ' + e)
+        )
+      );
+
+      const reducer$ = of((prevState: any) => {
         if (typeof prevState === 'undefined') {
           return { count: 0 };
         } else {
           return prevState;
         }
       });
+
       return {
         state: reducer$,
       };
@@ -450,16 +445,13 @@ describe('withState', () => {
 
     function main(sources: { state: StateApi<any> }) {
       const childSinks = isolate(child, 'child')(sources);
-      const childReducer$ = childSinks.state as Stream<Reducer<any>>;
-
-      const reducer$ = childReducer$;
 
       return {
-        state: reducer$,
+        state: childSinks.state,
       };
     }
 
-    const wrapped = withState(main);
+    const wrapped = withState()(main);
     wrapped({});
     setImmediate(() => {
       assert.strictEqual(called, true);
@@ -475,19 +467,19 @@ describe('withState', () => {
       assert(sources.state);
       assert(sources.state.stream);
       const expected = [7, 9];
-      sources.state.stream.addListener({
-        next(x) {
-          assert.strictEqual(x.count, expected.shift());
-          calledChild += 1;
-        },
-        error(e) {
-          done(e);
-        },
-        complete() {},
-      });
-      const reducer$ = xs.of(function (prevState: any): any {
-        return { count: prevState.count + 2 };
-      });
+
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => {
+            assert.strictEqual(x.count, expected.shift());
+            calledChild += 1;
+          },
+          e => done('should not error: ' + e)
+        )
+      );
+
+      const reducer$ = of((prevState: any) => ({ count: prevState.count + 2 }));
       return {
         state: reducer$,
       };
@@ -495,34 +487,35 @@ describe('withState', () => {
 
     function main(sources: { state: StateApi<any> }) {
       const expected = [7, 9];
-      sources.state.stream.addListener({
-        next(x) {
-          assert.strictEqual(x.child.count, expected.shift());
-          calledMain += 1;
-        },
-        error(e) {
-          done(e);
-        },
-        complete() {},
-      });
+
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => {
+            assert.strictEqual(x.child.count, expected.shift());
+            calledMain += 1;
+          },
+          e => done('should not error: ' + e)
+        )
+      );
 
       const childSinks = child({
-        state: isolateSource(sources.state, 'child'),
+        state: sources.state.isolateSource('child'),
       });
       assert(childSinks.state);
-      const childReducer$ = isolateSink(childSinks.state, 'child');
+      const childReducer$ = sources.state.isolateSink(
+        childSinks.state,
+        'child'
+      );
 
-      const parentReducer$ = xs.of(function initReducer(prevState: any): any {
-        return { child: { count: 7 } };
-      });
-      const reducer$ = xs.merge(parentReducer$, childReducer$);
+      const parentReducer$ = of(() => ({ child: { count: 7 } }));
 
       return {
-        state: reducer$,
+        state: merge(parentReducer$, childReducer$),
       };
     }
 
-    const wrapped = withState(main);
+    const wrapped = withState()(main);
     wrapped({});
     setImmediate(() => {
       assert.strictEqual(calledChild, 2);
@@ -534,23 +527,25 @@ describe('withState', () => {
   it('should work with an isolated child component', done => {
     let calledChild = 0;
     let calledMain = 0;
+
     function child(sources: { state: StateApi<any> }) {
       assert(sources.state);
       assert(sources.state.stream);
       const expected = [7, 9];
-      sources.state.stream.addListener({
-        next(x) {
-          assert.strictEqual(x.count, expected.shift());
-          calledChild += 1;
-        },
-        error(e) {
-          done(e);
-        },
-        complete() {},
-      });
-      const reducer$ = xs.of(function (prevState: any): any {
-        return { count: prevState.count + 2 };
-      });
+
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => {
+            assert.strictEqual(x.count, expected.shift());
+            calledChild += 1;
+          },
+          e => done('should not error: ' + e)
+        )
+      );
+
+      const reducer$ = of((prevState: any) => ({ count: prevState.count + 2 }));
+
       return {
         state: reducer$,
       };
@@ -560,34 +555,30 @@ describe('withState', () => {
       assert(sources.state);
       assert(sources.state.stream);
       const expected = [7, 9];
-      sources.state.stream.addListener({
-        next(x) {
-          assert.strictEqual(x.child.count, expected.shift());
-          calledMain += 1;
-        },
-        error(e) {
-          done(e);
-        },
-        complete() {},
-      });
+
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => {
+            assert.strictEqual(x.child.count, expected.shift());
+            calledMain += 1;
+          },
+          e => done('should not error: ' + e)
+        )
+      );
 
       const childSinks = isolate(child, 'child')(sources);
       assert(childSinks.state);
       const childReducer$ = childSinks.state;
 
-      const parentReducer$ = xs.of(function initReducer(prevState: any): any {
-        return { child: { count: 7 } };
-      });
-      const reducer$ = xs.merge(parentReducer$, childReducer$) as Stream<
-        Reducer<any>
-      >;
+      const parentReducer$ = of(() => ({ child: { count: 7 } }));
 
       return {
-        state: reducer$,
+        state: merge(parentReducer$, childReducer$),
       };
     }
 
-    const wrapped = withState(main);
+    const wrapped = withState()(main);
     wrapped({});
     setImmediate(() => {
       assert.strictEqual(calledChild, 2);
@@ -599,24 +590,27 @@ describe('withState', () => {
   it('should work with an isolated child component and falsy values', done => {
     let calledChild = 0;
     let calledMain = 0;
+
     function child(sources: { state: StateApi<any> }) {
       assert(sources.state);
       assert(sources.state.stream);
       const expected = [1, 0, -1];
-      sources.state.stream.addListener({
-        next(x) {
-          assert.strictEqual(x, expected.shift());
-          calledChild += 1;
-        },
-        error(e) {
-          done(e);
-        },
-        complete() {},
-      });
-      const reducer$ = xs.of(
+
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => {
+            assert.strictEqual(x, expected.shift());
+            calledChild += 1;
+          },
+          e => done('should not error: ' + e)
+        )
+      );
+      const reducer$ = fromArray([
         (prevCount: any) => prevCount - 1,
-        (prevCount: any) => prevCount - 1
-      ) as Stream<Reducer<any>>;
+        (prevCount: any) => prevCount - 1,
+      ]);
+
       return {
         state: reducer$,
       };
@@ -626,34 +620,30 @@ describe('withState', () => {
       assert(sources.state);
       assert(sources.state.stream);
       const expected = [1, 0, -1];
-      sources.state.stream.addListener({
-        next(x) {
-          assert.strictEqual(x.count, expected.shift());
-          calledMain += 1;
-        },
-        error(e) {
-          done(e);
-        },
-        complete() {},
-      });
+
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => {
+            assert.strictEqual(x.count, expected.shift());
+            calledMain += 1;
+          },
+          e => done('should not error: ' + e)
+        )
+      );
 
       const childSinks = isolate(child, 'count')(sources);
       assert(childSinks.state);
       const childReducer$ = childSinks.state;
 
-      const parentReducer$ = xs.of(function initReducer(prevState: any): any {
-        return { count: 1 };
-      });
-      const reducer$ = xs.merge(parentReducer$, childReducer$) as Stream<
-        Reducer<any>
-      >;
+      const parentReducer$ = of(() => ({ count: 1 }));
 
       return {
-        state: reducer$,
+        state: merge(parentReducer$, childReducer$),
       };
     }
 
-    const wrapped = withState(main);
+    const wrapped = withState()(main);
     wrapped({});
     setImmediate(() => {
       assert.strictEqual(calledChild, 3);
@@ -665,23 +655,25 @@ describe('withState', () => {
   it('should work with an isolated child component on an array subtree', done => {
     let calledChild = 0;
     let calledMain = 0;
+
     function child(sources: { state: StateApi<any> }) {
       assert(sources.state);
       assert(sources.state.stream);
       const expected = [[3], [3, 5]];
-      sources.state.stream.addListener({
-        next(x) {
-          assert.deepEqual(x, expected.shift());
-          calledChild += 1;
-        },
-        error(e) {
-          done(e);
-        },
-        complete() {},
-      });
-      const reducer$ = xs.of((prevArr: Array<any>) => prevArr.concat(5));
+
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => {
+            assert.deepStrictEqual(x, expected.shift());
+            calledChild += 1;
+          },
+          e => done('should not error: ' + e)
+        )
+      );
+      const reducer$ = of((prevArr: Array<any>) => prevArr.concat(5));
       return {
-        state: reducer$ as Stream<Reducer<any>>,
+        state: reducer$,
       };
     }
 
@@ -689,34 +681,30 @@ describe('withState', () => {
       assert(sources.state);
       assert(sources.state.stream);
       const expected = [[3], [3, 5]];
-      sources.state.stream.addListener({
-        next(x) {
-          assert.deepEqual(x.list, expected.shift());
-          calledMain += 1;
-        },
-        error(e) {
-          done(e);
-        },
-        complete() {},
-      });
+
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => {
+            assert.deepStrictEqual(x.list, expected.shift());
+            calledMain += 1;
+          },
+          e => done('should not error: ' + e)
+        )
+      );
 
       const childSinks = isolate(child, 'list')(sources);
       assert(childSinks.state);
       const childReducer$ = childSinks.state;
 
-      const parentReducer$ = xs.of(function initReducer(prevState: any): any {
-        return { list: [3] };
-      });
-      const reducer$ = xs.merge(parentReducer$, childReducer$) as Stream<
-        Reducer<any>
-      >;
+      const parentReducer$ = of(() => ({ list: [3] }));
 
       return {
-        state: reducer$,
+        state: merge(parentReducer$, childReducer$),
       };
     }
 
-    const wrapped = withState(main);
+    const wrapped = withState()(main);
     wrapped({});
     setImmediate(() => {
       assert.strictEqual(calledChild, 2);
@@ -728,24 +716,26 @@ describe('withState', () => {
   it('should work with an isolated child component on an array entry', done => {
     let calledSecond = 0;
     let calledMain = 0;
+
     function secondEntry(sources: { state: StateApi<any> }) {
       assert(sources.state);
       assert(sources.state.stream);
       const expected = [5, 15, 6];
-      sources.state.stream.addListener({
-        next(x) {
-          assert.deepEqual(x, expected.shift());
-          calledSecond += 1;
-        },
-        error(e) {
-          done(e);
-        },
-        complete() {},
-      });
-      const reducer$ = xs.of(
+
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => {
+            assert.deepStrictEqual(x, expected.shift());
+            calledSecond += 1;
+          },
+          e => done('should not error: ' + e)
+        )
+      );
+      const reducer$ = fromArray([
         (prevNum: number): number | undefined => prevNum + 10,
-        (prevNum: number): number | undefined => void 0
-      ) as Stream<Reducer<any>>;
+        (): number | undefined => void 0,
+      ]);
       return {
         state: reducer$,
       };
@@ -759,34 +749,30 @@ describe('withState', () => {
         [3, 15, 6],
         [3, 6],
       ];
-      sources.state.stream.addListener({
-        next(x) {
-          assert.deepEqual(x, expected.shift());
-          calledMain += 1;
-        },
-        error(e) {
-          done(e);
-        },
-        complete() {},
-      });
+
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => {
+            assert.deepStrictEqual(x, expected.shift());
+            calledMain += 1;
+          },
+          e => done('should not error: ' + e)
+        )
+      );
 
       const childSinks = isolate(secondEntry, 1)(sources);
       assert(childSinks.state);
       const childReducer$ = childSinks.state;
 
-      const parentReducer$ = xs.of(function initReducer(prevState: any): any {
-        return [3, 5, 6];
-      });
-      const reducer$ = xs.merge(parentReducer$, childReducer$) as Stream<
-        Reducer<any>
-      >;
+      const parentReducer$ = of(() => [3, 5, 6]);
 
       return {
-        state: reducer$,
+        state: merge(parentReducer$, childReducer$),
       };
     }
 
-    const wrapped = withState(main);
+    const wrapped = withState()(main);
     wrapped({});
     setImmediate(() => {
       assert.strictEqual(calledSecond, 3);
@@ -797,37 +783,35 @@ describe('withState', () => {
 
   it('not complete reducer stream neither source state$', done => {
     let called = false;
+
     function main(sources: { state: StateApi<any> }) {
       assert(sources.state);
       assert(sources.state.stream);
       const expected = [[3, 5, 6]];
-      sources.state.stream.addListener({
-        next(x) {
-          assert.deepEqual(x, expected.shift());
-          called = true;
-        },
-        error(e) {
-          done(e);
-        },
-        complete() {
-          done('should not complete');
-        },
-      });
 
-      const reducer$ = xs.of(function initReducer(prevState: any): any {
-        return [3, 5, 6];
-      });
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => {
+            assert.deepStrictEqual(x, expected.shift());
+            called = true;
+          },
+          e => done('should not error or complete: ' + e)
+        )
+      );
+
+      const reducer$ = of(() => [3, 5, 6]);
 
       return {
         state: reducer$,
       };
     }
 
-    const wrapped = withState(main);
+    const wrapped = withState()(main);
     wrapped({});
     setImmediate(() => {
       assert.strictEqual(called, true);
       done();
     });
-  });*/
+  });
 });
