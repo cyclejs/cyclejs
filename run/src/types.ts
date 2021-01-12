@@ -39,7 +39,10 @@ export type IdGenerator = () => number;
 
 export type Main = (sources: any, ...rest: any[]) => any;
 
-export type MasterWrapper = (main: Main) => Main;
+export type MasterWrapper = (
+  main: Main,
+  errorReporter?: (err: any) => void
+) => Main;
 
 export type Sinks = Record<string, Producer<any>>;
 

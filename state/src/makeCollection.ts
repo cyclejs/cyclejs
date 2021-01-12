@@ -86,11 +86,6 @@ function mkInstanceLens(
   };
 }
 
-const identityLens: Lens<any, any> = {
-  get: (outer: any) => outer,
-  set: (_, inner: any) => inner,
-};
-
 export function makeCollection<S>(options: CollectionOptions<S>): Main {
   return function collection(sources: any) {
     const channel = options.channel ?? 'state';
@@ -142,18 +137,18 @@ export function makeCollection<S>(options: CollectionOptions<S>): Main {
 
             nextKeys.clear();
             return { ...acc, arr: nextInstances };
-          } else {
+          } else if (typeof nextState === 'undefined') {
             acc.dict.clear();
-            const key = itemKey ? itemKey(nextState, 0) : 'this';
-            const stateScope = identityLens;
-            const otherScopes = itemScope(key);
-            const scopes =
-              typeof otherScopes === 'object'
-                ? { ...otherScopes, [channel]: stateScope }
-                : { '*': otherScopes, [channel]: stateScope };
-            const sinks = isolate(options.item, scopes)(sources);
-            acc.dict.set(key, sinks);
-            return { ...acc, arr: [sinks] };
+            acc.keyToIndex.clear();
+            return { ...acc, arr: [] };
+          } else {
+            const err = new Error('Expected a stream of arrays or undefined');
+            if (sources[channel].errorHandler) {
+              sources[channel].errorHandler(err);
+              return acc;
+            } else {
+              throw err;
+            }
           }
         },
         {

@@ -9,7 +9,10 @@ export type Lens<T, S> = {
 };
 
 export class StateApi<T> implements IsolateableApi<T, Reducer<T>> {
-  constructor(public readonly source: Producer<T>) {}
+  constructor(
+    public readonly source: Producer<T>,
+    public readonly errorHandler?: (err: any) => void
+  ) {}
 
   public get stream(): Producer<T> {
     return this.source;
@@ -27,7 +30,7 @@ export class StateApi<T> implements IsolateableApi<T, Reducer<T>> {
       dropRepeats()
     );
 
-    return new StateApi(source);
+    return new StateApi(source, this.errorHandler);
   }
 
   public isolateSink<S>(

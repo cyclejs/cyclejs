@@ -49,6 +49,15 @@ function checkArguments(main: Main, scope: Scopes): void {
   if (scope === null) {
     throw new Error('Second argument given to isolate() must not be null');
   }
+
+  if (
+    typeof (scope as any).get === 'function' &&
+    typeof (scope as any).set === 'function'
+  ) {
+    throw new Error(
+      'Cannot pass a lens to all apis, please use `{ state: lens, "*": null }` instead'
+    );
+  }
 }
 
 function defined(x: any): boolean {

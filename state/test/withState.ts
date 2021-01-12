@@ -52,7 +52,7 @@ describe('withState', () => {
       return { whatever: never() };
     }
 
-    const wrapped = withState(undefined, 'whatever')(main);
+    const wrapped = withState('whatever')(main);
     wrapped({});
     assert.strictEqual(called, true);
   });

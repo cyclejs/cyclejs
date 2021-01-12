@@ -41,7 +41,9 @@ function makeReplaySubject<T>(): Subject<T> {
         sinks = sinks.filter(Boolean);
       }
 
-      promise = void 0;
+      if (bufferLength > 0) {
+        promise = scheduleData();
+      } else promise = void 0;
     });
 
   return (type: ALL, data: unknown) => {
@@ -68,21 +70,18 @@ function makeReplaySubject<T>(): Subject<T> {
   };
 }
 
-export function withState(
-  initialState: any = undefined,
-  channel = 'state'
-): MasterWrapper {
-  return main => sources => {
+export function withState(channel = 'state'): MasterWrapper {
+  return (main, errorHandler) => sources => {
     const subject = makeReplaySubject();
 
-    const api = new StateApi(subject);
+    const api = new StateApi(subject, errorHandler);
 
     const sinks = main({ ...sources, [channel]: api });
 
     if (sinks[channel]) {
       pipe(
         merge(sinks[channel], never()),
-        scan((state, reducer: any) => reducer(state), initialState),
+        scan((state, reducer: any) => reducer(state), undefined),
         skip(1),
         dropRepeats(),
         subscribe(

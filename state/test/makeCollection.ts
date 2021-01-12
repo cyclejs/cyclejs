@@ -314,14 +314,18 @@ describe('makeCollection', () => {
     }, 200);
   });
 
-  /*it('should work also on an object, not just on arrays', done => {
-    const expected = [{key: 'a', val: null}, {key: 'a', val: 10}];
-    function Child(sources: {state: StateSource<any>}) {
-      const defaultReducer$ = xs.of((prev: any) => {
+  it('should work with a singleton lens', done => {
+    const expected = [
+      { key: 'a', val: null },
+      { key: 'a', val: 10 },
+    ];
+
+    function Child(_sources: { state: StateApi<any> }) {
+      const defaultReducer$ = of((prev: any) => {
         if (typeof prev.val === 'number') {
           return prev;
         } else {
-          return {key: prev.key, val: 10};
+          return { key: prev.key, val: 10 };
         }
       });
 
@@ -332,41 +336,42 @@ describe('makeCollection', () => {
 
     const Wrapper = makeCollection({
       item: Child,
-      collectSinks: instances => ({
-        state: instances.pickMerge('state'),
-      }),
+      collectSinks: {
+        state: pickMerge('state'),
+      },
     });
 
-    function Main(sources: {state: StateSource<any>}) {
-      sources.state.stream.addListener({
-        next(x) {
-          assert.deepEqual(x.wrap, expected.shift());
-        },
-        error(e) {
-          done(e.message);
-        },
-        complete() {
-          done('complete should not be called');
-        },
-      });
+    function Main(sources: { state: StateApi<any> }) {
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => {
+            assert.deepStrictEqual(x.wrap, expected.shift());
+          },
+          e => done('should not terminate: ' + e)
+        )
+      );
 
-      const wrapperSinks = isolate(Wrapper, 'wrap')(sources);
+      const wrapLens = {
+        get: (x: any) => [x.wrap],
+        set: (x: any, y: any) => ({ ...x, wrap: y[0] }),
+      };
+
+      const wrapperSinks = isolate(Wrapper, { state: wrapLens, '*': null })(
+        sources
+      );
       const wrapperReducer$ = wrapperSinks.state;
 
-      const initReducer$ = xs.of(function initReducer(prevState: any): any {
-        return {wrap: {key: 'a', val: null}};
-      });
+      const initReducer$ = of(() => ({ wrap: { key: 'a', val: null } }));
 
-      const reducer$ = xs.merge(initReducer$, wrapperReducer$) as Stream<
-        Reducer<any>
-      >;
+      const reducer$ = merge(initReducer$, wrapperReducer$);
 
       return {
         state: reducer$,
       };
     }
 
-    const wrapped = withState(Main);
+    const wrapped = withState()(Main);
     wrapped({});
     setTimeout(() => {
       assert.strictEqual(expected.length, 0);
@@ -374,7 +379,62 @@ describe('makeCollection', () => {
     }, 60);
   });
 
-  it('should not throw if pickMerge() is called with name that item does not use', done => {
+  it('should error if passed an object and not an array', done => {
+    function Child(_sources: { state: StateApi<any> }) {
+      const defaultReducer$ = of((prev: any) => {
+        if (typeof prev.val === 'number') {
+          return prev;
+        } else {
+          return { key: prev.key, val: 10 };
+        }
+      });
+
+      return {
+        state: defaultReducer$,
+      };
+    }
+
+    const Wrapper = makeCollection({
+      item: Child,
+      collectSinks: {
+        state: pickMerge('state'),
+      },
+    });
+
+    function Main(sources: { state: StateApi<any> }) {
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => assert.deepStrictEqual(x, { wrap: { key: 'a', val: null } }),
+          e => done('should not terminate: ' + e)
+        )
+      );
+
+      const wrapperSinks = isolate(Wrapper, 'wrap')(sources);
+      const wrapperReducer$ = wrapperSinks.state;
+
+      const initReducer$ = of(() => ({ wrap: { key: 'a', val: null } }));
+
+      const reducer$ = merge(initReducer$, wrapperReducer$);
+
+      return {
+        state: reducer$,
+      };
+    }
+
+    const errorHandler = (err: any) => {
+      assert.strictEqual(
+        err.message,
+        'Expected a stream of arrays or undefined'
+      );
+      done();
+    };
+
+    const wrapped = withState('state')(Main, errorHandler);
+    wrapped({});
+  });
+
+  /*it('should not throw if pickMerge() is called with name that item does not use', done => {
     function Child(sources: {state: StateSource<any>}) {
       return {
         state: xs.of({}),
