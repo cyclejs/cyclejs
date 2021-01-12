@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { isolate } from '@cycle/utils';
-import { run, ReadonlyDriver } from '@cycle/run';
+import { run } from '@cycle/run';
 import {
   never,
   pipe,
