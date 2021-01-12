@@ -41,6 +41,8 @@ export type Main = (sources: any, ...rest: any[]) => any;
 
 export type MasterWrapper = (main: Main) => Main;
 
+export type Sinks = Record<string, Producer<any>>;
+
 export type Subscription = () => void;
 
 export type Engine = {

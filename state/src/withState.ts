@@ -9,7 +9,7 @@ import {
   skip,
 } from '@cycle/callbags';
 
-import { StateApi } from './api';
+import { StateApi, dropRepeats } from './api';
 
 export function withState(
   initialState: any = undefined,
@@ -27,6 +27,7 @@ export function withState(
         merge(sinks[channel], never()),
         scan((state, reducer: any) => reducer(state), initialState),
         skip(1),
+        dropRepeats(),
         subscribe(
           x => subject(1, x),
           e => subject(2, e)

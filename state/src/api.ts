@@ -52,6 +52,8 @@ function makeDefaultLens<T, S>(
   return {
     get: (x: any) => x?.[scope],
     set: (x, y) => {
+      if ((x as any)?.[scope] === y) return x;
+
       if (Array.isArray(x)) {
         if (typeof y === 'undefined') {
           return x.filter((_, i) => i !== scope);
@@ -61,7 +63,7 @@ function makeDefaultLens<T, S>(
   };
 }
 
-function dropRepeats<T>(): Operator<T, T> {
+export function dropRepeats<T>(): Operator<T, T> {
   let prev: any = {};
 
   return filter(x => {
