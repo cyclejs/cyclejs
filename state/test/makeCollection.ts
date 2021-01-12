@@ -434,38 +434,41 @@ describe('makeCollection', () => {
     wrapped({});
   });
 
-  /*it('should not throw if pickMerge() is called with name that item does not use', done => {
-    function Child(sources: {state: StateSource<any>}) {
+  it('should not throw if pickMerge() is called with name that item does not use', done => {
+    function Child(_sources: { state: StateApi<any> }) {
       return {
-        state: xs.of({}),
+        state: of(() => {}),
       };
     }
 
-    const List = makeCollection<{key: string}>({
+    const List = makeCollection<{ key: string }>({
       item: Child,
       itemKey: s => s.key,
       itemScope: key => key,
-      collectSinks: instances => ({
-        HTTP: instances.pickMerge('HTTP'),
-      }),
+      collectSinks: {
+        HTTP: pickMerge('HTTP'),
+      },
     });
 
-    function Main(sources: {state: StateSource<any>}) {
+    function Main(sources: { state: StateApi<any> }) {
       const childSinks = isolate(List, 'list')(sources);
+      assert.strictEqual(typeof childSinks.HTTP, 'function');
 
-      const initReducer$ = xs.of(function initReducer(prevState: any): any {
-        return {list: [{key: 'a', val: 3}]};
-      });
+      const initReducer$ = of(() => ({ list: [{ key: 'a', val: 3 }] }));
 
-      childSinks.HTTP.subscribe({});
+      pipe(
+        childSinks.HTTP,
+        subscribe(() => assert.fail('should not deliver data'))
+      );
 
       return {
         state: initReducer$,
       };
     }
 
-    const wrapped = withState(Main);
+    const wrapped = withState()(Main);
     wrapped({});
-    done();
-  });*/
+
+    setTimeout(done, 10);
+  });
 });

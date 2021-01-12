@@ -29,6 +29,7 @@ export function pickMerge<U>(channel: string): Operator<Sinks[], U> {
         const sinkArray: Sinks[] = d;
         for (let i = 0; i < sinkArray.length; i++) {
           const stream = sinkArray[i][channel] as Producer<U>;
+          if (!stream) continue;
 
           if (!prev.has(stream)) {
             stream(0, (t2, d2) => {
