@@ -1,4 +1,4 @@
-import { merge, makeReplaySubject } from '@cycle/callbags';
+import { merge } from '@cycle/callbags';
 import {
   Plugin,
   Plugins,
@@ -9,6 +9,7 @@ import {
   ApiFactory,
 } from './types';
 import { multicastNow } from './multicastNow';
+import { makeReplaySubject } from './replaySubject';
 
 let currentId = 0;
 

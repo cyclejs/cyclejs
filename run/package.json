@@ -29,7 +29,7 @@
   "module": "build/bundle.esm.js",
   "types": "build/index.d.ts",
   "dependencies": {
-    "@cycle/callbags": "^2.2.0"
+    "@cycle/callbags": "^3.0.2"
   },
   "funding": {
     "type": "opencollective",

@@ -29,10 +29,11 @@
   "module": "build/bundle.esm.js",
   "types": "build/index.d.ts",
   "dependencies": {
-    "@cycle/callbags": "^2.2.0"
+    "@cycle/callbags": "^3.0.2"
   },
   "peerDependencies": {
-    "@cycle/run": "^6.0.0"
+    "@cycle/run": "^6.0.0",
+    "@cycle/utils": "workspace:^6.0.0"
   },
   "funding": {
     "type": "opencollective",
