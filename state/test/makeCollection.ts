@@ -1,24 +1,8 @@
 import * as assert from 'assert';
-import {
-  of,
-  fromArray,
-  pipe,
-  merge,
-  subscribe,
-  Operator,
-} from '@cycle/callbags';
+import { of, fromArray, pipe, merge, subscribe } from '@cycle/callbags';
 import { StateApi, makeCollection, pickMerge, withState } from '../src/index';
 import { isolate } from '@cycle/utils';
-
-function delay<T>(ms: number): Operator<T, T> {
-  return source => (_, sink) => {
-    source(0, (t, d) => {
-      setTimeout(() => {
-        sink(t, d);
-      }, ms);
-    });
-  };
-}
+import { delay } from './helpers';
 
 describe('makeCollection', () => {
   it('should return an isolatable List component', done => {

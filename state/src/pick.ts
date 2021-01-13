@@ -23,11 +23,14 @@ export function pickCombineWith<U>(
   const onNewSinks = (s: Sinks[]) => {
     const newData = Array(s.length).fill(empty);
 
+    let orderChanged = false;
+
     for (let i = 0; i < s.length; i++) {
       if (sinks[i] !== s[i]) {
         for (let j = 0; j < sinks.length; j++) {
           if (sinks[j] === s[i]) {
             newData[i] = data[j];
+            orderChanged = true;
           }
         }
       } else {
@@ -42,6 +45,10 @@ export function pickCombineWith<U>(
 
     data = newData;
     sinks = s;
+
+    if (orderChanged && numStarted === data.length) {
+      return f(...data);
+    } else return noop;
   };
 
   const onSinkData = (arg: any, i: number) => {
@@ -59,7 +66,7 @@ export function pickCombineWith<U>(
 export function pick<U>(
   channel: string,
   onSinkData: (arg: any, i: number) => U | typeof noop,
-  onNewSinks?: (sinkArray: Sinks[]) => void
+  onNewSinks: (sinkArray: Sinks[]) => U | typeof noop = () => noop
 ): Operator<Sinks[], U> {
   return instances$ => (_, sink) => {
     let instancesTalkback: any;
@@ -78,7 +85,10 @@ export function pick<U>(
         sink(0, talkback);
       } else if (t === 1) {
         const sinkArray: Sinks[] = d;
-        onNewSinks?.(sinkArray);
+        const action = onNewSinks(sinkArray);
+        if (action !== noop) {
+          sink(1, action);
+        }
 
         for (let i = 0; i < sinkArray.length; i++) {
           const stream = sinkArray[i][channel] as Producer<U>;
@@ -98,10 +108,10 @@ export function pick<U>(
                 if (instancesEnded && innerTalkbacks.size === 0) {
                   sink(2);
                 }
-              } else if (t === 1) {
+              } else {
                 const data = onSinkData(d2, i);
                 if (data !== noop) sink(1, data);
-              } else sink(t, d2);
+              }
             });
           }
 
