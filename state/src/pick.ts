@@ -1,15 +1,66 @@
 import { Sinks } from '@cycle/run';
-import {
-  Operator,
-  Producer,
-  END,
-  combine,
-  pipe,
-  map,
-  flatten,
-} from '@cycle/callbags';
+import { Operator, Producer, END } from '@cycle/callbags';
+
+export const noop = Symbol('pickNoop');
 
 export function pickMerge<U>(channel: string): Operator<Sinks[], U> {
+  return pick(channel, arg => arg);
+}
+
+export function pickCombine<U>(channel: string): Operator<Sinks[], U[]> {
+  return pickCombineWith(channel, (...args) => args);
+}
+
+export function pickCombineWith<U>(
+  channel: string,
+  f: (...args: any[]) => U
+): Operator<Sinks[], U> {
+  const empty = {};
+  let data: any[] = [];
+  let sinks: Sinks[] = [];
+  let numStarted = 0;
+
+  const onNewSinks = (s: Sinks[]) => {
+    const newData = Array(s.length).fill(empty);
+
+    for (let i = 0; i < s.length; i++) {
+      if (sinks[i] !== s[i]) {
+        for (let j = 0; j < sinks.length; j++) {
+          if (sinks[j] === s[i]) {
+            newData[i] = data[j];
+          }
+        }
+      } else {
+        newData[i] = data[i];
+      }
+    }
+
+    numStarted = 0;
+    for (const x of newData) {
+      if (x !== empty) numStarted++;
+    }
+
+    data = newData;
+    sinks = s;
+  };
+
+  const onSinkData = (arg: any, i: number) => {
+    if (data[i] === empty) numStarted++;
+    data[i] = arg;
+
+    if (numStarted === sinks.length) {
+      return f(...data);
+    } else return noop;
+  };
+
+  return pick(channel, onSinkData, onNewSinks);
+}
+
+export function pick<U>(
+  channel: string,
+  onSinkData: (arg: any, i: number) => U | typeof noop,
+  onNewSinks?: (sinkArray: Sinks[]) => void
+): Operator<Sinks[], U> {
   return instances$ => (_, sink) => {
     let instancesTalkback: any;
     let innerTalkbacks: Map<Producer<U>, any> = new Map();
@@ -27,6 +78,8 @@ export function pickMerge<U>(channel: string): Operator<Sinks[], U> {
         sink(0, talkback);
       } else if (t === 1) {
         const sinkArray: Sinks[] = d;
+        onNewSinks?.(sinkArray);
+
         for (let i = 0; i < sinkArray.length; i++) {
           const stream = sinkArray[i][channel] as Producer<U>;
           if (!stream) continue;
@@ -45,6 +98,9 @@ export function pickMerge<U>(channel: string): Operator<Sinks[], U> {
                 if (instancesEnded && innerTalkbacks.size === 0) {
                   sink(2);
                 }
+              } else if (t === 1) {
+                const data = onSinkData(d2, i);
+                if (data !== noop) sink(1, data);
               } else sink(t, d2);
             });
           }
@@ -71,14 +127,4 @@ export function pickMerge<U>(channel: string): Operator<Sinks[], U> {
       }
     });
   };
-}
-
-// TODO: avoid resubscribing just like with pickMerge
-export function pickCombine<U>(channel: string): Operator<Sinks[], U[]> {
-  return instances$ =>
-    pipe(
-      instances$,
-      map(sinks => combine(...sinks.map((s: any) => s[channel]))),
-      flatten
-    );
 }
