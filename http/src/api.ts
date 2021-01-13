@@ -41,7 +41,7 @@ export class HttpApi implements IsolateableApi<ResponseStream, SinkRequest> {
 
   public get<
     T = any,
-    Type extends ResponseType = 'text',
+    Type extends ResponseType = 'parsed',
     Progress extends boolean = false
   >(
     optsOrUrl: string | Request<T, Type, Progress>
@@ -51,7 +51,7 @@ export class HttpApi implements IsolateableApi<ResponseStream, SinkRequest> {
 
   public post<
     T = any,
-    Type extends ResponseType = 'text',
+    Type extends ResponseType = 'parsed',
     Progress extends boolean = false
   >(
     optsOrUrl: string | Request<T, Type, Progress>
@@ -61,7 +61,7 @@ export class HttpApi implements IsolateableApi<ResponseStream, SinkRequest> {
 
   public put<
     T = any,
-    Type extends ResponseType = 'text',
+    Type extends ResponseType = 'parsed',
     Progress extends boolean = false
   >(
     optsOrUrl: string | Request<T, Type, Progress>
@@ -71,7 +71,7 @@ export class HttpApi implements IsolateableApi<ResponseStream, SinkRequest> {
 
   public delete<
     T = any,
-    Type extends ResponseType = 'text',
+    Type extends ResponseType = 'parsed',
     Progress extends boolean = false
   >(
     optsOrUrl: string | Request<T, Type, Progress>
@@ -81,7 +81,7 @@ export class HttpApi implements IsolateableApi<ResponseStream, SinkRequest> {
 
   public patch<
     T = any,
-    Type extends ResponseType = 'text',
+    Type extends ResponseType = 'parsed',
     Progress extends boolean = false
   >(
     optsOrUrl: string | Request<T, Type, Progress>

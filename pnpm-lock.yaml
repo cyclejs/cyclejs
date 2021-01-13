@@ -17,11 +17,11 @@ importers:
   http:
     dependencies:
       '@cycle/callbags': 3.0.2
-      '@minireq/browser': 1.2.0-beta.5
+      '@minireq/browser': 2.0.0
     devDependencies:
       '@cycle/run': 'link:../run'
       '@cycle/utils': 'link:../utils'
-      '@minireq/node': 1.0.0-beta.6
+      '@minireq/node': 2.0.0
       '@types/assert': 1.5.2
       '@types/body-parser': 1.19.0
       '@types/cookie-parser': 1.4.2
@@ -45,8 +45,8 @@ importers:
       '@cycle/callbags': ^3.0.2
       '@cycle/run': 'workspace:^6.0.0'
       '@cycle/utils': 'workspace:^6.0.0'
-      '@minireq/browser': ^1.2.0-beta.5
-      '@minireq/node': ^1.0.0-beta.6
+      '@minireq/browser': ^2.0.0
+      '@minireq/node': ^2.0.0
       '@types/assert': ^1.5.2
       '@types/body-parser': ^1.19.0
       '@types/cookie-parser': ^1.4.2
@@ -332,21 +332,21 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-tsAQNx32a8CoFhjhijUIhI4kccIAgmGhy8LZMZgGfmXcpMbPRUqn5LWmgRttILi6yeGmBJd2xsPkFMs0PzgPCw==
-  /@minireq/browser/1.2.0-beta.5:
+  /@minireq/browser/2.0.0:
     dependencies:
-      '@minireq/common': 1.0.0-beta.1
+      '@minireq/common': 2.0.0
     dev: false
     resolution:
-      integrity: sha512-LOW16/czDBBIXXYTdXvCDJdAf9ryZI8tp917n0WtWdxYnwM8lnrIuWCjJLJIuEuYD1lBxAKTDML6r6sJEYi+Bg==
-  /@minireq/common/1.0.0-beta.1:
+      integrity: sha512-0A6KOXLL+EQlFaLjNKvH2bRxy8fKPH/DNBy7IXq36LdSPubbzmJ8qoPTxTCfFsTVSFhozEhn48u8QjoyEQq2BQ==
+  /@minireq/common/2.0.0:
     resolution:
-      integrity: sha512-KhQpTS+loNFAffTnO4Lue7amZfBe+ix3c+I0zqwJqkhDpDMywMd1TOX9B6gP14HnrEywHW7/pNTr//VrfQwmYA==
-  /@minireq/node/1.0.0-beta.6:
+      integrity: sha512-dVza/V5g0uURv2rnJ2vNchb8WlrOVlkLHscfO74poiFB4nPqnYz+8bLVY2uwH9W/1SAG73kEZPOsGibBnn7rBg==
+  /@minireq/node/2.0.0:
     dependencies:
-      '@minireq/common': 1.0.0-beta.1
+      '@minireq/common': 2.0.0
     dev: true
     resolution:
-      integrity: sha512-zQLunlHWEwOpNTs8yMq2IIsDsjDdl0FiXfQsJEFjJk394YuwwZAu/xKugVOn7olIroirltjuWMJDY6B+XRfRpA==
+      integrity: sha512-qaXdz7sQb45Q8r2MGUadP1Wj8cjQ+srG0FhXGiv+5HoD1Mdl3hEqRy1OFjgiAY8KCgt4tIV8W5heYZ6H94A42w==
   /@rollup/pluginutils/3.1.0_rollup@2.27.1:
     dependencies:
       '@types/estree': 0.0.39

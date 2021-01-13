@@ -171,17 +171,17 @@ describe('HTTP Driver in the browser', function () {
     run(main, plugins, []);
   });
 
-  it('should return binary response when responseType option is arraybuffer', done => {
+  it('should return binary response when responseType option is binary', done => {
     function main(sources: { HTTP: HttpApi }) {
       pipe(
         sources.HTTP.get({
           url: uri + '/binary',
-          responseType: 'arraybuffer',
+          responseType: 'binary',
         }),
         subscribe(res => {
           assert.strictEqual(res.request.url, uri + '/binary');
           assert.strictEqual(res.request.method, 'GET');
-          assert.strictEqual(res.request.responseType, 'arraybuffer');
+          assert.strictEqual(res.request.responseType, 'binary');
 
           assert.strictEqual(res.status, 200);
           assert.deepStrictEqual(
@@ -201,17 +201,17 @@ describe('HTTP Driver in the browser', function () {
     run(main, plugins, []);
   });
 
-  it('should return binary response when responseType option is blob', done => {
+  it('should be able to create a blob when responseType option is binary', done => {
     function main(sources: { HTTP: HttpApi }) {
       pipe(
         sources.HTTP.get({
           url: uri + '/binary',
-          responseType: 'blob',
+          responseType: 'binary',
         }),
         subscribe(res => {
           assert.strictEqual(res.request.url, uri + '/binary');
           assert.strictEqual(res.request.method, 'GET');
-          assert.strictEqual(res.request.responseType, 'blob');
+          assert.strictEqual(res.request.responseType, 'binary');
 
           assert.strictEqual(res.status, 200);
           const fr = new FileReader();
@@ -225,7 +225,7 @@ describe('HTTP Driver in the browser', function () {
           fr.onerror = () => {
             done('should not be called');
           };
-          fr.readAsArrayBuffer(res.data);
+          fr.readAsArrayBuffer(new Blob([res.data]));
         })
       );
     }

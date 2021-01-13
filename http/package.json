@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@cycle/callbags": "^3.0.2",
-    "@minireq/browser": "^1.2.0-beta.5"
+    "@minireq/browser": "^2.0.0"
   },
   "peerDependencies": {
     "@cycle/run": "^6.0.0"
@@ -32,7 +32,7 @@
   "devDependencies": {
     "@cycle/run": "workspace:^6.0.0",
     "@cycle/utils": "workspace:^6.0.0",
-    "@minireq/node": "^1.0.0-beta.6",
+    "@minireq/node": "^2.0.0",
     "@types/assert": "^1.5.2",
     "@types/body-parser": "^1.19.0",
     "@types/cookie-parser": "^1.4.2",
