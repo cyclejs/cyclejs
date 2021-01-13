@@ -1,42 +1,54 @@
-// tslint:disable-next-line
-import 'mocha';
 import * as assert from 'assert';
-import xs, {Stream} from 'xstream';
-import delay from 'xstream/extra/delay';
-import isolate from '@cycle/isolate';
-import {withState, StateSource, Reducer, makeCollection} from '../src/index';
+import { of, fromArray, pipe, merge, subscribe } from '@cycle/callbags';
+import { StateApi, makeCollection, pickMerge, withState } from '../src/index';
+import { isolate } from '@cycle/utils';
+import { delay } from './helpers';
 
-describe('makeCollection', function() {
+describe('makeCollection', () => {
   it('should return an isolatable List component', done => {
     type ItemState = {
       key: string;
       val: number | null;
     };
     const expected = [
-      [{key: 'a', val: 3}],
-      [{key: 'a', val: 3}, {key: 'b', val: null}],
-      [{key: 'a', val: 3}, {key: 'b', val: 10}],
-      [{key: 'a', val: 3}, {key: 'b', val: 10}, {key: 'c', val: 27}],
-      [{key: 'a', val: 3}, {key: 'b', val: 10}],
+      [{ key: 'a', val: 3 }],
+      [
+        { key: 'a', val: 3 },
+        { key: 'b', val: null },
+      ],
+      [
+        { key: 'a', val: 3 },
+        { key: 'b', val: 10 },
+      ],
+      [
+        { key: 'a', val: 3 },
+        { key: 'b', val: 10 },
+        { key: 'c', val: 27 },
+      ],
+      [
+        { key: 'a', val: 3 },
+        { key: 'b', val: 10 },
+      ],
     ];
 
-    function Child(sources: {state: StateSource<ItemState>}) {
-      const defaultReducer$ = xs.of((prev: any) => {
+    function Child(_sources: { state: StateApi<ItemState> }) {
+      const defaultReducer$ = of((prev: any) => {
         if (typeof prev.val === 'number') {
           return prev;
         } else {
-          return {key: prev.key, val: 10};
+          return { key: prev.key, val: 10 };
         }
       });
 
-      const deleteReducer$ = xs
-        .of((prev: any) => (prev.key === 'c' ? void 0 : prev))
-        .compose(delay(50));
+      const deleteReducer$ = pipe(
+        of((prev: any) => {
+          return prev.key === 'c' ? void 0 : prev;
+        }),
+        delay(50)
+      );
 
       return {
-        state: xs.merge(defaultReducer$, deleteReducer$) as Stream<
-          Reducer<any>
-        >,
+        state: merge(defaultReducer$, deleteReducer$),
       };
     }
 
@@ -44,57 +56,58 @@ describe('makeCollection', function() {
       item: Child,
       itemKey: s => s.key,
       itemScope: key => key,
-      collectSinks: instances => ({
-        state: instances.pickMerge('state'),
-      }),
+      collectSinks: {
+        state: pickMerge('state'),
+      },
     });
 
     type MainState = {
       list: Array<ItemState>;
     };
 
-    function Main(sources: {state: StateSource<MainState>}) {
-      sources.state.stream.addListener({
-        next(x) {
-          assert.deepEqual(x.list, expected.shift());
-        },
-        error(e) {
-          done(e.message);
-        },
-        complete() {
-          done('complete should not be called');
-        },
-      });
-
-      const childSinks = isolate(List, 'list')(sources);
-      const childReducer$ = childSinks.state;
-
-      const initReducer$ = xs.of(function initReducer(prevState: any): any {
-        return {list: [{key: 'a', val: 3}]};
-      });
-
-      const addReducer$ = xs.merge(
-        xs
-          .of(function addB(prev: MainState): MainState {
-            return {list: prev.list.concat({key: 'b', val: null})};
-          })
-          .compose(delay(100)),
-        xs
-          .of(function addC(prev: MainState): MainState {
-            return {list: prev.list.concat({key: 'c', val: 27})};
-          })
-          .compose(delay(200))
+    function Main(sources: { state: StateApi<MainState> }) {
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => {
+            assert.deepStrictEqual(x.list, expected.shift());
+          },
+          e => done('should not error: ' + e)
+        )
       );
 
-      const parentReducer$ = xs.merge(initReducer$, addReducer$);
-      const reducer$ = xs.merge(parentReducer$, childReducer$);
+      const child = isolate(List, 'list');
+      const childSinks = child(sources);
+      const childReducer$ = childSinks.state;
+
+      const initReducer$ = of(() => {
+        return { list: [{ key: 'a', val: 3 }] };
+      });
+
+      const addReducer$ = merge(
+        pipe(
+          of(function addB(prev: MainState): MainState {
+            return { list: prev.list.concat({ key: 'b', val: null }) };
+          }),
+          delay(100)
+        ),
+        pipe(
+          of(function addC(prev: MainState): MainState {
+            return { list: prev.list.concat({ key: 'c', val: 27 }) };
+          }),
+          delay(200)
+        )
+      );
+
+      const parentReducer$ = merge(initReducer$, addReducer$);
+      const reducer$ = merge(parentReducer$, childReducer$);
 
       return {
-        state: reducer$ as Stream<Reducer<any>>,
+        state: reducer$,
       };
     }
 
-    const wrapped = withState(Main);
+    const wrapped = withState()(Main);
     wrapped({});
     setTimeout(() => {
       assert.strictEqual(expected.length, 0);
@@ -104,11 +117,24 @@ describe('makeCollection', function() {
 
   it('should work with a custom itemKey', done => {
     const expected = [
-      [{id: 'a', val: 3}],
-      [{id: 'a', val: 3}, {id: 'b', val: null}],
-      [{id: 'a', val: 3}, {id: 'b', val: 10}],
-      [{id: 'a', val: 3}, {id: 'b', val: 10}, {id: 'c', val: 27}],
-      [{id: 'a', val: 3}, {id: 'b', val: 10}],
+      [{ id: 'a', val: 3 }],
+      [
+        { id: 'a', val: 3 },
+        { id: 'b', val: null },
+      ],
+      [
+        { id: 'a', val: 3 },
+        { id: 'b', val: 10 },
+      ],
+      [
+        { id: 'a', val: 3 },
+        { id: 'b', val: 10 },
+        { id: 'c', val: 27 },
+      ],
+      [
+        { id: 'a', val: 3 },
+        { id: 'b', val: 10 },
+      ],
     ];
 
     type ItemState = {
@@ -116,76 +142,73 @@ describe('makeCollection', function() {
       val: number | undefined;
     };
 
-    function Child(sources: {state: StateSource<ItemState>}) {
-      const defaultReducer$ = xs.of((prev: ItemState) => {
+    function Child(_sources: { state: StateApi<ItemState> }) {
+      const defaultReducer$ = of((prev: ItemState) => {
         if (typeof prev.val === 'number') {
           return prev;
         } else {
-          return {id: prev.id, val: 10};
+          return { id: prev.id, val: 10 };
         }
       });
 
-      const deleteReducer$ = xs
-        .of((prev: ItemState) => (prev.id === 'c' ? void 0 : prev))
-        .compose(delay(50));
+      const deleteReducer$ = pipe(
+        of((prev: ItemState) => (prev.id === 'c' ? void 0 : prev)),
+        delay(50)
+      );
 
       return {
-        state: xs.merge(defaultReducer$, deleteReducer$),
+        state: merge(defaultReducer$, deleteReducer$),
       };
     }
 
     const List = makeCollection<ItemState>({
       item: Child,
       itemKey: s => s.id,
-      collectSinks: instances => ({
-        state: instances.pickMerge('state'),
-      }),
+      collectSinks: {
+        state: pickMerge('state'),
+      },
     });
 
-    function Main(sources: {state: StateSource<any>}) {
-      sources.state.stream.addListener({
-        next(x) {
-          assert.deepEqual(x.list, expected.shift());
-        },
-        error(e) {
-          done(e.message);
-        },
-        complete() {
-          done('complete should not be called');
-        },
-      });
+    function Main(sources: { state: StateApi<any> }) {
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => {
+            assert.deepStrictEqual(x.list, expected.shift());
+          },
+          e => done('should not complete: ' + e)
+        )
+      );
 
       const childSinks = isolate(List, 'list')(sources);
       const childReducer$ = childSinks.state;
 
-      const initReducer$ = xs.of(function initReducer(prevState: any): any {
-        return {list: [{id: 'a', val: 3}]};
-      });
+      const initReducer$ = of(() => ({ list: [{ id: 'a', val: 3 }] }));
 
-      const addReducer$ = xs.merge(
-        xs
-          .of(function addB(prev: any) {
-            return {list: prev.list.concat({id: 'b', val: null})};
-          })
-          .compose(delay(100)),
-        xs
-          .of(function addC(prev: any) {
-            return {list: prev.list.concat({id: 'c', val: 27})};
-          })
-          .compose(delay(200))
+      const addReducer$ = merge(
+        pipe(
+          of(function addB(prev: any) {
+            return { list: prev.list.concat({ id: 'b', val: null }) };
+          }),
+          delay(100)
+        ),
+        pipe(
+          of(function addC(prev: any) {
+            return { list: prev.list.concat({ id: 'c', val: 27 }) };
+          }),
+          delay(200)
+        )
       );
 
-      const parentReducer$ = xs.merge(initReducer$, addReducer$);
-      const reducer$ = xs.merge(parentReducer$, childReducer$) as Stream<
-        Reducer<any>
-      >;
+      const parentReducer$ = merge(initReducer$, addReducer$);
+      const reducer$ = merge(parentReducer$, childReducer$);
 
       return {
         state: reducer$,
       };
     }
 
-    const wrapped = withState(Main);
+    const wrapped = withState()(Main);
     wrapped({});
     setTimeout(() => {
       assert.strictEqual(expected.length, 0);
@@ -195,83 +218,79 @@ describe('makeCollection', function() {
 
   it('should correctly accumulate over time even without itemKey', done => {
     const expected = [
-      [{val: 3}],
-      [{val: 4}],
-      [{val: 5}],
-      [{val: 6}],
-      [{val: 6}, {val: null}],
-      [{val: 6}, {val: 10}],
-      [{val: 6}, {val: 11}],
-      [{val: 6}, {val: 12}],
-      [{val: 6}, {val: 13}],
+      [{ val: 3 }],
+      [{ val: 4 }],
+      [{ val: 5 }],
+      [{ val: 6 }],
+      [{ val: 6 }, { val: null }],
+      [{ val: 6 }, { val: 10 }],
+      [{ val: 6 }, { val: 11 }],
+      [{ val: 6 }, { val: 12 }],
+      [{ val: 6 }, { val: 13 }],
     ];
 
-    function Child(sources: {state: StateSource<any>}) {
-      const defaultReducer$ = xs.of((prev: any) => {
+    function Child(_sources: { state: StateApi<any> }) {
+      const defaultReducer$ = of((prev: any) => {
         if (typeof prev.val === 'number') {
           return prev;
         } else {
-          return {val: 10};
+          return { val: 10 };
         }
       });
 
-      const incrementReducer$ = xs
-        .of(
-          (prev: any) => ({val: prev.val + 1}),
-          (prev: any) => ({val: prev.val + 1}),
-          (prev: any) => ({val: prev.val + 1})
-        )
-        .compose(delay(50));
+      const incrementReducer$ = pipe(
+        fromArray([
+          (prev: any) => ({ val: prev.val + 1 }),
+          (prev: any) => ({ val: prev.val + 1 }),
+          (prev: any) => ({ val: prev.val + 1 }),
+        ]),
+        delay(50)
+      );
 
       return {
-        state: xs.merge(defaultReducer$, incrementReducer$),
+        state: merge(defaultReducer$, incrementReducer$),
       };
     }
 
     const List = makeCollection({
       item: Child,
-      collectSinks: instances => ({
-        state: instances.pickMerge('state'),
-      }),
+      collectSinks: {
+        state: pickMerge('state'),
+      },
     });
 
-    function Main(sources: {state: StateSource<any>}) {
-      sources.state.stream.addListener({
-        next(x) {
-          assert.deepEqual(x.list, expected.shift());
-        },
-        error(e) {
-          done(e.message);
-        },
-        complete() {
-          done('complete should not be called');
-        },
-      });
+    function Main(sources: { state: StateApi<any> }) {
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => {
+            assert.deepStrictEqual(x.list, expected.shift());
+          },
+          e => done('should not complete: ' + e)
+        )
+      );
 
       const childSinks = isolate(List, 'list')(sources);
       const childReducer$ = childSinks.state;
 
-      const initReducer$ = xs.of(function initReducer(prevState: any): any {
-        return {list: [{val: 3}]};
-      });
+      const initReducer$ = of(() => ({ list: [{ val: 3 }] }));
 
-      const addReducer$ = xs
-        .of(function addSecond(prev: any) {
-          return {list: prev.list.concat({val: null})};
-        })
-        .compose(delay(100));
+      const addReducer$ = pipe(
+        of(function addSecond(prev: any) {
+          return { list: prev.list.concat({ val: null }) };
+        }),
+        delay(100)
+      );
 
-      const parentReducer$ = xs.merge(initReducer$, addReducer$);
-      const reducer$ = xs.merge(parentReducer$, childReducer$) as Stream<
-        Reducer<any>
-      >;
+      const parentReducer$ = merge(initReducer$, addReducer$);
+      const reducer$ = merge(parentReducer$, childReducer$);
 
       return {
         state: reducer$,
       };
     }
 
-    const wrapped = withState(Main);
+    const wrapped = withState()(Main);
     wrapped({});
     setTimeout(() => {
       assert.strictEqual(expected.length, 0);
@@ -279,14 +298,18 @@ describe('makeCollection', function() {
     }, 200);
   });
 
-  it('should work also on an object, not just on arrays', done => {
-    const expected = [{key: 'a', val: null}, {key: 'a', val: 10}];
-    function Child(sources: {state: StateSource<any>}) {
-      const defaultReducer$ = xs.of((prev: any) => {
+  it('should work with a singleton lens', done => {
+    const expected = [
+      { key: 'a', val: null },
+      { key: 'a', val: 10 },
+    ];
+
+    function Child(_sources: { state: StateApi<any> }) {
+      const defaultReducer$ = of((prev: any) => {
         if (typeof prev.val === 'number') {
           return prev;
         } else {
-          return {key: prev.key, val: 10};
+          return { key: prev.key, val: 10 };
         }
       });
 
@@ -297,41 +320,42 @@ describe('makeCollection', function() {
 
     const Wrapper = makeCollection({
       item: Child,
-      collectSinks: instances => ({
-        state: instances.pickMerge('state'),
-      }),
+      collectSinks: {
+        state: pickMerge('state'),
+      },
     });
 
-    function Main(sources: {state: StateSource<any>}) {
-      sources.state.stream.addListener({
-        next(x) {
-          assert.deepEqual(x.wrap, expected.shift());
-        },
-        error(e) {
-          done(e.message);
-        },
-        complete() {
-          done('complete should not be called');
-        },
-      });
+    function Main(sources: { state: StateApi<any> }) {
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => {
+            assert.deepStrictEqual(x.wrap, expected.shift());
+          },
+          e => done('should not terminate: ' + e)
+        )
+      );
 
-      const wrapperSinks = isolate(Wrapper, 'wrap')(sources);
+      const wrapLens = {
+        get: (x: any) => [x.wrap],
+        set: (x: any, y: any) => ({ ...x, wrap: y[0] }),
+      };
+
+      const wrapperSinks = isolate(Wrapper, { state: wrapLens, '*': null })(
+        sources
+      );
       const wrapperReducer$ = wrapperSinks.state;
 
-      const initReducer$ = xs.of(function initReducer(prevState: any): any {
-        return {wrap: {key: 'a', val: null}};
-      });
+      const initReducer$ = of(() => ({ wrap: { key: 'a', val: null } }));
 
-      const reducer$ = xs.merge(initReducer$, wrapperReducer$) as Stream<
-        Reducer<any>
-      >;
+      const reducer$ = merge(initReducer$, wrapperReducer$);
 
       return {
         state: reducer$,
       };
     }
 
-    const wrapped = withState(Main);
+    const wrapped = withState()(Main);
     wrapped({});
     setTimeout(() => {
       assert.strictEqual(expected.length, 0);
@@ -339,38 +363,96 @@ describe('makeCollection', function() {
     }, 60);
   });
 
-  it('should not throw if pickMerge() is called with name that item does not use', done => {
-    function Child(sources: {state: StateSource<any>}) {
+  it('should error if passed an object and not an array', done => {
+    function Child(_sources: { state: StateApi<any> }) {
+      const defaultReducer$ = of((prev: any) => {
+        if (typeof prev.val === 'number') {
+          return prev;
+        } else {
+          return { key: prev.key, val: 10 };
+        }
+      });
+
       return {
-        state: xs.of({}),
+        state: defaultReducer$,
       };
     }
 
-    const List = makeCollection<{key: string}>({
+    const Wrapper = makeCollection({
+      item: Child,
+      collectSinks: {
+        state: pickMerge('state'),
+      },
+    });
+
+    function Main(sources: { state: StateApi<any> }) {
+      pipe(
+        sources.state.stream,
+        subscribe(
+          x => assert.deepStrictEqual(x, { wrap: { key: 'a', val: null } }),
+          e => done('should not terminate: ' + e)
+        )
+      );
+
+      const wrapperSinks = isolate(Wrapper, 'wrap')(sources);
+      const wrapperReducer$ = wrapperSinks.state;
+
+      const initReducer$ = of(() => ({ wrap: { key: 'a', val: null } }));
+
+      const reducer$ = merge(initReducer$, wrapperReducer$);
+
+      return {
+        state: reducer$,
+      };
+    }
+
+    const errorHandler = (err: any) => {
+      assert.strictEqual(
+        err.message,
+        'Expected a stream of arrays or undefined'
+      );
+      done();
+    };
+
+    const wrapped = withState('state')(Main, errorHandler);
+    wrapped({});
+  });
+
+  it('should not throw if pickMerge() is called with name that item does not use', done => {
+    function Child(_sources: { state: StateApi<any> }) {
+      return {
+        state: of(() => {}),
+      };
+    }
+
+    const List = makeCollection<{ key: string }>({
       item: Child,
       itemKey: s => s.key,
       itemScope: key => key,
-      collectSinks: instances => ({
-        HTTP: instances.pickMerge('HTTP'),
-      }),
+      collectSinks: {
+        HTTP: pickMerge('HTTP'),
+      },
     });
 
-    function Main(sources: {state: StateSource<any>}) {
+    function Main(sources: { state: StateApi<any> }) {
       const childSinks = isolate(List, 'list')(sources);
+      assert.strictEqual(typeof childSinks.HTTP, 'function');
 
-      const initReducer$ = xs.of(function initReducer(prevState: any): any {
-        return {list: [{key: 'a', val: 3}]};
-      });
+      const initReducer$ = of(() => ({ list: [{ key: 'a', val: 3 }] }));
 
-      childSinks.HTTP.subscribe({});
+      pipe(
+        childSinks.HTTP,
+        subscribe(() => assert.fail('should not deliver data'))
+      );
 
       return {
         state: initReducer$,
       };
     }
 
-    const wrapped = withState(Main);
+    const wrapped = withState()(Main);
     wrapped({});
-    done();
+
+    setTimeout(done, 10);
   });
 });

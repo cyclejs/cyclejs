@@ -7,7 +7,7 @@ import {
   filter,
   uponStart,
 } from '@cycle/callbags';
-import { IdGenerator, IsolateableApi, Scope, wrapSubject } from '@cycle/run';
+import { IdGenerator, IsolateableApi, wrapSubject } from '@cycle/run';
 import type { METHOD, ResponseType } from '@minireq/browser';
 
 import type {
@@ -16,6 +16,7 @@ import type {
   ResponseStream,
   Request,
   Response,
+  Scope,
 } from './types';
 
 export function makeHttpApi(
@@ -40,7 +41,7 @@ export class HttpApi implements IsolateableApi<ResponseStream, SinkRequest> {
 
   public get<
     T = any,
-    Type extends ResponseType = 'text',
+    Type extends ResponseType = 'parsed',
     Progress extends boolean = false
   >(
     optsOrUrl: string | Request<T, Type, Progress>
@@ -50,7 +51,7 @@ export class HttpApi implements IsolateableApi<ResponseStream, SinkRequest> {
 
   public post<
     T = any,
-    Type extends ResponseType = 'text',
+    Type extends ResponseType = 'parsed',
     Progress extends boolean = false
   >(
     optsOrUrl: string | Request<T, Type, Progress>
@@ -60,7 +61,7 @@ export class HttpApi implements IsolateableApi<ResponseStream, SinkRequest> {
 
   public put<
     T = any,
-    Type extends ResponseType = 'text',
+    Type extends ResponseType = 'parsed',
     Progress extends boolean = false
   >(
     optsOrUrl: string | Request<T, Type, Progress>
@@ -70,7 +71,7 @@ export class HttpApi implements IsolateableApi<ResponseStream, SinkRequest> {
 
   public delete<
     T = any,
-    Type extends ResponseType = 'text',
+    Type extends ResponseType = 'parsed',
     Progress extends boolean = false
   >(
     optsOrUrl: string | Request<T, Type, Progress>
@@ -80,7 +81,7 @@ export class HttpApi implements IsolateableApi<ResponseStream, SinkRequest> {
 
   public patch<
     T = any,
-    Type extends ResponseType = 'text',
+    Type extends ResponseType = 'parsed',
     Progress extends boolean = false
   >(
     optsOrUrl: string | Request<T, Type, Progress>

@@ -1,6 +1,6 @@
-import type { Main, Scope } from '@cycle/run';
+import type { Main } from '@cycle/run';
 
-export type Scopes = Scope | Record<string, Scope | null>;
+export type Scopes = string | symbol | number | Record<string, any | null>;
 
 export function isolate(main: Main, scope: Scopes): Main {
   checkArguments(main, scope);
@@ -48,6 +48,15 @@ function checkArguments(main: Main, scope: Scopes): void {
   }
   if (scope === null) {
     throw new Error('Second argument given to isolate() must not be null');
+  }
+
+  if (
+    typeof (scope as any).get === 'function' &&
+    typeof (scope as any).set === 'function'
+  ) {
+    throw new Error(
+      'Cannot pass a lens to all apis, please use `{ state: lens, "*": null }` instead'
+    );
   }
 }
 

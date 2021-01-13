@@ -6,7 +6,8 @@ import type {
   ResultMapping,
   Response as RawResponse,
 } from '@minireq/browser';
-import type { Scope } from '@cycle/run';
+
+export type Scope = number | string | symbol;
 
 export type Request<
   T,

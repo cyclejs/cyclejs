@@ -1,4 +1,4 @@
-import { merge, makeReplaySubject } from '@cycle/callbags';
+import { merge } from '@cycle/callbags';
 import {
   Plugin,
   Plugins,
@@ -9,6 +9,7 @@ import {
   ApiFactory,
 } from './types';
 import { multicastNow } from './multicastNow';
+import { makeReplaySubject } from './replaySubject';
 
 let currentId = 0;
 
@@ -29,7 +30,7 @@ export function run(
   wrappers: MasterWrapper[],
   errorHandler: (err: any) => void = defaultErrorHandler
 ): Subscription {
-  const masterMain = makeMasterMain(main, plugins, wrappers);
+  const masterMain = makeMasterMain(main, plugins, wrappers, errorHandler);
   checkPlugins(plugins);
   const connect = setup(plugins, errorHandler);
   return connect(masterMain);
@@ -78,7 +79,7 @@ export function setupReusable(
     let sinkTalkbacks: Record<string, any> = {};
 
     for (const k of Object.keys(plugins)) {
-      if (masterSinks[k] && sinkProxies[k]) {
+      if (masterSinks?.[k] && sinkProxies[k]) {
         masterSinks[k](0, (t: any, d: any) => {
           if (t !== 0) {
             if (t === 2 && d) {
@@ -140,7 +141,8 @@ function mapObj<A extends string | number | symbol, T, U>(
 export function makeMasterMain(
   main: Main,
   plugins: Record<string, Plugin<any, any>>,
-  wrappers: MasterWrapper[]
+  wrappers: MasterWrapper[],
+  errorReporter: (err: any) => void = defaultErrorHandler
 ) {
   if (typeof main !== 'function') {
     throw new Error(
@@ -155,7 +157,7 @@ export function makeMasterMain(
   );
 
   for (let i = wrappers.length - 1; i >= 0; i--) {
-    m = wrappers[i](m);
+    m = wrappers[i](m, errorReporter);
   }
 
   return m;
