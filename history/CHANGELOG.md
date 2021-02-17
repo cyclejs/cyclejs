@@ -1,3 +1,14 @@
+## 8.0.0 (2021-02-17)
+
+* feat(history): complete support for history.replace API ([268949e](https://github.com/cyclejs/cyclejs/commit/268949e))
+
+
+### BREAKING CHANGE
+
+* 🧨 The search/hash has to be provided as separate fields and can no longer
+be included in the pathname.
+
+
 ## 7.4.0 (2019-11-06)
 
 
