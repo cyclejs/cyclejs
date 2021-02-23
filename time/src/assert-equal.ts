@@ -228,7 +228,7 @@ function chunkBy(values: Array<any>, f: any) {
 
 function characterString(entry: any) {
   if (entry.type === 'next') {
-    return stringifyIfObject(entry.value);
+    return stringify(entry.value);
   }
 
   if (entry.type === 'complete') {
@@ -261,11 +261,9 @@ function diagramString(entries: Array<any>, interval: number): string {
     if (chunk.length === 1) {
       diagram[characterIndex] = characterString(chunk[0]);
     } else {
-      const characters = ['(', ...chunk.map(characterString), ')'];
-
-      characters.forEach((character, subIndex) => {
-        diagram[characterIndex + subIndex] = character;
-      });
+      diagram[characterIndex] = ['(', ...chunk.map(characterString), ')'].join(
+        ''
+      );
     }
   });
 
@@ -278,11 +276,12 @@ function strip(str: string): string {
   return lines.map(line => line.replace(/^\s{12}/, '')).join('\n');
 }
 
-function stringifyIfObject(value: any): string {
+function stringify(value: any): string {
   if (typeof value === 'object') {
     return JSON.stringify(value);
   }
-  return value;
+
+  return String(value);
 }
 
 function displayUnexpectedErrors(errors: Array<any>) {
