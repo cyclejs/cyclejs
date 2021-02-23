@@ -27,13 +27,18 @@ function makeDiagram(
     setMaxTime(diagramString.length * interval);
 
     let multipleValueFrame: false | number = false;
+    let index = -1;
 
-    characters.forEach((character, index) => {
+    characters.forEach(character => {
+      if (!multipleValueFrame) {
+        index++;
+      }
+
       if (character === '-') {
         return;
       }
 
-      let timeToSchedule = index * interval;
+      let timeToSchedule = currentTime() + index * interval;
 
       if (character === '(') {
         multipleValueFrame = timeToSchedule;

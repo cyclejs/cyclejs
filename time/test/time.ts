@@ -50,6 +50,19 @@ function map(stream: any, f: any) {
   return stream.map(f);
 }
 
+function flatMap(stream: any, f: any) {
+  if (stream instanceof Observable) {
+    return stream.pipe(rxOps.flatMap(f));
+  }
+
+  // if it most.Stream
+  if ('thru' in stream) {
+    return stream.flatMap(f);
+  }
+
+  return stream.map(f).flatten();
+}
+
 function testUnsubscription(Time: TimeSource, operator: any, done: Mocha.Done) {
   const PERIOD = 20;
   const taps: Array<number> = [];
@@ -257,6 +270,19 @@ describe('@cycle/time', () => {
 
             Time.run(done);
           });
+
+          it('starts new diagrams at the current scheduler time', done => {
+            const Time = mockTimeSource();
+
+            const a = flatMap(Time.diagram('---a---'), () =>
+              Time.diagram('---b---')
+            );
+            const expected = Time.diagram('------b---');
+
+            Time.assertEqual(a, expected);
+
+            Time.run(done);
+          });
         });
 
         describe('.assertEqual', () => {
@@ -332,6 +358,54 @@ describe('@cycle/time', () => {
                     '---{"a":1}-------{"a":2}---|',
                     'Got',
                     '---1---2---3---|',
+                  ].every(expectedLine => lines.indexOf(expectedLine) !== -1)
+                );
+
+                done();
+              } else {
+                throw new Error('expected test to fail');
+              }
+            };
+
+            Time.assertEqual(input, expected);
+
+            Time.run(complete);
+          });
+
+          it('prints primitive values', done => {
+            // most's 'merge' operator seems to be broken with Time.diagram() :
+            // it throws "cannot read property 'dispose' of undefined (on MergeSink.prototype.end)"
+            if (library.name === 'most') {
+              done();
+              return;
+            }
+            const Time = mockTimeSource();
+
+            const input = (library.lib as any).merge(
+              library.adapt(xs.of(undefined)),
+              library.adapt(xs.of(null)),
+              Time.diagram('1-2-3x')
+            );
+
+            const expected = Time.diagram(`---(ab)-(cd)---|`, {
+              a: 'string',
+              b: 42,
+              c: null,
+              d: undefined,
+            });
+
+            const complete = (err: any) => {
+              if (err) {
+                const lines = err.message
+                  .split(/\s+/)
+                  .filter((a: string) => a.length > 0);
+
+                assert(
+                  [
+                    'Expected',
+                    '---(string42)-(nullundefined)---|',
+                    'Got',
+                    '(undefinednull1)-2-3x',
                   ].every(expectedLine => lines.indexOf(expectedLine) !== -1)
                 );
 
