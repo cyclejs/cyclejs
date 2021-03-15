@@ -1,3 +1,14 @@
+## 0.21.0 (2021-03-15)
+
+* feat(time): correct parsing and printing of Time.diagram() strings ([7adec09](https://github.com/cyclejs/cyclejs/commit/7adec09)), closes [#962](https://github.com/cyclejs/cyclejs/issues/962) [#963](https://github.com/cyclejs/cyclejs/issues/963)
+
+
+### BREAKING CHANGE
+
+* The scheduling of events is now more correct, but people depending on the current behavior will be
+impacted
+
+
 ## 0.20.0 (2019-09-10)
 
 
