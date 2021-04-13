@@ -2,6 +2,7 @@
   "private": true,
   "license": "MIT",
   "devDependencies": {
+    "commithelper": "^1.1.1",
     "husky": "^6.0.0",
     "lint-staged": "^10.5.4",
     "prettier": "^2.2.1",
@@ -14,6 +15,19 @@
   },
   "lint-staged": {
     "*.(js|jsx|ts|tsx)": "prettier --write"
+  },
+  "commithelper": {
+    "scopes": ["http", "isolate", "run", "state", "utils"],
+    "types": [
+      { "name": "feat", "message": "Add a new feature" },
+      { "name": "fix", "message": "Submit a bug fix" },
+      { "name": "docs", "message": "Documentation only changes" },
+      { "name": "release", "message": "Publish a new version of a package" },
+      { "name": "chore", "message": "Any internal changes that do not affect the users of packages. Includes refactoring" }
+    ],
+    "scopeOverrides": {
+      "chore": ["META", "examples"]
+    }
   },
   "prettier": "./configs/.prettierrc.json"
 }
