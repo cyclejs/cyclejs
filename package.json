@@ -9,14 +9,11 @@
     "rollup-plugin-sourcemaps": "^0.6.3",
     "typescript": "^4.2.4"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
+  "scripts": {
+    "prepare": "husky install configs"
   },
   "lint-staged": {
-    "*.js": "prettier --write",
-    "*.ts": "prettier --write"
+    "*.(js|jsx|ts|tsx)": "prettier --write"
   },
   "prettier": "./configs/.prettierrc.json"
 }
