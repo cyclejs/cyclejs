@@ -68,7 +68,8 @@
     "test:browser": "karma start",
     "debug:browser": "DEBUG=1 karma start",
     "start-server": "ts-node --project tsconfig.json test/support/server.ts",
-    "format": "prettier --write './{src,test}/**/*'"
+    "format": "prettier --write './{src,test}/**/*'",
+    "release": "release-it --config ../configs/release-it.js"
   },
   "prettier": "../configs/.prettierrc.json"
 }

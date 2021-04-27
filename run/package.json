@@ -42,7 +42,8 @@
     "test": "nyc --reporter text --reporter html pnpm run test:no_cover",
     "test:ci": "nyc --reporter text --reporter json pnpm run test:no_cover",
     "test:no_cover": "mocha --require ts-node/register test/*.ts",
-    "format": "prettier --write './{src,test}/**/*'"
+    "format": "prettier --write './{src,test}/**/*'",
+    "release": "release-it --config ../configs/release-it.js"
   },
   "publishConfig": {
     "access": "public"

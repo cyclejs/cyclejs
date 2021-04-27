@@ -38,7 +38,8 @@
   "scripts": {
     "build": "tsc --build tsconfig.build.json && pnpm run build:cjs",
     "build:cjs": "BUNDLE_FORMAT=cjs rollup -c ../configs/rollup.config.ts --exports default",
-    "format": "prettier --write './{src,test}/**/*'"
+    "format": "prettier --write './{src,test}/**/*'",
+    "release": "release-it --config ../configs/release-it.js"
   },
   "publishConfig": {
     "access": "public"
