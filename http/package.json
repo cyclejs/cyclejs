@@ -33,24 +33,24 @@
     "@cycle/run": "workspace:^6.0.0",
     "@cycle/utils": "workspace:^6.0.0",
     "@minireq/node": "^2.0.0",
-    "@types/assert": "^1.5.3",
+    "@types/assert": "^1.5.4",
     "@types/body-parser": "^1.19.0",
     "@types/cookie-parser": "^1.4.2",
     "@types/express": "^4.17.11",
-    "@types/mocha": "^8.2.0",
-    "@types/node": "^14.14.20",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "^14.14.37",
     "assert": "^2.0.0",
     "body-parser": "^1.19.0",
     "callbag-delay": "^0.1.0",
     "cookie-parser": "^1.4.5",
     "express": "^4.17.1",
-    "karma": "^5.2.3",
+    "karma": "^6.3.2",
     "karma-chrome-launcher": "^3.1.0",
     "karma-firefox-launcher": "^2.1.0",
     "karma-mocha": "^2.0.1",
-    "karma-typescript": "^5.2.0",
-    "mocha": "^8.2.1",
-    "start-server-and-test": "^1.11.7",
+    "karma-typescript": "^5.5.1",
+    "mocha": "^8.3.2",
+    "start-server-and-test": "^1.12.1",
     "ts-node": "^9.1.1"
   },
   "funding": {
@@ -68,7 +68,8 @@
     "test:browser": "karma start",
     "debug:browser": "DEBUG=1 karma start",
     "start-server": "ts-node --project tsconfig.json test/support/server.ts",
-    "format": "prettier --write './{src,test}/**/*'"
+    "format": "prettier --write './{src,test}/**/*'",
+    "release": "release-it --config ../configs/release-it.js"
   },
   "prettier": "../configs/.prettierrc.json"
 }

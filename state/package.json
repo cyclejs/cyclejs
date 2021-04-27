@@ -46,7 +46,8 @@
     "test": "nyc --reporter text --reporter html pnpm run test:no_cover",
     "test:ci": "nyc --reporter text --reporter json pnpm run test:no_cover",
     "test:no_cover": "mocha --require ts-node/register test/*.ts",
-    "format": "prettier --write './{src,test}/**/*'"
+    "format": "prettier --write './{src,test}/**/*'",
+    "release": "release-it --config ../configs/release-it.js"
   },
   "publishConfig": {
     "access": "public"
@@ -55,9 +56,9 @@
   "devDependencies": {
     "@cycle/run": "workspace:^6.0.0",
     "@cycle/utils": "workspace:^6.0.0",
-    "@types/mocha": "^8.2.0",
-    "@types/node": "^14.14.20",
-    "mocha": "^8.2.1",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "^14.14.37",
+    "mocha": "^8.3.2",
     "nyc": "^15.1.0",
     "ts-node": "^9.1.1"
   }
