@@ -4,7 +4,13 @@ import isolate from '@cycle/isolate';
 import {pickMerge} from './pickMerge';
 import {pickCombine} from './pickCombine';
 import {StateSource} from './StateSource';
-import {InternalInstances, Lens, ItemKeyFn, ItemScopeFn} from './types';
+import {
+  InternalInstances,
+  Lens,
+  ItemKeyFn,
+  ItemScopeFn,
+  ItemFactoryFn,
+} from './types';
 
 /**
  * An object representing all instances in a collection of components. Has the
@@ -48,13 +54,7 @@ export class Instances<Si> {
   }
 }
 
-export interface CollectionOptions<S, So, Si> {
-  /**
-   * The Cycle.js component for each item in this collection. Should be just a
-   * function from sources to sinks.
-   */
-  item(so: So): Si;
-
+interface BaseOptions<S, So, Si> {
   /**
    * A function that describes how to collect all the sinks from all item
    * instances. The instances argument is an object with two methods: pickMerge
@@ -98,6 +98,30 @@ export interface CollectionOptions<S, So, Si> {
    */
   channel?: string;
 }
+
+interface HomogenousOptions<S, So, Si> extends BaseOptions<S, So, Si> {
+  /**
+   * The Cycle.js component for each item in this collection. Should be just a
+   * function from sources to sinks.
+   */
+  item(so: So): Si;
+
+  itemFactory?: never;
+}
+
+interface HeterogenousOptions<S, So, Si> extends BaseOptions<S, So, Si> {
+  item?: never;
+
+  /**
+   * A factory function such that given the item's state object, returns
+   * the Cycle.js component for that item in this collection.
+   */
+  itemFactory: ItemFactoryFn<S, So, Si>;
+}
+
+export type CollectionOptions<S, So, Si> =
+  | HomogenousOptions<S, So, Si>
+  | HeterogenousOptions<S, So, Si>;
 
 function defaultItemScope(key: string) {
   return {'*': null};
@@ -151,7 +175,6 @@ export function makeCollection<S, So = any, Si = any>(
     const name = opts.channel || 'state';
     const itemKey = opts.itemKey;
     const itemScope = opts.itemScope || defaultItemScope;
-    const itemComp = opts.item;
     const state$ = xs.fromObservable((sources[name] as StateSource<S>).stream);
     const instances$ = state$.fold(
       (acc: InternalInstances<Si>, nextState: Array<any> | any) => {
@@ -172,6 +195,9 @@ export function makeCollection<S, So = any, Si = any>(
                 typeof otherScopes === 'string'
                   ? {'*': otherScopes, [name]: stateScope}
                   : {...otherScopes, [name]: stateScope};
+              const itemComp = opts.itemFactory
+                ? opts.itemFactory(nextState[i], i)
+                : opts.item;
               const sinks: any = isolate(itemComp, scopes)(sources);
               dict.set(key, sinks);
               nextInstArray[i] = sinks;
@@ -197,6 +223,9 @@ export function makeCollection<S, So = any, Si = any>(
             typeof otherScopes === 'string'
               ? {'*': otherScopes, [name]: stateScope}
               : {...otherScopes, [name]: stateScope};
+          const itemComp = opts.itemFactory
+            ? opts.itemFactory(nextState, 0)
+            : opts.item;
           const sinks: any = isolate(itemComp, scopes)(sources);
           dict.set(key, sinks);
           return {dict: dict, arr: [sinks]};

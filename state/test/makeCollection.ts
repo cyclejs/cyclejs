@@ -193,6 +193,95 @@ describe('makeCollection', function() {
     }, 300);
   });
 
+  it('should support itemFactory instead of static item', done => {
+    type ItemState = {
+      type: string;
+      name: string | null;
+    };
+
+    const expected: Array<Array<ItemState>> = [
+      [{type: 'a', name: null}],
+      [{type: 'a', name: 'Apple'}],
+      [{type: 'a', name: 'Apple'}, {type: 'b', name: null}],
+      [{type: 'a', name: 'Apple'}, {type: 'b', name: 'Banana'}],
+    ];
+
+    function ChildApple(sources: {state: StateSource<ItemState>}) {
+      return {
+        state: xs.of((prev: ItemState) => {
+          if (typeof prev.name === 'string') {
+            return prev;
+          } else {
+            return {type: prev.type, name: 'Apple'};
+          }
+        }),
+      };
+    }
+
+    function ChildBanana(sources: {state: StateSource<ItemState>}) {
+      return {
+        state: xs.of((prev: ItemState) => {
+          if (typeof prev.name === 'string') {
+            return prev;
+          } else {
+            return {type: prev.type, name: 'Banana'};
+          }
+        }),
+      };
+    }
+
+    const List = makeCollection<ItemState>({
+      itemFactory: s => (s.type === 'a' ? ChildApple : ChildBanana),
+      itemKey: s => s.type,
+      collectSinks: instances => ({
+        state: instances.pickMerge('state'),
+      }),
+    });
+
+    function Main(sources: {state: StateSource<{list: Array<ItemState>}>}) {
+      sources.state.stream.addListener({
+        next(x) {
+          assert.deepEqual(x.list, expected.shift());
+        },
+        error(e) {
+          done(e.message);
+        },
+        complete() {
+          done('complete should not be called');
+        },
+      });
+
+      const childSinks = isolate(List, 'list')(sources);
+      const childReducer$ = childSinks.state;
+
+      const initReducer$ = xs.of(function initReducer(prevState: any): any {
+        return {list: [{type: 'a', name: null}]};
+      });
+
+      const addReducer$ = xs
+        .of(function addB(prev: any) {
+          return {list: prev.list.concat({type: 'b', name: null})};
+        })
+        .compose(delay(100));
+
+      const parentReducer$ = xs.merge(initReducer$, addReducer$);
+      const reducer$ = xs.merge(parentReducer$, childReducer$) as Stream<
+        Reducer<any>
+      >;
+
+      return {
+        state: reducer$,
+      };
+    }
+
+    const wrapped = withState(Main);
+    wrapped({});
+    setTimeout(() => {
+      assert.strictEqual(expected.length, 0);
+      done();
+    }, 300);
+  });
+
   it('should correctly accumulate over time even without itemKey', done => {
     const expected = [
       [{val: 3}],
