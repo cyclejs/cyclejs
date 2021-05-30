@@ -11,6 +11,10 @@ export type Lens<T, R> = {
 };
 export type ItemScopeFn = (key: string) => string | object;
 export type ItemKeyFn<S> = (state: S, index?: number) => string;
+export type ItemFactoryFn<S, So, Si> = (
+  state: S,
+  index?: number
+) => MainFn<So, Si>;
 export type Scope<T, R> = string | number | Lens<T, R>;
 export type InternalInstances<Si> = {
   dict: Map<string, Si>;
