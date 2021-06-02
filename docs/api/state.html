@@ -351,6 +351,32 @@ function Child(sources) {
 
 See the example code at `examples/advanced` for more details.
 
+### How to handle a heterogenous dynamic list
+
+Collections in the previous case only allowed a list of items using the same `Child` component. There are cases where you may need each item to be of a different component, depending on the item state.
+
+For those situations, use the `itemFactory` option instead of `item`. Its inputs are the same as for `itemKey`, and the output should be a Cycle.js component. See example below:
+
+```js
+const List = makeCollection({
+  itemFactory: (childState, index) => {
+    if (childState.type === 'a') return Apple
+    else if (childState.type === 'b') return Banana
+    else if (childState.type === 'c') return Cantaloupe
+    else return GenericFruit
+  }
+  itemKey: (childState, index) => String(index),
+  itemScope: key => key,
+  collectSinks: instances => {
+    return {
+      state: instances.pickMerge('state'),
+      DOM: instances.pickCombine('DOM')
+        .map(itemVNodes => ul(itemVNodes))
+    }
+  }
+});
+```
+
 ### How to share data among components, or compute derived data
 
 There are cases when you need more control over the way the state is passed from parent to child components. The standard mechanism of "peeling off" the state object is not flexible enough in situations such as:

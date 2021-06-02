@@ -1,3 +1,9 @@
+## 1.5.0 (2021-06-02)
+
+* feat(state): makeCollection supports heterogenous item components ([b5b24a5](https://github.com/cyclejs/cyclejs/commit/b5b24a5))
+
+
+
 ## 1.4.0 (2019-11-06)
 
 
