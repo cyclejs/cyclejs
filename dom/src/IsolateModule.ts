@@ -1,4 +1,4 @@
-import {VNode} from 'snabbdom/vnode';
+import {VNode} from 'snabbdom';
 import {EventDelegator} from './EventDelegator';
 import {Scope} from './isolate';
 import {isEqualNamespace} from './utils';

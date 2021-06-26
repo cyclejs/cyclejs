@@ -1,6 +1,5 @@
 // tslint:disable:max-file-line-count
-import {h} from 'snabbdom/h';
-import {VNode, VNodeData} from 'snabbdom/vnode';
+import {h, VNode, VNodeData} from 'snabbdom';
 
 function isValidString(param: any): boolean {
   return typeof param === 'string' && param.length > 0;

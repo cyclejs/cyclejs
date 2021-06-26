@@ -50,8 +50,8 @@
   },
   "dependencies": {
     "@cycle/run": "^5.2.0",
-    "snabbdom": "^0.7.4",
-    "snabbdom-selector": "^4.2.0",
+    "snabbdom": "^3.0.0",
+    "snabbdom-selector": "^5.0.0",
     "xstream": "*"
   },
   "devDependencies": {

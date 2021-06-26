@@ -5,7 +5,7 @@ import {adapt} from '@cycle/run/lib/adapt';
 import {DOMSource, EventsFnOptions} from './DOMSource';
 import {DocumentDOMSource} from './DocumentDOMSource';
 import {BodyDOMSource} from './BodyDOMSource';
-import {VNode} from 'snabbdom/vnode';
+import {VNode} from 'snabbdom';
 import {ElementFinder} from './ElementFinder';
 import {makeIsolateSink, getScopeObj, Scope, IsolateSink} from './isolate';
 import {IsolateModule} from './IsolateModule';

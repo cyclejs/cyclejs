@@ -1,5 +1,5 @@
 export {thunk, Thunk, ThunkData} from './thunk';
-export {VNode, VNodeData} from 'snabbdom/vnode';
+export {VNode, VNodeData} from 'snabbdom';
 export {DOMSource, EventsFnOptions} from './DOMSource';
 export {MainDOMSource} from './MainDOMSource';
 /**
@@ -170,7 +170,7 @@ export {CycleDOMEvent} from './EventDelegator';
  *
  * @function h
  */
-export {h} from 'snabbdom/h';
+export {h} from 'snabbdom';
 import hh, {HyperScriptHelperFn, SVGHelperFn} from './hyperscript-helpers';
 
 export const svg: SVGHelperFn = hh.svg;
