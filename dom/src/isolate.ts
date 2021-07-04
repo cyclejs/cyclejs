@@ -1,5 +1,5 @@
 import {Stream} from 'xstream';
-import {VNode} from 'snabbdom/vnode';
+import {VNode} from 'snabbdom';
 import {isClassOrId} from './utils';
 import {MainDOMSource} from './MainDOMSource';
 

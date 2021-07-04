@@ -1,5 +1,4 @@
-import {VNode, vnode as vnodeFn} from 'snabbdom/vnode';
-import {h} from 'snabbdom/h';
+import {h, VNode, vnode as vnodeFn} from 'snabbdom';
 import {classNameFromVNode, selectorParser} from 'snabbdom-selector';
 import {isDocFrag} from './utils';
 

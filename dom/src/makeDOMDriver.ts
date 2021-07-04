@@ -1,13 +1,10 @@
 import {Driver, FantasyObservable} from '@cycle/run';
-import {init} from 'snabbdom';
-import {Module} from 'snabbdom/modules/module';
+import {init, Module, VNode, toVNode} from 'snabbdom';
 import xs, {Stream, Listener} from 'xstream';
 import concat from 'xstream/extra/concat';
 import sampleCombine from 'xstream/extra/sampleCombine';
 import {DOMSource} from './DOMSource';
 import {MainDOMSource} from './MainDOMSource';
-import {VNode} from 'snabbdom/vnode';
-import {toVNode} from 'snabbdom/tovnode';
 import {VNodeWrapper} from './VNodeWrapper';
 import {getValidNode, checkValidContainer} from './utils';
 import defaultModules from './modules';
