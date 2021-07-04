@@ -1,3 +1,13 @@
+## 23.0.0 (2021-07-04)
+
+* fix(dom): update Snabbdom to v3  ([2a80dce](https://github.com/cyclejs/cyclejs/commit/2a80dce)), closes [#944](https://github.com/cyclejs/cyclejs/issues/944) [#972](https://github.com/cyclejs/cyclejs/issues/972)
+
+
+### BREAKING CHANGE
+
+* Snabbdom v0.x is no longer supported.
+
+
 ## 22.8.0 (2020-08-31)
 
 * fix(dom): correct type for isolateSink ([0b68452](https://github.com/cyclejs/cyclejs/commit/0b68452)), closes [#949](https://github.com/cyclejs/cyclejs/issues/949)
