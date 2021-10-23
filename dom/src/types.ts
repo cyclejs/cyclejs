@@ -1,14 +1,33 @@
 import { VNode } from 'snabbdom';
 
-export type DomEvent = any;
+export type DomEvent = Event & { _cycleId: number };
 
-export type DomCommand = VNode | AttachEventListenerCommand;
+export type DomCommand =
+  | VNode
+  | AttachEventListenerCommand
+  | RemoveEventListenerCommand;
 
 export type AttachEventListenerCommand = {
   commandType: 'attachEventListener';
+  id: number;
+  namespace: Namespace;
+  type: string;
+  selector: string;
+  options?: Options;
 };
 
-export type Scope =
-  | string
-  | symbol
-  | { type: 'total' | 'sibling'; value: string | symbol };
+export type RemoveEventListenerCommand = {
+  commandType: 'removeEventListener';
+  id: number;
+};
+
+export type Options = {
+  capture?: boolean;
+  bubbles?: boolean;
+};
+
+export type ScopeType = 'sibling' | 'total';
+export type ScopeValue = string | symbol | number;
+
+export type Scope = { type: ScopeType; value: ScopeValue };
+export type Namespace = Scope[];
