@@ -1,6 +1,6 @@
 import { Producer, Subject, pipe, subscribe } from '@cycle/callbags';
 import {
-  AttachEventListenerCommand,
+  AddEventListenerCommand,
   RemoveEventListenerCommand,
   DomEvent,
 } from './types';
@@ -26,7 +26,7 @@ export class EventDelegator {
     );
   }
 
-  public addEventListener(cmd: AttachEventListenerCommand): void {
+  public addEventListener(cmd: AddEventListenerCommand): void {
     //TODO: Handle non-bubbling event listeners
 
     const listener = (ev: Event) => {

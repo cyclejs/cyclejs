@@ -2,7 +2,7 @@ import {
   ScopeType,
   ScopeValue,
   Namespace,
-  AttachEventListenerCommand,
+  AddEventListenerCommand,
 } from './types';
 
 export class NamespaceTree {
@@ -19,7 +19,7 @@ export class NamespaceTree {
     this.map.set(node, n);
   }
 
-  public insertVirtualListener(cmd: AttachEventListenerCommand): void {
+  public insertVirtualListener(cmd: AddEventListenerCommand): void {
     this.tree.insertVirtualListener(cmd);
   }
 
@@ -44,7 +44,7 @@ export class TreeNode {
     public readonly parent?: TreeNode
   ) {}
 
-  public insertVirtualListener(cmd: AttachEventListenerCommand): void {
+  public insertVirtualListener(cmd: AddEventListenerCommand): void {
     const node = this.traverse(cmd.namespace);
     const capture = cmd.options?.capture ?? false;
     let inner = node.listeners.get(capture);

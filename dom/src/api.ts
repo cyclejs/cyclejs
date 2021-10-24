@@ -9,7 +9,7 @@ import {
 } from '@cycle/callbags';
 import { IdGenerator, IsolateableApi } from '@cycle/run';
 
-import { Namespace, DomEvent, DomCommand, Options } from './types';
+import { Namespace, DomEvent, DomCommand, Options, Scope } from './types';
 
 export function makeDomApi(
   source: Producer<DomEvent>,
@@ -28,24 +28,31 @@ export class DomApi implements IsolateableApi<DomEvent, DomCommand> {
     private selector: string = ''
   ) {}
 
-  public isolateSource(scope: any): IsolateableApi<any, any> {
+  public isolateSource(
+    scope: string | Scope
+  ): IsolateableApi<DomEvent, DomCommand> {
+    const s: Scope =
+      typeof scope === 'string' ? { type: 'total', value: scope } : scope;
     return new DomApi(
       this.source,
       this.subject,
       this.idGenerator,
-      this.namespace.concat(scope)
+      this.namespace.concat(s)
     );
   }
 
-  public isolateSink(sink: Producer<DomCommand>, scope: any): Producer<any> {
+  public isolateSink(
+    sink: Producer<DomCommand>,
+    scope: string | Scope
+  ): Producer<DomCommand> {
+    const s: Scope =
+      typeof scope === 'string' ? { type: 'total', value: scope } : scope;
     return pipe(
       sink,
       map(vdom => {
         if (!('commandType' in vdom)) {
-          if (!vdom.data) {
-            vdom.data = {};
-          }
-          vdom.data.namespace = this.namespace.concat(scope);
+          vdom.data ??= {};
+          vdom.data.namespace = this.namespace.concat(s);
         }
         return vdom;
       })
@@ -69,7 +76,7 @@ export class DomApi implements IsolateableApi<DomEvent, DomCommand> {
       filter(ev => ev._cycleId === id),
       uponStart(() =>
         this.subject(1, {
-          commandType: 'attachEventListener',
+          commandType: 'addEventListener',
           namespace: this.namespace,
           id,
           type,

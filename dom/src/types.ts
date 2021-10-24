@@ -4,11 +4,11 @@ export type DomEvent = Event & { _cycleId: number };
 
 export type DomCommand =
   | VNode
-  | AttachEventListenerCommand
+  | AddEventListenerCommand
   | RemoveEventListenerCommand;
 
-export type AttachEventListenerCommand = {
-  commandType: 'attachEventListener';
+export type AddEventListenerCommand = {
+  commandType: 'addEventListener';
   id: number;
   namespace: Namespace;
   type: string;

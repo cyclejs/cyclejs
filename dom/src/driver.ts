@@ -95,7 +95,7 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
           }
           if ('commandType' in command) {
             switch (command.commandType) {
-              case 'attachEventListener':
+              case 'addEventListener':
                 delegator.addEventListener(command);
                 break;
               case 'removeEventListener':
