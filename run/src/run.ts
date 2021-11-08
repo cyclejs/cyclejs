@@ -27,7 +27,7 @@ function defaultErrorHandler(err: any): void {
 export function run(
   main: Main,
   plugins: Plugins,
-  wrappers: MasterWrapper[],
+  wrappers: MasterWrapper[] = [],
   errorHandler: (err: any) => void = defaultErrorHandler
 ): Subscription {
   const masterMain = makeMasterMain(main, plugins, wrappers, errorHandler);
@@ -141,7 +141,7 @@ function mapObj<A extends string | number | symbol, T, U>(
 export function makeMasterMain(
   main: Main,
   plugins: Record<string, Plugin<any, any>>,
-  wrappers: MasterWrapper[],
+  wrappers: MasterWrapper[] = [],
   errorReporter: (err: any) => void = defaultErrorHandler
 ) {
   if (typeof main !== 'function') {
