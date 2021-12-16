@@ -16,8 +16,7 @@
   "homepage": "https://cycle.js.org",
   "dependencies": {
     "@cycle/run": "^5.2.0",
-    "@types/history": "^4.7.2",
-    "history": "4.7.x",
+    "history": "^5.1.0",
     "xstream": "*"
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
 import xs, {Stream, MemoryStream, Listener} from 'xstream';
-import {Location, History, UnregisterCallback} from 'history';
+import {Location, History} from 'history';
 import {HistoryInput} from './types';
 
 type Narrow<S> = S extends string ? never : S;
@@ -10,8 +10,8 @@ export function createHistory$(
 ): MemoryStream<Location> {
   const history$ = xs.createWithMemory<Location>().startWith(history.location);
   const call = makeCallOnHistory(history);
-  const unlisten = history.listen((loc: Location) => {
-    history$._n(loc);
+  const unlisten = history.listen(({location}) => {
+    history$._n(location);
   });
   const sub = sink$.subscribe(createObserver(call, unlisten));
   (history$ as any).dispose = () => {
@@ -36,18 +36,18 @@ function makeCallOnHistory(history: History) {
     }
 
     if (input.type === 'goBack') {
-      history.goBack();
+      history.back();
     }
 
     if (input.type === 'goForward') {
-      history.goForward();
+      history.forward();
     }
   };
 }
 
 function createObserver(
   call: (input: Narrow<HistoryInput>) => void,
-  unlisten: UnregisterCallback
+  unlisten: () => void
 ): Listener<HistoryInput> {
   return {
     next(input: HistoryInput) {

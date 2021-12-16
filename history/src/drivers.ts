@@ -3,9 +3,9 @@ import {
   createBrowserHistory,
   createMemoryHistory,
   createHashHistory,
-  BrowserHistoryBuildOptions,
-  MemoryHistoryBuildOptions,
-  HashHistoryBuildOptions,
+  BrowserHistoryOptions,
+  MemoryHistoryOptions,
+  HashHistoryOptions,
   Location,
   History,
   MemoryHistory,
@@ -21,12 +21,12 @@ import {
   ReplaceHistoryInput,
 } from './types';
 
-function isHistory(x: BrowserHistoryBuildOptions | History): x is History {
+function isHistory(x: BrowserHistoryOptions | History): x is History {
   return !!(x as any).createHref;
 }
 
 export function makeHistoryDriver(
-  options?: BrowserHistoryBuildOptions | History | MemoryHistory
+  options?: BrowserHistoryOptions | History | MemoryHistory
 ): HistoryDriver {
   let history: any;
   if (options && isHistory(options)) {
@@ -41,7 +41,7 @@ export function makeHistoryDriver(
 }
 
 export function makeServerHistoryDriver(
-  options?: MemoryHistoryBuildOptions
+  options?: MemoryHistoryOptions
 ): HistoryDriver {
   const history = createMemoryHistory(options);
   return function serverHistoryDriver(sink$: Stream<HistoryInput | string>) {
@@ -50,7 +50,7 @@ export function makeServerHistoryDriver(
 }
 
 export function makeHashHistoryDriver(
-  options?: HashHistoryBuildOptions
+  options?: HashHistoryOptions
 ): HistoryDriver {
   const history = createHashHistory(options);
   return function hashHistoryDriver(sink$: Stream<HistoryInput | string>) {
