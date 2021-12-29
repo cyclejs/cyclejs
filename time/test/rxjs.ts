@@ -1,7 +1,7 @@
 import {Observable, from, of} from 'rxjs';
 import {setAdapt} from '@cycle/run/lib/adapt';
 
-import {mockTimeSource} from '../rxjs';
+import {mockTimeSource} from '../src/rxjs';
 
 describe('rxjs', () => {
   before(() => setAdapt(from as any));

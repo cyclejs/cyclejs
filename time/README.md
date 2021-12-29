@@ -92,13 +92,13 @@ import {timeDriver} from '@cycle/time';
 RxJS:
 <!-- skip-example -->
 ```js
-import {timeDriver} from '@cycle/time/rxjs';
+import {timeDriver} from '@cycle/time/lib/es6/rxjs';
 ```
 
 most.js:
 <!-- skip-example -->
 ```js
-import {timeDriver} from '@cycle/time/most';
+import {timeDriver} from '@cycle/time/lib/es6/most';
 ```
 
 Then it needs to be added to the drivers object.
@@ -176,13 +176,13 @@ import {mockTimeSource} from '@cycle/time';
 RxJS:
 <!-- skip-example -->
 ```js
-import {mockTimeSource} from '@cycle/time/rxjs';
+import {mockTimeSource} from '@cycle/time/lib/es6/rxjs';
 ```
 
 most.js:
 <!-- skip-example -->
 ```js
-import {mockTimeSource} from '@cycle/time/most';
+import {mockTimeSource} from '@cycle/time/lib/es6/most';
 ```
 
 For testing components that use `@cycle/dom` we will also want `mockDOMSource` and potentially `snabbdom-selector`.

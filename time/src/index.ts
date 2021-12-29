@@ -1,6 +1,6 @@
-import {timeDriver as timeDriverUntyped} from './src/time-driver';
-import {mockTimeSource as mockTimeSourceUntyped} from './src/mock-time-source';
-import {TimeSource, MockTimeSource, Operator} from './src/time-source';
+import {timeDriver as timeDriverUntyped} from './time-driver';
+import {mockTimeSource as mockTimeSourceUntyped} from './mock-time-source';
+import {TimeSource, MockTimeSource, Operator} from './time-source';
 
 function mockTimeSource(args?: Object): MockTimeSource {
   return mockTimeSourceUntyped(args);
