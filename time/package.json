@@ -48,11 +48,7 @@
   },
   "files": [
     "lib/",
-    "dist/",
-    "most.js",
-    "rxjs.js",
-    "most.d.ts",
-    "rxjs.d.ts"
+    "dist/"
   ],
   "react-native": {
     "variable-diff": false
@@ -70,7 +66,6 @@
     "test": "pnpm run test-node && pnpm run test-docs",
     "test-ci": "../.scripts/retry.sh pnpm test",
     "test-docs": "markdown-doctest",
-    "postbuild": "tsc rxjs.ts most.ts --declaration --lib DOM,ES5,ES6 && rm src/*.d.ts && rm src/*.js",
     "prepublishOnly": "pnpm run build && pnpm test"
   }
 }

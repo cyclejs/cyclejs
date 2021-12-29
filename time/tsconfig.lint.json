@@ -1,7 +1,9 @@
 {
   "extends": "./tsconfig.json",
   "files": [
-    "index.ts",
+    "src/index.ts",
+    "src/most.ts",
+    "src/rxjs.ts",
     "custom-typings.d.ts",
     "test/jasmine-support.ts",
     "test/most.ts",

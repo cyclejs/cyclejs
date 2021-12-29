@@ -1,7 +1,7 @@
 import * as most from 'most';
 import {setAdapt} from '@cycle/run/lib/adapt';
 
-import {mockTimeSource} from '../most';
+import {mockTimeSource} from '../src/most';
 
 describe('most', () => {
   before(() => setAdapt(stream => most.from(stream as any)));

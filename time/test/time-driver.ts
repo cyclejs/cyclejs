@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import {timeDriver, TimeSource, Operator} from '../';
+import {timeDriver, TimeSource, Operator} from '../src/index';
 import xs, {Stream} from 'xstream';
 import {setAdapt} from '@cycle/run/lib/adapt';
 
