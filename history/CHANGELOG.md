@@ -1,3 +1,7 @@
+# 9.0.0 (2021-12-30)
+
+
+
 ## 8.0.0 (2021-02-17)
 
 * feat(history): complete support for history.replace API ([268949e](https://github.com/cyclejs/cyclejs/commit/268949e))
