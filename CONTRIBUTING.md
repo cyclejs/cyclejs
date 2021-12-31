@@ -5,7 +5,7 @@ First of all, thank you for contributing. It’s appreciated.
 1. Open a GitHub issue before doing significant amount of work.
 2. Clone the repo. If it was already cloned, then git pull to get the latest from master.
 3. Use a Linux or Mac computer. Windows might work, but we cannot test that.
-4. Ensure pnpm is [installed](https://pnpm.js.org/docs/en/installation.html) (version `3.5.x` or higher).
+4. Ensure pnpm is [installed](https://pnpm.io/installation) (version `3.5.x` or higher).
 5. Run `pnpm install && pnpm recursive install` before anything else, and wait.
 6. RUN `pnpm recursive run build` to prebuild all cyclejs packages
 7. Write code.
