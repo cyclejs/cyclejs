@@ -308,14 +308,14 @@ importers:
       '@types/node': 10.12.x
       '@types/sinon': 5.0.x
       mocha: ~6.2.0
-      quicktask: 1.1.0
+      quicktask: 1.2.0
       sinon: ^7.1.1
       ts-node: ^7.0.1
       tslint: ^5.11.0
       typescript: '=3.2.4'
       xstream: 10.x || 11.x
     dependencies:
-      quicktask: 1.1.0
+      quicktask: 1.2.0
       xstream: 11.11.0
     devDependencies:
       '@types/mocha': 5.2.7
@@ -2117,13 +2117,6 @@ packages:
     resolution: {integrity: sha512-7j2y+40w61zy6YC2iRNpUe/NwhNyoXrYpHMrSunaMG64nRnaf96zO/KMQR4OyN/UnE5KLyEBnKHd4aG3rskjpQ==}
     dev: true
 
-  /commander/2.9.0:
-    resolution: {integrity: sha1-nJkJQXbhIkDLItbFFGCYQA/g99Q=}
-    engines: {node: '>= 0.6.x'}
-    dependencies:
-      graceful-readlink: 1.0.1
-    dev: true
-
   /commitizen/3.1.2:
     resolution: {integrity: sha512-eD0uTUsogu8ksFjFFYq75LLfXeLXsCIa27TPfOqvBI+tCx1Pp5QfKqC9oC+qTpSz3nTn9/+7TL5mE/wurB22JQ==}
     engines: {node: '>= 6'}
@@ -3435,6 +3428,7 @@ packages:
     resolution: {integrity: sha512-oeyj2H3EjjonWcFjD5NvZNE9Rqe4UW+nQBU2HNeKw0koVLEFIhtyETyAakeAM3de7Z/SW5kcA+fZUait9EApnw==}
     engines: {node: '>=4.0'}
     os: [darwin]
+    deprecated: fsevents 1 will break on node v14+ and could be using insecure binaries. Upgrade to fsevents 2.
     requiresBuild: true
     dependencies:
       nan: 2.14.0
@@ -3448,6 +3442,8 @@ packages:
     resolution: {integrity: sha512-a7YT0SV3RB+DjYcppwVDLtn13UQnmg0SWZS7ezZD0UjnLwXmy8Zm21GMVGLaFGimIqcvyMQaOJBrop8MyOp1kQ==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
+    deprecated: '"Please update to latest v2.3 or v2.2"'
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -3674,10 +3670,6 @@ packages:
 
   /graceful-fs/4.2.1:
     resolution: {integrity: sha512-b9usnbDGnD928gJB3LrCmxoibr3VE4U2SMo5PBuBnokWyDADTqDPXg4YpwKF1trpH+UbGp7QLicO3+aWEy0+mw==}
-    dev: true
-
-  /graceful-readlink/1.0.1:
-    resolution: {integrity: sha1-TK+tdrxi8C+gObL5Tpo906ORpyU=}
     dev: true
 
   /growl/1.10.5:
@@ -4686,7 +4678,7 @@ packages:
       g-status: 2.0.2
       is-glob: 4.0.1
       is-windows: 1.0.2
-      listr: 0.14.3_listr@0.14.3
+      listr: 0.14.3
       listr-update-renderer: 0.5.0_listr@0.14.3
       lodash: 4.17.15
       log-symbols: 2.2.0
@@ -4718,7 +4710,7 @@ packages:
       elegant-spinner: 1.0.1
       figures: 1.7.0
       indent-string: 3.2.0
-      listr: 0.14.3_listr@0.14.3
+      listr: 0.14.3
       log-symbols: 1.0.2
       log-update: 2.3.0
       strip-ansi: 3.0.1
@@ -4734,11 +4726,9 @@ packages:
       figures: 2.0.0
     dev: true
 
-  /listr/0.14.3_listr@0.14.3:
+  /listr/0.14.3:
     resolution: {integrity: sha512-RmAl7su35BFd/xoMamRjpIE4j3v+L28o8CT5YhAXQJm1fD+1l9ngXY8JAQRJ+tFK2i5njvi0iRUKV09vPwA0iA==}
     engines: {node: '>=6'}
-    peerDependencies:
-      listr: '*'
     dependencies:
       '@samverschueren/stream-to-observable': 0.3.0
       is-observable: 1.1.0
@@ -5020,8 +5010,8 @@ packages:
       istanbul: 0.4.5
     dev: true
 
-  /markdown-it/7.0.1:
-    resolution: {integrity: sha1-8S2LiKk+ZCVDSN/Rg71wv2BWekI=}
+  /markdown-it/9.0.1:
+    resolution: {integrity: sha512-XC9dMBHg28Xi7y5dPuLjM61upIGPJG8AiHNHYqIaXER2KNnn7eKnM5/sF0ImNnyoV224Ogn9b1Pck8VH4k0bxw==}
     hasBin: true
     dependencies:
       argparse: 1.0.10
@@ -5039,7 +5029,7 @@ packages:
       async: 3.1.0
       coffee-script: 1.12.7
       commander: 2.20.0
-      dox: github.com/visionmedia/dox/tarball/master
+      dox: '@github.com/visionmedia/dox/tarball/master'
       ejs: 1.0.0
       iced-coffee-script: 108.0.13
       underscore: 1.9.1
@@ -5336,6 +5326,7 @@ packages:
 
   /nan/2.14.0:
     resolution: {integrity: sha512-INOFj37C7k3AfaNTtX8RhsTw7qRy7eLET14cROi9+5HAVbbHuIWUHEauBv5qT4Av2tWasiTY1Jw6puUNqRJXQg==}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -6165,6 +6156,10 @@ packages:
   /quicktask/1.1.0:
     resolution: {integrity: sha512-b3w19IEXnt5auacLAbePVsqPyVQUwmuhJQrrWnVhm4pP8PAMg2U9vFHbAD9XYXXbMDjdLJs0x5NLqwTV8uFK4g==}
 
+  /quicktask/1.2.0:
+    resolution: {integrity: sha512-LkBLIB8HxauuR6l7SigDZbvdjNWErRfauvCs7Rgp4Xh/oiA89IHTjj/SvUowywXnldISKWIZfxaqs/6lGEB+gw==}
+    dev: false
+
   /raf/3.4.1:
     resolution: {integrity: sha512-Sq4CW4QhwOHE8ucn6J34MqtZCeWFP2aQSmrlroYgqAV1PjStIhJXxYuTgUIfkEk7zTLjmIjLmU5q+fbD1NnOJA==}
     dependencies:
@@ -6737,6 +6732,14 @@ packages:
       tree-selector: 2.1.0
     dev: true
 
+  /snabbdom-selector/4.2.0_snabbdom@0.7.4:
+    resolution: {integrity: sha512-hNIg1xDMxssUeMC/4r3OGxXhm8pbyJ0KIG0pXrA3J5ZQK+FkPa+WA9DYw4ROMLq5/LrfurMNMvy3IMm+0CzcnA==}
+    peerDependencies:
+      snabbdom: '*'
+    dependencies:
+      snabbdom: 0.7.4
+      tree-selector: 2.1.0
+
   /snabbdom-selector/5.0.0_snabbdom@3.0.1:
     resolution: {integrity: sha512-bJgpomacLM3jVhghsFxLcws8B6k+GVcnB/Af3avannj/zavIM1vLagvQHTFXzRVkf6nfxYaf/q58gekClDJoYA==}
     peerDependencies:
@@ -6761,6 +6764,9 @@ packages:
   /snabbdom/0.7.2:
     resolution: {integrity: sha512-rDY283fYUB/3z2tjXsRRccsbVJqmGLtP+iI1tfa1DDHo2xZ49cq1leq9JmYyvZQhESuYJRY/is6WYhP2UuiRVg==}
     dev: false
+
+  /snabbdom/0.7.4:
+    resolution: {integrity: sha512-nnN+7uZ2NTIiu7EPMNwSDhmrYXqwlfCP/j72RdzvDPujXyvQxOW7Jl9yuLayzxMHDNWQR7FM6Pcn4wnDpKRe6Q==}
 
   /snabbdom/3.0.1:
     resolution: {integrity: sha512-H4gKokDT1HPe3dlGyTihNw0NtEH9FxZy55MXp3ODM4O30NBRe+11veox1wf/CP9NfGcbStDM3BmO1DFC9/5wRw==}
@@ -6873,6 +6879,7 @@ packages:
   /source-map/0.2.0:
     resolution: {integrity: sha1-2rc/vPwrqBm03gO9b26qSBZLP50=}
     engines: {node: '>=0.8.0'}
+    requiresBuild: true
     dependencies:
       amdefine: 1.0.1
     dev: true
@@ -7886,13 +7893,13 @@ packages:
       toposort: 2.0.2
     dev: true
 
-  github.com/visionmedia/dox/tarball/master:
+  '@github.com/visionmedia/dox/tarball/master':
     resolution: {tarball: https://github.com/visionmedia/dox/tarball/master}
     name: dox
     version: 0.9.0
     hasBin: true
     dependencies:
-      commander: 2.9.0
+      commander: 2.20.0
       jsdoctypeparser: 1.2.0
-      markdown-it: 7.0.1
+      markdown-it: 9.0.1
     dev: true
