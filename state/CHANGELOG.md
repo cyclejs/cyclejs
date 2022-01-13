@@ -1,3 +1,9 @@
+## 1.6.0 (2022-01-13)
+
+* fix(state): avoid memory leaks with quicktask ([37b3ff10](https://github.com/cyclejs/cyclejs/commit/37b3ff10))
+
+
+
 ## 1.5.0 (2021-06-02)
 
 * feat(state): makeCollection supports heterogenous item components ([b5b24a5](https://github.com/cyclejs/cyclejs/commit/b5b24a5))
