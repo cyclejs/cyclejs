@@ -7,7 +7,7 @@ if [[ -z $M ]] || [[ -z $PKG ]] || [[ $M != "minor" && $M != "major" ]]; then
   exit 1
 fi
 
-pnpm recursive exec --filter "@cycle/$PKG" -- pnpm test
+pnpm recursive test --filter "@cycle/$PKG"
 
 if [ "$M" = "minor" ]; then
   .scripts/bump.js "$PKG/package.json" --minor
@@ -18,9 +18,9 @@ else
 fi
 
 pnpm run docs
-pnpm recursive exec --filter "@cycle/$PKG" -- pnpm run changelog
+pnpm recursive run changelog --filter "@cycle/$PKG"
 git add -A
 git commit -m "release($PKG): $(cat $PKG/package.json | $(pnpm bin)/jase version)"
 git push origin master
-pnpm recursive exec --filter "@cycle/$PKG" -- pnpm publish
+pnpm recursive publish exec --filter "@cycle/$PKG"
 echo "✓ Released new $M for $PKG"
