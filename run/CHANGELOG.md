@@ -1,3 +1,9 @@
+## 5.6.0 (2022-01-13)
+
+* fix(run): avoid memory leaks with quicktask ([1fc18c02](https://github.com/cyclejs/cyclejs/commit/1fc18c02))
+
+
+
 ## 5.5.0 (2020-09-18)
 
 * fix(run): setup quicktask lazily, only upon run() ([dee01dd](https://github.com/cyclejs/cyclejs/commit/dee01dd)), closes [#956](https://github.com/cyclejs/cyclejs/issues/956)
