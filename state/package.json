@@ -29,7 +29,7 @@
   "dependencies": {
     "@cycle/isolate": "^5.0.0",
     "@cycle/run": "^5.2.0",
-    "quicktask": "1.1.0",
+    "quicktask": "1.2.0",
     "xstream": ">=11"
   },
   "devDependencies": {
