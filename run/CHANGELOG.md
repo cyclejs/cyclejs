@@ -1,3 +1,12 @@
+# 5.7.0 (2022-01-13)
+
+
+### Bug Fixes
+
+* **run:** lib/adapt.js was missing ([f976421](https://github.com/cyclejs/cyclejs/commit/f976421))
+
+
+
 ## 5.6.0 (2022-01-13)
 
 * fix(run): avoid memory leaks with quicktask ([1fc18c02](https://github.com/cyclejs/cyclejs/commit/1fc18c02))
