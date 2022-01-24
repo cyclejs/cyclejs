@@ -35,8 +35,8 @@
     "build:esm": "BUNDLE_FORMAT=esm rollup -c ../configs/rollup.config.ts"
   },
   "dependencies": {
-    "@cycle/callbags": "^3.0.2",
-    "snabbdom": "^3.0.1"
+    "@cycle/callbags": "^3.1.0",
+    "snabbdom": "^3.3.1"
   },
   "peerDependencies": {
     "@cycle/run": "^6.0.0"
