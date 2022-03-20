@@ -1,3 +1,12 @@
+## 1.6.1 (2022-03-20)
+
+
+### Bug Fixes
+
+* **state:** add dom lib to tsconfig.json ([9c78d82](https://github.com/cyclejs/cyclejs/commit/9c78d82))
+
+
+
 ## 1.6.0 (2022-01-13)
 
 * fix(state): avoid memory leaks with quicktask ([37b3ff10](https://github.com/cyclejs/cyclejs/commit/37b3ff10))
