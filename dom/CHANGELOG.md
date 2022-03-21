@@ -1,3 +1,17 @@
+# 23.1.0 (2022-03-21)
+
+
+### Bug Fixes
+
+* **dom:** update `snabbdom` to v3.4.0 ([9cbb45b](https://github.com/cyclejs/cyclejs/commit/9cbb45b))
+
+
+### Features
+
+* **dom:** support Snabbdom options ([0577d9e](https://github.com/cyclejs/cyclejs/commit/0577d9e))
+
+
+
 ## 23.0.0 (2021-07-04)
 
 * fix(dom): update Snabbdom to v3  ([2a80dce](https://github.com/cyclejs/cyclejs/commit/2a80dce)), closes [#944](https://github.com/cyclejs/cyclejs/issues/944) [#972](https://github.com/cyclejs/cyclejs/issues/972)
