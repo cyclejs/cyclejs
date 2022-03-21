@@ -50,7 +50,7 @@
   },
   "dependencies": {
     "@cycle/run": "^5.2.0",
-    "snabbdom": "^3.0.0",
+    "snabbdom": "^3.4.0",
     "snabbdom-selector": "^5.0.0",
     "xstream": "*"
   },
