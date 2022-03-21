@@ -1,5 +1,5 @@
 import {Driver, FantasyObservable} from '@cycle/run';
-import {init, Module, VNode, toVNode} from 'snabbdom';
+import {init, Module, Options as SnabbdomOptions, VNode, toVNode} from 'snabbdom';
 import xs, {Stream, Listener} from 'xstream';
 import concat from 'xstream/extra/concat';
 import sampleCombine from 'xstream/extra/sampleCombine';
@@ -35,6 +35,7 @@ function domDriverInputGuard(view$: Stream<VNode>): void {
 export interface DOMDriverOptions {
   modules?: Array<Partial<Module>>;
   reportSnabbdomError?(err: any): void;
+  snabbdomOptions?: SnabbdomOptions;
 }
 
 function dropCompletion<T>(input: Stream<T>): Stream<T> {
@@ -83,7 +84,8 @@ function makeDOMDriver(
   const modules = options.modules || defaultModules;
   makeDOMDriverInputGuard(modules);
   const isolateModule = new IsolateModule();
-  const patch = init([isolateModule.createModule() as Partial<Module>].concat(modules));
+  const snabbdomOptions = options && options.snabbdomOptions || undefined;
+  const patch = init([isolateModule.createModule() as Partial<Module>].concat(modules), undefined, snabbdomOptions);
   const domReady$ = makeDOMReady$();
   let vnodeWrapper: VNodeWrapper;
   let mutationObserver: MutationObserver;
