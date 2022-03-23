@@ -20,7 +20,7 @@ export class EventDelegator {
       subscribe(elem => {
         if (this.root !== elem) {
           this.root = elem;
-          this.namespaceTree.setRootNode(elem);
+          //this.namespaceTree.setRootNode(elem);
         }
       })
     );
@@ -70,11 +70,11 @@ export class EventDelegator {
           }
         }
 
-        if (elem !== node.rootNode) {
+        /*if (elem !== node.rootElement) {
           traverse(elem.parentNode! as Element);
         } else if (node.scopeType === 'sibling' && node.parent) {
           traverseNode(node.parent, elem.parentNode! as Element);
-        }
+        }*/
       };
 
       traverse(elem);

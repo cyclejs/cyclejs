@@ -5,8 +5,10 @@ import { makeDomApi } from './api';
 import { DomDriver } from './driver';
 
 export { h, VNode } from 'snabbdom';
+export { defaultModules } from './driver';
 
 export * from './hyperscript-helpers';
+export * from './types';
 
 export function makeDomPlugin(
   container: string | DocumentFragment | Element,

@@ -5,7 +5,21 @@ export type DomEvent = Event & { _cycleId: number };
 export type DomCommand =
   | VNode
   | AddEventListenerCommand
-  | RemoveEventListenerCommand;
+  | RemoveEventListenerCommand
+  | AddElementsListenerCommand
+  | RemoveElementsListenerCommand;
+
+export type AddElementsListenerCommand = {
+  commandType: 'addElementsListener';
+  id: number;
+  namespace: Namespace;
+  selector: string;
+};
+
+export type RemoveElementsListenerCommand = {
+  commandType: 'removeElementsListener';
+  id: number;
+};
 
 export type AddEventListenerCommand = {
   commandType: 'addEventListener';

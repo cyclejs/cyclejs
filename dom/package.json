@@ -32,11 +32,13 @@
   "scripts": {
     "build": "tsc --build tsconfig.build.json && pnpm run build:cjs && pnpm run build:esm",
     "build:cjs": "BUNDLE_FORMAT=cjs rollup -c ../configs/rollup.config.ts",
-    "build:esm": "BUNDLE_FORMAT=esm rollup -c ../configs/rollup.config.ts"
+    "build:esm": "BUNDLE_FORMAT=esm rollup -c ../configs/rollup.config.ts",
+    "test": "pnpm run test:browser",
+    "test:browser": "karma start"
   },
   "dependencies": {
     "@cycle/callbags": "^3.1.0",
-    "snabbdom": "^3.3.1"
+    "snabbdom": "^3.4.0"
   },
   "peerDependencies": {
     "@cycle/run": "^6.0.0"
@@ -49,6 +51,13 @@
     "access": "public"
   },
   "devDependencies": {
-    "@cycle/run": "workspace:^6.0.0"
+    "@cycle/run": "workspace:^6.0.0",
+    "fast-check": "^2.23.2",
+    "karma": "^6.3.17",
+    "karma-chrome-launcher": "^3.1.1",
+    "karma-firefox-launcher": "^2.1.2",
+    "karma-mocha": "^2.0.1",
+    "karma-typescript": "^5.5.3",
+    "prettier": "^2.6.0"
   }
 }

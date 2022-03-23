@@ -2,6 +2,6 @@
   "extends": "../configs/tsconfig.json",
   "include": [
     "src/**/*",
-    "test/**/*"
+    "test/browser/isolateModule.ts"
   ]
 }
