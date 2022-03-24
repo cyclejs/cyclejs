@@ -72,7 +72,7 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
       let lastElem: Node | undefined = undefined;
       const rootElement$ = makeSubject<Node | DocumentFragment>();
       const namespaceTree = new NamespaceTree();
-      const isolateModule = makeIsolateModule(namespaceTree);
+      const isolateModule = makeIsolateModule(namespaceTree, () => {}); // TODO: pass proper notify callback
       const patch = init(this.modules.concat(isolateModule));
 
       const delegator = new EventDelegator(

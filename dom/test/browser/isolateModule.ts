@@ -2,10 +2,19 @@ import * as assert from 'assert';
 import * as fc from 'fast-check';
 import { createRenderTarget, makeVtreeArbitrary } from './helpers';
 import { init, toVNode, VNode } from 'snabbdom';
-import { defaultModules } from '../../src/index';
+import { defaultModules, div, total, sibling } from '../../src/index';
 
 import { NamespaceTree } from '../../src/namespaceTree';
 import { makeIsolateModule } from '../../src/isolateModule';
+
+function makeElement(tree: NamespaceTree): VNode {
+  const vnode = {
+    ...toVNode(createRenderTarget()),
+    data: { namespace: [] },
+  };
+  tree.setRootElement(vnode.elm as Element);
+  return vnode;
+}
 
 describe('isolateModule', () => {
   it('should correctly construct and cleanup the namespace tree', function () {
@@ -13,18 +22,11 @@ describe('isolateModule', () => {
     fc.assert(
       fc.property(makeVtreeArbitrary(), vtree => {
         const tree = new NamespaceTree();
-        const patch = init(defaultModules.concat(makeIsolateModule(tree)));
-
-        const elem = {
-          ...toVNode(createRenderTarget()),
-          data: { namespace: [] },
-        };
-        // This is normally done in the driver
-        (elem.data as any).treeNode = tree.insertNamespaceRoot(
-          elem.elm as Element,
-          []
+        const patch = init(
+          defaultModules.concat(makeIsolateModule(tree, () => {}))
         );
 
+        const elem = makeElement(tree);
         const vnode1 = patch(elem, {
           ...elem,
           children: [vtree],
@@ -59,9 +61,9 @@ describe('isolateModule', () => {
         }
 
         assert.strictEqual(
-          t.querySet.size,
+          t.queryMap.size,
           0,
-          `querySet is not empty: ${t.querySet.size}`
+          `querySet is not empty: ${t.queryMap.size}`
         );
         if (t.tree.nodes) {
           for (const m of t.tree.nodes.values()) {
@@ -73,6 +75,157 @@ describe('isolateModule', () => {
           }
         }
       })
+    );
+  });
+
+  it('should correctly notify when elements are updated', () => {
+    const tree = new NamespaceTree();
+    let notifications: Array<[Set<number>, Element]> = [];
+
+    const patch = init(
+      defaultModules.concat(
+        makeIsolateModule(tree, (x, e) => notifications.push([x, e]))
+      )
+    );
+
+    const elem = makeElement(tree);
+
+    const vnode0 = div([
+      div({ class: { test: true, '1': true }, namespace: [total('1')] }, [
+        div(
+          {
+            class: { test: true, '1': true },
+            namespace: [total('1'), sibling('2')],
+          },
+          [
+            div('#foo.test', {
+              namespace: [total('1'), sibling('2'), total('3')],
+            }),
+          ]
+        ),
+      ]),
+    ]);
+
+    const vnode1 = patch(elem, { ...elem, children: [vnode0] });
+
+    const elems1 = tree.insertElementListener({
+      commandType: 'addElementsListener',
+      id: 0,
+      namespace: [],
+      selector: '.test',
+    });
+
+    assert.strictEqual(elems1, undefined);
+
+    const elems2 = tree.insertElementListener({
+      commandType: 'addElementsListener',
+      id: 1,
+      namespace: [total('1')],
+      selector: '.test',
+    });
+
+    assert.notStrictEqual(elems2, undefined);
+    assert.strictEqual(elems2!.size, 2);
+    for (const e of elems2!.keys()) {
+      assert.deepStrictEqual([...e.classList], ['1', 'test']);
+    }
+
+    const elems3 = tree.insertElementListener({
+      commandType: 'addElementsListener',
+      id: 2,
+      namespace: [total('1'), sibling('2'), total('3')],
+      selector: '.test',
+    });
+    assert.notStrictEqual(elems3, undefined);
+    assert.strictEqual(elems3!.size, 1);
+    for (const e of elems3!.keys()) {
+      assert.strictEqual(e.id, 'foo');
+    }
+
+    // Should also work if element does not exits yet
+    const elems4 = tree.insertElementListener({
+      commandType: 'addElementsListener',
+      id: 3,
+      namespace: [],
+      selector: '.bar',
+    });
+    assert.strictEqual(elems4, undefined);
+
+    const vnode2 = div([
+      div({ class: { test: true, '1': true }, namespace: [total('1')] }, [
+        div(
+          {
+            class: { test: true, '2': true },
+            namespace: [total('1'), sibling('2')],
+          },
+          [
+            div('#foo.test', {
+              namespace: [total('1'), sibling('2'), total('3')],
+            }),
+          ]
+        ),
+      ]),
+      div('#new.bar.test'),
+    ]);
+    const vnode2Copy = JSON.parse(JSON.stringify(vnode2));
+
+    const vnode3 = patch(vnode1, { ...elem, children: [vnode2] });
+
+    assert.strictEqual(notifications.length, 2);
+
+    const divUpdate = notifications[0];
+    assert.deepStrictEqual([...divUpdate[0].keys()], [1]);
+    assert.deepStrictEqual([...divUpdate[1].classList], ['test', '2']);
+
+    const divNew = notifications[1];
+    assert.deepStrictEqual([...divNew[0].keys()], [0, 3]);
+
+    const vnode4 = div([
+      div({ class: { test: true, '1': true }, namespace: [total('1')] }),
+      div('#new.bar'),
+    ]);
+
+    notifications = [];
+    tree.removeElementListener({
+      commandType: 'removeElementsListener',
+      id: 3,
+    });
+    assert.deepStrictEqual([...tree.elementListenerMap.keys()], [0, 1, 2]);
+
+    const vnode5 = patch(vnode3, { ...elem, children: [vnode4] });
+    assert.strictEqual(notifications.length, 0);
+    // Assert that removing a component root also cleans up its element listeners
+    assert.deepStrictEqual([...tree.elementListenerMap.keys()], [0, 1]);
+    notifications = [];
+
+    patch(vnode5, { ...elem, children: [vnode2Copy, div('.test.quux')] });
+
+    assert.strictEqual(notifications.length, 3);
+    const n0 = notifications[0];
+    assert.deepStrictEqual([...n0[0].keys()], [1]);
+    assert.deepStrictEqual([...n0[1].classList], ['2', 'test']);
+
+    const n1 = notifications[1];
+    assert.deepStrictEqual([...n1[0].keys()], [0]);
+    assert.deepStrictEqual([...n1[1].classList], ['bar', 'test']);
+
+    const n2 = notifications[2];
+    assert.deepStrictEqual([...n2[0].keys()], [0]);
+    assert.deepStrictEqual([...n2[1].classList], ['test', 'quux']);
+
+    const elems = tree.insertElementListener({
+      commandType: 'addElementsListener',
+      id: 4,
+      namespace: [],
+      selector: '.test',
+    });
+    assert.notStrictEqual(elems, undefined);
+    assert.deepStrictEqual(
+      [...elems!.keys()].map(e => [...e.classList]),
+      [
+        ['bar', 'test'],
+        ['test', 'quux'],
+      ]
     );
   });
 });
