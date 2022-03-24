@@ -72,7 +72,14 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
       let lastElem: Node | undefined = undefined;
       const rootElement$ = makeSubject<Node | DocumentFragment>();
       const namespaceTree = new NamespaceTree();
-      const isolateModule = makeIsolateModule(namespaceTree, () => {}); // TODO: pass proper notify callback
+      const isolateModule = makeIsolateModule(
+        namespaceTree,
+        (receivers, elems) => {
+          for (const n of receivers.keys()) {
+            this.subject(1, { elements: elems, _cycleId: n });
+          }
+        }
+      );
       const patch = init(this.modules.concat(isolateModule));
 
       const delegator = new EventDelegator(
@@ -100,6 +107,18 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
                 break;
               case 'removeEventListener':
                 delegator.removeEventListener(command);
+                break;
+              case 'addElementsListener':
+                const elems = namespaceTree.insertElementListener(command);
+                if (elems) {
+                  this.subject(1, {
+                    elements: [...elems.keys()],
+                    _cycleId: command.id,
+                  });
+                }
+                break;
+              case 'removeElementsListener':
+                namespaceTree.removeElementListener(command);
                 break;
             }
             return vdom;

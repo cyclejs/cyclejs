@@ -1,6 +1,8 @@
 import { VNode } from 'snabbdom';
 
-export type DomEvent = Event & { _cycleId: number };
+export type DomEvent =
+  | (Event & { _cycleId: number })
+  | { elements: Element[]; _cycleId: number };
 
 export type DomCommand =
   | VNode

@@ -92,4 +92,34 @@ export class DomApi implements IsolateableApi<DomEvent, DomCommand> {
       )
     );
   }
+
+  public elements(): Producer<Element[]> {
+    const id = this.idGenerator();
+    return pipe(
+      this.source,
+      filter(ev => ev._cycleId === id),
+      map(ev => (ev as any).elements),
+      uponStart(() =>
+        this.subject(1, {
+          commandType: 'addElementsListener',
+          id,
+          namespace: this.namespace,
+          selector: this.selector,
+        })
+      ),
+      uponEnd(() =>
+        this.subject(1, {
+          commandType: 'removeElementsListener',
+          id,
+        })
+      )
+    );
+  }
+
+  public element(): Producer<Element> {
+    return pipe(
+      this.elements(),
+      map(arr => arr[0])
+    );
+  }
 }

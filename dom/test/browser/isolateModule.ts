@@ -60,11 +60,6 @@ describe('isolateModule', () => {
           assert.strictEqual(e, elem.elm);
         }
 
-        assert.strictEqual(
-          t.queryMap.size,
-          0,
-          `querySet is not empty: ${t.queryMap.size}`
-        );
         if (t.tree.nodes) {
           for (const m of t.tree.nodes.values()) {
             assert.strictEqual(
@@ -80,7 +75,7 @@ describe('isolateModule', () => {
 
   it('should correctly notify when elements are updated', () => {
     const tree = new NamespaceTree();
-    let notifications: Array<[Set<number>, Element]> = [];
+    let notifications: Array<[Set<number>, Element[]]> = [];
 
     const patch = init(
       defaultModules.concat(
@@ -171,14 +166,18 @@ describe('isolateModule', () => {
 
     const vnode3 = patch(vnode1, { ...elem, children: [vnode2] });
 
-    assert.strictEqual(notifications.length, 2);
+    assert.strictEqual(notifications.length, 3);
 
     const divUpdate = notifications[0];
     assert.deepStrictEqual([...divUpdate[0].keys()], [1]);
-    assert.deepStrictEqual([...divUpdate[1].classList], ['test', '2']);
+    assert.deepStrictEqual(divUpdate[1].length, 2);
+    assert.deepStrictEqual([...divUpdate[1][0].classList], ['1', 'test']);
+    assert.deepStrictEqual([...divUpdate[1][1].classList], ['test', '2']);
 
-    const divNew = notifications[1];
-    assert.deepStrictEqual([...divNew[0].keys()], [0, 3]);
+    assert.strictEqual(notifications[1][1].length, 1);
+    assert.deepStrictEqual([...notifications[1][0].keys()], [0]);
+    assert.strictEqual(notifications[1][1].length, 1);
+    assert.deepStrictEqual([...notifications[2][0].keys()], [3]);
 
     const vnode4 = div([
       div({ class: { test: true, '1': true }, namespace: [total('1')] }),
@@ -196,22 +195,29 @@ describe('isolateModule', () => {
     assert.strictEqual(notifications.length, 0);
     // Assert that removing a component root also cleans up its element listeners
     assert.deepStrictEqual([...tree.elementListenerMap.keys()], [0, 1]);
-    notifications = [];
 
     patch(vnode5, { ...elem, children: [vnode2Copy, div('.test.quux')] });
 
-    assert.strictEqual(notifications.length, 3);
+    assert.strictEqual(notifications.length, 2);
     const n0 = notifications[0];
     assert.deepStrictEqual([...n0[0].keys()], [1]);
-    assert.deepStrictEqual([...n0[1].classList], ['2', 'test']);
+    assert.deepStrictEqual(
+      [...n0[1].map(x => [...x.classList])],
+      [
+        ['1', 'test'],
+        ['2', 'test'],
+      ]
+    );
 
     const n1 = notifications[1];
     assert.deepStrictEqual([...n1[0].keys()], [0]);
-    assert.deepStrictEqual([...n1[1].classList], ['bar', 'test']);
-
-    const n2 = notifications[2];
-    assert.deepStrictEqual([...n2[0].keys()], [0]);
-    assert.deepStrictEqual([...n2[1].classList], ['test', 'quux']);
+    assert.deepStrictEqual(
+      [...n1[1].map(x => [...x.classList])],
+      [
+        ['bar', 'test'],
+        ['test', 'quux'],
+      ]
+    );
 
     const elems = tree.insertElementListener({
       commandType: 'addElementsListener',

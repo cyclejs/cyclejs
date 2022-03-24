@@ -4,9 +4,10 @@ import { NamespaceTree } from './namespaceTree';
 
 export function makeIsolateModule(
   componentTree: NamespaceTree,
-  notify: (s: Set<number>, element: Element) => void
+  notify: (s: Set<number>, elements: Element[]) => void
 ): Module {
   const newElements = new Set<Element>();
+  const notifications = new Map<Set<number>, Set<Element>>();
   return {
     create: (_, vnode) => {
       if (vnode.data?.namespace) {
@@ -22,19 +23,26 @@ export function makeIsolateModule(
     post: () => {
       for (const e of newElements.keys()) {
         const receivers = componentTree.checkQueries(e);
-        if (receivers) {
-          notify(receivers, e);
+        for (const [k, v] of receivers) {
+          notifications.set(k, v);
         }
       }
       newElements.clear();
+
+      for (const [k, v] of notifications.entries()) {
+        notify(k, [...v]);
+      }
+      notifications.clear();
     },
     update: (oldVNode, vnode) => {
       if (vnode.data?.namespace) {
         vnode.data.treeNode = oldVNode.data!.treeNode;
       }
-      const receivers = componentTree.queryMap.get(vnode.elm as Element);
-      if (receivers && !deepEqual(oldVNode.data, vnode.data)) {
-        notify(receivers, vnode.elm as Element);
+      if (!deepEqual(oldVNode.data, vnode.data)) {
+        const receivers = componentTree.checkQueries(vnode.elm as Element);
+        for (const [k, v] of receivers) {
+          notifications.set(k, v);
+        }
       }
     },
     destroy: vnode => {

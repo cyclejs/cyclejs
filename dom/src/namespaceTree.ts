@@ -11,7 +11,6 @@ import { isInScope } from './helpers';
 export class NamespaceTree {
   private tree = new TreeNode(this, []);
   private treenodeMap = new Map<Element, TreeNode>();
-  public queryMap = new Map<Element, Set<number>>();
   public elementListenerMap = new Map<number, TreeNode>();
 
   public setRootElement(node: Element): void {
@@ -34,14 +33,12 @@ export class NamespaceTree {
     }
   }
 
-  public checkQueries(node: Element): Set<number> | undefined {
+  public checkQueries(node: Element): Array<[Set<number>, Set<Element>]> {
     return this.getNamespaceRoot(node).checkQueries(node);
   }
 
   public removeElementFromQueries(node: Element): void {
-    if (this.queryMap.delete(node)) {
-      this.getNamespaceRoot(node).removeElementFromQueries(node);
-    }
+    this.getNamespaceRoot(node).removeElementFromQueries(node);
   }
 
   public insertElementListener(
@@ -98,19 +95,11 @@ export class TreeNode {
     const entry = node.queries.get(cmd.selector);
     if (entry) {
       entry[0].add(cmd.id);
-      for (const e of entry[1].keys()) {
-        let receivers = this.tree.queryMap.get(e)!;
-        receivers.add(cmd.id);
-        this.tree.queryMap.set(e, receivers);
-      }
       return entry[1];
     } else {
       const elements = node.getQueryElements(cmd.selector);
       const set = elements ?? new Set();
       const receivers = new Set([cmd.id]);
-      for (const e of set.keys()) {
-        this.tree.queryMap.set(e, receivers);
-      }
       node.queries.set(cmd.selector, [receivers, set]);
       return elements;
     }
@@ -123,59 +112,23 @@ export class TreeNode {
         if (v[0].size === 0) {
           this.queries.delete(k);
         }
-        for (const e of v[1]) {
-          const r = this.tree.queryMap.get(e);
-          if (r) {
-            r.delete(cmd.id);
-          }
-        }
       }
     }
   }
 
-  public checkQueries(
-    node: Element,
-    newResult = false
-  ): Set<number> | undefined {
-    let result = undefined;
+  public checkQueries(node: Element): Array<[Set<number>, Set<Element>]> {
+    let result: Array<[Set<number>, Set<Element>]> = [];
 
     if (this.queries) {
       for (const q of this.queries.entries()) {
         if (node.matches(q[0])) {
           q[1][1].add(node);
-          if (!result) {
-            result = q[1][0];
-            continue;
-          }
-
-          if (!newResult) {
-            result = new Set(result);
-            newResult = true;
-          }
-          for (const n of q[1][0].keys()) {
-            result.add(n);
-          }
+          result.push(q[1]);
         }
       }
     }
     if (this.scopeType === 'sibling' && this.parent) {
-      const r = this.parent.checkQueries(node, newResult);
-      if (r) {
-        if (!result) {
-          result = r;
-        } else {
-          if (!newResult) {
-            result = new Set(result);
-            newResult = true;
-          }
-          for (const n of r.keys()) {
-            result.add(n);
-          }
-        }
-      }
-    }
-    if (result) {
-      this.tree.queryMap.set(node, result);
+      result = this.parent.checkQueries(node).concat(result);
     }
     return result;
   }
