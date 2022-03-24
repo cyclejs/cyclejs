@@ -68,10 +68,14 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
         typeof this.container === 'string'
           ? document.querySelector(this.container)!
           : this.container;
+      const vnode0 = toVNode(elem);
 
       let lastElem: Node | undefined = undefined;
       const rootElement$ = makeSubject<Node | DocumentFragment>();
       const namespaceTree = new NamespaceTree();
+      debugger;
+      namespaceTree.setRootElement(vnode0.elm as Element);
+
       const isolateModule = makeIsolateModule(
         namespaceTree,
         (receivers, elems) => {
@@ -98,6 +102,7 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
 
           if (vdom.elm !== lastElem) {
             lastElem = vdom.elm!;
+            namespaceTree.setRootElement(vdom.elm as Element);
             rootElement$(1, lastElem);
           }
           if ('commandType' in command) {
@@ -123,9 +128,9 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
             }
             return vdom;
           } else {
-            return patch(vdom, command);
+            return patch(vdom, { ...vnode0, children: [command] });
           }
-        }, toVNode(elem))
+        }, vnode0)
       );
     };
 

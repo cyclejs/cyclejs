@@ -30,6 +30,7 @@ importers:
     specifiers:
       '@cycle/callbags': ^3.1.0
       '@cycle/run': workspace:^6.0.0
+      '@cycle/utils': workspace:^6.0.0
       fast-check: ^2.23.2
       karma: ^6.3.17
       karma-chrome-launcher: ^3.1.1
@@ -43,6 +44,7 @@ importers:
       snabbdom: 3.4.0
     devDependencies:
       '@cycle/run': link:../run
+      '@cycle/utils': link:../utils
       fast-check: 2.23.2
       karma: 6.3.17
       karma-chrome-launcher: 3.1.1
@@ -2399,6 +2401,16 @@ packages:
     resolution: {integrity: sha512-WIWGi2L3DyTUvUrwRKgGi9TwxQMUEqPOPQBVi71R96jZXJdFskXEmf54BoZaS1kknGODoIGASGEzBUYdyMCBJg==}
     dev: true
 
+  /follow-redirects/1.14.9:
+    resolution: {integrity: sha512-MQDfihBQYMcyy5dhRDJUHcw7lb2Pv/TuE6xP1vyraLukNDHKbDxDNaOE3NbCAdKQApno+GPRyo1YAp89yCjK4w==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    dev: true
+
   /follow-redirects/1.14.9_debug@4.3.2:
     resolution: {integrity: sha512-MQDfihBQYMcyy5dhRDJUHcw7lb2Pv/TuE6xP1vyraLukNDHKbDxDNaOE3NbCAdKQApno+GPRyo1YAp89yCjK4w==}
     engines: {node: '>=4.0'}
@@ -2801,7 +2813,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.14.9_debug@4.3.2
+      follow-redirects: 1.14.9
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug

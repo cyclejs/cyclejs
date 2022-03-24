@@ -1,3 +1,4 @@
+import { Operator, Producer } from '@cycle/callbags';
 import * as fc from 'fast-check';
 import { h, VNode } from 'snabbdom';
 import { Namespace, Scope } from '../../src/index';
@@ -48,6 +49,33 @@ export function makeVtreeArbitrary(extraDataArb?: fc.Arbitrary<any>) {
       }),
     }))
     .node.map(arg => toVNode(arg as Rec, []));
+}
+
+export function delay<T>(n: number): Operator<T, T> {
+  return source => (_, sink) => {
+    source(0, (t, d) => {
+      if (t !== 1) {
+        sink(t, d);
+      } else {
+        setTimeout(() => sink(1, d), n);
+      }
+    });
+  };
+}
+
+export function interval(n: number): Producer<number> {
+  return (_, sink) => {
+    let i = 0;
+    let id: any;
+
+    sink(0, () => {
+      if (id !== undefined) clearInterval(id);
+    });
+
+    id = setInterval(() => {
+      sink(1, i++);
+    }, n);
+  };
 }
 
 function toVNode(

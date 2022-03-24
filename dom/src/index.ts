@@ -4,8 +4,9 @@ import { DomCommand, DomEvent, ScopeValue, Scope } from './types';
 import { makeDomApi } from './api';
 import { DomDriver } from './driver';
 
-export { h, VNode } from 'snabbdom';
+export { h, thunk, VNode } from 'snabbdom';
 export { defaultModules } from './driver';
+export { DomApi } from './api';
 
 export * from './hyperscript-helpers';
 export * from './types';

@@ -204,17 +204,21 @@ export class TreeNode {
     if (!this.rootElement) {
       return;
     }
-    const allElements = this.rootElement.querySelectorAll(selector);
-    let inScope = this.rootElement.matches(selector)
-      ? new Set([this.rootElement])
-      : undefined;
-    for (const element of allElements) {
-      const namespace = this.tree.getNamespaceRoot(element).namespace;
-      if (isInScope(namespace, this.namespace)) {
-        if (!inScope) {
-          inScope = new Set<Element>();
+    let inScope =
+      selector === '' || this.rootElement.matches(selector)
+        ? new Set([this.rootElement])
+        : undefined;
+
+    if (selector !== '') {
+      const allElements = this.rootElement.querySelectorAll(selector);
+      for (const element of allElements) {
+        const namespace = this.tree.getNamespaceRoot(element).namespace;
+        if (isInScope(namespace, this.namespace)) {
+          if (!inScope) {
+            inScope = new Set<Element>();
+          }
+          inScope.add(element);
         }
-        inScope.add(element);
       }
     }
     return inScope;

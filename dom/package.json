@@ -53,6 +53,7 @@
   },
   "devDependencies": {
     "@cycle/run": "workspace:^6.0.0",
+    "@cycle/utils": "workspace:^6.0.0",
     "fast-check": "^2.23.2",
     "karma": "^6.3.17",
     "karma-chrome-launcher": "^3.1.1",
