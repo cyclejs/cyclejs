@@ -1,5 +1,5 @@
 import { Main, Sinks } from '@cycle/run';
-import { Producer, pipe, scan, skip, map } from '@cycle/callbags';
+import { Producer, pipe, scan, drop, map } from '@cycle/callbags';
 import { isolate } from '@cycle/utils';
 import { Lens } from './api';
 
@@ -157,7 +157,7 @@ export function makeCollection<S>(options: CollectionOptions<S>): Main {
           keyToIndex: new Map<Key, number>(),
         }
       ),
-      skip(1),
+      drop(1),
       map(acc => acc.arr)
     );
 

@@ -23,7 +23,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@cycle/callbags": "^3.1.0",
+    "@cycle/callbags": "^4.0.0",
     "@minireq/browser": "^2.0.0"
   },
   "peerDependencies": {
@@ -38,7 +38,7 @@
     "@types/cookie-parser": "^1.4.2",
     "@types/express": "^4.17.13",
     "@types/mocha": "^9.1.0",
-    "@types/node": "^17.0.21",
+    "@types/node": "^17.0.23",
     "assert": "^2.0.0",
     "body-parser": "^1.19.2",
     "callbag-delay": "^0.1.0",
@@ -70,6 +70,5 @@
     "start-server": "ts-node --project tsconfig.json test/support/server.ts",
     "format": "prettier --write './{src,test}/**/*'",
     "release": "release-it --config ../configs/release-it.js"
-  },
-  "prettier": "../configs/.prettierrc.json"
+  }
 }

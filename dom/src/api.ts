@@ -53,6 +53,15 @@ export class DomApi implements IsolateableApi<DomEvent, DomCommand> {
         if (!('commandType' in vdom)) {
           vdom.data ??= {};
           vdom.data.namespace = this.namespace.concat(s);
+          if (typeof vdom.data.fn === 'function') {
+            const fn = vdom.data.fn;
+            vdom.data.fn = () => {
+              const vnode = fn();
+              vnode.data ??= {};
+              vnode.data.namespace = vdom.data!.namespace;
+              return vnode;
+            };
+          }
         }
         return vdom;
       })

@@ -73,7 +73,6 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
       let lastElem: Node | undefined = undefined;
       const rootElement$ = makeSubject<Node | DocumentFragment>();
       const namespaceTree = new NamespaceTree();
-      debugger;
       namespaceTree.setRootElement(vnode0.elm as Element);
 
       const isolateModule = makeIsolateModule(
@@ -95,16 +94,6 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
       return pipe(
         sink,
         scan((vdom, command) => {
-          if (!vdom.data) {
-            vdom.data = {};
-          }
-          vdom.data.namespace = [];
-
-          if (vdom.elm !== lastElem) {
-            lastElem = vdom.elm!;
-            namespaceTree.setRootElement(vdom.elm as Element);
-            rootElement$(1, lastElem);
-          }
           if ('commandType' in command) {
             switch (command.commandType) {
               case 'addEventListener':
@@ -128,7 +117,15 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
             }
             return vdom;
           } else {
-            return patch(vdom, { ...vnode0, children: [command] });
+            command.data ??= {};
+            command.data.isolate = [];
+            const newVdom = patch(vdom, { ...vnode0, children: [command] });
+            if (newVdom.elm !== lastElem) {
+              lastElem = newVdom.elm;
+              namespaceTree.setRootElement(newVdom.elm as Element);
+              rootElement$(1, lastElem as Node);
+            }
+            return newVdom;
           }
         }, vnode0)
       );

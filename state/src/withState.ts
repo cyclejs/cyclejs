@@ -5,7 +5,7 @@ import {
   subscribe,
   never,
   scan,
-  skip,
+  drop,
   makeAsyncSubject,
 } from '@cycle/callbags';
 
@@ -23,7 +23,7 @@ export function withState(channel = 'state'): MasterWrapper {
       pipe(
         merge(sinks[channel], never()),
         scan((state, reducer: any) => reducer(state), undefined),
-        skip(1),
+        drop(1),
         dropRepeats(),
         subscribe(
           x => subject(1, x),

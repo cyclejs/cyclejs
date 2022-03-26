@@ -43,6 +43,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "prettier": "../configs/.prettierrc.json"
+  }
 }
