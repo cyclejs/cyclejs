@@ -18,16 +18,16 @@ describe('setup', () => {
     assert.strictEqual(typeof setup, 'function');
   });
 
-  it('should throw if first argument is not an object', () => {
+  it('should throw if second argument is not an object', () => {
     assert.throws(() => {
-      (setup as any)('not an object');
-    }, /First argument given to setup must be an object with plugins/i);
+      (setup as any)(() => {}, 'not an object');
+    }, /Second argument given to setup must be an object with plugins/i);
   });
 
   it('should throw if first argument is an empty object', () => {
     assert.throws(() => {
-      (setup as any)({});
-    }, /First argument given to setup must be an object with at least one plugin/i);
+      (setup as any)(() => {}, {});
+    }, /Second argument given to setup must be an object with at least one plugin/i);
   });
 
   it('should allow to have a driver that takes a union as input', () => {
@@ -50,11 +50,11 @@ describe('setup', () => {
       }
     }
 
-    const connect = setup({
+    const { run } = setup(app, {
       drv: [new TestDriver(), null],
     });
 
-    connect(app);
+    run();
   });
 
   it('should allow to not use all sources in main', () => {
@@ -83,17 +83,17 @@ describe('setup', () => {
       }
     }
 
-    const connect = setup({
+    const { run } = setup(app, {
       first: [new TestDriver('test'), null],
       second: [new TestDriver('answer'), null],
     });
-    connect(app);
+    run();
 
-    const connect2 = setup({
+    const { run: run2 } = setup(app2, {
       first: [new TestDriver(''), null],
       second: [new TestDriver('test'), null],
     });
-    connect2(app2);
+    run2();
   });
 
   it('should return a connect() which in turn returns a dispose()', done => {
@@ -136,8 +136,8 @@ describe('setup', () => {
       }
     }
 
-    const connect = setup({ other: [new TestDriver(), null] });
-    dispose = connect(app);
+    const { run } = setup(app, { other: [new TestDriver(), null] });
+    dispose = run();
   });
 
   it('should not work after has been disposed', done => {
@@ -196,8 +196,8 @@ describe('setup', () => {
       }
     }
 
-    const connect = setup({ other: [new TestDriver(), null] });
+    const { run } = setup(app, { other: [new TestDriver(), null] });
 
-    dispose = connect(app);
+    dispose = run();
   });
 });

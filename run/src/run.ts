@@ -1,12 +1,13 @@
-import { merge } from '@cycle/callbags';
+import { merge, Subject } from '@cycle/callbags';
 import {
   Plugin,
   Plugins,
   Main,
   MasterWrapper,
   Subscription,
-  Engine,
   ApiFactory,
+  ReusableEngine,
+  SingleEngine,
 } from './types';
 import { multicastNow } from './multicastNow';
 import { makeReplaySubject } from './replaySubject';
@@ -30,35 +31,42 @@ export function run(
   wrappers: MasterWrapper[] = [],
   errorHandler: (err: any) => void = defaultErrorHandler
 ): Subscription {
-  const masterMain = makeMasterMain(main, plugins, wrappers, errorHandler);
-  checkPlugins(plugins);
-  const connect = setup(plugins, errorHandler);
-  return connect(masterMain);
+  checkArguments(plugins, main);
+  const { run } = setup(main, plugins, wrappers, errorHandler);
+  return run();
 }
 
 export function setup(
+  main: Main,
   plugins: Plugins,
+  wrappers: MasterWrapper[] = [],
   errorHandler: (err: any) => void = defaultErrorHandler
-): (masterMain: Main) => Subscription {
-  checkPlugins(plugins, 'setup', 'First');
-  const { connect, dispose } = setupReusable(plugins, errorHandler);
+): SingleEngine {
+  checkArguments(plugins, main, 'setup');
+  const { connect, dispose, sources, sinks } = setupReusable(
+    plugins,
+    errorHandler
+  );
 
-  return masterMain => {
+  const masterMain = makeMasterMain(main, plugins, wrappers, errorHandler);
+  const run = () => {
     const disconnect = connect(masterMain);
     return () => {
       disconnect();
       dispose();
     };
   };
+
+  return { run, sources, sinks };
 }
 
 export function setupReusable(
   plugins: Plugins,
   errorHandler: (err: any) => void = defaultErrorHandler
-): Engine {
-  checkPlugins(plugins, 'setupReusable', 'First');
+): ReusableEngine {
+  checkArguments(plugins, undefined, 'setupReusable');
 
-  let sinkProxies: Record<string, any> = {};
+  let sinkProxies: Record<string, Subject<any>> = {};
   let subscriptions: Record<string, Subscription> = {};
   let masterSources: any = {};
 
@@ -107,10 +115,23 @@ export function setupReusable(
     }
   }
 
-  return { connect, dispose };
+  let sources: any = {};
+  for (const k of Object.keys(masterSources)) {
+    sources[k] = plugins[k][1]
+      ? plugins[k][1]!(masterSources[k], sinkProxies[k], cuid)
+      : masterSources[k];
+  }
+
+  return { connect, dispose, sources, sinks: sinkProxies };
 }
 
-function checkPlugins(plugins: Plugins, name = 'Cycle', arg = 'Second'): void {
+function checkArguments(plugins: Plugins, main?: Main, name = 'Cycle'): void {
+  if (main && typeof main !== 'function') {
+    throw new Error(
+      `First argument given to ${name} must be the 'main' function`
+    );
+  }
+  const arg = main ? 'Second' : 'First';
   if (typeof plugins !== 'object') {
     throw new Error(
       `${arg} argument given to ${name} must be an object with plugins`
@@ -149,7 +170,7 @@ export function makeMasterMain(
       "First argument given to Cycle must be the 'main' function"
     );
   }
-  checkPlugins(plugins);
+  checkArguments(plugins, main);
 
   let m = applyApis(
     main,

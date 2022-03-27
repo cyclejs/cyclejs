@@ -49,6 +49,15 @@ export type Sinks = Record<string, Producer<any>>;
 export type Subscription = () => void;
 
 export type Engine = {
-  connect: (masterMain: Main) => Subscription;
+  sources: Record<string, any>;
+  sinks: Record<string, Producer<any>>;
+};
+
+export type SingleEngine = Engine & {
+  run: () => Subscription;
+};
+
+export type ReusableEngine = Engine & {
   dispose: Subscription;
+  connect: (masterMain: Main) => Subscription;
 };
