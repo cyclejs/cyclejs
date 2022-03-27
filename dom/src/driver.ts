@@ -10,6 +10,7 @@ import {
   map,
   flatten,
   scan,
+  filter,
 } from '@cycle/callbags';
 import {
   Module,
@@ -69,8 +70,10 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
           ? document.querySelector(this.container)!
           : this.container;
       const vnode0 = toVNode(elem);
+      vnode0.data ??= {};
+      vnode0.data.namespace = [];
 
-      let lastElem: Node | undefined = undefined;
+      let lastElem: Node | undefined = vnode0.elm;
       const rootElement$ = makeSubject<Node | DocumentFragment>();
       const namespaceTree = new NamespaceTree();
       namespaceTree.setRootElement(vnode0.elm as Element);
@@ -93,7 +96,7 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
 
       return pipe(
         sink,
-        scan((vdom, command) => {
+        filter(command => {
           if ('commandType' in command) {
             switch (command.commandType) {
               case 'addEventListener':
@@ -103,22 +106,25 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
                 delegator.removeEventListener(command);
                 break;
               case 'addElementsListener':
-                const elems = namespaceTree.insertElementListener(command);
-                if (elems) {
-                  this.subject(1, {
-                    elements: [...elems.keys()],
-                    _cycleId: command.id,
-                  });
-                }
-                break;
+                isolateModule.insertElementListener(command);
+                return true;
               case 'removeElementsListener':
                 namespaceTree.removeElementListener(command);
                 break;
             }
+            return false;
+          } else {
+            return true;
+          }
+        }),
+        sampleAnimationFrame,
+        scan((vdom, command) => {
+          if ('commandType' in command) {
+            // If no rendering is needed in the current frame, but a new element listener
+            // was added, run the post method to send the initial elements to the listener
+            isolateModule.post!();
             return vdom;
           } else {
-            command.data ??= {};
-            command.data.isolate = [];
             const newVdom = patch(vdom, { ...vnode0, children: [command] });
             if (newVdom.elm !== lastElem) {
               lastElem = newVdom.elm;
@@ -139,4 +145,34 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
     );
     return dispose;
   }
+}
+
+function sampleAnimationFrame(
+  source: Producer<DomCommand>
+): Producer<DomCommand> {
+  return (_, sink) => {
+    let inFlight = false;
+    let hasSampled = false;
+    let sampled: any;
+
+    source(0, (t, d) => {
+      if (t === 1) {
+        if (!(hasSampled && 'commandType' in d)) {
+          hasSampled = true;
+          sampled = d;
+
+          if (!inFlight) {
+            inFlight = true;
+            window.requestAnimationFrame(() => {
+              hasSampled = false;
+              inFlight = false;
+              sink(1, sampled);
+            });
+          }
+        }
+      } else {
+        sink(t, d);
+      }
+    });
+  };
 }

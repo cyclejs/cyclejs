@@ -120,8 +120,8 @@ describe('isolateModule', () => {
     });
 
     assert.notStrictEqual(elems2, undefined);
-    assert.strictEqual(elems2!.size, 2);
-    for (const e of elems2!.keys()) {
+    assert.strictEqual(elems2![1].size, 2);
+    for (const e of elems2![1].keys()) {
       assert.deepStrictEqual([...e.classList], ['1', 'test']);
     }
 
@@ -132,8 +132,8 @@ describe('isolateModule', () => {
       selector: '.test',
     });
     assert.notStrictEqual(elems3, undefined);
-    assert.strictEqual(elems3!.size, 1);
-    for (const e of elems3!.keys()) {
+    assert.strictEqual(elems3![1].size, 1);
+    for (const e of elems3![1].keys()) {
       assert.strictEqual(e.id, 'foo');
     }
 
@@ -227,7 +227,7 @@ describe('isolateModule', () => {
     });
     assert.notStrictEqual(elems, undefined);
     assert.deepStrictEqual(
-      [...elems!.keys()].map(e => [...e.classList]),
+      [...elems![1].keys()].map(e => [...e.classList]),
       [
         ['bar', 'test'],
         ['test', 'quux'],

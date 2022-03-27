@@ -1,13 +1,21 @@
 import { Module } from 'snabbdom';
 
 import { NamespaceTree } from './namespaceTree';
+import { AddElementsListenerCommand } from './types';
 
 export function makeIsolateModule(
   componentTree: NamespaceTree,
   notify: (s: Set<number>, elements: Element[]) => void
-): Module {
+): Module & {
+  insertElementListener: (cmd: AddElementsListenerCommand) => void;
+} {
   const newElements = new Set<Element>();
   const notifications = new Map<Set<number>, Set<Element>>();
+  const newListenerNotifications = new Map<
+    [Set<number>, Set<Element>],
+    number
+  >();
+  const set = new Set<number>();
   return {
     create: (_, vnode) => {
       if (vnode.data?.namespace) {
@@ -20,20 +28,32 @@ export function makeIsolateModule(
       // This indirection is needed because vnode.elm is not inserted into the DOM yet
       newElements.add(vnode.elm as Element);
     },
+
     post: () => {
       for (const e of newElements.keys()) {
         const receivers = componentTree.checkQueries(e);
         for (const [k, v] of receivers) {
-          notifications.set(k, v);
+          if (v.size > 0) {
+            notifications.set(k, v);
+          }
         }
       }
       newElements.clear();
 
+      for (const [k, v] of newListenerNotifications.entries()) {
+        if (!notifications.has(k[0])) {
+          set.add(v);
+          notify(set, [...k[1]]);
+          set.clear();
+        }
+      }
+      newListenerNotifications.clear();
       for (const [k, v] of notifications.entries()) {
         notify(k, [...v]);
       }
       notifications.clear();
     },
+
     update: (oldVNode, vnode) => {
       if (vnode.data?.namespace) {
         vnode.data.treeNode = oldVNode.data!.treeNode;
@@ -41,15 +61,25 @@ export function makeIsolateModule(
       if (!deepEqual(oldVNode.data, vnode.data)) {
         const receivers = componentTree.checkQueries(vnode.elm as Element);
         for (const [k, v] of receivers) {
-          notifications.set(k, v);
+          if (v.size > 0) {
+            notifications.set(k, v);
+          }
         }
       }
     },
+
     destroy: vnode => {
       if (vnode.data?.namespace) {
         componentTree.removeNamespaceRoot(vnode.elm as Element);
       }
       componentTree.removeElementFromQueries(vnode.elm as Element);
+    },
+
+    insertElementListener(cmd: AddElementsListenerCommand) {
+      const elems = componentTree.insertElementListener(cmd);
+      if (elems) {
+        newListenerNotifications.set(elems, cmd.id);
+      }
     },
   };
 }

@@ -43,7 +43,7 @@ export class NamespaceTree {
 
   public insertElementListener(
     cmd: AddElementsListenerCommand
-  ): Set<Element> | undefined {
+  ): [Set<number>, Set<Element>] | undefined {
     return this.tree.insertElementListener(cmd);
   }
 
@@ -86,7 +86,7 @@ export class TreeNode {
 
   public insertElementListener(
     cmd: AddElementsListenerCommand
-  ): Set<Element> | undefined {
+  ): [Set<number>, Set<Element>] | undefined {
     const node = this.traverse(cmd.namespace);
     this.tree.elementListenerMap.set(cmd.id, node);
     if (!node.queries) {
@@ -95,13 +95,15 @@ export class TreeNode {
     const entry = node.queries.get(cmd.selector);
     if (entry) {
       entry[0].add(cmd.id);
-      return entry[1];
+      return entry[1].size > 0 ? entry : undefined;
     } else {
       const elements = node.getQueryElements(cmd.selector);
-      const set = elements ?? new Set();
-      const receivers = new Set([cmd.id]);
-      node.queries.set(cmd.selector, [receivers, set]);
-      return elements;
+      const query = [new Set([cmd.id]), elements ?? new Set()] as [
+        Set<number>,
+        Set<Element>
+      ];
+      node.queries.set(cmd.selector, query);
+      return elements ? query : undefined;
     }
   }
 
