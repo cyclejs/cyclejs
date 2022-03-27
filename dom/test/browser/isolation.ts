@@ -1,10 +1,6 @@
 import * as assert from 'assert';
-import isolate from '@cycle/isolate';
-import xs, {Stream, MemoryStream} from 'xstream';
-import fromDiagram from 'xstream/extra/fromDiagram';
-import delay from 'xstream/extra/delay';
-import concat from 'xstream/extra/concat';
-import {setup} from '@cycle/run';
+import { isolate } from '@cycle/utils';
+import { setup, Plugin } from '@cycle/run';
 import {
   h,
   svg,
@@ -14,33 +10,36 @@ import {
   h3,
   h4,
   button,
-  makeDOMDriver,
-  DOMSource,
-  MainDOMSource,
+  makeDomPlugin,
+  DomApi,
   VNode,
   thunk,
+  sibling,
 } from '../../src/index';
+import {
+  flatten,
+  of,
+  map,
+  pipe,
+  subscribe,
+  take,
+  drop,
+  combine,
+  debug,
+  startWith,
+} from '@cycle/callbags';
+import { createRenderTarget, interval } from './helpers';
 
-function createRenderTarget(id: string | null = null) {
-  const element = document.createElement('div');
-  element.className = 'cycletest';
-  if (id) {
-    element.id = id;
-  }
-  document.body.appendChild(element);
-  return element;
-}
-
-describe('isolateSource', function() {
-  it('should return source also with isolateSource and isolateSink', function(done) {
-    function app(_sources: {DOM: MainDOMSource}) {
+describe('isolateSource', function () {
+  it('should return source also with isolateSource and isolateSink', function (done) {
+    function app(_sources: { DOM: DomApi }) {
       return {
-        DOM: xs.of(h('h3.top-most')),
+        DOM: of(h('h3.top-most')),
       };
     }
 
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver(createRenderTarget()),
+    const { sinks, sources, run } = setup(app, {
+      DOM: makeDomPlugin(createRenderTarget()),
     });
     const dispose = run();
     const isolatedDOMSource = sources.DOM.isolateSource(
@@ -55,382 +54,276 @@ describe('isolateSource', function() {
   });
 });
 
-describe('isolateSink', function() {
-  it('should add an isolate field to the vtree sink', function(done) {
-    function app(_sources: {DOM: MainDOMSource}) {
-      const vtree$ = xs.of(h3('.top-most'));
+describe('isolateSink', function () {
+  it('should add a namespace field to the vtree sink', function (done) {
+    function app(_sources: { DOM: DomApi }) {
+      const vtree$ = of(h3('.top-most'));
       return {
         DOM: _sources.DOM.isolateSink(vtree$, 'foo'),
       };
     }
 
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver(createRenderTarget()),
+    const { sinks, sources, run } = setup(app, {
+      DOM: makeDomPlugin(createRenderTarget()),
     });
 
     let dispose: any;
     // Make assertions
-    sinks.DOM.take(1).addListener({
-      next: (vtree: VNode) => {
+    pipe(
+      sinks.DOM,
+      take(1),
+      subscribe((vtree: VNode) => {
         assert.strictEqual(vtree.sel, 'h3.top-most');
-        assert.strictEqual(Array.isArray((vtree.data as any).isolate), true);
-        assert.deepStrictEqual((vtree.data as any).isolate, [
-          {type: 'total', scope: 'foo'},
+        assert.strictEqual(Array.isArray((vtree.data as any).namespace), true);
+        assert.deepStrictEqual((vtree.data as any).namespace, [
+          { type: 'total', value: 'foo' },
         ]);
         setTimeout(() => {
           dispose();
           done();
         });
-      },
-    });
+      })
+    );
     dispose = run();
   });
 
-  it('should not redundantly repeat the scope className', function(done) {
-    function app(_sources: {DOM: MainDOMSource}) {
-      const vtree1$ = xs.of(span('.tab1', 'Hi'));
-      const vtree2$ = xs.of(span('.tab2', 'Hello'));
+  it('should not redundantly repeat the scope className', function (done) {
+    function app(_sources: { DOM: DomApi }) {
+      const vtree1$ = of(span('.tab1', 'Hi'));
+      const vtree2$ = of(span('.tab2', 'Hello'));
       const first$ = _sources.DOM.isolateSink(vtree1$, '1');
       const second$ = _sources.DOM.isolateSink(vtree2$, '2');
-      const switched$ = concat(
-        xs.of(1).compose(delay(50)),
-        xs.of(2).compose(delay(50)),
-        xs.of(1).compose(delay(50)),
-        xs.of(2).compose(delay(50)),
-        xs.of(1).compose(delay(50)),
-        xs.of(2).compose(delay(50))
-      )
-        .map(i => (i === 1 ? first$ : second$))
-        .flatten();
+      const switched$ = pipe(
+        interval(50),
+        take(6),
+        map(i => (i % 2 === 0 ? first$ : second$)),
+        flatten
+      );
+
       return {
         DOM: switched$,
       };
     }
 
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver(createRenderTarget()),
+    const { sinks, sources, run } = setup(app, {
+      DOM: makeDomPlugin(createRenderTarget()),
     });
 
     let dispose: any;
     // Make assertions
-    sinks.DOM.drop(2)
-      .take(1)
-      .addListener({
-        next: (vtree: VNode) => {
-          assert.strictEqual(vtree.sel, 'span.tab1');
-          assert.strictEqual(Array.isArray((vtree.data as any).isolate), true);
-          assert.strictEqual((vtree.data as any).isolate.length, 1);
-          assert.deepStrictEqual((vtree.data as any).isolate, [
-            {type: 'total', scope: '1'},
-          ]);
-          dispose();
-          done();
-        },
-      });
+    pipe(
+      sinks.DOM,
+      drop(2),
+      take(1),
+      subscribe((vtree: VNode) => {
+        assert.strictEqual(vtree.sel, 'span.tab1');
+        assert.strictEqual(Array.isArray((vtree.data as any).namespace), true);
+        assert.strictEqual((vtree.data as any).namespace.length, 1);
+        assert.deepStrictEqual((vtree.data as any).namespace, [
+          { type: 'total', value: '1' },
+        ]);
+        dispose();
+        done();
+      })
+    );
     dispose = run();
   });
 });
 
-describe('isolation', function() {
-  it('should prevent parent from DOM.selecting() inside the isolation', function(done) {
-    function app(_sources: {DOM: MainDOMSource}) {
+describe('isolation', function () {
+  it('should prevent parent from DOM.selecting() inside the isolation', function (done) {
+    function app(_sources: { DOM: DomApi }) {
       const child$ = _sources.DOM.isolateSink(
-        xs.of(div('.foo', [h4('.bar', 'Wrong')])),
+        of(div('.foo', [h4('.bar', 'Wrong')])),
         'ISOLATION'
       );
 
-      const vdom$ = xs
-        .combine(xs.of(null), child$)
-        .map(([_, child]) => h3('.top-most', [child, h2('.bar', 'Correct')]));
-
-      return {
-        DOM: vdom$,
-      };
-    }
-
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver(createRenderTarget()),
-    });
-
-    sources.DOM.select('.bar')
-      .elements()
-      .drop(1)
-      .take(1)
-      .addListener({
-        next: (elements: Array<Element>) => {
-          assert.strictEqual(Array.isArray(elements), true);
-          assert.strictEqual(elements.length, 1);
-          const correctElement = elements[0];
-          assert.notStrictEqual(correctElement, null);
-          assert.notStrictEqual(typeof correctElement, 'undefined');
-          assert.strictEqual(correctElement.tagName, 'H2');
-          assert.strictEqual(correctElement.textContent, 'Correct');
-          done();
-        },
-      });
-    run();
-  });
-
-  it('should not occur with scope ":root"', function(done) {
-    function app(_sources: {DOM: MainDOMSource}) {
-      const child$ = _sources.DOM.isolateSink(
-        xs.of(div('.foo', [h4('.bar', 'Not wrong')])),
-        ':root'
+      const vdom$ = pipe(
+        combine(of(null), child$),
+        map(([_, child]) => h3('.top-most', [child, h2('.bar', 'Correct')]))
       );
 
-      const vdom$ = xs
-        .combine(xs.of(null), child$)
-        .map(([_, child]) => h3('.top-most', [child, h2('.bar', 'Correct')]));
-
       return {
         DOM: vdom$,
       };
     }
 
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver(createRenderTarget()),
+    const { sinks, sources, run } = setup(app, {
+      DOM: makeDomPlugin(createRenderTarget()),
     });
 
-    sources.DOM.select('.bar')
-      .elements()
-      .drop(1)
-      .take(1)
-      .addListener({
-        next: (elements: Array<Element>) => {
-          assert.strictEqual(Array.isArray(elements), true);
-          assert.strictEqual(elements.length, 2);
-
-          const notWrongElement = elements[0];
-          assert.notStrictEqual(notWrongElement, null);
-          assert.notStrictEqual(typeof notWrongElement, 'undefined');
-          assert.strictEqual(notWrongElement.tagName, 'H4');
-          assert.strictEqual(notWrongElement.textContent, 'Not wrong');
-
-          const correctElement = elements[1];
-          assert.notStrictEqual(correctElement, null);
-          assert.notStrictEqual(typeof correctElement, 'undefined');
-          assert.strictEqual(correctElement.tagName, 'H2');
-          assert.strictEqual(correctElement.textContent, 'Correct');
-          done();
-        },
-      });
+    pipe(
+      sources.DOM.select('.bar').elements(),
+      take(1),
+      subscribe((elements: Array<Element>) => {
+        assert.strictEqual(Array.isArray(elements), true);
+        assert.strictEqual(elements.length, 1);
+        const correctElement = elements[0];
+        assert.notStrictEqual(correctElement, null);
+        assert.notStrictEqual(typeof correctElement, 'undefined');
+        assert.strictEqual(correctElement.tagName, 'H2');
+        assert.strictEqual(correctElement.textContent, 'Correct');
+        done();
+      })
+    );
     run();
   });
 
-  it('should apply only between siblings when given scope ".foo"', function(done) {
-    function app(_sources: {DOM: MainDOMSource}) {
+  it('should apply only between siblings when given a sibling scope', function (done) {
+    function app(_sources: { DOM: DomApi }) {
       const foo$ = _sources.DOM.isolateSink(
-        xs.of(div('.container', [h4('.header', 'Correct')])),
-        '.foo'
+        of(div('.container', [h4('.header', 'Correct')])),
+        sibling('.foo')
       );
 
       const bar$ = _sources.DOM.isolateSink(
-        xs.of(div('.container', [h3('.header', 'Wrong')])),
-        '.bar'
+        of(div('.container', [h3('.header', 'Wrong')])),
+        sibling('.bar')
       );
 
-      const vdom$ = xs
-        .combine(foo$, bar$)
-        .map(([foo, bar]) =>
+      const vdom$ = pipe(
+        combine(foo$, bar$),
+        map(([foo, bar]) =>
           div('.top-most', [foo, bar, h2('.header', 'Correct')])
-        );
+        )
+      );
 
       return {
         DOM: vdom$,
       };
     }
 
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver(createRenderTarget()),
+    const { sinks, sources, run } = setup(app, {
+      DOM: makeDomPlugin(createRenderTarget()),
     });
 
     // Assert parent has total access to its children
-    sources.DOM.select('.header')
-      .elements()
-      .drop(1)
-      .take(1)
-      .addListener({
-        next: (elements: Array<Element>) => {
-          assert.strictEqual(Array.isArray(elements), true);
-          assert.strictEqual(elements.length, 3);
-          assert.strictEqual(elements[0].tagName, 'H4');
-          assert.strictEqual(elements[0].textContent, 'Correct');
-          assert.strictEqual(elements[1].tagName, 'H3');
-          assert.strictEqual(elements[1].textContent, 'Wrong');
-          assert.strictEqual(elements[2].tagName, 'H2');
-          assert.strictEqual(elements[2].textContent, 'Correct');
+    pipe(
+      sources.DOM.select('.header').elements(),
+      take(1),
+      subscribe((elements: Array<Element>) => {
+        assert.strictEqual(Array.isArray(elements), true);
+        assert.strictEqual(elements.length, 3);
+        assert.strictEqual(elements[0].tagName, 'H4');
+        assert.strictEqual(elements[0].textContent, 'Correct');
+        assert.strictEqual(elements[1].tagName, 'H3');
+        assert.strictEqual(elements[1].textContent, 'Wrong');
+        assert.strictEqual(elements[2].tagName, 'H2');
+        assert.strictEqual(elements[2].textContent, 'Correct');
 
-          // Assert .foo child has no access to .bar child
-          sources.DOM.isolateSource(sources.DOM, '.foo')
+        // Assert .foo child has no access to .bar child
+        pipe(
+          sources.DOM.isolateSource(sibling('.foo'))
             .select('.header')
-            .elements()
-            .take(1)
-            .addListener({
-              next: (els: Array<Element>) => {
-                assert.strictEqual(Array.isArray(els), true);
-                assert.strictEqual(els.length, 1);
-                assert.strictEqual(els[0].tagName, 'H4');
-                assert.strictEqual(els[0].textContent, 'Correct');
-                done();
-              },
-            });
-        },
-      });
-
-    run();
-  });
-
-  it('should apply only between siblings when given scope "#foo"', function(done) {
-    function app(_sources: {DOM: MainDOMSource}) {
-      const foo$ = _sources.DOM.isolateSink(
-        xs.of(div('.container', [h4('.header', 'Correct')])),
-        '#foo'
-      );
-
-      const bar$ = _sources.DOM.isolateSink(
-        xs.of(div('.container', [h3('.header', 'Wrong')])),
-        '#bar'
-      );
-
-      const vdom$ = xs
-        .combine(foo$, bar$)
-        .map(([foo, bar]) =>
-          div('.top-most', [foo, bar, h2('.header', 'Correct')])
+            .elements(),
+          take(1),
+          subscribe((els: Array<Element>) => {
+            assert.strictEqual(Array.isArray(els), true);
+            assert.strictEqual(els.length, 1);
+            assert.strictEqual(els[0].tagName, 'H4');
+            assert.strictEqual(els[0].textContent, 'Correct');
+            done();
+          })
         );
-
-      return {
-        DOM: vdom$,
-      };
-    }
-
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver(createRenderTarget()),
-    });
-
-    // Assert parent has total access to its children
-    sources.DOM.select('.header')
-      .elements()
-      .drop(1)
-      .take(1)
-      .addListener({
-        next: (elements: Array<Element>) => {
-          assert.strictEqual(Array.isArray(elements), true);
-          assert.strictEqual(elements.length, 3);
-          assert.strictEqual(elements[0].tagName, 'H4');
-          assert.strictEqual(elements[0].textContent, 'Correct');
-          assert.strictEqual(elements[1].tagName, 'H3');
-          assert.strictEqual(elements[1].textContent, 'Wrong');
-          assert.strictEqual(elements[2].tagName, 'H2');
-          assert.strictEqual(elements[2].textContent, 'Correct');
-
-          // Assert .foo child has no access to .bar child
-          sources.DOM.isolateSource(sources.DOM, '#foo')
-            .select('.header')
-            .elements()
-            .take(1)
-            .addListener({
-              next: (els: Array<Element>) => {
-                assert.strictEqual(Array.isArray(els), true);
-                assert.strictEqual(els.length, 1);
-                assert.strictEqual(els[0].tagName, 'H4');
-                assert.strictEqual(els[0].textContent, 'Correct');
-                done();
-              },
-            });
-        },
-      });
+      })
+    );
 
     run();
   });
 
-  it('should work with thunks', function(done) {
-    function app(_sources: {DOM: MainDOMSource}) {
+  it('should work with thunks', function (done) {
+    function app(_sources: { DOM: DomApi }) {
       const child$ = _sources.DOM.isolateSink(
-        xs.of(thunk('div.foo', () => div('.foo', [h4('.bar', 'Wrong')]), [])),
+        of(thunk('div.foo', () => div('.foo', [h4('.bar', 'Wrong')]), [])),
         'ISOLATION'
       );
 
-      const vdom$ = xs
-        .combine(xs.of(null), child$)
-        .map(([_, child]) => h3('.top-most', [child, h2('.bar', 'Correct')]));
+      const vdom$ = pipe(
+        combine(of(null), child$),
+        map(([_, child]) => h3('.top-most', [child, h2('.bar', 'Correct')]))
+      );
 
       return {
         DOM: vdom$,
       };
     }
 
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver(createRenderTarget()),
+    const { sinks, sources, run } = setup(app, {
+      DOM: makeDomPlugin(createRenderTarget()),
     });
 
-    sources.DOM.select('.bar')
-      .elements()
-      .drop(1)
-      .take(1)
-      .addListener({
-        next: (elements: Array<Element>) => {
-          assert.strictEqual(Array.isArray(elements), true);
-          assert.strictEqual(elements.length, 1);
-          const correctElement = elements[0];
-          assert.notStrictEqual(correctElement, null);
-          assert.notStrictEqual(typeof correctElement, 'undefined');
-          assert.strictEqual(correctElement.tagName, 'H2');
-          assert.strictEqual(correctElement.textContent, 'Correct');
-          done();
-        },
-      });
+    pipe(
+      sources.DOM.select('.bar').elements(),
+      take(1),
+      subscribe((elements: Array<Element>) => {
+        assert.strictEqual(Array.isArray(elements), true);
+        assert.strictEqual(elements.length, 1);
+        const correctElement = elements[0];
+        assert.notStrictEqual(correctElement, null);
+        assert.notStrictEqual(typeof correctElement, 'undefined');
+        assert.strictEqual(correctElement.tagName, 'H2');
+        assert.strictEqual(correctElement.textContent, 'Correct');
+        done();
+      })
+    );
     run();
   });
 
-  it('should allow using elements() in an isolated main() fn', function(done) {
-    function main(_sources: {DOM: MainDOMSource}) {
-      const elem$ = _sources.DOM.select(':root').elements();
-      const vnode$ = elem$.map(elem =>
-        h('div.bar', 'left=' + (elem[0] as any).offsetLeft)
+  it('should allow using elements() in an isolated main() fn', function (done) {
+    function main(_sources: { DOM: DomApi }) {
+      const elem$ = _sources.DOM.elements();
+      const vnode$ = pipe(
+        elem$,
+        map(elem =>
+          h('div.foo', [h('div.bar', 'left=' + (elem[0] as any).offsetLeft)])
+        ),
+        startWith(h('div.foo'))
       );
       return {
         DOM: vnode$,
       };
     }
 
-    const {sinks, sources, run} = setup(isolate(main), {
-      DOM: makeDOMDriver(createRenderTarget()),
+    const { sinks, sources, run } = setup(isolate(main, 'ISOLATION'), {
+      DOM: makeDomPlugin(createRenderTarget()),
     });
 
-    sources.DOM.select(':root')
-      .element()
-      .drop(1)
-      .take(1)
-      .addListener({
-        next: (root: Element) => {
-          const barElem = root.querySelector('.bar') as Element;
-          assert.notStrictEqual(barElem, null);
-          assert.notStrictEqual(typeof barElem, 'undefined');
-          assert.strictEqual(barElem.tagName, 'DIV');
-          assert.strictEqual(barElem.textContent, 'left=8');
-          done();
-        },
-      });
+    pipe(
+      sources.DOM.isolateSource('ISOLATION').select('.foo, .foo *').element(),
+      drop(1),
+      take(1),
+      subscribe((root: Element) => {
+        const barElem = root.querySelector('.bar') as Element;
+        assert.notStrictEqual(barElem, null);
+        assert.notStrictEqual(typeof barElem, 'undefined');
+        assert.strictEqual(barElem.tagName, 'DIV');
+        assert.strictEqual(barElem.textContent, 'left=8');
+        done();
+      })
+    );
     run();
   });
 
-  it('should allow parent to DOM.select() in its own isolation island', function(done) {
-    function app(_sources: {DOM: MainDOMSource}) {
-      const {isolateSource, isolateSink} = _sources.DOM;
-      const islandElement$ = isolateSource(_sources.DOM, 'island')
+  it('should allow parent to DOM.select() in its own isolation island', function (done) {
+    function app(_sources: { DOM: DomApi }) {
+      const islandElement$ = _sources.DOM.isolateSource('island')
         .select('.bar')
         .elements();
-      const islandVDom$ = isolateSink(
-        xs.of(div([h3('.bar', 'Correct')])),
+      const islandVDom$ = _sources.DOM.isolateSink(
+        of(div([h3('.bar', 'Correct')])),
         'island'
       );
-      const child$ = isolateSink(
-        islandVDom$.map(islandVDom =>
-          div('.foo', [islandVDom, h4('.bar', 'Wrong')])
+      const child$ = _sources.DOM.isolateSink(
+        pipe(
+          islandVDom$,
+          map(islandVDom => div('.foo', [islandVDom, h4('.bar', 'Wrong')]))
         ),
         'ISOLATION'
       );
-      const vdom$ = child$.map(child => h3('.top-most', [child]));
+      const vdom$ = pipe(
+        child$,
+        map(child => h3('.top-most', [child]))
+      );
 
       return {
         DOM: vdom$,
@@ -439,30 +332,36 @@ describe('isolation', function() {
     }
 
     const drivers = {
-      DOM: makeDOMDriver(createRenderTarget()),
-      island(sink: Stream<Array<Element>>) {},
-    };
-    const {sinks, sources, run} = setup(app, drivers);
-
-    sinks.island
-      .drop(1)
-      .take(1)
-      .addListener({
-        next: (elements: Array<Element>) => {
-          assert.strictEqual(Array.isArray(elements), true);
-          assert.strictEqual(elements.length, 1);
-          const correctElement = elements[0];
-          assert.notStrictEqual(correctElement, null);
-          assert.notStrictEqual(typeof correctElement, 'undefined');
-          assert.strictEqual(correctElement.tagName, 'H3');
-          assert.strictEqual(correctElement.textContent, 'Correct');
-          done();
+      DOM: makeDomPlugin(createRenderTarget()),
+      island: [
+        {
+          consumeSink(sink) {
+            return subscribe(() => {})(sink);
+          },
         },
-      });
+        null,
+      ] as Plugin<any, any>,
+    };
+    const { sinks, sources, run } = setup(app, drivers);
+
+    pipe(
+      sinks.island,
+      take(1),
+      subscribe((elements: Array<Element>) => {
+        assert.strictEqual(Array.isArray(elements), true);
+        assert.strictEqual(elements.length, 1);
+        const correctElement = elements[0];
+        assert.notStrictEqual(correctElement, null);
+        assert.notStrictEqual(typeof correctElement, 'undefined');
+        assert.strictEqual(correctElement.tagName, 'H3');
+        assert.strictEqual(correctElement.textContent, 'Correct');
+        done();
+      })
+    );
     run();
   });
 
-  it('should isolate DOM.select between parent and (wrapper) child', function(done) {
+  /*it('should isolate DOM.select between parent and (wrapper) child', function(done) {
     function Frame(_sources: {DOM: MainDOMSource; content$: Stream<any>}) {
       const click$ = _sources.DOM.select('.foo').events('click');
       const vdom$ = _sources.content$.map(content =>
@@ -1832,5 +1731,5 @@ describe('isolation', function() {
       });
 
     dispose = run();
-  });
+  });*/
 });

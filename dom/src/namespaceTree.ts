@@ -123,7 +123,10 @@ export class TreeNode {
 
     if (this.queries) {
       for (const q of this.queries.entries()) {
-        if (node.matches(q[0])) {
+        if (
+          (q[0] === '' && this.rootElement === node) ||
+          (q[0] !== '' && node.matches(q[0]))
+        ) {
           q[1][1].add(node);
           result.push(q[1]);
         }
