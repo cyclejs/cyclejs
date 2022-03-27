@@ -44,6 +44,10 @@ export class StateApi<T> implements IsolateableApi<T, Reducer<T>> {
       map(f => (state: T) => lens.set(state, f(lens.get(state))))
     );
   }
+
+  public create(source: Producer<T>): StateApi<T> {
+    return new StateApi(source, this.errorHandler);
+  }
 }
 
 function makeDefaultLens<T, S>(

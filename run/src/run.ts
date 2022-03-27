@@ -214,9 +214,7 @@ export function applyApis(
         const source = sources[k].source ?? sources[k];
 
         pluginSources[k] = apis[k]
-          ? sources[k]?.create
-            ? sources[k].create(source, sinkSubject, cuid)
-            : apis[k]!(source, sinkSubject, cuid)
+          ? apis[k](source, sinkSubject, cuid)
           : source;
         pluginsSinks[k] = sinkSubject;
       }

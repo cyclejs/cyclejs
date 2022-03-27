@@ -28,9 +28,7 @@ export class DomApi implements IsolateableApi<DomEvent, DomCommand> {
     private selector: string = ''
   ) {}
 
-  public isolateSource(
-    scope: string | Scope
-  ): IsolateableApi<DomEvent, DomCommand> {
+  public isolateSource(scope: string | Scope): DomApi {
     const s: Scope =
       typeof scope === 'string' ? { type: 'total', value: scope } : scope;
     return new DomApi(
@@ -66,6 +64,14 @@ export class DomApi implements IsolateableApi<DomEvent, DomCommand> {
         return vdom;
       })
     );
+  }
+
+  public create(
+    source: Producer<DomEvent>,
+    sinkSubject: Subject<DomCommand>,
+    gen: IdGenerator
+  ): DomApi {
+    return new DomApi(source, sinkSubject, gen, this.namespace);
   }
 
   public select(selector: string): DomApi {
