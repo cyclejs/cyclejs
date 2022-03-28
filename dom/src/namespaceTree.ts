@@ -37,8 +37,10 @@ export class NamespaceTree {
     return this.getNamespaceRoot(node).checkQueries(node);
   }
 
-  public removeElementFromQueries(node: Element): void {
-    this.getNamespaceRoot(node).removeElementFromQueries(node);
+  public removeElementFromQueries(
+    node: Element
+  ): Array<[Set<number>, Set<Element>]> {
+    return this.getNamespaceRoot(node).removeElementFromQueries(node);
   }
 
   public insertElementListener(
@@ -138,15 +140,22 @@ export class TreeNode {
     return result;
   }
 
-  public removeElementFromQueries(node: Element): void {
+  public removeElementFromQueries(
+    node: Element
+  ): Array<[Set<number>, Set<Element>]> {
+    let result: Array<[Set<number>, Set<Element>]> = [];
+
     if (this.queries) {
-      for (const [_, s] of this.queries.values()) {
-        s.delete(node);
+      for (const entry of this.queries.values()) {
+        if (entry[1].delete(node)) {
+          result.push(entry);
+        }
       }
     }
     if (this.scopeType === 'sibling' && this.parent) {
-      this.parent.removeElementFromQueries(node);
+      result = this.parent.removeElementFromQueries(node).concat(result);
     }
+    return result;
   }
 
   public insertVirtualListener(cmd: AddEventListenerCommand): void {

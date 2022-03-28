@@ -153,9 +153,8 @@ export const altGlyphItem = /*@__PURE__*/ createTagFunction('altGlyphItem');
 export const animate = /*@__PURE__*/ createTagFunction('animate');
 export const animateColor = /*@__PURE__*/ createTagFunction('animateColor');
 export const animateMotion = /*@__PURE__*/ createTagFunction('animateMotion');
-export const animateTransform = /*@__PURE__*/ createTagFunction(
-  'animateTransform'
-);
+export const animateTransform =
+  /*@__PURE__*/ createTagFunction('animateTransform');
 export const circle = /*@__PURE__*/ createTagFunction('circle');
 export const clipPath = /*@__PURE__*/ createTagFunction('clipPath');
 export const colorProfile = /*@__PURE__*/ createTagFunction('colorProfile');
@@ -169,15 +168,12 @@ export const feComponentTransfer = /*@__PURE__*/ createTagFunction(
   'feComponentTransfer'
 );
 export const feComposite = /*@__PURE__*/ createTagFunction('feComposite');
-export const feConvolveMatrix = /*@__PURE__*/ createTagFunction(
-  'feConvolveMatrix'
-);
-export const feDiffuseLighting = /*@__PURE__*/ createTagFunction(
-  'feDiffuseLighting'
-);
-export const feDisplacementMap = /*@__PURE__*/ createTagFunction(
-  'feDisplacementMap'
-);
+export const feConvolveMatrix =
+  /*@__PURE__*/ createTagFunction('feConvolveMatrix');
+export const feDiffuseLighting =
+  /*@__PURE__*/ createTagFunction('feDiffuseLighting');
+export const feDisplacementMap =
+  /*@__PURE__*/ createTagFunction('feDisplacementMap');
 export const feDistantLight = /*@__PURE__*/ createTagFunction('feDistantLight');
 export const feFlood = /*@__PURE__*/ createTagFunction('feFlood');
 export const feFuncA = /*@__PURE__*/ createTagFunction('feFuncA');
@@ -191,9 +187,8 @@ export const feMergeNode = /*@__PURE__*/ createTagFunction('feMergeNode');
 export const feMorphology = /*@__PURE__*/ createTagFunction('feMorphology');
 export const feOffset = /*@__PURE__*/ createTagFunction('feOffset');
 export const fePointLight = /*@__PURE__*/ createTagFunction('fePointLight');
-export const feSpecularLighting = /*@__PURE__*/ createTagFunction(
-  'feSpecularLighting'
-);
+export const feSpecularLighting =
+  /*@__PURE__*/ createTagFunction('feSpecularLighting');
 export const feSpotlight = /*@__PURE__*/ createTagFunction('feSpotlight');
 export const feTile = /*@__PURE__*/ createTagFunction('feTile');
 export const feTurbulence = /*@__PURE__*/ createTagFunction('feTurbulence');

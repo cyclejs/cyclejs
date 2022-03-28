@@ -192,9 +192,10 @@ describe('isolateModule', () => {
     assert.deepStrictEqual([...tree.elementListenerMap.keys()], [0, 1, 2]);
 
     const vnode5 = patch(vnode3, { ...elem, children: [vnode4] });
-    assert.strictEqual(notifications.length, 0);
+    assert.strictEqual(notifications.length, 2);
     // Assert that removing a component root also cleans up its element listeners
     assert.deepStrictEqual([...tree.elementListenerMap.keys()], [0, 1]);
+    notifications = [];
 
     patch(vnode5, { ...elem, children: [vnode2Copy, div('.test.quux')] });
 

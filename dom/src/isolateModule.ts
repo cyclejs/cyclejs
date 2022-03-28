@@ -72,7 +72,12 @@ export function makeIsolateModule(
       if (vnode.data?.namespace) {
         componentTree.removeNamespaceRoot(vnode.elm as Element);
       }
-      componentTree.removeElementFromQueries(vnode.elm as Element);
+      const receivers = componentTree.removeElementFromQueries(
+        vnode.elm as Element
+      );
+      for (const [k, v] of receivers) {
+        notifications.set(k, v);
+      }
     },
 
     insertElementListener(cmd: AddElementsListenerCommand) {

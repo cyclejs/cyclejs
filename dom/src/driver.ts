@@ -97,6 +97,9 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
       return pipe(
         sink,
         filter(command => {
+          if (!command) {
+            return false;
+          }
           if ('commandType' in command) {
             switch (command.commandType) {
               case 'addEventListener':

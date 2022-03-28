@@ -29,6 +29,11 @@ export class DomApi implements IsolateableApi<DomEvent, DomCommand> {
   ) {}
 
   public isolateSource(scope: string | Scope): DomApi {
+    if (typeof scope === 'object' && typeof scope.value === 'undefined') {
+      throw new Error(
+        'isolate called with invalid scope: ' + JSON.stringify(scope)
+      );
+    }
     const s: Scope =
       typeof scope === 'string' ? { type: 'total', value: scope } : scope;
     return new DomApi(
@@ -48,6 +53,9 @@ export class DomApi implements IsolateableApi<DomEvent, DomCommand> {
     return pipe(
       sink,
       map(vdom => {
+        if (!vdom) {
+          return vdom;
+        }
         if (!('commandType' in vdom)) {
           vdom.data ??= {};
           vdom.data.namespace = this.namespace.concat(s);
