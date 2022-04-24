@@ -51,7 +51,7 @@ describe('setup', () => {
     }
 
     const { run } = setup(app, {
-      drv: [new TestDriver(), null],
+      drv: new TestDriver(),
     });
 
     run();
@@ -84,14 +84,14 @@ describe('setup', () => {
     }
 
     const { run } = setup(app, {
-      first: [new TestDriver('test'), null],
-      second: [new TestDriver('answer'), null],
+      first: new TestDriver('test'),
+      second: new TestDriver('answer'),
     });
     run();
 
     const { run: run2 } = setup(app2, {
-      first: [new TestDriver(''), null],
-      second: [new TestDriver('test'), null],
+      first: new TestDriver(''),
+      second: new TestDriver('test'),
     });
     run2();
   });
@@ -136,7 +136,7 @@ describe('setup', () => {
       }
     }
 
-    const { run } = setup(app, { other: [new TestDriver(), null] });
+    const { run } = setup(app, { other: new TestDriver() });
     dispose = run();
   });
 
@@ -196,7 +196,7 @@ describe('setup', () => {
       }
     }
 
-    const { run } = setup(app, { other: [new TestDriver(), null] });
+    const { run } = setup(app, { other: new TestDriver() });
 
     dispose = run();
   });

@@ -37,7 +37,7 @@ describe('setupReusable', () => {
       }
     }
     const { connect, dispose } = setupReusable({
-      other: [new TestDriver(), null],
+      other: new TestDriver(),
     });
     assert.strictEqual(typeof connect, 'function');
     assert.strictEqual(typeof dispose, 'function');
@@ -71,7 +71,7 @@ describe('setupReusable', () => {
       }
     }
 
-    const engine = setupReusable({ other: [new TestDriver(), null] });
+    const engine = setupReusable({ other: new TestDriver() });
     const dispose = engine.connect(app);
     assert.strictEqual(typeof engine.dispose, 'function');
     assert.strictEqual(typeof dispose, 'function');
@@ -138,7 +138,7 @@ describe('setupReusable', () => {
       }
     }
 
-    const engine = setupReusable({ other: [new TestDriver(), null] });
+    const engine = setupReusable({ other: new TestDriver() });
 
     const dispose1 = engine.connect(app1);
     assert.deepStrictEqual(called1, ['a']);
@@ -191,7 +191,7 @@ describe('setupReusable', () => {
       }
     }
 
-    const engine = setupReusable({ other: [new TestDriver(), null] });
+    const engine = setupReusable({ other: new TestDriver() });
 
     engine.connect(app);
 
@@ -266,7 +266,7 @@ describe('setupReusable', () => {
       }
     }
 
-    const engine = setupReusable({ other: [new TestDriver(), null] });
+    const engine = setupReusable({ other: new TestDriver() });
 
     const disconnect = engine.connect(app);
     setTimeout(() => {
@@ -311,10 +311,7 @@ describe('setupReusable', () => {
     }
 
     let caught = false;
-    const engine = setupReusable(
-      { other: [new TestDriver(), null] },
-      errorHandler
-    );
+    const engine = setupReusable({ other: new TestDriver() }, errorHandler);
     try {
       engine.connect(main);
     } catch (e) {
