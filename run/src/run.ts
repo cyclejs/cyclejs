@@ -32,6 +32,10 @@ function defaultErrorHandler(err: any): void {
 // prettier-ignore
 export function run<M extends MatchingMain<P>, P extends Plugins>(main: M, plugins: P, wrappers?: [], errorHandler?: (err: any) => void): Subscription;
 // prettier-ignore
+export function run<M0 extends Main, M1 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1], errorHandler?: (err: any) => void): Subscription;
+// prettier-ignore
+export function run<M0 extends Main, M1 extends Main, M2 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1, (m: M1) => M2], errorHandler?: (err: any) => void): Subscription;
+// prettier-ignore
 export function run<M0 extends Main, M1 extends Main, M2 extends Main, M3 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1, (m: M1) => M2, (m: M2) => M3], errorHandler?: (err: any) => void): Subscription;
 // prettier-ignore
 export function run<M0 extends Main, M1 extends Main, M2 extends Main, M3 extends Main, M4 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1, (m: M1) => M2, (m: M2) => M3, (m: M3) => M4], errorHandler?: (err: any) => void): Subscription;
@@ -50,7 +54,7 @@ export function run<M0 extends Main, M1 extends Main, M2 extends Main, M3 extend
 export function run(
   main: Main,
   plugins: Plugins,
-  wrappers: Wrapper[] = [],
+  wrappers: [...Wrapper[]] = [],
   errorHandler: (err: any) => void = defaultErrorHandler
 ): Subscription {
   checkArguments(plugins, main);
@@ -59,27 +63,27 @@ export function run(
 }
 
 // prettier-ignore
-export function setup<M extends MatchingMain<P>, P extends Plugins>(main: M, plugins: P, wrappers?: [], errorHandler?: (err: any) => void): Expand<SingleEngine<PluginSources<P>, PluginSinks<P>>>;
+export function setup<M extends MatchingMain<P>, P extends Plugins>(main: M, plugins: P, wrappers?: [], errorHandler?: (err: any) => void): Expand<SingleEngine<Expand<PluginSources<P>>, Expand<PluginSinks<P>>>>;
 // prettier-ignore
-export function setup<M0 extends Main, M1 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1], errorHandler?: (err: any) => void): Expand<SingleEngine<PluginSources<P>, PluginSinks<P>>>;
+export function setup<M0 extends Main, M1 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1], errorHandler?: (err: any) => void): Expand<SingleEngine<Expand<PluginSources<P>>, Expand<PluginSinks<P>>>>;
 // prettier-ignore
-export function setup<M0 extends Main, M1 extends Main, M2 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1, (m: M1) => M2], errorHandler?: (err: any) => void): Expand<SingleEngine<PluginSources<P>, PluginSinks<P>>>;
+export function setup<M0 extends Main, M1 extends Main, M2 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1, (m: M1) => M2], errorHandler?: (err: any) => void): Expand<SingleEngine<Expand<PluginSources<P>>, Expand<PluginSinks<P>>>>;
 // prettier-ignore
-export function setup<M0 extends Main, M1 extends Main, M2 extends Main, M3 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1, (m: M1) => M2, (m: M2) => M3], errorHandler?: (err: any) => void): Expand<SingleEngine<PluginSources<P>, PluginSinks<P>>>;
+export function setup<M0 extends Main, M1 extends Main, M2 extends Main, M3 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1, (m: M1) => M2, (m: M2) => M3], errorHandler?: (err: any) => void): Expand<SingleEngine<Expand<PluginSources<P>>, Expand<PluginSinks<P>>>>;
 // prettier-ignore
-export function setup<M0 extends Main, M1 extends Main, M2 extends Main, M3 extends Main, M4 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1, (m: M1) => M2, (m: M2) => M3, (m: M3) => M4], errorHandler?: (err: any) => void): Expand<SingleEngine<PluginSources<P>, PluginSinks<P>>>;
+export function setup<M0 extends Main, M1 extends Main, M2 extends Main, M3 extends Main, M4 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1, (m: M1) => M2, (m: M2) => M3, (m: M3) => M4], errorHandler?: (err: any) => void): Expand<SingleEngine<Expand<PluginSources<P>>, Expand<PluginSinks<P>>>>;
 // prettier-ignore
-export function setup<M0 extends Main, M1 extends Main, M2 extends Main, M3 extends Main, M4 extends Main, M5 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1, (m: M1) => M2, (m: M2) => M3, (m: M3) => M4, (m: M4) => M5], errorHandler?: (err: any) => void): Expand<SingleEngine<PluginSources<P>, PluginSinks<P>>>;
+export function setup<M0 extends Main, M1 extends Main, M2 extends Main, M3 extends Main, M4 extends Main, M5 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1, (m: M1) => M2, (m: M2) => M3, (m: M3) => M4, (m: M4) => M5], errorHandler?: (err: any) => void): Expand<SingleEngine<Expand<PluginSources<P>>, Expand<PluginSinks<P>>>>;
 // prettier-ignore
-export function setup<M0 extends Main, M1 extends Main, M2 extends Main, M3 extends Main, M4 extends Main, M5 extends Main, M6 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1, (m: M1) => M2, (m: M2) => M3, (m: M3) => M4, (m: M4) => M5, (m: M5) => M6], errorHandler?: (err: any) => void): Expand<SingleEngine<PluginSources<P>, PluginSinks<P>>>;
+export function setup<M0 extends Main, M1 extends Main, M2 extends Main, M3 extends Main, M4 extends Main, M5 extends Main, M6 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1, (m: M1) => M2, (m: M2) => M3, (m: M3) => M4, (m: M4) => M5, (m: M5) => M6], errorHandler?: (err: any) => void): Expand<SingleEngine<Expand<PluginSources<P>>, Expand<PluginSinks<P>>>>;
 // prettier-ignore
-export function setup<M0 extends Main, M1 extends Main, M2 extends Main, M3 extends Main, M4 extends Main, M5 extends Main, M6 extends Main, M7 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1, (m: M1) => M2, (m: M2) => M3, (m: M3) => M4, (m: M4) => M5, (m: M5) => M6, (m: M6) => M7], errorHandler?: (err: any) => void): Expand<SingleEngine<PluginSources<P>, PluginSinks<P>>>;
+export function setup<M0 extends Main, M1 extends Main, M2 extends Main, M3 extends Main, M4 extends Main, M5 extends Main, M6 extends Main, M7 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1, (m: M1) => M2, (m: M2) => M3, (m: M3) => M4, (m: M4) => M5, (m: M5) => M6, (m: M6) => M7], errorHandler?: (err: any) => void): Expand<SingleEngine<Expand<PluginSources<P>>, Expand<PluginSinks<P>>>>;
 // prettier-ignore
-export function setup<M0 extends Main, M1 extends Main, M2 extends Main, M3 extends Main, M4 extends Main, M5 extends Main, M6 extends Main, M7 extends Main, M8 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1, (m: M1) => M2, (m: M2) => M3, (m: M3) => M4, (m: M4) => M5, (m: M5) => M6, (m: M6) => M7, (m: M7) => M8], errorHandler?: (err: any) => void): Expand<SingleEngine<PluginSources<P>, PluginSinks<P>>>;
+export function setup<M0 extends Main, M1 extends Main, M2 extends Main, M3 extends Main, M4 extends Main, M5 extends Main, M6 extends Main, M7 extends Main, M8 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1, (m: M1) => M2, (m: M2) => M3, (m: M3) => M4, (m: M4) => M5, (m: M5) => M6, (m: M6) => M7, (m: M7) => M8], errorHandler?: (err: any) => void): Expand<SingleEngine<Expand<PluginSources<P>>, Expand<PluginSinks<P>>>>;
 // prettier-ignore
-export function setup<M0 extends Main, M1 extends Main, M2 extends Main, M3 extends Main, M4 extends Main, M5 extends Main, M6 extends Main, M7 extends Main, M8 extends Main, M9 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1, (m: M1) => M2, (m: M2) => M3, (m: M3) => M4, (m: M4) => M5, (m: M5) => M6, (m: M6) => M7, (m: M7) => M8, (m: M8) => M9], errorHandler?: (err: any) => void): Expand<SingleEngine<PluginSources<P>, PluginSinks<P>>>;
+export function setup<M0 extends Main, M1 extends Main, M2 extends Main, M3 extends Main, M4 extends Main, M5 extends Main, M6 extends Main, M7 extends Main, M8 extends Main, M9 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1, (m: M1) => M2, (m: M2) => M3, (m: M3) => M4, (m: M4) => M5, (m: M5) => M6, (m: M6) => M7, (m: M7) => M8, (m: M8) => M9], errorHandler?: (err: any) => void): Expand<SingleEngine<Expand<PluginSources<P>>, Expand<PluginSinks<P>>>>;
 // prettier-ignore
-export function setup<M0 extends Main, M1 extends Main, M2 extends Main, M3 extends Main, M4 extends Main, M5 extends Main, M6 extends Main, M7 extends Main, M8 extends Main, M9 extends Main, M10 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1, (m: M1) => M2, (m: M2) => M3, (m: M3) => M4, (m: M4) => M5, (m: M5) => M6, (m: M6) => M7, (m: M7) => M8, (m: M8) => M9, (m: M9) => M10], errorHandler?: (err: any) => void): Expand<SingleEngine<PluginSources<P>, PluginSinks<P>>>;
+export function setup<M0 extends Main, M1 extends Main, M2 extends Main, M3 extends Main, M4 extends Main, M5 extends Main, M6 extends Main, M7 extends Main, M8 extends Main, M9 extends Main, M10 extends MatchingMain<P>, P extends Plugins>(main: M0, plugins: P, wrappers: [(m: M0) => M1, (m: M1) => M2, (m: M2) => M3, (m: M3) => M4, (m: M4) => M5, (m: M5) => M6, (m: M6) => M7, (m: M7) => M8, (m: M8) => M9, (m: M9) => M10], errorHandler?: (err: any) => void): Expand<SingleEngine<Expand<PluginSources<P>>, Expand<PluginSinks<P>>>>;
 export function setup(
   main: Main,
   plugins: Plugins,

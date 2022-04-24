@@ -1,7 +1,8 @@
-import { Main, Sinks } from '@cycle/run';
+import { Main } from '@cycle/run';
 import { Producer, pipe, scan, drop, map } from '@cycle/callbags';
 import { isolate } from '@cycle/utils';
 import { Lens } from './api';
+import { Sinks } from './pick';
 
 export interface CollectionOptions<S> {
   /**

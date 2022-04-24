@@ -880,7 +880,7 @@ describe('withState', () => {
       };
     }
 
-    run(main, { DOM: [{} as any, null] }, [withState()]);
+    run(main, { DOM: {} as any }, [withState()]);
 
     setImmediate(() => {
       assert.strictEqual(called, true);

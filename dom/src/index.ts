@@ -14,7 +14,7 @@ export * from './types';
 export function makeDomPlugin(
   container: string | DocumentFragment | Element,
   modules?: Module[]
-): Plugin<DomEvent, DomCommand> {
+): [DomDriver, typeof makeDomApi] {
   return [new DomDriver(container, modules), makeDomApi];
 }
 

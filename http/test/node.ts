@@ -59,13 +59,15 @@ describe('HTTP Driver in Node.js', () => {
           }
         )
       );
+
+      return {};
     }
 
     const plugins = {
       HTTP: makeHttpPlugin(request),
     };
 
-    run(main, plugins, []);
+    run(main, plugins);
   });
 
   it('should handle errors when sending request via sinks to non-existent server', done => {

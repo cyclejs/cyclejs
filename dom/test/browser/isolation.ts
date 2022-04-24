@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { isolate } from '@cycle/utils';
-import { setup, Plugin } from '@cycle/run';
+import { setup, Plugin, Driver } from '@cycle/run';
 import {
   h,
   svg,
@@ -32,15 +32,11 @@ import {
 } from '@cycle/callbags';
 import { createRenderTarget, interval } from './helpers';
 
-const noopPlugin: Plugin<any, any> = [
-  {
-    consumeSink(sink) {
-      return subscribe(() => {})(sink);
-    },
+const noopDriver: Driver<any, any> = {
+  consumeSink(sink: any) {
+    return subscribe(() => {})(sink);
   },
-  null,
-];
-
+};
 describe('isolateSource', function () {
   it('should return source also with isolateSource and isolateSink', function (done) {
     function app(_sources: { DOM: DomApi }) {
@@ -78,7 +74,7 @@ describe('isolateSink', function () {
     let dispose: any;
     // Make assertions
     pipe(
-      sinks.DOM,
+      sinks.DOM!,
       take(1),
       subscribe((vtree: VNode) => {
         assert.strictEqual(vtree.sel, 'h3.top-most');
@@ -120,7 +116,7 @@ describe('isolateSink', function () {
     let dispose: any;
     // Make assertions
     pipe(
-      sinks.DOM,
+      sinks.DOM!,
       drop(2),
       take(1),
       subscribe((vtree: VNode) => {
@@ -341,12 +337,12 @@ describe('isolation', function () {
 
     const drivers = {
       DOM: makeDomPlugin(createRenderTarget()),
-      island: noopPlugin,
+      island: noopDriver,
     };
     const { sinks, sources, run } = setup(app, drivers);
 
     pipe(
-      sinks.island,
+      sinks.island!,
       take(1),
       subscribe((elements: Array<Element>) => {
         assert.strictEqual(Array.isArray(elements), true);
@@ -403,9 +399,9 @@ describe('isolation', function () {
 
     const { sources, sinks, run } = setup(Monalisa, {
       DOM: makeDomPlugin(createRenderTarget()),
-      frameClick: noopPlugin,
-      monalisaClick: noopPlugin,
-      click: noopPlugin,
+      frameClick: noopDriver,
+      monalisaClick: noopDriver,
+      click: noopDriver,
     });
     let dispose: any;
 
@@ -582,13 +578,13 @@ describe('isolation', function () {
 
     const drivers = {
       DOM: makeDomPlugin(createRenderTarget()),
-      triangleElement: noopPlugin,
+      triangleElement: noopDriver,
     };
     const { sinks, sources, run } = setup(IsolatedApp, drivers);
 
     // Make assertions
     pipe(
-      sinks.triangleElement,
+      sinks.triangleElement!,
       take(1),
       subscribe((elements: Array<Element>) => {
         assert.strictEqual(elements.length, 1);

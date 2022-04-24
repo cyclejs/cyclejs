@@ -133,13 +133,15 @@ describe('HTTP Driver in the browser', function () {
           }
         })
       );
+
+      return {};
     }
 
     const plugins = {
       HTTP: makeHttpPlugin(),
     };
 
-    run(main, plugins, []);
+    run(main, plugins);
   });
 
   it('should not infer a union if `progress` is false', done => {
@@ -162,13 +164,15 @@ describe('HTTP Driver in the browser', function () {
           done();
         })
       );
+
+      return {};
     }
 
     const plugins = {
       HTTP: makeHttpPlugin(),
     };
 
-    run(main, plugins, []);
+    run(main, plugins);
   });
 
   it('should return binary response when responseType option is binary', done => {
@@ -192,13 +196,15 @@ describe('HTTP Driver in the browser', function () {
           done();
         })
       );
+
+      return {};
     }
 
     const plugins = {
       HTTP: makeHttpPlugin(),
     };
 
-    run(main, plugins, []);
+    run(main, plugins);
   });
 
   it('should be able to create a blob when responseType option is binary', done => {
@@ -228,13 +234,15 @@ describe('HTTP Driver in the browser', function () {
           fr.readAsArrayBuffer(new Blob([res.data]));
         })
       );
+
+      return {};
     }
 
     const plugins = {
       HTTP: makeHttpPlugin(),
     };
 
-    run(main, plugins, []);
+    run(main, plugins);
   });
 
   it('should not have cross-driver race conditions, A (#592)', function (done) {
@@ -313,13 +321,13 @@ describe('HTTP Driver in the browser', function () {
       }
     }
 
-    const plugins: Record<string, Plugin<any, any>> = {
+    const plugins = {
       HTTP: makeHttpPlugin(),
-      DOM: [new DomDriver(), null],
+      DOM: new DomDriver(),
     };
 
     // HTTP then DOM:
-    run(mainHTTPThenDOM, plugins, []);
+    run(mainHTTPThenDOM, plugins);
 
     setTimeout(() => {
       assert.strictEqual(expectedDOMSinks.length, 0);
@@ -403,13 +411,13 @@ describe('HTTP Driver in the browser', function () {
       }
     }
 
-    const plugins: Record<string, Plugin<any, any>> = {
+    const plugins = {
       HTTP: makeHttpPlugin(),
-      DOM: [new DomDriver(), null],
+      DOM: new DomDriver(),
     };
 
     // HTTP then DOM:
-    run(mainDOMThenHTTP, plugins, []);
+    run(mainDOMThenHTTP, plugins);
 
     setTimeout(() => {
       assert.strictEqual(expectedDOMSinks.length, 0);
@@ -473,12 +481,12 @@ describe('HTTP Driver in the browser', function () {
       }
     }
 
-    const plugins: Record<string, Plugin<any, any>> = {
+    const plugins = {
       HTTP: makeHttpPlugin(),
-      Test: [new TestDriver(), null],
+      Test: new TestDriver(),
     };
 
-    run(main, plugins, []);
+    run(main, plugins);
 
     setTimeout(() => {
       done();

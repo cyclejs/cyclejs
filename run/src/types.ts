@@ -79,7 +79,10 @@ export type WithoutChannel<
   Source,
   Sink,
   Channel extends string
-> = M extends (sources: infer Sources, ...rest: infer Rest) => infer Sinks
+> = M extends (
+  sources: infer Sources,
+  errorHandler?: (err: any) => void
+) => infer Sinks
   ? [
       Channel extends keyof Sources
         ? Sources[Channel] extends Source
@@ -92,6 +95,6 @@ export type WithoutChannel<
           : `Wrong type in sinks for channel ${Channel}`
         : Sinks
     ] extends [infer NewSources, infer NewSinks]
-    ? (s: NewSources, ...rest: Rest) => NewSinks
+    ? (s: NewSources, h?: (err: any) => void) => NewSinks
     : never
   : never;

@@ -26,7 +26,7 @@
     "virtual-dom"
   ],
   "main": "build/bundle.cjs.js",
-  "module": "build/bundle.esm.js",
+  "module": "build/index.js",
   "types": "build/index.d.ts",
   "dependencies": {
     "@cycle/callbags": "^4.0.0"
@@ -36,9 +36,8 @@
     "url": "https://opencollective.com/cyclejs"
   },
   "scripts": {
-    "build": "tsc --build tsconfig.build.json && pnpm run build:cjs && pnpm run build:esm",
+    "build": "rm -rf build ; tsc --build tsconfig.build.json && pnpm run build:cjs",
     "build:cjs": "BUNDLE_FORMAT=cjs rollup -c ../configs/rollup.config.ts",
-    "build:esm": "BUNDLE_FORMAT=esm rollup -c ../configs/rollup.config.ts",
     "test": "nyc --reporter text --reporter html pnpm run test:no_cover",
     "test:ci": "nyc --reporter text --reporter json pnpm run test:no_cover",
     "test:no_cover": "mocha --require ts-node/register test/*.ts",

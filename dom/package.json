@@ -25,14 +25,12 @@
     "mvi",
     "virtual-dom"
   ],
-  "main": "lib/cjs/index.js",
-  "module": "lib/es6/index.js",
-  "typings": "lib/cjs/index.d.ts",
-  "types": "lib/cjs/index.d.ts",
+  "main": "build/bundle.cjs.js",
+  "module": "build/index.js",
+  "types": "build/index.d.ts",
   "scripts": {
-    "build": "tsc --build tsconfig.build.json && pnpm run build:cjs && pnpm run build:esm",
+    "build": "rm -rf build ; tsc --build tsconfig.build.json && pnpm run build:cjs",
     "build:cjs": "BUNDLE_FORMAT=cjs rollup -c ../configs/rollup.config.ts",
-    "build:esm": "BUNDLE_FORMAT=esm rollup -c ../configs/rollup.config.ts",
     "test": "pnpm run test:browser",
     "test:ci": "pnpm run test",
     "test:browser": "karma start"
