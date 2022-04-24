@@ -3,6 +3,7 @@
   "include": [
     "src/**/*",
     "test/browser/isolateModule.ts",
-    "test/browser/isolation.ts"
+    "test/browser/isolation.ts",
+    "test/browser/elements.ts"
   ]
 }

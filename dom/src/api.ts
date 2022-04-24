@@ -19,7 +19,9 @@ export function makeDomApi(
   return new DomApi(source, subject, gen);
 }
 
-export class DomApi implements IsolateableApi<DomEvent, DomCommand> {
+export class DomApi<Selected = Element>
+  implements IsolateableApi<DomEvent, DomCommand>
+{
   constructor(
     public readonly source: Producer<DomEvent>,
     private subject: Subject<DomCommand>,
@@ -82,6 +84,9 @@ export class DomApi implements IsolateableApi<DomEvent, DomCommand> {
     return new DomApi(source, sinkSubject, gen, this.namespace);
   }
 
+  public select(selector: 'document'): DomApi<Document>;
+  public select(selector: 'body'): DomApi<HTMLBodyElement>;
+  public select(selector: string): DomApi;
   public select(selector: string): DomApi {
     return new DomApi(
       this.source,
@@ -116,7 +121,7 @@ export class DomApi implements IsolateableApi<DomEvent, DomCommand> {
     );
   }
 
-  public elements(): Producer<Element[]> {
+  public elements(): Producer<Selected[]> {
     const id = this.idGenerator();
     return pipe(
       this.source,
@@ -139,7 +144,7 @@ export class DomApi implements IsolateableApi<DomEvent, DomCommand> {
     );
   }
 
-  public element(): Producer<Element> {
+  public element(): Producer<Selected> {
     return pipe(
       this.elements(),
       map(arr => arr[0])
