@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { of, pipe, take, subscribe, drop } from '@cycle/callbags';
+import { of, pipe, take, subscribe } from '@cycle/callbags';
 import { setup } from '@cycle/run';
 import { div, span, p, makeDomPlugin, DomApi } from '../../src/index';
 
@@ -68,7 +68,7 @@ describe('DOMSource.elements()', function () {
     dispose = run();
   });
 
-  it('should return a stream of arrays of elements of size 1 when querying ":root"', done => {
+  it('should return a stream of arrays of elements of size 1 when querying namespace root', done => {
     function app(_sources: { DOM: DomApi }) {
       return {
         DOM: of(div('.top-most', [p('Foo'), span('Bar')])),
@@ -82,12 +82,12 @@ describe('DOMSource.elements()', function () {
     let dispose: any;
     pipe(
       sources.DOM.elements(),
-      drop(1),
       take(1),
       subscribe(root => {
         assert(root.forEach !== undefined); //Check type inference
         assert(Array.isArray(root));
         assert(root.length === 1);
+        assert.deepStrictEqual([...root[0].classList], ['cycletest']);
         setTimeout(() => {
           dispose();
           done();
@@ -111,7 +111,6 @@ describe('DOMSource.elements()', function () {
     let dispose: any;
     pipe(
       sources.DOM.select('.some').elements(),
-      drop(1),
       take(1),
       subscribe(elems => {
         assert(Array.isArray(elems));

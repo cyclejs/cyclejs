@@ -12,6 +12,7 @@ export class NamespaceTree {
   private tree = new TreeNode(this, []);
   private treenodeMap = new Map<Element, TreeNode>();
   public elementListenerMap = new Map<number, TreeNode>();
+  public noopIds = new Set<number>();
 
   public setRootElement(node: Element): void {
     this.tree.setRootElement(node);
@@ -46,12 +47,22 @@ export class NamespaceTree {
   public insertElementListener(
     cmd: AddElementsListenerCommand
   ): [Set<number>, Set<Element>] | undefined {
+    if (cmd.selector === 'document') {
+      this.noopIds.add(cmd.id);
+      return [new Set([cmd.id]), new Set([document]) as any];
+    }
+    if (cmd.selector === 'body') {
+      this.noopIds.add(cmd.id);
+      return [new Set([cmd.id]), new Set([document.body]) as any];
+    }
     return this.tree.insertElementListener(cmd);
   }
 
   public removeElementListener(cmd: RemoveElementsListenerCommand): void {
-    this.elementListenerMap.get(cmd.id)!.removeElementListener(cmd);
-    this.elementListenerMap.delete(cmd.id);
+    if (!this.noopIds.delete(cmd.id)) {
+      this.elementListenerMap.get(cmd.id)!.removeElementListener(cmd);
+      this.elementListenerMap.delete(cmd.id);
+    }
   }
 
   public insertVirtualListener(cmd: AddEventListenerCommand): void {

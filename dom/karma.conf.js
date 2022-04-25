@@ -8,7 +8,7 @@ module.exports = function (config) {
     frameworks: ['mocha', 'karma-typescript'],
     files: [
       { pattern: 'src/**/*.ts' },
-      { pattern: 'test/browser/{isolateModule,helpers,isolation}.ts' },
+      { pattern: 'test/browser/{isolateModule,helpers,isolation,elements}.ts' },
     ],
     plugins: [
       'karma-mocha',
