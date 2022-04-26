@@ -1,3 +1,4 @@
+import { ID } from '@cycle/run';
 import { Module } from 'snabbdom';
 
 import { NamespaceTree } from './namespaceTree';
@@ -5,17 +6,14 @@ import { AddElementsListenerCommand } from './types';
 
 export function makeIsolateModule(
   componentTree: NamespaceTree,
-  notify: (s: Set<number>, elements: Element[]) => void
+  notify: (s: Set<ID>, elements: Element[]) => void
 ): Module & {
   insertElementListener: (cmd: AddElementsListenerCommand) => void;
 } {
   const newElements = new Set<Element>();
-  const notifications = new Map<Set<number>, Set<Element>>();
-  const newListenerNotifications = new Map<
-    [Set<number>, Set<Element>],
-    number
-  >();
-  const set = new Set<number>();
+  const notifications = new Map<Set<ID>, Set<Element>>();
+  const newListenerNotifications = new Map<[Set<ID>, Set<Element>], ID>();
+  const set = new Set<ID>();
   return {
     create: (_, vnode) => {
       if (vnode.data?.namespace) {

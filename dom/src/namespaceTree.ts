@@ -7,12 +7,13 @@ import {
   RemoveElementsListenerCommand,
 } from './types';
 import { isInScope } from './helpers';
+import { ID } from '@cycle/run';
 
 export class NamespaceTree {
   private tree = new TreeNode(this, []);
   private treenodeMap = new Map<Element, TreeNode>();
-  public elementListenerMap = new Map<number, TreeNode>();
-  public noopIds = new Set<number>();
+  public elementListenerMap = new Map<ID, TreeNode>();
+  public noopIds = new Set<ID>();
 
   public setRootElement(node: Element): void {
     this.tree.setRootElement(node);
@@ -34,19 +35,19 @@ export class NamespaceTree {
     }
   }
 
-  public checkQueries(node: Element): Array<[Set<number>, Set<Element>]> {
+  public checkQueries(node: Element): Array<[Set<ID>, Set<Element>]> {
     return this.getNamespaceRoot(node).checkQueries(node);
   }
 
   public removeElementFromQueries(
     node: Element
-  ): Array<[Set<number>, Set<Element>]> {
+  ): Array<[Set<ID>, Set<Element>]> {
     return this.getNamespaceRoot(node).removeElementFromQueries(node);
   }
 
   public insertElementListener(
     cmd: AddElementsListenerCommand
-  ): [Set<number>, Set<Element>] | undefined {
+  ): [Set<ID>, Set<Element>] | undefined {
     if (cmd.selector === 'document') {
       this.noopIds.add(cmd.id);
       return [new Set([cmd.id]), new Set([document]) as any];
@@ -82,8 +83,8 @@ export class NamespaceTree {
 
 export class TreeNode {
   private nodes: Map<ScopeType, Map<ScopeValue, TreeNode>> | undefined;
-  private listeners: Map<boolean, Map<string, number>> | undefined;
-  private queries: Map<string, [Set<number>, Set<Element>]> | undefined;
+  private listeners: Map<boolean, Map<string, ID>> | undefined;
+  private queries: Map<string, [Set<ID>, Set<Element>]> | undefined;
   private rootElement: Element | undefined;
 
   constructor(
@@ -99,11 +100,11 @@ export class TreeNode {
 
   public insertElementListener(
     cmd: AddElementsListenerCommand
-  ): [Set<number>, Set<Element>] | undefined {
+  ): [Set<ID>, Set<Element>] | undefined {
     const node = this.traverse(cmd.namespace);
     this.tree.elementListenerMap.set(cmd.id, node);
     if (!node.queries) {
-      node.queries = new Map<string, [Set<number>, Set<Element>]>();
+      node.queries = new Map<string, [Set<ID>, Set<Element>]>();
     }
     const entry = node.queries.get(cmd.selector);
     if (entry) {
@@ -112,7 +113,7 @@ export class TreeNode {
     } else {
       const elements = node.getQueryElements(cmd.selector);
       const query = [new Set([cmd.id]), elements ?? new Set()] as [
-        Set<number>,
+        Set<ID>,
         Set<Element>
       ];
       node.queries.set(cmd.selector, query);
@@ -131,8 +132,8 @@ export class TreeNode {
     }
   }
 
-  public checkQueries(node: Element): Array<[Set<number>, Set<Element>]> {
-    let result: Array<[Set<number>, Set<Element>]> = [];
+  public checkQueries(node: Element): Array<[Set<ID>, Set<Element>]> {
+    let result: Array<[Set<ID>, Set<Element>]> = [];
 
     if (this.queries) {
       for (const q of this.queries.entries()) {
@@ -153,8 +154,8 @@ export class TreeNode {
 
   public removeElementFromQueries(
     node: Element
-  ): Array<[Set<number>, Set<Element>]> {
-    let result: Array<[Set<number>, Set<Element>]> = [];
+  ): Array<[Set<ID>, Set<Element>]> {
+    let result: Array<[Set<ID>, Set<Element>]> = [];
 
     if (this.queries) {
       for (const entry of this.queries.values()) {
@@ -173,17 +174,17 @@ export class TreeNode {
     const node = this.traverse(cmd.namespace);
     const capture = cmd.options?.capture ?? false;
     if (!node.listeners) {
-      node.listeners = new Map<boolean, Map<string, number>>();
+      node.listeners = new Map<boolean, Map<string, ID>>();
     }
     let inner = node.listeners.get(capture);
     if (!inner) {
-      inner = new Map<string, number>();
+      inner = new Map<string, ID>();
       node.listeners.set(capture, inner);
     }
     inner.set(cmd.selector, cmd.id);
   }
 
-  public getListeners(capture: boolean): Map<string, number> | undefined {
+  public getListeners(capture: boolean): Map<string, ID> | undefined {
     return this.listeners?.get(capture);
   }
 

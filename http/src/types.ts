@@ -1,4 +1,5 @@
 import type { Producer } from '@cycle/callbags';
+import { ID } from '@cycle/run';
 import type {
   RequestOpts,
   ResponseType,
@@ -39,6 +40,6 @@ export type ResponseStream = Producer<Response<any, ResponseType, boolean>> & {
 };
 
 export type SinkRequest = RequestOptions<any, ResponseType, boolean> & {
-  id?: number;
+  id?: ID;
   namespace?: Array<Scope>;
 };

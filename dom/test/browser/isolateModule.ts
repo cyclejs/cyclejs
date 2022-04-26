@@ -6,6 +6,7 @@ import { defaultModules, div, total, sibling } from '../../src/index';
 
 import { NamespaceTree } from '../../src/namespaceTree';
 import { makeIsolateModule } from '../../src/isolateModule';
+import { ID } from '@cycle/run';
 
 function makeElement(tree: NamespaceTree): VNode {
   const vnode = {
@@ -75,7 +76,7 @@ describe('isolateModule', () => {
 
   it('should correctly notify when elements are updated', () => {
     const tree = new NamespaceTree();
-    let notifications: Array<[Set<number>, Element[]]> = [];
+    let notifications: Array<[Set<ID>, Element[]]> = [];
 
     const patch = init(
       defaultModules.concat(
@@ -105,7 +106,7 @@ describe('isolateModule', () => {
 
     const elems1 = tree.insertElementListener({
       commandType: 'addElementsListener',
-      id: 0,
+      id: BigInt(0),
       namespace: [],
       selector: '.test',
     });
@@ -114,7 +115,7 @@ describe('isolateModule', () => {
 
     const elems2 = tree.insertElementListener({
       commandType: 'addElementsListener',
-      id: 1,
+      id: BigInt(1),
       namespace: [total('1')],
       selector: '.test',
     });
@@ -127,7 +128,7 @@ describe('isolateModule', () => {
 
     const elems3 = tree.insertElementListener({
       commandType: 'addElementsListener',
-      id: 2,
+      id: BigInt(2),
       namespace: [total('1'), sibling('2'), total('3')],
       selector: '.test',
     });
@@ -140,7 +141,7 @@ describe('isolateModule', () => {
     // Should also work if element does not exits yet
     const elems4 = tree.insertElementListener({
       commandType: 'addElementsListener',
-      id: 3,
+      id: BigInt(3),
       namespace: [],
       selector: '.bar',
     });
@@ -169,15 +170,15 @@ describe('isolateModule', () => {
     assert.strictEqual(notifications.length, 3);
 
     const divUpdate = notifications[0];
-    assert.deepStrictEqual([...divUpdate[0].keys()], [1]);
+    assert.deepStrictEqual([...divUpdate[0].keys()], [BigInt(1)]);
     assert.deepStrictEqual(divUpdate[1].length, 2);
     assert.deepStrictEqual([...divUpdate[1][0].classList], ['1', 'test']);
     assert.deepStrictEqual([...divUpdate[1][1].classList], ['test', '2']);
 
     assert.strictEqual(notifications[1][1].length, 1);
-    assert.deepStrictEqual([...notifications[1][0].keys()], [0]);
+    assert.deepStrictEqual([...notifications[1][0].keys()], [BigInt(0)]);
     assert.strictEqual(notifications[1][1].length, 1);
-    assert.deepStrictEqual([...notifications[2][0].keys()], [3]);
+    assert.deepStrictEqual([...notifications[2][0].keys()], [BigInt(3)]);
 
     const vnode4 = div([
       div({ class: { test: true, '1': true }, namespace: [total('1')] }),
@@ -187,21 +188,27 @@ describe('isolateModule', () => {
     notifications = [];
     tree.removeElementListener({
       commandType: 'removeElementsListener',
-      id: 3,
+      id: BigInt(3),
     });
-    assert.deepStrictEqual([...tree.elementListenerMap.keys()], [0, 1, 2]);
+    assert.deepStrictEqual(
+      [...tree.elementListenerMap.keys()],
+      [BigInt(0), BigInt(1), BigInt(2)]
+    );
 
     const vnode5 = patch(vnode3, { ...elem, children: [vnode4] });
     assert.strictEqual(notifications.length, 2);
     // Assert that removing a component root also cleans up its element listeners
-    assert.deepStrictEqual([...tree.elementListenerMap.keys()], [0, 1]);
+    assert.deepStrictEqual(
+      [...tree.elementListenerMap.keys()],
+      [BigInt(0), BigInt(1)]
+    );
     notifications = [];
 
     patch(vnode5, { ...elem, children: [vnode2Copy, div('.test.quux')] });
 
     assert.strictEqual(notifications.length, 2);
     const n0 = notifications[0];
-    assert.deepStrictEqual([...n0[0].keys()], [1]);
+    assert.deepStrictEqual([...n0[0].keys()], [BigInt(1)]);
     assert.deepStrictEqual(
       [...n0[1].map(x => [...x.classList])],
       [
@@ -211,7 +218,7 @@ describe('isolateModule', () => {
     );
 
     const n1 = notifications[1];
-    assert.deepStrictEqual([...n1[0].keys()], [0]);
+    assert.deepStrictEqual([...n1[0].keys()], [BigInt(0)]);
     assert.deepStrictEqual(
       [...n1[1].map(x => [...x.classList])],
       [
@@ -222,7 +229,7 @@ describe('isolateModule', () => {
 
     const elems = tree.insertElementListener({
       commandType: 'addElementsListener',
-      id: 4,
+      id: BigInt(4),
       namespace: [],
       selector: '.test',
     });

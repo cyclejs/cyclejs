@@ -18,14 +18,15 @@ import {
   Driver,
   Plugin,
   Api,
+  ID,
 } from '../src/index';
 
-type RandomSource = { id: number; value: number };
+type RandomSource = { id: ID; value: number };
 
-class RandomApi implements Api<RandomSource, number> {
+class RandomApi implements Api<RandomSource, ID> {
   constructor(
     public readonly source: Producer<RandomSource>,
-    private sinkSubject: Subject<number>,
+    private sinkSubject: Subject<ID>,
     private gen: IdGenerator
   ) {}
 
@@ -45,21 +46,21 @@ class RandomApi implements Api<RandomSource, number> {
 
 function randomApiFactory(
   source: Producer<RandomSource>,
-  subject: Subject<number>,
+  subject: Subject<ID>,
   gen: IdGenerator
 ) {
   return new RandomApi(source, subject, gen);
 }
 
-function makeRandomPlugin(n: number): Plugin<RandomSource, number> {
-  class RandomDriver implements Driver<RandomSource, number> {
+function makeRandomPlugin(n: number): Plugin<RandomSource, ID> {
+  class RandomDriver implements Driver<RandomSource, ID> {
     private subject = makeSubject<RandomSource>();
 
     provideSource() {
       return this.subject;
     }
 
-    consumeSink(sink: Producer<number>): Subscription {
+    consumeSink(sink: Producer<ID>): Subscription {
       return pipe(
         sink,
         subscribe(id => {

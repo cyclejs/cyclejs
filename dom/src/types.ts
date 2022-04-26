@@ -1,8 +1,9 @@
+import { ID } from '@cycle/run';
 import { VNode } from 'snabbdom';
 
 export type DomEvent =
-  | (Event & { _cycleId: number })
-  | { elements: Element[]; _cycleId: number };
+  | (Event & { _cycleId: ID })
+  | { elements: Element[]; _cycleId: ID };
 
 export type DomCommand =
   | VNode
@@ -13,19 +14,19 @@ export type DomCommand =
 
 export type AddElementsListenerCommand = {
   commandType: 'addElementsListener';
-  id: number;
+  id: ID;
   namespace: Namespace;
   selector: string;
 };
 
 export type RemoveElementsListenerCommand = {
   commandType: 'removeElementsListener';
-  id: number;
+  id: ID;
 };
 
 export type AddEventListenerCommand = {
   commandType: 'addEventListener';
-  id: number;
+  id: ID;
   namespace: Namespace;
   type: string;
   selector: string;
@@ -34,7 +35,7 @@ export type AddEventListenerCommand = {
 
 export type RemoveEventListenerCommand = {
   commandType: 'removeEventListener';
-  id: number;
+  id: ID;
 };
 
 export type Options = {

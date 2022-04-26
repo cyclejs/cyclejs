@@ -4,7 +4,10 @@ export type Plugin<Source, Sink> =
   | [Driver<Source, Sink>, ApiFactory<Source, Sink>]
   | Driver<Source, Sink>;
 export type Plugins = Record<string, Plugin<any, any>>;
-export type Wrapper = (m: Main, errorReporter?: (err: any) => void) => Main;
+export type Wrapper = (m: Main, errorReporter: Handler) => Main;
+
+export type Handler = (err: any) => void;
+export type ID = bigint;
 
 export type ApiFactory<Source, Sink, Result = Api<Source, Sink>> = (
   source: Producer<Source>,
@@ -34,7 +37,7 @@ export interface Driver<Source, Sink> {
 export type ReadonlyDriver<Source> = Driver<Source, never>;
 export type WriteonlyDriver<Sink> = Driver<never, Sink>;
 
-export type IdGenerator = () => number;
+export type IdGenerator = () => ID;
 export type Main = (...args: any[]) => any;
 export type Subscription = Dispose;
 
@@ -79,10 +82,7 @@ export type WithoutChannel<
   Source,
   Sink,
   Channel extends string
-> = M extends (
-  sources: infer Sources,
-  errorHandler?: (err: any) => void
-) => infer Sinks
+> = M extends (sources: infer Sources, errorHandler: Handler) => infer Sinks
   ? [
       Channel extends keyof Sources
         ? Sources[Channel] extends Source
@@ -95,6 +95,6 @@ export type WithoutChannel<
           : `Wrong type in sinks for channel ${Channel}`
         : Sinks
     ] extends [infer NewSources, infer NewSinks]
-    ? (s: NewSources, h?: (err: any) => void) => NewSinks
+    ? (s: NewSources, h: Handler) => NewSinks
     : never
   : never;

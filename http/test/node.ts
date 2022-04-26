@@ -74,7 +74,7 @@ describe('HTTP Driver in Node.js', () => {
     function main(sources: { HTTP: HttpApi }) {
       pipe(
         sources.HTTP.response$$,
-        filter(res$ => res$.request.id === 0),
+        filter(res$ => res$.request.id === BigInt(0)),
         flatten,
         subscribe(
           () => done('should not deliver data'),

@@ -5,6 +5,7 @@ import {
   DomEvent,
 } from './types';
 import { NamespaceTree, TreeNode } from './namespaceTree';
+import { ID } from '@cycle/run';
 
 export class EventDelegator {
   private root: Element | DocumentFragment | undefined;
@@ -84,7 +85,7 @@ export class EventDelegator {
   }
 }
 
-function patchEvent(event: any, id: number, currentTarget: Element): DomEvent {
+function patchEvent(event: any, id: ID, currentTarget: Element): DomEvent {
   try {
     Object.defineProperty(event, 'currentTarget', {
       value: currentTarget,
