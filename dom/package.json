@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@cycle/callbags": "^4.0.0",
-    "snabbdom": "^3.4.0"
+    "snabbdom": "^3.5.0"
   },
   "peerDependencies": {
     "@cycle/run": "^6.0.0"
@@ -52,12 +52,12 @@
   "devDependencies": {
     "@cycle/run": "workspace:^6.0.0",
     "@cycle/utils": "workspace:^6.0.0",
-    "fast-check": "^2.23.2",
-    "karma": "^6.3.17",
+    "fast-check": "^2.25.0",
+    "karma": "^6.3.19",
     "karma-chrome-launcher": "^3.1.1",
     "karma-firefox-launcher": "^2.1.2",
     "karma-mocha": "^2.0.1",
     "karma-typescript": "^5.5.3",
-    "prettier": "^2.6.1"
+    "prettier": "^2.6.2"
   }
 }

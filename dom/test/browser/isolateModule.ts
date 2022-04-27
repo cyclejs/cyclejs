@@ -24,7 +24,13 @@ describe('isolateModule', () => {
       fc.property(makeVtreeArbitrary(), vtree => {
         const tree = new NamespaceTree();
         const patch = init(
-          defaultModules.concat(makeIsolateModule(tree, () => {}))
+          defaultModules.concat(
+            makeIsolateModule(
+              tree,
+              () => {},
+              () => false
+            )
+          )
         );
 
         const elem = makeElement(tree);
@@ -80,7 +86,11 @@ describe('isolateModule', () => {
 
     const patch = init(
       defaultModules.concat(
-        makeIsolateModule(tree, (x, e) => notifications.push([x, e]))
+        makeIsolateModule(
+          tree,
+          (x, e) => notifications.push([x, e]),
+          () => false
+        )
       )
     );
 

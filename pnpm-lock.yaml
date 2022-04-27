@@ -31,27 +31,27 @@ importers:
       '@cycle/callbags': ^4.0.0
       '@cycle/run': workspace:^6.0.0
       '@cycle/utils': workspace:^6.0.0
-      fast-check: ^2.23.2
-      karma: ^6.3.17
+      fast-check: ^2.25.0
+      karma: ^6.3.19
       karma-chrome-launcher: ^3.1.1
       karma-firefox-launcher: ^2.1.2
       karma-mocha: ^2.0.1
       karma-typescript: ^5.5.3
-      prettier: ^2.6.1
-      snabbdom: ^3.4.0
+      prettier: ^2.6.2
+      snabbdom: ^3.5.0
     dependencies:
       '@cycle/callbags': 4.0.0
-      snabbdom: 3.4.0
+      snabbdom: 3.5.0
     devDependencies:
       '@cycle/run': link:../run
       '@cycle/utils': link:../utils
-      fast-check: 2.23.2
-      karma: 6.3.17
+      fast-check: 2.25.0
+      karma: 6.3.19
       karma-chrome-launcher: 3.1.1
       karma-firefox-launcher: 2.1.2
       karma-mocha: 2.0.1
-      karma-typescript: 5.5.3_karma@6.3.17+typescript@4.6.3
-      prettier: 2.6.1
+      karma-typescript: 5.5.3_karma@6.3.19+typescript@4.6.3
+      prettier: 2.6.2
 
   http:
     specifiers:
@@ -2030,7 +2030,7 @@ packages:
     dependencies:
       '@types/cookie': 0.4.1
       '@types/cors': 2.8.12
-      '@types/node': 17.0.23
+      '@types/node': 17.0.25
       accepts: 1.3.8
       base64id: 2.0.0
       cookie: 0.4.2
@@ -2286,8 +2286,8 @@ packages:
       tmp: 0.0.33
     dev: true
 
-  /fast-check/2.23.2:
-    resolution: {integrity: sha512-ECYuSlp6NLpvOj8eScKsqoz1ihtCpSDuEC2ofdGvgsEu1obHYEGqreJ/iPzkJFy73yoU0kCFea7PHUQDNM0VNg==}
+  /fast-check/2.25.0:
+    resolution: {integrity: sha512-wRUT2KD2lAmT75WNIJIHECawoUUMHM0I5jrlLXGtGeqmPL8jl/EldUDjY1VCp6fDY8yflyfUeIOsOBrIbIiArg==}
     engines: {node: '>=8.0.0'}
     dependencies:
       pure-rand: 5.0.1
@@ -2442,7 +2442,7 @@ packages:
     resolution: {integrity: sha512-NbdoVMZso2Lsrn/QwLXOy6rm0ufY2zEOKCDzJR/0kBsb0E6qed0P3iYK+Ath3BfvXEeu4JhEtXLgILx5psUfag==}
     engines: {node: '>=12'}
     dependencies:
-      graceful-fs: 4.2.9
+      graceful-fs: 4.2.10
       jsonfile: 6.1.0
       universalify: 2.0.0
     dev: true
@@ -3373,7 +3373,7 @@ packages:
     dependencies:
       universalify: 2.0.0
     optionalDependencies:
-      graceful-fs: 4.2.9
+      graceful-fs: 4.2.10
     dev: true
 
   /jsonparse/1.3.1:
@@ -3455,6 +3455,61 @@ packages:
       - supports-color
     dev: true
 
+  /karma-typescript/5.5.3_karma@6.3.19+typescript@4.6.3:
+    resolution: {integrity: sha512-l1FHurolXEBIzRa9ExpNtjzysAhsi/vLpTazpwLHWWK86mknvVpqor6pRZ5Nid7jvOPrTBqAq0JRuLgiCdRkFw==}
+    peerDependencies:
+      karma: 1 || 2 || 3 || 4 || 5 || 6
+      typescript: 1 || 2 || 3 || 4
+    dependencies:
+      acorn: 8.7.0
+      acorn-walk: 8.2.0
+      assert: 2.0.0
+      async: 3.2.3
+      browser-resolve: 2.0.0
+      browserify-zlib: 0.2.0
+      buffer: 5.7.1
+      combine-source-map: 0.8.0
+      console-browserify: 1.2.0
+      constants-browserify: 1.0.0
+      convert-source-map: 1.8.0
+      crypto-browserify: 3.12.0
+      diff: 4.0.2
+      domain-browser: 4.22.0
+      events: 3.3.0
+      glob: 7.2.0
+      https-browserify: 1.0.0
+      istanbul-lib-coverage: 3.2.0
+      istanbul-lib-instrument: 4.0.3
+      istanbul-lib-report: 3.0.0
+      istanbul-lib-source-maps: 4.0.1
+      istanbul-reports: 3.1.4
+      json-stringify-safe: 5.0.1
+      karma: 6.3.19
+      lodash: 4.17.21
+      log4js: 6.4.4
+      minimatch: 3.1.2
+      os-browserify: 0.3.0
+      pad: 3.2.0
+      path-browserify: 1.0.1
+      process: 0.11.10
+      punycode: 2.1.1
+      querystring-es3: 0.2.1
+      readable-stream: 3.6.0
+      source-map: 0.7.3
+      stream-browserify: 3.0.0
+      stream-http: 3.2.0
+      string_decoder: 1.3.0
+      timers-browserify: 2.0.12
+      tmp: 0.2.1
+      tty-browserify: 0.0.1
+      typescript: 4.6.3
+      url: 0.11.0
+      util: 0.12.4
+      vm-browserify: 1.1.2
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
   /karma/6.3.17:
     resolution: {integrity: sha512-2TfjHwrRExC8yHoWlPBULyaLwAFmXmxQrcuFImt/JsAsSZu1uOWTZ1ZsWjqQtWpHLiatJOHL5jFjXSJIgCd01g==}
     engines: {node: '>= 10'}
@@ -3469,6 +3524,42 @@ packages:
       dom-serialize: 2.2.1
       glob: 7.2.0
       graceful-fs: 4.2.9
+      http-proxy: 1.18.1
+      isbinaryfile: 4.0.10
+      lodash: 4.17.21
+      log4js: 6.4.4
+      mime: 2.6.0
+      minimatch: 3.1.2
+      mkdirp: 0.5.6
+      qjobs: 1.2.0
+      range-parser: 1.2.1
+      rimraf: 3.0.2
+      socket.io: 4.4.1
+      source-map: 0.6.1
+      tmp: 0.2.1
+      ua-parser-js: 0.7.31
+      yargs: 16.2.0
+    transitivePeerDependencies:
+      - bufferutil
+      - debug
+      - supports-color
+      - utf-8-validate
+    dev: true
+
+  /karma/6.3.19:
+    resolution: {integrity: sha512-NDhWckzES/Y9xMiddyU1RzaKL76/scCsu8Mp0vR0Z3lQRvC3p72+Ab4ppoxs36S9tyPNX5V48yvaV++RNEBPZw==}
+    engines: {node: '>= 10'}
+    hasBin: true
+    dependencies:
+      '@colors/colors': 1.5.0
+      body-parser: 1.19.2
+      braces: 3.0.2
+      chokidar: 3.5.3
+      connect: 3.7.0
+      di: 0.0.1
+      dom-serialize: 2.2.1
+      glob: 7.2.0
+      graceful-fs: 4.2.10
       http-proxy: 1.18.1
       isbinaryfile: 4.0.10
       lodash: 4.17.21
@@ -4359,12 +4450,6 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
-  /prettier/2.6.1:
-    resolution: {integrity: sha512-8UVbTBYGwN37Bs9LERmxCPjdvPxlEowx2urIL6urHzdb3SDq4B/Z6xLFCblrSnE4iKWcS6ziJ3aOYrc1kz/E2A==}
-    engines: {node: '>=10.13.0'}
-    hasBin: true
-    dev: true
-
   /prettier/2.6.2:
     resolution: {integrity: sha512-PkUpF+qoXTqhOeWL9fu7As8LXsIUZ1WYaJiY/a7McAQzxjk82OF0tibkFXVCDImZtWxbvojFjerkiLb0/q8mew==}
     engines: {node: '>=10.13.0'}
@@ -4966,8 +5051,8 @@ packages:
       is-fullwidth-code-point: 4.0.0
     dev: true
 
-  /snabbdom/3.4.0:
-    resolution: {integrity: sha512-Sr5H1l5QxJa0B/68ZtpWi7MuGIzLWS2Up64QqXe/wzvWOjXvM9rL7+C8GhMmDVtJ7dFWypvyWJHR3nmeZN8YIQ==}
+  /snabbdom/3.5.0:
+    resolution: {integrity: sha512-Ff5BKG18KrrPuskHJlA9aujPHqEabItaDl96l7ZZndF4zt5AYSczz7ZjjgQAX5IBd5cd25lw9NfgX21yVUJ+9g==}
     engines: {node: '>=8.3.0'}
     dev: false
 
@@ -5381,7 +5466,7 @@ packages:
       diff: 4.0.2
       make-error: 1.3.6
       typescript: 4.6.3
-      v8-compile-cache-lib: 3.0.1
+      v8-compile-cache-lib: 3.0.0
       yn: 3.1.1
     dev: true
 
@@ -5591,10 +5676,6 @@ packages:
 
   /v8-compile-cache-lib/3.0.0:
     resolution: {integrity: sha512-mpSYqfsFvASnSn5qMiwrr4VKfumbPyONLCOPmsR3A6pTY/r0+tSaVbgPWSAIuzbk3lCTa+FForeTiO+wBQGkjA==}
-    dev: true
-
-  /v8-compile-cache-lib/3.0.1:
-    resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
     dev: true
 
   /validate-npm-package-license/3.0.4:
@@ -5843,7 +5924,7 @@ packages:
       require-directory: 2.1.1
       string-width: 4.2.3
       y18n: 5.0.8
-      yargs-parser: 20.2.4
+      yargs-parser: 20.2.9
     dev: true
 
   /yn/3.1.1:

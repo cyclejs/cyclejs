@@ -21,6 +21,7 @@ import {
   classModule,
   propsModule,
   datasetModule,
+  VNode,
 } from 'snabbdom';
 
 import { EventDelegator } from './eventDelegator';
@@ -42,7 +43,13 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
   constructor(
     private container: string | Element | DocumentFragment,
     private modules: Module[] = defaultModules
-  ) {}
+  ) {
+    if (typeof container !== 'string' && typeof container !== 'object') {
+      throw new Error(
+        'Given container is not a DOM element neither a selector string'
+      );
+    }
+  }
 
   public provideSource(): Producer<DomEvent> {
     return this.subject;
@@ -64,11 +71,18 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
       }
     });
 
-    const handleCommands: Operator<DomCommand, null> = sink => {
+    let ended = false;
+    let patch: (oldVNode: VNode, newVNode: VNode) => VNode;
+    const handleCommands: Operator<DomCommand, VNode> = sink => {
       const elem =
         typeof this.container === 'string'
-          ? document.querySelector(this.container)!
+          ? document.querySelector(this.container)
           : this.container;
+      if (!elem) {
+        throw new Error(
+          `Cannot render into unknown element '${this.container}'`
+        );
+      }
       const vnode0 = toVNode(elem);
       vnode0.data ??= {};
       vnode0.data.namespace = [];
@@ -84,9 +98,10 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
           for (const n of receivers.keys()) {
             this.subject(1, { elements: elems, _cycleId: n });
           }
-        }
+        },
+        () => ended
       );
-      const patch = init(this.modules.concat(isolateModule));
+      patch = init(this.modules.concat(isolateModule));
 
       const delegator = new EventDelegator(
         namespaceTree,
@@ -122,6 +137,9 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
         }),
         sampleAnimationFrame,
         scan((vdom, command) => {
+          if (ended) {
+            return vdom;
+          }
           if ('commandType' in command) {
             // If no rendering is needed in the current frame, but a new element listener
             // was added, run the post method to send the initial elements to the listener
@@ -132,7 +150,7 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
             if (newVdom.elm !== lastElem) {
               lastElem = newVdom.elm;
               namespaceTree.setRootElement(newVdom.elm as Element);
-              rootElement$(1, lastElem as Node);
+              rootElement$(1, lastElem!);
             }
             return newVdom;
           }
@@ -140,11 +158,21 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
       );
     };
 
+    let lastVdom: VNode;
     const dispose = pipe(
       domReady$,
       map(() => handleCommands(sink)),
       flatten,
-      subscribe(() => {})
+      subscribe(
+        vdom => {
+          lastVdom = vdom;
+        },
+        undefined,
+        () => {
+          ended = true;
+          patch(lastVdom, { ...lastVdom, children: [] });
+        }
+      )
     );
     return dispose;
   }

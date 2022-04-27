@@ -6,7 +6,8 @@ import { AddElementsListenerCommand } from './types';
 
 export function makeIsolateModule(
   componentTree: NamespaceTree,
-  notify: (s: Set<ID>, elements: Element[]) => void
+  notify: (s: Set<ID>, elements: Element[]) => void,
+  hasEnded: () => boolean
 ): Module & {
   insertElementListener: (cmd: AddElementsListenerCommand) => void;
 } {
@@ -28,6 +29,9 @@ export function makeIsolateModule(
     },
 
     post: () => {
+      if (hasEnded()) {
+        return;
+      }
       for (const e of newElements.keys()) {
         const receivers = componentTree.checkQueries(e);
         for (const [k, v] of receivers) {
@@ -56,7 +60,10 @@ export function makeIsolateModule(
       if (vnode.data?.namespace) {
         vnode.data.treeNode = oldVNode.data!.treeNode;
       }
-      if (!deepEqual(oldVNode.data, vnode.data)) {
+      if (
+        oldVNode.text !== vnode.text ||
+        !deepEqual(oldVNode.data, vnode.data)
+      ) {
         const receivers = componentTree.checkQueries(vnode.elm as Element);
         for (const [k, v] of receivers) {
           if (v.size > 0) {
@@ -67,6 +74,9 @@ export function makeIsolateModule(
     },
 
     destroy: vnode => {
+      if (hasEnded()) {
+        return;
+      }
       if (vnode.data?.namespace) {
         componentTree.removeNamespaceRoot(vnode.elm as Element);
       }
