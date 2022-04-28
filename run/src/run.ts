@@ -24,7 +24,7 @@ function cuid(): ID {
   return currentId++;
 }
 
-function defaultErrorHandler(err: any): never {
+export function defaultErrorHandler(err: any): never {
   throw err;
 }
 

@@ -1,4 +1,4 @@
-import type { ExpandFn, Main, WithoutChannel } from '@cycle/run';
+import { defaultErrorHandler, Handler, Main, WithoutChannel } from '@cycle/run';
 import {
   pipe,
   merge,
@@ -7,10 +7,9 @@ import {
   scan,
   drop,
   makeAsyncSubject,
-  Producer,
 } from '@cycle/callbags';
 
-import { StateApi, dropRepeats, Reducer } from './api';
+import { StateApi, dropRepeats } from './api';
 
 export function withState<Channel extends string = 'state'>(
   channel: Channel | 'state' = 'state'
@@ -18,7 +17,8 @@ export function withState<Channel extends string = 'state'>(
   main: M,
   errorHandler?: (err: any) => void
 ) => WithoutChannel<M, any, any, Channel> {
-  return ((main: Main, errorHandler: (err: any) => void) => (sources: any) => {
+  return ((main: Main, errorHandler: Handler = defaultErrorHandler) =>
+    (sources: any) => {
       const subject = makeAsyncSubject();
 
       const api = new StateApi(subject, errorHandler);

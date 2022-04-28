@@ -90,7 +90,7 @@ describe('HTTP Driver in Node.js', () => {
         HTTP: of({
           url: 'http://localhost:9999', // no server here
           method: 'GET',
-          id: 0,
+          id: BigInt(0),
         }),
       };
     }
