@@ -1,6 +1,11 @@
 const debug = process.env.DEBUG === '1';
+const watch = process.env.WATCH === '1';
 
-const browsers = debug ? ['Firefox'] : ['ChromeHeadless', 'FirefoxHeadless'];
+const browsers = debug
+  ? ['Firefox']
+  : watch
+  ? ['FirefoxHeadless']
+  : ['ChromeHeadless', 'FirefoxHeadless'];
 
 module.exports = function (config) {
   config.set({
@@ -10,7 +15,7 @@ module.exports = function (config) {
       { pattern: 'src/**/*.ts' },
       {
         pattern:
-          'test/browser/{isolateModule,helpers,isolation,elements,dom-driver}.ts',
+          'test/browser/{isolateModule,helpers,isolation,elements,dom-driver,render}.{ts,tsx}',
       },
     ],
     plugins: [
@@ -22,7 +27,7 @@ module.exports = function (config) {
     hostname: 'localhost',
     exclude: [],
     preprocessors: {
-      '**/*.ts': ['karma-typescript'],
+      '**/*.{ts,tsx}': ['karma-typescript'],
     },
     karmaTypescriptConfig: {
       reports: {
@@ -44,7 +49,7 @@ module.exports = function (config) {
     colors: true,
     autoWatch: true,
     browsers,
-    singleRun: !debug,
+    singleRun: !debug && !watch,
     concurrency: 1,
   });
 };

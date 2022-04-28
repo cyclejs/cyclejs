@@ -1,10 +1,16 @@
 {
   "extends": "../configs/tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react",
+    "jsxFactory": "jsx",
+    "jsxFragmentFactory": "Fragment"
+  },
   "include": [
     "src/**/*",
     "test/browser/isolateModule.ts",
     "test/browser/isolation.ts",
     "test/browser/elements.ts",
-    "test/browser/dom-driver.ts"
+    "test/browser/dom-driver.ts",
+    "test/browser/render.tsx"
   ]
 }

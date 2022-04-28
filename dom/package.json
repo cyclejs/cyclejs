@@ -36,7 +36,7 @@
     "test:browser": "karma start"
   },
   "dependencies": {
-    "@cycle/callbags": "^4.0.0",
+    "@cycle/callbags": "^4.1.0",
     "snabbdom": "^3.5.0"
   },
   "peerDependencies": {

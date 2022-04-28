@@ -6,6 +6,7 @@ import {
   uponStart,
   uponEnd,
   map,
+  remember,
 } from '@cycle/callbags';
 import { IdGenerator, IsolateableApi } from '@cycle/run';
 
@@ -140,7 +141,8 @@ export class DomApi<Selected = Element>
           commandType: 'removeElementsListener',
           id,
         })
-      )
+      ),
+      remember()
     );
   }
 

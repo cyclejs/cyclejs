@@ -28,7 +28,7 @@ importers:
 
   dom:
     specifiers:
-      '@cycle/callbags': ^4.0.0
+      '@cycle/callbags': ^4.1.0
       '@cycle/run': workspace:^6.0.0
       '@cycle/utils': workspace:^6.0.0
       fast-check: ^2.25.0
@@ -40,7 +40,7 @@ importers:
       prettier: ^2.6.2
       snabbdom: ^3.5.0
     dependencies:
-      '@cycle/callbags': 4.0.0
+      '@cycle/callbags': 4.1.0
       snabbdom: 3.5.0
     devDependencies:
       '@cycle/run': link:../run
@@ -383,6 +383,10 @@ packages:
 
   /@cycle/callbags/4.0.0:
     resolution: {integrity: sha512-X8v6TEnBXfcAM4QNCtZN4QfAZW4zourXdC36OqgISyPP9K9LPrMswl7QBn0cyNFH+6RG+gtaJ7T9rA+7vCZD1Q==}
+
+  /@cycle/callbags/4.1.0:
+    resolution: {integrity: sha512-m9npj3KKFn44Z/CsfPsCnhyorGyHxZLEQ0z0RgaHJv+mMqVOJN5FY/JVpTE4XdQeq1r8xRQn3DC2owgMqt0RUQ==}
+    dev: false
 
   /@hapi/hoek/9.2.1:
     resolution: {integrity: sha512-gfta+H8aziZsm8pZa0vj04KO6biEiisppNgA1kbJvFrrWu9Vm7eaUEy76DIxsuTaWvti5fkJVhllWc6ZTE+Mdw==}
@@ -2383,6 +2387,16 @@ packages:
     resolution: {integrity: sha512-WIWGi2L3DyTUvUrwRKgGi9TwxQMUEqPOPQBVi71R96jZXJdFskXEmf54BoZaS1kknGODoIGASGEzBUYdyMCBJg==}
     dev: true
 
+  /follow-redirects/1.14.9:
+    resolution: {integrity: sha512-MQDfihBQYMcyy5dhRDJUHcw7lb2Pv/TuE6xP1vyraLukNDHKbDxDNaOE3NbCAdKQApno+GPRyo1YAp89yCjK4w==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    dev: true
+
   /follow-redirects/1.14.9_debug@4.3.2:
     resolution: {integrity: sha512-MQDfihBQYMcyy5dhRDJUHcw7lb2Pv/TuE6xP1vyraLukNDHKbDxDNaOE3NbCAdKQApno+GPRyo1YAp89yCjK4w==}
     engines: {node: '>=4.0'}
@@ -2778,7 +2792,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.14.9_debug@4.3.2
+      follow-redirects: 1.14.9
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
