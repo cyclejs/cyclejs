@@ -87,8 +87,8 @@ export class DomApi<Selected = Element>
 
   public select(selector: 'document'): DomApi<Document>;
   public select(selector: 'body'): DomApi<HTMLBodyElement>;
-  public select(selector: string): DomApi;
-  public select(selector: string): DomApi {
+  public select(selector: string): DomApi<Selected>;
+  public select(selector: string): DomApi<Selected> {
     return new DomApi(
       this.source,
       this.subject,
