@@ -15,7 +15,7 @@ module.exports = function (config) {
       { pattern: 'src/**/*.ts' },
       {
         pattern:
-          'test/browser/{isolateModule,helpers,isolation,elements,dom-driver,render}.{ts,tsx}',
+          'test/browser/{isolateModule,helpers,isolation,elements,dom-driver,render,select}.{ts,tsx}',
       },
     ],
     plugins: [

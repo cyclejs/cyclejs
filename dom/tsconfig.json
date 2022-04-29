@@ -12,6 +12,7 @@
     "test/browser/isolation.ts",
     "test/browser/elements.ts",
     "test/browser/dom-driver.ts",
+    "test/browser/select.ts",
     "test/browser/render.tsx"
   ]
 }
