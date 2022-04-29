@@ -141,9 +141,12 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
             return vdom;
           }
           if ('commandType' in command) {
-            // If no rendering is needed in the current frame, but a new element listener
-            // was added, run the post method to send the initial elements to the listener
-            isolateModule.post!();
+            // Do not emit elements if only container exists
+            if (vdom.children && vdom.children.length > 0) {
+              // If no rendering is needed in the current frame, but a new element listener
+              // was added, run the post method to send the initial elements to the listener
+              isolateModule.post!();
+            }
             return vdom;
           } else {
             const newVdom = patch(vdom, { ...vnode0, children: [command] });

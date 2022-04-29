@@ -339,7 +339,6 @@ describe('DOM Rendering', function () {
     let dispose: any;
     pipe(
       sources.DOM.select('*').element(),
-      drop(1),
       take(1),
       subscribe(root => {
         const h4Elem = root.querySelector('h4') as HTMLElement;
@@ -436,7 +435,6 @@ describe('DOM Rendering', function () {
     let dispose: any;
     pipe(
       sources.DOM.select('*').element(),
-      drop(1),
       take(1),
       subscribe(root => {
         const divParent = root.querySelector('div.parent') as HTMLElement;
