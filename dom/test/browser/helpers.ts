@@ -42,7 +42,7 @@ export function makeVtreeArbitrary(extraDataArb?: fc.Arbitrary<any>) {
           { freq: 2 }
         ),
         children: fc.oneof(
-          { depthFactor: 0.5, withCrossShrink: true },
+          { depthSize: 'medium', withCrossShrink: true },
           fc.constant([]),
           fc.array(tie('node'), { minLength: 1 })
         ),
