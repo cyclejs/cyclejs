@@ -38,6 +38,7 @@ importers:
       karma-chrome-launcher: ^3.1.1
       karma-firefox-launcher: ^2.1.2
       karma-mocha: ^2.0.1
+      karma-spec-reporter: ^0.0.34
       karma-typescript: ^5.5.3
       mocha: ^9.2.2
       prettier: ^2.6.2
@@ -56,6 +57,7 @@ importers:
       karma-chrome-launcher: 3.1.1
       karma-firefox-launcher: 2.1.2
       karma-mocha: 2.0.1
+      karma-spec-reporter: 0.0.34_karma@6.3.19
       karma-typescript: 5.5.3_karma@6.3.19+typescript@4.6.3
       mocha: 9.2.2
       prettier: 2.6.2
@@ -1376,6 +1378,11 @@ packages:
     resolution: {integrity: sha512-hUewv7oMjCp+wkBv5Rm0v87eJhq4woh5rSR+42YSQJKecCqgIqNkZ6lAlQms/BwHPJA5NKMRlpxPRv0n8HQW6g==}
     dev: true
 
+  /colors/1.4.0:
+    resolution: {integrity: sha512-a+UqTh4kgZg/SlGvfbzDHpgRu7AAQOmmqRHJnxhRZICKFUT91brVhNNt58CMWU9PsBbv3PDCZUHbVxuDiH2mtA==}
+    engines: {node: '>=0.1.90'}
+    dev: true
+
   /combine-source-map/0.8.0:
     resolution: {integrity: sha1-pY0N8ELBhvz4IqjoAV9UUNLXmos=}
     dependencies:
@@ -2395,6 +2402,16 @@ packages:
     resolution: {integrity: sha512-WIWGi2L3DyTUvUrwRKgGi9TwxQMUEqPOPQBVi71R96jZXJdFskXEmf54BoZaS1kknGODoIGASGEzBUYdyMCBJg==}
     dev: true
 
+  /follow-redirects/1.14.9:
+    resolution: {integrity: sha512-MQDfihBQYMcyy5dhRDJUHcw7lb2Pv/TuE6xP1vyraLukNDHKbDxDNaOE3NbCAdKQApno+GPRyo1YAp89yCjK4w==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    dev: true
+
   /follow-redirects/1.14.9_debug@4.3.2:
     resolution: {integrity: sha512-MQDfihBQYMcyy5dhRDJUHcw7lb2Pv/TuE6xP1vyraLukNDHKbDxDNaOE3NbCAdKQApno+GPRyo1YAp89yCjK4w==}
     engines: {node: '>=4.0'}
@@ -2790,7 +2807,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.14.9_debug@4.3.2
+      follow-redirects: 1.14.9
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
@@ -3410,6 +3427,15 @@ packages:
     resolution: {integrity: sha512-Tzd5HBjm8his2OA4bouAsATYEpZrp9vC7z5E5j4C5Of5Rrs1jY67RAwXNcVmd/Bnk1wgvQRou0zGVLey44G4tQ==}
     dependencies:
       minimist: 1.2.6
+    dev: true
+
+  /karma-spec-reporter/0.0.34_karma@6.3.19:
+    resolution: {integrity: sha512-l5H/Nh9q4g2Ysx2CDU2m+NIPyLQpCVbk9c4V02BTZHw3NM6RO1dq3eRpKXCSSdPt4RGfhHk8jDt3XYkGp+5PWg==}
+    peerDependencies:
+      karma: '>=0.9'
+    dependencies:
+      colors: 1.4.0
+      karma: 6.3.19
     dev: true
 
   /karma-typescript/5.5.3_karma@6.3.17+typescript@4.6.3:

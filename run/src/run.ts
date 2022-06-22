@@ -156,14 +156,20 @@ export function setupReusable<M extends MatchingMain<P>, P extends Plugins>(
     };
   }
 
+  let ended = false;
   function dispose() {
-    for (const k of Object.keys(subscriptions)) {
-      subscriptions[k]?.();
-      const driver = Array.isArray(plugins[k])
-        ? (plugins[k] as any)[0]
-        : plugins[k];
-      driver.cleanup?.();
-      driverSources[k]?.(2);
+    if (!ended) {
+      ended = true;
+      queueMicrotask(() => {
+        for (const k of Object.keys(subscriptions)) {
+          subscriptions[k]?.();
+          const driver = Array.isArray(plugins[k])
+            ? (plugins[k] as any)[0]
+            : plugins[k];
+          driver.cleanup?.();
+          driverSources[k]?.(2);
+        }
+      });
     }
   }
 

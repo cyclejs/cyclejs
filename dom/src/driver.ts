@@ -108,6 +108,7 @@ export class DomDriver implements Driver<DomEvent, DomCommand> {
         rootElement$,
         this.subject
       );
+      rootElement$(1, vnode0.elm!);
 
       return pipe(
         sink,

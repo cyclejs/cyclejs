@@ -60,6 +60,7 @@
     "karma-chrome-launcher": "^3.1.1",
     "karma-firefox-launcher": "^2.1.2",
     "karma-mocha": "^2.0.1",
+    "karma-spec-reporter": "^0.0.34",
     "karma-typescript": "^5.5.3",
     "mocha": "^9.2.2",
     "prettier": "^2.6.2",

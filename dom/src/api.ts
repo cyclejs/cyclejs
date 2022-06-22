@@ -98,6 +98,11 @@ export class DomApi<Selected = Element>
     );
   }
 
+  public events<T extends keyof HTMLElementEventMap>(
+    type: T,
+    options?: Options
+  ): Producer<HTMLElementEventMap[T]>;
+  public events(type: string, options?: Options): Producer<Event>;
   public events(type: string, options?: Options): Producer<Event> {
     const id = this.idGenerator();
     return pipe(

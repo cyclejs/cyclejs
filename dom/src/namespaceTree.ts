@@ -85,7 +85,7 @@ export class TreeNode {
   private nodes: Map<ScopeType, Map<ScopeValue, TreeNode>> | undefined;
   private listeners: Map<boolean, Map<string, ID>> | undefined;
   private queries: Map<string, [Set<ID>, Set<Element>]> | undefined;
-  private rootElement: Element | undefined;
+  public rootElement: Element | undefined;
 
   constructor(
     private readonly tree: NamespaceTree,

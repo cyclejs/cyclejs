@@ -10,6 +10,7 @@ import { ID } from '@cycle/run';
 export class EventDelegator {
   private root: Element | DocumentFragment | undefined;
   private rootListeners = new Map<string, Map<boolean, (ev: Event) => void>>();
+  private listenersToAdd: Array<[string, (ev: Event) => void]> = [];
 
   constructor(
     private namespaceTree: NamespaceTree,
@@ -21,7 +22,11 @@ export class EventDelegator {
       subscribe(elem => {
         if (this.root !== elem) {
           this.root = elem;
-          //this.namespaceTree.setRootNode(elem);
+          if (this.listenersToAdd.length > 0) {
+            for (const [type, listener] of this.listenersToAdd) {
+              this.root.addEventListener(type, listener);
+            }
+          }
         }
       })
     );
@@ -31,7 +36,7 @@ export class EventDelegator {
     //TODO: Handle non-bubbling event listeners
 
     const listener = (ev: Event) => {
-      this.onEvent(ev, cmd.options?.capture ?? false);
+      this.onEvent(ev);
     };
 
     let inner = this.rootListeners.get(cmd.type);
@@ -47,7 +52,7 @@ export class EventDelegator {
       if (this.root) {
         this.root.addEventListener(cmd.type, listener);
       } else {
-        //TODO: Add listeners to queue
+        this.listenersToAdd.push([cmd.type, listener]);
       }
     }
 
@@ -58,30 +63,65 @@ export class EventDelegator {
     //TODO: Implement this
   }
 
-  private onEvent(ev: Event, capture: boolean): void {
+  private onEvent(ev: Event): void {
     const tree = this.namespaceTree.getNamespaceRoot(ev.target as Element);
 
-    const traverseNode = (node: TreeNode, elem: Element) => {
-      const listeners = node.getListeners(capture);
+    const traverseNode = (
+      node: TreeNode,
+      elem: Element,
+      capturePhase: boolean
+    ) => {
+      const listeners = node.getListeners(capturePhase);
+      if (!listeners) {
+        if (node.scopeType === 'sibling' && node.parent) {
+          traverseNode(node.parent, elem.parentElement!, capturePhase);
+        } else {
+          return;
+        }
+      }
 
       const traverse = (elem: Element) => {
-        for (const [selector, id] of listeners?.entries() ?? []) {
-          if (elem.matches(selector)) {
-            this.subject(1, patchEvent(ev, id, elem));
-          }
+        if (!capturePhase) {
+          this.doBubbleStep(ev, elem, node.rootElement!, listeners);
         }
 
-        /*if (elem !== node.rootElement) {
-          traverse(elem.parentNode! as Element);
-        } else if (node.scopeType === 'sibling' && node.parent) {
-          traverseNode(node.parent, elem.parentNode! as Element);
-        }*/
+        if (capturePhase && node.scopeType === 'sibling' && node.parent) {
+          traverseNode(node.parent, elem.parentElement!, capturePhase);
+        }
+        if (elem !== node.rootElement) {
+          traverse(elem.parentElement!);
+        }
+        if (!capturePhase && node.scopeType === 'sibling' && node.parent) {
+          traverseNode(node.parent, elem.parentElement!, capturePhase);
+        }
+
+        if (capturePhase) {
+          this.doBubbleStep(ev, elem, node.rootElement!, listeners);
+        }
       };
 
       traverse(elem);
     };
 
-    traverseNode(tree, ev.target as Element);
+    traverseNode(tree, ev.target as Element, true);
+    traverseNode(tree, ev.target as Element, false);
+  }
+
+  private doBubbleStep(
+    ev: Event,
+    elem: Element,
+    rootElem: Element,
+    listeners: Map<string, ID> | undefined
+  ): void {
+    for (const [selector, id] of listeners?.entries() ?? []) {
+      if (selector === '') {
+        if (elem === rootElem) {
+          this.subject(1, patchEvent(ev, id, elem));
+        }
+      } else if (elem.matches(selector)) {
+        this.subject(1, patchEvent(ev, id, elem));
+      }
+    }
   }
 }
 
