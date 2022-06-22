@@ -181,15 +181,15 @@ describe('DOMSource.select()', function () {
     run();
   });
 
-  /*it('should support selecting the document element', function(done) {
-    function app(_sources: {DOM: MainDOMSource}) {
+  it('should support selecting the document element', function (done) {
+    function app(_sources: { DOM: DomApi }) {
       return {
-        DOM: xs.of(div('hello world')),
+        DOM: of(div('hello world')),
       };
     }
 
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver(createRenderTarget()),
+    const { sinks, sources, run } = setup(app, {
+      DOM: makeDomPlugin(createRenderTarget()),
     });
 
     function isDocument(element: any): element is Document {
@@ -197,47 +197,45 @@ describe('DOMSource.select()', function () {
     }
 
     let dispose: any;
-    sources.DOM.select('document')
-      .events('click')
-      .take(1)
-      .addListener({
-        next: (event: Event) => {
-          assert(isDocument(event.target));
-          setTimeout(() => {
-            dispose();
-            done();
-          });
-        },
-      });
+    pipe(
+      sources.DOM.select('document').events('click'),
+      take(1),
+      subscribe(event => {
+        assert(isDocument(event.currentTarget));
+        setTimeout(() => {
+          dispose();
+          done();
+        });
+      })
+    );
     dispose = run();
-    simulant.fire(document, 'click');
+    document.querySelector('div')!.click();
   });
 
-  it('should support selecting the body element', function(done) {
-    function app(_sources: {DOM: MainDOMSource}) {
+  it('should support selecting the body element', function (done) {
+    function app(_sources: { DOM: DomApi }) {
       return {
-        DOM: xs.of(div('hello world')),
+        DOM: of(div('hello world')),
       };
     }
 
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver(createRenderTarget()),
+    const { sinks, sources, run } = setup(app, {
+      DOM: makeDomPlugin(createRenderTarget()),
     });
 
     let dispose: any;
-    sources.DOM.select('body')
-      .events('click')
-      .take(1)
-      .addListener({
-        next: (event: Event) => {
-          assert.equal((event.target as HTMLElement).tagName, 'BODY');
-          setTimeout(() => {
-            dispose();
-            done();
-          });
-        },
-      });
+    pipe(
+      sources.DOM.select('body').events('click'),
+      take(1),
+      subscribe(event => {
+        assert.equal((event.target as HTMLElement).tagName, 'BODY');
+        setTimeout(() => {
+          dispose();
+          done();
+        });
+      })
+    );
     dispose = run();
-    simulant.fire(document.body, 'click');
-  });*/
+    document.body.click();
+  });
 });

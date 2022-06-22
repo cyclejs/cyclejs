@@ -10,6 +10,11 @@ import { ID } from '@cycle/run';
 export class EventDelegator {
   private root: Element | DocumentFragment | undefined;
   private rootListeners = new Map<string, Map<boolean, (ev: Event) => void>>();
+  private documentListeners = new Map<
+    string,
+    Map<boolean, (ev: Event) => void>
+  >();
+  private bodyListeners = new Map<string, Map<boolean, (ev: Event) => void>>();
   private listenersToAdd: Array<[string, (ev: Event) => void]> = [];
 
   constructor(
@@ -35,28 +40,35 @@ export class EventDelegator {
   public addEventListener(cmd: AddEventListenerCommand): void {
     //TODO: Handle non-bubbling event listeners
 
-    const listener = (ev: Event) => {
-      this.onEvent(ev);
-    };
-
-    let inner = this.rootListeners.get(cmd.type);
-    if (!inner) {
-      inner = new Map<boolean, (ev: Event) => void>();
-      this.rootListeners.set(cmd.type, inner);
-    }
     const capture = cmd.options?.capture ?? false;
-    let fn = inner.get(capture);
+    if (cmd.selector === 'document') {
+      const listener = (ev: Event) => {
+        this.subject(1, patchEvent(ev, cmd.id, document));
+      };
+      setDeep(this.documentListeners, cmd.type, capture, listener, () => {
+        document.addEventListener(cmd.type, listener, cmd.options);
+      });
+    } else if (cmd.selector === 'body') {
+      const listener = (ev: Event) => {
+        this.subject(1, patchEvent(ev, cmd.id, document.body));
+      };
+      setDeep(this.bodyListeners, cmd.type, capture, listener, () => {
+        document.body.addEventListener(cmd.type, listener, cmd.options);
+      });
+    } else {
+      const listener = (ev: Event) => {
+        this.onEvent(ev);
+      };
 
-    if (!fn) {
-      inner.set(capture, listener);
-      if (this.root) {
-        this.root.addEventListener(cmd.type, listener);
-      } else {
-        this.listenersToAdd.push([cmd.type, listener]);
-      }
+      this.namespaceTree.insertVirtualListener(cmd);
+      setDeep(this.rootListeners, cmd.type, capture, listener, () => {
+        if (this.root) {
+          this.root.addEventListener(cmd.type, listener);
+        } else {
+          this.listenersToAdd.push([cmd.type, listener]);
+        }
+      });
     }
-
-    this.namespaceTree.insertVirtualListener(cmd);
   }
 
   public removeEventListener(cmd: RemoveEventListenerCommand): void {
@@ -125,7 +137,11 @@ export class EventDelegator {
   }
 }
 
-function patchEvent(event: any, id: ID, currentTarget: Element): DomEvent {
+function patchEvent(
+  event: any,
+  id: ID,
+  currentTarget: Element | Document
+): DomEvent {
   try {
     Object.defineProperty(event, 'currentTarget', {
       value: currentTarget,
@@ -137,4 +153,23 @@ function patchEvent(event: any, id: ID, currentTarget: Element): DomEvent {
   event.ownerTarget = currentTarget;
   event._cycleId = id;
   return event;
+}
+
+function setDeep<T, U, V>(
+  map: Map<T, Map<U, V>>,
+  t: T,
+  u: U,
+  v: V,
+  onNew?: () => void
+): void {
+  let inner = map.get(t);
+  if (!inner) {
+    inner = new Map<U, V>();
+    map.set(t, inner);
+  }
+  let value = inner.get(u);
+  if (!value) {
+    inner.set(u, v);
+    onNew?.();
+  }
 }
