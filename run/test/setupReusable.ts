@@ -197,8 +197,10 @@ describe('setupReusable', () => {
 
     assert.deepStrictEqual(called, ['a']);
     engine.dispose();
-    assert.strictEqual(sinkCompleted, 1);
-    done();
+    setTimeout(() => {
+      assert.strictEqual(sinkCompleted, 1);
+      done();
+    });
   });
 
   it('should unsubscribe masterSinks on disconnect', done => {
@@ -275,8 +277,10 @@ describe('setupReusable', () => {
       assert.deepStrictEqual(called, ['a']);
       assert.strictEqual(sinkCompleted, 0);
       engine.dispose();
-      assert.strictEqual(sinkCompleted, 1);
-      done();
+      setTimeout(() => {
+        assert.strictEqual(sinkCompleted, 1);
+        done();
+      });
     }, 30);
   });
 
