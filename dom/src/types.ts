@@ -1,9 +1,12 @@
 import { ID } from '@cycle/run';
 import { VNode } from 'snabbdom';
 
-export type DomEvent =
-  | (Event & { _cycleId: ID })
-  | { elements: Element[]; _cycleId: ID };
+export type DomEvent = PatchedEvent | { elements: Element[]; _cycleId: ID };
+
+export type PatchedEvent = Event & {
+  _cycleId: ID;
+  propagationStopped: boolean;
+};
 
 export type DomCommand =
   | VNode

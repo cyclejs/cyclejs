@@ -3,6 +3,7 @@ import {
   AddEventListenerCommand,
   RemoveEventListenerCommand,
   DomEvent,
+  PatchedEvent,
 } from './types';
 import { NamespaceTree, TreeNode } from './namespaceTree';
 import { ID } from '@cycle/run';
@@ -75,7 +76,8 @@ export class EventDelegator {
     //TODO: Implement this
   }
 
-  private onEvent(ev: Event): void {
+  private onEvent(e: Event): void {
+    const ev = patchStopPropagation(e);
     const tree = this.namespaceTree.getNamespaceRoot(ev.target as Element);
 
     const traverseNode = (
@@ -83,6 +85,9 @@ export class EventDelegator {
       elem: Element,
       capturePhase: boolean
     ) => {
+      if (ev.propagationStopped) {
+        return;
+      }
       const listeners = node.getListeners(capturePhase);
       if (!listeners) {
         if (node.scopeType === 'sibling' && node.parent) {
@@ -93,8 +98,14 @@ export class EventDelegator {
       }
 
       const traverse = (elem: Element) => {
+        if (ev.propagationStopped) {
+          return;
+        }
         if (!capturePhase) {
           this.doBubbleStep(ev, elem, node.rootElement!, listeners);
+          if (ev.propagationStopped) {
+            return;
+          }
         }
 
         if (capturePhase && node.scopeType === 'sibling' && node.parent) {
@@ -135,6 +146,16 @@ export class EventDelegator {
       }
     }
   }
+}
+
+function patchStopPropagation(event: Event): PatchedEvent {
+  const oldFn = event.stopPropagation;
+  (event as any).propagtionStopped = false;
+  event.stopPropagation = function stopPropagation() {
+    oldFn.call(this);
+    (this as any).propagationStopped = true;
+  };
+  return event as any;
 }
 
 function patchEvent(

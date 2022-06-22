@@ -29,6 +29,7 @@ import {
   combine,
   startWith,
   debug,
+  Producer,
 } from '@cycle/callbags';
 import { createRenderTarget, interval } from './helpers';
 
@@ -358,7 +359,7 @@ describe('isolation', function () {
     run();
   });
 
-  /*it('should isolate DOM.select between parent and (wrapper) child', function (done) {
+  it('should isolate DOM.select between parent and (wrapper) child', function (done) {
     function Frame(_sources: { DOM: DomApi; content$: Producer<any> }) {
       const click$ = _sources.DOM.select('.foo').events('click');
       const vdom$ = pipe(
@@ -406,7 +407,7 @@ describe('isolation', function () {
     let dispose: any;
 
     const frameClick$ = pipe(
-      sinks.frameClick,
+      sinks.frameClick!,
       map((ev: any) => ({
         type: ev.type,
         tagName: (ev.target as HTMLElement).tagName,
@@ -414,7 +415,7 @@ describe('isolation', function () {
     );
 
     const _monalisaClick$ = pipe(
-      sinks.monalisaClick,
+      sinks.monalisaClick!,
       map((ev: any) => ({
         type: ev.type,
         tagName: (ev.target as HTMLElement).tagName,
@@ -422,7 +423,7 @@ describe('isolation', function () {
     );
 
     const grandparentClick$ = pipe(
-      sinks.click,
+      sinks.click!,
       map((ev: any) => ({
         type: ev.type,
         tagName: (ev.target as HTMLElement).tagName,
@@ -431,7 +432,7 @@ describe('isolation', function () {
 
     // Stop the propagtion of the second click
     pipe(
-      sinks.monalisaClick,
+      sinks.monalisaClick!,
       drop(1),
       take(1),
       subscribe((ev: Event) => ev.stopPropagation())
@@ -506,7 +507,7 @@ describe('isolation', function () {
       })
     );
     dispose = run();
-  });*/
+  });
 
   it('should allow a child component to DOM.select() its own root', function (done) {
     function app(_sources: { DOM: DomApi }) {
