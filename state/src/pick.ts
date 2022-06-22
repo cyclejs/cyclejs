@@ -1,7 +1,8 @@
-import { Sinks } from '@cycle/run';
 import { Operator, Producer, END } from '@cycle/callbags';
 
 export const noop = Symbol('pickNoop');
+
+export type Sinks = Record<string, Producer<any>>;
 
 export function pickMerge<U>(channel: string): Operator<Sinks[], U> {
   return pick(channel, arg => arg);

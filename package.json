@@ -2,16 +2,16 @@
   "private": true,
   "license": "MIT",
   "devDependencies": {
-    "@release-it/conventional-changelog": "^2.0.1",
-    "commithelper": "^1.1.1",
-    "conventional-changelog-angular": "^5.0.12",
-    "husky": "^6.0.0",
-    "lint-staged": "^10.5.4",
-    "prettier": "^2.2.1",
-    "release-it": "^14.6.1",
-    "rollup": "^2.45.2",
+    "@release-it/conventional-changelog": "^5.0.0",
+    "commithelper": "^1.2.0",
+    "conventional-changelog-angular": "^5.0.13",
+    "husky": "^8.0.1",
+    "lint-staged": "^13.0.2",
+    "prettier": "^2.7.1",
+    "release-it": "^15.1.0",
+    "rollup": "^2.75.7",
     "rollup-plugin-sourcemaps": "^0.6.3",
-    "typescript": "^4.2.4"
+    "typescript": "^4.7.4"
   },
   "scripts": {
     "prepare": "husky install configs"
@@ -22,6 +22,7 @@
   "commithelper": {
     "scopes": [
       "http",
+      "dom",
       "isolate",
       "run",
       "state",
@@ -55,6 +56,5 @@
         "examples"
       ]
     }
-  },
-  "prettier": "./configs/.prettierrc.json"
+  }
 }

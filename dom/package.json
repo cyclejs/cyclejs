@@ -1,11 +1,11 @@
 {
-  "name": "@cycle/state",
-  "version": "2.0.0",
-  "description": "Wraps your Cycle.js main function with reducer-driven state management",
+  "name": "@cycle/dom",
+  "version": "22.8.0",
+  "description": "The standard DOM Driver for Cycle.js, based on Snabbdom",
   "license": "MIT",
   "homepage": "https://cycle.js.org",
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
-  "repository": "https://github.com/cyclejs/cyclejs/tree/master/state",
+  "repository": "https://github.com/cyclejs/cyclejs/tree/master/dom",
   "contributors": [
     {
       "name": "Andre Staltz",
@@ -28,25 +28,24 @@
   "main": "build/bundle.cjs.js",
   "module": "build/index.js",
   "types": "build/index.d.ts",
+  "scripts": {
+    "build": "rm -rf build ; tsc --build tsconfig.build.json && pnpm run build:cjs",
+    "build:cjs": "BUNDLE_FORMAT=cjs rollup -c ../configs/rollup.config.ts",
+    "test": "pnpm run test:node && pnpm run test:browser",
+    "test:ci": "pnpm run test",
+    "test:browser": "karma start",
+    "test:node": "mocha --require ts-node/register test/node/mockDomPlugin.ts"
+  },
   "dependencies": {
-    "@cycle/callbags": "^4.1.0"
+    "@cycle/callbags": "^4.1.0",
+    "snabbdom": "^3.5.1"
   },
   "peerDependencies": {
-    "@cycle/run": "^6.0.0",
-    "@cycle/utils": "workspace:^6.0.0"
+    "@cycle/run": "^6.0.0"
   },
   "funding": {
     "type": "opencollective",
     "url": "https://opencollective.com/cyclejs"
-  },
-  "scripts": {
-    "build": "rm -rf build; tsc --build tsconfig.build.json && pnpm run build:cjs",
-    "build:cjs": "BUNDLE_FORMAT=cjs rollup -c ../configs/rollup.config.ts",
-    "test": "nyc --reporter text --reporter html pnpm run test:no_cover",
-    "test:ci": "nyc --reporter text --reporter json pnpm run test:no_cover",
-    "test:no_cover": "mocha --require ts-node/register test/*.ts",
-    "format": "prettier --write './{src,test}/**/*'",
-    "release": "release-it --config ../configs/release-it.js"
   },
   "publishConfig": {
     "access": "public"
@@ -56,8 +55,15 @@
     "@cycle/utils": "workspace:^6.0.0",
     "@types/mocha": "^9.1.1",
     "@types/node": "^18.0.0",
+    "fast-check": "^3.0.0",
+    "karma": "^6.4.0",
+    "karma-chrome-launcher": "^3.1.1",
+    "karma-firefox-launcher": "^2.1.2",
+    "karma-mocha": "^2.0.1",
+    "karma-spec-reporter": "^0.0.34",
+    "karma-typescript": "^5.5.3",
     "mocha": "^10.0.0",
-    "nyc": "^15.1.0",
+    "prettier": "^2.7.1",
     "ts-node": "^10.8.1"
   }
 }

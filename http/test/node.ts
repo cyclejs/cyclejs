@@ -59,20 +59,22 @@ describe('HTTP Driver in Node.js', () => {
           }
         )
       );
+
+      return {};
     }
 
     const plugins = {
       HTTP: makeHttpPlugin(request),
     };
 
-    run(main, plugins, []);
+    run(main, plugins);
   });
 
   it('should handle errors when sending request via sinks to non-existent server', done => {
     function main(sources: { HTTP: HttpApi }) {
       pipe(
         sources.HTTP.response$$,
-        filter(res$ => res$.request.id === 0),
+        filter(res$ => res$.request.id === BigInt(0)),
         flatten,
         subscribe(
           () => done('should not deliver data'),
@@ -88,7 +90,7 @@ describe('HTTP Driver in Node.js', () => {
         HTTP: of({
           url: 'http://localhost:9999', // no server here
           method: 'GET',
-          id: 0,
+          id: BigInt(0),
         }),
       };
     }

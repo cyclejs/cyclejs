@@ -1,35 +1,43 @@
-import type { MasterWrapper } from '@cycle/run';
+import { defaultErrorHandler, Handler, Main, WithoutChannel } from '@cycle/run';
 import {
   pipe,
   merge,
   subscribe,
   never,
   scan,
-  skip,
+  drop,
   makeAsyncSubject,
 } from '@cycle/callbags';
 
 import { StateApi, dropRepeats } from './api';
 
-export function withState(channel = 'state'): MasterWrapper {
-  return (main, errorHandler) => sources => {
-    const subject = makeAsyncSubject();
+export function withState<Channel extends string = 'state'>(
+  channel: Channel | 'state' = 'state'
+): <M extends Main>(
+  main: M,
+  errorHandler?: (err: any) => void
+) => WithoutChannel<M, any, any, Channel> {
+  return ((main: Main, errorHandler: Handler = defaultErrorHandler) =>
+    (sources: any) => {
+      const subject = makeAsyncSubject();
 
-    const api = new StateApi(subject, errorHandler);
+      const api = new StateApi(subject, errorHandler);
 
-    const sinks = main({ ...sources, [channel]: api });
+      const sinks = main({ ...sources, [channel]: api });
 
-    if (sinks[channel]) {
-      pipe(
-        merge(sinks[channel], never()),
-        scan((state, reducer: any) => reducer(state), undefined),
-        skip(1),
-        dropRepeats(),
-        subscribe(
-          x => subject(1, x),
-          e => subject(2, e)
-        )
-      );
-    }
-  };
+      if (sinks[channel]) {
+        pipe(
+          merge(sinks[channel], never()),
+          scan((state, reducer: any) => reducer(state), undefined),
+          drop(1),
+          dropRepeats(),
+          subscribe(
+            x => subject(1, x),
+            e => subject(2, e)
+          )
+        );
+      }
+
+      return sinks;
+    }) as any;
 }

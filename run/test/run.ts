@@ -60,7 +60,7 @@ describe('run', function () {
       };
     }
 
-    class TestDriver implements ReadonlyDriver<string> {
+    class TestDriver implements Driver<string, string> {
       provideSource() {
         return pipe(
           of('b'),
@@ -72,11 +72,11 @@ describe('run', function () {
       }
     }
 
-    const plugins: Plugins = {
-      other: [new TestDriver(), null],
+    const plugins = {
+      other: new TestDriver(),
     };
 
-    const dispose = run(app, plugins, []);
+    const dispose = run(app, plugins);
     assert.strictEqual(typeof dispose, 'function');
     assert.strictEqual(numData, 1);
     dispose();
@@ -116,10 +116,10 @@ describe('run', function () {
     }
 
     const plugins: Plugins = {
-      foo: [new TestDriver(), null],
+      foo: new TestDriver(),
     };
 
-    run(app, plugins, []);
+    run(app, plugins);
 
     setTimeout(() => {
       assert.strictEqual(expected.length, 0);
@@ -280,19 +280,19 @@ describe('run', function () {
     }
 
     const plugins: Plugins = {
-      HTTP: [new HttpDriver(), null],
-      DOM: [new DomDriver(), null],
+      HTTP: new HttpDriver(),
+      DOM: new DomDriver(),
     };
 
     // HTTP then DOM:
-    const dispose = run(mainHTTPThenDOM, plugins, []);
+    const dispose = run(mainHTTPThenDOM, plugins);
     setTimeout(() => {
       assert.strictEqual(expectedDOMSinks.length, 4);
       assert.strictEqual(requestsSent, 1);
       dispose();
 
       // DOM then HTTP:
-      run(mainDOMThenHTTP, plugins, []);
+      run(mainDOMThenHTTP, plugins);
       setTimeout(() => {
         assert.strictEqual(expectedDOMSinks.length, 0);
         assert.strictEqual(requestsSent, 2);
@@ -343,7 +343,7 @@ describe('run', function () {
     }
 
     const plugins: Plugins = {
-      other: [new TestDriver(), null],
+      other: new TestDriver(),
     };
 
     let numCalled = 0;
@@ -401,11 +401,11 @@ describe('run', function () {
     }
 
     const plugins: Plugins = {
-      other: [new WriteDriver(), null],
-      read: [new ReadDriver(), null],
+      other: new WriteDriver(),
+      read: new ReadDriver(),
     };
 
-    run(app, plugins, []);
+    run(app, plugins);
 
     assert.strictEqual(driverCalled, true);
     done();

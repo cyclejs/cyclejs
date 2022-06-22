@@ -8,10 +8,9 @@ import {
   throwError,
   makeSubject,
 } from '@cycle/callbags';
-import { Sinks } from '@cycle/run';
 import { unsubscribeEarly, delay } from './helpers';
 
-import { pickMerge, pickCombine } from '../src/pick';
+import { pickMerge, pickCombine, Sinks } from '../src/pick';
 
 function mkSinks(data: Record<string, any>): Sinks {
   return Object.keys(data).reduce(

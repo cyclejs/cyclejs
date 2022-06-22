@@ -1,0 +1,14 @@
+{
+  "extends": "../configs/tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react",
+    "jsxFactory": "jsx",
+    "jsxFragmentFactory": "Fragment"
+  },
+  "include": [
+    "src/**/*",
+    "test/node/*",
+    "test/browser/*.ts",
+    "test/browser/render.tsx"
+  ]
+}

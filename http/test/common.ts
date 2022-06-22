@@ -389,12 +389,12 @@ export function runTests(uri: string, request: RequestFn) {
         }
       }
 
-      const plugins: Record<string, Plugin<any, any>> = {
+      const plugins = {
         HTTP: makeHttpPlugin(request),
-        Test: [new TestDriver(), null],
+        Test: new TestDriver(),
       };
 
-      run(main, plugins, []);
+      run(main, plugins);
     });
   });
 
@@ -469,12 +469,10 @@ export function runTests(uri: string, request: RequestFn) {
           ),
           multicast
         );
-        const fooInsideBarHTTPSource = sources.HTTP.isolateSource(
-          'bar'
-        ).isolateSource('foo');
-        const fooInsideFooHTTPSource = sources.HTTP.isolateSource(
-          'foo'
-        ).isolateSource('foo');
+        const fooInsideBarHTTPSource =
+          sources.HTTP.isolateSource('bar').isolateSource('foo');
+        const fooInsideFooHTTPSource =
+          sources.HTTP.isolateSource('foo').isolateSource('foo');
 
         pipe(
           fooInsideFooHTTPSource.response$$,

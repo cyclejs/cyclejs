@@ -37,7 +37,7 @@ describe('setupReusable', () => {
       }
     }
     const { connect, dispose } = setupReusable({
-      other: [new TestDriver(), null],
+      other: new TestDriver(),
     });
     assert.strictEqual(typeof connect, 'function');
     assert.strictEqual(typeof dispose, 'function');
@@ -71,7 +71,7 @@ describe('setupReusable', () => {
       }
     }
 
-    const engine = setupReusable({ other: [new TestDriver(), null] });
+    const engine = setupReusable({ other: new TestDriver() });
     const dispose = engine.connect(app);
     assert.strictEqual(typeof engine.dispose, 'function');
     assert.strictEqual(typeof dispose, 'function');
@@ -138,7 +138,7 @@ describe('setupReusable', () => {
       }
     }
 
-    const engine = setupReusable({ other: [new TestDriver(), null] });
+    const engine = setupReusable({ other: new TestDriver() });
 
     const dispose1 = engine.connect(app1);
     assert.deepStrictEqual(called1, ['a']);
@@ -191,14 +191,16 @@ describe('setupReusable', () => {
       }
     }
 
-    const engine = setupReusable({ other: [new TestDriver(), null] });
+    const engine = setupReusable({ other: new TestDriver() });
 
     engine.connect(app);
 
     assert.deepStrictEqual(called, ['a']);
     engine.dispose();
-    assert.strictEqual(sinkCompleted, 1);
-    done();
+    setTimeout(() => {
+      assert.strictEqual(sinkCompleted, 1);
+      done();
+    });
   });
 
   it('should unsubscribe masterSinks on disconnect', done => {
@@ -266,7 +268,7 @@ describe('setupReusable', () => {
       }
     }
 
-    const engine = setupReusable({ other: [new TestDriver(), null] });
+    const engine = setupReusable({ other: new TestDriver() });
 
     const disconnect = engine.connect(app);
     setTimeout(() => {
@@ -275,8 +277,10 @@ describe('setupReusable', () => {
       assert.deepStrictEqual(called, ['a']);
       assert.strictEqual(sinkCompleted, 0);
       engine.dispose();
-      assert.strictEqual(sinkCompleted, 1);
-      done();
+      setTimeout(() => {
+        assert.strictEqual(sinkCompleted, 1);
+        done();
+      });
     }, 30);
   });
 
@@ -311,10 +315,7 @@ describe('setupReusable', () => {
     }
 
     let caught = false;
-    const engine = setupReusable(
-      { other: [new TestDriver(), null] },
-      errorHandler
-    );
+    const engine = setupReusable({ other: new TestDriver() }, errorHandler);
     try {
       engine.connect(main);
     } catch (e) {

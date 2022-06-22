@@ -1,10 +1,17 @@
-import {isIE10} from './setup';
 import * as assert from 'assert';
-import isolate from '@cycle/isolate';
-import xs, {Stream, MemoryStream} from 'xstream';
-import delay from 'xstream/extra/delay';
-import concat from 'xstream/extra/concat';
-import {setup} from '@cycle/run';
+import {
+  debug,
+  drop,
+  never,
+  of,
+  pipe,
+  startWith,
+  subscribe,
+  take,
+  map,
+} from '@cycle/callbags';
+import { isolate } from '@cycle/utils';
+import { setup } from '@cycle/run';
 import {
   div,
   input,
@@ -14,118 +21,74 @@ import {
   h4,
   form,
   button,
-  makeDOMDriver,
-  DOMSource,
-  MainDOMSource,
+  makeDomPlugin,
+  DomApi,
 } from '../../src/index';
 
-function createRenderTarget(id: string | null = null) {
-  const element = document.createElement('div');
-  element.className = 'cycletest';
-  if (id) {
-    element.id = id;
-  }
-  document.body.appendChild(element);
-  return element;
-}
+import { createRenderTarget, interval } from './helpers';
 
-function testFragmentEvents() {
-  let captures = false;
-  let bubbles = false;
-  const captureEvent = document.createEvent('CustomEvent');
-  const bubbleEvent = document.createEvent('CustomEvent');
-  const fragment = document.createDocumentFragment();
-  const parent = document.createElement('div');
-  const child = document.createElement('div');
-  fragment.appendChild(parent);
-  parent.appendChild(child);
-  parent.addEventListener(
-    'fragmentCapture',
-    () => {
-      captures = true;
-    },
-    true
-  );
-  parent.addEventListener(
-    'fragmentBubble',
-    () => {
-      bubbles = true;
-    },
-    false
-  );
-  captureEvent.initCustomEvent('fragmentCapture', false, true, null);
-  bubbleEvent.initCustomEvent('fragmentBubble', true, true, null);
-  child.dispatchEvent(captureEvent);
-  child.dispatchEvent(bubbleEvent);
-  return {captures, bubbles};
-}
-
-const fragmentSupport = testFragmentEvents();
-
-describe('DOMSource.events()', function() {
-  it('should catch a basic click interaction Observable', function(done) {
-    function app(_sources: {DOM: DOMSource}) {
+describe('DOMSource.events()', function () {
+  it('should catch a basic click interaction Observable', function (done) {
+    function app(_sources: { DOM: DomApi }) {
       return {
-        DOM: xs.of(h3('.myelementclass', 'Foobar')),
+        DOM: of(h3('.myelementclass', 'Foobar')),
       };
     }
 
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver(createRenderTarget()),
+    const { sinks, sources, run } = setup(app, {
+      DOM: makeDomPlugin(createRenderTarget()),
     });
-    let dispose: any;
-    sources.DOM.select('.myelementclass')
-      .events('click')
-      .addListener({
-        next: (ev: Event) => {
-          assert.strictEqual(ev.type, 'click');
-          assert.strictEqual((ev.target as HTMLElement).textContent, 'Foobar');
-          dispose();
-          done();
-        },
-      });
 
-    sources.DOM.select(':root')
-      .element()
-      .drop(1)
-      .take(1)
-      .addListener({
-        next: function(root: Element) {
-          const myElement = root.querySelector(
-            '.myelementclass'
-          ) as HTMLElement;
-          assert.notStrictEqual(myElement, null);
-          assert.notStrictEqual(typeof myElement, 'undefined');
-          assert.strictEqual(myElement.tagName, 'H3');
-          assert.doesNotThrow(function() {
-            setTimeout(() => myElement.click());
-          });
-        },
-      });
+    let dispose: any;
+    pipe(
+      sources.DOM.select('.myelementclass').events('click'),
+      subscribe(ev => {
+        assert.strictEqual(ev.altKey, false); // check type inference
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual((ev.target as HTMLElement).textContent, 'Foobar');
+        dispose();
+        done();
+      })
+    );
+
+    pipe(
+      sources.DOM.element(),
+      take(1),
+      subscribe(root => {
+        const myElement = root.querySelector('.myelementclass') as HTMLElement;
+        assert.notStrictEqual(myElement, null);
+        assert.notStrictEqual(typeof myElement, 'undefined');
+        assert.strictEqual(myElement.tagName, 'H3');
+        assert.doesNotThrow(function () {
+          setTimeout(() => myElement.click());
+        });
+      })
+    );
     dispose = run();
   });
 
-  it('should setup click detection with events() after run() occurs', function(done) {
-    function app(_sources: {DOM: DOMSource}) {
+  it('should setup click detection with events() after run() occurs', function (done) {
+    function app(_sources: { DOM: DomApi }) {
       return {
-        DOM: xs.of(h3('.test2.myelementclass', 'Foobar')),
+        DOM: of(h3('.test2.myelementclass', 'Foobar')),
       };
     }
 
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver(createRenderTarget()),
+    const { sinks, sources, run } = setup(app, {
+      DOM: makeDomPlugin(createRenderTarget()),
     });
+
     const dispose = run();
-    sources.DOM.select('.myelementclass')
-      .events('click')
-      .addListener({
-        next(ev: Event) {
-          assert.strictEqual(ev.type, 'click');
-          assert.strictEqual((ev.target as HTMLElement).textContent, 'Foobar');
-          dispose();
-          done();
-        },
-      });
+
+    pipe(
+      sources.DOM.select('.myelementclass').events('click'),
+      subscribe(ev => {
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual((ev.target as HTMLElement).textContent, 'Foobar');
+        dispose();
+        done();
+      })
+    );
 
     setTimeout(() => {
       const myElement = document.querySelector(
@@ -134,16 +97,16 @@ describe('DOMSource.events()', function() {
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
       assert.strictEqual(myElement.tagName, 'H3');
-      assert.doesNotThrow(function() {
+      assert.doesNotThrow(function () {
         setTimeout(() => myElement.click());
       });
     }, 200);
   });
 
-  it('should setup click detection on a ready DOM element (e.g. from server)', function(done) {
-    function app(_sources: {DOM: DOMSource}) {
+  it('should setup click detection on a ready DOM element (e.g. from server)', function (done) {
+    function app(_sources: { DOM: DomApi }) {
       return {
-        DOM: xs.never(),
+        DOM: never(),
       };
     }
 
@@ -153,20 +116,20 @@ describe('DOMSource.events()', function() {
     headerElement.textContent = 'Foobar';
     containerElement.appendChild(headerElement);
 
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver(containerElement),
+    const { sinks, sources, run } = setup(app, {
+      DOM: makeDomPlugin(containerElement),
     });
+
     const dispose = run();
-    sources.DOM.select('.myelementclass')
-      .events('click')
-      .addListener({
-        next: (ev: Event) => {
-          assert.strictEqual(ev.type, 'click');
-          assert.strictEqual((ev.target as HTMLElement).textContent, 'Foobar');
-          dispose();
-          done();
-        },
-      });
+    pipe(
+      sources.DOM.select('.myelementclass').events('click'),
+      subscribe(ev => {
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual((ev.target as HTMLElement).textContent, 'Foobar');
+        dispose();
+        done();
+      })
+    );
 
     setTimeout(() => {
       const myElement = containerElement.querySelector(
@@ -175,141 +138,130 @@ describe('DOMSource.events()', function() {
       assert.notStrictEqual(myElement, null);
       assert.notStrictEqual(typeof myElement, 'undefined');
       assert.strictEqual(myElement.tagName, 'H3');
-      assert.doesNotThrow(function() {
+      assert.doesNotThrow(function () {
         setTimeout(() => myElement.click());
       });
     }, 200);
   });
 
-  it('should catch events using id of root element in DOM.select', function(done) {
-    function app(_sources: {DOM: DOMSource}) {
+  it('should catch events using id of root element in DOM.select', function (done) {
+    function app(_sources: { DOM: DomApi }) {
       return {
-        DOM: xs.of(h3('.myelementclass', 'Foobar')),
+        DOM: of(h3('.myelementclass', 'Foobar')),
       };
     }
 
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver(createRenderTarget('parent-001')),
+    const { sinks, sources, run } = setup(app, {
+      DOM: makeDomPlugin(createRenderTarget('parent-001')),
     });
 
     let dispose: any;
-    sources.DOM.select('#parent-001')
-      .events('click')
-      .addListener({
-        next: (ev: Event) => {
-          assert.strictEqual(ev.type, 'click');
-          assert.strictEqual((ev.target as HTMLElement).textContent, 'Foobar');
-          dispose();
-          done();
-        },
-      });
-
-    sources.DOM.select(':root')
-      .element()
-      .drop(1)
-      .take(1)
-      .addListener({
-        next: (root: Element) => {
-          const myElement = root.querySelector(
-            '.myelementclass'
-          ) as HTMLElement;
-          assert.notStrictEqual(myElement, null);
-          assert.notStrictEqual(typeof myElement, 'undefined');
-          assert.strictEqual(myElement.tagName, 'H3');
-          assert.doesNotThrow(function() {
-            setTimeout(() => myElement.click());
-          });
-        },
-      });
-    dispose = run();
-  });
-
-  it('should catch events using id of top element in DOM.select', function(done) {
-    function app(_sources: {DOM: DOMSource}) {
-      return {
-        DOM: xs.of(h3('#myElementId', 'Foobar')),
-      };
-    }
-
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver(createRenderTarget('parent-002')),
-    });
-
-    let dispose: any;
-    sources.DOM.select('#myElementId')
-      .events('click')
-      .addListener({
-        next: (ev: Event) => {
-          assert.strictEqual(ev.type, 'click');
-          assert.strictEqual((ev.target as HTMLElement).textContent, 'Foobar');
-          dispose();
-          done();
-        },
-      });
-
-    sources.DOM.select(':root')
-      .element()
-      .drop(1)
-      .take(1)
-      .addListener({
-        next: (root: Element) => {
-          const myElement = root.querySelector('#myElementId') as HTMLElement;
-          assert.notStrictEqual(myElement, null);
-          assert.notStrictEqual(typeof myElement, 'undefined');
-          assert.strictEqual(myElement.tagName, 'H3');
-          assert.doesNotThrow(function() {
-            setTimeout(() => myElement.click());
-          });
-        },
-      });
-    dispose = run();
-  });
-
-  it('should catch interaction events without prior select()', function(done) {
-    function app(_sources: {DOM: DOMSource}) {
-      return {
-        DOM: xs.of(div('.parent', [h3('.myelementclass', 'Foobar')])),
-      };
-    }
-
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver(createRenderTarget()),
-    });
-
-    let dispose: any;
-    sources.DOM.events('click').addListener({
-      next: (ev: Event) => {
+    pipe(
+      sources.DOM.select('#parent-001').events('click'),
+      subscribe(ev => {
         assert.strictEqual(ev.type, 'click');
         assert.strictEqual((ev.target as HTMLElement).textContent, 'Foobar');
         dispose();
         done();
-      },
-    });
+      })
+    );
 
-    sources.DOM.select(':root')
-      .element()
-      .drop(1)
-      .take(1)
-      .addListener({
-        next: (root: Element) => {
-          const myElement = root.querySelector(
-            '.myelementclass'
-          ) as HTMLElement;
-          assert.notStrictEqual(myElement, null);
-          assert.notStrictEqual(typeof myElement, 'undefined');
-          assert.strictEqual(myElement.tagName, 'H3');
-          assert.doesNotThrow(function() {
-            setTimeout(() => myElement.click());
-          });
-        },
-      });
+    pipe(
+      sources.DOM.element(),
+      take(1),
+      subscribe(root => {
+        const myElement = root.querySelector('.myelementclass') as HTMLElement;
+        assert.notStrictEqual(myElement, null);
+        assert.notStrictEqual(typeof myElement, 'undefined');
+        assert.strictEqual(myElement.tagName, 'H3');
+        assert.doesNotThrow(function () {
+          setTimeout(() => myElement.click());
+        });
+      })
+    );
     dispose = run();
   });
 
-  it('should catch user events using DOM.select().select().events()', function(done) {
-    function app(_sources: {DOM: DOMSource}) {
+  it('should catch events using id of top element in DOM.select', function (done) {
+    function app(_sources: { DOM: DomApi }) {
       return {
-        DOM: xs.of(
+        DOM: of(h3('#myElementId', 'Foobar')),
+      };
+    }
+
+    const { sinks, sources, run } = setup(app, {
+      DOM: makeDomPlugin(createRenderTarget('parent-002')),
+    });
+
+    let dispose: any;
+    pipe(
+      sources.DOM.select('#myElementId').events('click'),
+      subscribe(ev => {
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual((ev.target as HTMLElement).textContent, 'Foobar');
+        dispose();
+        done();
+      })
+    );
+
+    pipe(
+      sources.DOM.element(),
+      take(1),
+      subscribe(root => {
+        const myElement = root.querySelector('#myElementId') as HTMLElement;
+        assert.notStrictEqual(myElement, null);
+        assert.notStrictEqual(typeof myElement, 'undefined');
+        assert.strictEqual(myElement.tagName, 'H3');
+        assert.doesNotThrow(function () {
+          setTimeout(() => myElement.click());
+        });
+      })
+    );
+    dispose = run();
+  });
+
+  it('should catch interaction events without prior select()', function (done) {
+    function app(_sources: { DOM: DomApi }) {
+      return {
+        DOM: of(div('.parent', [h3('.myelementclass', 'Foobar')])),
+      };
+    }
+
+    const { sinks, sources, run } = setup(app, {
+      DOM: makeDomPlugin(createRenderTarget()),
+    });
+
+    let dispose: any;
+    pipe(
+      sources.DOM.events('click'),
+      subscribe(ev => {
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual((ev.target as HTMLElement).textContent, 'Foobar');
+        dispose();
+        done();
+      })
+    );
+
+    pipe(
+      sources.DOM.element(),
+      take(1),
+      subscribe(root => {
+        const myElement = root.querySelector('.myelementclass') as HTMLElement;
+        assert.notStrictEqual(myElement, null);
+        assert.notStrictEqual(typeof myElement, 'undefined');
+        assert.strictEqual(myElement.tagName, 'H3');
+        assert.doesNotThrow(function () {
+          setTimeout(() => myElement.click());
+        });
+      })
+    );
+    dispose = run();
+  });
+
+  it('should catch user events using DOM.select().select().events()', function (done) {
+    function app(_sources: { DOM: DomApi }) {
+      return {
+        DOM: of(
           h3('.top-most', [
             h2('.bar', 'Wrong'),
             div('.foo', [h4('.bar', 'Correct')]),
@@ -318,50 +270,46 @@ describe('DOMSource.events()', function() {
       };
     }
 
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver(createRenderTarget()),
+    const { sinks, sources, run } = setup(app, {
+      DOM: makeDomPlugin(createRenderTarget()),
     });
 
     let dispose: any;
-    sources.DOM.select('.foo')
-      .select('.bar')
-      .events('click')
-      .addListener({
-        next: (ev: Event) => {
-          assert.strictEqual(ev.type, 'click');
-          assert.strictEqual((ev.target as HTMLElement).textContent, 'Correct');
-          dispose();
-          done();
-        },
-      });
+    pipe(
+      sources.DOM.select('.foo').select('.bar').events('click'),
+      subscribe(ev => {
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual((ev.target as HTMLElement).textContent, 'Correct');
+        dispose();
+        done();
+      })
+    );
 
-    sources.DOM.select(':root')
-      .element()
-      .drop(1)
-      .take(1)
-      .addListener({
-        next: (root: Element) => {
-          const wrongElement = root.querySelector('.bar') as HTMLElement;
-          const correctElement = root.querySelector('.foo .bar') as HTMLElement;
-          assert.notStrictEqual(wrongElement, null);
-          assert.notStrictEqual(correctElement, null);
-          assert.notStrictEqual(typeof wrongElement, 'undefined');
-          assert.notStrictEqual(typeof correctElement, 'undefined');
-          assert.strictEqual(wrongElement.tagName, 'H2');
-          assert.strictEqual(correctElement.tagName, 'H4');
-          assert.doesNotThrow(function() {
-            setTimeout(() => wrongElement.click());
-            setTimeout(() => correctElement.click(), 15);
-          });
-        },
-      });
+    pipe(
+      sources.DOM.element(),
+      take(1),
+      subscribe(root => {
+        const wrongElement = root.querySelector('.bar') as HTMLElement;
+        const correctElement = root.querySelector('.foo .bar') as HTMLElement;
+        assert.notStrictEqual(wrongElement, null);
+        assert.notStrictEqual(correctElement, null);
+        assert.notStrictEqual(typeof wrongElement, 'undefined');
+        assert.notStrictEqual(typeof correctElement, 'undefined');
+        assert.strictEqual(wrongElement.tagName, 'H2');
+        assert.strictEqual(correctElement.tagName, 'H4');
+        assert.doesNotThrow(function () {
+          setTimeout(() => wrongElement.click());
+          setTimeout(() => correctElement.click(), 15);
+        });
+      })
+    );
     dispose = run();
   });
 
-  it('should catch events from many elements using DOM.select().events()', function(done) {
-    function app(_sources: {DOM: DOMSource}) {
+  it('should catch events from many elements using DOM.select().events()', function (done) {
+    function app(_sources: { DOM: DomApi }) {
       return {
-        DOM: xs.of(
+        DOM: of(
           div('.parent', [
             h4('.clickable.first', 'First'),
             h4('.clickable.second', 'Second'),
@@ -370,270 +318,237 @@ describe('DOMSource.events()', function() {
       };
     }
 
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver(createRenderTarget()),
+    const { sinks, sources, run } = setup(app, {
+      DOM: makeDomPlugin(createRenderTarget()),
     });
 
     let dispose: any;
-    sources.DOM.select('.clickable')
-      .events('click')
-      .take(1)
-      .addListener({
-        next: (ev: Event) => {
-          assert.strictEqual(ev.type, 'click');
-          assert.strictEqual((ev.target as HTMLElement).textContent, 'First');
-        },
-      });
+    pipe(
+      sources.DOM.select('.clickable').events('click'),
+      take(1),
+      subscribe(ev => {
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual((ev.target as HTMLElement).textContent, 'First');
+      })
+    );
 
-    sources.DOM.select('.clickable')
-      .events('click')
-      .drop(1)
-      .take(1)
-      .addListener({
-        next: (ev: Event) => {
-          assert.strictEqual(ev.type, 'click');
-          assert.strictEqual((ev.target as HTMLElement).textContent, 'Second');
-          dispose();
-          done();
-        },
-      });
+    pipe(
+      sources.DOM.select('.clickable').events('click'),
+      drop(1),
+      take(1),
+      subscribe(ev => {
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual((ev.target as HTMLElement).textContent, 'Second');
+        dispose();
+        done();
+      })
+    );
 
-    sources.DOM.select(':root')
-      .element()
-      .drop(1)
-      .take(1)
-      .addListener({
-        next: (root: Element) => {
-          const firstElem = root.querySelector('.first') as HTMLElement;
-          const secondElem = root.querySelector('.second') as HTMLElement;
-          assert.notStrictEqual(firstElem, null);
-          assert.notStrictEqual(typeof firstElem, 'undefined');
-          assert.notStrictEqual(secondElem, null);
-          assert.notStrictEqual(typeof secondElem, 'undefined');
-          assert.doesNotThrow(function() {
-            setTimeout(() => firstElem.click());
-            setTimeout(() => secondElem.click(), 5);
-          });
-        },
-      });
+    pipe(
+      sources.DOM.element(),
+      take(1),
+      subscribe(root => {
+        const firstElem = root.querySelector('.first') as HTMLElement;
+        const secondElem = root.querySelector('.second') as HTMLElement;
+        assert.notStrictEqual(firstElem, null);
+        assert.notStrictEqual(typeof firstElem, 'undefined');
+        assert.notStrictEqual(secondElem, null);
+        assert.notStrictEqual(typeof secondElem, 'undefined');
+        assert.doesNotThrow(function () {
+          setTimeout(() => firstElem.click());
+          setTimeout(() => secondElem.click(), 5);
+        });
+      })
+    );
     dispose = run();
   });
 
-  it('should catch interaction events from future elements', function(done) {
-    function app(_sources: {DOM: DOMSource}) {
+  it('should catch interaction events from future elements', function (done) {
+    const elems = [
+      h2('.blesh', 'Blesh'),
+      h3('.blish', 'Blish'),
+      h4('.blosh', 'Blosh'),
+    ];
+    function app(_sources: { DOM: DomApi }) {
       return {
-        DOM: concat(
-          xs.of(h2('.blesh', 'Blesh')),
-          xs.of(h3('.blish', 'Blish')).compose(delay(150)),
-          xs.of(h4('.blosh', 'Blosh')).compose(delay(150))
+        DOM: pipe(
+          interval(150),
+          startWith(-1),
+          take(3),
+          map(x => elems[x + 1])
         ),
       };
     }
 
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver(createRenderTarget('parent-002')),
+    const { sinks, sources, run } = setup(app, {
+      DOM: makeDomPlugin(createRenderTarget('parent-002')),
     });
 
     let dispose: any;
-    sources.DOM.select('.blosh')
-      .events('click')
-      .addListener({
-        next: (ev: Event) => {
-          assert.strictEqual(ev.type, 'click');
-          assert.strictEqual((ev.target as HTMLElement).textContent, 'Blosh');
-          dispose();
-          done();
-        },
-      });
+    pipe(
+      sources.DOM.select('.blosh').events('click'),
+      subscribe(ev => {
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual((ev.target as HTMLElement).textContent, 'Blosh');
+        dispose();
+        done();
+      })
+    );
 
-    sources.DOM.select(':root')
-      .element()
-      .drop(3)
-      .take(1)
-      .addListener({
-        next: (root: Element) => {
-          const myElement = root.querySelector('.blosh') as HTMLElement;
-          assert.notStrictEqual(myElement, null);
-          assert.notStrictEqual(typeof myElement, 'undefined');
-          assert.strictEqual(myElement.tagName, 'H4');
-          assert.strictEqual(myElement.textContent, 'Blosh');
-          assert.doesNotThrow(function() {
-            setTimeout(() => myElement.click());
-          });
-        },
-      });
+    pipe(
+      sources.DOM.select('*').element(),
+      drop(2),
+      take(1),
+      subscribe(root => {
+        const myElement = root.querySelector('.blosh') as HTMLElement;
+        assert.notStrictEqual(myElement, null);
+        assert.notStrictEqual(typeof myElement, 'undefined');
+        assert.strictEqual(myElement.tagName, 'H4');
+        assert.strictEqual(myElement.textContent, 'Blosh');
+        assert.doesNotThrow(function () {
+          setTimeout(() => myElement.click());
+        });
+      })
+    );
     dispose = run();
   });
 
-  it('should catch bubbling events in a DocumentFragment', function(done) {
-    if (isIE10) {
-      done();
-      return;
-    }
-
-    const {bubbles: thisBrowserBubblesFragmentEvents} = fragmentSupport;
-
-    function app(_sources: {DOM: DOMSource}) {
+  it('should catch bubbling events in a DocumentFragment', function (done) {
+    function app(_sources: { DOM: DomApi }) {
       return {
-        DOM: xs.of(div([div('.clickable', 'Hello')])),
+        DOM: of(div([div('.clickable', 'Hello')])),
       };
     }
 
-    if (!thisBrowserBubblesFragmentEvents) {
-      done();
-    } else {
-      const fragment = document.createDocumentFragment();
-      const renderTarget = fragment.appendChild(document.createElement('div'));
+    const fragment = document.createDocumentFragment();
+    const renderTarget = fragment.appendChild(document.createElement('div'));
 
-      const {sinks, sources, run} = setup(app, {
-        DOM: makeDOMDriver(renderTarget as Element),
-      });
+    const { sinks, sources, run } = setup(app, {
+      DOM: makeDomPlugin(renderTarget as Element),
+    });
 
-      sources.DOM.select('.clickable')
-        .events('click', {useCapture: false})
-        .addListener({
-          next: (ev: Event) => {
-            const elem = ev.target as HTMLElement;
-            assert.strictEqual(ev.type, 'click');
-            assert.strictEqual(elem.tagName, 'DIV');
-            assert.strictEqual(elem.className, 'clickable');
-            assert.strictEqual(elem.textContent, 'Hello');
-            const top = elem.parentElement as Node;
-            const renderTarget2 = top.parentNode as Node;
-            const frag = renderTarget2.parentNode as Node;
-            assert.strictEqual(frag instanceof DocumentFragment, true);
-            done();
-          },
-        });
+    pipe(
+      sources.DOM.select('.clickable').events('click', { capture: false }),
+      subscribe(ev => {
+        const elem = ev.target as HTMLElement;
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual(elem.tagName, 'DIV');
+        assert.strictEqual(elem.className, 'clickable');
+        assert.strictEqual(elem.textContent, 'Hello');
+        const top = elem.parentElement as Node;
+        const renderTarget2 = top.parentNode as Node;
+        const frag = renderTarget2.parentNode as Node;
+        assert.strictEqual(frag instanceof DocumentFragment, true);
+        done();
+      })
+    );
 
-      sources.DOM.select(':root')
-        .element()
-        .drop(1)
-        .take(1)
-        .addListener({
-          next: (root: Element) => {
-            const clickable = root.querySelector('.clickable') as HTMLElement;
-            setTimeout(() => clickable.click(), 80);
-          },
-        });
-      run();
-    }
+    pipe(
+      sources.DOM.element(),
+      take(1),
+      subscribe(root => {
+        const clickable = root.querySelector('.clickable') as HTMLElement;
+        setTimeout(() => clickable.click(), 80);
+      })
+    );
+    run();
   });
 
-  it('should catch non-bubbling events in a DocumentFragment with useCapture', function(done) {
-    if (isIE10) {
-      done();
-      return;
-    }
-
-    const {captures: thisBrowserCapturesFragmentEvents} = fragmentSupport;
-
-    function app(_sources: {DOM: DOMSource}) {
+  it('should catch non-bubbling events in a DocumentFragment with capture', function (done) {
+    function app(_sources: { DOM: DomApi }) {
       return {
-        DOM: xs.of(div([div('.clickable', 'Hello')])),
+        DOM: of(div([div('.clickable', 'Hello')])),
       };
     }
 
-    if (!thisBrowserCapturesFragmentEvents) {
-      done();
-    } else {
-      const fragment = document.createDocumentFragment();
-      const renderTarget = fragment.appendChild(document.createElement('div'));
+    const fragment = document.createDocumentFragment();
+    const renderTarget = fragment.appendChild(document.createElement('div'));
 
-      const {sinks, sources, run} = setup(app, {
-        DOM: makeDOMDriver(renderTarget as Element),
-      });
+    const { sinks, sources, run } = setup(app, {
+      DOM: makeDomPlugin(renderTarget as Element),
+    });
 
-      sources.DOM.select('.clickable')
-        .events('click', {useCapture: true})
-        .addListener({
-          next: (ev: Event) => {
-            const elem = ev.target as HTMLElement;
-            assert.strictEqual(ev.type, 'click');
-            assert.strictEqual(elem.tagName, 'DIV');
-            assert.strictEqual(elem.className, 'clickable');
-            assert.strictEqual(elem.textContent, 'Hello');
-            const top = elem.parentElement as Node;
-            const renderTarget2 = top.parentNode as Node;
-            const frag = renderTarget2.parentNode as Node;
-            assert.strictEqual(frag instanceof DocumentFragment, true);
-            done();
-          },
-        });
+    pipe(
+      sources.DOM.select('.clickable').events('click', { capture: true }),
+      subscribe(ev => {
+        const elem = ev.target as HTMLElement;
+        assert.strictEqual(ev.type, 'click');
+        assert.strictEqual(elem.tagName, 'DIV');
+        assert.strictEqual(elem.className, 'clickable');
+        assert.strictEqual(elem.textContent, 'Hello');
+        const top = elem.parentElement as Node;
+        const renderTarget2 = top.parentNode as Node;
+        const frag = renderTarget2.parentNode as Node;
+        assert.strictEqual(frag instanceof DocumentFragment, true);
+        done();
+      })
+    );
 
-      sources.DOM.select(':root')
-        .element()
-        .drop(1)
-        .take(1)
-        .addListener({
-          next: (root: Element) => {
-            const clickable = root.querySelector('.clickable') as HTMLElement;
-            setTimeout(() => clickable.click(), 80);
-          },
-        });
-      run();
-    }
+    pipe(
+      sources.DOM.element(),
+      take(1),
+      subscribe(root => {
+        const clickable = root.querySelector('.clickable') as HTMLElement;
+        setTimeout(() => clickable.click(), 80);
+      })
+    );
+    run();
   });
 
-  it('should have currentTarget or ownerTarget pointed to the selected parent', function(done) {
-    function app(_sources: {DOM: DOMSource}) {
+  it('should have currentTarget or ownerTarget pointed to the selected parent', function (done) {
+    function app(_sources: { DOM: DomApi }) {
       return {
-        DOM: xs.of(
-          div('.top', [h2('.parent', [span('.child', 'Hello world')])])
-        ),
+        DOM: of(div('.top', [h2('.parent', [span('.child', 'Hello world')])])),
       };
     }
 
-    const {sinks, sources, run} = setup(app, {
-      DOM: makeDOMDriver(createRenderTarget()),
+    const { sinks, sources, run } = setup(app, {
+      DOM: makeDomPlugin(createRenderTarget()),
     });
 
     let dispose: any;
-    sources.DOM.select('.parent')
-      .events('click')
-      .addListener({
-        next: (ev: Event) => {
-          assert.strictEqual(ev.type, 'click');
-          const target = ev.target as HTMLElement;
-          assert.strictEqual(target.tagName, 'SPAN');
-          assert.strictEqual(target.className, 'child');
-          assert.strictEqual(target.textContent, 'Hello world');
-          const currentTarget = ev.currentTarget as HTMLElement;
-          const ownerTarget = (ev as any).ownerTarget as HTMLElement;
-          const currentTargetIsParentH2 =
-            currentTarget.tagName === 'H2' &&
-            currentTarget.className === 'parent';
-          const ownerTargetIsParentH2 =
-            ownerTarget.tagName === 'H2' && ownerTarget.className === 'parent';
-          assert.strictEqual(
-            currentTargetIsParentH2 || ownerTargetIsParentH2,
-            true
-          );
-          dispose();
-          done();
-        },
-      });
+    pipe(
+      sources.DOM.select('.parent').events('click'),
+      subscribe(ev => {
+        assert.strictEqual(ev.type, 'click');
+        const target = ev.target as HTMLElement;
+        assert.strictEqual(target.tagName, 'SPAN');
+        assert.strictEqual(target.className, 'child');
+        assert.strictEqual(target.textContent, 'Hello world');
+        const currentTarget = ev.currentTarget as HTMLElement;
+        const ownerTarget = (ev as any).ownerTarget as HTMLElement;
+        const currentTargetIsParentH2 =
+          currentTarget.tagName === 'H2' &&
+          currentTarget.className === 'parent';
+        const ownerTargetIsParentH2 =
+          ownerTarget.tagName === 'H2' && ownerTarget.className === 'parent';
+        assert.strictEqual(
+          currentTargetIsParentH2 || ownerTargetIsParentH2,
+          true
+        );
+        dispose();
+        done();
+      })
+    );
 
-    sources.DOM.select(':root')
-      .element()
-      .drop(1)
-      .take(1)
-      .addListener({
-        next: (root: Element) => {
-          const child = root.querySelector('.child') as HTMLElement;
-          assert.notStrictEqual(child, null);
-          assert.notStrictEqual(typeof child, 'undefined');
-          assert.strictEqual(child.tagName, 'SPAN');
-          assert.strictEqual(child.className, 'child');
-          assert.doesNotThrow(function() {
-            setTimeout(() => child.click());
-          });
-        },
-      });
+    pipe(
+      sources.DOM.element(),
+      take(1),
+      subscribe(root => {
+        const child = root.querySelector('.child') as HTMLElement;
+        assert.notStrictEqual(child, null);
+        assert.notStrictEqual(typeof child, 'undefined');
+        assert.strictEqual(child.tagName, 'SPAN');
+        assert.strictEqual(child.className, 'child');
+        assert.doesNotThrow(function () {
+          setTimeout(() => child.click());
+        });
+      })
+    );
     dispose = run();
   });
 
-  it('should catch a non-bubbling Form `reset` event', function(done) {
+  /*it('should catch a non-bubbling Form `reset` event', function(done) {
     function app(_sources: {DOM: DOMSource}) {
       return {
         DOM: xs.of(
@@ -1249,5 +1164,5 @@ describe('DOMSource.events()', function() {
         },
       });
     run();
-  });
+  });*/
 });
