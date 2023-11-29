@@ -28,7 +28,8 @@ function makeCallOnHistory(history: History) {
     }
 
     if (input.type === 'replace') {
-      history.replace({...input});
+      const {state, ...to} = input;
+      history.replace({...to}, state);
     }
 
     if (input.type === 'go') {
