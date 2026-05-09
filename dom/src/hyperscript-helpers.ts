@@ -9,7 +9,7 @@ function isSelector(param: any): boolean {
   return isValidString(param) && (param[0] === '.' || param[0] === '#');
 }
 
-function createTagFunction(tagName: string): Function {
+export function createTagFunction(tagName: string): Function {
   return function hyperscript(a: any, b?: any, c?: any): VNode {
     const hasA = typeof a !== 'undefined';
     const hasB = typeof b !== 'undefined';
@@ -206,6 +206,7 @@ const TAG_NAMES = [
   'section',
   'select',
   'small',
+  'slot',
   'source',
   'span',
   'strong',
@@ -339,6 +340,7 @@ export interface SVGHelperFn extends HyperScriptHelperFn {
 }
 
 export interface HyperScriptHelpers {
+  createTagFunction(tagName: string): Function;
   svg: SVGHelperFn;
   a: HyperScriptHelperFn;
   abbr: HyperScriptHelperFn;
@@ -423,6 +425,7 @@ export interface HyperScriptHelpers {
   section: HyperScriptHelperFn;
   select: HyperScriptHelperFn;
   small: HyperScriptHelperFn;
+  slot: HyperScriptHelperFn;
   source: HyperScriptHelperFn;
   span: HyperScriptHelperFn;
   strong: HyperScriptHelperFn;

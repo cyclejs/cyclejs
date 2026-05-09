@@ -173,6 +173,8 @@ export {CycleDOMEvent} from './EventDelegator';
 export {h} from 'snabbdom';
 import hh, {HyperScriptHelperFn, SVGHelperFn} from './hyperscript-helpers';
 
+export const createTagFunction: (tagName: string) => Function =
+  hh.createTagFunction;
 export const svg: SVGHelperFn = hh.svg;
 export const a: HyperScriptHelperFn = hh.a;
 export const abbr: HyperScriptHelperFn = hh.abbr;
@@ -256,6 +258,7 @@ export const script: HyperScriptHelperFn = hh.script;
 export const section: HyperScriptHelperFn = hh.section;
 export const select: HyperScriptHelperFn = hh.select;
 export const small: HyperScriptHelperFn = hh.small;
+export const slot: HyperScriptHelperFn = hh.slot;
 export const source: HyperScriptHelperFn = hh.source;
 export const span: HyperScriptHelperFn = hh.span;
 export const strong: HyperScriptHelperFn = hh.strong;
