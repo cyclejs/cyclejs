@@ -9,7 +9,7 @@ import {
 import {Stream} from 'xstream';
 import {HTTPSource, makeHTTPDriver} from '../../src/rxjs';
 import {Observable, of, merge, Subject} from 'rxjs';
-import {mergeAll, switchMap, map, delay, shareReplay} from 'rxjs/operators';
+import {delay, map, mergeAll, shareReplay, switchMap} from 'rxjs/operators';
 import {setup} from '@cycle/rxjs-run';
 import isolate from '@cycle/isolate';
 
@@ -337,6 +337,52 @@ export function runTests(uri: string) {
           },
         });
       });
+      run();
+    });
+
+    it('should keep the HTTP source alive when an inner response$ error is handled', function(done) {
+      function main(_sources: {HTTP: HTTPSource}) {
+        const request$ = Observable.create((observer: any) => {
+          observer.next({
+            url: uri + '/error',
+            category: 'recover',
+          });
+
+          setTimeout(() => {
+            observer.next({
+              url: uri + '/hello',
+              category: 'recover',
+            });
+          }, 300);
+
+          setTimeout(() => observer.complete(), 600);
+        });
+
+        return {
+          HTTP: request$,
+        };
+      }
+
+      const {sources, run} = setup(main, {HTTP: makeHTTPDriver()});
+      const results: Array<any> = [];
+
+      sources.HTTP.select('recover').subscribe((response$: any) => {
+        response$.subscribe({
+          next: function(response: any) {
+            results.push(response);
+
+            if (results.length === 2) {
+              assert.strictEqual(results[0].error.status, 500);
+              assert.strictEqual(results[1].text, 'Hello World');
+              done();
+            }
+          },
+          error: function(error: any) {
+            results.push({error});
+          },
+        });
+      });
+
       run();
     });
 
