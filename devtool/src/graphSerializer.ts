@@ -353,9 +353,11 @@ const panelMessage$ = xs.create<string>({
 });
 
 let started = false;
+let showedInvalidState = false;
 
 function startGraphSerializer(appSinks: Object | null) {
-  if (started) {
+  const canSerialize = sinksAreXStream(appSinks);
+  if (started || (!canSerialize && showedInvalidState)) {
     return;
   }
   const serializerSources: GraphSerializerSources = {
@@ -379,7 +381,11 @@ function startGraphSerializer(appSinks: Object | null) {
     },
     complete: () => {},
   });
-  started = true;
+  if (canSerialize) {
+    started = true;
+  } else {
+    showedInvalidState = true;
+  }
 }
 
 window['CyclejsDevTool_startGraphSerializer'] = startGraphSerializer;
