@@ -1,5 +1,5 @@
 import xs, {Stream} from 'xstream';
-import {adapt} from '@cycle/run/lib/adapt';
+import {adapt} from '@cycle/run';
 import isolate from '@cycle/isolate';
 import {pickMerge} from './pickMerge';
 import {pickCombine} from './pickCombine';

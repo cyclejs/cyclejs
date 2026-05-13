@@ -10,7 +10,7 @@ import {createMemoryHistory} from 'history';
 import xs, {Stream} from 'xstream';
 import debounce from 'xstream/extra/debounce';
 import {setup} from '@cycle/run';
-import {setAdapt} from '@cycle/run/lib/adapt';
+import {setAdapt} from '@cycle/run';
 
 describe('makeHistoryDriver', () => {
   it('should be a function', () => {

@@ -1,5 +1,5 @@
 import xs, {Stream, MemoryStream} from 'xstream';
-import {adapt} from '@cycle/run/lib/adapt';
+import {adapt} from '@cycle/run';
 import {DevToolEnabledSource} from '@cycle/run';
 import {EventsFnOptions, DOMSource} from './DOMSource';
 import {fromEvent} from './fromEvent';

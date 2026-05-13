@@ -1,5 +1,5 @@
 import xs, {Stream} from 'xstream';
-import {adapt} from '@cycle/run/lib/adapt';
+import {adapt} from '@cycle/run';
 
 const EXPECTED_DELTA = 1000 / 60;
 

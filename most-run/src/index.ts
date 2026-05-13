@@ -1,7 +1,7 @@
 import {Stream} from 'xstream';
 import * as most from 'most';
 import {Stream as MostStream} from 'most';
-import {setAdapt} from '@cycle/run/lib/adapt';
+import {setAdapt} from '@cycle/run';
 import {
   setup as coreSetup,
   DisposeFunction,
@@ -34,7 +34,7 @@ export type MatchingDrivers<D extends Drivers, M extends Main> = Drivers &
       | (() => Sources<D>[k])
       | ((
           si: Stream<WidenStream<ToStream<Sinks<M>[k]>, GetValidInputs<D[k]>>>
-        ) => Sources<D>[k])
+        ) => Sources<D>[k]);
   };
 
 export interface CycleProgram<

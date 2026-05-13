@@ -1,5 +1,5 @@
 import * as most from 'most';
-import {setAdapt} from '@cycle/run/lib/adapt';
+import {setAdapt} from '@cycle/run';
 
 import {mockTimeSource} from '../src/most';
 

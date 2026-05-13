@@ -1,5 +1,5 @@
 import xs, {Stream} from 'xstream';
-import {adapt} from '@cycle/run/lib/adapt';
+import {adapt} from '@cycle/run';
 export type Component<So, Si> = (sources: So, ...rest: Array<any>) => Si;
 
 export type FirstArg<
@@ -136,7 +136,7 @@ function isolateAllSinks<So extends Sources, Si>(
 export type OuterSo<ISo> = {
   [K in keyof ISo]: ISo[K] extends IsolateableSource
     ? FirstArg<IsolateableSource['isolateSource']>
-    : ISo[K]
+    : ISo[K];
 };
 
 export type OuterSi<ISo, ISi> = {
@@ -146,7 +146,7 @@ export type OuterSi<ISo, ISi> = {
         : (ReturnType<ISo[K]['isolateSink']> extends Stream<any>
             ? Stream<unknown>
             : unknown))
-    : ISi[K]
+    : ISi[K];
 } &
   {[K in Exclude<keyof ISi, keyof ISo>]: ISi[K]};
 
