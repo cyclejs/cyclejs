@@ -434,6 +434,24 @@ Executes the schedule. This should be called at the end of your test run. Takes 
 
 If no callback is provided, errors will be raised.
 
+#### `runPromise()`
+Executes the schedule and returns a Promise. This is useful for test frameworks
+that support promise or async/await style tests.
+
+<!-- skip-example -->
+```js
+test('increments the counter', t => {
+  const Time = mockTimeSource();
+
+  const count$ = Time.diagram('--1--2--3--|');
+  const expected$ = Time.diagram('--1--2--3--|');
+
+  Time.assertEqual(count$, expected$);
+
+  return Time.runPromise();
+});
+```
+
 #### `diagram(diagramString, values = {})`
 A constructor that takes a string representing a stream and returns a stream.
 
@@ -547,4 +565,3 @@ Time.run();
 ## License
 
 MIT
-

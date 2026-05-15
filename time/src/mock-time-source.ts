@@ -121,6 +121,18 @@ function mockTimeSource({interval = 20} = {}): any {
       );
     },
 
+    runPromise(timeToRunTo = 0) {
+      return new Promise<void>((resolve, reject) => {
+        timeSource.run((err?: Error) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        }, timeToRunTo);
+      });
+    },
+
     createOperator,
 
     _scheduler: scheduler.add,

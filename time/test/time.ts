@@ -300,6 +300,49 @@ describe('@cycle/time', () => {
             Time.run(done);
           });
 
+          it('supports promise style tests', () => {
+            const Time = mockTimeSource();
+
+            const input = Time.diagram(`---1---2---3---|`);
+            const value = map(input, (i: number) => i * 2);
+            const expected = Time.diagram(`---2---4---6---|`);
+
+            Time.assertEqual(value, expected);
+
+            return Time.runPromise();
+          });
+
+          it('rejects promise style tests when actual differs', () => {
+            const Time = mockTimeSource();
+
+            const input = Time.diagram(`---1---2---3---|`);
+            const value = map(input, (i: number) => i * 2);
+            const expected = Time.diagram(`---2---4---5---|`);
+
+            Time.assertEqual(value, expected);
+
+            return Time.runPromise().then(
+              () => {
+                throw new Error('expected test to fail');
+              },
+              err => {
+                const lines = err.message
+                  .split(/\s+/)
+                  .filter((a: string) => a.length > 0);
+
+                assert(
+                  [
+                    'Expected',
+                    '---2---4---5---|',
+                    'Got',
+                    '---2---4---6---|',
+                  ].every(expectedLine => lines.indexOf(expectedLine) !== -1),
+                  err.message
+                );
+              }
+            );
+          });
+
           it('fails when actual differs from expected', done => {
             const Time = mockTimeSource();
 

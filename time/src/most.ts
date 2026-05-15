@@ -30,7 +30,8 @@ interface MockTimeSource extends TimeSource {
     expected: Stream<any>,
     comparator?: Comparator
   ): void;
-  run(cb?: (err?: Error) => void): void;
+  run(cb?: (err?: Error) => void, timeToRunTo?: number): void;
+  runPromise(timeToRunTo?: number): Promise<void>;
 }
 
 function mockTimeSource(args?: Object): MockTimeSource {
