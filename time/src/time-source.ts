@@ -23,5 +23,7 @@ export interface MockTimeSource extends TimeSource {
     expected: Stream<any>,
     comparator?: Comparator
   ): void;
-  run(cb?: (err?: Error) => void): void;
+  run(): Promise<void>;
+  run(timeToRunTo: number): Promise<void>;
+  run(cb: (err?: Error) => void, timeToRunTo?: number): void;
 }

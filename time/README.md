@@ -249,7 +249,7 @@ We can also use `@cycle/time` to declaratively test time based operators such as
 import {mockTimeSource} from '@cycle/time';
 
 describe('@cycle/time delay', () => {
-  it('is super quick because of virtual time', (done) => {
+  it('is super quick because of virtual time', async () => {
     const Time = mockTimeSource();
 
     const input$    = Time.diagram('-1--------2---|');
@@ -258,7 +258,7 @@ describe('@cycle/time delay', () => {
 
     Time.assertEqual(actual$, expected$);
 
-    Time.run(done);
+    await Time.run();
   });
 });
 ```
@@ -429,10 +429,41 @@ Instead of all delays and debounces running in real time in your tests, causing 
 
 Has some additional methods that are useful for testing:
 
-#### `run(doneCallback = raiseError)`
-Executes the schedule. This should be called at the end of your test run. Takes a callback that takes an error as the first argument if an error occurs, such as an assertion failing.
+#### `run(doneCallback?)`
+Executes the schedule. This should be called at the end of your test run.
 
-If no callback is provided, errors will be raised.
+When a callback is provided, it receives an error as the first argument if an error occurs, such as an assertion failing. This supports callback-based test frameworks:
+
+<!-- skip-example -->
+```js
+it('checks a stream with callbacks', done => {
+  const Time = mockTimeSource();
+
+  Time.assertEqual(
+    Time.diagram('---1---2---3--|'),
+    Time.diagram('---1---2---3--|')
+  );
+
+  Time.run(done);
+});
+```
+
+When no callback is provided, `run()` returns a Promise. This supports promise-based and `async`/`await` test frameworks such as AVA, Mocha, and Jest:
+
+<!-- skip-example -->
+```js
+test('checks a stream with async/await', async t => {
+  const Time = mockTimeSource();
+
+  Time.assertEqual(
+    Time.diagram('---1---2---3--|'),
+    Time.diagram('---1---2---3--|')
+  );
+
+  await Time.run();
+  t.pass();
+});
+```
 
 #### `diagram(diagramString, values = {})`
 A constructor that takes a string representing a stream and returns a stream.

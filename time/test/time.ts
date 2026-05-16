@@ -194,6 +194,36 @@ describe('@cycle/time', () => {
       before(() => setAdapt(library.adapt));
 
       describe('mockTimeSource', () => {
+        it('supports promise-style test completion', () => {
+          const Time = mockTimeSource();
+
+          const actual = Time.diagram(`---1---2---3---|`);
+          const expected = Time.diagram(`---1---2---3---|`);
+
+          Time.assertEqual(actual, expected);
+
+          return Time.run();
+        });
+
+        it('rejects promise-style tests when an assertion fails', () => {
+          const Time = mockTimeSource();
+
+          const actual = Time.diagram(`---1---2---3---|`);
+          const expected = Time.diagram(`---1---2---4---|`);
+
+          Time.assertEqual(actual, expected);
+
+          return Time.run().then(
+            () => {
+              throw new Error('expected test to fail');
+            },
+            err => {
+              assert(err);
+              assert(err.message.indexOf('Expected') !== -1);
+            }
+          );
+        });
+
         describe('.diagram', () => {
           it('creates streams from ascii diagrams', done => {
             const Time = mockTimeSource();

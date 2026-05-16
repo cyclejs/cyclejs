@@ -107,7 +107,21 @@ function mockTimeSource({interval = 20} = {}): any {
       currentTime
     ),
 
-    run(doneCallback = raiseError, timeToRunTo = 0) {
+    run(doneCallback?: any, timeToRunTo = 0) {
+      if (typeof doneCallback === 'number') {
+        timeToRunTo = doneCallback;
+        doneCallback = undefined;
+      }
+
+      if (doneCallback === undefined) {
+        return new Promise((resolve, reject) => {
+          timeSource.run(
+            (err: any) => (err ? reject(err) : resolve()),
+            timeToRunTo
+          );
+        });
+      }
+
       done = doneCallback;
       if (!timeToRunTo) {
         timeToRunTo = maxTime;
