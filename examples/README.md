@@ -20,3 +20,28 @@ Start with the examples under the basic folder in this order:
 
 This will get you introduced to one main concept with each example. Make sure
 to reach for each example's README file for more context.
+
+After that, continue with the examples under the intermediate folder:
+
+1. hello-lastname
+2. bmi-typescript
+3. animation
+4. http-search-github
+5. tsx-seconds-elapsed
+
+These examples introduce typed sources and sinks, component composition,
+animation streams, categorized HTTP responses, and TSX rendering.
+
+Then move on to the advanced folder:
+
+1. animated-letters
+2. autocomplete-search
+3. bmi-nested
+4. custom-driver
+5. isomorphic
+6. many
+7. nested-folders
+8. routing-view
+
+These examples show recursive components, dynamic collections, custom drivers,
+isomorphic rendering, routing, and more involved stream orchestration.
