@@ -25,7 +25,7 @@ const {sources, sinks, run} = setup(main, drivers)
 
 let dispose
 
-sources.DOM.select(':root').elements
+sources.DOM.select(':root').elements()
   .observe(fn)
   .then(() => dispose())
 
