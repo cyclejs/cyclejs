@@ -7,5 +7,6 @@
 - **[Cycle HTML](html.html)**
 - **[Cycle HTTP](http.html)**
 - **[Cycle History](history.html)**
+- **[Cycle Time](time.html)**
 - **[Cycle Isolate](isolate.html)**
 - **[Cycle State](state.html)**

@@ -22,6 +22,7 @@ var outputStr = template({
     {title: 'Cycle HTML', link: 'api/html.html'},
     {title: 'Cycle HTTP', link: 'api/http.html'},
     {title: 'Cycle History', link: 'api/history.html'},
+    {title: 'Cycle Time', link: 'api/time.html'},
     {title: 'Cycle Isolate', link: 'api/isolate.html'},
     {title: 'Cycle State', link: 'api/state.html'},
   ],
