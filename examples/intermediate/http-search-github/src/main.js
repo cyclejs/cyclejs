@@ -1,5 +1,4 @@
 import xs from 'xstream';
-import debounce from 'xstream/extra/debounce';
 import {run} from '@cycle/run';
 import {div, label, input, hr, ul, li, a, makeDOMDriver} from '@cycle/dom';
 import {makeHTTPDriver} from '@cycle/http';

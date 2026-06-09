@@ -1,5 +1,4 @@
 import xs from 'xstream'
-import debounce from 'xstream/extra/debounce'
 import dropUntil from 'xstream/extra/dropUntil'
 import {ul, li, span, input, div, section, label} from '@cycle/dom'
 import Immutable from 'immutable'
@@ -132,7 +131,7 @@ function intent(domSource, timeSource) {
     keepFocusOnInput$:
       xs.merge(inputBlurToItem$, enterPressed$, tabPressed$),
     selectHighlighted$:
-      xs.merge(itemMouseClick$, enterPressed$, tabPressed$).compose(debounce(1)),
+      xs.merge(itemMouseClick$, enterPressed$, tabPressed$).compose(timeSource.debounce(1)),
     wantsSuggestions$:
       xs.merge(inputFocus$.mapTo(true), inputBlur$.mapTo(false)),
     quitAutocomplete$:
