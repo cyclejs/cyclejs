@@ -8,6 +8,7 @@ import {
 } from '../../src/index';
 import {Stream} from 'xstream';
 import {HTTPSource, makeHTTPDriver} from '../../src/rxjs';
+import {optionsToSuperagent} from '../../src/http-driver';
 import {Observable, of, merge, Subject} from 'rxjs';
 import {mergeAll, switchMap, map, delay, shareReplay} from 'rxjs/operators';
 import {setup} from '@cycle/rxjs-run';
@@ -183,6 +184,40 @@ export function runTests(uri: string) {
         });
       });
       run();
+    });
+
+    it('should accept browser File objects in attach [#294]', function() {
+      if (typeof window === 'undefined' || typeof File === 'undefined') {
+        this.skip();
+      }
+
+      const file = new File(['hello world'], 'hello.txt', {
+        type: 'text/plain',
+      });
+      const request = optionsToSuperagent({
+        url: uri + '/pet',
+        method: 'POST',
+        attach: [file],
+      });
+
+      assert.strictEqual(typeof request.end, 'function');
+    });
+
+    it('should accept browser File objects wrapped in attach options [#294]', function() {
+      if (typeof window === 'undefined' || typeof File === 'undefined') {
+        this.skip();
+      }
+
+      const file = new File(['hello world'], 'hello.txt', {
+        type: 'text/plain',
+      });
+      const request = optionsToSuperagent({
+        url: uri + '/pet',
+        method: 'POST',
+        attach: [{name: 'file', file, filename: 'hello.txt'}],
+      });
+
+      assert.strictEqual(typeof request.end, 'function');
     });
 
     it('should have DevTools flag in select() source stream', function(done) {

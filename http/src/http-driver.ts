@@ -19,6 +19,22 @@ function preprocessReqOptions(reqOptions: RequestOptions): RequestOptions {
   return reqOptions;
 }
 
+function isFileAttachment(attachment: any): attachment is File {
+  return (
+    typeof window !== 'undefined' &&
+    typeof File !== 'undefined' &&
+    attachment instanceof File
+  );
+}
+
+function isBlobAttachment(attachment: any): attachment is Blob {
+  return (
+    typeof window !== 'undefined' &&
+    typeof Blob !== 'undefined' &&
+    attachment instanceof Blob
+  );
+}
+
 export function optionsToSuperagent(rawReqOptions: RequestOptions) {
   const reqOptions = preprocessReqOptions(rawReqOptions);
   if (typeof reqOptions.url !== `string`) {
@@ -76,7 +92,13 @@ export function optionsToSuperagent(rawReqOptions: RequestOptions) {
   if (reqOptions.attach) {
     for (let i = reqOptions.attach.length - 1; i >= 0; i--) {
       const a = reqOptions.attach[i];
-      request = request.attach(a.name, a.path, a.filename);
+      if (isFileAttachment(a)) {
+        request = request.attach(a.name, a, a.name);
+      } else if (isBlobAttachment(a.file)) {
+        request = request.attach(a.name, a.file, a.filename);
+      } else {
+        request = request.attach(a.name, a.path, a.filename);
+      }
     }
   }
   if (reqOptions.responseType) {
