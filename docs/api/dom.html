@@ -38,6 +38,59 @@ A Cycle.js driver to enable interaction with the DOM. The driver is based on [sn
 npm install @cycle/dom
 ```
 
+## Usage
+
+Use `makeDOMDriver()` to connect a stream of virtual DOM nodes to a real DOM
+element. The driver output is a DOM source, which you can query with
+`select()` and `events()`.
+
+```js
+import xs from 'xstream';
+import {run} from '@cycle/run';
+import {button, div, makeDOMDriver} from '@cycle/dom';
+
+function main(sources) {
+  const count$ = sources.DOM
+    .select('.increment')
+    .events('click')
+    .fold(count => count + 1, 0);
+
+  const vdom$ = count$.map(count =>
+    div([
+      button('.increment', 'Increment'),
+      div('.count', `Count: ${count}`),
+    ])
+  );
+
+  return {
+    DOM: vdom$,
+  };
+}
+
+run(main, {
+  DOM: makeDOMDriver('#app'),
+});
+```
+
+The `DOM` sink may emit any snabbdom `VNode` created with helpers from
+`@cycle/dom`, such as `div()`, `button()`, `input()`, or the generic `h()`
+function. `makeDOMDriver()` accepts either a CSS selector or an `Element` as
+its render target.
+
+When listening to user input, select the element first and then choose the DOM
+event:
+
+```js
+const input$ = sources.DOM
+  .select('.field')
+  .events('input')
+  .map(event => event.target.value);
+```
+
+If you use `document.body` as the render target, make the top-level VNode match
+the target element. For example, emit `body([...children])` when the driver is
+created with `makeDOMDriver(document.body)`.
+
 ## Browser support
 
 These are the browsers we officially test for:
