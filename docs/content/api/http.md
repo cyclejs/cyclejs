@@ -115,20 +115,30 @@ function main(source) {
 
 ## Error handling
 
-You can handle errors using standard xstream or RxJS operators. The response stream is a stream of streams, i.e. each response will be its own stream so usually you want to catch errors for that single response stream:
+You can handle errors using standard xstream or RxJS operators. The response
+stream is a stream of streams, i.e. each response will be its own stream. Catch
+errors inside each response stream before flattening so one failed request does
+not stop later HTTP responses:
 
 ```js
-sources.HTTP
-  .select('hello')
-  .map((response$) =>
-    response$.replaceError(() => xs.of(errorObject))
-  ).flatten()
+sources.HTTP.select('hello')
+  .map(response$ => response$.replaceError(error => xs.of({error})))
+  .flatten()
+  .map(response =>
+    response.error ? showError(response.error) : showResult(response)
+  );
 ```
+
+Placing `replaceError()` after `.flatten()` would recover the already-flattened
+stream, but that flattened stream would still stop listening for future response
+streams. Handle the error on the inner `response$` instead when the app should
+recover and keep sending requests.
+
 For more information, refer to the [xstream documentation for replaceError](https://github.com/staltz/xstream#replaceError) or the [RxJS documention for catch](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/catch.md).
 
 ## More information
 
-For a more advanced usage, check the [Search example](https://github.com/cyclejs/cyclejs/tree/master/examples/http-search-github).
+For a more advanced usage, check the [Search example](https://github.com/cyclejs/cyclejs/tree/master/examples/intermediate/http-search-github).
 
 ## Browser support
 
