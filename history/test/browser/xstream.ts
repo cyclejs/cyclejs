@@ -10,7 +10,7 @@ import {
 import {setup} from '@cycle/run';
 import xs, {Stream} from 'xstream';
 
-import {setAdapt} from '@cycle/run/lib/adapt';
+import {setAdapt} from '@cycle/run';
 
 let dispose = () => {};
 

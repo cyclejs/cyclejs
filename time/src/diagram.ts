@@ -1,4 +1,4 @@
-import {adapt} from '@cycle/run/lib/adapt';
+import {adapt} from '@cycle/run';
 import xs, {Stream} from 'xstream';
 
 function parseIntIfDecimal(str: string): number | string {

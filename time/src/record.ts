@@ -1,5 +1,5 @@
 import xs, {Stream, Listener} from 'xstream';
-import {adapt} from '@cycle/run/lib/adapt';
+import {adapt} from '@cycle/run';
 
 function recordListener(currentTime: () => number, outListener: Listener<any>) {
   let entries: Array<any> = [];

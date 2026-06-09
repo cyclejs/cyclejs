@@ -4,7 +4,7 @@ import 'symbol-observable'; // tslint:disable-line
 import * as assert from 'assert';
 import {of, from, Observable} from 'rxjs';
 import isolate from '../src/index';
-import {setAdapt} from '@cycle/run/lib/adapt';
+import {setAdapt} from '@cycle/run';
 
 setAdapt(from as any);
 

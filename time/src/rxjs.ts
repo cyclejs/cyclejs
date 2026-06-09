@@ -1,6 +1,6 @@
 import {Observable, from} from 'rxjs';
 // tslint:disable-next-line:no-import-side-effect
-import {setAdapt} from '@cycle/run/lib/adapt';
+import {setAdapt} from '@cycle/run';
 
 import {mockTimeSource as mockTimeSourceUntyped} from './mock-time-source';
 import {timeDriver as timeDriverUntyped} from './time-driver';

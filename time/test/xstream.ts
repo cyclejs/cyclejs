@@ -1,5 +1,5 @@
 import {mockTimeSource} from '../src/index';
-import {setAdapt} from '@cycle/run/lib/adapt';
+import {setAdapt} from '@cycle/run';
 import xs from 'xstream';
 
 setAdapt(stream => stream);

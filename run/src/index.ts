@@ -36,6 +36,7 @@ export {
   WidenStream,
   GetValidInputs,
 } from './types';
+export {adapt, setAdapt, AdaptStream} from './adapt';
 
 /**
  * A function that prepares the Cycle application to be executed. Takes a `main`
