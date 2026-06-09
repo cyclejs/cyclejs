@@ -86,7 +86,7 @@ function main(sources) {
 }
 ```
 
-In many frameworks the flow of data is *implicit*: you need to build a mental model of how data moves around in your app. In Cycle.js, the flow of data is clear by reading your code. The dataflow graph can also be viewed in the [Cycle.js DevTool for Chrome](https://github.com/cyclejs/cyclejs/tree/master/devtool), which shows data moving in real-time through the graph:
+In many frameworks the flow of data is *implicit*: you need to build a mental model of how data moves around in your app. In Cycle.js, the flow of data is clear by reading your code. The dataflow graph can also be viewed in the [Cycle.js DevTool for Chrome](devtool.html), which shows data moving in real-time through the graph:
 
 <p>
   <img src="img/devtool.png" style="max-height:inherit">

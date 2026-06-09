@@ -126,7 +126,7 @@ We do that by using `sources.DOM`, mapping `change` events on the checkbox to th
 
 ```diff
  import xs from 'xstream';
- import {run} from '@cycle/run';
+â€‚import {run} from '@cycle/run';
  import {div, input, p, makeDOMDriver} from '@cycle/dom';
 
  function main(sources) {
@@ -229,7 +229,7 @@ function main(sources) {
 However, initially, there won't be any `user$` event, because those only happen when the user clicks. This is the same "conversation initiative" problem we saw in the previous "checkbox" example. So we need to make `user$` start with a `null` user, and in case `vdom$` sees a null user, it renders just the button. Otherwise, if we have real user data, we also display their name, their email, and website.
 
 ```diff
- function main(sources) {
+â€‚function main(sources) {
    // ...
 
    const user$ = sources.HTTP.select('users')
@@ -560,7 +560,7 @@ We need a proper architecture for user interfaces that follows the reactive, fun
 
 <body role='flatdoc' class="no-literate">
 
-  
+
 
   <div class='header'>
     <div class='left'>
@@ -583,35 +583,37 @@ We need a proper architecture for user interfaces that follows the reactive, fun
   <div class='content-root'>
     <div class='menubar'>
       <div class='menu section'>
-        
+
         <ul>
-          
+
           <li><a href="getting-started.html" class="level-1 out-link">Getting started</a></li>
-          
+
           <li><a href="dialogue.html" class="level-1 out-link">Dialogue abstraction</a></li>
-          
+
           <li><a href="streams.html" class="level-1 out-link">Streams</a></li>
-          
+
         </ul>
-        
+
         <div role='flatdoc-menu'></div>
-        
+
         <ul>
-          
+
           <li><a href="model-view-intent.html" class="level-1 out-link">Model-View-Intent</a></li>
-          
+
           <li><a href="components.html" class="level-1 out-link">Components</a></li>
-          
+
           <li><a href="drivers.html" class="level-1 out-link">Drivers</a></li>
-          
+
+          <li><a href="devtool.html" class="level-1 out-link">DevTool</a></li>
+
         </ul>
-        
+
       </div>
     </div>
     <div role='flatdoc-content' class='content'></div>
-    
+
   </div>
-  
+
 
   <script>
     ((window.gitter = {}).chat = {}).options = {

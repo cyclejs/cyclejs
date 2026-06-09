@@ -12,6 +12,7 @@ var chapters = [
   {id: 'model-view-intent', title: 'Model-View-Intent'},
   {id: 'components', title: 'Components'},
   {id: 'drivers', title: 'Drivers'},
+  {id: 'devtool', title: 'DevTool'},
 ]
 
 chapters.forEach(function (chapter, i) {

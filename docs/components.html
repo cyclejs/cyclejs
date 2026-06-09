@@ -86,7 +86,7 @@ Remember that even though we are building a component, we are assuming our label
 The other input to this labeled slider program is the DOM source representing user events:
 
 ```diff
- function main(sources) {
+â€‚function main(sources) {
 +  const domSource = sources.DOM;
    const props$ = sources.props;
    // ...
@@ -143,7 +143,7 @@ function main(sources) {
 You might have noticed that besides the virtual DOM output, we also return the `value$` stream as a sink:
 
 ```diff
-   // ...
+â€‚â€‚â€‚// ...
    const sinks = {
      DOM: vdom$,
 +    value: value$,
@@ -242,7 +242,7 @@ As a result, we get a Cycle.js program where the labeled slider controls the siz
 
 Our labeled sliders were originally built for the BMI example, so we should see how the component we just built can be used in the BMI example.
 
-The naïve approach is to simply call `LabeledSlider()` twice, once with props for weight, and again with props for height:
+The naÃ¯ve approach is to simply call `LabeledSlider()` twice, once with props for weight, and again with props for height:
 
 <a class="jsbin-embed" href="//jsbin.com/lagegax/embed?output">JS Bin on jsbin.com</a>
 
@@ -317,7 +317,7 @@ In order to achieve these properties, we need to modify the sources when they en
 For the DOM source and DOM sink, we can use a unique identifier string as namespace for the virtual DOM element. First, we patch the DOM sink, adding a className to the VNodes it emits.
 
 ```diff
- function main(sources) {
+â€‚function main(sources) {
    // ...
 
    const weightSlider = LabeledSlider(weightSources);
@@ -357,7 +357,7 @@ In the context of the labeled slider component, **`sources.DOM.select()` should 
 We can achieve that by narrowing down the DOM source before it is given to the component, using the same className we patched on the sink, like this:
 
 ```diff
- function main(sources) {
+â€‚function main(sources) {
    // ...
    const weightSources = {
 -    DOM: sources.DOM,
@@ -414,7 +414,7 @@ function main(sources) {
 To avoid repeating code, such as the `.map(vnode => ...)` which patches the VNode, we could extract the functionality into functions: `isolateDOMSink()` and `isolateDOMSource()`.
 
 ```diff
- function main(sources) {
+â€‚function main(sources) {
    // ...
    const weightSources = {
 -    DOM: sources.DOM.select('.weight'), props: weightProps$
@@ -496,7 +496,7 @@ function isolate(Component, scope) {
 This allows us to simplify the `main()` function with two labeled slider components:
 
 ```diff
- function main(sources) {
+â€‚function main(sources) {
    const weightProps$ = xs.of({
      label: 'Weight', unit: 'kg', min: 40, value: 70, max: 150
    });
@@ -566,10 +566,10 @@ This does the same as previously, except the scope parameter is unique and autog
 >
 > Since Cycle.js follows functional programming techniques, usually most of its API is referentially transparent. `isolate()` is an exception, for convenience. If you want referential transparency everwhere, then provide explicit scope parameters. If you want convenience and you know how `isolate()` works, then use implicit scope parameters.
 
-If we compare our last code with the code we initially started out naïvely for `main()` to make the BMI calculator, the only difference is the use of `isolate()` on child components:
+If we compare our last code with the code we initially started out naÃ¯vely for `main()` to make the BMI calculator, the only difference is the use of `isolate()` on child components:
 
 ```diff
- function main(sources) {
+â€‚function main(sources) {
    const weightProps$ = xs.of({
      label: 'Weight', unit: 'kg', min: 40, value: 70, max: 150
    });
@@ -647,7 +647,7 @@ Each driver should define static functions `isolateSource` and `isolateSink`. We
 
 <body role='flatdoc' class="no-literate">
 
-  
+
 
   <div class='header'>
     <div class='left'>
@@ -670,35 +670,37 @@ Each driver should define static functions `isolateSource` and `isolateSink`. We
   <div class='content-root'>
     <div class='menubar'>
       <div class='menu section'>
-        
+
         <ul>
-          
+
           <li><a href="getting-started.html" class="level-1 out-link">Getting started</a></li>
-          
+
           <li><a href="dialogue.html" class="level-1 out-link">Dialogue abstraction</a></li>
-          
+
           <li><a href="streams.html" class="level-1 out-link">Streams</a></li>
-          
+
           <li><a href="basic-examples.html" class="level-1 out-link">Basic examples</a></li>
-          
+
           <li><a href="model-view-intent.html" class="level-1 out-link">Model-View-Intent</a></li>
-          
+
         </ul>
-        
+
         <div role='flatdoc-menu'></div>
-        
+
         <ul>
-          
+
           <li><a href="drivers.html" class="level-1 out-link">Drivers</a></li>
-          
+
+          <li><a href="devtool.html" class="level-1 out-link">DevTool</a></li>
+
         </ul>
-        
+
       </div>
     </div>
     <div role='flatdoc-content' class='content'></div>
-    
+
   </div>
-  
+
 
   <script>
     ((window.gitter = {}).chat = {}).options = {
