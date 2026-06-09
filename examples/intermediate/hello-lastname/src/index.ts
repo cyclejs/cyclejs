@@ -11,20 +11,22 @@ interface Sinks {
 }
 
 function main(sources: Sources): Sinks {
-  const firstName$ = sources.DOM
-    .select('.first')
-    .events('input')
+  const firstName$ = (sources.DOM
+    .select('.first') as any)
+    .events('input') as Stream<Event>;
+  const firstNameValue$ = firstName$
     .map(ev => (ev.target as HTMLInputElement).value)
     .startWith('');
 
-  const lastName$ = sources.DOM
-    .select('.last')
-    .events('input')
+  const lastName$ = (sources.DOM
+    .select('.last') as any)
+    .events('input') as Stream<Event>;
+  const lastNameValue$ = lastName$
     .map(ev => (ev.target as HTMLInputElement).value)
     .map(ln => ln.toUpperCase())
     .startWith('');
 
-  const rawFullName$ = xs.combine(firstName$, lastName$)
+  const rawFullName$ = xs.combine(firstNameValue$, lastNameValue$)
     .remember();
 
   const validName$ = rawFullName$

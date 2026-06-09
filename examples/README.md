@@ -8,6 +8,20 @@ Browse and learn from examples of small Cycle.js apps using Core, DOM Driver, HT
 2.  Type `npm start`
 3.  Open the `index.html` of that example in your browser, with the full path, e.g. `file:///Users/myself/cycle-examples/jsx-seconds-elapsed/index.html`
 
+## Testing examples locally
+
+From the repository root, run `pnpm run test-examples` to build the local
+`@cycle/*` packages and then install/build every runnable example against those
+local packages in a temporary directory. This keeps each example's explicit
+published dependency versions intact while still catching breakage from changes
+in the monorepo packages.
+
+To test a single example, pass its path to the script after `--`, for example:
+
+```sh
+pnpm run test-examples -- examples/advanced/isomorphic
+```
+
 ## Study guide
 
 Start with the examples under the basic folder in this order:

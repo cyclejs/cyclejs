@@ -5,9 +5,10 @@
   "author": "Andre Staltz",
   "license": "MIT",
   "dependencies": {
-    "@cycle/dom": "15.0.0-rc.3",
-    "@cycle/run": "1.0.0-rc.9",
-    "xstream": "10.2",
+    "@cycle/dom": "23.1.0",
+    "@cycle/html": "3.4.0",
+    "@cycle/run": "5.7.0",
+    "xstream": "11.x",
     "babel-cli": "^6.7.5",
     "babel-preset-es2015": "^6.3.13",
     "babel-register": "^6.4.3",
@@ -18,6 +19,8 @@
     "uglifyify": "^3.0.1"
   },
   "scripts": {
+    "prebuild": "node -e \"try { require('fs').mkdirSync('dist') } catch (_) {}\"",
+    "build": "browserify client.js -g babelify --outfile dist/client.js",
     "start": "npm install && babel-node ./server.js"
   }
 }

@@ -33,6 +33,7 @@
     "release": "run() { .scripts/release.sh $1 $2; }; run",
     "lint": "pnpm recursive run lint",
     "test": "pnpm recursive test ",
+    "test-examples": "pnpm run build && node .scripts/test-examples.js",
     "test-ci": "pnpm recursive run test-ci"
   },
   "engines": {

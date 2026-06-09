@@ -28,7 +28,7 @@ type UserData = {
 };
 
 function main(sources: {DOM: DOMSource, HTTP: HTTPSource}) {
-  const getRandomUser$ = sources.DOM.select('.get-random').events('click')
+  const getRandomUser$ = ((sources.DOM.select('.get-random') as any).events('click') as Stream<Event>)
     .map(() => {
       const randomNum = Math.round(Math.random() * 9) + 1;
       return {

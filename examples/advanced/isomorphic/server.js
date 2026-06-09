@@ -3,7 +3,8 @@ import xs from 'xstream';
 import express from 'express';
 import browserify from 'browserify';
 import serialize from 'serialize-javascript';
-import {html, head, title, body, div, script, makeHTMLDriver} from '@cycle/dom';
+import {html, head, title, body, div, script} from '@cycle/dom';
+import {makeHTMLDriver} from '@cycle/html';
 import app from './app';
 
 function wrapVTreeWithHTMLBoilerplate([vtree, context, clientBundle]) {
@@ -41,7 +42,7 @@ const clientBundle$ = (() => {
   const bundle$ = xs.createWithMemory();
   let bundleString = '';
   const bundleStream = browserify()
-    .transform('babelify')
+    .transform({global: true}, 'babelify')
     .transform({global: true}, 'uglifyify')
     .add('./client.js')
     .bundle();
@@ -72,7 +73,6 @@ server.use(function (req, res) {
   run(wrappedAppFn, {
     DOM: makeHTMLDriver(html => res.send(prependHTML5Doctype(html))),
     context: () => context$,
-    PreventDefault: () => {},
   });
 });
 
