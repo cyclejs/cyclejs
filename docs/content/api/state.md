@@ -466,3 +466,209 @@ export interface State {
 See some example code at `examples/advanced` for more details.
 
 # API
+
+## `withState(main, name = 'state')`
+
+Wraps a Cycle.js `main` function with reducer-driven state management.
+
+```js
+import xs from 'xstream';
+import {run} from '@cycle/run';
+import {div} from '@cycle/dom';
+import {withState} from '@cycle/state';
+
+function main(sources) {
+  const count$ = sources.state.stream;
+  const reducer$ = xs.of(function init() {
+    return 0;
+  });
+
+  return {
+    DOM: count$.map(count => div(String(count))),
+    state: reducer$,
+  };
+}
+
+run(withState(main), drivers);
+```
+
+The wrapped component receives all the original sources except the state
+channel. `withState` creates a `StateSource` on that channel, calls your
+component, and feeds the reducer sink back into the accumulated state stream.
+Reducers are functions from previous state to next state:
+
+```js
+const increment$ = click$
+  .mapTo(function increment(previous) {
+    return previous + 1;
+  });
+```
+
+The optional `name` argument changes the source and sink key used for state:
+
+```js
+const wrappedMain = withState(main, 'model');
+```
+
+With that wrapper, your component reads `sources.model.stream` and returns
+`{model: reducer$}`.
+
+## `StateSource`
+
+`StateSource` is the source object supplied by `withState`. It exposes the
+current state over time and supports Cycle.js isolation.
+
+### `stateSource.stream`
+
+A memory stream of state values. Undefined state values are filtered out and
+repeated identical values are dropped.
+
+```js
+function main(sources) {
+  const name$ = sources.state.stream
+    .map(state => state.name);
+
+  // ...
+}
+```
+
+### `stateSource.select(scope)`
+
+Returns another `StateSource` focused on part of the state.
+
+The scope can be a string key, an array index, or a lens with `get` and `set`
+methods:
+
+```js
+const userState = sources.state.select('user');
+const firstTodoState = sources.state.select(0);
+
+const fullNameState = sources.state.select({
+  get: state => ({
+    first: state.firstName,
+    last: state.lastName,
+  }),
+  set: (state, name) => ({
+    ...state,
+    firstName: name.first,
+    lastName: name.last,
+  }),
+});
+```
+
+String and number scopes are the same mechanism used by `@cycle/isolate` when a
+component is isolated under a state key or array index.
+
+## `isolateSource(source, scope)`
+
+Implements source isolation for the state channel. It is equivalent to
+`source.select(scope)`.
+
+```js
+import {isolateSource} from '@cycle/state';
+
+const childStateSource = isolateSource(sources.state, 'child');
+```
+
+Most applications do not need to call this directly because `@cycle/isolate`
+uses it through the `StateSource` instance.
+
+## `isolateSink(reducer$, scope)`
+
+Implements sink isolation for the state channel. It converts reducers for an
+inner state shape into reducers for the outer state shape.
+
+```js
+import {isolateSink} from '@cycle/state';
+
+const childReducer$ = actions$
+  .mapTo(function renameChild(previousChild) {
+    return {...previousChild, name: 'Ada'};
+  });
+
+const parentReducer$ = isolateSink(childReducer$, 'child');
+```
+
+For a string scope, the outer reducer updates that object property. For a
+number scope, it updates that array index. If an inner reducer returns
+`undefined` for an array entry, that entry is removed from the array.
+
+## `makeCollection(options)`
+
+Creates a Cycle.js component that manages a dynamic collection of child
+components from a state stream.
+
+```js
+import {makeCollection} from '@cycle/state';
+
+const TodoList = makeCollection({
+  item: TodoItem,
+  itemKey: todo => todo.id,
+  itemScope: key => key,
+  collectSinks: instances => ({
+    DOM: instances.pickCombine('DOM').map(items => ul(items)),
+    state: instances.pickMerge('state'),
+  }),
+});
+```
+
+The returned component reads the configured state channel, creates one child
+component per state item, reuses existing children by key, and removes children
+when their keys disappear.
+
+### `item`
+
+A Cycle.js component used for every item in the collection. Use either `item`
+or `itemFactory`, but not both.
+
+### `itemFactory`
+
+A function that receives `(itemState, index)` and returns the component to use
+for that item. Use this when different state entries need different child
+component types.
+
+```js
+const List = makeCollection({
+  itemFactory: item => item.kind === 'link' ? LinkItem : TextItem,
+  collectSinks,
+});
+```
+
+### `itemKey`
+
+A function that receives `(itemState, index)` and returns a stable unique key.
+Keys let the collection preserve child instances when array entries are
+inserted, removed, or reordered. If omitted, the current array index is used.
+
+### `itemScope`
+
+A function that receives an item key and returns the isolation scope for that
+child. If it returns a string, that string is used as the general isolation
+scope and Cycle State still supplies the correct state lens. It may also return
+an object of scopes for multiple channels.
+
+```js
+itemScope: key => ({
+  DOM: `.todo-${key}`,
+  state: key,
+})
+```
+
+### `channel`
+
+The state channel name to use. Defaults to `'state'`. Set this when the parent
+component was wrapped with `withState(main, 'model')` or another custom name.
+
+### `collectSinks(instances)`
+
+A required function that combines child sinks into the collection's sinks.
+`instances` exposes two helpers:
+
+- `instances.pickMerge(name)` picks the named sink from each child and merges
+  those streams.
+- `instances.pickCombine(name)` picks the named sink from each child and
+  combines the latest values into an array.
+
+Use `pickMerge('state')` for reducer streams, where each reducer is an event.
+Use `pickCombine('DOM')` for view streams, where the latest child views should
+be rendered together.
