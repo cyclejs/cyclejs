@@ -31,6 +31,7 @@
     "most": "^1.7.3",
     "rxjs": "^6.3.3",
     "superagent": "^3.8.3",
+    "superagent-mock": "^3.7.0",
     "xstream": "*"
   },
   "devDependencies": {

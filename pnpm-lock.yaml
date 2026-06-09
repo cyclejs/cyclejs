@@ -206,6 +206,7 @@ importers:
       most: ^1.7.3
       rxjs: ^6.3.3
       superagent: ^3.8.3
+      superagent-mock: ^3.7.0
       symbol-observable: ^1.2.0
       ts-node: ^7.0.1
       tslint: ^5.11.0
@@ -217,6 +218,7 @@ importers:
       most: 1.7.3
       rxjs: 6.5.2
       superagent: 3.8.3
+      superagent-mock: 3.7.0_superagent@3.8.3
       xstream: 11.11.0
     devDependencies:
       '@cycle/isolate': link:../isolate
@@ -7186,6 +7188,14 @@ packages:
       mime: 1.6.0
       qs: 6.7.0
       readable-stream: 2.3.6
+    dev: false
+
+  /superagent-mock/3.7.0_superagent@3.8.3:
+    resolution: {integrity: sha512-+vWnpMgRw4X0tlN2c4SPbhoVG4RSdYdErJ4AiwCK0r2XqGbHvVNbpZlY0RBfzOy6F5eN5Q1+d1sncmakxnjbiQ==}
+    peerDependencies:
+      superagent: ^3.6.0
+    dependencies:
+      superagent: 3.8.3
     dev: false
 
   /supports-color/0.2.0:

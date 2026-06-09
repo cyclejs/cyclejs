@@ -59,6 +59,15 @@
  * @function makeHTTPDriver
  */
 export {makeHTTPDriver} from './http-driver';
+/**
+ * A factory function to create mocked HTTP drivers for testing purposes.
+ *
+ * Takes an array of superagent-mock configuration objects as argument, and
+ * returns an HTTP driver that can be given to Cycle.js apps in tests.
+ *
+ * @function mockHTTPDriver
+ */
+export {mockHTTPDriver, MockConfig} from './mockHTTPDriver';
 export {
   RequestOptions,
   Attachment,
