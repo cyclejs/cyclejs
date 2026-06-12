@@ -1,5 +1,5 @@
 ///<reference path="../custom-typings.d.ts" />
-import {adapt} from '@cycle/run/lib/adapt';
+import {adapt} from '@cycle/run';
 import xs, {Stream} from 'xstream';
 import {makeScheduler} from './scheduler';
 import {makeDelay} from './delay';

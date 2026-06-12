@@ -5,7 +5,7 @@ import * as assert from 'assert';
 import {Observable, of, from, combineLatest} from 'rxjs';
 import {take, skip, map} from 'rxjs/operators';
 import {setup} from '@cycle/rxjs-run';
-import {setAdapt} from '@cycle/run/lib/adapt';
+import {setAdapt} from '@cycle/run';
 import {
   h3,
   h4,

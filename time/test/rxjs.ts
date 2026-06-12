@@ -1,5 +1,5 @@
 import {Observable, from, of} from 'rxjs';
-import {setAdapt} from '@cycle/run/lib/adapt';
+import {setAdapt} from '@cycle/run';
 
 import {mockTimeSource} from '../src/rxjs';
 

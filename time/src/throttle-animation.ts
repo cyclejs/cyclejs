@@ -1,6 +1,6 @@
 import xs, {Stream} from 'xstream';
 import sampleCombine from 'xstream/extra/sampleCombine';
-import {adapt} from '@cycle/run/lib/adapt';
+import {adapt} from '@cycle/run';
 
 function makeThrottleAnimation(
   timeSource: any,

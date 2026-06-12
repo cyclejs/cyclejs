@@ -8,7 +8,7 @@ import {
   makeHistoryDriver,
 } from '../../src';
 import {setup} from '@cycle/rxjs-run';
-import {setAdapt} from '@cycle/run/lib/adapt';
+import {setAdapt} from '@cycle/run';
 
 import {Observable, from, of, interval, never} from 'rxjs';
 import {map, take, skip} from 'rxjs/operators';

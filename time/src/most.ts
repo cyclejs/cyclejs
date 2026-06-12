@@ -1,6 +1,6 @@
 import * as most from 'most';
 import {Stream} from 'most';
-import {setAdapt} from '@cycle/run/lib/adapt';
+import {setAdapt} from '@cycle/run';
 
 import {mockTimeSource as mockTimeSourceUntyped} from './mock-time-source';
 import {timeDriver as timeDriverUntyped} from './time-driver';

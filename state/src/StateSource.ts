@@ -1,7 +1,7 @@
 import xs, {Stream, MemoryStream} from 'xstream';
 import dropRepeats from 'xstream/extra/dropRepeats';
 import {DevToolEnabledSource} from '@cycle/run';
-import {adapt} from '@cycle/run/lib/adapt';
+import {adapt} from '@cycle/run';
 import {Getter, Setter, Scope, Reducer} from './types';
 
 function updateArrayEntry<T>(

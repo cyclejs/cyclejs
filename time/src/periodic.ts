@@ -1,5 +1,5 @@
 import xs, {Stream, Listener} from 'xstream';
-import {adapt} from '@cycle/run/lib/adapt';
+import {adapt} from '@cycle/run';
 import {OperatorArgs} from './types';
 
 function makePeriodic(createOperator: () => OperatorArgs<any>) {

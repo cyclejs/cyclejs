@@ -17,6 +17,8 @@ import {
   replicateMany,
 } from './internals';
 
+export {adapt, setAdapt, AdaptStream} from './adapt';
+
 export {
   FantasyObserver,
   FantasySubscription,
