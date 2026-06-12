@@ -1,5 +1,5 @@
 import xs, {Stream} from 'xstream';
-import {adapt} from '@cycle/run/lib/adapt';
+import {adapt} from '@cycle/run';
 import {HTTPSource, RequestOptions, RequestInput} from './interfaces';
 
 function arrayEqual(
@@ -46,7 +46,7 @@ export function isolateSink(
       }
       return {
         ...req,
-        _namespace: [scope, ...(req._namespace || [])]
+        _namespace: [scope, ...(req._namespace || [])],
       };
     })
   );

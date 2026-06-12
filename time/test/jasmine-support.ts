@@ -1,5 +1,5 @@
 import {mockTimeSource} from '../src/index';
-import {setAdapt} from '@cycle/run/lib/adapt';
+import {setAdapt} from '@cycle/run';
 
 describe('jasmine support', () => {
   it('calls done.fail upon failure if present', mochaDone => {

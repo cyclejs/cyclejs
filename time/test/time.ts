@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import {mockTimeSource, timeDriver, TimeSource, Operator} from '../src/index';
 import {mockDOMSource} from '@cycle/dom';
 import xs, {Stream} from 'xstream';
-import {setAdapt, adapt} from '@cycle/run/lib/adapt';
+import {setAdapt, adapt} from '@cycle/run';
 import * as rx from 'rxjs';
 const {Observable, from} = rx;
 import * as rxOps from 'rxjs/operators';
