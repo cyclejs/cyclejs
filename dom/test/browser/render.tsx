@@ -296,6 +296,44 @@ describe('DOM Rendering', function() {
     dispose = run();
   });
 
+  it('should reuse an id-less root element without collapsing descendants', function(done) {
+    function app(_sources: {DOM: MainDOMSource}) {
+      return {
+        DOM: xs.of(
+          div([h3('.first', 'First'), div('.nested', [div('.leaf', 'Leaf')])])
+        ),
+      };
+    }
+
+    const rootElem = document.createElement('div');
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(rootElem),
+    });
+
+    let dispose: any;
+    sources.DOM.select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          assert.strictEqual(root, rootElem);
+          assert.strictEqual(root.children.length, 2);
+          assert.strictEqual(root.children[0].tagName, 'H3');
+          assert.strictEqual(root.children[0].textContent, 'First');
+          assert.strictEqual(root.children[1].tagName, 'DIV');
+          assert.strictEqual(root.children[1].children.length, 1);
+          assert.strictEqual(root.children[1].children[0].tagName, 'DIV');
+          assert.strictEqual(root.children[1].children[0].textContent, 'Leaf');
+          setTimeout(() => {
+            dispose();
+            done();
+          });
+        },
+      });
+    dispose = run();
+  });
+
   it('should give elements as a value-over-time', function(done) {
     function app(_sources: {DOM: MainDOMSource}) {
       return {

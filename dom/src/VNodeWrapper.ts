@@ -12,7 +12,7 @@ export class VNodeWrapper {
     if (vnode === null) {
       return this.wrap([]);
     }
-    const {tagName: selTagName, id: selId} = selectorParser(vnode);
+    const {tagName: selTagName, id: selId = ''} = selectorParser(vnode);
     const vNodeClassName = classNameFromVNode(vnode);
     const vNodeData = vnode.data || {};
     const vNodeDataProps = vNodeData.props || {};
@@ -22,7 +22,9 @@ export class VNodeWrapper {
       typeof vNodeId === 'string' &&
       vNodeId.toUpperCase() === this.rootElement.id.toUpperCase() &&
       selTagName.toUpperCase() === this.rootElement.tagName.toUpperCase() &&
-      vNodeClassName.toUpperCase() === this.rootElement.className.toUpperCase();
+      vNodeClassName.toUpperCase() ===
+        this.rootElement.className.toUpperCase() &&
+      !this.isRootInDocumentFragment();
 
     if (isVNodeAndRootElementIdentical) {
       return vnode;
@@ -34,6 +36,11 @@ export class VNodeWrapper {
   private wrapDocFrag(children: Array<VNode>) {
     return vnodeFn('', {isolate: []}, children, undefined, this
       .rootElement as any);
+  }
+
+  private isRootInDocumentFragment() {
+    const parentNode = this.rootElement.parentNode;
+    return parentNode !== null && parentNode.nodeType === 11;
   }
 
   private wrap(children: Array<VNode>) {
