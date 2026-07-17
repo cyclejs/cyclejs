@@ -6,6 +6,7 @@ const urls = [
   '/binary',
   '/hello',
   '/pet',
+  '/upload',
   '/json',
   '/error',
   '/delete',

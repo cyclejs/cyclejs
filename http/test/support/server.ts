@@ -38,6 +38,24 @@ export function startServer() {
     }, 150);
   });
 
+  app.post('/upload', function(req: any, res: any) {
+    const chunks: Array<Buffer> = [];
+    req.on('data', function(chunk: Buffer) {
+      chunks.push(chunk);
+    });
+    req.on('end', function() {
+      const body = Buffer.concat(chunks);
+      const bytes: Array<number> = [];
+      for (let i = 0; i < body.length; i++) {
+        bytes.push(body[i]);
+      }
+      res.status(200).json({
+        contentType: req.get('Content-Type'),
+        body: bytes,
+      });
+    });
+  });
+
   app.get('/json', function(req: any, res: any) {
     setTimeout(function() {
       res.status(200).json({name: 'manny'});

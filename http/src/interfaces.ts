@@ -1,9 +1,12 @@
 import {Stream, MemoryStream} from 'xstream';
 import {Response as SuperagentResponse} from 'superagent';
 
-export interface Attachment {
+export type Attachment = File | AttachmentOptions;
+
+export interface AttachmentOptions {
   name: string;
   path?: string;
+  file?: Blob;
   filename?: string;
 }
 
