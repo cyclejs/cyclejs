@@ -16,7 +16,9 @@ import {
   h3,
   h4,
   button,
+  createTagFunction,
   select,
+  slot,
   option,
   p,
   makeDOMDriver,
@@ -71,6 +73,43 @@ describe('DOM Rendering', function() {
       assert.strictEqual(header.textContent, 'Cycle.js framework');
       done();
     }, 150);
+  });
+
+  it('should render custom elements with default and named slots', function(done) {
+    const storyList = createTagFunction('story-list');
+
+    function main() {
+      return {
+        DOM: xs.of(storyList([slot({attrs: {name: 'breaking'}}), slot()])),
+      };
+    }
+
+    const {sources, run} = setup(main, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    let dispose: any;
+    sources.DOM.select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          const storyListElement = root.querySelector(
+            'story-list'
+          ) as HTMLElement;
+          assert.notStrictEqual(storyListElement, null);
+          assert.strictEqual(storyListElement.tagName, 'STORY-LIST');
+
+          const slots = storyListElement.querySelectorAll('slot');
+          assert.strictEqual(slots.length, 2);
+          assert.strictEqual(slots[0].getAttribute('name'), 'breaking');
+          assert.strictEqual(slots[1].hasAttribute('name'), false);
+          dispose();
+          done();
+        },
+      });
+    dispose = run();
   });
 
   it('should support snabbdom dataset module by default', function(done) {
