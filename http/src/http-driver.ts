@@ -9,6 +9,8 @@ import {
   RequestOptions,
   RequestInput,
   Response,
+  Attachment,
+  AttachmentOptions,
 } from './interfaces';
 
 function preprocessReqOptions(reqOptions: RequestOptions): RequestOptions {
@@ -17,6 +19,24 @@ function preprocessReqOptions(reqOptions: RequestOptions): RequestOptions {
     typeof reqOptions.redirects === 'number' ? reqOptions.redirects : 5;
   reqOptions.method = reqOptions.method || `get`;
   return reqOptions;
+}
+
+function isBrowserFileAttachment(attachment: Attachment): attachment is File {
+  return (
+    typeof window !== 'undefined' &&
+    typeof File !== 'undefined' &&
+    attachment instanceof File
+  );
+}
+
+function isBrowserBlobAttachment(
+  attachment: Attachment
+): attachment is AttachmentOptions & {file: Blob} {
+  return (
+    typeof window !== 'undefined' &&
+    typeof Blob !== 'undefined' &&
+    (attachment as AttachmentOptions).file instanceof Blob
+  );
 }
 
 export function optionsToSuperagent(rawReqOptions: RequestOptions) {
@@ -76,7 +96,13 @@ export function optionsToSuperagent(rawReqOptions: RequestOptions) {
   if (reqOptions.attach) {
     for (let i = reqOptions.attach.length - 1; i >= 0; i--) {
       const a = reqOptions.attach[i];
-      request = request.attach(a.name, a.path, a.filename);
+      if (isBrowserFileAttachment(a)) {
+        request = request.attach(a.name, a, a.name);
+      } else if (isBrowserBlobAttachment(a)) {
+        request = request.attach(a.name, a.file, a.filename);
+      } else {
+        request = request.attach(a.name, a.path, a.filename);
+      }
     }
   }
   if (reqOptions.responseType) {

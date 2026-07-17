@@ -13,6 +13,34 @@ import {mergeAll, switchMap, map, delay, shareReplay} from 'rxjs/operators';
 import {setup} from '@cycle/rxjs-run';
 import isolate from '@cycle/isolate';
 
+function bytesToString(bytes: Array<number>): string {
+  return bytes.map(byte => String.fromCharCode(byte)).join('');
+}
+
+function assertMultipartPart(
+  body: string,
+  fieldName: string,
+  filename: string,
+  contentType: string,
+  payload: Array<number>
+) {
+  assert.notStrictEqual(
+    body.indexOf(
+      'Content-Disposition: form-data; name="' +
+        fieldName +
+        '"; filename="' +
+        filename +
+        '"'
+    ),
+    -1
+  );
+  assert.notStrictEqual(body.indexOf('Content-Type: ' + contentType), -1);
+  assert.notStrictEqual(
+    body.indexOf('\r\n\r\n' + bytesToString(payload) + '\r\n'),
+    -1
+  );
+}
+
 export function runTests(uri: string) {
   describe('makeHTTPDriver', function() {
     it('should be a driver factory', function() {
@@ -152,6 +180,74 @@ export function runTests(uri: string) {
           done();
         });
       });
+      run();
+    });
+
+    it('should upload browser File and Blob attachments [#294]', function(done) {
+      if (
+        typeof window === 'undefined' ||
+        typeof File === 'undefined' ||
+        typeof Blob === 'undefined'
+      ) {
+        this.skip();
+        return;
+      }
+
+      const filePayload = [0, 31, 127, 128, 255];
+      const file = new File([new Uint8Array(filePayload)], 'direct.bin', {
+        type: 'application/octet-stream',
+      });
+      const blobPayload = [67, 121, 99, 108, 101];
+      const blob = new Blob([new Uint8Array(blobPayload)], {
+        type: 'application/x-cycle-test',
+      });
+
+      function main(_sources: {HTTP: HTTPSource}) {
+        return {
+          HTTP: of({
+            url: uri + '/upload',
+            method: 'POST',
+            attach: [
+              file,
+              {name: 'upload', file: blob, filename: 'wrapped.bin'},
+            ],
+          }),
+        };
+      }
+
+      const {sources, run} = setup(main, {HTTP: makeHTTPDriver()});
+
+      sources.HTTP.select()
+        .pipe(mergeAll())
+        .subscribe({
+          next: (response: any) => {
+            assert.strictEqual(response.status, 200);
+            assert.strictEqual(
+              /^multipart\/form-data; boundary=/.test(
+                response.body.contentType
+              ),
+              true
+            );
+            const body = bytesToString(response.body.body);
+            assertMultipartPart(
+              body,
+              'direct.bin',
+              'direct.bin',
+              'application/octet-stream',
+              filePayload
+            );
+            assertMultipartPart(
+              body,
+              'upload',
+              'wrapped.bin',
+              'application/x-cycle-test',
+              blobPayload
+            );
+            done();
+          },
+          error: done,
+        });
+
       run();
     });
 
