@@ -21,8 +21,9 @@
     "browserify": "13.1.0"
   },
   "scripts": {
-    "test": "npm run lint",
-    "test-ci": ":",
+    "test": "npm run test-unit && npm run lint",
+    "test-ci": "npm run test-unit",
+    "test-unit": "../node_modules/.bin/tsc src/graphSerializerStartup.ts --target es5 --module commonjs --outDir lib --strict --suppressImplicitAnyIndexErrors && node test/graphSerializerStartup.js",
     "lint": "../node_modules/.bin/tslint -c ../tslint.json ./src/*.ts ./src/**/*.ts",
     "lib": "../node_modules/.bin/tsc",
     "prelib": "rm -rf lib/ && mkdir -p lib",

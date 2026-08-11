@@ -17,6 +17,7 @@
     "src/background.ts",
     "src/contentScript.ts",
     "src/graphSerializer.ts",
+    "src/graphSerializerStartup.ts",
     "src/launcher.ts",
     "src/panel/index.ts"
   ]

@@ -7,6 +7,10 @@ import * as CircularJSON from 'circular-json';
 import {ZapSpeed} from './panel/model';
 import timeSpread from './utils/timeSpread';
 import {SessionSettings} from './launcher';
+import {
+  selectGraphSerializerStartAction,
+  sinksAreXStream,
+} from './graphSerializerStartup';
 
 interface InternalProducer {
   type?: string;
@@ -292,20 +296,6 @@ function makeObjectifyGraph(id$: Stream<string>) {
   };
 }
 
-function sinksAreXStream(sinks: Object | null): boolean {
-  if (sinks === null) {
-    return false;
-  }
-  for (const key in sinks) {
-    if (sinks.hasOwnProperty(key)) {
-      if (sinks[key] && typeof sinks[key].setDebugListener !== 'function') {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
 interface GraphSerializerSources {
   id: Stream<string>;
   DebugSinks: Stream<Object | null>;
@@ -353,9 +343,15 @@ const panelMessage$ = xs.create<string>({
 });
 
 let started = false;
+let showedInvalidState = false;
 
 function startGraphSerializer(appSinks: Object | null) {
-  if (started) {
+  const action = selectGraphSerializerStartAction(
+    appSinks,
+    started,
+    showedInvalidState,
+  );
+  if (action === 'ignore') {
     return;
   }
   const serializerSources: GraphSerializerSources = {
@@ -379,7 +375,11 @@ function startGraphSerializer(appSinks: Object | null) {
     },
     complete: () => {},
   });
-  started = true;
+  if (action === 'start') {
+    started = true;
+  } else {
+    showedInvalidState = true;
+  }
 }
 
 window['CyclejsDevTool_startGraphSerializer'] = startGraphSerializer;
