@@ -47,6 +47,10 @@
     "access": "public"
   },
   "files": [
+    "most.js",
+    "most.d.ts",
+    "rxjs.js",
+    "rxjs.d.ts",
     "lib/",
     "dist/"
   ],
@@ -54,9 +58,10 @@
     "variable-diff": false
   },
   "scripts": {
-    "build": "pnpm run build-cjs && pnpm run build-es6",
+    "build": "pnpm run build-cjs && pnpm run build-es6 && pnpm run build-entrypoints",
     "build-cjs": "tsc --module commonjs --outDir ./lib/cjs",
     "build-es6": "tsc --module es6 --outDir ./lib/es6",
+    "build-entrypoints": "node .scripts/build-entrypoints.js",
     "docs": ":",
     "lint": "tslint --project tsconfig.lint.json --config ../tslint.json",
     "changelog": "cd .. && node .scripts/update-changelogs.js time",
