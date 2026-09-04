@@ -278,11 +278,13 @@ importers:
   most-run:
     specifiers:
       '@cycle/run': ^5.2.0
+      '@most/core': 1.4.2
+      '@most/scheduler': ^1.3.0
+      '@most/types': ^1.1.0
       '@types/mocha': ~5.2.5
       '@types/node': ^10.12.12
       '@types/sinon': ^5.0.7
       mocha: ~6.2.0
-      most: '*'
       sinon: ^7.1.1
       ts-node: ^7.0.1
       tslint: ^5.11.0
@@ -290,7 +292,9 @@ importers:
       xstream: '*'
     dependencies:
       '@cycle/run': link:../run
-      most: 1.7.3
+      '@most/core': 1.4.2
+      '@most/scheduler': 1.3.0
+      '@most/types': 1.1.0
       xstream: 11.11.0
     devDependencies:
       '@types/mocha': 5.2.7
@@ -466,6 +470,20 @@ packages:
       regenerator-runtime: 0.13.3
     dev: true
 
+  /@most/core/1.4.2:
+    resolution: {integrity: sha512-5fGz6DZkWkCA0nqYGe+pLhZ3HiWUt9J7mJzcbcKGSotMZZjEpSba34Qo8YzIh+1EccYqwrjIu44UWW6GfCGL3g==}
+    dependencies:
+      '@most/disposable': 1.3.0
+      '@most/prelude': 1.7.3
+      '@most/scheduler': 1.3.0
+      '@most/types': 1.1.0
+
+  /@most/disposable/1.3.0:
+    resolution: {integrity: sha512-0lCve1GmWlZrvTGQpMgTFTHH6uRtzM31jyYTIN7303XX4KoLCLWw9L6hfTYLLBtge6s+QyiBQVokAhy2GjNAUQ==}
+    dependencies:
+      '@most/prelude': 1.8.0
+      '@most/types': 1.1.0
+
   /@most/multicast/1.3.0_most@1.7.3:
     resolution: {integrity: sha512-DWH8AShgp5bXn+auGzf5tzPxvpmEvQJd0CNsApOci1LDF4eAEcnw4HQOr2Jaa+L92NbDYFKBSXxll+i7r1ikvw==}
     peerDependencies:
@@ -476,6 +494,18 @@ packages:
 
   /@most/prelude/1.7.3:
     resolution: {integrity: sha512-qWWEnA22UP1lzFfKx75XMut6DUUXGRKe7qv2k+Bgs7ju8lwb5RjsZYyQZ+VcsYvHcIavHKzseLlBMLOe2CvUZw==}
+
+  /@most/prelude/1.8.0:
+    resolution: {integrity: sha512-t1CcURpZzfmBA6fEWwqmCqeNzWAj1w2WqEmCk/2yXMe/p8Ut000wFmVKMy8A1Rl9VVxZEZ5nBHd/pU0dR4bv/w==}
+
+  /@most/scheduler/1.3.0:
+    resolution: {integrity: sha512-bbJGyhbZxNqlkVjP8+YT9wIVMvYnpzWOzV8jZueqlTH2PJWewH2f54YziZn7/wWa6AJdN03H1vb8Tbi9GcA/cw==}
+    dependencies:
+      '@most/prelude': 1.8.0
+      '@most/types': 1.1.0
+
+  /@most/types/1.1.0:
+    resolution: {integrity: sha512-v2trqAWu1jqP4Yd/CyI1O6mAeJyygK1uJOrFRpNPkPZIaYw4khA4EQe4WzcyOFKuXdiP8qAqaxGtXXJJ2LZdXg==}
 
   /@samverschueren/stream-to-observable/0.3.0:
     resolution: {integrity: sha512-MI4Xx6LHs4Webyvi6EbspgyAb4D2Q2VtnCQ1blOJcoLS6mVa8lNN2rkIy1CVxfTUpoyIbCTkXES1rLXztFD1lg==}

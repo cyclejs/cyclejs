@@ -1,7 +1,7 @@
 {
   "name": "@cycle/most-run",
   "version": "8.4.0",
-  "description": "The Cycle run() function to be used with most.js",
+  "description": "The Cycle run() function to be used with @most/core",
   "main": "lib/cjs/index.js",
   "module": "lib/es6/index.js",
   "typings": "lib/cjs/index.d.ts",
@@ -21,14 +21,16 @@
     "Cycle",
     "Cycle.js",
     "Most",
-    "Most.js"
+    "@most/core"
   ],
   "license": "MIT",
   "bugs": "https://github.com/cyclejs/cyclejs/issues",
   "homepage": "https://cycle.js.org",
   "dependencies": {
+    "@most/core": "1.4.2",
+    "@most/scheduler": "^1.3.0",
+    "@most/types": "^1.1.0",
     "@cycle/run": "^5.2.0",
-    "most": "*",
     "xstream": "*"
   },
   "devDependencies": {

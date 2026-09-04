@@ -1,17 +1,26 @@
-# Run() for most.js - [source](https://github.com/cyclejs/cyclejs/tree/master/most-run)
+# Run() for @most/core - [source](https://github.com/cyclejs/cyclejs/tree/master/most-run)
 
-Cycle.js `run(main, drivers)` function for applications written with most.js (Monadic Streams)
+Cycle.js `run(main, drivers)` function for applications written with the
+functional, tree-shakeable `@most/core` API.
 
 ```
-npm install @cycle/most-run most
+npm install @cycle/most-run @most/core @most/scheduler
 ```
 
-**Note: `most` package is required too.**
+**Note: `@most/core` is required too.** Operators such as `map`, `take`, and
+`tap` are standalone functions rather than methods on streams.
 
 ## Basic usage
 
 ```js
 import run from '@cycle/most-run'
+import {map} from '@most/core'
+
+function main(sources) {
+  return {
+    DOM: map(render, sources.state)
+  }
+}
 
 run(main, drivers)
 ```
@@ -19,15 +28,19 @@ run(main, drivers)
 ## Testing usage
 
 ```js
+import {runEffects, tap} from '@most/core'
+import {newDefaultScheduler} from '@most/scheduler'
 import {setup} from '@cycle/most-run'
 
 const {sources, sinks, run} = setup(main, drivers)
+const scheduler = newDefaultScheduler()
 
 let dispose
 
-sources.DOM.select(':root').elements
-  .observe(fn)
-  .then(() => dispose())
+runEffects(
+  tap(fn, sources.DOM.select(':root').elements),
+  scheduler
+).then(() => dispose())
 
 dispose = run() // start the loop
 ```

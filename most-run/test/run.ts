@@ -3,7 +3,8 @@ import 'mocha';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {run, setup} from '../src/index';
-import * as most from 'most';
+import {map, startWith, take} from '@most/core';
+import xs, {Stream as xsStream} from 'xstream';
 
 describe('run()', function() {
   it('should be a function', function() {
@@ -28,23 +29,48 @@ describe('run()', function() {
     }, /Second argument given to Cycle must be an object with at least one/i);
   });
 
-  it('should return a dispose function', function() {
+  it('should return a dispose function', function(done) {
     const sandbox = sinon.createSandbox();
     const spy = sandbox.spy();
     function app(sources: any) {
       return {
-        other: sources.other.take(1).startWith('a'),
+        other: startWith('a', take(1, sources.other)),
       };
     }
-    function driver() {
-      return most.of('b').tap(spy);
+    function driver(_sink: xsStream<string>) {
+      return xs.of('b').map(value => {
+        spy(value);
+        return value;
+      });
     }
     const dispose = run(app, {other: driver});
     assert.strictEqual(typeof dispose, 'function');
     setTimeout(() => {
       sinon.assert.calledOnce(spy);
+      dispose();
+      done();
+    }, 10);
+  });
+
+  it('should dispose xstream driver sources', function(done) {
+    const start = sinon.spy();
+    const stop = sinon.spy();
+    const source = xs.create<string>({
+      start,
+      stop,
     });
-    dispose();
+    const dispose = run((sources: any) => ({other: sources.other}), {
+      other: () => source,
+    });
+
+    setTimeout(() => {
+      sinon.assert.calledOnce(start);
+      dispose();
+      setTimeout(() => {
+        sinon.assert.calledOnce(stop);
+        done();
+      }, 20);
+    }, 10);
   });
 
   it('should report errors from main() in the console', function(done) {
@@ -53,17 +79,14 @@ describe('run()', function() {
 
     function main(sources: any): any {
       return {
-        other: sources.other.map(() => {
+        other: map(() => {
           throw new Error('malfunction');
-        }),
+        }, sources.other),
       };
     }
-    function driver(xsSink: any) {
-      most
-        .from(xsSink)
-        .drain()
-        .catch(() => {});
-      return most.of('b');
+    function driver(sink: xsStream<any>) {
+      sink.addListener({error: () => {}});
+      return xs.of('b');
     }
 
     let caught = false;
