@@ -296,6 +296,52 @@ describe('DOM Rendering', function() {
     dispose = run();
   });
 
+  it('should reuse a matching id-less root without duplicating it', function(done) {
+    function app(_sources: {DOM: MainDOMSource}) {
+      return {
+        DOM: xs.of(
+          h('main', [
+            h3('.title', 'About Page'),
+            div('.nested', [div('.leaf', 'Page content')]),
+          ])
+        ),
+      };
+    }
+
+    const rootElem = document.createElement('main');
+    document.body.appendChild(rootElem);
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(rootElem),
+    });
+
+    let dispose: any;
+    sources.DOM.select(':root')
+      .element()
+      .drop(1)
+      .take(1)
+      .addListener({
+        next: (root: Element) => {
+          assert.strictEqual(root, rootElem);
+          assert.strictEqual(root.children.length, 2);
+          assert.strictEqual(root.children[0].tagName, 'H3');
+          assert.strictEqual(root.children[0].textContent, 'About Page');
+          assert.strictEqual(root.children[1].className, 'nested');
+          assert.strictEqual(root.children[1].children.length, 1);
+          assert.strictEqual(root.children[1].children[0].className, 'leaf');
+          assert.strictEqual(
+            root.children[1].children[0].textContent,
+            'Page content'
+          );
+          setTimeout(() => {
+            dispose();
+            rootElem.remove();
+            done();
+          });
+        },
+      });
+    dispose = run();
+  });
+
   it('should give elements as a value-over-time', function(done) {
     function app(_sources: {DOM: MainDOMSource}) {
       return {
