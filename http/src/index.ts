@@ -59,6 +59,7 @@
  * @function makeHTTPDriver
  */
 export {makeHTTPDriver} from './http-driver';
+export {mockHTTPSource, MockHTTPConfig} from './mockHTTPSource';
 export {
   RequestOptions,
   Attachment,
