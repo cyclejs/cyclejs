@@ -129,6 +129,7 @@ export {makeDOMDriver, DOMDriverOptions} from './makeDOMDriver';
  * @function mockDOMSource
  */
 export {mockDOMSource, MockConfig, MockedDOMSource} from './mockDOMSource';
+export {createTagFunction} from './hyperscript-helpers';
 export {CycleDOMEvent} from './EventDelegator';
 /**
  * The hyperscript function `h()` is a function to create virtual DOM objects,
@@ -256,6 +257,7 @@ export const script: HyperScriptHelperFn = hh.script;
 export const section: HyperScriptHelperFn = hh.section;
 export const select: HyperScriptHelperFn = hh.select;
 export const small: HyperScriptHelperFn = hh.small;
+export const slot: HyperScriptHelperFn = hh.slot;
 export const source: HyperScriptHelperFn = hh.source;
 export const span: HyperScriptHelperFn = hh.span;
 export const strong: HyperScriptHelperFn = hh.strong;
