@@ -13,7 +13,7 @@ function main(sources) {
     .map(ev => ev.target.value)
     .filter(query => query.length > 0)
     .map(q => ({
-      url: `https://api.github.com/search/repositories?q=${encodeURI(q)}`,
+      url: `https://api.github.com/search/repositories?q=${encodeURIComponent(q)}`,
       category: 'github',
     }));
 
