@@ -12,7 +12,7 @@ export class VNodeWrapper {
     if (vnode === null) {
       return this.wrap([]);
     }
-    const {tagName: selTagName, id: selId} = selectorParser(vnode);
+    const {tagName: selTagName, id: selId = ''} = selectorParser(vnode);
     const vNodeClassName = classNameFromVNode(vnode);
     const vNodeData = vnode.data || {};
     const vNodeDataProps = vNodeData.props || {};
@@ -20,15 +20,40 @@ export class VNodeWrapper {
 
     const isVNodeAndRootElementIdentical =
       typeof vNodeId === 'string' &&
-      vNodeId.toUpperCase() === this.rootElement.id.toUpperCase() &&
+      vNodeId === this.rootElement.id &&
       selTagName.toUpperCase() === this.rootElement.tagName.toUpperCase() &&
-      vNodeClassName.toUpperCase() === this.rootElement.className.toUpperCase();
+      this.hasSameClassNames(vNodeClassName) &&
+      !this.isRootInDocumentFragment();
 
     if (isVNodeAndRootElementIdentical) {
-      return vnode;
+      return this.addRootScope(vnode);
     }
 
     return this.wrap([vnode]);
+  }
+
+  private hasSameClassNames(vNodeClassName: string): boolean {
+    return (
+      this.normalizeClassNames(vNodeClassName) ===
+      this.normalizeClassNames(this.rootElement.className)
+    );
+  }
+
+  private normalizeClassNames(className: string): string {
+    return Array.from(
+      new Set(
+        className
+          .split(/\\s+/)
+          .filter(Boolean)
+      )
+    )
+      .sort()
+      .join(' ');
+  }
+
+  private isRootInDocumentFragment(): boolean {
+    const parent = this.rootElement.parentNode;
+    return parent !== null && isDocFrag(parent as DocumentFragment);
   }
 
   private wrapDocFrag(children: Array<VNode>) {
@@ -45,6 +70,10 @@ export class VNodeWrapper {
       {},
       children
     );
+    return this.addRootScope(vnode);
+  }
+
+  private addRootScope(vnode: VNode): VNode {
     vnode.data = vnode.data || {};
     vnode.data.isolate = vnode.data.isolate || [];
     return vnode;
