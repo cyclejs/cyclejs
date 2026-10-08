@@ -60,7 +60,7 @@
     "changelog": "cd .. && node .scripts/update-changelogs.js run",
     "test": "mocha test/*.ts --require ts-node/register --exit",
     "test-ci": "../.scripts/retry.sh pnpm test",
-    "move-adapt": "cp lib/cjs/adapt.* lib/",
+    "move-adapt": "node ../.scripts/compat-shim.js run adapt",
     "prepublishOnly": "pnpm run build && pnpm test"
   },
   "publishConfig": {
