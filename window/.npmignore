@@ -1,0 +1,6 @@
+coverage/
+src/
+test/
+tsconfig.json
+tsconfig.lint.json
+karma.conf.js

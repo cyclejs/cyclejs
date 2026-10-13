@@ -12,6 +12,7 @@ var packageScopes = [
   'rxjs-run',
   'state',
   'time',
+  'window',
 ];
 
 var otherScopes = ['META', 'examples'];
