@@ -126,6 +126,126 @@ sources.HTTP
 ```
 For more information, refer to the [xstream documentation for replaceError](https://github.com/staltz/xstream#replaceError) or the [RxJS documention for catch](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/catch.md).
 
+### Why a failed request feels like everything stopped
+
+Errors in streams [are terminal](https://cycle.js.org/streams.html): a stream that emits an error is finished, and everything downstream of it stops too. When a request fails, its `response$` emits that error, and if you flattened the metastream without catching it, the error reaches the flattened stream in `main()` and kills it.
+
+The HTTP Driver itself is not affected: it creates a fresh `response$` for every request it receives, so it keeps sending later requests. It is the flattened stream in `main()` that dies, which is why the app appears to have "stopped sending requests" after the first failure.
+
+The fix is to catch each error on the *inner* stream, before flattening, so one failed response does not poison the rest of the flow:
+
+```js
+sources.HTTP
+  .select('poll')
+  .map((response$) =>
+    response$.replaceError(() => xs.of(errorObject))
+  )
+  .flatten()
+```
+
+### What an error looks like
+
+- When the server answered, the error is a [superagent error](https://github.com/visionmedia/superagent/blob/master/docs/index.md#handling-errors) and has `err.response` (the same response object as a successful call), so you can read `err.response.status`, `err.response.body`, and `err.response.request`.
+- When the request could not be completed at all (DNS failure, connection refused, the URL is invalid), there is no `err.response`, only `err.message`.
+
+## Example: a poller that survives failures
+
+This example polls an invalid URL every two seconds. Every single response fails, yet the application keeps running and the page keeps updating, because each failed `response$` is recovered before flattening. Fix the URL string and the display switches to successful responses without any other change.
+
+```js
+import xs from 'xstream';
+import {run} from '@cycle/run';
+import {makeHTTPDriver} from '@cycle/http';
+import {div, h4, li, makeDOMDriver, ul} from '@cycle/dom';
+
+function main(sources) {
+  const request$ = xs.periodic(2000).mapTo({
+    url: 'http://invalid.example/ping', // will fail
+    method: 'GET',
+    category: 'poll',
+  });
+
+  const response$ = sources.HTTP
+    .select('poll')
+    .map((response$) =>         // `response$` is one request's response stream
+      response$
+        .map((res) => ({type: 'ok', status: res.status, body: res.text}))
+        .replaceError((err) =>  // recover instead of dying
+          xs.of({type: 'error', message: err.message})
+        )
+    )
+    .flatten();
+
+  const state$ = response$
+    .fold((list, out) => list.slice(-4).concat(out), []);
+
+  const vdom$ = state$.map((items) =>
+    div({}, [
+      h4({}, ['Latest polls (newest first)']),
+      ul({}, items.slice().reverse().map((out) =>
+        li({}, [
+          out.type === 'ok'
+            ? `response ${out.status}: ${out.body}`
+            : `failed: ${out.message}`,
+        ])
+      )),
+    ])
+  );
+
+  return {
+    DOM: vdom$,
+    HTTP: request$,
+  };
+}
+
+run(main, {
+  DOM: makeDOMDriver('#app'),
+  HTTP: makeHTTPDriver(),
+});
+```
+
+Without the `replaceError` recovery, the first failure would kill `response$` and `vdom$`, and from then on the page would show nothing new while the driver kept polling.
+
+### Deciding what to do per error
+
+`replaceError` receives the error, so recovery can differ per case. In [xstream](https://github.com/staltz/xstream#replaceError) return the stream that should continue; in [RxJS](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/catch.md) the equivalent is `catch`, and `retry`/`retryWhen` also exist to repeat the whole chain:
+
+```js
+sources.HTTP
+  .select('data')
+  .map((response$) =>
+    response$.replaceError((err) => {
+      if (err.response && err.response.status === 401) {
+        // Session is gone: emit something your app maps to a redirect,
+        // e.g. drive the History sink to /login.
+        return xs.of({kind: 'unauthorized'});
+      }
+      if (err.response) {
+        // HTTP error the app can proceed without: keep the flow alive
+        // with a fallback value instead of an error.
+        return xs.of({kind: 'http-error', status: err.response.status});
+      }
+      // No server response at all (network failure): inform the user.
+      return xs.of({kind: 'network-error', message: err.message});
+    })
+  )
+  .flatten()
+```
+
+And the same shape in RxJS, where the metastream becomes a single stream with [`flatMap`](https://reactivex.io/documentation/operators/flatmap.html):
+
+```js
+import {Observable} from 'rxjs';
+
+sources.HTTP
+  .select('data')
+  .flatMap((response$) =>
+    response$.catch((err) =>
+      Observable.of({kind: 'error', err})
+    )
+  )
+```
+
 ## More information
 
 For a more advanced usage, check the [Search example](https://github.com/cyclejs/cyclejs/tree/master/examples/http-search-github).

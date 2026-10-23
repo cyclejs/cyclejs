@@ -167,4 +167,36 @@ run(main, drivers); // solve the circular dependency
 
 This is how the name "*Cycle.js*" came to be. It is a framework that solves the cyclic dependency of streams which emerge during dialogues (mutual observations) between the Human and the Computer.
 
+## Recovering from Errors
+
+Streams do not only emit values. A stream can also emit an *error*, and that is a terminal event: once a stream errors, it is done, and no operator or listener downstream of it will ever receive anything again. The same happens when any function in your chain of operations throws an unexpected exception.
+
+This is why a single unhandled error stops an entire Cycle.js application: the error travels through the chains inside your `main()` and reaches the sink connected to a driver, killing every stream it passes through.
+
+Errors are expected in real applications, so catch them where they belong using the standard error-handling operators. Replace the failed stream with a stream that continues the flow:
+
+| Purpose | xstream | RxJS |
+| --- | --- | --- |
+| Replace the stream after an error | `replaceError(fn)` | `catch(fn)` |
+| Emit a fallback value on error | `replaceError(() => xs.of(fallback))` | `catch(() => Observable.of(fallback))` |
+| Retry the whole chain | *(achieved with `replaceError`)* | `retry(n)`, `retryWhen(fn)` |
+
+The function given to `replaceError` or `catch` receives the error, and can branch on it: recover with a fallback value for some errors and re-throw others (`xs.throw(error)` in xstream), for instance when a 401 response should route the user to the login page while a network hiccup should only show a warning.
+
+```javascript
+import xs from 'xstream';
+
+// "events" dies whenever an error happens, but "healthy" keeps emitting
+// values after an error, because the failed stream is replaced by "fallback$"
+
+const healthy = events.replaceError((error) => {
+  console.error(error);
+  return fallback$; // xs.of(...), xs.periodic(...), any stream to continue with
+});
+```
+
+One common trap is a stream of streams, such as the [HTTP Driver's](api/http.html) response metastream. An error that happens in an *inner* stream propagates to the *outer* stream when you `flatten()`, unless each inner stream first handles its own errors with `replaceError`. See the [HTTP error handling section](http.html) for a worked example.
+
+Whether you catch errors inside `main()` directly or inside your `model()` and `intent()` functions is an architectural choice: catch them where it makes sense to either continue the flow with a fallback, or restart just the failing part.
+
 Next, read the [basic examples](basic-examples.html) which apply what we've learned so far about Cycle.js.
