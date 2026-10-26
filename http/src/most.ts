@@ -4,10 +4,12 @@ import {
   RequestOptions,
   RequestInput,
   makeHTTPDriver as make,
+  mockHTTPSource as mock,
+  MockHTTPConfig,
 } from './index';
 import {Stream} from 'most';
 import xs from 'xstream';
-import {Driver} from '@cycle/run';
+import {Driver, FantasyObservable} from '@cycle/run';
 export interface HTTPSource {
   filter(predicate: (request: RequestOptions) => boolean): HTTPSource;
   select(category?: string): Stream<Stream<Response> & ResponseStream>;
@@ -22,3 +24,8 @@ export const makeHTTPDriver: () => Driver<
   xs<RequestInput>,
   HTTPSource
 > = make as any;
+
+export const mockHTTPSource: (
+  mockConfig?: MockHTTPConfig | FantasyObservable<any>,
+  name?: string
+) => HTTPSource = mock as any;

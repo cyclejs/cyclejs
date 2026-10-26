@@ -3,7 +3,7 @@ import * as assert from 'assert';
 import {Observable, of} from 'rxjs';
 import {mergeAll} from 'rxjs/operators';
 import {setup} from '@cycle/rxjs-run';
-import {HTTPSource, makeHTTPDriver} from '../src/rxjs';
+import {HTTPSource, makeHTTPDriver, mockHTTPSource} from '../src/rxjs';
 import {runTests} from './browser/common';
 import {globalSandbox} from './support/global';
 import {startServer} from './support/server';
@@ -170,5 +170,48 @@ describe('HTTP Driver in Node.js', function() {
       });
 
     run();
+  });
+});
+
+describe('mockHTTPSource', function() {
+  it('should mock responses by category', function(done) {
+    const response$ = of({data: {some: 'thing'}});
+    const HTTP = mockHTTPSource({
+      categoryName: of(response$),
+    });
+
+    HTTP.select('categoryName')
+      .pipe(mergeAll())
+      .subscribe({
+        next: function(r: any) {
+          assert.ok(r.data);
+          assert.strictEqual(r.data.some, 'thing');
+          assert.ok(r.request);
+          assert.strictEqual(r.request.category, 'categoryName');
+          done();
+        },
+        error: done,
+      });
+  });
+
+  it('should support filtering and nested isolated scopes', function(done) {
+    const response$ = of({text: 'scoped-ok'});
+    const HTTP = mockHTTPSource({
+      '.___myScope': {
+        scopedCategory: of(response$),
+      },
+    });
+
+    const scopedHTTP = HTTP.isolateSource(HTTP, 'myScope');
+    scopedHTTP
+      .select('scopedCategory')
+      .pipe(mergeAll())
+      .subscribe({
+        next: function(r: any) {
+          assert.strictEqual(r.text, 'scoped-ok');
+          done();
+        },
+        error: done,
+      });
   });
 });
