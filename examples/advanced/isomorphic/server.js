@@ -1,81 +1,92 @@
 import {run} from '@cycle/run';
-import xs from 'xstream';
+import {Stream as xs} from 'xstream';
+import {makeHTMLDriver} from '@cycle/html';
 import express from 'express';
-import browserify from 'browserify';
-import serialize from 'serialize-javascript';
-import {html, head, title, body, div, script, makeHTMLDriver} from '@cycle/dom';
-import app from './app';
+import {build} from 'esbuild';
+import {fileURLToPath, pathToFileURL} from 'node:url';
+import {html, head, title, body, div, script} from './view.js';
+import app from './app.js';
 
-function wrapVTreeWithHTMLBoilerplate([vtree, context, clientBundle]) {
-  return (
-    html([
-      head([
-        title('Cycle Isomorphism Example')
-      ]),
-      body([
-        div('.app-container', [vtree]),
-        script(`window.appContext = ${serialize(context)};`),
-        script(clientBundle)
-      ])
-    ])
-  );
+function wrapVTreeWithHTMLBoilerplate([vtree, context]) {
+  return html([
+    head([title('Cycle Isomorphism Example')]),
+    body([
+      div(
+        '.app-container',
+        {attrs: {'data-app-context': JSON.stringify(context)}},
+        [vtree]
+      ),
+      script({attrs: {src: '/client.js', defer: true}}),
+    ]),
+  ]);
 }
 
-function prependHTML5Doctype(html) {
-  return `<!doctype html>${html}`;
+export async function buildClientBundle() {
+  const result = await build({
+    entryPoints: [fileURLToPath(new URL('./client.js', import.meta.url))],
+    bundle: true,
+    minify: true,
+    write: false,
+    platform: 'browser',
+    format: 'iife',
+  });
+  return result.outputFiles[0].text;
 }
 
-function wrapAppResultWithBoilerplate(appFn, context$, bundle$) {
-  return function wrappedAppFn(sources) {
-    const vdom$ = appFn(sources).DOM;
-    const wrappedVDOM$ = xs.combine(vdom$, context$, bundle$.take(1))
-      .map(wrapVTreeWithHTMLBoilerplate)
-      .last();
-    return {
-      DOM: wrappedVDOM$
-    };
-  };
+export function createServer(clientBundle) {
+  const server = express();
+  server.get('/client.js', (req, res) => {
+    res.type('application/javascript').send(clientBundle);
+  });
+  server.get('/favicon.ico', (req, res) => res.status(204).end());
+  server.get('*', (req, res, next) => {
+    const context$ = xs.of({route: req.path});
+    const wrappedApp = sources => ({
+      DOM: xs
+        .combine(app(sources).DOM, context$)
+        .take(1)
+        .map(wrapVTreeWithHTMLBoilerplate),
+    });
+    try {
+      const dispose = run(wrappedApp, {
+        DOM: makeHTMLDriver(markup =>
+          res.type('html').send('<!doctype html>' + markup)
+        ),
+        context: () => context$,
+        PreventDefault: () => {},
+      });
+      res.once('close', dispose);
+    } catch (error) {
+      next(error);
+    }
+  });
+  return server;
 }
 
-const clientBundle$ = (() => {
-  const bundle$ = xs.createWithMemory();
-  let bundleString = '';
-  const bundleStream = browserify()
-    .transform('babelify')
-    .transform({global: true}, 'uglifyify')
-    .add('./client.js')
-    .bundle();
-  bundleStream.on('data', function (data) {
-    bundleString += data;
+export async function startServer({
+  port = Number(process.env.PORT || 3000),
+  host = process.env.HOST || '127.0.0.1',
+} = {}) {
+  const server = createServer(await buildClientBundle());
+  return new Promise((resolve, reject) => {
+    const listener = server.listen(port, host, () => resolve(listener));
+    listener.once('error', reject);
   });
-  bundleStream.on('end', function () {
-    bundle$.shamefullySendNext(bundleString);
-    console.log('Client bundle successfully compiled.');
-  });
-  return bundle$;
-})();
+}
 
-const server = express();
-
-server.use(function (req, res) {
-  // Ignore favicon requests
-  if (req.url === '/favicon.ico') {
-    res.writeHead(200, {'Content-Type': 'image/x-icon'});
-    res.end();
-    return;
-  }
-  console.log(`req: ${req.method} ${req.url}`);
-
-  const context$ = xs.of({route: req.url});
-  const wrappedAppFn = wrapAppResultWithBoilerplate(app, context$, clientBundle$);
-
-  run(wrappedAppFn, {
-    DOM: makeHTMLDriver(html => res.send(prependHTML5Doctype(html))),
-    context: () => context$,
-    PreventDefault: () => {},
-  });
-});
-
-const port = process.env.PORT || 3000;
-server.listen(port);
-console.log(`Listening on port ${port}`);
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
+  startServer()
+    .then(server => {
+      const address = server.address();
+      console.log(
+        'Listening on http://' + address.address + ':' + address.port
+      );
+    })
+    .catch(error => {
+      console.error(error);
+      process.exitCode = 1;
+    });
+}
