@@ -25,6 +25,31 @@ for (const directory of ['lib', 'lib/cjs', 'lib/es6']) {
 }
 console.log('PASS: all adapt entrypoint source maps resolve');
 
+const legacyFile = path.join(root, 'lib', 'adapt.js');
+const legacyMap = path.join(root, 'lib', 'adapt.js.map');
+const canonicalMap = path.join(root, 'lib', 'cjs', 'adapt.js.map');
+const generated = fs.readFileSync(legacyFile, 'utf8');
+const originalMap = fs.readFileSync(canonicalMap, 'utf8');
+fs.writeFileSync(legacyMap, '{}');
+for (let attempt = 0; attempt < 2; attempt++) {
+  const result = spawnSync(
+    process.execPath,
+    [path.join(root, 'scripts', 'create-adapt-entrypoint.js')],
+    {cwd: root, encoding: 'utf8', windowsHide: true}
+  );
+  if (result.error) throw result.error;
+  assert.strictEqual(result.status, 0, result.stdout + result.stderr);
+}
+assert(
+  !fs.existsSync(legacyMap),
+  'The obsolete copied source map must be removed'
+);
+assert.strictEqual(fs.readFileSync(legacyFile, 'utf8'), generated);
+assert.strictEqual(fs.readFileSync(canonicalMap, 'utf8'), originalMap);
+console.log(
+  'PASS: repeated generation removes stale maps and preserves canonical maps'
+);
+
 const legacy = require('../lib/adapt');
 const canonical = require('../lib/cjs/adapt');
 assert.strictEqual(legacy, canonical);

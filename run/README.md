@@ -14,3 +14,6 @@ regression checks. `pnpm run test-entrypoints` builds both module formats and
 checks map source paths, module identity, shared adapter state, and declaration
 consumption with the package's TypeScript compiler. These are package-level
 checks, not a full browser or monorepo integration matrix.
+
+The checks also seed an obsolete copied source map and run generation twice,
+verifying cleanup, repeatability, and preservation of the canonical source map.
