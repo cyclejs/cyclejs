@@ -7,6 +7,7 @@ import {HTTPSource, makeHTTPDriver} from '../src/rxjs';
 import {runTests} from './browser/common';
 import {globalSandbox} from './support/global';
 import {startServer} from './support/server';
+import './node-attachments'; // tslint:disable-line
 
 declare const process: any;
 process.env.PORT = 5000;

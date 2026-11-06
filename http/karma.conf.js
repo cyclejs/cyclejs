@@ -2,6 +2,7 @@ const deepmerge = require('deepmerge');
 const common = require('../karma.conf.js');
 
 const urls = [
+  '/upload',
   '/querystring',
   '/binary',
   '/hello',

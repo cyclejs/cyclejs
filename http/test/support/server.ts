@@ -14,6 +14,8 @@ export function startServer() {
   app.use(bodyParser.json());
   app.use(cookieParser());
 
+  app.post('/upload', require('./multipart'));
+
   app.get('/hello', function(req: any, res: any) {
     setTimeout(function() {
       const contentTypeHeader = req.get('Content-Type');
