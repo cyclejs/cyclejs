@@ -27,8 +27,10 @@
  * - `field` *(Object)*: object where key/values are Form fields.
  * - `progress` *(Boolean)*: whether or not to detect and emit progress events
  * on the response Observable.
- * - `attach` *(Array)*: array of objects, where each object specifies `name`,
- * `path`, and `filename` of a resource to upload.
+ * - `attach` *(Array)*: native browser File objects (their name is used for the
+ * form field and filename), or objects specifying `name`, `path`, and optional
+ * `filename`. A browser `path` may be a Blob/File; a Node.js path is a string.
+ * Let the browser set multipart Content-Type and its boundary automatically.
  * - `withCredentials` *(Boolean)*: enables the ability to send cookies from the
  * origin.
  * - `agent` *(Object)*: an object specifying `cert` and `key` for SSL

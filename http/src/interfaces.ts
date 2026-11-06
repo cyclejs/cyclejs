@@ -3,7 +3,7 @@ import {Response as SuperagentResponse} from 'superagent';
 
 export interface Attachment {
   name: string;
-  path?: string;
+  path?: string | Blob;
   filename?: string;
 }
 
