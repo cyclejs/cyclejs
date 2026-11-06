@@ -58,9 +58,10 @@
     "lint": "tslint --project tsconfig.lint.json --config ../tslint.json",
     "docs": "cd .. && node .scripts/make-api-docs.js run",
     "changelog": "cd .. && node .scripts/update-changelogs.js run",
-    "test": "mocha test/*.ts --require ts-node/register --exit",
+    "test": "mocha test/*.ts --require ts-node/register --exit && pnpm run test-entrypoints",
+    "test-entrypoints": "pnpm run build && node test/entrypoints.js",
     "test-ci": "../.scripts/retry.sh pnpm test",
-    "move-adapt": "cp lib/cjs/adapt.* lib/",
+    "move-adapt": "node scripts/create-adapt-entrypoint.js",
     "prepublishOnly": "pnpm run build && pnpm test"
   },
   "publishConfig": {
