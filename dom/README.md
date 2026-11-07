@@ -1,2 +1,3 @@
 - [**Read the docs here**](https://cycle.js.org/api/dom.html)
+- [Root container migration: matching elements without IDs](./ROOT-CONTAINER-MIGRATION.md)
 - [**Edit the docs here**](https://github.com/cyclejs/cyclejs/blob/master/docs/content/api/dom.md)

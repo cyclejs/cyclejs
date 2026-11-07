@@ -42,6 +42,7 @@
     "changelog": "cd .. && node .scripts/update-changelogs.js dom",
     "test-node": "mocha test/node/*.ts --require ts-node/register --exit",
     "test-browser": "karma start",
+    "test-root-matching": "node test/root-matching-runner.js",
     "test": "pnpm run test-node && pnpm run test-browser",
     "test-ci": "CI=true ../.scripts/retry.sh pnpm test",
     "test-watch": "WATCH=true pnpm test",

@@ -16,7 +16,7 @@ export class VNodeWrapper {
     const vNodeClassName = classNameFromVNode(vnode);
     const vNodeData = vnode.data || {};
     const vNodeDataProps = vNodeData.props || {};
-    const {id: vNodeId = selId} = vNodeDataProps;
+    const {id: vNodeId = selId || ''} = vNodeDataProps;
 
     const isVNodeAndRootElementIdentical =
       typeof vNodeId === 'string' &&
@@ -25,6 +25,8 @@ export class VNodeWrapper {
       vNodeClassName.toUpperCase() === this.rootElement.className.toUpperCase();
 
     if (isVNodeAndRootElementIdentical) {
+      vnode.data = vnode.data || {};
+      vnode.data.isolate = vnode.data.isolate || [];
       return vnode;
     }
 
