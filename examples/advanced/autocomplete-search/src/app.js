@@ -92,6 +92,7 @@ function notBetween(first, second) {
 }
 
 function intent(domSource, timeSource) {
+  // Pointer windows distinguish selecting a suggestion from blurring elsewhere.
   const UP_KEYCODE = 38
   const DOWN_KEYCODE = 40
   const ENTER_KEYCODE = 13

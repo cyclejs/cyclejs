@@ -2,6 +2,7 @@ import {run} from '@cycle/run';
 import {div, label, input, hr, h1, makeDOMDriver} from '@cycle/dom';
 
 function main(sources) {
+  // Seed the input stream so a greeting exists before the first keystroke.
   const vdom$ = sources.DOM
     .select('.myinput').events('input')
     .map(ev => ev.target.value)

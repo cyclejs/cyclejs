@@ -23,6 +23,7 @@ function view(bmi$, weightSliderDOM, heightSliderDOM) {
 }
 
 function BmiCalculator(sources) {
+  // Child components expose both views and values, composed separately below.
   const weightProps$ = xs.of({
     label: 'Weight', unit: 'kg', min: 40, initial: 70, max: 140
   });

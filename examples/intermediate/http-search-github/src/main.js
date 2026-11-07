@@ -6,6 +6,7 @@ import {makeHTTPDriver} from '@cycle/http';
 import {timeDriver} from '@cycle/time';
 
 function main(sources) {
+  // Request categories distinguish search responses from unrelated driver traffic.
   // Requests for Github repositories happen when the input field changes,
   // debounced by 500ms, ignoring empty input field.
   const searchRequest$ = sources.DOM.select('.field').events('input')

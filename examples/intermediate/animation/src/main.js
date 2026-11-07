@@ -21,6 +21,7 @@ const buttonStyle = {
 };
 
 function main(sources) {
+  // Each click selects a fresh concatenated tween sequence through flatten.
   const start$ = sources.DOM.select('.animate').events('click').mapTo();
 
   const leftToRight$ = tween({

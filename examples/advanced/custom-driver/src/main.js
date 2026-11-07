@@ -52,6 +52,7 @@ function view(clicksHistory$) {
 }
 
 function main(sources) {
+  // Emit chart data only; the custom driver owns imperative Chart.js updates.
   const actions = intent(sources.DOM, sources.Time)
   const clicksHistory$ = model(actions)
   const chartData$ = view(clicksHistory$)

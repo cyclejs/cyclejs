@@ -5,6 +5,7 @@ import {timeDriver} from '@cycle/time';
 import {html} from 'snabbdom-jsx';
 
 function main(sources) {
+  // Read time from a driver rather than starting an imperative timer in main.
   const vdom$ = sources.Time.periodic(1000).map(i => i + 1).startWith(0)
     .map(i =>
       <div>Seconds elapsed {i}</div>

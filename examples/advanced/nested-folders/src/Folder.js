@@ -79,6 +79,7 @@ function view(state$, childrenVDOM$) {
 }
 
 const Children = makeCollection({
+  // Reuse Folder recursively, collecting child reducer and view sinks separately.
   item: Folder,
   itemKey: state => state.id,
   itemScope: key => key,
