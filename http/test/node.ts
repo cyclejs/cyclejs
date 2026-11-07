@@ -7,12 +7,14 @@ import {HTTPSource, makeHTTPDriver} from '../src/rxjs';
 import {runTests} from './browser/common';
 import {globalSandbox} from './support/global';
 import {startServer} from './support/server';
+import {runErrorRecoveryTests} from './error-recovery';
 
 declare const process: any;
 process.env.PORT = 5000;
 startServer();
 const uri = 'http://localhost:5000';
 runTests(uri);
+runErrorRecoveryTests();
 
 describe('HTTP Driver in Node.js', function() {
   it('should auto-execute HTTP request when without listening to response stream', function(done) {

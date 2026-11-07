@@ -124,7 +124,66 @@ sources.HTTP
     response$.replaceError(() => xs.of(errorObject))
   ).flatten()
 ```
-For more information, refer to the [xstream documentation for replaceError](https://github.com/staltz/xstream#replaceError) or the [RxJS documention for catch](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/catch.md).
+
+### Keep Listening After a Failed Request
+
+Recover **inside each response stream, before flattening**. The outer stream
+represents current and future requests; one failed response should not replace
+that outer subscription. For example, turn each request into an explicit result:
+
+```js
+const result$ = sources.HTTP.select('search')
+  .map(response$ => response$
+    .map(response => ({ok: true, response}))
+    .replaceError(error => xs.of({ok: false, error}))
+  )
+  .flatten();
+```
+
+Render the `ok: false` result as an error state, and leave the request sink
+connected. A later user action can issue another request with category `search`;
+its response is still observed. Catching an error does not retry a failed request
+and does not itself generate the next request.
+
+With the RxJS HTTP source and RxJS 6 pipeable operators, the equivalent is:
+
+```js
+import {of} from 'rxjs';
+import {catchError, map, mergeMap} from 'rxjs/operators';
+
+const result$ = sources.HTTP.select('search').pipe(
+  mergeMap(response$ => response$.pipe(
+    map(response => ({ok: true, response})),
+    catchError(error => of({ok: false, error}))
+  ))
+);
+```
+
+Here `sources.HTTP` is from `@cycle/http/rxjs` with the RxJS runner, not the
+default xstream source. Each result is tagged so rendering never treats an error
+as a successful response body. Mapping successful response data before recovery
+also lets that response's mapping errors become error results.
+
+### Why an Outer Catch Is Different
+
+`responses$.flatten().replaceError(() => xs.of(fallback))`, or RxJS
+`responses$.pipe(mergeAll(), catchError(() => of(fallback)))`, replaces the
+**entire flattened subscription**. The one-value fallback completes, so that
+subscription no longer observes later response streams. This is not evidence
+that an eager HTTP driver stopped sending requests; distinguish driver activity
+from what the application's result subscription still observes.
+
+Choose flattening behavior separately from error recovery: `mergeMap` observes
+concurrent responses, while `switchMap` observes only the latest. Put recovery
+inside the response in either case. Switching away from a response is not a
+guarantee that an already-started eager HTTP request is aborted. Do not add a
+second driver or duplicate request sink just to display the error.
+
+The HTTP Node tests exercise an actual loopback 500 response followed by a 200
+response for both xstream and RxJS, asserting one network request per URL. Run
+`pnpm run test-node` from `http/` after building the local workspace dependencies.
+
+For operator details, see the [xstream replaceError API](https://github.com/staltz/xstream#replaceerror).
 
 ## More information
 
