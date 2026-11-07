@@ -60,6 +60,11 @@
  */
 export {makeHTTPDriver} from './http-driver';
 export {
+  mockHTTPSource,
+  MockHTTPConfig,
+  MockHTTPResponseStream,
+} from './mockHTTPSource';
+export {
   RequestOptions,
   Attachment,
   RequestInput,

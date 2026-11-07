@@ -126,6 +126,57 @@ sources.HTTP
 ```
 For more information, refer to the [xstream documentation for replaceError](https://github.com/staltz/xstream#replaceError) or the [RxJS documention for catch](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/catch.md).
 
+## Mocking the HTTP Source
+
+Use `mockHTTPSource` to test a component without creating an HTTP driver or making
+network requests. Like `mockDOMSource`, it returns a source for use in `main`:
+
+```js
+import xs from 'xstream';
+import {mockHTTPSource} from '@cycle/http';
+
+const response$ = xs.of({body: {message: 'hello'}, status: 200});
+const HTTP = mockHTTPSource({greeting: xs.of(response$)});
+const sinks = main({HTTP});
+```
+
+The configuration maps category names to **streams of response streams**, not
+direct response values. `HTTP.select('greeting')` selects that category;
+`HTTP.select()` merges all configured categories. Missing categories and an empty
+configuration complete without values. Each inner stream remembers its latest
+response, just as the real HTTP source does. The helper preserves response values
+by identity, including partial objects useful for a component test.
+
+For `filter(request => ...)` or source isolation, attach request metadata to the
+supplied inner stream before creating the mock:
+
+```js
+const response$ = xs.of({body: {message: 'hello'}});
+response$.request = {url: '/greeting', _namespace: ['panel']};
+const HTTP = mockHTTPSource({greeting: xs.of(response$)});
+const matching = HTTP.filter(request => request.url === '/greeting');
+```
+
+The helper copies this metadata onto a new wrapper, without modifying the input
+stream. The configuration key supplies the category; without metadata, the URL
+defaults to `''`. `filter`, `isolateSource`, and `isolateSink` use the existing HTTP
+source implementation, including nested scopes. `select()` returns the selected
+stream, not another source; use `filter(...).select(...)`, not chained selects.
+
+When using the corresponding Cycle runner, import from `@cycle/http/rxjs` or
+`@cycle/http/most` for that source's typed API. Both outer and inner streams use
+the runner's configured adaptation. A supplied inner error remains an inner
+error, while an outer error remains an outer error; recover at the appropriate
+level as with the real source. Supplying a mock does not automatically subscribe
+to its configured streams or issue a request.
+
+This is a source-level fixture, not a request matcher or a transport simulator.
+The returned sink is not automatically connected to the mock: assert sink
+requests separately, and explicitly schedule the response streams your test needs.
+It does not patch SuperAgent, emulate progress/abort behavior, check URLs against
+outgoing requests, or validate a server's protocol. Use real HTTP integration
+tests when those behaviors matter.
+
 ## More information
 
 For a more advanced usage, check the [Search example](https://github.com/cyclejs/cyclejs/tree/master/examples/http-search-github).

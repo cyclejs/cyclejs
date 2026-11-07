@@ -4,6 +4,8 @@ import {
   RequestOptions,
   RequestInput,
   makeHTTPDriver as make,
+  mockHTTPSource as mock,
+  MockHTTPConfig,
 } from './index';
 import {Observable} from 'rxjs';
 import {Stream} from 'xstream';
@@ -23,3 +25,8 @@ export const makeHTTPDriver: () => Driver<
   Stream<RequestInput>,
   HTTPSource
 > = make as any;
+
+export const mockHTTPSource: (
+  config: MockHTTPConfig
+) => HTTPSource = mock as any;
+export {MockHTTPConfig};
