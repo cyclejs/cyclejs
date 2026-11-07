@@ -2,6 +2,7 @@
   "extends": "./tsconfig.json",
   "files": [
     "src/index.ts",
+    "test/browser/root-without-id.ts",
     "test/typings.d.ts",
     "test/browser/dom-driver.ts",
     "test/browser/elements.ts",

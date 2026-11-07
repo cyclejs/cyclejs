@@ -500,9 +500,8 @@ describe('DOMSource.events()', function() {
             assert.strictEqual(elem.className, 'clickable');
             assert.strictEqual(elem.textContent, 'Hello');
             const top = elem.parentElement as Node;
-            const renderTarget2 = top.parentNode as Node;
-            const frag = renderTarget2.parentNode as Node;
-            assert.strictEqual(frag instanceof DocumentFragment, true);
+            assert.strictEqual(top, renderTarget);
+            assert.strictEqual(top.parentNode, fragment);
             done();
           },
         });
