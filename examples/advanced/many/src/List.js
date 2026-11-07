@@ -87,6 +87,7 @@ function makeItemWrapper(DOM) {
 }
 
 function List(sources) {
+  // A proxy closes the feedback loop from dynamic child removal to parent intent.
   const proxyItemRemove$ = xs.create();
   const action$ = intent(sources.DOM, proxyItemRemove$);
   const itemWrapper = makeItemWrapper(sources.DOM);

@@ -3,6 +3,7 @@ import {run} from '@cycle/run';
 import {div, button, p, makeDOMDriver} from '@cycle/dom';
 
 function main(sources) {
+  // Merge signed actions before folding so both buttons share one state stream.
   const action$ = xs.merge(
     sources.DOM.select('.decrement').events('click').map(ev => -1),
     sources.DOM.select('.increment').events('click').map(ev => +1)

@@ -11,6 +11,7 @@ export type Sinks = {
 };
 
 function BmiCalculator(sources: Sources): Sinks {
+  // Separate scopes keep identically named slider selectors independent.
   const WeightSlider = isolate(LabeledSlider) as typeof LabeledSlider;
   const HeightSlider = isolate(LabeledSlider) as typeof LabeledSlider;
 

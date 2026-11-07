@@ -28,6 +28,7 @@ type UserData = {
 };
 
 function main(sources: {DOM: DOMSource, HTTP: HTTPSource}) {
+  // The users category ties outgoing intent to the response streams used below.
   const getRandomUser$ = sources.DOM.select('.get-random').events('click')
     .map(() => {
       const randomNum = Math.round(Math.random() * 9) + 1;

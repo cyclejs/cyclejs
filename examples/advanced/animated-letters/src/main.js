@@ -26,6 +26,7 @@ function model(action$) {
 }
 
 function determineDeltaPoints(state$) {
+  // Diff successive letter sets into entering and leaving animation targets.
   return state$.compose(pairwise).map(([before, after]) => {
     const addedPoints = difference(after, before).map(key =>
       ({key, value: 0, target: 1})

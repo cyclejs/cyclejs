@@ -11,6 +11,7 @@ interface Sinks {
 }
 
 function main(sources: Sources): Sinks {
+  // Seed both fields so validation can render immediately, including invalid state.
   const firstName$ = sources.DOM
     .select('.first')
     .events('input')

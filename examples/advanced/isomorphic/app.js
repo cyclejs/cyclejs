@@ -32,6 +32,7 @@ function renderAboutPage() {
 }
 
 export default function app(sources) {
+  // Merge server-provided initial context with routes selected by browser clicks.
   const click$ = sources.DOM.select('.link').events('click');
 
   const preventedEvent$ = click$;

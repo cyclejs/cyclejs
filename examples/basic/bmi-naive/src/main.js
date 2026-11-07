@@ -3,6 +3,7 @@ import {Observable} from 'rxjs';
 import {div, input, h2, makeDOMDriver} from '@cycle/dom';
 
 function main(sources) {
+  // Initial values let combineLatest derive BMI before either slider moves.
   const changeWeight$ = sources.DOM.select('#weight').events('input')
     .map(ev => ev.target.value);
   const changeHeight$ = sources.DOM.select('#height').events('input')

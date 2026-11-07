@@ -66,6 +66,7 @@ function view(history$) {
 }
 
 function main(sources) {
+  // Navigation commands go to the sink; the driver source supplies current routes.
   const history$ = sources.DOM.select('nav').events('click')
     .map(e => e.target.dataset.page)
     .compose(dropRepeats())
