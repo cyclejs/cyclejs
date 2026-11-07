@@ -4,6 +4,8 @@ import {
   RequestOptions,
   RequestInput,
   makeHTTPDriver as make,
+  mockHTTPSource as mock,
+  MockHTTPConfig,
 } from './index';
 import {Stream} from 'most';
 import xs from 'xstream';
@@ -22,3 +24,8 @@ export const makeHTTPDriver: () => Driver<
   xs<RequestInput>,
   HTTPSource
 > = make as any;
+
+export const mockHTTPSource: (
+  config: MockHTTPConfig
+) => HTTPSource = mock as any;
+export {MockHTTPConfig};
