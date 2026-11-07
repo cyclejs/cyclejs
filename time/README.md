@@ -1,5 +1,18 @@
 # @cycle/time
 
+### Stream-specific package entrypoints
+
+Use `@cycle/time/rxjs` or `@cycle/time/most` for the corresponding stream library.
+Each root entrypoint forwards to its compiled CommonJS module, with a matching
+TypeScript declaration; existing `lib/cjs` and `lib/es6` paths remain available.
+`pnpm run build-cjs` regenerates these root files before publication.
+
+To check the distributable rather than the source tree, build the package, run
+`npm pack --ignore-scripts`, then `pnpm run test-package ./cycle-time-0.21.0.tgz`.
+The test requires `tar` on PATH, unpacks into a fresh temporary consumer directory,
+checks both stream adapters in separate Node processes, and compiles a strict
+TypeScript consumer. It reuses installed dependencies, not an independent install.
+
 > Fast and beautiful tests and time management for Cycle.js
 
 `@cycle/time` is a time driver and tool for testing Cycle.js applications. It works great with `xstream`, `rxjs` and `most`.
