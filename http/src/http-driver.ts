@@ -76,7 +76,11 @@ export function optionsToSuperagent(rawReqOptions: RequestOptions) {
   if (reqOptions.attach) {
     for (let i = reqOptions.attach.length - 1; i >= 0; i--) {
       const a = reqOptions.attach[i];
-      request = request.attach(a.name, a.path, a.filename);
+      if (!a.filename && typeof File !== 'undefined' && a.path instanceof File) {
+        request = request.attach(a.name, a.path, a.path.name);
+      } else {
+        request = request.attach(a.name, a.path as string, a.filename);
+      }
     }
   }
   if (reqOptions.responseType) {
