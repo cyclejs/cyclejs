@@ -255,6 +255,7 @@ export const samp: HyperScriptHelperFn = hh.samp;
 export const script: HyperScriptHelperFn = hh.script;
 export const section: HyperScriptHelperFn = hh.section;
 export const select: HyperScriptHelperFn = hh.select;
+export const slot: HyperScriptHelperFn = hh.slot;
 export const small: HyperScriptHelperFn = hh.small;
 export const source: HyperScriptHelperFn = hh.source;
 export const span: HyperScriptHelperFn = hh.span;
@@ -274,3 +275,24 @@ export const tr: HyperScriptHelperFn = hh.tr;
 export const u: HyperScriptHelperFn = hh.u;
 export const ul: HyperScriptHelperFn = hh.ul;
 export const video: HyperScriptHelperFn = hh.video;
+
+/**
+ * Create a hyperscript helper function for any tag name, including custom
+ * elements. Useful for using Web Components with the DOM driver.
+ *
+ * ```js
+ * import {div, createTagFunction} from '@cycle/dom';
+ *
+ * customElements.define('fancy-button', FancyButton);
+ * const fancyButton = createTagFunction('fancy-button');
+ *
+ * div([
+ *   fancyButton('Hello'),
+ * ])
+ * ```
+ *
+ * @function createTagFunction
+ */
+export const createTagFunction: (
+  tagName: string
+) => HyperScriptHelperFn = hh.createTagFunction;

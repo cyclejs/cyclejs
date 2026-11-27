@@ -9,8 +9,8 @@ function isSelector(param: any): boolean {
   return isValidString(param) && (param[0] === '.' || param[0] === '#');
 }
 
-function createTagFunction(tagName: string): Function {
-  return function hyperscript(a: any, b?: any, c?: any): VNode {
+function createTagFunction(tagName: string): HyperScriptHelperFn {
+  return (function hyperscript(a: any, b?: any, c?: any): VNode {
     const hasA = typeof a !== 'undefined';
     const hasB = typeof b !== 'undefined';
     const hasC = typeof c !== 'undefined';
@@ -31,7 +31,7 @@ function createTagFunction(tagName: string): Function {
     } else {
       return h(tagName, {});
     }
-  };
+  } as any) as HyperScriptHelperFn;
 }
 
 const SVG_TAG_NAMES = [
@@ -205,6 +205,7 @@ const TAG_NAMES = [
   'script',
   'section',
   'select',
+  'slot',
   'small',
   'source',
   'span',
@@ -340,6 +341,7 @@ export interface SVGHelperFn extends HyperScriptHelperFn {
 
 export interface HyperScriptHelpers {
   svg: SVGHelperFn;
+  createTagFunction(tagName: string): HyperScriptHelperFn;
   a: HyperScriptHelperFn;
   abbr: HyperScriptHelperFn;
   address: HyperScriptHelperFn;
@@ -422,6 +424,7 @@ export interface HyperScriptHelpers {
   script: HyperScriptHelperFn;
   section: HyperScriptHelperFn;
   select: HyperScriptHelperFn;
+  slot: HyperScriptHelperFn;
   small: HyperScriptHelperFn;
   source: HyperScriptHelperFn;
   span: HyperScriptHelperFn;
