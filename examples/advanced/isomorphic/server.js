@@ -1,61 +1,55 @@
 import {run} from '@cycle/run';
-import xs from 'xstream';
+import {Stream as xs} from 'xstream';
 import express from 'express';
-import browserify from 'browserify';
+import * as esbuild from 'esbuild';
 import serialize from 'serialize-javascript';
-import {html, head, title, body, div, script, makeHTMLDriver} from '@cycle/dom';
-import app from './app';
+import {h} from 'snabbdom/build/h.js';
+import {makeHTMLDriver} from '@cycle/html';
+import app from './app.js';
 
-function wrapVTreeWithHTMLBoilerplate([vtree, context, clientBundle]) {
-  return (
-    html([
-      head([
-        title('Cycle Isomorphism Example')
-      ]),
-      body([
-        div('.app-container', [vtree]),
-        script(`window.appContext = ${serialize(context)};`),
-        script(clientBundle)
-      ])
-    ])
-  );
+function wrapVTreeWithHTMLBoilerplate([vtree, context]) {
+  return h('html', {}, [
+    h('head', {}, [h('title', {}, 'Cycle Isomorphism Example')]),
+    h('body', {}, [
+      h('div.app-container', {}, [vtree]),
+      h('script', {props: {innerHTML: `window.appContext = ${serialize(context)};`}}),
+      h('script', {attrs: {src: '/client.js'}}),
+    ]),
+  ]);
 }
 
 function prependHTML5Doctype(html) {
   return `<!doctype html>${html}`;
 }
 
-function wrapAppResultWithBoilerplate(appFn, context$, bundle$) {
+function wrapAppResultWithBoilerplate(appFn, context$) {
   return function wrappedAppFn(sources) {
     const vdom$ = appFn(sources).DOM;
-    const wrappedVDOM$ = xs.combine(vdom$, context$, bundle$.take(1))
-      .map(wrapVTreeWithHTMLBoilerplate)
-      .last();
+    const wrappedVDOM$ = xs
+      .combine(vdom$.take(1), context$.take(1))
+      .map(wrapVTreeWithHTMLBoilerplate);
+
     return {
-      DOM: wrappedVDOM$
+      DOM: wrappedVDOM$,
     };
   };
 }
 
-const clientBundle$ = (() => {
-  const bundle$ = xs.createWithMemory();
-  let bundleString = '';
-  const bundleStream = browserify()
-    .transform('babelify')
-    .transform({global: true}, 'uglifyify')
-    .add('./client.js')
-    .bundle();
-  bundleStream.on('data', function (data) {
-    bundleString += data;
-  });
-  bundleStream.on('end', function () {
-    bundle$.shamefullySendNext(bundleString);
-    console.log('Client bundle successfully compiled.');
-  });
-  return bundle$;
-})();
+const bundleResult = await esbuild.build({
+  entryPoints: ['client.js'],
+  bundle: true,
+  minify: true,
+  format: 'iife',
+  platform: 'browser',
+  write: false,
+});
+const clientBundle = bundleResult.outputFiles[0].text;
 
 const server = express();
+
+server.get('/client.js', (req, res) => {
+  res.type('application/javascript').send(clientBundle);
+});
 
 server.use(function (req, res) {
   // Ignore favicon requests
@@ -67,7 +61,7 @@ server.use(function (req, res) {
   console.log(`req: ${req.method} ${req.url}`);
 
   const context$ = xs.of({route: req.url});
-  const wrappedAppFn = wrapAppResultWithBoilerplate(app, context$, clientBundle$);
+  const wrappedAppFn = wrapAppResultWithBoilerplate(app, context$);
 
   run(wrappedAppFn, {
     DOM: makeHTMLDriver(html => res.send(prependHTML5Doctype(html))),

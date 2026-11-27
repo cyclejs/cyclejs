@@ -1,5 +1,13 @@
-import xs from 'xstream';
-import {div, ul, li, a, section, h1, p} from '@cycle/dom';
+import {Stream as xs} from 'xstream';
+import {h} from 'snabbdom/build/h.js';
+
+const ul = children => h('ul', {}, children);
+const li = children => h('li', {}, children);
+const a = (selector, data, text) => h('a' + selector, data, text);
+const section = (selector, children) => h('section' + selector, {}, children);
+const h1 = text => h('h1', {}, text);
+const p = text => h('p', {}, text);
+
 
 function renderMenu() {
   return (
@@ -37,7 +45,7 @@ export default function app(sources) {
   const preventedEvent$ = click$;
 
   const contextFromClick$ = click$
-    .map(ev => ({route: ev.currentTarget.attributes.href.value}));
+    .map(ev => ({route: ev.currentTarget.getAttribute('href')}));
 
   const context$ = xs.merge(sources.context, contextFromClick$);
 
@@ -49,7 +57,7 @@ export default function app(sources) {
       switch (route) {
         case '/': return renderHomePage();
         case '/about': return renderAboutPage();
-        default: return div(`Unknown page ${route}`)
+        default: return h('div', {}, `Unknown page ${route}`);
       }
     });
 
