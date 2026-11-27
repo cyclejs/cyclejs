@@ -5,7 +5,7 @@ export type PreventDefaultOpt = boolean | Predicate | Comparator;
 export type Comparator = {[key: string]: any};
 
 export function fromEvent(
-  element: Element | Document,
+  element: Element | Document | Window,
   eventName: string,
   useCapture = false,
   preventDefault: PreventDefaultOpt = false,
