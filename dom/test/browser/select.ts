@@ -361,4 +361,76 @@ describe('DOMSource.select()', function() {
     assert.strictEqual((event$ as any)._isCycleSource, 'DOM');
     done();
   });
+
+  it('should have DevTools flag in WindowDOMSource element() stream', function(done) {
+    function app(_sources: {DOM: MainDOMSource}) {
+      return {
+        DOM: xs.of(div('hello world')),
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    const element$ = sources.DOM.select('window').element();
+    assert.strictEqual((element$ as any)._isCycleSource, 'DOM');
+    done();
+  });
+
+  it('should have DevTools flag in WindowDOMSource elements() stream', function(done) {
+    function app(_sources: {DOM: MainDOMSource}) {
+      return {
+        DOM: xs.of(div('hello world')),
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    const element$ = sources.DOM.select('window').elements();
+    assert.strictEqual((element$ as any)._isCycleSource, 'DOM');
+    done();
+  });
+
+  it('should have DevTools flag in WindowDOMSource events() stream', function(done) {
+    function app(_sources: {DOM: MainDOMSource}) {
+      return {
+        DOM: xs.of(div('hello world')),
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    const event$ = sources.DOM.select('window').events('click');
+    assert.strictEqual((event$ as any)._isCycleSource, 'DOM');
+    done();
+  });
+
+  it('should emit window events', function(done) {
+    function app(_sources: {DOM: MainDOMSource}) {
+      return {
+        DOM: xs.of(div('hello world')),
+      };
+    }
+
+    const {sinks, sources, run} = setup(app, {
+      DOM: makeDOMDriver(createRenderTarget()),
+    });
+
+    sources.DOM.select('window').events('mouseup').addListener({
+      next: ev => {
+        assert.strictEqual(ev.type, 'mouseup');
+        done();
+      },
+    });
+
+    const event = document.createEvent('Event');
+    event.initEvent('mouseup', true, true);
+    window.dispatchEvent(event);
+  });
+
 });

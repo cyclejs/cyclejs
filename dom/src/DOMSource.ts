@@ -3,6 +3,7 @@ import {PreventDefaultOpt} from './fromEvent';
 import {MainDOMSource} from './MainDOMSource';
 import {DocumentDOMSource} from './DocumentDOMSource';
 import {BodyDOMSource} from './BodyDOMSource';
+import {WindowDOMSource} from './WindowDOMSource';
 
 export interface EventsFnOptions {
   useCapture?: boolean;
@@ -13,4 +14,8 @@ export interface EventsFnOptions {
 
 // There is no MockedDOMSource as its functions return any,
 // which would overshadow the other members, making this union pointless
-export type DOMSource = MainDOMSource | DocumentDOMSource | BodyDOMSource;
+export type DOMSource =
+  | MainDOMSource
+  | DocumentDOMSource
+  | BodyDOMSource
+  | WindowDOMSource;

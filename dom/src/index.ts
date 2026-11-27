@@ -13,7 +13,8 @@ export {MainDOMSource} from './MainDOMSource';
  *
  * **`DOMSource.select(selector)`** returns a new DOMSource with scope
  * restricted to the element(s) that matches the CSS `selector` given. To select
- * the page's `document`, use `.select('document')`. To select the container
+ * the page's `document`, use `.select('document')`. To select the page's
+ * `window`, use `.select('window')`. To select the container
  * element for this app, use `.select(':root')`.
  *
  * **`DOMSource.events(eventType, options)`** returns a stream of events of

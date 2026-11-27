@@ -5,6 +5,7 @@ import {adapt} from '@cycle/run/lib/adapt';
 import {DOMSource, EventsFnOptions} from './DOMSource';
 import {DocumentDOMSource} from './DocumentDOMSource';
 import {BodyDOMSource} from './BodyDOMSource';
+import {WindowDOMSource} from './WindowDOMSource';
 import {VNode} from 'snabbdom';
 import {ElementFinder} from './ElementFinder';
 import {makeIsolateSink, getScopeObj, Scope, IsolateSink} from './isolate';
@@ -14,6 +15,7 @@ import {EventDelegator} from './EventDelegator';
 export interface SpecialSelector {
   body: BodyDOMSource;
   document: DocumentDOMSource;
+  window: WindowDOMSource;
 }
 
 export class MainDOMSource {
@@ -88,6 +90,9 @@ export class MainDOMSource {
     }
     if (selector === 'body') {
       return new BodyDOMSource(this._name);
+    }
+    if (selector === 'window') {
+      return new WindowDOMSource(this._name);
     }
 
     const namespace =
