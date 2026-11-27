@@ -28,7 +28,9 @@
  * - `progress` *(Boolean)*: whether or not to detect and emit progress events
  * on the response Observable.
  * - `attach` *(Array)*: array of objects, where each object specifies `name`,
- * `path`, and `filename` of a resource to upload.
+ * `path`, and `filename` of a resource to upload. In the browser, `path` may
+ * be a `File` or `Blob` object (e.g. from `<input type="file">`), in which
+ * case `filename` defaults to the file's own name.
  * - `withCredentials` *(Boolean)*: enables the ability to send cookies from the
  * origin.
  * - `agent` *(Object)*: an object specifying `cert` and `key` for SSL
